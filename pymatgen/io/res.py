@@ -595,7 +595,7 @@ class ResIO:
 
     Note: Converting from and back to pymatgen objects is expected to be reversible, i.e. you
     should get the same Structure or ComputedStructureEntry back. On the other hand, converting
-    from and back to a string/file is not garunteed to be reversible, i.e. a diff on the output
+    from and back to a string/file is not guaranteed to be reversible, i.e. a diff on the output
     would not be empty. The difference should be limited to whitespace, float precision, and the
     REM entries.
 
