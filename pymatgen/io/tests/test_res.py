@@ -15,9 +15,9 @@ class TestAirssProvider:
         entry = provider.get_cut_grid_gmax_fsbc()
         assert entry is not None
         cut, gs, gm, fsbc = entry
-        assert cut == 326.5366
-        assert gs == 1.75
-        assert gm == 16.201
+        assert cut == pytest.approx(326.5366)
+        assert gs == pytest.approx(1.75)
+        assert gm == pytest.approx(16.201)
         assert fsbc == "automatic"
 
     def test_moks(self, provider: AirssProvider):
@@ -36,13 +36,14 @@ class TestAirssProvider:
 
     def test_titl(self, provider: AirssProvider):
         assert provider.seed == "coc-115925-9326-14"
-        assert provider.energy - -3.90427411e003 < 0.000001
+        assert provider.energy == pytest.approx(-3.90427411e003)
         assert provider.spacegroup_label == "R3"
-        assert provider.pressure - 15 < 1
-        assert provider.volume - 57.051984 < 0.00001
+        assert provider.pressure == pytest.approx(15.0252)
+        assert provider.volume == pytest.approx(57.051984)
 
     def test_lattice(self, provider: AirssProvider):
-        assert provider.lattice.alpha - 49.32125 < 0.000001
+        assert provider.lattice.lengths == pytest.approx((5.07144, 5.07144, 3.89024))
+        assert provider.lattice.angles == pytest.approx((49.32125, 49.32125, 60))
 
     def test_misc(self, provider: AirssProvider):
         rsinfo = provider.get_run_start_info()
@@ -87,5 +88,6 @@ class TestAirssProvider:
 
 class TestStructureModule:
     def test_structure_from_file(self):
-        structure = Structure.from_file(res_coc)
-        assert structure.lattice.alpha - 49.32125 < 0.000001
+        structure: Structure = Structure.from_file(res_coc)
+        # just check that we read it
+        assert structure.lattice.angles == pytest.approx((49.32125, 49.32125, 60))
