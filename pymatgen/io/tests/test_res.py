@@ -2,9 +2,9 @@ import os
 
 import pytest
 
+from pymatgen.core import Structure
 from pymatgen.io.res import AirssProvider, ParseError, ResWriter
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core import Structure
 
 res_coc = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "coc-115925-9326-14.res")
 
