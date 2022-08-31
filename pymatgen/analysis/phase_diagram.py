@@ -2352,8 +2352,7 @@ class PDPlotter:
             plt.axis("off")
             center = (0.5, math.sqrt(3) / 6)
         else:
-            all_coords = labels.keys()
-            miny = min(c[1] for c in all_coords)
+            miny = min(c[1] for c in labels)
             ybuffer = max(abs(miny) * 0.1, 0.1)
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))

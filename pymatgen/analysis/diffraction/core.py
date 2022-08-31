@@ -116,7 +116,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         xrd = self.get_pattern(structure, two_theta_range=two_theta_range)
         imax = max(xrd.y)
 
-        for two_theta, i, hkls, d_hkl in zip(xrd.x, xrd.y, xrd.hkls, xrd.d_hkls):
+        for two_theta, i, hkls in zip(xrd.x, xrd.y, xrd.hkls):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 hkl_tuples = [hkl["hkl"] for hkl in hkls]
                 label = ", ".join([str(hkl_tuple) for hkl_tuple in hkl_tuples])  # 'full' label
@@ -241,7 +241,7 @@ def get_unique_families(hkls):
             unique[hkl1].append(hkl1)
 
     pretty_unique = {}
-    for k, v in unique.items():
+    for v in unique.values():
         pretty_unique[sorted(v)[-1]] = len(v)
 
     return pretty_unique

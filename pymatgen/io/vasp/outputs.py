@@ -3597,7 +3597,7 @@ class VolumetricData(MSONable):
         """
         if self.structure != other.structure:
             warnings.warn("Structures are different. Make sure you know what you are doing...")
-        if self.data.keys() != other.data.keys():
+        if list(self.data) != list(other.data):
             raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
 
         # To add checks
