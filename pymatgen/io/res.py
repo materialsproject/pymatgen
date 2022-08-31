@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Dict, Iterator, List, Literal, Optional, Set, Tuple, Union
 
-import dateutil.parser
+import dateutil.parser # type: ignore
 from monty.io import zopen
 
 from pymatgen.core.lattice import Lattice
@@ -416,7 +416,7 @@ class AirssProvider(ResProvider):
         if match is None:
             raise ParseError(f"Could not parse the date from string {string}.")
         date_string = match.group(0)
-        return dateutil.parser.parse(date_string)
+        return dateutil.parser.parse(date_string) # type: ignore
 
     def _raise_or_none(self, e: ParseError):
         if self.parse_rems != "strict":
