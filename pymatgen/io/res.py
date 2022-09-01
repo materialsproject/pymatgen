@@ -15,7 +15,7 @@ import datetime
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Any, Callable, Literal
 
 import dateutil.parser  # type: ignore
 from monty.io import zopen
@@ -41,16 +41,10 @@ class AirssTITL:
     appearances: int
 
     def __str__(self) -> str:
-        title_fmt = "TITL {:s} {:.2f} {:.4f} {:.5f} {:f} {:f} ({:s}) n - {:d}"
-        return title_fmt.format(
-            self.seed,
-            self.pressure,
-            self.volume,
-            self.energy,
-            self.integrated_spin_density,
-            self.integrated_absolute_spin_density,
-            self.spacegroup_label,
-            self.appearances,
+        return (
+            f"TITL {self.seed:s} {self.pressure:.2f} {self.volume:.4f} {self.energy:.5f} "
+            f"{self.integrated_spin_density:f} {self.integrated_absolute_spin_density:f} ({self.spacegroup_label:s}) "
+            f"n - {self.appearances:d}"
         )
 
 
@@ -65,8 +59,10 @@ class ResCELL:
     gamma: float
 
     def __str__(self) -> str:
-        cell_fmt = "CELL {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f}"
-        return cell_fmt.format(self.unknown_field_1, self.a, self.b, self.c, self.alpha, self.beta, self.gamma)
+        return (
+            f"CELL {self.unknown_field_1:.5f} {self.a:.5f} {self.b:.5f} {self.c:.5f} "
+            f"{self.alpha:.5f} {self.beta:.5f} {self.gamma:.5f}"
+        )
 
 
 @dataclass(frozen=True)
@@ -589,6 +585,9 @@ class AirssProvider(ResProvider):
         Get this res file as a ComputedStructureEntry.
         """
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
+
+    def as_dict(self) -> dict[str, Any]:
+        return dict(**vars(self._res.TITL), structure=self.structure.as_dict(), rems=self.rems)
 
 
 class ResIO:
