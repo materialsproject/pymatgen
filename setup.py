@@ -98,6 +98,7 @@ setup(
         "uncertainties>=3.1.4",
         "pybtex",
         "tqdm",
+        "mp-api>=0.27.0"
     ],
     extras_require={"ase": ["ase>=3.3"], "vis": ["vtk>=6.0.0"], "abinit": ["netcdf4"], "relaxation": ["m3gnet"]},
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
