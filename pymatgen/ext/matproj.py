@@ -28,10 +28,9 @@ from typing import Any, Literal, Sequence
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
+from mp_api.client import MPRester as _MPResterNew
 from ruamel.yaml import YAML
 from tqdm import tqdm
-
-from mp_api.client import MPRester as _MPResterNew
 
 from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
@@ -1755,7 +1754,7 @@ class MPRester:
 
     Note that this barebones class is to handle transition between the old and new API keys in a transparent manner,
     providing backwards compatibility. Use it as you would with normal MPRester usage. If a new API key is detected,
-    the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. Consult the Materials Project documentation 
+    the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. Consult the Materials Project documentation
     at https://docs.materialsproject.org for advice on which API to use.
     """
 
@@ -1765,15 +1764,15 @@ class MPRester:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.
         """
-        
+
         if len(args) > 0:
             api_key = args[0]
         else:
             api_key = kwargs.get("api_key", None)
-            
+
         if api_key is None:
             api_key = SETTINGS.get("PMG_MAPI_KEY", "")
-            
+
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
 
@@ -1781,8 +1780,10 @@ class MPRester:
             return _MPResterNew(*args, **kwargs)
         elif len(api_key) == 16:
             return _MPResterLegacy(*args, **kwargs)
-        
-        raise ValueError(f"API key {api_key} is in an unknown format. Please check your API key at https://materialsproject.org/api")
+
+        raise ValueError(
+            f"API key {api_key} is in an unknown format. Please check your API key at https://materialsproject.org/api"
+        )
 
 
 class MPRestError(Exception):
