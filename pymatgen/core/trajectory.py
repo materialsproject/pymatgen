@@ -12,7 +12,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Tuple, Union
+from typing import Any, Union
 
 import numpy as np
 from monty.io import zopen
@@ -32,8 +32,8 @@ __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
 
-Vector3D = Tuple[float, float, float]
-Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
+Vector3D = tuple[float, float, float]
+Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 SitePropsType = Union[list[dict[Any, list[Any]]], dict[Any, list[Any]]]
 
 
