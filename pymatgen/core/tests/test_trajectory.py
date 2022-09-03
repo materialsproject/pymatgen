@@ -18,7 +18,7 @@ class TrajectoryTest(PymatgenTest):
         self.structures = xdatcar.structures
 
     def _check_traj_equality(self, traj_1, traj_2):
-        if np.sum(np.square(np.subtract(traj_1.lattice, traj_2.lattice))) > 0.0001:
+        if not np.allclose(traj_1.lattice, traj_2.lattice):
             return False
 
         if traj_1.species != traj_2.species:
