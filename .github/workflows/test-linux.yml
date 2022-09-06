@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.9', '3.10']
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         include:
           - pkg: pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
@@ -37,6 +37,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            setup.py
 #      - uses: conda-incubator/setup-miniconda@v2
 #        with:
 #          python-version: 3.9
