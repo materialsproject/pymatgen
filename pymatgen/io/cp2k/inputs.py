@@ -39,6 +39,8 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
+from pymatgen.io.vasp.inputs import Kpoints_supported_modes
 
 __author__ = "Nicholas Winner"
 __version__ = "1.0"
@@ -1582,16 +1584,14 @@ class Coord(Section):
             + "here by default using explicit XYZ coordinates. More complex systems "
             + "should be given via an external coordinate file in the SUBSYS%TOPOLOGY section."
         )
+
         if aliases:
-            keywords = {
-                k[0]: KeywordList([Keyword(k[0], *structure[i].coords) for i in k[1]])
-                for k in sorted(aliases.items(), key=lambda x: x[1])
-            }
-        else:
-            keywords = {
-                ss: KeywordList([Keyword(s.specie.symbol, *s.coords) for s in structure.sites if s.specie.symbol == ss])
-                for ss in structure.symbol_set
-            }
+            aliases = {index: kind for kind, indices in aliases.items() for index in indices}
+
+        keywords = {
+            i: Keyword(aliases[i] if aliases else structure[i].species_string, *structure[i].coords)
+            for i in range(len(structure))
+        }
         super().__init__(
             name="COORD",
             description=description,
@@ -2094,7 +2094,7 @@ class Kpoints(Section):
         )
 
     @classmethod
-    def from_kpoints(cls, kpoints, structure=None, reduce=True):
+    def from_kpoints(cls, kpoints: VaspKpoints, structure=None, reduce=True):
         """
         Initialize the section from a Kpoints object (pymatgen.io.vasp.inputs). CP2K
         does not have an automatic gamma-point constructor, so this is generally used
@@ -2110,14 +2110,14 @@ class Kpoints(Section):
                 do this automatically without spglib present at execution time.
         """
         k = kpoints.as_dict()
-        kpoints = k["kpoints"]
+        kpts = k["kpoints"]
         weights = k["kpts_weights"]
         scheme = k["generation_style"]
 
         if reduce and structure:
             sga = SpacegroupAnalyzer(structure)
-            kpoints, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpoints))
-            kpoints = list(itertools.chain.from_iterable(kpoints))
+            kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))
+            kpts = list(itertools.chain.from_iterable(kpts))
             scheme = "GENERAL"
         elif scheme.lower() == "monkhorst":
             scheme = "MONKHORST-PACK"
@@ -2133,4 +2133,93 @@ class Kpoints(Section):
         else:
             units = "B_VECTOR"
 
-        return Kpoints(kpts=kpoints, weights=weights, scheme=scheme, units=units)
+        return Kpoints(kpts=kpts, weights=weights, scheme=scheme, units=units)
+
+
+class Kpoint_Set(Section):
+
+    """
+    Specifies a kpoint line to be calculated between special points.
+    """
+
+    def __init__(self, npoints: int, kpoints: dict[str, Iterable], units: str = "B_VECTOR") -> None:
+        """
+        Args:
+            npoints (int): Number of kpoints along the line.
+            kpoints: A dictionary of {label: kpoint} kpoints defining the path
+            units (str): Units for the kpoint coordinates.
+                Options: "B_VECTOR" (reciprocal coordinates)
+                         "CART_ANGSTROM" (units of 2*Pi/Angstrom)
+                         "CART_BOHR" (units of 2*Pi/Bohr)
+        """
+
+        self.npoints = npoints
+        self.kpoints = kpoints
+        self.units = units
+
+        keywords = {
+            "NPOINTS": Keyword("NPOINTS", npoints),
+            "UNITS": Keyword("UNITS", units),
+            "SPECIAL_POINT": KeywordList([Keyword("SPECIAL_POINT", kpt, *kpoints[kpt]) for kpt in kpoints]),
+        }
+
+        super().__init__(
+            name="KPOINT_SET",
+            subsections=None,
+            repeats=True,
+            description="Specifies a single k-point line for band structure calculations",
+            keywords=keywords,
+        )
+
+
+class Band_Structure(Section):
+
+    """
+    Specifies high symmetry paths for outputing the band structure in CP2K.
+    """
+
+    def __init__(self, kpoint_sets: Sequence[Kpoint_Set], filename: str = "BAND.bs", added_mos: int = 1000):
+        """
+        Args:
+            kpoint_sets: Sequence of Kpoint_Set objects for the band structure calculation.
+            filename: Filename for the band structure output
+            added_mos: Added (unoccupied) molecular orbitals for the calculation.
+        """
+
+        self.kpoint_sets = SectionList(kpoint_sets)
+        self.filename = filename
+        self.added_mos = added_mos
+
+        keywords = {"FILE_NAME": Keyword("FILE_NAME", filename), "ADDED_MOS": Keyword("ADDED_MOS", added_mos)}
+
+        super().__init__(
+            name="BAND_STRUCTURE",
+            subsections={"KPOINT_SET": self.kpoint_sets},
+            repeats=False,
+            description="Controls printing of band structure calculation",
+            keywords=keywords,
+        )
+
+    # TODO kpoints objects are defined in the vasp module instead of a code agnostic module
+    # if this changes in the future as other codes are added, then this will need to change
+    @staticmethod
+    def from_kpoints(kpoints: VaspKpoints):
+        """
+        Initialize band structure section from a line-mode Kpoint object
+
+        Args:
+            kpoints: a kpoint object from the vasp module, which was constructed in line mode
+        """
+
+        assert kpoints.style == Kpoints_supported_modes.Line_mode
+
+        def pairwise(iterable):
+            a = iter(iterable)
+            return zip(a, a)
+
+        kpoint_sets = [
+            Kpoint_Set(npoints=kpoints.num_kpts, kpoints={lbls[0]: kpts[0], lbls[1]: kpts[1]}, units="B_VECTOR")
+            for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts))
+        ]
+
+        return Band_Structure(kpoint_sets=kpoint_sets, filename="BAND.bs", added_mos=100)
