@@ -2010,6 +2010,8 @@ class Outcar:
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
                 r"maximum and minimum number of plane-waves",
+                last_one_only=False,
+                first_one_only=True,
             )
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
@@ -2165,6 +2167,7 @@ class Outcar:
         postprocess=str,
         attribute_name=None,
         last_one_only=True,
+        first_one_only=False,
     ):
         r"""
         Parse table-like data. A table composes of three parts: header,
@@ -2191,7 +2194,11 @@ class Outcar:
             last_one_only (bool): All the tables will be parsed, if this option
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
-                be returned. Default to be True.
+                be returned. Default to be True. Incompatible with first_one_only.
+            first_one_only (bool): Only the first occurence of the table will be
+                parsed and the parsing procedure will stop. The enclosing list
+                will be removed. i.e. Only a single table will be returned.
+                Incompatible with last_one_only.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
@@ -2199,6 +2206,9 @@ class Outcar:
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
+        if last_one_only and first_one_only:
+            raise ValueError("last_one_only and first_one_only options are incompatible")
+
         with zopen(self.filename, "rt") as f:
             text = f.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
@@ -2220,7 +2230,9 @@ class Outcar:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
             tables.append(table_contents)
-        if last_one_only:
+            if first_one_only:
+                break
+        if last_one_only or first_one_only:
             retained_data = tables[-1]
         else:
             retained_data = tables
