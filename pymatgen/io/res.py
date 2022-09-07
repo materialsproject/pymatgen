@@ -587,8 +587,10 @@ class AirssProvider(ResProvider):
         """
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self, verbose: bool = True) -> dict[str, Any]:
         """Get dict with title fields, structure and rems of this AirssProvider."""
+        if verbose:
+            return super().as_dict()
         return dict(**vars(self._res.TITL), structure=self.structure.as_dict(), rems=self.rems)
 
 
