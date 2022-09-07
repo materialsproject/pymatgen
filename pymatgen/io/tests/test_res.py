@@ -86,7 +86,15 @@ class TestAirssProvider:
             prov.get_castep_version()
 
     def test_as_dict(self, provider: AirssProvider):
-        dct = provider.as_dict()
+        verbose_dict = provider.as_dict(verbose=True)
+
+        assert sorted(verbose_dict) == ["@class", "@module", "@version", "parse_rems", "res"]
+
+        # test round-trip serialization/deserialization gives same dict
+        assert AirssProvider.from_dict(verbose_dict).as_dict() == verbose_dict
+
+        # non-verbose case
+        dct = provider.as_dict(verbose=False)
         assert sorted(dct) == [
             "appearances",
             "energy",
