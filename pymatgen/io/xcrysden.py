@@ -5,8 +5,9 @@
 Support for reading XCrysDen files.
 """
 
-from pymatgen.core.periodic_table import Element
 import numpy as np
+
+from pymatgen.core.periodic_table import Element
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -95,7 +96,7 @@ class XSF:
         lines = input_string.splitlines()
 
         for i, line in enumerate(lines):
-            if 'total energy' in line:
+            if "total energy" in line:
                 energy = float(line.strip().split()[-2])
 
             if "PRIMVEC" in line:
@@ -113,8 +114,8 @@ class XSF:
                         Z = int(tokens[0])
                     species.append(Z)
                     coords.append([float(j) for j in tokens[1:4]])
-                    
-                    if len(tokens) == 7: # force exists
+
+                    if len(tokens) == 7:  # force exists
                         forces.append([float(j) for j in tokens[4:7]])
                 break
         else:
