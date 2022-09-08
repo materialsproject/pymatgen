@@ -572,7 +572,7 @@ class SpacegroupAnalyzer:
         latt_type = self.get_lattice_type()
         sorted_lengths = sorted(latt.abc)
         sorted_dic = sorted(
-            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1, 2]),
+            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in range(3)),
             key=lambda k: k["length"],
         )
 

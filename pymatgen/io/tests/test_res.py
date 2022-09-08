@@ -85,6 +85,34 @@ class TestAirssProvider:
         with pytest.raises(ParseError):
             prov.get_castep_version()
 
+    def test_as_dict(self, provider: AirssProvider):
+        verbose_dict = provider.as_dict(verbose=True)
+
+        assert sorted(verbose_dict) == ["@class", "@module", "@version", "parse_rems", "res"]
+
+        # test round-trip serialization/deserialization gives same dict
+        assert AirssProvider.from_dict(verbose_dict).as_dict() == verbose_dict
+
+        # non-verbose case
+        dct = provider.as_dict(verbose=False)
+        assert sorted(dct) == [
+            "appearances",
+            "energy",
+            "integrated_absolute_spin_density",
+            "integrated_spin_density",
+            "pressure",
+            "rems",
+            "seed",
+            "spacegroup_label",
+            "structure",
+            "volume",
+        ]
+        assert dct["seed"] == "coc-115925-9326-14"
+        assert dct["energy"] == pytest.approx(-3904.2741)
+        assert dct["spacegroup_label"] == "R3"
+        assert dct["pressure"] == pytest.approx(15.0252)
+        assert dct["volume"] == pytest.approx(57.051984)
+
 
 class TestStructureModule:
     def test_structure_from_file(self):
