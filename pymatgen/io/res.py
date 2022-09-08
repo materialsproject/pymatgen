@@ -3,7 +3,7 @@ Provides parsing and read/write support for ShelX .res files as produced by the 
 
 Converting from and back to pymatgen objects is expected to be reversible, i.e. you
 should get the same Structure or ComputedStructureEntry back. On the other hand, converting
-from and back to a string/file is not garunteed to be reversible, i.e. a diff on the output
+from and back to a string/file is not guaranteed to be reversible, i.e. a diff on the output
 would not be empty. The difference should be limited to whitespace, float precision, and the
 REM entries.
 
@@ -15,10 +15,11 @@ import datetime
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Any, Callable, Literal
 
 import dateutil.parser  # type: ignore
 from monty.io import zopen
+from monty.json import MSONable
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -41,16 +42,10 @@ class AirssTITL:
     appearances: int
 
     def __str__(self) -> str:
-        title_fmt = "TITL {:s} {:.2f} {:.4f} {:.5f} {:f} {:f} ({:s}) n - {:d}"
-        return title_fmt.format(
-            self.seed,
-            self.pressure,
-            self.volume,
-            self.energy,
-            self.integrated_spin_density,
-            self.integrated_absolute_spin_density,
-            self.spacegroup_label,
-            self.appearances,
+        return (
+            f"TITL {self.seed:s} {self.pressure:.2f} {self.volume:.4f} {self.energy:.5f} "
+            f"{self.integrated_spin_density:f} {self.integrated_absolute_spin_density:f} ({self.spacegroup_label:s}) "
+            f"n - {self.appearances:d}"
         )
 
 
@@ -65,8 +60,10 @@ class ResCELL:
     gamma: float
 
     def __str__(self) -> str:
-        cell_fmt = "CELL {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f}"
-        return cell_fmt.format(self.unknown_field_1, self.a, self.b, self.c, self.alpha, self.beta, self.gamma)
+        return (
+            f"CELL {self.unknown_field_1:.5f} {self.a:.5f} {self.b:.5f} {self.c:.5f} "
+            f"{self.alpha:.5f} {self.beta:.5f} {self.gamma:.5f}"
+        )
 
 
 @dataclass(frozen=True)
@@ -142,11 +139,11 @@ class ResParser:
         self.source: str = ""
 
     def _parse_titl(self, line: str) -> AirssTITL | None:
-        """Parses the TITL entry. Checks for airss values in the entry."""
+        """Parses the TITL entry. Checks for AIRSS values in the entry."""
         fields = line.split(maxsplit=6)
         if len(fields) >= 6:
-            # this is probably an airss res file
-            seed, pressure, volume, energy, spin, absspin = fields[:6]
+            # this is probably an AIRSS res file
+            seed, pressure, volume, energy, spin, abs_spin = fields[:6]
             spg, nap = "P1", "1"
             if len(fields) == 7:
                 rest = fields[6]
@@ -157,10 +154,10 @@ class ResParser:
                 nmin = rest.find("n -")
                 nap = rest[nmin + 4 :]
             return AirssTITL(
-                seed, float(pressure), float(volume), float(energy), float(spin), float(absspin), spg, int(nap)
+                seed, float(pressure), float(volume), float(energy), float(spin), float(abs_spin), spg, int(nap)
             )
         else:
-            # there should at least be the first 6 fields if it's an airss res file
+            # there should at least be the first 6 fields if it's an AIRSS res file
             # if it doesn't have them, then just stop looking
             return None
 
@@ -243,7 +240,7 @@ class ResParser:
         return self._parse_txt()
 
     @classmethod
-    def _parse_filename(cls, filename: str) -> Res:
+    def _parse_file(cls, filename: str) -> Res:
         """Parses the res file as a file."""
         self = cls()
         self.filename = filename
@@ -327,24 +324,24 @@ class ResWriter:
         return None
 
 
-class ResProvider:
+class ResProvider(MSONable):
     """
     Provides access to elements of the res file in the form of familiar pymatgen objects.
     """
 
-    def __init__(self, res: Res):
+    def __init__(self, res: Res) -> None:
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
         self._res = res
 
     @classmethod
-    def from_str(cls, string: str):
+    def from_str(cls, string: str) -> ResProvider:
         """Construct a Provider from a string."""
         return cls(ResParser._parse_str(string))
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str) -> ResProvider:
         """Construct a Provider from a file."""
-        return cls(ResParser._parse_filename(filename))
+        return cls(ResParser._parse_file(filename))
 
     @property
     def rems(self) -> list[str]:
@@ -360,8 +357,8 @@ class ResProvider:
     @property
     def sites(self) -> list[PeriodicSite]:
         """Construct a list of PeriodicSites from the res file."""
-        sfactag = self._res.SFAC
-        return [PeriodicSite(ion.specie, ion.pos, self.lattice) for ion in sfactag.ions]
+        sfac_tag = self._res.SFAC
+        return [PeriodicSite(ion.specie, ion.pos, self.lattice) for ion in sfac_tag.ions]
 
     @property
     def structure(self) -> Structure:
@@ -373,7 +370,7 @@ class AirssProvider(ResProvider):
     """
     Provides access to the res file as does :class:`ResProvider`. This class additionally provides
     access to fields in the TITL entry and various other fields found in the REM entries
-    that airss puts in the file. Values in the TITL entry that AIRSS could not get end up as 0.
+    that AIRSS puts in the file. Values in the TITL entry that AIRSS could not get end up as 0.
     If the TITL entry is malformed, empty, or missing then attempting to construct this class
     from a res file will raise a ResError.
 
@@ -403,14 +400,14 @@ class AirssProvider(ResProvider):
         self.parse_rems = parse_rems
 
     @classmethod
-    def from_str(cls, string: str, parse_rems: Literal["gentle", "strict"] = "gentle"):
+    def from_str(cls, string: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> AirssProvider:
         """Construct a Provider from a string."""
         return cls(ResParser._parse_str(string), parse_rems)
 
     @classmethod
-    def from_file(cls, filename: str, parse_rems: Literal["gentle", "strict"] = "gentle"):
+    def from_file(cls, filename: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> AirssProvider:
         """Construct a Provider from a file."""
-        return cls(ResParser._parse_filename(filename), parse_rems)
+        return cls(ResParser._parse_file(filename), parse_rems)
 
     @classmethod
     def _parse_date(cls, string: str) -> datetime.date:
@@ -421,10 +418,10 @@ class AirssProvider(ResProvider):
         date_string = match.group(0)
         return dateutil.parser.parse(date_string)  # type: ignore
 
-    def _raise_or_none(self, e: ParseError):
+    def _raise_or_none(self, err: ParseError) -> None:
         if self.parse_rems != "strict":
             return None
-        raise e
+        raise err
 
     def get_run_start_info(self) -> tuple[datetime.date, str] | None:
         """
@@ -438,7 +435,7 @@ class AirssProvider(ResProvider):
                 date = self._parse_date(rem)
                 path = rem.split()[-1]
                 return date, path
-        return self._raise_or_none(ParseError("Could not find run started information."))
+        return self._raise_or_none(ParseError("Could not find run started information."))  # type: ignore
 
     def get_castep_version(self) -> str | None:
         """
@@ -451,7 +448,7 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("CASTEP"):
                 srem = rem.split()
                 return srem[1][:-1]
-        return self._raise_or_none(ParseError("Could not find castep version."))  # type: ignore
+        return self._raise_or_none(ParseError("Could not find CASTEP version."))  # type: ignore
 
     def get_func_rel_disp(self) -> tuple[str, str, str] | None:
         """
@@ -468,7 +465,7 @@ class AirssProvider(ResProvider):
 
     def get_cut_grid_gmax_fsbc(self) -> tuple[float, float, float, str] | None:
         """
-        Retirieves the cut-off energy, grid scale, Gmax, and finite basis set correction setting
+        Retrieves the cut-off energy, grid scale, Gmax, and finite basis set correction setting
         from the REM entries.
 
         Returns:
@@ -484,7 +481,7 @@ class AirssProvider(ResProvider):
         self,
     ) -> tuple[tuple[int, int, int], tuple[float, float, float], int, float] | None:
         """
-        Retrieves the MP grid, the grid offsets, number of kpoints, and maximim kpoint spacing.
+        Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
         Returns:
             (MP grid), (offsets), No. kpts, max spacing)
@@ -509,7 +506,7 @@ class AirssProvider(ResProvider):
                 date = self._parse_date(rem)
                 v = rem.split()[2]
                 return v, date
-        return self._raise_or_none(ParseError("Could not find line with airss version."))  # type: ignore
+        return self._raise_or_none(ParseError("Could not find line with AIRSS version."))  # type: ignore
 
     def _get_compiler(self):
         raise NotImplementedError()
@@ -558,12 +555,12 @@ class AirssProvider(ResProvider):
 
     @property
     def integrated_spin_density(self) -> float:
-        """Corresponds to the last ``Integrated Spin Density`` in the castep file."""
+        """Corresponds to the last ``Integrated Spin Density`` in the CASTEP file."""
         return self._TITL.integrated_spin_density
 
     @property
     def integrated_absolute_spin_density(self) -> float:
-        """Corresponds to the last ``Integrated |Spin Density|`` in the castep file."""
+        """Corresponds to the last ``Integrated |Spin Density|`` in the CASTEP file."""
         return self._TITL.integrated_absolute_spin_density
 
     @property
@@ -589,6 +586,12 @@ class AirssProvider(ResProvider):
         Get this res file as a ComputedStructureEntry.
         """
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
+
+    def as_dict(self, verbose: bool = True) -> dict[str, Any]:
+        """Get dict with title fields, structure and rems of this AirssProvider."""
+        if verbose:
+            return super().as_dict()
+        return dict(**vars(self._res.TITL), structure=self.structure.as_dict(), rems=self.rems)
 
 
 class ResIO:

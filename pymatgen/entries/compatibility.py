@@ -785,7 +785,9 @@ class MaterialsProjectCompatibility(CorrectionsList):
     valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
+    def __init__(
+        self, compat_type: str = "Advanced", correct_peroxide: bool = True, check_potcar_hash: bool = False
+    ) -> None:
         """
         Args:
             compat_type: Two options, GGA or Advanced. GGA means all GGA+U
@@ -828,11 +830,11 @@ class MaterialsProject2020Compatibility(Compatibility):
 
     def __init__(
         self,
-        compat_type="Advanced",
-        correct_peroxide=True,
-        check_potcar_hash=False,
-        config_file=None,
-    ):
+        compat_type: str = "Advanced",
+        correct_peroxide: bool = True,
+        check_potcar_hash: bool = False,
+        config_file: str = None,
+    ) -> None:
         """
         Args:
             compat_type: Two options, GGA or Advanced. GGA means all GGA+U
@@ -883,12 +885,10 @@ class MaterialsProject2020Compatibility(Compatibility):
         # load corrections and uncertainties
         if config_file:
             if os.path.isfile(config_file):
-                self.config_file = config_file
+                self.config_file: str | None = config_file
                 c = loadfn(self.config_file)
             else:
-                raise ValueError(
-                    f"Custom MaterialsProject2020Compatibility config_file ({config_file}) does not exist."
-                )
+                raise ValueError(f"Custom MaterialsProject2020Compatibility {config_file=} does not exist.")
         else:
             self.config_file = None
             c = loadfn(os.path.join(MODULE_DIR, "MP2020Compatibility.yaml"))
@@ -986,20 +986,9 @@ class MaterialsProject2020Compatibility(Compatibility):
                         "formulas, e.g., Li2O2."
                     )
 
-                    common_peroxides = [
-                        "Li2O2",
-                        "Na2O2",
-                        "K2O2",
-                        "Cs2O2",
-                        "Rb2O2",
-                        "BeO2",
-                        "MgO2",
-                        "CaO2",
-                        "SrO2",
-                        "BaO2",
-                    ]
-                    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-                    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+                    common_peroxides = "Li2O2 Na2O2 K2O2 Cs2O2 Rb2O2 BeO2 MgO2 CaO2 SrO2 BaO2".split()
+                    common_superoxides = "LiO2 NaO2 KO2 RbO2 CsO2".split()
+                    ozonides = "LiO3 NaO3 KO3 NaO5".split()
 
                     if rform in common_peroxides:
                         ox_type = "peroxide"
