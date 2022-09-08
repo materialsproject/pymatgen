@@ -33,6 +33,7 @@ Submodules
    pymatgen.analysis.chempot_diagram
    pymatgen.analysis.cost
    pymatgen.analysis.dimensionality
+   pymatgen.analysis.disorder
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
