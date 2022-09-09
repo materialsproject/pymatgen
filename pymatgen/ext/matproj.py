@@ -64,7 +64,7 @@ def get_chunks(sequence: Sequence[Any], size=1):
 
 @unique
 class TaskType(Enum):
-    """task types available in MP"""
+    """task types available in legacy MP data"""
 
     GGA_OPT = "GGA Structure Optimization"
     GGAU_OPT = "GGA+U Structure Optimization"
