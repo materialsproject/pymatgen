@@ -1788,6 +1788,6 @@ class MPRester:
 
 class MPRestError(Exception):
     """
-    Exception class for MPRestAdaptor.
+    Exception class for legacy MPRestAdaptor.
     Raised when the query has problems, e.g., bad query format.
     """
