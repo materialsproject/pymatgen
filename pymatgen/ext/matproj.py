@@ -1750,7 +1750,7 @@ class MPRester:
     pooling. All connections are made via https for security.
 
     For more advanced uses of the Materials API, please consult the API
-    documentation at https://materialsproject.org/api and 
+    documentation at https://materialsproject.org/api and
     https://docs.materialsproject.org.
 
     Note that this barebones class is to handle transition between the old and new API keys in a transparent manner,
