@@ -12,7 +12,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Union, Tuple, List, Dict
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 from monty.io import zopen

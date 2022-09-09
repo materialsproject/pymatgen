@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.8.23 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.9.8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="#" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.8.23
+                2022.9.8
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -208,14 +208,14 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h2>
-<section id="v2022-8-23">
-<h3>v2022.8.23<a class="headerlink" href="#v2022-8-23" title="Permalink to this heading"></a></h3>
+<section id="v2022-9-8">
+<h3>v2022.9.8<a class="headerlink" href="#v2022-9-8" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p>Structure Graphs from Lobster Data (&#64;JaGeo)</p></li>
-<li><p>Added ‘get_orbit_and_generators’-method to SpaceGroup class (&#64;nheinsdorf)</p></li>
-<li><p>Class to handle Thermal displacements matrices (&#64;JaGeo)</p></li>
-<li><p>Change default number of significant digits to write VASP POSCAR (&#64;henriquemiranda)</p></li>
-<li><p>Misc bug fixes.</p></li>
+<li><p>&#64;janosh Add AirssProvider.as_dict</p></li>
+<li><p>&#64;gpetretto Outcar parsing optimization.</p></li>
+<li><p>&#64;ScottNotFound Adds res file io to handle results from airss searches</p></li>
+<li><p>&#64;janosh Fixes the <cite>AttributeError</cite> currently raised when passing disordered structures to methods like <cite>get_cn()</cite> and <cite>get_bonded_structure()</cite> of <cite>CrystalNN</cite> and other <cite>NearNeighbors</cite> subclasses.</p></li>
+<li><p>&#64;naik-aakash Added new option <cite>standard_with_comp_range</cite> for generating lobsterin files using vasp</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
@@ -301,7 +301,7 @@ conda install --yes --channel conda-forge pymatgen
 converting data (structure, calculations, etc.) from various sources (first principles calculations, crystal and
 molecule input files, Materials Project, etc.) into Python objects using pymatgen’s io packages, which are then used to
 perform further structure manipulation or analyses.</p>
-<p>Here are some quick examples of the core capabilities and objects:</p>
+<p id="quick-start">Here are some quick examples of the core capabilities and objects:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen.core</span> <span class="k">as</span> <span class="nn">mg</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
