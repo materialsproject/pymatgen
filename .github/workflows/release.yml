@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -71,18 +71,12 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             setup.py
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -e .
       - name: Release
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
-          pip install setuptools wheel twine
+          pip install --upgrade pip wheel setuptools twine
           python setup.py sdist bdist_wheel
-          twine upload --skip-existing dist/*.whl
-          twine upload --skip-existing dist/*.tar.gz
+          twine upload --skip-existing dist/*.{whl,tar.gz}
         continue-on-error: true

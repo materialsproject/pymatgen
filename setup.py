@@ -35,9 +35,10 @@ for materials analysis. These are some of the main features:
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen's [Github page]
-(https://github.com/materialsproject/pymatgen). For help with any pymatgen
-issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
+reports. Please report any bugs and issues to the [pymatgen repo]. For help with any
+pymatgen issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
+
+[pymatgen repo]: https://github.com/materialsproject/pymatgen
 
 Why use pymatgen?
 =================
@@ -189,5 +190,5 @@ setup(
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },
-    include_dirs=numpy.get_include(),
+    include_dirs=[numpy.get_include()],
 )
