@@ -916,18 +916,18 @@ class DetailedVoronoiContainer(MSONable):
 
         return fig
 
-    def __eq__(self, other):
-        return (
-            self.normalized_angle_tolerance == other.normalized_angle_tolerance
-            and self.normalized_distance_tolerance == other.normalized_distance_tolerance
-            and self.additional_conditions == other.additional_conditions
-            and self.valences == other.valences
-            and self.voronoi_list2 == other.voronoi_list2
-            and self.structure == other.structure
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = (
+            "normalized_angle_tolerance",
+            "normalized_distance_tolerance",
+            "additional_conditions",
+            "valences",
+            "voronoi_list2",
+            "structure",
         )
-
-    def __ne__(self, other):
-        return not self == other
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     def to_bson_voronoi_list2(self):
         """

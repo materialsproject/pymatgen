@@ -74,7 +74,7 @@ class PWInput:
                 except KeyError:
                     raise PWInputError(f"Missing {site} in pseudo specification!")
         else:
-            for species in self.structure.composition.keys():
+            for species in self.structure.composition:
                 if str(species) not in pseudo:
                     raise PWInputError(f"Missing {species} in pseudo specification!")
         self.pseudo = pseudo

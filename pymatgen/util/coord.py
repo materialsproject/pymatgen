@@ -6,17 +6,20 @@ Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
+from __future__ import annotations
 
 import itertools
 import math
-from typing import Tuple
+import typing
 
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.util.typing import ArrayLike
+from pymatgen.util import coord_cython as cuc
 
-from . import coord_cython as cuc
+if typing.TYPE_CHECKING:
+    from pymatgen.util.typing import ArrayLike
+
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
@@ -162,7 +165,7 @@ def all_distances(coords1, coords2):
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: Tuple[bool, bool, bool] = (True, True, True)):
+def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """
     Returns the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
@@ -197,7 +200,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
             coord or any array of coords.
         fcoords2: Second set of fractional coordinates.
         mask (boolean array): Mask of matches that are not allowed.
-            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
         return_d2 (boolean): whether to also return the squared distances
 
@@ -258,7 +261,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
         subset, superset: List of fractional coords
         atol (float or size 3 array): Tolerance for matching
         mask (boolean array): Mask of matches that are not allowed.
-            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
         pbc: a tuple defining the periodic boundary conditions along the three
             axis of the lattice.

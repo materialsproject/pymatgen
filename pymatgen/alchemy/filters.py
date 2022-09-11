@@ -151,14 +151,14 @@ class SpecieProximityFilter(AbstractStructureFilter):
         """
         all_species = set(self.specie_and_min_dist)
         for site in structure:
-            species = site.species.keys()
-            sp_to_test = set(species).intersection(all_species)
+            species = set(site.species)
+            sp_to_test = species.intersection(all_species)
             if sp_to_test:
                 max_r = max(self.specie_and_min_dist[sp] for sp in sp_to_test)
                 nn = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
-                    for nnsite, dist, *_ in nn:
-                        if sp in nnsite.species.keys():
+                    for nn_site, dist, *_ in nn:
+                        if sp in nn_site.species:
                             if dist < self.specie_and_min_dist[sp]:
                                 return False
         return True

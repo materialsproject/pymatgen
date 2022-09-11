@@ -248,7 +248,7 @@ class ConversionElectrode(AbstractElectrode):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
 
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)

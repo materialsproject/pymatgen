@@ -119,19 +119,14 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         """
         return PseudoParser().parse(filename)
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("md5", "Z", "Z_val", "l_max")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
         return (
-            self.md5 == other.md5
+            all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
             and self.__class__ == other.__class__
-            and self.Z == other.Z
-            and self.Z_val == other.Z_val
-            and self.l_max == other.l_max
         )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __repr__(self):
         try:
@@ -1296,7 +1291,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         Root tree of XML.
         """
-        from xml.etree import cElementTree as Et
+        from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
         return tree.getroot()

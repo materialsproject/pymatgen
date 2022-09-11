@@ -47,13 +47,13 @@ class Deformation(SquareTensor):
         obj = super().__new__(cls, deformation_gradient)
         return obj.view(cls)
 
-    def is_independent(self, tol=1e-8):
+    def is_independent(self, tol: float = 1e-8):
         """
         checks to determine whether the deformation is independent
         """
         return len(self.get_perturbed_indices(tol)) == 1
 
-    def get_perturbed_indices(self, tol=1e-8):
+    def get_perturbed_indices(self, tol: float = 1e-8):
         """
         Gets indices of perturbed elements of the deformation gradient,
         i. e. those that differ from the identity

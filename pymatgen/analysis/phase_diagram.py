@@ -5,6 +5,8 @@
 This module defines tools to generate and analyze phase diagrams.
 """
 
+from __future__ import annotations
+
 import collections
 import itertools
 import json
@@ -68,7 +70,7 @@ class PDEntry(Entry):
             attribute: Optional attribute of the entry. Must be MSONable.
         """
         super().__init__(composition, energy)
-        self.name = name if name else self.composition.reduced_formula
+        self.name = name or self.composition.reduced_formula
         self.attribute = attribute
 
     def __repr__(self):
@@ -129,7 +131,7 @@ class GrandPotPDEntry(PDEntry):
         super().__init__(
             entry.composition,
             entry.energy,
-            name if name else entry.name,
+            name or entry.name,
             entry.attribute if hasattr(entry, "attribute") else None,
         )
         # NOTE if we init GrandPotPDEntry from ComputedEntry _energy is the
@@ -222,7 +224,7 @@ class TransformedPDEntry(PDEntry):
         super().__init__(
             entry.composition,
             entry.energy,
-            name if name else entry.name,
+            name or entry.name,
             entry.attribute if hasattr(entry, "attribute") else None,
         )
         self.original_entry = entry
@@ -550,8 +552,8 @@ class PhaseDiagram(MSONable):
         Returns:
             Formation energy from the elemental references.
         """
-        c = entry.composition
-        return entry.energy - sum(c[el] * self.el_refs[el].energy_per_atom for el in c.elements)
+        comp = entry.composition
+        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in entry.composition.elements)
 
     def get_form_energy_per_atom(self, entry):
         """
@@ -1504,7 +1506,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             all_entries.extend(g)
 
         if len(el_refs) != dim:
-            missing = set(elements).difference(el_refs.keys())
+            missing = set(elements).difference(el_refs)
             raise ValueError(f"Terminal entries for: {missing} are missing")
 
         data = np.array(
@@ -1753,7 +1755,7 @@ class ReactionDiagram:
     an electrolyte and an electrode.
     """
 
-    def __init__(self, entry1, entry2, all_entries, tol=1e-4, float_fmt="%.4f"):
+    def __init__(self, entry1, entry2, all_entries, tol: float = 1e-4, float_fmt="%.4f"):
         """
         Args:
             entry1 (ComputedEntry): Entry for 1st component. Note that
@@ -1773,11 +1775,11 @@ class ReactionDiagram:
             float_fmt (str): Formatting string to be applied to all floats.
                 Determines number of decimal places in reaction string.
         """
-        elements = set()
+        elem_set = set()
         for e in [entry1, entry2]:
-            elements.update([el.symbol for el in e.composition.elements])
+            elem_set.update([el.symbol for el in e.composition.elements])
 
-        elements = tuple(elements)  # Fix elements to ensure order.
+        elements = tuple(elem_set)  # Fix elements to ensure order.
 
         comp_vec1 = np.array([entry1.composition.get_atomic_fraction(el) for el in elements])
         comp_vec2 = np.array([entry2.composition.get_atomic_fraction(el) for el in elements])
@@ -1797,7 +1799,7 @@ class ReactionDiagram:
         logger.debug(f"{len(pd.qhull_entries)} qhull_entries")
 
         rxn_entries = []
-        done = []
+        done: list[tuple[float, float]] = []
 
         def fmt(fl):
             return float_fmt % fl
@@ -2296,7 +2298,7 @@ class PDPlotter:
                 # logic. At this moment, I just use the attributes to know
                 # whether an entry is a new compound or an existing (from the
                 #  ICSD or from the MP) one.
-                for x, y in labels.keys():
+                for x, y in labels:
                     if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
@@ -2332,14 +2334,14 @@ class PDPlotter:
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:
-                for x, y in labels.keys():
+                for x, y in labels:
                     if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=12)
                     else:
                         plt.plot(x, y, "*", markerfacecolor=vals_stable[ii], markersize=18)
                     ii += 1
             else:
-                for x, y in labels.keys():
+                for x, y in labels:
                     plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=15)
                     ii += 1
 
@@ -2366,7 +2368,7 @@ class PDPlotter:
             plt.xlabel("Fraction", fontsize=28, fontweight="bold")
             plt.ylabel("Formation energy (eV/atom)", fontsize=28, fontweight="bold")
 
-        for coords in sorted(labels.keys(), key=lambda x: -x[1]):
+        for coords in sorted(labels, key=lambda x: -x[1]):
             entry = labels[coords]
             label = entry.name
 
@@ -2966,14 +2968,8 @@ class PDPlotter:
                 "uncertainties": uncertainties,
             }
 
-        stable_coords, stable_entries = (
-            self.pd_plot_data[1].keys(),
-            self.pd_plot_data[1].values(),
-        )
-        unstable_entries, unstable_coords = (
-            self.pd_plot_data[2].keys(),
-            self.pd_plot_data[2].values(),
-        )
+        stable_coords, stable_entries = zip(*self.pd_plot_data[1].items())
+        unstable_entries, unstable_coords = zip(*self.pd_plot_data[2].items())
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 

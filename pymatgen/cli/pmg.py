@@ -141,7 +141,7 @@ def main():
     )
     parser_config.set_defaults(func=configure_pmg)
 
-    parser_analyze = subparsers.add_parser("analyze", help="Vasp calculation analysis tools.")
+    parser_analyze = subparsers.add_parser("analyze", help="VASP calculation analysis tools.")
     parser_analyze.add_argument(
         "directories",
         metavar="dir",

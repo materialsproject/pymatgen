@@ -157,7 +157,7 @@ class Vasprun(MSONable):
     Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of
     magnitude for larger files (~10Mb).
 
-    **Vasp results**
+    **VASP results**
 
     .. attribute:: ionic_steps
 
@@ -263,7 +263,7 @@ class Vasprun(MSONable):
             }
         ]
 
-    **Vasp inputs**
+    **VASP inputs**
 
     .. attribute:: incar
 
@@ -633,7 +633,7 @@ class Vasprun(MSONable):
         if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
-            while set(final_esteps[i].keys()) == to_check:
+            while set(final_esteps[i]) == to_check:
                 i += 1
             return i + 1 != self.parameters["NELM"]
         return len(final_esteps) < self.parameters["NELM"]
@@ -1020,7 +1020,7 @@ class Vasprun(MSONable):
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
-        if self.separate_spins and len(self.eigenvalues.keys()) != 2:
+        if self.separate_spins and len(self.eigenvalues) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
         for d in self.eigenvalues.values():
@@ -1049,7 +1049,7 @@ class Vasprun(MSONable):
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def calculate_efermi(self, tol=0.001):
+    def calculate_efermi(self, tol: float = 0.001):
         """
         Calculate the Fermi level using a robust algorithm.
 
@@ -1735,7 +1735,7 @@ class Outcar:
 
     .. attribute:: is_stopped
 
-        True if OUTCAR is from a stopped run (using STOPCAR, see Vasp Manual).
+        True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
 
     .. attribute:: run_stats
 
@@ -1968,9 +1968,7 @@ class Outcar:
             # TODO: detect spin axis
             mag = []
             for idx in range(len(mag_x)):
-                mag.append(
-                    {key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0].keys()}
-                )
+                mag.append({key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]})
         else:
             mag = mag_x
 
@@ -2012,6 +2010,8 @@ class Outcar:
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
                 r"maximum and minimum number of plane-waves",
+                last_one_only=False,
+                first_one_only=True,
             )
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
@@ -2156,7 +2156,7 @@ class Outcar:
             terminate_on_match=terminate_on_match,
             postprocess=postprocess,
         )
-        for k in patterns.keys():
+        for k in patterns:
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(
@@ -2167,6 +2167,7 @@ class Outcar:
         postprocess=str,
         attribute_name=None,
         last_one_only=True,
+        first_one_only=False,
     ):
         r"""
         Parse table-like data. A table composes of three parts: header,
@@ -2193,7 +2194,11 @@ class Outcar:
             last_one_only (bool): All the tables will be parsed, if this option
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
-                be returned. Default to be True.
+                be returned. Default to be True. Incompatible with first_one_only.
+            first_one_only (bool): Only the first occurence of the table will be
+                parsed and the parsing procedure will stop. The enclosing list
+                will be removed. i.e. Only a single table will be returned.
+                Incompatible with last_one_only.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
@@ -2201,6 +2206,9 @@ class Outcar:
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
+        if last_one_only and first_one_only:
+            raise ValueError("last_one_only and first_one_only options are incompatible")
+
         with zopen(self.filename, "rt") as f:
             text = f.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
@@ -2222,7 +2230,9 @@ class Outcar:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
             tables.append(table_contents)
-        if last_one_only:
+            if first_one_only:
+                break
+        if last_one_only or first_one_only:
             retained_data = tables[-1]
         else:
             retained_data = tables
@@ -3515,7 +3525,7 @@ class VolumetricData(MSONable):
         # convert data to numpy arrays incase they were jsanitized as lists
         self.data = {k: np.array(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
-        self.data_aug = data_aug if data_aug else {}
+        self.data_aug = data_aug or {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
@@ -3594,7 +3604,7 @@ class VolumetricData(MSONable):
 
         # To add checks
         data = {}
-        for k in self.data.keys():
+        for k in self.data:
             data[k] = self.data[k] + scale_factor * other.data[k]
         return VolumetricData(self.structure, data, self._distance_matrix)
 
@@ -3726,8 +3736,8 @@ class VolumetricData(MSONable):
             """
             s = f"{f:.10E}"
             if f >= 0:
-                return "0." + s[0] + s[2:12] + "E" + f"{int(s[13:]) + 1:+03}"
-            return "-." + s[1] + s[3:13] + "E" + f"{int(s[14:]) + 1:+03}"
+                return f"0.{s[0]}{s[2:12]}E{int(s[13:]) + 1:+03}"
+            return f"-.{s[1]}{s[3:13]}E{int(s[14:]) + 1:+03}"
 
         with zopen(file_name, "wt") as f:
             p = Poscar(self.structure)
@@ -4117,7 +4127,7 @@ class Procar:
         """
         headers = None
 
-        with zopen(filename, "rt") as f:
+        with zopen(filename, "rt") as file_handle:
             preambleexpr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of " r"ions:\s*(\d+)")
             kpointexpr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile(r"^band\s+(\d+)")
@@ -4129,39 +4139,35 @@ class Procar:
             spin = Spin.down
             weights = None
             # pylint: disable=E1137
-            for l in f:
-                l = l.strip()
-                if bandexpr.match(l):
-                    m = bandexpr.match(l)
+            for line in file_handle:
+                line = line.strip()
+                if bandexpr.match(line):
+                    m = bandexpr.match(line)
                     current_band = int(m.group(1)) - 1
                     done = False
-                elif kpointexpr.match(l):
-                    m = kpointexpr.match(l)
+                elif kpointexpr.match(line):
+                    m = kpointexpr.match(line)
                     current_kpoint = int(m.group(1)) - 1
                     weights[current_kpoint] = float(m.group(2))
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
-                elif headers is None and ionexpr.match(l):
-                    headers = l.split()
+                elif headers is None and ionexpr.match(line):
+                    headers = line.split()
                     headers.pop(0)
                     headers.pop(-1)
 
-                    def ff():
-                        return np.zeros((nkpoints, nbands, nions, len(headers)))
+                    data = defaultdict(lambda: np.zeros((nkpoints, nbands, nions, len(headers))))
 
-                    data = defaultdict(ff)
-
-                    def f2():
-                        return np.full(
+                    phase_factors = defaultdict(
+                        lambda: np.full(
                             (nkpoints, nbands, nions, len(headers)),
                             np.NaN,
                             dtype=np.complex128,
                         )
-
-                    phase_factors = defaultdict(f2)
-                elif expr.match(l):
-                    toks = l.split()
+                    )
+                elif expr.match(line):
+                    toks = line.split()
                     index = int(toks.pop(0)) - 1
                     num_data = np.array([float(t) for t in toks[: len(headers)]])
                     if not done:
@@ -4180,10 +4186,10 @@ class Procar:
                                 phase_factors[spin][current_kpoint, current_band, index, :] = num_data
                             else:
                                 phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
-                elif l.startswith("tot"):
+                elif line.startswith("tot"):
                     done = True
-                elif preambleexpr.match(l):
-                    m = preambleexpr.match(l)
+                elif preambleexpr.match(line):
+                    m = preambleexpr.match(line)
                     nkpoints = int(m.group(1))
                     nbands = int(m.group(2))
                     nions = int(m.group(3))
@@ -4208,7 +4214,7 @@ class Procar:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
         dico = {}
-        for spin in self.data.keys():
+        for spin in self.data:
             dico[spin] = [[defaultdict(float) for i in range(self.nkpoints)] for j in range(self.nbands)]
 
         for iat in range(self.nions):
@@ -4401,7 +4407,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     "branch_x". If the run has not been divided in branches the method will
     turn to parsing vasprun.xml directly.
 
-    The method returns None is there"s a parsing error
+    The method returns None is there's a parsing error
 
     Args:
         dir_name: Directory containing all bandstructure runs.
@@ -5470,7 +5476,7 @@ class Eigenval:
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
-        if self.separate_spins and len(self.eigenvalues.keys()) != 2:
+        if self.separate_spins and len(self.eigenvalues) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
         for d in self.eigenvalues.values():
@@ -5724,11 +5730,22 @@ class WSWQ(MSONable):
     me_real: np.ndarray
     me_imag: np.ndarray
 
+    @property
+    def data(self):
+        """Complex overlap matrix."""
+        return self.me_real + 1j * self.me_imag
+
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename) -> WSWQ:
+        """Constructs a WSWQ object from a file.
+
+        Args:
+            filename: Name of WSWQ file.
+
+        Returns:
+            WSWQ object.
         """
-        Search for lines containing "spin"
-        """
+        # Grab the spin and kpoint values from lines containing "spin"
         spin_res = regrep(
             filename,
             {"spin": r"spin\s*=\s*(\d+)\s?\,\s?kpoint\s*=\s*(\d+)"},
@@ -5737,6 +5754,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["spin"]
         (nspin, nkpoints), _ = spin_res[0]
+        # Grab the index values from the parts with "i    =" and "j    ="
         ij_res = regrep(
             filename,
             {"ij": r"i\s*=\s*(\d+)\s?\,\s?j\s*=\s*(\d+)"},
@@ -5745,6 +5763,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["ij"]
         (nbands, _), _ = ij_res[0]
+        # Grab the matrix elements from the parts after the ":"
         data_res = regrep(
             filename,
             {"data": r"\:\s*([-+]?\d*\.\d+)\s+([-+]?\d*\.\d+)"},

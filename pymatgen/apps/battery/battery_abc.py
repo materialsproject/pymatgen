@@ -400,7 +400,7 @@ class AbstractElectrode(Sequence, MSONable):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
 
         d = {

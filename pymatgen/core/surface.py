@@ -196,7 +196,7 @@ class Slab(Structure):
             site_properties=self.site_properties,
         )
 
-    def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
+    def get_tasker2_slabs(self, tol: float = 0.01, same_species_only=True):
         """
         Get a list of slabs that have been Tasker 2 corrected.
 
@@ -297,7 +297,7 @@ class Slab(Structure):
         unique = [ss[0] for ss in s.group_structures(slabs)]
         return unique
 
-    def is_symmetric(self, symprec=0.1):
+    def is_symmetric(self, symprec: float = 0.1):
         """
         Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
             or screw axis (rotation and translation) about [hkl].
@@ -571,7 +571,7 @@ class Slab(Structure):
 
         for i in unique_indices:
             el = ucell[i].species_string
-            if el not in cn_dict.keys():
+            if el not in cn_dict:
                 cn_dict[el] = []
             # Since this will get the cn as a result of the weighted polyhedra, the
             # slightest difference in cn will indicate a different environment for a
@@ -928,7 +928,7 @@ class SlabGenerator:
         self._proj_height = abs(np.dot(normal, c))
         self.reorient_lattice = reorient_lattice
 
-    def get_slab(self, shift=0, tol=0.1, energy=None):
+    def get_slab(self, shift=0, tol: float = 0.1, energy=None):
         """
         This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
@@ -1021,7 +1021,7 @@ class SlabGenerator:
             reorient_lattice=self.reorient_lattice,
         )
 
-    def _calculate_possible_shifts(self, tol=0.1):
+    def _calculate_possible_shifts(self, tol: float = 0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
 
@@ -1187,7 +1187,7 @@ class SlabGenerator:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
 
-        for pair in bonds.keys():
+        for pair in bonds:
             blength = bonds[pair]
 
             # First lets determine which element should be the
@@ -1472,7 +1472,7 @@ class ReconstructionGenerator:
             EQUIVALENT SURFACES.
         """
 
-        if reconstruction_name not in reconstructions_archive.keys():
+        if reconstruction_name not in reconstructions_archive:
             raise KeyError(
                 f"The reconstruction_name entered ({reconstruction_name}) does not exist in the "
                 f"archive. Please select from one of the following reconstructions: {list(reconstructions_archive)} "
@@ -1484,17 +1484,17 @@ class ReconstructionGenerator:
         # from the reconstruction_archive
         recon_json = copy.deepcopy(reconstructions_archive[reconstruction_name])
         new_points_to_add, new_points_to_remove = [], []
-        if "base_reconstruction" in recon_json.keys():
-            if "points_to_add" in recon_json.keys():
+        if "base_reconstruction" in recon_json:
+            if "points_to_add" in recon_json:
                 new_points_to_add = recon_json["points_to_add"]
-            if "points_to_remove" in recon_json.keys():
+            if "points_to_remove" in recon_json:
                 new_points_to_remove = recon_json["points_to_remove"]
 
             # Build new instructions from a base reconstruction
             recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
-            if "points_to_add" in recon_json.keys():
+            if "points_to_add" in recon_json:
                 del recon_json["points_to_add"]
-            if "points_to_remove" in recon_json.keys():
+            if "points_to_remove" in recon_json:
                 del recon_json["points_to_remove"]
             if new_points_to_add:
                 recon_json["points_to_add"] = new_points_to_add
@@ -1534,7 +1534,7 @@ class ReconstructionGenerator:
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
             # Remove any specified sites
-            if "points_to_remove" in self.reconstruction_json.keys():
+            if "points_to_remove" in self.reconstruction_json:
                 pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
                 for p in pts_to_rm:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
@@ -1544,7 +1544,7 @@ class ReconstructionGenerator:
                     slab.symmetrically_remove_atoms([site1])
 
             # Add any specified sites
-            if "points_to_add" in self.reconstruction_json.keys():
+            if "points_to_add" in self.reconstruction_json:
                 pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
                 for p in pts_to_add:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
@@ -1838,7 +1838,7 @@ def generate_all_slabs(
         # enumerate through all posisble reconstructions in the
         # archive available for this particular structure (spacegroup)
         for name, instructions in reconstructions_archive.items():
-            if "base_reconstruction" in instructions.keys():
+            if "base_reconstruction" in instructions:
                 instructions = reconstructions_archive[instructions["base_reconstruction"]]
             if instructions["spacegroup"]["symbol"] == symbol:
                 # check if this reconstruction has a max index

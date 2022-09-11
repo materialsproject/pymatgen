@@ -129,7 +129,7 @@ class PackmolBoxGen(InputGenerator):
         self.inputfile = inputfile
         self.outputfile = outputfile
         self.stdoutfile = stdoutfile
-        self.control_params = control_params if control_params else {}
+        self.control_params = control_params or {}
         self.tolerance = tolerance
         self.seed = seed
 

@@ -33,7 +33,7 @@ class SymmOp(MSONable):
         A 4x4 numpy.array representing the symmetry operation.
     """
 
-    def __init__(self, affine_transformation_matrix: ArrayLike, tol=0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01):
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are

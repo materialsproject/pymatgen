@@ -827,7 +827,7 @@ class OutcarTest(PymatgenTest):
             self.assertFalse(outcar.lepsilon)
 
             toten = 0
-            for k in outcar.final_energy_contribs.keys():
+            for k in outcar.final_energy_contribs:
                 toten += outcar.final_energy_contribs[k]
             self.assertAlmostEqual(toten, outcar.final_energy, 6)
 
@@ -1217,7 +1217,7 @@ class OutcarTest(PymatgenTest):
         ]
         self.assertEqual(len(outcar.data["efg"][2:10]), len(expected_efg))
         for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
-            for k in e1.keys():
+            for k in e1:
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
         exepected_tensors = [
@@ -1542,6 +1542,34 @@ class OutcarTest(PymatgenTest):
         self.assertAlmostEqual(o.final_energy, -15.89364691)
         self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
         self.assertAlmostEqual(o.final_fr_energy, -15.92115453)
+
+    def test_read_table_pattern(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
+
+        header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
+        table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
+        footer_pattern = r"\s+E-fermi :"
+
+        pots = outcar.read_table_pattern(header_pattern, table_pattern, footer_pattern, last_one_only=True)
+        ref_last = [
+            ["       1 -26.0704       2 -45.5046       3 -45.5046       4 -72.9539       5 -73.0621"],
+            ["       6 -72.9539       7 -73.0621"],
+        ]
+        self.assertEqual(pots, ref_last)
+
+        pots = outcar.read_table_pattern(
+            header_pattern, table_pattern, footer_pattern, last_one_only=False, first_one_only=True
+        )
+        ref_first = [
+            ["       1 -26.1149       2 -45.5359       3 -45.5359       4 -72.9831       5 -73.1068"],
+            ["       6 -72.9831       7 -73.1068"],
+        ]
+        self.assertEqual(pots, ref_first)
+
+        with self.assertRaises(ValueError):
+            outcar.read_table_pattern(
+                header_pattern, table_pattern, footer_pattern, last_one_only=True, first_one_only=True
+            )
 
 
 class BSVasprunTest(PymatgenTest):

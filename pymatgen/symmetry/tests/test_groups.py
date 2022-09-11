@@ -124,6 +124,16 @@ class SpaceGroupTest(unittest.TestCase):
         p = np.random.randint(0, 100 + 1, size=(3,)) / 100
         self.assertLessEqual(len(sg.get_orbit(p)), sg.order)
 
+    def test_get_orbit_and_generators(self):
+        sg = SpaceGroup("Fm-3m")
+        p = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        orbit, generators = sg.get_orbit_and_generators(p)
+        self.assertLessEqual(len(orbit), sg.order)
+        pp = generators[0].operate(orbit[0])
+        self.assertAlmostEqual(p[0], pp[0])
+        self.assertAlmostEqual(p[1], pp[1])
+        self.assertAlmostEqual(p[2], pp[2])
+
     def test_is_compatible(self):
         cubic = Lattice.cubic(1)
         hexagonal = Lattice.hexagonal(1, 2)

@@ -583,7 +583,7 @@ class LammpsData(MSONable):
                 nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
 
             topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
-            for kw in topo_coeffs.keys():
+            for kw in topo_coeffs:
                 class2_coeffs = {
                     k: list(v.itertuples(False, None))
                     for k, v in self.force_field.items()
@@ -952,7 +952,7 @@ class Topology(MSONable):
         self.species = set(type_by_sites)
 
     @classmethod
-    def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True, tol=0.1, **kwargs):
+    def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True, tol: float = 0.1, **kwargs):
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -1003,8 +1003,7 @@ class Topology(MSONable):
 
         topologies = {
             k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0
-        }
-        topologies = None if len(topologies) == 0 else topologies
+        } or None
         return cls(sites=molecule, topologies=topologies, **kwargs)
 
 
@@ -1096,7 +1095,7 @@ class ForceField(MSONable):
         self.topo_coeffs = topo_coeffs
         if self.topo_coeffs:
             self.topo_coeffs = {k: v for k, v in self.topo_coeffs.items() if k in SECTION_KEYWORDS["ff"][2:]}
-            for k in self.topo_coeffs.keys():
+            for k in self.topo_coeffs:
                 coeffs, mapper = self._process_topo(k)
                 ff_dfs.update(coeffs)
                 self.maps.update(mapper)
@@ -1131,11 +1130,11 @@ class ForceField(MSONable):
             return [label] + [label[::-1]]
 
         main_data, distinct_types = [], []
-        class2_data = {k: [] for k in self.topo_coeffs[kw][0].keys() if k in CLASS2_KEYWORDS.get(kw, [])}
+        class2_data = {k: [] for k in self.topo_coeffs[kw][0] if k in CLASS2_KEYWORDS.get(kw, [])}
         for d in self.topo_coeffs[kw]:
             main_data.append(d["coeffs"])
             distinct_types.append(d["types"])
-            for k in class2_data.keys():
+            for k in class2_data:
                 class2_data[k].append(d[k])
         distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
         type_counts = sum(len(dt) for dt in distinct_types)

@@ -13,7 +13,7 @@ import math
 import os
 import re
 import warnings
-from typing import Any, Dict
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -24,16 +24,19 @@ from monty.json import MSONable, jsanitize
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
+from pymatgen.io.qchem.utils import (
+    process_parsed_coords,
+    read_pattern,
+    read_table_pattern,
+)
 
 try:
-    from openbabel import openbabel
 
     have_babel = True
 except ImportError:
     openbabel = None
     have_babel = False
 
-from .utils import process_parsed_coords, read_pattern, read_table_pattern
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -56,7 +59,7 @@ class QCOutput(MSONable):
             filename (str): Filename to parse
         """
         self.filename = filename
-        self.data = {}  # type: Dict[str, Any]
+        self.data: dict[str, Any] = {}
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""

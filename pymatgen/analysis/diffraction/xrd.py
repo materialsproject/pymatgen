@@ -13,14 +13,13 @@ from math import asin, cos, degrees, pi, radians, sin
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from .core import (
+from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,
     get_unique_families,
 )
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -112,7 +111,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     # Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
-    def __init__(self, wavelength="CuKa", symprec=0, debye_waller_factors=None):
+    def __init__(self, wavelength="CuKa", symprec: float = 0, debye_waller_factors=None):
         """
         Initializes the XRD calculator with a given radiation.
 

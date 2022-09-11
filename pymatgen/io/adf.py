@@ -353,12 +353,6 @@ class AdfKey(MSONable):
             d.update({"subkeys": subkeys})
         return d
 
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfKey object.
-        """
-        return super().to_json()
-
     @classmethod
     def from_dict(cls, d):
         """
@@ -506,7 +500,7 @@ class AdfTask(MSONable):
             User-defined directives.
 
         """
-        if operation not in self.operations.keys():
+        if operation not in self.operations:
             raise AdfInputError(f"Invalid ADF task {operation}")
         self.operation = operation
         self.title = title
@@ -613,12 +607,6 @@ class AdfTask(MSONable):
             "geo": self.geo.as_dict(),
             "others": [k.as_dict() for k in self.other_directives],
         }
-
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfTask object.
-        """
-        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -969,7 +957,7 @@ class AdfOutput:
                         parse_mode = True
                         parse_freq = False
                         self.frequencies.extend(map(float, el))
-                        for i in range(nnext):
+                        for _ in range(nnext):
                             self.normal_modes.append([])
 
                 elif parse_mode:

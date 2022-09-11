@@ -7,6 +7,7 @@ another structure. Site transformations differ from standard transformations
 in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -331,12 +332,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         to_delete = []
 
         totalremovals = sum(num_remove_dict.values())
-        removed = {k: 0 for k in num_remove_dict.keys()}
+        removed = {k: 0 for k in num_remove_dict}
         for _ in range(totalremovals):
             max_idx = None
             maxe = float("-inf")
             maxindices = None
-            for indices in num_remove_dict.keys():
+            for indices in num_remove_dict:
                 if removed[indices] < num_remove_dict[indices]:
                     for ind in indices:
                         if ind not in to_delete:
@@ -569,7 +570,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
             Returns a copy of structure with sites properties added.
         """
         new_structure = structure.copy()
-        for prop in self.site_properties.keys():
+        for prop in self.site_properties:
             new_structure.add_site_property(prop, self.site_properties[prop])
         return new_structure
 
