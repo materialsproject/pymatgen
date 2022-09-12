@@ -308,7 +308,7 @@ class SlabEntry(ComputedStructureEntry):
         adsorbates = d["adsorbates"]
         clean_entry = d["clean_entry"]
 
-        return SlabEntry(
+        return cls(
             structure,
             energy,
             miller_index,
@@ -1067,7 +1067,7 @@ class SurfaceEnergyPlotter:
 
     def monolayer_vs_BE(self, plot_eads=False):
         """
-        Plots the binding energy energy as a function of monolayers (ML), i.e.
+        Plots the binding energy as a function of monolayers (ML), i.e.
             the fractional area adsorbate density for all facets. For each
             facet at a specific monlayer, only plot the lowest binding energy.
 
@@ -1290,7 +1290,7 @@ class SurfaceEnergyPlotter:
                     # Shade the threshold and region at which se<=0
                     plt.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
                 elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0:
-                    # Any chempot at at this point will result
+                    # Any chempot at this point will result
                     # in se<0, shade the entire y range
                     if not show_unphyiscal_only:
                         plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")

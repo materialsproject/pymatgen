@@ -907,7 +907,7 @@ class KSampling(AbivarAble, MSONable):
 
             sp = HighSymmKpath(structure)
 
-            # Flat the array since "path" is a a list of lists!
+            # Flat the array since "path" is a list of lists!
             kpath_labels = []
             for labels in sp.kpath["path"]:
                 kpath_labels.extend(labels)

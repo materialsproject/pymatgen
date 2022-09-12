@@ -2141,7 +2141,7 @@ class IStructure(SiteCollection, MSONable):
         for size, ms in get_hnf(num_fu):
             inv_ms = np.linalg.inv(ms)
 
-            # find sets of lattice vectors that are are present in min_vecs
+            # find sets of lattice vectors that are present in min_vecs
             dist = inv_ms[:, :, None, :] - min_vecs[None, None, :, :]
             dist -= np.round(dist)
             np.abs(dist, dist)
