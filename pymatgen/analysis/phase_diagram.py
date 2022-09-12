@@ -344,7 +344,7 @@ class PhaseDiagram(MSONable):
                 energy, energy_per_atom and composition.
             elements ([Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
-                the the entries themselves and are sorted alphabetically.
+                the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
             computed_data (dict): A dict containing pre-computed data. This allows
@@ -1291,7 +1291,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 of the open elements.
             elements ([Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
-                the the entries themselves.
+                the entries themselves.
         """
         if elements is None:
             elements = {els for e in entries for els in e.composition.elements}
@@ -1478,7 +1478,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 energy, energy_per_atom and composition.
             elements ([Element, ], optional): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
-                the the entries themselves and are sorted alphabetically.
+                the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
             keep_all_spaces (bool): Boolean control on whether to keep chemical spaces

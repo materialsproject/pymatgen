@@ -111,17 +111,3 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
         **kwargs: Any of the keyword arguments supported by PmgPickler
     """
     return PmgPickler(filobj, **kwargs).dump(obj)
-
-
-class SlotPickleMixin:
-    """
-    This mixin makes it possible to pickle/unpickle objects with __slots__
-    defined.
-    """
-
-    def __getstate__(self):
-        return {slot: getattr(self, slot) for slot in self.__slots__ if hasattr(self, slot)}
-
-    def __setstate__(self, state):
-        for slot, value in state.items():
-            setattr(self, slot, value)

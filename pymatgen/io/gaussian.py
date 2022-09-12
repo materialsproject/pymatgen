@@ -520,7 +520,7 @@ class GaussianInput:
         :param d: dict
         :return: GaussianInput
         """
-        return GaussianInput(
+        return cls(
             mol=Molecule.from_dict(d["molecule"]),
             functional=d["functional"],
             basis_set=d["basis_set"],

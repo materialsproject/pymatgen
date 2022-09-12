@@ -1107,7 +1107,7 @@ class IsayevNN(VoronoiNN):
         """
         Get all near-neighbor site information.
 
-        Gets the the associated image locations and weights of the site with index n
+        Gets the associated image locations and weights of the site with index n
         in structure using Voronoi decomposition and distance cutoff.
 
         Args:

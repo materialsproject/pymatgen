@@ -816,7 +816,7 @@ def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool 
         must_inc_2 (bool): 2 must be a prime factor of the result
 
     Returns:
-        int: first product of of the prime_factors that is >= n
+        int: first product of the prime_factors that is >= n
     """
     if max_prime_factor < 2:
         raise ValueError("Must choose a maximum prime factor greater than 2")

@@ -2360,23 +2360,6 @@ class GrainBoundaryGenerator:
         return miller
 
 
-def factors(n):
-    """
-    Compute the factors of a integer.
-    Args:
-        n: the input integer
-
-    Returns:
-        a set of integers that are the factors of the input integer.
-    """
-    return set(
-        reduce(
-            list.__add__,
-            ([i, n // i] for i in range(1, int(np.sqrt(n)) + 1) if n % i == 0),
-        )
-    )
-
-
 def fix_pbc(structure, matrix=None):
     """
     Set all frac_coords of the input structure within [0,1].

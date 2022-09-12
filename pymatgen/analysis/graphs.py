@@ -348,7 +348,7 @@ class StructureGraph(MSONable):
         between sites) doesn't have a direction, from_index,
         from_jimage can be swapped with to_index, to_jimage.
 
-        However, images will always always be shifted so that
+        However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
         :param from_index: index of site connecting from
@@ -1848,7 +1848,7 @@ class MoleculeGraph(MSONable):
         between sites) doesn't have a direction, from_index,
         from_jimage can be swapped with to_index, to_jimage.
 
-        However, images will always always be shifted so that
+        However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
         :param from_index: index of site connecting from
