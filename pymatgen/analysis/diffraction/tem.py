@@ -13,7 +13,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from functools import lru_cache
-from typing import cast
+from typing import List, Tuple, cast
 
 import numpy as np
 import pandas as pd
@@ -131,7 +131,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        result_tuples = cast(list[tuple[int, int, int]], [tuple(x) for x in result.tolist()])
+        result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
         return result_tuples
 
     def get_interplanar_spacings(
@@ -307,10 +307,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         rows_list = []
         for dot in tem_dots:
             dict1 = {
-                "Pos": dot.position,
+                "Position": dot.position,
                 "(hkl)": dot.hkl,
-                "Intnsty (norm)": dot.intensity,
-                "Film rad": dot.film_radius,
+                "Intensity (norm)": dot.intensity,
+                "Film radius": dot.film_radius,
                 "Interplanar Spacing": dot.d_spacing,
             }
             rows_list.append(dict1)
