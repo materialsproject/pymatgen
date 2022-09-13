@@ -13,7 +13,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from functools import lru_cache
-from typing import cast, Tuple, List
+from typing import List, Tuple, cast
 
 import numpy as np
 import pandas as pd
