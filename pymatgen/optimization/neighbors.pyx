@@ -7,8 +7,6 @@
 # distutils: language = c
 # distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
 
-from __future__ import print_function
-
 import numpy as np
 
 cimport numpy as np
@@ -43,7 +41,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                            double tol=1e-8, float min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
-    cutoff radius `r`. All the coordinates should be in cartesian.
+    cutoff radius `r`. All the coordinates should be in Cartesian.
 
     Args:
         all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,
