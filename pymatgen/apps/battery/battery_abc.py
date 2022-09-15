@@ -58,7 +58,7 @@ class AbstractVoltagePair(MSONable):
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
-        # ensure the the frame work is a reduced composition
+        # ensure the frame work is a reduced composition
         self.framework_formula = self.framework.reduced_formula
 
     @property
@@ -140,7 +140,7 @@ class AbstractElectrode(Sequence, MSONable):
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
-        # ensure the the frame work is a reduced composition
+        # ensure the frame work is a reduced composition
         self.framework_formula = self.framework.reduced_formula
 
     def __getitem__(self, index):
@@ -400,7 +400,7 @@ class AbstractElectrode(Sequence, MSONable):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
 
         d = {

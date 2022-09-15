@@ -22,6 +22,7 @@ from pymatgen.io.phonopy import (
     get_phonon_dos_from_fc,
     get_phonopy_structure,
     get_pmg_structure,
+    get_thermal_displacement_matrices,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -98,8 +99,8 @@ class StructureConversionTest(PymatgenTest):
         s_pmg2 = get_pmg_structure(s_ph)
 
         coords_ph = s_ph.get_scaled_positions()
-        symbols_pmg = {e.symbol for e in s_pmg.composition.keys()}
-        symbols_pmg2 = {e.symbol for e in s_pmg2.composition.keys()}
+        symbols_pmg = {e.symbol for e in s_pmg.composition}
+        symbols_pmg2 = {e.symbol for e in s_pmg2.composition}
 
         self.assertAlmostEqual(s_ph.get_cell()[1, 1], s_pmg.lattice._matrix[1, 1], 7)
         self.assertAlmostEqual(s_pmg.lattice._matrix[1, 1], s_pmg2.lattice._matrix[1, 1], 7)
@@ -231,6 +232,41 @@ class TestGruneisen(unittest.TestCase):
             get_gruneisenparameter(
                 os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP_without_struct.yaml")
             )
+
+
+@unittest.skipIf(Phonopy is None, "Phonopy not present")
+class TestThermalDisplacementMatrices(PymatgenTest):
+    def test_get_thermal_displacement_matrix(self):
+        list_matrices = get_thermal_displacement_matrices(
+            os.path.join(
+                PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "thermal_displacement_matrices.yaml"
+            ),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR"),
+        )
+
+        self.assertArrayAlmostEqual(
+            list(list_matrices[0].thermal_displacement_matrix_cart[0]),
+            [0.00516, 0.00613, 0.00415, -0.00011, -0.00158, -0.00081],
+        )
+        self.assertArrayAlmostEqual(
+            list(list_matrices[0].thermal_displacement_matrix_cart[21]),
+            [0.00488, 0.00497, 0.00397, -0.00070, -0.00070, 0.00144],
+        )
+
+        self.assertArrayAlmostEqual(
+            list(list_matrices[0].thermal_displacement_matrix_cif[0]),
+            [0.00457, 0.00613, 0.00415, -0.00011, -0.00081, -0.00082],
+        )
+        self.assertArrayAlmostEqual(
+            list(list_matrices[0].thermal_displacement_matrix_cif[21]),
+            [0.00461, 0.00497, 0.00397, -0.00070, 0.00002, 0.00129],
+        )
+
+        # check if correct number of temperatures has been read
+        self.assertEqual(len(list_matrices), 31)
+
+        self.assertAlmostEqual(list_matrices[-1].temperature, 300.0)
+        self.assertAlmostEqual(list_matrices[0].temperature, 0.0)
 
 
 if __name__ == "__main__":

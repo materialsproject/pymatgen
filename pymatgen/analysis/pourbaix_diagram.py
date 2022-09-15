@@ -237,7 +237,7 @@ class PourbaixEntry(MSONable, Stringify):
             entry = MontyDecoder().process_decoded(d["entry"])
         entry_id = d["entry_id"]
         concentration = d["concentration"]
-        return PourbaixEntry(entry, entry_id, concentration)
+        return cls(entry, entry_id, concentration)
 
     @property
     def normalization_factor(self):
@@ -397,7 +397,7 @@ class IonEntry(PDEntry):
         """
         self.ion = ion
         # Auto-assign name
-        name = name if name else self.ion.reduced_formula
+        name = name or self.ion.reduced_formula
         super().__init__(composition=ion.composition, energy=energy, name=name, attribute=attribute)
 
     @classmethod
@@ -405,7 +405,7 @@ class IonEntry(PDEntry):
         """
         Returns an IonEntry object from a dict.
         """
-        return IonEntry(Ion.from_dict(d["ion"]), d["energy"], d.get("name"), d.get("attribute"))
+        return cls(Ion.from_dict(d["ion"]), d["energy"], d.get("name"), d.get("attribute"))
 
     def as_dict(self):
         """
@@ -934,7 +934,7 @@ class PourbaixDiagram(MSONable):
         """
         Returns the stable entries in the Pourbaix diagram.
         """
-        return list(self._stable_domains.keys())
+        return list(self._stable_domains)
 
     @property
     def unstable_entries(self):

@@ -203,7 +203,7 @@ class Poscar(MSONable):
         super().__setattr__(name, value)
 
     @staticmethod
-    def from_file(filename, check_for_POTCAR=True, read_velocities=True):
+    def from_file(filename, check_for_POTCAR=True, read_velocities=True) -> Poscar:
         """
         Reads a Poscar from a file.
 
@@ -213,7 +213,7 @@ class Poscar(MSONable):
         1. If check_for_POTCAR is True, the code will try to check if a POTCAR
         is in the same directory as the POSCAR and use elements from that by
         default. (This is the VASP default sequence of priority).
-        2. If the input file is Vasp5-like and contains element symbols in the
+        2. If the input file is VASP5-like and contains element symbols in the
         6th line, the code will use that if check_for_POTCAR is False or there
         is no POTCAR found.
         3. Failing (2), the code will check if a symbol is provided at the end
@@ -261,7 +261,7 @@ class Poscar(MSONable):
         default names comes from an external source, such as a POTCAR in the
         same directory.
 
-        2. If there are no valid default names but the input file is Vasp5-like
+        2. If there are no valid default names but the input file is VASP5-like
         and contains element symbols in the 6th line, the code will use that.
 
         3. Failing (2), the code will check if a symbol is provided at the end
@@ -348,20 +348,20 @@ class Poscar(MSONable):
                 atomic_symbols.extend([symbols[i]] * nat)
             ipos = 5 + 2 * nlines_symbols
 
-        postype = lines[ipos].split()[0]
+        pos_type = lines[ipos].split()[0]
 
-        sdynamics = False
+        has_selective_dynamics = False
         # Selective dynamics
-        if postype[0] in "sS":
-            sdynamics = True
+        if pos_type[0] in "sS":
+            has_selective_dynamics = True
             ipos += 1
-            postype = lines[ipos].split()[0]
+            pos_type = lines[ipos].split()[0]
 
-        cart = postype[0] in "cCkK"
-        nsites = sum(natoms)
+        cart = pos_type[0] in "cCkK"
+        n_sites = sum(natoms)
 
         # If default_names is specified (usually coming from a POTCAR), use
-        # them. This is in line with Vasp"s parsing order that the POTCAR
+        # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names:
             try:
@@ -373,10 +373,10 @@ class Poscar(MSONable):
                 pass
 
         if not vasp5_symbols:
-            ind = 3 if not sdynamics else 6
+            ind = 3 if not has_selective_dynamics else 6
             try:
                 # Check if names are appended at the end of the coordinates.
-                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + nsites]]
+                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + n_sites]]
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
@@ -391,12 +391,12 @@ class Poscar(MSONable):
 
         # read the atomic coordinates
         coords = []
-        selective_dynamics = [] if sdynamics else None
-        for i in range(nsites):
+        selective_dynamics = [] if has_selective_dynamics else None
+        for i in range(n_sites):
             toks = lines[ipos + 1 + i].split()
             crd_scale = scale if cart else 1
             coords.append([float(j) * crd_scale for j in toks[:3]])
-            if sdynamics:
+            if has_selective_dynamics:
                 selective_dynamics.append([tok.upper()[0] == "T" for tok in toks[3:6]])
 
         struct = Structure(
@@ -429,12 +429,12 @@ class Poscar(MSONable):
                 # Third line is the thermostat parameters
                 predictor_corrector_preamble = lines[0] + "\n" + lines[1] + "\n" + lines[2]
                 # Rest is three sets of parameters, each set contains
-                # x, y, z predictor-corrector parameters for every atom in orde
+                # x, y, z predictor-corrector parameters for every atom in order
                 lines = lines[3:]
-                for st in range(nsites):
+                for st in range(n_sites):
                     d1 = [float(tok) for tok in lines[st].split()]
-                    d2 = [float(tok) for tok in lines[st + nsites].split()]
-                    d3 = [float(tok) for tok in lines[st + 2 * nsites].split()]
+                    d2 = [float(tok) for tok in lines[st + n_sites].split()]
+                    d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
         else:
             velocities = None
@@ -451,14 +451,14 @@ class Poscar(MSONable):
             predictor_corrector_preamble=predictor_corrector_preamble,
         )
 
-    def get_string(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 6) -> str:
+    def get_string(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
         """
         Returns a string to be written as a POSCAR file. By default, site
         symbols are written, which means compatibility is for vasp >= 5.
 
         Args:
             direct (bool): Whether coordinates are output in direct or
-                cartesian. Defaults to True.
+                Cartesian. Defaults to True.
             vasp4_compatible (bool): Set to True to omit site symbols on 6th
                 line to maintain backward vasp 4.x compatibility. Defaults
                 to False.
@@ -478,7 +478,7 @@ class Poscar(MSONable):
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
 
-        format_str = f"{{:.{significant_figures}f}}"
+        format_str = f"{{:{significant_figures+5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
         for v in latt.matrix:
             lines.append(" ".join([format_str.format(c) for c in v]))
@@ -592,12 +592,12 @@ class Poscar(MSONable):
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
+        # remove linear drift (net momentum)
+        velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
+
         # scale velocities due to atomic masses
         # mean 0 std proportional to sqrt(1/m)
         velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
-
-        # remove linear drift (net momentum)
-        velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
 
         # scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities**2, axis=1))
@@ -702,7 +702,7 @@ class Incar(dict, MSONable):
             pretty (bool): Set to True for pretty aligned output. Defaults
                 to False.
         """
-        keys = list(self.keys())
+        keys = list(self)
         if sort_keys:
             keys = sorted(keys)
         lines = []
@@ -953,14 +953,14 @@ class Incar(dict, MSONable):
         """
         for k, v in self.items():
             # First check if this parameter even exists
-            if k not in incar_params.keys():
+            if k not in incar_params:
                 warnings.warn(
                     f"Cannot find {k} in the list of INCAR flags",
                     BadIncarWarning,
                     stacklevel=2,
                 )
 
-            if k in incar_params.keys():
+            if k in incar_params:
                 if type(incar_params[k]).__name__ == "str":
                     # Now we check if this is an appropriate parameter type
                     if incar_params[k] == "float":
@@ -1532,7 +1532,7 @@ class Kpoints(MSONable):
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.append("Tetrahedron")
-            lines.append(f"{int(self.tet_number)} {self.tet_weight:f}")
+            lines.append(f"{self.tet_number} {self.tet_weight:f}")
             for sym_weight, vertices in self.tet_connections:
                 a, b, c, d = vertices
                 lines.append(f"{sym_weight} {a} {b} {c} {d}")
@@ -1721,7 +1721,7 @@ class PotcarSingle:
         """
         self.data = data  # raw POTCAR as a string
 
-        # Vasp parses header in vasprun.xml and this differs from the titel
+        # VASP parses header in vasprun.xml and this differs from the titel
         self.header = data.split("\n")[0].strip()
 
         search_lines = re.search(
@@ -2171,7 +2171,7 @@ class Potcar(list, MSONable):
     list of PotcarSingle.
     """
 
-    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir.keys())
+    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir)
 
     def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
         """

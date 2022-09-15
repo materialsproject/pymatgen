@@ -73,7 +73,7 @@ class RotationTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -277,10 +277,10 @@ class SupercellTransformation(AbstractTransformation):
         return structure * self.scaling_matrix
 
     def __str__(self):
-        return "Supercell Transformation with scaling matrix " + f"{self.scaling_matrix}"
+        return f"Supercell Transformation with scaling matrix {self.scaling_matrix}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -348,7 +348,7 @@ class SubstitutionTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -398,7 +398,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         return "Remove Species Transformation :" + ", ".join(self.species_to_remove)
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -489,7 +489,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return "PartialRemoveSpecieTransformation : " + ", ".join(spec_str)
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -622,7 +622,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[k] = int(round(v))
             # start with an ordered structure
-            initial_sp = max(total_occupancy.keys(), key=lambda x: abs(x.oxi_state))
+            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
             for i in g:
                 s[i] = initial_sp
             # determine the manipulations
@@ -680,7 +680,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         return "Order disordered structure transformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -738,7 +738,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         return "Primitive cell transformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -760,7 +760,7 @@ class ConventionalCellTransformation(AbstractTransformation):
     This class finds the conventional cell of the input structure.
     """
 
-    def __init__(self, symprec=0.01, angle_tolerance=5, international_monoclinic=True):
+    def __init__(self, symprec: float = 0.01, angle_tolerance=5, international_monoclinic=True):
         """
         Args:
             symprec (float): tolerance as in SpacegroupAnalyzer
@@ -789,7 +789,7 @@ class ConventionalCellTransformation(AbstractTransformation):
         return "Conventional cell transformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -845,10 +845,10 @@ class PerturbStructureTransformation(AbstractTransformation):
         return s
 
     def __str__(self):
-        return "PerturbStructureTransformation : " + f"Min_distance = {self.min_distance}"
+        return f"PerturbStructureTransformation : Min_distance = {self.min_distance}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -894,7 +894,7 @@ class DeformStructureTransformation(AbstractTransformation):
         return f"DeformStructureTransformation : Deformation = {self.deformation}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -919,7 +919,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     transformations.
     """
 
-    def __init__(self, max_denominator=5, tol=None, fix_denominator=False):
+    def __init__(self, max_denominator=5, tol: float = None, fix_denominator=False):
         """
         Args:
             max_denominator:
@@ -970,7 +970,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
         return "DiscretizeOccupanciesTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -1019,7 +1019,7 @@ class ChargedCellTransformation(AbstractTransformation):
         return f"Structure with charge {self.charge}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -1104,7 +1104,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         return "ScaleToRelaxedTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):

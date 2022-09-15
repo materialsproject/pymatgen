@@ -154,10 +154,10 @@ class SpinComparator(AbstractComparator):
         Returns:
             Boolean indicating whether species are equal.
         """
-        for s1 in sp1.keys():
+        for s1 in sp1:
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
-            for s2 in sp2.keys():
+            for s2 in sp2:
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if s1.symbol == s2.symbol and oxi1 == oxi2 and spin2 == -spin1:
@@ -343,7 +343,7 @@ class StructureMatcher(MSONable):
         scale=True,
         attempt_supercell=False,
         allow_subset=False,
-        comparator=SpeciesComparator(),
+        comparator=None,
         supercell_size="num_sites",
         ignored_species=None,
     ):
@@ -393,7 +393,7 @@ class StructureMatcher(MSONable):
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
-        self._comparator = comparator
+        self._comparator = comparator or SpeciesComparator()
         self._primitive_cell = primitive_cell
         self._scale = scale
         self._supercell = attempt_supercell
@@ -434,10 +434,9 @@ class StructureMatcher(MSONable):
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
-        Yields lattices for s with lengths and angles close to the
-        lattice of target_s. If supercell_size is specified, the
-        returned lattice will have that number of primitive cells
-        in it
+        Yields lattices for s with lengths and angles close to the lattice of target_s. If
+        supercell_size is specified, the returned lattice will have that number of primitive
+        cells in it
 
         Args:
             s, target_s: Structure objects
@@ -456,7 +455,7 @@ class StructureMatcher(MSONable):
         """
         Computes all supercells of one structure close to the lattice of the
         other
-        if s1_supercell == True, it makes the supercells of struct1, otherwise
+        if s1_supercell is True, it makes the supercells of struct1, otherwise
         it makes them of s2
 
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
@@ -877,7 +876,7 @@ class StructureMatcher(MSONable):
         :param d: Dict representation
         :return: StructureMatcher
         """
-        return StructureMatcher(
+        return cls(
             ltol=d["ltol"],
             stol=d["stol"],
             angle_tol=d["angle_tol"],
@@ -1001,7 +1000,7 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            min_mapping (Dict): Mapping of struct1 species to struct2 species
+            min_mapping (dict): Mapping of struct1 species to struct2 species
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)

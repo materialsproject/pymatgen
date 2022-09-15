@@ -21,7 +21,7 @@ Sqs = namedtuple("Sqs", "bestsqs objective_function allsqs clusters directory")
 """
 Return type for run_mcsqs.
 bestsqs: Structure
-objective_function: Union[float, str]
+objective_function: float | str
 allsqs: List
 clusters: List
 directory: str

@@ -554,7 +554,7 @@ class QCInput(InputFile):
         # remove end from sections
         sections = [sec for sec in sections if sec != "end"]
         # this error should be replaced by a multi job read function when it is added
-        if "multiple_jobs" in matches.keys():
+        if "multiple_jobs" in matches:
             raise ValueError("Output file contains multiple qchem jobs please parse separately")
         if "molecule" not in sections:
             raise ValueError("Output file does not contain a molecule section")
@@ -581,11 +581,11 @@ class QCInput(InputFile):
             "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*(\d)",
         }
         matches = read_pattern(string, patterns)
-        if "read" in matches.keys():
+        if "read" in matches:
             return "read"
-        if "charge" in matches.keys():
+        if "charge" in matches:
             charge = float(matches["charge"][0][0])
-        if "spin_mult" in matches.keys():
+        if "spin_mult" in matches:
             spin_mult = int(matches["spin_mult"][0][0])
         header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s*\d"
         row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
@@ -634,7 +634,7 @@ class QCInput(InputFile):
             "CONNECT": r"^\s*CONNECT",
         }
         opt_matches = read_pattern(string, patterns)
-        opt_sections = list(opt_matches.keys())
+        opt_sections = list(opt_matches)
         opt = {}
         if "CONSTRAINT" in opt_sections:
             c_header = r"^\s*CONSTRAINT\n"

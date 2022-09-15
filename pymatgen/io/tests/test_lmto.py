@@ -83,7 +83,7 @@ class CoplTest(PymatgenTest):
             self.assertEqual(self.copl_bise.cohp_data[bond]["length"], lengths_sites_bise[bond][0])
             self.assertEqual(self.copl_bise.cohp_data[bond]["sites"], lengths_sites_bise[bond][1])
         labels_fe = ["Fe1-Fe1"] + [f"Fe1-Fe1-{i}" for i in range(1, 8)]
-        self.assertEqual(sorted(self.copl_fe.cohp_data.keys()), labels_fe)
+        self.assertEqual(sorted(self.copl_fe.cohp_data), labels_fe)
         for bond in labels_fe:
             self.assertEqual(self.copl_fe.cohp_data[bond]["length"], 2.482)
             self.assertEqual(self.copl_fe.cohp_data[bond]["sites"], (0, 0))

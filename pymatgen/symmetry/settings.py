@@ -96,7 +96,7 @@ class JonesFaithfulTransformation:
             ValueError: When transformation string fails to parse.
 
         Returns:
-            Tuple[Union[List[List[float]], np.ndarray], List[float]]: transformation matrix & vector
+            tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
             a = np.array([1, 0, 0])
@@ -202,8 +202,7 @@ class JonesFaithfulTransformation:
             new_coords.append(x_.tolist())
         return new_coords
 
-    def transform_lattice(self, lattice):
-        # type: (Lattice) -> Lattice
+    def transform_lattice(self, lattice: Lattice) -> Lattice:
         """
         Takes a Lattice object and transforms it.
         :param lattice: Lattice

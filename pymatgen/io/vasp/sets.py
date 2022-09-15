@@ -50,7 +50,6 @@ import warnings
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-from typing import List, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -72,7 +71,7 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     """
-    Base class representing a set of Vasp input parameters with a structure
+    Base class representing a set of VASP input parameters with a structure
     supplied as init parameters. Typically, you should not inherit from this
     class. Start from DictSet or MPRelaxSet or MITRelaxSet.
     """
@@ -395,7 +394,7 @@ class DictSet(VaspInputSet):
                 self._config_dict["INCAR"].update(vdw_par[self.vdw])
             except KeyError:
                 raise KeyError(
-                    f"Invalid or unsupported van-der-Waals functional. Supported functionals are {vdw_par.keys()}."
+                    f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}."
                 )
         # read the POTCAR_FUNCTIONAL from the .yaml
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
@@ -508,7 +507,7 @@ class DictSet(VaspInputSet):
                         m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v.keys() and isinstance(v[most_electroneg], dict):
+                    elif most_electroneg in v and isinstance(v[most_electroneg], dict):
                         incar[k] = [v[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
                         # else, use fallback LDAU value if it exists
                     else:
@@ -525,7 +524,7 @@ class DictSet(VaspInputSet):
                 incar[k] = v
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if not has_u:
-            for key in list(incar.keys()):
+            for key in list(incar):
                 if key.startswith("LDAU"):
                     del incar[key]
 
@@ -537,7 +536,7 @@ class DictSet(VaspInputSet):
         # this would lead to a significant difference between SCF -> NonSCF
         # even without Hubbard U enabled. Thanks to Andrew Rosen for
         # investigating and reporting.
-        if "LMAXMIX" not in settings.keys():
+        if "LMAXMIX" not in settings:
             # contains f-electrons
             if any(el.Z > 56 for el in structure.composition):
                 incar["LMAXMIX"] = 6
@@ -587,7 +586,7 @@ class DictSet(VaspInputSet):
         # An error handler in Custodian is available to
         # correct overly large KSPACING values (small number of kpoints)
         # if necessary.
-        # if "KSPACING" not in self.user_incar_settings.keys():
+        # if "KSPACING" not in self.user_incar_settings:
         if self.kpoints is not None:
             if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
                 incar["ISMEAR"] = 0
@@ -600,7 +599,7 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all(k.is_metal for k in structure.composition.keys()):
+        if all(k.is_metal for k in structure.composition):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
                 warnings.warn(
                     "Relaxation of likely metal with ISMEAR < 1 "
@@ -817,7 +816,7 @@ def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool 
         must_inc_2 (bool): 2 must be a prime factor of the result
 
     Returns:
-        int: first product of of the prime_factors that is >= n
+        int: first product of the prime_factors that is >= n
     """
     if max_prime_factor < 2:
         raise ValueError("Must choose a maximum prime factor greater than 2")
@@ -1130,7 +1129,7 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings.keys()):
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings):
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1211,8 +1210,8 @@ class MPStaticSet(MPRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for static calculations from a
-        directory of previous Vasp run.
+        Generate a set of VASP input files for static calculations from a
+        directory of previous VASP run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs(
@@ -1281,7 +1280,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in list(self.user_incar_settings.keys()):
+        for k in list(self.user_incar_settings):
             # For user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1313,8 +1312,8 @@ class MPScanStaticSet(MPScanRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for static calculations from a
-        directory of previous Vasp run.
+        Generate a set of VASP input files for static calculations from a
+        directory of previous VASP run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs(
@@ -1398,9 +1397,9 @@ class MPHSEBSSet(MPHSERelaxSet):
         """
         :return: Kpoints
         """
-        kpts = []  # type: List[Union[int, float, None]]
-        weights = []  # type: List[Union[float, None]]
-        all_labels = []  # type: List[Union[str, None]]
+        kpts: list[int | float | None] = []
+        weights: list[float | None] = []
+        all_labels: list[str | None] = []
         structure = self.structure
 
         # for both modes, include the Uniform mesh w/standard weights
@@ -1490,8 +1489,8 @@ class MPHSEBSSet(MPHSERelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for HSE calculations from a
-        directory of previous Vasp run.
+        Generate a set of VASP input files for HSE calculations from a
+        directory of previous VASP run.
 
         Args:
             prev_calc_dir (str): Directory containing the outputs
@@ -1729,8 +1728,8 @@ class MPNonSCFSet(MPRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for NonSCF calculations from a
-        directory of previous static Vasp run.
+        Generate a set of VASP input files for NonSCF calculations from a
+        directory of previous static VASP run.
 
         Args:
             prev_calc_dir (str): The directory contains the outputs(
@@ -1872,8 +1871,8 @@ class MPSOCSet(MPStaticSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
-        Generate a set of Vasp input files for SOC calculations from a
-        directory of previous static Vasp run. SOC calc requires all 3
+        Generate a set of VASP input files for SOC calculations from a
+        directory of previous static VASP run. SOC calc requires all 3
         components for MAGMOM for each atom in the structure.
 
         Args:
@@ -1908,7 +1907,7 @@ class MPNMRSet(MPStaticSet):
             **kwargs: kwargs supported by MPStaticSet.
         """
         self.mode = mode
-        self.isotopes = isotopes if isotopes else []
+        self.isotopes = isotopes or []
         super().__init__(structure, prev_incar=prev_incar, reciprocal_density=reciprocal_density, **kwargs)
 
     @property
@@ -1961,7 +1960,7 @@ class MPNMRSet(MPStaticSet):
 class MVLElasticSet(MPRelaxSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://www.materialsvirtuallab.org) for various research.
+    Lab (http://materialsvirtuallab.org) for various research.
 
     This input set is used to calculate elastic constants in VASP. It is used
     in the following work::
@@ -1993,7 +1992,7 @@ class MVLElasticSet(MPRelaxSet):
 class MVLGWSet(DictSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://www.materialsvirtuallab.org) for various research. This is a
+    Lab (http://materialsvirtuallab.org) for various research. This is a
     flexible input set for GW calculations.
 
     Note that unlike all other input sets in this module, the PBE_54 series of
@@ -2141,8 +2140,8 @@ class MVLGWSet(DictSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode="DIAG", **kwargs):
         """
-        Generate a set of Vasp input files for GW or BSE calculations from a
-        directory of previous Exact Diag Vasp run.
+        Generate a set of VASP input files for GW or BSE calculations from a
+        directory of previous Exact Diag VASP run.
 
         Args:
             prev_calc_dir (str): The directory contains the outputs(
@@ -2908,7 +2907,7 @@ def get_structure_from_prev_run(vasprun, outcar=None):
 
     Returns:
         Returns the magmom-decorated structure that can be passed to get
-        Vasp input files, e.g. get_kpoints.
+        VASP input files, e.g. get_kpoints.
     """
     structure = vasprun.final_structure
 
@@ -3274,7 +3273,7 @@ class MPAbsorptionSet(MPRelaxSet):
     @classmethod
     def from_prev_calc(cls, prev_calc_dir, mode, **kwargs):
         """
-        Generate a set of Vasp input files for absorption calculation
+        Generate a set of VASP input files for absorption calculation
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.

@@ -177,7 +177,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         ss = SymmetrizedStructure.from_dict(d)
         self.assertEqual(ss.wyckoff_symbols[0], "16h")
-        self.assertIn("SymmetrizedStructure", ss.__str__())
+        self.assertIn("SymmetrizedStructure", str(ss))
 
     def test_find_primitive(self):
         """

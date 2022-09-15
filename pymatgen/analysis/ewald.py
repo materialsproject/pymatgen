@@ -11,6 +11,7 @@ import bisect
 from copy import copy, deepcopy
 from datetime import datetime
 from math import log, pi, sqrt
+from typing import Any
 from warnings import warn
 
 import numpy as np
@@ -99,15 +100,15 @@ class EwaldSummation(MSONable):
 
         self._acc_factor = acc_factor
         # set screening length
-        self._eta = eta if eta else (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
+        self._eta = eta or (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
         # reciprocal space cutoff radii
         self._accf = sqrt(log(10**acc_factor))
 
-        self._rmax = real_space_cut if real_space_cut else self._accf / self._sqrt_eta
-        self._gmax = recip_space_cut if recip_space_cut else 2 * self._sqrt_eta * self._accf
+        self._rmax = real_space_cut or self._accf / self._sqrt_eta
+        self._gmax = recip_space_cut or 2 * self._sqrt_eta * self._accf
 
         # The next few lines pre-compute certain quantities and store them.
         # Ewald summation is rather expensive, and these shortcuts are
@@ -139,7 +140,7 @@ class EwaldSummation(MSONable):
             total_energy_matrix[:, i] = 0
         return sum(sum(total_energy_matrix))
 
-    def compute_sub_structure(self, sub_structure, tol=1e-3):
+    def compute_sub_structure(self, sub_structure, tol: float = 1e-3):
         """
         Gives total Ewald energy for an sub structure in the same
         lattice. The sub_structure must be a subset of the original
@@ -209,7 +210,7 @@ class EwaldSummation(MSONable):
     @property
     def real_space_energy(self):
         """
-        The real space space energy.
+        The real space energy.
         """
         if not self._initialized:
             self._calc_ewald_terms()
@@ -471,11 +472,11 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: dict, fmt: str = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, d: dict[str, Any], fmt: str = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
-            d (Dict): Dictionary representation
+            d (dict): Dictionary representation
             fmt (str, optional): Unused. Defaults to None.
 
         Returns:
@@ -569,7 +570,7 @@ class EwaldMinimizer:
             raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
         self._output_lists = []
-        # Tag that the recurse function looks at at each level. If a method
+        # Tag that the recurse function looks at each level. If a method
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False
 

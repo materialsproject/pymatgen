@@ -94,7 +94,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -161,7 +161,7 @@ class SuperTransformation(AbstractTransformation):
         return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -269,10 +269,10 @@ class MultipleSubstitutionTransformation:
         return outputs
 
     def __str__(self):
-        return "Multiple Substitution Transformation : Substitution on " + f"{self.sp_to_replace}"
+        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -469,7 +469,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         return "EnumerateStructureTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -537,7 +537,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         return "SubstitutionPredictorTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -686,7 +686,6 @@ class MagOrderingTransformation(AbstractTransformation):
         mag_species_occurrences = {}
         for site in disordered_structure:
             if not site.is_ordered:
-                op = max(site.species.values())
                 # this very hacky bit of code only works because we know
                 # that on disordered sites in this class, all species are the same
                 # but have different spins, and this is comma-delimited
@@ -694,6 +693,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 if sp in mag_species_order_parameter:
                     mag_species_occurrences[sp] += 1
                 else:
+                    op = max(site.species.values())
                     mag_species_order_parameter[sp] = op
                     mag_species_occurrences[sp] = 1
 
@@ -827,14 +827,21 @@ class MagOrderingTransformation(AbstractTransformation):
         logger.debug(f"Structure with spin magnitudes:\n{structure}")
         return structure
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
-        """
-        Apply MagOrderTransformation to an input structure.
-        :param structure: Any ordered structure.
-        :param return_ranked_list: As in other Transformations.
-        :return:
-        """
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False
+    ) -> Structure | list[Structure]:
+        """Apply MagOrderTransformation to an input structure.
 
+        Args:
+            structure (Structure): Any ordered structure.
+            return_ranked_list (bool, optional): As in other Transformations. Defaults to False.
+
+        Raises:
+            ValueError: On disordered structures.
+
+        Returns:
+            Structure | list[Structure]: Structure(s) after MagOrderTransformation.
+        """
         if not structure.is_ordered:
             raise ValueError("Create an ordered approximation of your  input structure first.")
 
@@ -902,13 +909,13 @@ class MagOrderingTransformation(AbstractTransformation):
 
         self._all_structures = sorted(out, key=lambda d: d["energy"])
 
-        return self._all_structures[0:num_to_return]
+        return self._all_structures[0:num_to_return]  # type: ignore
 
     def __str__(self):
         return "MagOrderingTransformation"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -1106,9 +1113,9 @@ class DopingTransformation(AbstractTransformation):
                 # Strategy: replace the target species with dopant and also
                 # remove some opposite charged species for charge neutrality
                 if ox > 0:
-                    sp_to_remove = max(supercell.composition.keys(), key=lambda el: el.X)
+                    sp_to_remove = max(supercell.composition, key=lambda el: el.X)
                 else:
-                    sp_to_remove = min(supercell.composition.keys(), key=lambda el: el.X)
+                    sp_to_remove = min(supercell.composition, key=lambda el: el.X)
                 # Confirm species are of opposite oxidation states.
                 assert sp_to_remove.oxi_state * sp.oxi_state < 0  # type: ignore
 
@@ -1399,7 +1406,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
             normal (logic):
                 determine if need to require the c axis of top grain (first transformation matrix)
-                perperdicular to the surface or not.
+                perpendicular to the surface or not.
                 default to false.
             ratio (list of integers): lattice axial ratio.
                 If True, will try to determine automatically from structure.
@@ -1508,6 +1515,8 @@ class CubicSupercellTransformation(AbstractTransformation):
         max_atoms: int | None = None,
         min_length: float = 15.0,
         force_diagonal: bool = False,
+        force_90_degrees: bool = False,
+        angle_tolerance: float = 1e-3,
     ):
         """
         Args:
@@ -1516,11 +1525,18 @@ class CubicSupercellTransformation(AbstractTransformation):
             min_length: Minimum length of the smallest supercell lattice vector.
             force_diagonal: If True, return a transformation with a diagonal
                 transformation matrix.
+            force_90_degrees: If True, return a transformation for a supercell
+                with 90 degree angles (if possible). To avoid long run times,
+                please use max_atoms
+            angle_tolerance: tolerance to determine the 90 degree angles
+
         """
-        self.min_atoms = min_atoms if min_atoms else -np.Inf
-        self.max_atoms = max_atoms if max_atoms else np.Inf
+        self.min_atoms = min_atoms or -np.Inf
+        self.max_atoms = max_atoms or np.Inf
         self.min_length = min_length
         self.force_diagonal = force_diagonal
+        self.force_90_degrees = force_90_degrees
+        self.angle_tolerance = angle_tolerance
         self.transformation_matrix = None
 
     def apply_transformation(self, structure: Structure) -> Structure:
@@ -1594,7 +1610,15 @@ class CubicSupercellTransformation(AbstractTransformation):
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
                 and self.min_atoms <= num_at <= self.max_atoms
             ):
-                return superstructure
+                if not self.force_90_degrees:
+                    return superstructure
+                else:
+                    if np.all(
+                        np.absolute(np.array(superstructure.lattice.angles) - np.array([90.0, 90.0, 90.0]))
+                        < self.angle_tolerance
+                    ):
+                        return superstructure
+
             # Increase threshold until proposed supercell meets requirements
             target_sc_size += 0.1
             if num_at > self.max_atoms:
@@ -2209,7 +2233,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         return f"{__name__} : rattle_std = {self.rattle_std}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):

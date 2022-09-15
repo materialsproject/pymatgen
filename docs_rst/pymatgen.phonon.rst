@@ -19,6 +19,7 @@ Submodules
    pymatgen.phonon.gruneisen
    pymatgen.phonon.ir_spectra
    pymatgen.phonon.plotter
+   pymatgen.phonon.thermal_displacements
 
 Module contents
 ---------------

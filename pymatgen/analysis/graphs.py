@@ -161,7 +161,13 @@ class StructureGraph(MSONable):
                 d["from_jimage"] = tuple(d["from_jimage"])
 
     @classmethod
-    def with_empty_graph(cls, structure: Structure, name="bonds", edge_weight_name=None, edge_weight_units=None):
+    def with_empty_graph(
+        cls,
+        structure: Structure,
+        name="bonds",
+        edge_weight_name=None,
+        edge_weight_units=None,
+    ):
         """
         Constructor for StructureGraph, returns a StructureGraph
         object with an empty graph (no edges, only nodes defined
@@ -256,7 +262,7 @@ class StructureGraph(MSONable):
         return sg
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy, weights=False):
+    def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False):
         """
         Constructor for StructureGraph, using a strategy
         from :Class: `pymatgen.analysis.local_env`.
@@ -266,6 +272,7 @@ class StructureGraph(MSONable):
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
         :param weights: if True, use weights from local_env class
             (consult relevant class for their meaning)
+        :param edge_properties: if True, edge_properties from neighbors will be used
         :return:
         """
 
@@ -280,14 +287,26 @@ class StructureGraph(MSONable):
                 # for any one bond, one from site u to site v
                 # and another form site v to site u: this is
                 # harmless, so warn_duplicates=False
-                sg.add_edge(
-                    from_index=n,
-                    from_jimage=(0, 0, 0),
-                    to_index=neighbor["site_index"],
-                    to_jimage=neighbor["image"],
-                    weight=neighbor["weight"] if weights else None,
-                    warn_duplicates=False,
-                )
+                if edge_properties:
+                    sg.add_edge(
+                        from_index=n,
+                        from_jimage=(0, 0, 0),
+                        to_index=neighbor["site_index"],
+                        to_jimage=neighbor["image"],
+                        weight=neighbor["weight"] if weights else None,
+                        edge_properties=neighbor["edge_properties"],
+                        warn_duplicates=False,
+                    )
+                else:
+                    sg.add_edge(
+                        from_index=n,
+                        from_jimage=(0, 0, 0),
+                        to_index=neighbor["site_index"],
+                        to_jimage=neighbor["image"],
+                        weight=neighbor["weight"] if weights else None,
+                        edge_properties=None,
+                        warn_duplicates=False,
+                    )
 
         return sg
 
@@ -329,7 +348,7 @@ class StructureGraph(MSONable):
         between sites) doesn't have a direction, from_index,
         from_jimage can be swapped with to_index, to_jimage.
 
-        However, images will always always be shifted so that
+        However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
         :param from_index: index of site connecting from
@@ -435,7 +454,13 @@ class StructureGraph(MSONable):
         edge_properties = edge_properties or {}
 
         if weight:
-            self.graph.add_edge(from_index, to_index, to_jimage=to_jimage, weight=weight, **edge_properties)
+            self.graph.add_edge(
+                from_index,
+                to_index,
+                to_jimage=to_jimage,
+                weight=weight,
+                **edge_properties,
+            )
         else:
             self.graph.add_edge(from_index, to_index, to_jimage=to_jimage, **edge_properties)
 
@@ -870,7 +895,7 @@ class StructureGraph(MSONable):
         # graphs using matplotlib, these also work here. However,
         # a dedicated tool like GraphViz allows for much easier
         # control over graph appearance and also correctly displays
-        # mutli-graphs (matplotlib can superimpose multiple edges).
+        # multi-graphs (matplotlib can superimpose multiple edges).
 
         g = self.graph.copy()
 
@@ -1345,7 +1370,7 @@ class StructureGraph(MSONable):
 
     def __str__(self):
         s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure.__str__()}"
+        s += f"\nStructure: \n{self.structure}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
@@ -1823,7 +1848,7 @@ class MoleculeGraph(MSONable):
         between sites) doesn't have a direction, from_index,
         from_jimage can be swapped with to_index, to_jimage.
 
-        However, images will always always be shifted so that
+        However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
         :param from_index: index of site connecting from
@@ -2605,7 +2630,7 @@ class MoleculeGraph(MSONable):
         # graphs using matplotlib, these also work here. However,
         # a dedicated tool like GraphViz allows for much easier
         # control over graph appearance and also correctly displays
-        # mutli-graphs (matplotlib can superimpose multiple edges).
+        # multi-graphs (matplotlib can superimpose multiple edges).
 
         g = self.graph.copy()
 
@@ -2782,7 +2807,7 @@ class MoleculeGraph(MSONable):
 
     def __str__(self) -> str:
         s = "Molecule Graph"
-        s += f"\nMolecule: \n{self.molecule.__str__()}"
+        s += f"\nMolecule: \n{self.molecule}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s

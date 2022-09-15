@@ -64,7 +64,7 @@ class BandStructureSCTest(PymatgenTest):
         kpath = KPathSetyawanCurtarolo(struct)
 
         kpoints = kpath._kpath["kpoints"]
-        labels = list(kpoints.keys())
+        labels = list(kpoints)
 
         self.assertEqual(
             sorted(labels),

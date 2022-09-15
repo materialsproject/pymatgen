@@ -7,6 +7,8 @@ Type hinting is new to pymatgen, so this module is subject to
 change until best practices are established.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Sequence, Union
 

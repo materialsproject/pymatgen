@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -18,9 +18,9 @@ jobs:
       matrix:
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         include:
-          - pkg: pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
+          - pkg: pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
             pkg_id: 1
-          - pkg: pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
+          - pkg: pymatgen/analysis --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
             pkg_id: 2
           - pkg: pymatgen/electronic_structure pymatgen/symmetry pymatgen/command_line
             pkg_id: 3
@@ -71,18 +71,12 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             setup.py
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -e .
       - name: Release
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
-          pip install setuptools wheel twine
+          pip install --upgrade pip wheel setuptools twine
           python setup.py sdist bdist_wheel
-          twine upload --skip-existing dist/*.whl
-          twine upload --skip-existing dist/*.tar.gz
+          twine upload --skip-existing dist/*.{whl,tar.gz}
         continue-on-error: true

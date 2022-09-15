@@ -47,7 +47,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
         structure (Structure): Structure object.
@@ -153,7 +153,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     are returned for the reciprocal cell basis defined in the paper.
     """
 
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
         structure (Structure): Structure object.
@@ -163,7 +163,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             structure with the one expected as primitive standard.
             A warning will be issued if the cells don't match.
         """
-        if "magmom" in structure.site_properties.keys():
+        if "magmom" in structure.site_properties:
             warn(
                 "'magmom' entry found in site properties but will be ignored \
                   for the Setyawan and Curtarolo convention."
@@ -952,7 +952,7 @@ class KPathSeek(KPathBase):
         get_path is not None,
         "SeeK-path needs to be installed to use the convention of Hinuma et al. (2015)",
     )
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
             structure (Structure): Structure object
@@ -1333,11 +1333,11 @@ class KPathLatimerMunro(KPathBase):
         reverse_kpoints = {}
         for point_ind in points_in_path_inds_unique:
             point_label = key_points_labels[point_ind]
-            if point_label not in kpoints.keys():
+            if point_label not in kpoints:
                 kpoints[point_label] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label
             else:
-                existing_labels = [key for key in kpoints.keys() if point_label in key]
+                existing_labels = [key for key in kpoints if point_label in key]
                 if "'" not in point_label:
                     existing_labels[:] = [label for label in existing_labels if "'" not in label]
                 if len(existing_labels) == 1:
@@ -1538,7 +1538,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_points_copy) > 0:
             key_points_inds_orbits.append([])
-            k0ind = list(key_points_copy.keys())[0]
+            k0ind = list(key_points_copy)[0]
             k0 = key_points_copy[k0ind]
             key_points_inds_orbits[i].append(k0ind)
             key_points_copy.pop(k0ind)
@@ -1606,7 +1606,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_lines_copy) > 0:
             key_lines_inds_orbits.append([])
-            l0ind = list(key_lines_copy.keys())[0]
+            l0ind = list(key_lines_copy)[0]
             l0 = key_lines_copy[l0ind]
             key_lines_inds_orbits[i].append(l0)
             key_lines_copy.pop(l0ind)

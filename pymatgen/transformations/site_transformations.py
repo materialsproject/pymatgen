@@ -7,6 +7,7 @@ another structure. Site transformations differ from standard transformations
 in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -71,10 +72,10 @@ class InsertSitesTransformation(AbstractTransformation):
         return s.get_sorted_structure()
 
     def __str__(self):
-        return "InsertSiteTransformation : " + f"species {self.species}, coords {self.coords}"
+        return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -126,7 +127,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -171,7 +172,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -232,7 +233,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -331,12 +332,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         to_delete = []
 
         totalremovals = sum(num_remove_dict.values())
-        removed = {k: 0 for k in num_remove_dict.keys()}
+        removed = {k: 0 for k in num_remove_dict}
         for _ in range(totalremovals):
             max_idx = None
             maxe = float("-inf")
             maxindices = None
-            for indices in num_remove_dict.keys():
+            for indices in num_remove_dict:
                 if removed[indices] < num_remove_dict[indices]:
                     for ind in indices:
                         if ind not in to_delete:
@@ -532,7 +533,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -569,7 +570,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
             Returns a copy of structure with sites properties added.
         """
         new_structure = structure.copy()
-        for prop in self.site_properties.keys():
+        for prop in self.site_properties:
             new_structure.add_site_property(prop, self.site_properties[prop])
         return new_structure
 

@@ -29,7 +29,7 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+    website_is_up = requests.get("https://materialsproject.org").status_code == 200
 except requests.exceptions.ConnectionError:
     website_is_up = False
 
@@ -171,9 +171,12 @@ class MPResterOldTest(PymatgenTest):
         self.assertRaises(MPRestError, self.rester.get_structure_by_material_id, "mp-does-not-exist")
 
     def test_get_entry_by_material_id(self):
-        e = self.rester.get_entry_by_material_id("mp-19017")
-        self.assertIsInstance(e, ComputedEntry)
-        self.assertTrue(e.composition.reduced_formula, "LiFePO4")
+        entry = self.rester.get_entry_by_material_id("mp-19017")
+        self.assertIsInstance(entry, ComputedEntry)
+        self.assertTrue(entry.composition.reduced_formula, "LiFePO4")
+
+        # "mp-2022" does not exist
+        self.assertRaises(MPRestError, self.rester.get_entry_by_material_id, "mp-2022")
 
     def test_query(self):
         criteria = {"elements": {"$in": ["Li", "Na", "K"], "$all": ["O"]}}

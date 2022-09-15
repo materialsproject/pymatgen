@@ -474,7 +474,7 @@ def ion_ioncell_relax_input(
     return multi
 
 
-def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
+def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     """
     Find the values of ``shiftk`` and ``nshiftk`` appropriated for the sampling of the Brillouin zone.
 
@@ -687,7 +687,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError(f"key: {key} not in self:\n {list(self.keys())}")
+                raise KeyError(f"key: {key} not in self:\n {list(self)}")
             if key in self:
                 removed[key] = self.pop(key)
 
@@ -741,8 +741,8 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         # Internal dict with variables. we use an ordered dict so that
         # variables will be likely grouped by `topics` when we fill the input.
-        abi_args = [] if abi_args is None else abi_args
-        for key, value in abi_args:
+        abi_args = abi_args or []
+        for key, _value in abi_args:
             self._check_varname(key)
 
         abi_kwargs = {} if abi_kwargs is None else abi_kwargs
