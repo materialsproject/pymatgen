@@ -22,7 +22,7 @@ class PointGroupTest(unittest.TestCase):
         order = {"mmm": 8, "432": 24, "-6m2": 12}
         for k, v in order.items():
             pg = PointGroup(k)
-            self.assertEqual(order[k], len(pg.symmetry_ops))
+            self.assertEqual(v, len(pg.symmetry_ops))
 
     def test_get_orbit(self):
         pg = PointGroup("mmm")
