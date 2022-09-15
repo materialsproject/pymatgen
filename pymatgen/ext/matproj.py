@@ -1778,12 +1778,8 @@ class MPRester:
 
         if len(api_key) == 32:
             return _MPResterNew(*args, **kwargs)
-        elif len(api_key) == 16:
+        else:
             return _MPResterLegacy(*args, **kwargs)
-
-        raise ValueError(
-            f"API key {api_key} is in an unknown format. Please check your API key at https://materialsproject.org/api"
-        )
 
 
 class MPRestError(Exception):
