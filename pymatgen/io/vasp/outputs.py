@@ -1978,6 +1978,9 @@ class Outcar:
         run_stats["cores"] = None
         with zopen(filename, "rt") as f:
             for line in f:
+                if "serial" in line:
+                    run_stats["cores"] = 1
+                    break
                 if "running" in line:
                     if line.split()[1] == "on":
                         run_stats["cores"] = int(line.split()[2])
@@ -2001,6 +2004,7 @@ class Outcar:
             {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
             terminate_on_match=True,
         )
+
         try:
             self.data["nplwv"] = [[int(self.data["nplwv"][0][0])]]
         except ValueError:
@@ -2014,6 +2018,7 @@ class Outcar:
                 r"maximum and minimum number of plane-waves",
             )
         ]
+
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
         for (n, nplwv) in enumerate(nplwvs_at_kpoints):
             try:
@@ -2069,7 +2074,7 @@ class Outcar:
             self.lcalcpol = True
             self.read_lcalcpol()
             self.read_pseudo_zval()
-
+        
         # Read electrostatic potential
         self.electrostatic_potential = None
         self.ngf = None
