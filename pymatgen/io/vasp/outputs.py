@@ -1175,8 +1175,10 @@ class Vasprun(MSONable):
 
             for s in self.structures:
                 s._charge = charge
-            self.final_structure._charge = charge
-            self.initial_structure._charge = charge
+            if hasattr(self, "initial_structure"):
+                self.initial_structure._charge = charge
+            if hasattr(self, "final_structure"):
+                self.final_structure._charge = charge
 
     def as_dict(self):
         """
