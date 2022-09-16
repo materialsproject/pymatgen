@@ -1541,7 +1541,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             spaces = systems
 
         # Calculate pds for smaller dimension spaces first
-        spaces.sort(key=len, reverse=False)
+        spaces = sorted(spaces, key=len, reverse=False)
 
         pds = [self._get_pd_patch_for_space(s) for s in tqdm(spaces, disable=(not verbose))]
         pds = dict(pds)
