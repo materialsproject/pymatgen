@@ -336,7 +336,7 @@ class PhaseDiagram(MSONable):
     formation_energy_tol = 1e-11
     numerical_tol = 1e-8
 
-    def __init__(self, entries, elements: Sequence[SpeciesLike] = None, *, computed_data=None) -> None:
+    def __init__(self, entries, elements: Sequence[SpeciesLike] = (), *, computed_data=None) -> None:
         """
         Args:
             entries (list[PDEntry]): A list of PDEntry-like objects having an
@@ -398,7 +398,7 @@ class PhaseDiagram(MSONable):
         return cls(entries, elements, computed_data=computed_data)
 
     def _compute(self):
-        if self.elements is None:
+        if self.elements == ():
             self.elements = sorted({els for e in self.entries for els in e.composition.elements})
 
         elements = list(self.elements)

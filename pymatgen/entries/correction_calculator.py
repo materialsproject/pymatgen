@@ -76,7 +76,8 @@ class CorrectionCalculator:
             self.allow_unstable = allow_unstable
         self.exclude_polyanions = (
             exclude_polyanions
-            or "SO4 SO3 CO3 NO3 NO2 OCl3 ClO3 ClO4 HO ClO SeO3 TiO3 TiO4 WO4 SiO3 SiO4 Si2O5 PO3 PO4 P2O7".split()
+            if exclude_polyanions is not None
+            else "SO4 SO3 CO3 NO3 NO2 OCl3 ClO3 ClO4 HO ClO SeO3 TiO3 TiO4 WO4 SiO3 SiO4 Si2O5 PO3 PO4 P2O7".split()
         )
 
         self.corrections: list[float] = []
