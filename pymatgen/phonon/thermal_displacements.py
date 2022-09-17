@@ -154,7 +154,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
         Returns: B as a numpy array, first dimension are the atoms in the structure
-
         """
 
         B = []
@@ -168,7 +167,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
         Returns: beta as a numpy array, first dimension are the atoms in the structure
-
         """
         # will compute beta based on Ustar
         beta = []
@@ -182,7 +180,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
         Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure
-
         """
         U1U2U3 = []
         for mat in self.thermal_displacement_matrix_cart_matrixform:
@@ -194,7 +191,6 @@ class ThermalDisplacementMatrices(MSONable):
         writes a cif including thermal displacements
         Args:
             filename: name of the cif file
-
         """
         w = CifWriter(self.structure)
         w.write_file(filename)
@@ -287,7 +283,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         This will compute ratio between largest eigenvalue of Ucart and smallest one
         Returns:
-
         """
         ratios = []
         for us in self.U1U2U3:
@@ -310,7 +305,6 @@ class ThermalDisplacementMatrices(MSONable):
 
         Returns:
             ThermalDisplacementMatrices
-
         """
         # get matrix form
         thermal_displacement_matrix_cif_matrix_form = ThermalDisplacementMatrices.get_full_matrix(

@@ -206,7 +206,6 @@ class MoleculeStructureComparator(MSONable):
             priority_bonds ():
 
         Returns:
-
         """
         all_bond_pairs = list(itertools.combinations(priority_bonds, r=2))
         all_2_bond_atoms = [set(b1 + b2) for b1, b2 in all_bond_pairs]

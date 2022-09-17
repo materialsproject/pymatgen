@@ -357,7 +357,7 @@ class ConnectedComponent(MSONable):
             new_ends = []
             for current_node_end, current_delta_end in current_ends:
                 for nb in self._connected_subgraph.neighbors(current_node_end):
-                    for iedge, edata in self._connected_subgraph[current_node_end][nb].items():
+                    for edata in self._connected_subgraph[current_node_end][nb].values():
                         new_delta = current_delta_end + get_delta(current_node_end, nb, edata)
                         if (nb.isite, *new_delta) not in visited:
                             new_ends.append((nb, new_delta))
@@ -388,7 +388,6 @@ class ConnectedComponent(MSONable):
             algorithm ():
 
         Returns:
-
         """
         if algorithm == "all_simple_paths":
             self.compute_periodicity_all_simple_paths_algorithm()
@@ -402,7 +401,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
         all_nodes_independent_cell_image_vectors = []
@@ -411,7 +409,7 @@ class ConnectedComponent(MSONable):
             # TODO: do we need to go through all test nodes ?
             this_node_cell_img_vectors = []
             if test_node in self_loop_nodes:
-                for key, edge_data in self._connected_subgraph[test_node][test_node].items():
+                for edge_data in self._connected_subgraph[test_node][test_node].values():
                     if edge_data["delta"] == (0, 0, 0):
                         raise ValueError("There should not be self loops with delta image = (0, 0, 0).")
                     this_node_cell_img_vectors.append(edge_data["delta"])
@@ -461,7 +459,7 @@ class ConnectedComponent(MSONable):
                     this_path_deltas = [np.zeros(3, int)]
                     for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
                         this_path_deltas_new = []
-                        for key, edge_data in self._connected_subgraph[node1][node2].items():
+                        for edge_data in self._connected_subgraph[node1][node2].values():
                             delta = get_delta(node1, node2, edge_data)
                             for current_delta in this_path_deltas:
                                 this_path_deltas_new.append(current_delta + delta)
@@ -491,7 +489,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         my_simple_graph = nx.Graph(self._connected_subgraph)
         cycles = nx.cycle_basis(my_simple_graph)
@@ -502,7 +499,7 @@ class ConnectedComponent(MSONable):
             this_cycle_deltas = [np.zeros(3, int)]
             for (node1, node2) in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
                 this_cycle_deltas_new = []
-                for key, edge_data in self._connected_subgraph[node1][node2].items():
+                for edge_data in self._connected_subgraph[node1][node2].values():
                     delta = get_delta(node1, node2, edge_data)
                     for current_delta in this_cycle_deltas:
                         this_cycle_deltas_new.append(current_delta + delta)
@@ -542,7 +539,6 @@ class ConnectedComponent(MSONable):
             multiplicity ():
 
         Returns:
-
         """
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
@@ -557,7 +553,6 @@ class ConnectedComponent(MSONable):
             pltshow ():
 
         Returns:
-
         """
         import matplotlib.pyplot as plt
 
@@ -604,7 +599,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         return not self.is_0d
 
@@ -613,7 +607,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
@@ -624,7 +617,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
@@ -635,7 +627,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
@@ -646,7 +637,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
@@ -685,7 +675,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
@@ -696,7 +685,6 @@ class ConnectedComponent(MSONable):
         """
 
         Returns:
-
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
@@ -709,7 +697,6 @@ class ConnectedComponent(MSONable):
             start_node ():
 
         Returns:
-
         """
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
@@ -747,7 +734,7 @@ class ConnectedComponent(MSONable):
                     )
                     already_inside = False
                     ddeltas = []
-                    for n1, n2, key, edata in node_edges:
+                    for n1, n2, _key, edata in node_edges:
                         if (n1 == node and n2 == node_neighbor) or (n2 == node and n1 == node_neighbor):
                             if edata["delta"] == (0, 0, 0):
                                 already_inside = True
@@ -935,7 +922,6 @@ class ConnectedComponent(MSONable):
             full ():
 
         Returns:
-
         """
         out = ["Connected component with environment nodes :"]
         if not full:

@@ -44,7 +44,6 @@ class Nwchem2Fiesta(MSONable):
         logfile: logfile of NWCHEM2FIESTA
 
         the run method launches NWCHEM2FIESTA
-
         """
 
         self.folder = folder

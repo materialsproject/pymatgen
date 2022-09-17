@@ -1570,7 +1570,6 @@ class _MPResterLegacy:
                 reactant mixing ratio, `energy` is the reaction energy
                 in eV/atom, and `rxn` is a
                 `pymatgen.analysis.reaction_calculator.Reaction`.
-
         """
         payload = {
             "reactants": " ".join([reactant1, reactant2]),

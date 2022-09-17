@@ -1529,7 +1529,6 @@ class CubicSupercellTransformation(AbstractTransformation):
                 with 90 degree angles (if possible). To avoid long run times,
                 please use max_atoms
             angle_tolerance: tolerance to determine the 90 degree angles
-
         """
         self.min_atoms = min_atoms or -np.Inf
         self.max_atoms = max_atoms or np.Inf
@@ -1705,7 +1704,6 @@ class AddAdsorbateTransformation(AbstractTransformation):
                 structures is returned.
 
         Returns: Slab with adsorbate
-
         """
 
         sitefinder = AdsorbateSiteFinder(
@@ -1869,7 +1867,6 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
                 structures is returned.
 
         Returns: Slab with sites substituted
-
         """
 
         sitefinder = AdsorbateSiteFinder(

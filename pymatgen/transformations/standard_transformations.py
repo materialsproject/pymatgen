@@ -825,7 +825,6 @@ class PerturbStructureTransformation(AbstractTransformation):
             min_distance: if None, all displacements will be equidistant. If int
                 or float, perturb each site a distance drawn from the uniform
                 distribution between 'min_distance' and 'distance'.
-
         """
         self.distance = distance
         self.min_distance = min_distance

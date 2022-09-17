@@ -566,7 +566,6 @@ class Vasprun(MSONable):
         Returns:
             The ionic part of the static dielectric constant. Present when it's a
             DFPT run (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8
-
         """
         return self.ionic_steps[-1].get("epsilon_ion", [])
 
@@ -2273,7 +2272,6 @@ class Outcar:
             line: line to parse
 
         Returns: an array of numbers if found, or empty array if not
-
         """
         m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
         if m:

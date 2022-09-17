@@ -1326,7 +1326,6 @@ class IStructure(SiteCollection, MSONable):
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
         Returns: (center_indices, points_indices, offset_vectors, distances)
-
         """
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres
@@ -3944,7 +3943,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 deleted. "sum" means the occupancies are summed for the sites.
                 "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
-
         """
         from scipy.cluster.hierarchy import fcluster, linkage
         from scipy.spatial.distance import squareform

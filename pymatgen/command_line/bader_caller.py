@@ -327,7 +327,6 @@ class BaderAnalysis:
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
-
         """
         charges = [-self.get_charge(i) for i in range(len(self.structure))]
         struc = self.structure.copy()
@@ -419,7 +418,6 @@ class BaderAnalysis:
                 stored.
             suffix (str): specific suffix to look for (e.g. '.relax1'
                 for 'CHGCAR.relax1.gz').
-
         """
 
         def _get_filepath(filename):
