@@ -350,7 +350,7 @@ class PhaseDiagram(MSONable):
             computed_data (dict): A dict containing pre-computed data. This allows
                 PhaseDiagram object to be reconstituted without performing the
                 expensive convex hull computation. The dict is the output from the
-                PhaseDiagram._compute() method and is stored in PhaseDigram.computed_data
+                PhaseDiagram._compute() method and is stored in PhaseDiagram.computed_data
                 when generated for the first time.
 
 
@@ -421,7 +421,7 @@ class PhaseDiagram(MSONable):
             all_entries.extend(g)
 
         if len(el_refs) != dim:
-            missing = set(elements).difference(el_refs)
+            missing = set(elements) - set(el_refs)
             raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
         data = np.array(
@@ -486,7 +486,7 @@ class PhaseDiagram(MSONable):
             The coordinates for a given composition in the PhaseDiagram's basis
 
         """
-        if set(comp.elements).difference(self.elements):
+        if set(comp.elements) - set(self.elements):
             raise ValueError(f"{comp} has elements not in the phase diagram {self.elements}")
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
@@ -1297,7 +1297,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             elements = {els for e in entries for els in e.composition.elements}
 
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
-        elements = set(elements).difference(self.chempots)
+        elements = set(elements) - set(self.chempots)
 
         all_entries = [
             GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.composition.elements)) > 0
@@ -1506,7 +1506,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             all_entries.extend(g)
 
         if len(el_refs) != dim:
-            missing = set(elements).difference(el_refs)
+            missing = set(elements) - set(el_refs)
             raise ValueError(f"Terminal entries for: {missing} are missing")
 
         data = np.array(
