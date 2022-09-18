@@ -157,10 +157,22 @@ class FEFFDictSet(AbstractFeffInputSet):
             user_tag_settings (dict): override default tag settings. To delete
                 tags, set the key '_del' in the user_tag_settings.
                 eg: user_tag_settings={"_del": ["COREHOLE", "EXCHANGE"]}
+                To specify a net charge on the structure, pass an "IONS" tag containing a list
+                    of tuples where the first element is the unique potential value (ipot value)
+                    and the second element is the charge to be applied to atoms associated
+                    with that potential, e.g. {"IONS": [(0, 0.1), (1, 0.1), (2, 0.1)]}
+                    will result in
+
+                    ION 0 0.1
+                    ION 1 0.1
+                    ION 2 0.1
+
+                    being written to the input file.
             spacegroup_analyzer_settings (dict): parameters passed to SpacegroupAnalyzer.
                 E.g., {"symprec": 0.01, "angle_tolerance": 4}
         """
         self.absorbing_atom = absorbing_atom
+        self.user_tag_settings = user_tag_settings or {}
         # make sure there are no partial occupancies
         if structure.is_ordered:
             if isinstance(structure, Structure):
@@ -181,12 +193,11 @@ class FEFFDictSet(AbstractFeffInputSet):
                 # This is also most appropriate for self-consistent calculations like XANES.
                 # For non-self-consistent calc types, the manual says its best to check results
                 # with and without a net charge b/c it's often better not to use charge
-                if structure.charge != 0:
+                if structure.charge != 0 and not self.user_tag_settings.get("IONS"):
                     warnings.warn(
-                        "Molecule objects with a net charge are not currently supported!"
-                        " You should set one or more ION tags in the input file."
-                        " At present, this must be done manually. Consult the FEFF10 User Guide"
-                        " for more information.",
+                        "For Molecule objects with a net charge it is recommended to set one or more"
+                        " ION tags in the input file by modifying user_tag_settings."
+                        " Consult the FEFFDictSet docstring and the FEFF10 User Guide for more information.",
                         UserWarning,
                     )
             else:
@@ -199,7 +210,6 @@ class FEFFDictSet(AbstractFeffInputSet):
         self.edge = edge
         self.spectrum = spectrum
         self.nkpts = nkpts
-        self.user_tag_settings = user_tag_settings or {}
         self.config_dict["EDGE"] = self.edge
         self.config_dict.update(self.user_tag_settings)
         if "_del" in self.user_tag_settings:
