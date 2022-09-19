@@ -13,7 +13,7 @@ from typing import Callable, Literal
 import numpy as np
 from monty.json import MSONable
 from scipy import stats
-from scipy.ndimage.filters import convolve1d
+from scipy.ndimage import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.typing import ArrayLike
@@ -216,16 +216,10 @@ class Spectrum(MSONable):
         Returns a string containing values and labels of spectrum object for
         plotting.
         """
-        return "\n".join(
-            [
-                self.__class__.__name__,
-                f"{self.XLABEL}: {self.x}",
-                f"{self.YLABEL}: {self.y}",
-            ]
-        )
+        return "\n".join([type(self).__name__, f"{self.XLABEL}: {self.x}", f"{self.YLABEL}: {self.y}"])
 
     def __repr__(self):
         """
         Returns a printable representation of the class
         """
-        return self.__str__()
+        return str(self)

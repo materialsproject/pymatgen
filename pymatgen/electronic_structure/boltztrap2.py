@@ -123,8 +123,8 @@ class VasprunBSLoader:
         else:
             self.vbm_idx = None
             self.cbm_idx = None
-            self.vbm = self.fermi
-            self.cbm = self.fermi
+            self.vbm = self.fermi / units.eV
+            self.cbm = self.fermi / units.eV
 
         if nelect:
             self.nelect_all = nelect
@@ -534,9 +534,9 @@ class BztInterpolator:
         if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for i, k in enumerate(kpath[:-1]):
-                    sta = kpoints_lbls_dict[kpath[i]]
-                    end = kpoints_lbls_dict[kpath[i + 1]]
+                for idx, k_pt in enumerate(kpath[:-1]):
+                    sta = kpoints_lbls_dict[k_pt]
+                    end = kpoints_lbls_dict[kpath[idx + 1]]
                     kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
         else:

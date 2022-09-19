@@ -2,6 +2,9 @@ name: Testing Windows
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     # prevent this action from running on forks
@@ -14,8 +17,8 @@ jobs:
         python-version: ['3.9']
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         pkg:
-          - pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
-          - pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
+          - pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
+          - pymatgen/analysis --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
           - pymatgen/electronic_structure pymatgen/symmetry pymatgen/command_line  pymatgen/ext
           - pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
 
@@ -30,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip

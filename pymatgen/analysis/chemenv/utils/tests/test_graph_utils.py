@@ -696,7 +696,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertEqual(mgc.edge_indices, tuple([0, 1, 4, 0, 2, 2, 5, 3]))
 
         # Testing all cases for a length-4 cycle
-        nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in [0, 1, 2, 3])
+        nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in range(4))
         edges_ref = (3, 6, 9, 12)
         for inodes, iedges in [
             ((0, 1, 2, 3), (3, 6, 9, 12)),

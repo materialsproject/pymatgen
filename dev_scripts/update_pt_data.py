@@ -31,9 +31,8 @@ def test_json():
 def parse_oxi_state():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("oxidation_states.txt")
-    oxidata = f.read()
-    f.close()
+    with open("oxidation_states.txt") as f:
+        oxidata = f.read()
     oxidata = re.sub("[\n\r]", "", oxidata)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
 
@@ -71,9 +70,8 @@ def parse_oxi_state():
 def parse_ionic_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("ionic_radii.csv")
-    radiidata = f.read()
-    f.close()
+    with open("ionic_radii.csv") as f:
+        radiidata = f.read()
     radiidata = radiidata.split("\r")
     header = radiidata[0].split(",")
     for i in range(1, len(radiidata)):
@@ -104,9 +102,8 @@ def parse_ionic_radii():
 def parse_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    f = open("radii.csv")
-    radiidata = f.read()
-    f.close()
+    with open("radii.csv") as f:
+        radiidata = f.read()
     radiidata = radiidata.split("\r")
 
     for i in range(1, len(radiidata)):
@@ -172,30 +169,29 @@ def parse_shannon_radii():
     sheet = wb["Sheet1"]
     i = 2
     radii = collections.defaultdict(dict)
-    while sheet[f"E{int(i)}"].value:
-        if sheet[f"A{int(i)}"].value:
-            el = sheet[f"A{int(i)}"].value
-        if sheet[f"B{int(i)}"].value:
-            charge = int(sheet[f"B{int(i)}"].value)
+    while sheet[f"E{i}"].value:
+        if sheet[f"A{i}"].value:
+            el = sheet[f"A{i}"].value
+        if sheet[f"B{i}"].value:
+            charge = int(sheet[f"B{i}"].value)
             radii[el][charge] = dict()
-        if sheet[f"C{int(i)}"].value:
-            cn = sheet[f"C{int(i)}"].value
+        if sheet[f"C{i}"].value:
+            cn = sheet[f"C{i}"].value
             if cn not in radii[el][charge]:
                 radii[el][charge][cn] = dict()
 
-        if sheet[f"D{int(i)}"].value is not None:
-            spin = sheet[f"D{int(i)}"].value
+        if sheet[f"D{i}"].value is not None:
+            spin = sheet[f"D{i}"].value
         else:
             spin = ""
-        # print("%s - %d - %s" % (el, charge, cn))
 
         radii[el][charge][cn][spin] = {
-            "crystal_radius": float(sheet[f"E{int(i)}"].value),
-            "ionic_radius": float(sheet[f"F{int(i)}"].value),
+            "crystal_radius": float(sheet[f"E{i}"].value),
+            "ionic_radius": float(sheet[f"F{i}"].value),
         }
         i += 1
 
-    for el in radii.keys():
+    for el in radii:
         if el in data:
             data[el]["Shannon radii"] = dict(radii[el])
 
@@ -275,7 +271,7 @@ def add_electron_affinities():
         data.append(row)
     data.pop(0)
     ea = {int(r[0]): float(re.sub(r"[\s\(\)]", "", r[3].strip("()[]"))) for r in data}
-    assert set(ea.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+    assert set(ea).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     print(ea)
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
@@ -309,7 +305,7 @@ def add_ionization_energies():
             data[Z].append(val)
     print(data)
     print(data[51])
-    assert set(data.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+    assert set(data).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
         del v["Ionization energy"]

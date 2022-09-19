@@ -298,10 +298,9 @@ class InsertionElectrode(AbstractElectrode):
             entry_charge = pair.entry_charge if adjacent_only else pair[0].entry_charge
             entry_discharge = pair.entry_discharge if adjacent_only else pair[1].entry_discharge
 
-            chg_frac = entry_charge.composition.get_atomic_fraction(ion)
-            dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)
-
             def in_range(entry):
+                chg_frac = entry_charge.composition.get_atomic_fraction(ion)  # noqa: B023
+                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)  # noqa: B023
                 frac = entry.composition.get_atomic_fraction(ion)
                 return chg_frac <= frac <= dischg_frac
 
@@ -314,7 +313,7 @@ class InsertionElectrode(AbstractElectrode):
                 stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
-                battery_list.append(self.__class__.from_entries(all_entries, self.working_ion_entry))
+                battery_list.append(type(self).from_entries(all_entries, self.working_ion_entry))
         return battery_list
 
     def get_summary_dict(self, print_subelectrodes=True) -> dict:
@@ -329,7 +328,7 @@ class InsertionElectrode(AbstractElectrode):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
 
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
@@ -401,8 +400,8 @@ class InsertionElectrode(AbstractElectrode):
         Returns: MSONAble dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "entries": [entry.as_dict() for entry in self.get_all_entries()],
             "working_ion_entry": self.working_ion_entry.as_dict(),
         }
@@ -457,13 +456,12 @@ class InsertionVoltagePair(AbstractVoltagePair):
         ):
             raise ValueError("VoltagePair: The working ion must be present in one of the entries")
 
-        # check that the entries do not contain the same amount of the workin
-        # element
+        # check that the entries do not contain the same amount of the working element
         if comp_charge.get_atomic_fraction(working_element) == comp_discharge.get_atomic_fraction(working_element):
             raise ValueError("VoltagePair: The working ion atomic percentage cannot be the same in both the entries")
 
         # check that the frameworks of the entries are equivalent
-        if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:
+        if frame_charge_comp.reduced_formula != frame_discharge_comp.reduced_formula:
             raise ValueError("VoltagePair: the specified entries must have the same compositional framework")
 
         # Initialize normalization factors, charged and discharged entries

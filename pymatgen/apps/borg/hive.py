@@ -37,7 +37,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
     def assimilate(self, path):
         """
         Assimilate data in a directory path into a pymatgen object. Because of
-        the quirky nature of Python"s multiprocessing, the object must support
+        the quirky nature of Python's multiprocessing, the object must support
         pymatgen's as_dict() for parallel processing.
 
         Args:
@@ -105,7 +105,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
         if parameters:
             self._parameters.update(parameters)
-        self._data = data if data else []
+        self._data = data or []
 
     def assimilate(self, path):
         """
@@ -183,8 +183,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 "parameters": self._parameters,
                 "data": self._data,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -253,11 +253,11 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
                         warnings.warn(f"{len(files)} files found. {files_to_parse[filename]} is being parsed.")
 
-            if not set(files_to_parse.keys()).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
+            if not set(files_to_parse).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
                 raise ValueError(
-                    "Unable to parse %s as not all necessary files are present! "
+                    f"Unable to parse {files_to_parse} as not all necessary files are present! "
                     "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
-                    "to be present. Only %s detected" % str(files_to_parse.keys())
+                    f"to be present. Only {files} detected"
                 )
 
             poscar = Poscar.from_file(files_to_parse["POSCAR"])
@@ -298,8 +298,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -334,12 +334,12 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the GaussianOutput object. See
                 :class:`pymatgen.io.gaussianio GaussianOutput`. The parameters
-                have to be one of python"s primitive types, i.e., list, dict of
+                have to be one of python's primitive types, i.e., list, dict of
                 strings and integers. If parameters is None, a default set of
                 parameters will be set.
             data (list): Output data to include. Has to be one of the properties
                 supported by the GaussianOutput object. The parameters have to
-                be one of python"s primitive types, i.e. list, dict of strings
+                be one of python's primitive types, i.e. list, dict of strings
                 and integers. If data is None, a default set will be set.
             file_extensions (list):
                 File extensions to be considered as Gaussian output files.
@@ -423,8 +423,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 "data": self._data,
                 "file_extensions": self._file_extensions,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

@@ -231,7 +231,7 @@ class StructureNL:
         self.authors = [Author.parse_author(a) for a in authors]
 
         # turn projects into list of Strings
-        projects = projects if projects else []
+        projects = projects or []
         self.projects = [projects] if isinstance(projects, str) else projects
 
         # check that references are valid BibTeX
@@ -241,14 +241,13 @@ class StructureNL:
             raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
-                "The BibTeX string must be fewer than {} chars "
-                ", you have {}".format(MAX_BIBTEX_CHARS, len(references))
+                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars " f", you have {len(references)}"
             )
 
         self.references = references
 
         # turn remarks into list of Strings
-        remarks = remarks if remarks else []
+        remarks = remarks or []
         self.remarks = [remarks] if isinstance(remarks, str) else remarks
 
         # check remarks limit
@@ -257,39 +256,37 @@ class StructureNL:
                 raise ValueError(f"The remark exceeds the maximum size of140 characters: {r}")
 
         # check data limit
-        self.data = data if data else {}
+        self.data = data or {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
             raise ValueError(
-                "The data dict exceeds the maximum size limit of"
-                " {} bytes (you have {})".format(MAX_DATA_SIZE, sys.getsizeof(data))
+                f"The data dict exceeds the maximum size limit of {MAX_DATA_SIZE} "
+                f"bytes (you have {sys.getsizeof(data)})"
             )
 
-        for k, v in self.data.items():
+        for k in self.data:
             if not k.startswith("_"):
                 raise ValueError(
-                    "data must contain properly namespaced data "
-                    "with keys starting with an underscore. The "
-                    "key {} does not start with an underscore.",
-                    format(k),
+                    "data must contain properly namespaced data with keys starting with an underscore. "
+                    f"The key {k} does not start with an underscore."
                 )
 
         # check for valid history nodes
-        history = history if history else []  # initialize null fields
+        history = history or []  # initialize null fields
         if len(history) > MAX_HNODES:
             raise ValueError(f"A maximum of {MAX_HNODES} History nodes are supported, you have {len(history)}!")
         self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes")
 
-        self.created_at = created_at if created_at else datetime.datetime.utcnow()
+        self.created_at = created_at or datetime.datetime.utcnow()
 
     def as_dict(self):
         """
         Returns: MSONable dict
         """
         d = self.structure.as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["about"] = {
             "authors": [a.as_dict() for a in self.authors],
             "projects": self.projects,
@@ -401,22 +398,6 @@ class StructureNL:
             ]
         )
 
-    def __eq__(self, other):
-        return all(
-            map(
-                lambda n: getattr(self, n) == getattr(other, n),
-                (
-                    "structure",
-                    "authors",
-                    "projects",
-                    "references",
-                    "remarks",
-                    "data",
-                    "history",
-                    "created_at",
-                ),
-            )
-        )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)

@@ -169,7 +169,7 @@ class CollinearMagneticStructureAnalyzer:
 
         has_spin = False
         for comp in structure.species_and_occu:
-            for sp, occu in comp.items():
+            for sp in comp:
                 if getattr(sp, "spin", False):
                     has_spin = True
 
@@ -193,7 +193,7 @@ class CollinearMagneticStructureAnalyzer:
                     "site properties. Any 'None' magmoms have been "
                     "replaced with zero."
                 )
-            magmoms = [m if m else 0 for m in structure.site_properties["magmom"]]
+            magmoms = [m or 0 for m in structure.site_properties["magmom"]]
         elif has_spin:
             magmoms = [getattr(sp, "spin", 0) for sp in structure.species]
             structure.remove_spin()
@@ -679,7 +679,7 @@ class MagneticStructureEnumerator:
                 MagOrderingTransformation, to change automatic cell size limits, etc.
         """
 
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
         self.structure = structure
 
@@ -1039,7 +1039,7 @@ class MagneticStructureEnumerator:
                         if duplicate_checker.matches_ordering(check_structure):
                             structures_to_remove.append(check_idx)
 
-        if len(structures_to_remove):
+        if len(structures_to_remove) == 0:
             self.logger.info(f"Removing {len(structures_to_remove)} duplicate ordered structures")
             ordered_structures = [s for idx, s in enumerate(ordered_structures) if idx not in structures_to_remove]
             ordered_structures_origins = [

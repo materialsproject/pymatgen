@@ -53,11 +53,11 @@ class KPathLatimerMunroTest(PymatgenTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+            _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
         struct = Structure.from_file(struct_file_path)
-        kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+        _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
@@ -69,7 +69,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         kpath = KPathLatimerMunro(struct_prim)
 
         kpoints = kpath._kpath["kpoints"]
-        labels = list(kpoints.keys())
+        labels = list(kpoints)
 
         self.assertEqual(
             sorted(labels),
@@ -137,7 +137,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         kpath = KPathLatimerMunro(col_spin_prim, has_magmoms=True)
 
         kpoints = kpath._kpath["kpoints"]
-        labels = list(kpoints.keys())
+        labels = list(kpoints)
 
         self.assertEqual(
             sorted(labels),

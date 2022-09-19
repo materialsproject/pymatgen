@@ -440,8 +440,8 @@ class UCorrection(Correction):
         Args:
             config_file: Path to the selected compatibility.yaml config file.
             input_set: InputSet object (to check for the +U settings)
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -571,7 +571,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                 Default is False.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
         # convert input arg to a list if not already
@@ -595,17 +595,17 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
             for ea in adjustments:
                 # Has this correction already been applied?
-                if (ea.name, ea.cls, ea.value) in [(ea.name, ea.cls, ea.value) for ea in entry.energy_adjustments]:
+                if (ea.name, ea.cls, ea.value) in [(ea2.name, ea2.cls, ea2.value) for ea2 in entry.energy_adjustments]:
                     # we already applied this exact correction. Do nothing.
                     pass
-                elif (ea.name, ea.cls) in [(ea.name, ea.cls) for ea in entry.energy_adjustments]:
+                elif (ea.name, ea.cls) in [(ea2.name, ea2.cls) for ea2 in entry.energy_adjustments]:
                     # we already applied a correction with the same name
                     # but a different value. Something is wrong.
                     ignore_entry = True
                     warnings.warn(
-                        "Entry {} already has an energy adjustment called {}, but its "
-                        "value differs from the value of {:.3f} calculated here. This "
-                        "Entry will be discarded.".format(entry.entry_id, ea.name, ea.value)
+                        f"Entry {entry.entry_id} already has an energy adjustment called {ea.name}, but its "
+                        f"value differs from the value of {ea.value:.3f} calculated here. This "
+                        "Entry will be discarded."
                     )
                 else:
                     # Add the correction to the energy_adjustments list
@@ -627,11 +627,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entry: A ComputedEntry.
         """
         print(
-            "The uncorrected energy of {} is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.composition,
-                entry.uncorrected_energy,
-                entry.uncorrected_energy / entry.composition.num_atoms,
-            )
+            f"The uncorrected energy of {entry.composition} is {entry.uncorrected_energy:.3f} eV "
+            f"({entry.uncorrected_energy / entry.composition.num_atoms:.3f} eV/atom)."
         )
 
         if len(entry.energy_adjustments) > 0:
@@ -641,11 +638,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 
-        print(
-            "The final energy after adjustments is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.energy, entry.energy_per_atom
-            )
-        )
+        print(f"The final energy after adjustments is {entry.energy:.3f} eV ({entry.energy_per_atom:.3f} eV/atom).")
 
 
 class CorrectionsList(Compatibility):
@@ -737,7 +730,7 @@ class CorrectionsList(Compatibility):
             corrected_energy = centry.energy
             correction_uncertainty = centry.correction_uncertainty
         d = {
-            "compatibility": self.__class__.__name__,
+            "compatibility": type(self).__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
             "correction_uncertainty": correction_uncertainty,
@@ -792,11 +785,13 @@ class MaterialsProjectCompatibility(CorrectionsList):
     valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
+    def __init__(
+        self, compat_type: str = "Advanced", correct_peroxide: bool = True, check_potcar_hash: bool = False
+    ) -> None:
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -835,14 +830,14 @@ class MaterialsProject2020Compatibility(Compatibility):
 
     def __init__(
         self,
-        compat_type="Advanced",
-        correct_peroxide=True,
-        check_potcar_hash=False,
-        config_file=None,
-    ):
+        compat_type: str = "Advanced",
+        correct_peroxide: bool = True,
+        check_potcar_hash: bool = False,
+        config_file: str = None,
+    ) -> None:
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
                 entries are excluded. Advanced means the GGA/GGA+U mixing scheme
                 of Jain et al. (see References) is implemented. In this case,
                 entries which are supposed to be calculated in GGA+U (i.e.,
@@ -878,7 +873,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 https://doi.org/10.1038/s41598-021-94550-5
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
-                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
+                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1-10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
             raise CompatibilityError(f"Invalid compat_type {compat_type}")
@@ -890,12 +885,10 @@ class MaterialsProject2020Compatibility(Compatibility):
         # load corrections and uncertainties
         if config_file:
             if os.path.isfile(config_file):
-                self.config_file = config_file
+                self.config_file: str | None = config_file
                 c = loadfn(self.config_file)
             else:
-                raise ValueError(
-                    f"Custom MaterialsProject2020Compatibility config_file ({config_file}) does not exist."
-                )
+                raise ValueError(f"Custom MaterialsProject2020Compatibility {config_file=} does not exist.")
         else:
             self.config_file = None
             c = loadfn(os.path.join(MODULE_DIR, "MP2020Compatibility.yaml"))
@@ -933,9 +926,8 @@ class MaterialsProject2020Compatibility(Compatibility):
         """
         if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             raise CompatibilityError(
-                "Entry {} has invalid run type {}. Must be GGA or GGA+U. Discarding.".format(
-                    entry.entry_id, entry.parameters.get("run_type")
-                )
+                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
+                f"Must be GGA or GGA+U. Discarding."
             )
 
         # check the POTCAR symbols
@@ -994,20 +986,9 @@ class MaterialsProject2020Compatibility(Compatibility):
                         "formulas, e.g., Li2O2."
                     )
 
-                    common_peroxides = [
-                        "Li2O2",
-                        "Na2O2",
-                        "K2O2",
-                        "Cs2O2",
-                        "Rb2O2",
-                        "BeO2",
-                        "MgO2",
-                        "CaO2",
-                        "SrO2",
-                        "BaO2",
-                    ]
-                    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-                    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+                    common_peroxides = "Li2O2 Na2O2 K2O2 Cs2O2 Rb2O2 BeO2 MgO2 CaO2 SrO2 BaO2".split()
+                    common_superoxides = "LiO2 NaO2 KO2 RbO2 CsO2".split()
+                    ozonides = "LiO3 NaO3 KO3 NaO5".split()
 
                     if rform in common_peroxides:
                         ox_type = "peroxide"
@@ -1038,7 +1019,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         # first check for a pre-populated oxidation states key
         # the key is expected to comprise a dict corresponding to the first element output by
         # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-        if "oxidation_states" not in entry.data.keys():
+        if "oxidation_states" not in entry.data:
             # try to guess the oxidation states from composition
             # for performance reasons, fail if the composition is too large
             try:
@@ -1119,8 +1100,8 @@ class MITCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -1155,8 +1136,8 @@ class MITAqueousCompatibility(CorrectionsList):
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
+            compat_type: Two options, GGA or Advanced. GGA means all GGA+U
+                entries are excluded. Advanced means mixing scheme is
                 implemented to make entries compatible with each other,
                 but entries which are supposed to be done in GGA+U will have the
                 equivalent GGA entries excluded. For example, Fe oxides should
@@ -1206,7 +1187,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous
         equilibria: Scheme to combine first-principles calculations of solids with
         experimental aqueous states, Phys. Rev. B - Condens. Matter Mater. Phys.
-        85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
+        85 (2012) 1-12. doi:10.1103/PhysRevB.85.235438.
     """
 
     def __init__(
@@ -1257,10 +1238,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
             warnings.warn(
-                "You did not provide the required O2 and H2O energies. {} "
+                f"You did not provide the required O2 and H2O energies. {type(self).__name__} "
                 "needs these energies in order to compute the appropriate energy adjustments. It will try "
                 "to determine the values from ComputedEntry for O2 and H2O passed to process_entries, but "
-                "will fail if these entries are not provided.".format(type(self).__name__)
+                "will fail if these entries are not provided."
             )
 
         # Standard state entropy of molecular-like compounds at 298K (-T delta S)
@@ -1295,10 +1276,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         if self.o2_energy is None or self.h2o_energy is None or self.h2o_adjustments is None:
             raise CompatibilityError(
                 "You did not provide the required O2 and H2O energies. "
-                "{} needs these energies in order to compute "
+                f"{type(self).__name__} needs these energies in order to compute "
                 "the appropriate energy adjustments. Either specify the energies as arguments "
-                "to {}.__init__ or run process_entries on a list that includes ComputedEntry for "
-                "the ground state of O2 and H2O.".format(type(self).__name__, type(self).__name__)
+                f"to {type(self).__name__}.__init__ or run process_entries on a list that includes ComputedEntry for "
+                "the ground state of O2 and H2O."
             )
 
         # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
@@ -1406,7 +1387,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
         # convert input arg to a list if not already

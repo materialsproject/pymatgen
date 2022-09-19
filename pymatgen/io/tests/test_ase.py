@@ -6,10 +6,11 @@ import os
 import unittest
 
 import numpy as np
+import pytest
 
 import pymatgen.io.ase as aio
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Molecule, StructureError
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
@@ -161,6 +162,12 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(struct.site_properties["prop"], prop.tolist())
 
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR_overlap"))
+        struct = aio.AseAtomsAdaptor.get_structure(atoms)
+        self.assertEqual([s.species_string for s in struct], atoms.get_chemical_symbols())
+        with pytest.raises(StructureError):
+            struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
+
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_structure_mag(self):
         from ase.io import read
@@ -171,11 +178,13 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(structure.site_properties["magmom"], mags)
         self.assertTrue("final_magmom" not in structure.site_properties)
+        self.assertTrue("initial_magmoms" not in structure.site_properties)
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         self.assertEqual(structure.site_properties["final_magmom"], atoms.get_magnetic_moments().tolist())
         self.assertTrue("magmom" not in structure.site_properties)
+        self.assertTrue("initial_magmoms" not in structure.site_properties)
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_structure_dyn(self):

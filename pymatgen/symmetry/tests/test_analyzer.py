@@ -169,7 +169,6 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
         self.assertEqual(symm_struct.wyckoff_symbols[0], "16h")
-        # self.assertEqual(symm_struct[0].wyckoff, "16h")
 
         # Check copying
         self.assertEqual(symm_struct.copy(), symm_struct)
@@ -178,7 +177,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         ss = SymmetrizedStructure.from_dict(d)
         self.assertEqual(ss.wyckoff_symbols[0], "16h")
-        self.assertIn("SymmetrizedStructure", ss.__str__())
+        self.assertIn("SymmetrizedStructure", str(ss))
 
     def test_find_primitive(self):
         """
@@ -215,6 +214,16 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(grid[1][0][1], 0.0)
         self.assertAlmostEqual(grid[1][0][2], 0.0)
         self.assertAlmostEqual(grid[1][1], 2)
+
+    def test_get_ir_reciprocal_mesh_map(self):
+        mesh = (6, 6, 6)
+        grid = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
+        full_grid, mapping = self.sg.get_ir_reciprocal_mesh_map(mesh=mesh)
+        self.assertEqual(len(np.unique(mapping)), len(grid))
+        for _, i in enumerate(np.unique(mapping)):
+            self.assertAlmostEqual(full_grid[i][0], grid[_][0][0])
+            self.assertAlmostEqual(full_grid[i][1], grid[_][0][1])
+            self.assertAlmostEqual(full_grid[i][2], grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
@@ -529,6 +538,9 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(CH4)
         self.assertEqual(a.sch_symbol, "Td")
         self.assertEqual(len(a.get_pointgroup()), 24)
+        self.assertEqual(a.get_rotational_symmetry_number(), 12)
+        a = PointGroupAnalyzer(H2O)
+        self.assertEqual(a.get_rotational_symmetry_number(), 2)
         a = PointGroupAnalyzer(PF6)
         self.assertEqual(a.sch_symbol, "Oh")
         self.assertEqual(len(a.get_pointgroup()), 48)

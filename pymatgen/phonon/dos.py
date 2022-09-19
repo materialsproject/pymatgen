@@ -121,11 +121,11 @@ class PhononDos(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of PhononDos.
+        JSON-serializable dict representation of PhononDos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "frequencies": list(self.frequencies),
             "densities": list(self.densities),
         }
@@ -294,7 +294,7 @@ class PhononDos(MSONable):
 
     def zero_point_energy(self, structure=None):
         """
-        Zero point energy energy of the system. Only positive frequencies will be used.
+        Zero point energy of the system. Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
@@ -329,7 +329,7 @@ class CompletePhononDos(PhononDos):
         Dict of partial densities of the form {Site:Densities}
     """
 
-    def __init__(self, structure, total_dos, pdoss):
+    def __init__(self, structure: Structure, total_dos, pdoss):
         """
         Args:
             structure: Structure associated with this particular DOS.
@@ -337,7 +337,7 @@ class CompletePhononDos(PhononDos):
             pdoss: The pdoss are supplied as an {Site: Densities}
         """
         super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = {s: np.array(d) for s, d in pdoss.items()}
+        self.pdos = {site: np.array(dens) for site, dens in pdoss.items()}
         self.structure = structure
 
     def get_site_dos(self, site):
@@ -384,11 +384,11 @@ class CompletePhononDos(PhononDos):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of CompletePhononDos.
+        JSON-serializable dict representation of CompletePhononDos.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "frequencies": list(self.frequencies),
             "densities": list(self.densities),

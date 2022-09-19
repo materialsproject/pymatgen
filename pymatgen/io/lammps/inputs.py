@@ -5,6 +5,8 @@
 This module implements methods for writing LAMMPS input files.
 """
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
@@ -12,7 +14,6 @@ import warnings
 from collections import OrderedDict
 from pathlib import Path
 from string import Template
-from typing import Dict, Optional, Union
 
 from monty.dev import deprecated
 from monty.io import zopen
@@ -378,10 +379,10 @@ class LammpsTemplateGen(TemplateInputGen):
 
     def get_input_set(  # type: ignore
         self,
-        script_template: Union[str, Path],
-        settings: Optional[Dict] = None,
+        script_template: str | Path,
+        settings: dict | None = None,
         script_filename: str = "in.lammps",
-        data: Union[LammpsData, CombinedData] = None,
+        data: LammpsData | CombinedData | None = None,
         data_filename: str = "system.data",
     ):
         """

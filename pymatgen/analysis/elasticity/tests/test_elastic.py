@@ -155,7 +155,7 @@ class ElasticTensorTest(PymatgenTest):
         test_et[0][0][0][0] = -100000
         prop_dict = test_et.property_dict
         for attr_name in sprop_dict:
-            if attr_name not in (list(prop_dict.keys()) + ["structure"]):
+            if attr_name not in (list(prop_dict) + ["structure"]):
                 self.assertRaises(ValueError, getattr(test_et, attr_name), self.structure)
         self.assertRaises(ValueError, test_et.get_structure_property_dict, self.structure)
         noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
@@ -193,7 +193,7 @@ class ElasticTensorTest(PymatgenTest):
     def test_from_independent_strains(self):
         strains = self.toec_dict["strains"]
         stresses = self.toec_dict["stresses"]
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True):
             et = ElasticTensor.from_independent_strains(strains, stresses)
         self.assertArrayAlmostEqual(et.voigt, self.toec_dict["C2_raw"], decimal=-1)
 
@@ -294,11 +294,15 @@ class ElasticTensorExpansionTest(PymatgenTest):
         # Get Gruneisen parameter
         gp = self.exp_cu.get_gruneisen_parameter()
         self.assertAlmostEqual(gp, 2.59631832)
-        gpt = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
+        _ = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
 
     def test_thermal_expansion_coeff(self):
         # TODO get rid of duplicates
         alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300, mode="dulong-petit")
+        alpha_dp_ground_truth = 6.3471959e-07 * np.ones((3, 3))
+        alpha_dp_ground_truth[np.diag_indices(3)] = 2.2875769e-7
+        self.assertArrayAlmostEqual(alpha_dp_ground_truth, alpha_dp, decimal=4)
+
         alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300, mode="debye")
         alpha_comp = 5.9435148e-7 * np.ones((3, 3))
         alpha_comp[np.diag_indices(3)] = 21.4533472e-06
@@ -399,23 +403,23 @@ class DiffFitTest(PymatgenTest):
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         random.shuffle(all_strains)
         all_stresses = [Stress.from_voigt(np.random.random(6)).zeroed() for s in all_strains]
-        strain_dict = {k.tostring(): v for k, v in zip(all_strains, all_stresses)}
+        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
         self.assertEqual(len(strain_inds), len(ss_dict))
         # Check sets of strain states are correct
-        self.assertEqual(set(strain_states), set(ss_dict.keys()))
-        for strain_state, data in ss_dict.items():
+        self.assertEqual(set(strain_states), set(ss_dict))
+        for data in ss_dict.values():
             # Check correspondence of strains/stresses
             for strain, stress in zip(data["strains"], data["stresses"]):
                 self.assertArrayAlmostEqual(
                     Stress.from_voigt(stress),
-                    strain_dict[Strain.from_voigt(strain).tostring()],
+                    strain_dict[Strain.from_voigt(strain).tobytes()],
                 )
         # Add test to ensure zero strain state doesn't cause issue
         strains, stresses = [Strain.from_voigt([-0.01] + [0] * 5)], [Stress(np.eye(3))]
         ss_dict = get_strain_state_dict(strains, stresses)
-        self.assertArrayAlmostEqual(list(ss_dict.keys()), [[1, 0, 0, 0, 0, 0]])
+        self.assertArrayAlmostEqual(list(ss_dict), [[1, 0, 0, 0, 0, 0]])
 
     def test_find_eq_stress(self):
         test_strains = deepcopy(self.strains)

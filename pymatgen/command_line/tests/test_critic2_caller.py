@@ -123,7 +123,7 @@ class Critic2AnalysisTest(unittest.TestCase):
         # test as/from dict
         d = self.c2o.as_dict()
         self.assertEqual(
-            set(d.keys()),
+            set(d),
             {
                 "@module",
                 "@class",
@@ -143,7 +143,7 @@ class Critic2AnalysisTest(unittest.TestCase):
         sg = self.c2o.structure_graph()
         self.assertEqual(str(sg.structure[3].specie), "Xbcp")
         self.assertSetEqual(
-            set(list(sg.graph.edges(data=True))[0][2].keys()),
+            set(list(sg.graph.edges(data=True))[0][2]),
             {"to_jimage", "weight", "field", "laplacian", "ellipticity", "frac_coords"},
         )
 

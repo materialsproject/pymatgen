@@ -132,19 +132,19 @@ DERIVED_UNITS = {
 }
 
 ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))  # type: ignore
-SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d.keys())
+SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}  # type: ignore
 for utype, d in ALL_UNITS.items():
-    assert not set(d.keys()).intersection(_UNAME2UTYPE.keys())
+    assert not set(d).intersection(_UNAME2UTYPE)
     _UNAME2UTYPE.update({uname: utype for uname in d})
 del utype, d
 
 
 def _get_si_unit(unit):
     unit_type = _UNAME2UTYPE[unit]
-    si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type].keys())
+    si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type])
     return list(si_unit)[0], BASE_UNITS[unit_type][unit]
 
 
@@ -232,7 +232,7 @@ class Unit(collections.abc.Mapping):
         return len(self._unit)
 
     def __repr__(self):
-        sorted_keys = sorted(self._unit.keys(), key=lambda k: (-self._unit[k], k))
+        sorted_keys = sorted(self._unit, key=lambda k: (-self._unit[k], k))
         return " ".join(
             [f"{k}^{self._unit[k]}" if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
         )
@@ -322,15 +322,15 @@ class FloatWithUnit(float):
         """
         # Extract num and unit string.
         s = s.strip()
-        for i, char in enumerate(s):
+        for idx, char in enumerate(s):  # noqa: B007
             if char.isalpha() or char.isspace():
                 break
         else:
             raise Exception(f"Unit is missing in string {s}")
-        num, unit = float(s[:i]), s[i:]
+        num, unit = float(s[:idx]), s[idx:]
 
         # Find unit type (set it to None if it cannot be detected)
-        for unit_type, d in BASE_UNITS.items():
+        for unit_type, d in BASE_UNITS.items():  # noqa: B007
             if unit in d:
                 break
         else:
@@ -359,12 +359,8 @@ class FloatWithUnit(float):
         self._unit = Unit(unit)
         self._unit_type = unit_type
 
-    def __repr__(self):
-        return super().__repr__()
-
     def __str__(self):
-        s = super().__str__()
-        return f"{s} {self._unit}"
+        return f"{super().__str__()} {self._unit}"
 
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
@@ -410,7 +406,6 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        # print(self.__dict__)
         # FIXME
         # There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
@@ -426,11 +421,9 @@ class FloatWithUnit(float):
     def __getstate__(self):
         state = self.__dict__.copy()
         state["val"] = float(self)
-        # print("in getstate %s" % state)
         return state
 
     def __setstate__(self, state):
-        # print("in setstate %s" % state)
         self._unit = state["_unit"]
 
     @property
@@ -485,7 +478,7 @@ class FloatWithUnit(float):
         """
         Supported units for specific unit type.
         """
-        return tuple(ALL_UNITS[self._unit_type].keys())
+        return tuple(ALL_UNITS[self._unit_type])
 
 
 class ArrayWithUnit(np.ndarray):
@@ -546,10 +539,7 @@ class ArrayWithUnit(np.ndarray):
         return self._unit
 
     def __reduce__(self):
-        # print("in reduce")
         reduce = list(super().__reduce__())
-        # print("unit",self._unit)
-        # print(reduce[2])
         reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
         return tuple(reduce)
 
@@ -562,7 +552,7 @@ class ArrayWithUnit(np.ndarray):
         return f"{np.array(self).__repr__()} {self.unit}"
 
     def __str__(self):
-        return f"{np.array(self).__str__()} {self.unit}"
+        return f"{np.array(self)} {self.unit}"
 
     def __add__(self, other):
         if hasattr(other, "unit_type"):
@@ -788,7 +778,7 @@ def obj_with_unit(obj, unit):
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
-    if isinstance(obj, collections.Mapping):
+    if isinstance(obj, collections.abc.Mapping):
         return {k: obj_with_unit(v, unit) for k, v in obj.items()}
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 

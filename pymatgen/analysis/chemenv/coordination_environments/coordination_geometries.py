@@ -53,7 +53,7 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of the algorithm
+        A JSON-serializable dict representation of the algorithm
         """
 
     @property
@@ -101,23 +101,23 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
     @property
     def as_dict(self):
         """
-        Return the JSON serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
+        Return the JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
 
-        Returns: a JSON serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
+        Returns: a JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "permutations": self._permutations,
         }
 
     @classmethod
     def from_dict(cls, dd):
         """
-        Reconstructs the ExplicitPermutationsAlgorithm algorithm from its JSON serializable dict representation.
+        Reconstructs the ExplicitPermutationsAlgorithm algorithm from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
+            dd: a JSON-serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
 
         Returns: an ExplicitPermutationsAlgorithm algorithm.
         """
@@ -143,7 +143,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         explicit_optimized_permutations=None,
         multiplicity=None,
         other_plane_points=None,
-    ):  # , plane_safe_permutations=False):
+    ):
         """
             Initializes a separation plane for a given perfect coordination geometry
 
@@ -179,10 +179,6 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self._hash = 10000 * len(plane_points) + 100 * len(point_groups[0]) + len(point_groups[1])
         self.ordered_plane = ordered_plane
         self.ordered_point_groups = [False, False] if ordered_point_groups is None else ordered_point_groups
-        # self._ordered_indices = list(point_groups[0])
-        # self._ordered_indices.extend(plane_points)
-        # self._ordered_indices.extend(point_groups[1])
-        # self._inv_ordered_indices = np.argsort(self._ordered_indices)
         self.explicit_permutations = explicit_permutations
         self.explicit_optimized_permutations = explicit_optimized_permutations
         self._safe_permutations = None
@@ -203,24 +199,6 @@ class SeparationPlane(AbstractChemenvAlgorithm):
             len(plane_points),
             len(point_groups[1]),
         )
-
-    # @property
-    # def ordered_indices(self):
-    #     """
-    #     Ordered indices of the separation plane.
-    #
-    #     Examples:
-    #          For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
-    #          point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
-    #          [0, 3, 5, 8, 1, 4, 2, 7, 6].
-    #
-    #     Returns: list of ordered indices of this separation plane.
-    #     """
-    #     return self._ordered_indices
-    #
-    # @property
-    # def inv_ordered_indices(self):
-    #     return self._inv_ordered_indices
 
     @property
     def permutations(self):
@@ -325,13 +303,13 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     @property
     def as_dict(self):
         """
-        Return the JSON serializable dict representation of this SeparationPlane algorithm.
+        Return the JSON-serializable dict representation of this SeparationPlane algorithm.
 
-        Returns: a JSON serializable dict representation of this SeparationPlane algorithm.
+        Returns: a JSON-serializable dict representation of this SeparationPlane algorithm.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "plane_points": self.plane_points,
             "mirror_plane": self.mirror_plane,
             "ordered_plane": self.ordered_plane,
@@ -351,10 +329,10 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     @classmethod
     def from_dict(cls, dd):
         """
-        Reconstructs the SeparationPlane algorithm from its JSON serializable dict representation.
+        Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON serializable dict representation of an SeparationPlane algorithm.
+            dd: a JSON-serializable dict representation of an SeparationPlane algorithm.
 
         Returns: a SeparationPlane algorithm.
         """
@@ -378,11 +356,9 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
     def __str__(self):
         out = "Separation plane algorithm with the following reference separation :\n"
-        out += "[{}] | [{}] | [{}]".format(
-            "-".join(str(pp) for pp in [self.point_groups[0]]),
-            "-".join(str(pp) for pp in [self.plane_points]),
-            "-".join(str(pp) for pp in [self.point_groups[1]]),
-        )
+        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[0]])}] | "
+        out += f"[{'-'.join(str(pp) for pp in [self.plane_points])}] | "
+        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[1]])}]"
         return out
 
 
@@ -531,17 +507,17 @@ class CoordinationGeometry:
 
         def as_dict(self):
             """
-            A JSON serializable dict representation of this NeighborsSetsHints
+            A JSON-serializable dict representation of this NeighborsSetsHints
             """
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
         def from_dict(cls, dd):
             """
-            Reconstructs the NeighborsSetsHints from its JSON serializable dict representation.
+            Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation.
 
             Args:
-                dd: a JSON serializable dict representation of a NeighborsSetsHints.
+                dd: a JSON-serializable dict representation of a NeighborsSetsHints.
 
             Returns: a NeighborsSetsHints.
             """
@@ -555,7 +531,7 @@ class CoordinationGeometry:
         IUPAC_symbol=None,
         IUCr_symbol=None,
         coordination=None,
-        central_site=np.zeros(3),
+        central_site=None,
         points=None,
         solid_angles=None,
         permutations_safe_override=False,
@@ -597,7 +573,7 @@ class CoordinationGeometry:
         self.IUPACsymbol = IUPAC_symbol
         self.IUCrsymbol = IUCr_symbol
         self.coordination = coordination
-        self.central_site = np.array(central_site)
+        self.central_site = np.array(central_site or np.zeros(3))
         self.points = points
         self._solid_angles = solid_angles
         self.permutations_safe_override = permutations_safe_override
@@ -617,7 +593,7 @@ class CoordinationGeometry:
 
     def as_dict(self):
         """
-        A JSON serializable dict representation of this CoordinationGeometry.
+        A JSON-serializable dict representation of this CoordinationGeometry.
         """
         return {
             "mp_symbol": self._mp_symbol,
@@ -642,10 +618,10 @@ class CoordinationGeometry:
     @classmethod
     def from_dict(cls, dd):
         """
-        Reconstructs the CoordinationGeometry from its JSON serializable dict representation.
+        Reconstructs the CoordinationGeometry from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON serializable dict representation of a CoordinationGeometry.
+            dd: a JSON-serializable dict representation of a CoordinationGeometry.
 
         Returns: a CoordinationGeometry.
         """
@@ -1019,7 +995,7 @@ class AllCoordinationGeometries(dict):
                     self.separations_cg[cn][sep].append(cg.mp_symbol)
                     self.minpoints[cn] = min(self.minpoints[cn], algo.minimum_number_of_points)
                     self.maxpoints[cn] = max(self.maxpoints[cn], algo.maximum_number_of_points)
-        self.maxpoints_inplane = {cn: max(sep[1] for sep in seps.keys()) for cn, seps in self.separations_cg.items()}
+        self.maxpoints_inplane = {cn: max(sep[1] for sep in seps) for cn, seps in self.separations_cg.items()}
 
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)
@@ -1306,40 +1282,29 @@ class AllCoordinationGeometries(dict):
                 mystring += f"\\section*{{Coordination {cn}}}\n\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
                     mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
-                    mystring += "IUPAC : {iupac}\n\nIUCr : {iucr}\n\n".format(
-                        iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol
-                    )
+                    mystring += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
                     mystring += "\\begin{center}\n"
-                    mystring += "\\includegraphics[scale=0.15]{{images/{let}_{cif}.png}}\n".format(
-                        let=cg.mp_symbol.split(":")[0], cif=cg.mp_symbol.split(":")[1]
-                    )
+                    mystring += f"\\includegraphics[scale=0.15]{{images/{cg.mp_symbol.split(':')[0]}_"
+                    mystring += f"{cg.mp_symbol.split(':')[1]}.png}}\n"
                     mystring += "\\end{center}\n\n"
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
                     mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
-                    mystring += "IUPAC : {iupac}\n\nIUCr : {iucr}\n\n".format(
-                        iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol
-                    )
+                    mystring += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
         elif type == "all_geometries_latex":
             mystring = ""
             for cn in range(1, maxcn + 1):
                 mystring += f"\\subsection*{{Coordination {cn}}}\n\n"
                 mystring += "\\begin{itemize}\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
-                    mystring += "\\item {mp} $\\rightarrow$ {name} ".format(
-                        mp=cg.mp_symbol.replace("_", "\\_"), name=cg.get_name()
-                    )
-                    mystring += "(IUPAC : {iupac} - IUCr : {iucr})\n".format(
-                        iupac=cg.IUPAC_symbol_str,
-                        iucr=cg.IUCr_symbol_str.replace("[", "$[$").replace("]", "$]$"),
-                    )
+                    escaped_mp_symbol = cg.mp_symbol.replace("_", "\\_")
+                    mystring += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
+                    mystring += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
+                    mystring += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
-                    mystring += "\\item {mp} $\\rightarrow$ {name} ".format(
-                        mp=cg.mp_symbol.replace("_", "\\_"), name=cg.get_name()
-                    )
-                    mystring += "(IUPAC : {iupac} - IUCr : {iucr})\n".format(
-                        iupac=cg.IUPAC_symbol_str,
-                        iucr=cg.IUCr_symbol_str.replace("[", "$[$").replace("]", "$]$"),
-                    )
+                    escaped_mp_symbol = cg.mp_symbol.replace("_", "\\_")
+                    mystring += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
+                    mystring += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
+                    mystring += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
                 mystring += "\\end{itemize}\n\n"
         else:
             mystring = "+-------------------------+\n| Coordination geometries |\n+-------------------------+\n\n"

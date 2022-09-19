@@ -119,26 +119,21 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         """
         return PseudoParser().parse(filename)
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("md5", "Z", "Z_val", "l_max")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
         return (
-            self.md5 == other.md5
+            all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
             and self.__class__ == other.__class__
-            and self.Z == other.Z
-            and self.Z_val == other.Z_val
-            and self.l_max == other.l_max
         )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __repr__(self):
         try:
-            return f"<{self.__class__.__name__} at {os.path.relpath(self.filepath)}>"
+            return f"<{type(self).__name__} at {os.path.relpath(self.filepath)}>"
         except Exception:
             # relpath can fail if the code is executed in demon mode.
-            return f"<{self.__class__.__name__} at {self.filepath}>"
+            return f"<{type(self).__name__} at {self.filepath}>"
 
     def __str__(self):
         return self.to_string()
@@ -148,7 +143,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # pylint: disable=E1101
         lines = []
         app = lines.append
-        app(f"<{self.__class__.__name__}: {self.basename}>")
+        app(f"<{type(self).__name__}: {self.basename}>")
         app("  summary: " + self.summary.strip())
         app(f"  number of valence electrons: {self.Z_val}")
         app(f"  maximum angular momentum: {l2str(self.l_max)}")
@@ -196,7 +191,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def type(self):
         """Type of pseudo."""
-        return self.__class__.__name__
+        return type(self).__name__
 
     @property
     def element(self):
@@ -279,8 +274,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # Consistency test based on md5
         if "md5" in d and d["md5"] != new.md5:
             raise ValueError(
-                "The md5 found in file does not agree with the one in dict\n"
-                "Received %s\nComputed %s" % (d["md5"], new.md5)
+                f"The md5 found in file does not agree with the one in dict\nReceived {d['md5']}\nComputed {new.md5}"
             )
 
         return new
@@ -309,7 +303,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             shutil.copy(djrepo, os.path.join(tmpdir, os.path.basename(djrepo)))
 
         # Build new object and copy dojo_report if present.
-        new = self.__class__.from_file(new_path)
+        new = type(self).from_file(new_path)
         if self.has_dojo_report:
             new.dojo_report = self.dojo_report.deepcopy()
 
@@ -489,7 +483,7 @@ class AbinitPseudo(Pseudo):
         # Build xc from header.
         self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
-        for attr_name, desc in header.items():
+        for attr_name in header:
             value = header.get(attr_name, None)
 
             # Hide these attributes since one should always use the public interface.
@@ -659,11 +653,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = "line: {}\n len(keys) != len(value)\nkeys: {}\n values: {}".format(
-                line,
-                keys,
-                values,
-            )
+            msg = f"line: {line}\n len(keys) != len(value)\nkeys: {keys}\n values: {values}"
             raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
@@ -1148,11 +1138,6 @@ class PseudoParser:
                     logger.critical(msg)
                     return None
 
-                # if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
-                #                              "pspcod,pspxc,lmax,llocal,mmax,r2well"]:
-                #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                #    return None
-
                 if pspcod not in self._PSPCODES:
                     raise self.Error(f"{filename}: Don't know how to handle pspcod {pspcod}\n")
 
@@ -1162,9 +1147,6 @@ class PseudoParser:
                     # PAW -> need to know the format pspfmt
                     tokens = lines[lineno + 1].split()
                     pspfmt, creatorID = tokens[:2]
-                    # if tokens[-1].strip() != "pspfmt,creatorID":
-                    #    raise self.Error("%s: Invalid line\n %s" % (filename, line))
-                    #    return None
 
                     ppdesc = ppdesc._replace(format=pspfmt)
 
@@ -1309,7 +1291,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         Root tree of XML.
         """
-        from xml.etree import cElementTree as Et
+        from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
         return tree.getroot()
@@ -1580,7 +1562,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
+class PseudoTable(collections.abc.Sequence, MSONable):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.
@@ -1703,7 +1685,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
             yield from self._pseudos_with_z[z]
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}>"
+        return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_table()
@@ -1721,7 +1703,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
     @property
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
-        return sorted(list(self._pseudos_with_z.keys()))
+        return sorted(list(self._pseudos_with_z))
 
     # def max_ecut_pawecutdg(self, accuracy):
     # """Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""
@@ -1740,8 +1722,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
                 k += k.split("#")[0] + "#" + str(count)
                 count += 1
             d.update({k: p.as_dict()})
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod
@@ -1765,7 +1747,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
     def all_combinations_for_elements(self, element_symbols):
         """
-        Return a list with all the the possible combination of pseudos
+        Return a list with all the possible combination of pseudos
         for the given list of element_symbols.
         Each item is a list of pseudopotential objects.
 

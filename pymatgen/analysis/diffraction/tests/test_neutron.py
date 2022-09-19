@@ -50,7 +50,7 @@ class NDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(nd.y[0], 100)
         self.assertAlmostEqual(nd.x[2], 44.39599754)
         self.assertAlmostEqual(nd.y[2], 42.62382267)
-        self.assertAlmostEqual(len(nd.hkls[0][0].keys()), 2)
+        self.assertAlmostEqual(len(nd.hkls[0][0]), 2)
 
         # Test an exception in case of the input element is
         # not in scattering length table.

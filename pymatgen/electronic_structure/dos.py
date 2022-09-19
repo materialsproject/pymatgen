@@ -12,7 +12,7 @@ import warnings
 
 import numpy as np
 from monty.json import MSONable
-from scipy.constants.codata import value as _cd
+from scipy.constants import value as _cd
 from scipy.signal import hilbert
 
 from pymatgen.core.periodic_table import get_el_sp
@@ -80,7 +80,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
         energies = self.x
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
@@ -120,7 +120,7 @@ class DOS(Spectrum):
             tdos = self.y[:, 1]
 
         if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]  # type: ignore
+            tol = tol * tdos.sum() / tdos.shape[0]
 
         # find index of fermi energy
         i_fermi = 0
@@ -234,7 +234,7 @@ class Dos(MSONable):
         Returns:
             Dict of Gaussian-smeared densities.
         """
-        from scipy.ndimage.filters import gaussian_filter1d
+        from scipy.ndimage import gaussian_filter1d
 
         smeared_dens = {}
         diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
@@ -256,7 +256,7 @@ class Dos(MSONable):
         """
         if not all(np.equal(self.energies, other.energies)):
             raise ValueError("Energies of both DOS are not compatible!")
-        densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities.keys()}
+        densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities}
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self, energy: float):
@@ -267,7 +267,7 @@ class Dos(MSONable):
             energy: Energy to return the density for.
         """
         f = {}
-        for spin in self.densities.keys():
+        for spin in self.densities:
             f[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return f
 
@@ -388,11 +388,11 @@ class Dos(MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of Dos.
+        JSON-serializable dict representation of Dos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
@@ -610,11 +610,11 @@ class FermiDos(Dos, MSONable):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of Dos.
+        JSON-serializable dict representation of Dos.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
@@ -826,9 +826,9 @@ class CompleteDos(Dos):
         up to the Fermi level
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
 
         Returns:
@@ -884,9 +884,9 @@ class CompleteDos(Dos):
         is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -916,9 +916,9 @@ class CompleteDos(Dos):
         Note that the band width is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -948,15 +948,15 @@ class CompleteDos(Dos):
         Note that the skewness is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbitals to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbitals to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected bandwidth in eV
+            Orbital-projected skewness in eV
         """
 
         skewness = self.get_n_moment(
@@ -983,15 +983,15 @@ class CompleteDos(Dos):
         Note that the skewness is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected bandwidth in eV
+            Orbital-projected kurtosis in eV
         """
 
         kurtosis = (
@@ -1020,9 +1020,9 @@ class CompleteDos(Dos):
 
         Args:
             n: The order for the moment
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -1058,7 +1058,6 @@ class CompleteDos(Dos):
         densities = dos.get_densities(spin=spin)
 
         # Only consider a given erange, if desired
-        energies = dos.energies - dos.efermi
         if erange:
             densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
@@ -1137,9 +1136,9 @@ class CompleteDos(Dos):
         Hilbert transform of the orbital-projected DOS.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -1182,11 +1181,11 @@ class CompleteDos(Dos):
 
     def as_dict(self) -> dict:
         """
-        Json-serializable dict representation of CompleteDos.
+        JSON-serializable dict representation of CompleteDos.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
             "energies": self.energies.tolist(),
@@ -1351,7 +1350,7 @@ def add_densities(density1: dict[Spin, ArrayLike], density2: dict[Spin, ArrayLik
     Returns:
         Dict of {spin: density}.
     """
-    return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1.keys()}
+    return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1}
 
 
 def _get_orb_type(orb):

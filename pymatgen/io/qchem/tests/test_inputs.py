@@ -149,8 +149,8 @@ $end"""
 $end"""
         self.assertEqual(vdw_test_sequential, vdw_actual_sequential)
 
-        with self.assertRaises(ValueError):
-            bad_vdw_test = QCInput.van_der_waals_template(vdw_params, mode="mymode")
+        with self.assertRaises(ValueError):  # bad vdw test
+            QCInput.van_der_waals_template(vdw_params, mode="mymode")
 
     def test_find_sections(self):
         str_single_job_input = """$molecule
@@ -312,7 +312,7 @@ $end"""
             "max_scf_cycles": "300",
             "gen_scfman": "true",
         }
-        str_test = QCInput(molecule=molecule, rem=rem).__str__().split("\n")
+        str_test = str(QCInput(molecule=molecule, rem=rem)).split("\n")
         str_actual_list = [
             "$molecule",
             " 0 1",

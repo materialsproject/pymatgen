@@ -20,6 +20,7 @@ from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
 
@@ -38,7 +39,7 @@ def average_coordination_number(structures, freq=10):
         Dictionary of elements as keys and average coordination numbers as values.
     """
     coordination_numbers = {}
-    for spec in structures[0].composition.as_dict().keys():
+    for spec in structures[0].composition.as_dict():
         coordination_numbers[spec] = 0.0
     count = 0
     for i, s in enumerate(structures):
@@ -50,8 +51,7 @@ def average_coordination_number(structures, freq=10):
             cn = vnn.get_cn(s, j, use_weights=True)
             coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
-    for el in coordination_numbers:
-        coordination_numbers[el] = coordination_numbers[el] / elements[el] / count
+    coordination_numbers = {el: v / elements[el] / count for el, v in coordination_numbers.items()}
     return coordination_numbers
 
 
@@ -60,7 +60,7 @@ class VoronoiAnalyzer:
     Performs a statistical analysis of Voronoi polyhedra around each site.
     Each Voronoi polyhedron is described using Schaefli notation.
     That is a set of indices {c_i} where c_i is the number of faces with i
-    number of vertices.  E.g. for a bcc crystal, there is only one polyhedron
+    number of vertices. E.g. for a bcc crystal, there is only one polyhedron
     notation of which is [0,6,0,8,0,0,...].
     In perfect crystals, these also corresponds to the Wigner-Seitz cells.
     For distorted-crystals, liquids or amorphous structures, rather than one-type,
@@ -80,7 +80,7 @@ class VoronoiAnalyzer:
         self.cutoff = cutoff
         self.qhull_options = qhull_options
 
-    def analyze(self, structure, n=0):
+    def analyze(self, structure: Structure, n=0):
         """
         Performs Voronoi analysis and returns the polyhedra around atom n
         in Schlaefli notation.
@@ -251,7 +251,7 @@ class VoronoiConnectivity:
     polyhedron between two sites.
     """
 
-    def __init__(self, structure, cutoff=10):
+    def __init__(self, structure: Structure, cutoff=10):
         """
         Args:
             structure (Structure): Input structure
@@ -421,7 +421,7 @@ class OxideType:
     Separate class for determining oxide type.
     """
 
-    def __init__(self, structure, relative_cutoff=1.1):
+    def __init__(self, structure: Structure, relative_cutoff=1.1):
         """
         Args:
             structure: Input structure.
@@ -462,7 +462,7 @@ class OxideType:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species.keys()]
+            syms = [sp.symbol for sp in site.species]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
@@ -541,9 +541,14 @@ def sulfide_type(structure):
     if comp.is_element or s not in comp:
         return None
 
-    finder = SpacegroupAnalyzer(structure, symprec=0.1)
-    symm_structure = finder.get_symmetrized_structure()
-    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+    try:
+        finder = SpacegroupAnalyzer(structure, symprec=0.1)
+        symm_structure = finder.get_symmetrized_structure()
+        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+    except Exception:
+        # Sometimes the symmetry analyzer fails for some tolerance or other issues. This is a fall back that simply
+        # analyzes all S sites.
+        s_sites = [site for site in structure if site.specie == s]
 
     def process_site(site):
 

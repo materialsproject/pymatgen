@@ -36,7 +36,7 @@ class HeisenbergMapper:
     Class to compute exchange parameters from low energy magnetic orderings.
     """
 
-    def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
+    def __init__(self, ordered_structures, energies, cutoff=0.0, tol: float = 0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only
@@ -59,20 +59,14 @@ class HeisenbergMapper:
                 being equal.
 
         Parameters:
-            strategy (object): Class from pymatgen.analysis.local_env for
-                constructing graphs.
+            strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
             sgraphs (list): StructureGraph objects.
-            unique_site_ids (dict): Maps each site to its unique numerical
-                identifier.
-            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
-                position.
-            nn_interacations (dict): {i: j} pairs of NN interactions
-                between unique sites.
+            unique_site_ids (dict): Maps each site to its unique numerical identifier.
+            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
+            nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
             dists (dict): NN, NNN, and NNNN interaction distances
-            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
-                graph.
+            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
             ex_params (dict): Exchange parameter values (meV/atom)
-
         """
 
         # Save original copies of inputs
@@ -280,9 +274,9 @@ class HeisenbergMapper:
 
         # Get labels of unique NN interactions
         for k0, v0 in nn_interactions.items():
-            for i, j in v0.items():  # i and j indices
-                c = str(i) + "-" + str(j) + "-" + str(k0)
-                c_rev = str(j) + "-" + str(i) + "-" + str(k0)
+            for idx, j in v0.items():  # i and j indices
+                c = str(idx) + "-" + str(j) + "-" + str(k0)
+                c_rev = str(j) + "-" + str(idx) + "-" + str(k0)
                 if c not in columns and c_rev not in columns:
                     columns.append(c)
 
@@ -304,24 +298,24 @@ class HeisenbergMapper:
 
             # Loop over all sites in each graph and compute |S_i . S_j|
             # for n+1 unique graphs to compute n exchange params
-            for graph in sgraphs:
+            for _graph in sgraphs:
                 sgraph = sgraphs_copy.pop(0)
                 ex_row = pd.DataFrame(np.zeros((1, num_nn_j + 1)), index=[sgraph_index], columns=columns)
 
-                for i, node in enumerate(sgraph.graph.nodes):
+                for idx, _node in enumerate(sgraph.graph.nodes):
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
-                    s_i = sgraph.structure.site_properties["magmom"][i]
+                    s_i = sgraph.structure.site_properties["magmom"][idx]
 
                     for k, v in unique_site_ids.items():
-                        if i in k:
+                        if idx in k:
                             i_index = v
 
                     # Get all connections for ith site and compute |S_i . S_j|
-                    connections = sgraph.get_connected_sites(i)
+                    connections = sgraph.get_connected_sites(idx)
                     # dists = [round(cs[-1], 2) for cs in connections]  # i<->j distances
                     # dists = sorted(list(set(dists)))  # NN, NNN, NNNN, etc.
 
-                    for j, connection in enumerate(connections):
+                    for connection in connections:
                         j_site = connection[2]
                         dist = round(connection[-1], 2)  # i_j distance
 
@@ -598,7 +592,7 @@ class HeisenbergMapper:
             logging.warning(warning_msg)
 
         # J_ij exchange interaction matrix
-        for i, node in enumerate(sgraph.graph.nodes):
+        for i, _node in enumerate(sgraph.graph.nodes):
             connections = sgraph.get_connected_sites(i)
             for c in connections:
                 jimage = c[1]  # relative integer coordinates of atom j
@@ -801,7 +795,7 @@ class HeisenbergScreener:
         #             remove_list.append(i)
 
         # Remove duplicates
-        if len(remove_list):
+        if len(remove_list) > 0:
             ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
             energies = [e for i, e in enumerate(energies) if i not in remove_list]
 
@@ -893,7 +887,7 @@ class HeisenbergModel(MSONable):
                 identifier.
             wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
                 position.
-            nn_interacations (dict): {i: j} pairs of NN interactions
+            nn_interactions (dict): {i: j} pairs of NN interactions
                 between unique sites.
             dists (dict): NN, NNN, and NNNN interaction distances
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
@@ -1025,7 +1019,7 @@ class HeisenbergModel(MSONable):
         """
 
         # Get unique site identifiers
-        for k in self.unique_site_ids.keys():
+        for k in self.unique_site_ids:
             if i in k:
                 i_index = self.unique_site_ids[k]
             if j in k:

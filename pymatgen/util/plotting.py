@@ -354,7 +354,7 @@ def format_formula(formula):
                 number_format = ""
             formatted_formula += s
 
-    return r"$%s$" % (formatted_formula)
+    return f"${formatted_formula}$"
 
 
 def van_arkel_triangle(list_of_materials, annotate=True):
@@ -478,9 +478,10 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     for entry in list_of_materials:
         if type(entry).__name__ not in ["ComputedEntry", "ComputedStructureEntry"]:
             X_pair = [Element(el).X for el in entry]
-            formatted_formula = "%s-%s" % tuple(entry)
+            el_1, el_2 = entry
+            formatted_formula = f"{el_1}-{el_2}"
         else:
-            X_pair = [Element(el).X for el in entry.composition.as_dict().keys()]
+            X_pair = [Element(el).X for el in entry.composition.as_dict()]
             formatted_formula = format_formula(entry.composition.reduced_formula)
         plt.scatter(np.mean(X_pair), abs(X_pair[0] - X_pair[1]), c="b", s=100)
         if annotate:
@@ -512,7 +513,7 @@ def get_ax_fig_plt(ax=None, **kwargs):
 
     if ax is None:
         fig = plt.figure(**kwargs)
-        ax = fig.add_subplot(1, 1, 1)
+        ax = fig.gca()
     else:
         fig = plt.gcf()
 

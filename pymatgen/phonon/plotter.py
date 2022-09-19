@@ -5,6 +5,8 @@
 This module implements plotter for DOS and band structure.
 """
 
+from __future__ import annotations
+
 import logging
 from collections import namedtuple
 
@@ -53,7 +55,7 @@ def freq_units(units):
     try:
         return d[units.lower().strip()]
     except KeyError:
-        raise KeyError(f"Value for units `{units}` unknown\nPossible values are:\n {list(d.keys())}")
+        raise KeyError(f"Value for units `{units}` unknown\nPossible values are:\n {list(d)}")
 
 
 class PhononDosPlotter:
@@ -111,9 +113,9 @@ class PhononDosPlotter:
             key_sort_func: function used to sort the dos_dict keys.
         """
         if key_sort_func:
-            keys = sorted(dos_dict.keys(), key=key_sort_func)
+            keys = sorted(dos_dict, key=key_sort_func)
         else:
-            keys = dos_dict.keys()
+            keys = list(dos_dict)
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
@@ -156,7 +158,7 @@ class PhononDosPlotter:
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
-        for key, dos in self._doses.items():
+        for dos in self._doses.values():
             frequencies = dos["frequencies"] * u.factor
             densities = dos["densities"]
             if y is None:
@@ -169,7 +171,7 @@ class PhononDosPlotter:
             allfrequencies.append(frequencies)
             alldensities.append(newdens)
 
-        keys = list(self._doses.keys())
+        keys = list(self._doses)
         keys.reverse()
         alldensities.reverse()
         allfrequencies.reverse()
@@ -742,16 +744,16 @@ class GruneisenPlotter:
 
         u = freq_units(units)
 
-        x = self._gruneisen.frequencies.flatten() * u.factor
-        y = self._gruneisen.gruneisen.flatten()
+        xs = self._gruneisen.frequencies.flatten() * u.factor
+        ys = self._gruneisen.gruneisen.flatten()
 
         plt = pretty_plot(12, 8)
 
         plt.xlabel(rf"$\mathrm{{Frequency\ ({u.label})}}$")
         plt.ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
-        n = len(y) - 1
-        for i, (y, x) in enumerate(zip(y, x)):
+        n = len(ys) - 1
+        for i, (x, y) in enumerate(zip(xs, ys)):
             color = (1.0 / n * i, 0, 1.0 / n * (n - i))
 
             if markersize:

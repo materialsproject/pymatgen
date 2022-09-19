@@ -105,7 +105,7 @@ class AdsorbateSiteFinder:
             selective dynamics (bool): whether to assign surface sites
                 to selective dynamics
             undercoord_threshold (float): threshold of "undercoordation"
-                to use for the assignment of surface sites.  Default is
+                to use for the assignment of surface sites. Default is
                 0.1, for which surface sites will be designated if they
                 are 10% less coordinated than their bulk counterpart
         """
@@ -195,7 +195,7 @@ class AdsorbateSiteFinder:
         """
         Assigns site properties.
         """
-        if "surface_properties" in slab.site_properties.keys():
+        if "surface_properties" in slab.site_properties:
             return slab
 
         surf_sites = self.find_surface_sites_by_height(slab, height)
@@ -233,11 +233,11 @@ class AdsorbateSiteFinder:
         put_inside=True,
         symm_reduce=1e-2,
         near_reduce=1e-2,
-        positions=["ontop", "bridge", "hollow"],
+        positions=("ontop", "bridge", "hollow"),
         no_obtuse_hollow=True,
     ):
         """
-        Finds surface sites according to the above algorithm.  Returns
+        Finds surface sites according to the above algorithm. Returns
         a list of corresponding Cartesian coordinates.
 
         Args:
@@ -356,7 +356,7 @@ class AdsorbateSiteFinder:
     def ensemble_center(cls, site_list, indices, cartesian=True):
         """
         Finds the center of an ensemble of sites selected from
-        a list of sites.  Helper method for the find_adsorption_sites
+        a list of sites. Helper method for the find_adsorption_sites
         algorithm.
 
         Args:
@@ -373,7 +373,7 @@ class AdsorbateSiteFinder:
 
     def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True, reorient=True):
         """
-        Adds an adsorbate at a particular coordinate.  Adsorbate
+        Adds an adsorbate at a particular coordinate. Adsorbate
         represented by a Molecule object and is translated to (0, 0, 0) if
         translate is True, or positioned relative to the input adsorbate
         coordinate if translate is False.
@@ -403,9 +403,9 @@ class AdsorbateSiteFinder:
         struct = self.slab.copy()
         if repeat:
             struct.make_supercell(repeat)
-        if "surface_properties" in struct.site_properties.keys():
+        if "surface_properties" in struct.site_properties:
             molecule.add_site_property("surface_properties", ["adsorbate"] * molecule.num_sites)
-        if "selective_dynamics" in struct.site_properties.keys():
+        if "selective_dynamics" in struct.site_properties:
             molecule.add_site_property("selective_dynamics", [[True, True, True]] * molecule.num_sites)
         for site in molecule:
             struct.append(
@@ -445,7 +445,7 @@ class AdsorbateSiteFinder:
     ):
         """
         Function that generates all adsorption structures for a given
-        molecular adsorbate.  Can take repeat argument or minimum
+        molecular adsorbate. Can take repeat argument or minimum
         length/width of precursor slab as an input
 
         Args:
@@ -658,7 +658,7 @@ def reorient_z(structure):
 
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__), "ElementColorSchemes.yaml"))
-color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"].keys()}
+color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"]}
 
 
 def plot_slab(
@@ -707,9 +707,9 @@ def plot_slab(
         coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
-        r = sites[n].specie.atomic_radius * scale
+        r = sites[n].species.elements[0].atomic_radius * scale
         ax.add_patch(patches.Circle(coord[:2] - lattsum * (repeat // 2), r, color="w", zorder=2 * n))
-        color = color_dict[sites[n].species_string]
+        color = color_dict[sites[n].species.elements[0].symbol]
         ax.add_patch(
             patches.Circle(
                 coord[:2] - lattsum * (repeat // 2),

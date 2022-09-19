@@ -10,8 +10,8 @@ from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
-except:
+    website_is_up = requests.get("https://materialsproject.org").status_code == 200
+except requests.exceptions.ConnectionError:
     website_is_up = False
 
 

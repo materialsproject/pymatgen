@@ -136,7 +136,7 @@ class PymatgenTest(unittest.TestCase):
         pickle. This method tries to serialize the objects with pickle and the
         protocols specified in input. Then it deserializes the pickle format
         and compares the two objects with the __eq__ operator if
-        test_eq == True.
+        test_eq is True.
 
         Args:
             objects: Object or list of objects.
@@ -159,7 +159,6 @@ class PymatgenTest(unittest.TestCase):
             objects = [objects]
 
         if protocols is None:
-            # protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
             protocols = [pickle.HIGHEST_PROTOCOL]
 
         # This list will contains the object deserialized with the different

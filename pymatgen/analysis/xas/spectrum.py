@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import math
 import warnings
-from typing import List, Literal
+from typing import Literal
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -93,12 +93,9 @@ class XAS(Spectrum):
             raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
 
     def __str__(self):
-        return "{} {} Edge {} for {}: {}".format(
-            self.absorbing_element,
-            self.edge,
-            self.spectrum_type,
-            self.structure.composition.reduced_formula,
-            super().__str__(),
+        return (
+            f"{self.absorbing_element} {self.edge} Edge {self.spectrum_type} "
+            f"for {self.structure.composition.reduced_formula}: {str(super())}"
         )
 
     def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:
@@ -145,13 +142,14 @@ class XAS(Spectrum):
                 raise ValueError("Energy overlap between XANES and EXAFS is needed for stitching")
 
             # for k <= 3
-            wavenumber, mu = [], []  # type: List[float],  List[float]
+            wavenumber: list[float] = []
+            mu: list[float] = []
             idx = xanes.k.index(min(self.k, key=lambda x: (abs(x - 3), x)))
             mu.extend(xanes.y[:idx])
             wavenumber.extend(xanes.k[:idx])
 
             # for 3 < k < max(xanes.k)
-            fs = []  # type: List[float]
+            fs: list[float] = []
             ks = np.linspace(3, max(xanes.k), 50)
             for k in ks:
                 f = np.cos((math.pi / 2) * (k - 3) / (max(xanes.k) - 3)) ** 2

@@ -8,11 +8,14 @@ from numbers import Number
 from pathlib import Path
 
 import numpy as np
+from monty.serialization import dumpfn, loadfn
+from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
     GrandPotentialPhaseDiagram,
     GrandPotPDEntry,
+    PatchedPhaseDiagram,
     PDEntry,
     PDPlotter,
     PhaseDiagram,
@@ -398,7 +401,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_get_element_profile(self):
         for el in self.pd.elements:
             for entry in self.pd.stable_entries:
-                if not (entry.composition.is_element):
+                if not entry.composition.is_element:
                     self.assertLessEqual(
                         len(self.pd.get_element_profile(el, entry.composition)),
                         len(self.pd.facets),
@@ -597,6 +600,11 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertEqual(new_dd, dd)
         self.assertIsInstance(pd.to_json(), str)
 
+    def test_read_json(self):
+        with ScratchDir("."):
+            dumpfn(self.pd, "pd.json")
+            loadfn("pd.json")
+
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
@@ -661,6 +669,53 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
         self.assertIsNotNone(str(self.pd))
 
 
+class PatchedPhaseDiagramTest(unittest.TestCase):
+    def setUp(self):
+        self.entries = EntrySet.from_csv(str(module_dir / "reaction_entries_test.csv"))
+        # NOTE add He to test for correct behaviour despite no patches involving He
+        self.entries.add(PDEntry("He", -1.23))
+
+        self.pd = PhaseDiagram(entries=self.entries)
+        self.ppd = PatchedPhaseDiagram(entries=self.entries)
+
+        # novel entries not in any of the patches
+        self.novel_comps = [Composition("H5C2OP"), Composition("V2PH4C")]
+        for c in self.novel_comps:
+            self.assertTrue(c.chemical_system not in self.ppd.spaces)
+
+        self.novel_entries = [PDEntry(c, -39.8) for c in self.novel_comps]
+
+    def test_get_stable_entries(self):
+        self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
+
+    def test_get_qhull_entries(self):
+        # NOTE qhull_entry is an specially sorted list due to it's construction, we
+        # can't mimic this in ppd therefore just test if sorted versions are equal.
+        self.assertEqual(
+            sorted(self.pd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+            sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+        )
+
+    def test_get_decomposition(self):
+        for c in self.novel_comps:
+            pd_decomp = self.pd.get_decomposition(c)
+            ppd_decomp = self.ppd.get_decomposition(c)
+
+            # NOTE unittest doesn't have an assert almost equal for dictionaries.
+            for e in pd_decomp:
+                self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
+
+    def test_get_phase_separation_energy(self):
+        for e in self.novel_entries:
+            self.assertAlmostEqual(self.pd.get_phase_separation_energy(e), self.ppd.get_phase_separation_energy(e), 7)
+
+    def test_get_equilibrium_reaction_energy(self):
+        for e in self.pd.stable_entries:
+            self.assertAlmostEqual(
+                self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
+            )
+
+
 class ReactionDiagramTest(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -682,21 +737,24 @@ class ReactionDiagramTest(unittest.TestCase):
             self.assertIn(Element.C, e.composition)
             self.assertIn(Element.P, e.composition)
             self.assertIn(Element.H, e.composition)
-        # formed_formula = [e.composition.reduced_formula for e in
-        #                   self.rd.rxn_entries]
+        # formed_formula = [e.composition.reduced_formula for e in self.rd.rxn_entries]
         # expected_formula = [
-        #     'V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829',
-        #     'V0.125P0.125H0.05C0.0375O0.6625',
-        #     'V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626',
-        #     'V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598',
-        #     'V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056',
-        #     'V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845',
-        #     'V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516',
-        #     'V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824',
-        #     'V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521']
-        #
+        #     "V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829",
+        #     "V0.125P0.125H0.05C0.0375O0.6625",
+        #     "V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626",
+        #     "V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598",
+        #     "V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056",
+        #     "V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845",
+        #     "V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516",
+        #     "V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824",
+        #     "V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521",
+        # ]
+
+        # # Please do not uncomment this test. This test is far too fragile because of numerical precision errors.
+        # # Unless someone wants to make an effort to write a PROPER test which do not fail with changes in
+        # # OS or numpy versions, DO NOT UNCOMMENT!
         # for formula in expected_formula:
-        #     self.assertTrue(formula in formed_formula, "%s not in %s" % (formed_formula, expected_formula))
+        #     self.assertTrue(formula in formed_formula, f"{formed_formula} not in {expected_formula}")
 
 
 class PDPlotterTest(unittest.TestCase):

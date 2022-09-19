@@ -22,7 +22,7 @@ class PointGroupTest(unittest.TestCase):
         order = {"mmm": 8, "432": 24, "-6m2": 12}
         for k, v in order.items():
             pg = PointGroup(k)
-            self.assertEqual(order[k], len(pg.symmetry_ops))
+            self.assertEqual(v, len(pg.symmetry_ops))
 
     def test_get_orbit(self):
         pg = PointGroup("mmm")
@@ -31,7 +31,7 @@ class PointGroupTest(unittest.TestCase):
         self.assertEqual(len(pg.get_orbit([1.2, 1.2, 1])), 8)
 
     def test_is_sub_super_group(self):
-        with warnings.catch_warnings() as w:
+        with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             pgmmm = PointGroup("mmm")
             pgmm2 = PointGroup("mm2")
@@ -124,6 +124,16 @@ class SpaceGroupTest(unittest.TestCase):
         p = np.random.randint(0, 100 + 1, size=(3,)) / 100
         self.assertLessEqual(len(sg.get_orbit(p)), sg.order)
 
+    def test_get_orbit_and_generators(self):
+        sg = SpaceGroup("Fm-3m")
+        p = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        orbit, generators = sg.get_orbit_and_generators(p)
+        self.assertLessEqual(len(orbit), sg.order)
+        pp = generators[0].operate(orbit[0])
+        self.assertAlmostEqual(p[0], pp[0])
+        self.assertAlmostEqual(p[1], pp[1])
+        self.assertAlmostEqual(p[2], pp[2])
+
     def test_is_compatible(self):
         cubic = Lattice.cubic(1)
         hexagonal = Lattice.hexagonal(1, 2)
@@ -184,7 +194,7 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertRaises(ValueError, SpaceGroup, "hello")
 
     def test_subgroup_supergroup(self):
-        with warnings.catch_warnings() as w:
+        with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.assertTrue(SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm")))
             self.assertFalse(SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230)))

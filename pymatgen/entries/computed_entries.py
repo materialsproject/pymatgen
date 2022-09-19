@@ -62,7 +62,7 @@ class EnergyAdjustment(MSONable):
             description: str, human-readable explanation of the energy adjustment.
         """
         self.name = name
-        self.cls = cls if cls else {}
+        self.cls = cls or {}
         self.description = description
         self._value = value
         self._uncertainty = uncertainty
@@ -99,7 +99,7 @@ class EnergyAdjustment(MSONable):
 
     def __repr__(self):
         output = [
-            f"{self.__class__.__name__}:",
+            f"{type(self).__name__}:",
             f"  Name: {self.name}",
             f"  Value: {self.value:.3f} eV",
             f"  Uncertainty: {self.uncertainty:.3f} eV",
@@ -199,7 +199,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         self._adj_per_atom = adj_per_atom
         self.uncertainty_per_atom = uncertainty_per_atom
         self.n_atoms = n_atoms
-        self.cls = cls if cls else {}
+        self.cls = cls or {}
         self.name = name
         self.description = description
 
@@ -267,7 +267,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         self.temp = temp
         self.n_atoms = n_atoms
         self.name = name
-        self.cls = cls if cls else {}
+        self.cls = cls or {}
         self.description = description
 
     @property
@@ -289,9 +289,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanaion of how the energy adjustment is calculated.
         """
-        return self.description + " ({:.4f} eV/K/atom x {} K x {} atoms)".format(
-            self._adj_per_deg, self.temp, self.n_atoms
-        )
+        return self.description + f" ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -341,20 +339,20 @@ class ComputedEntry(Entry):
             entry_id: An optional id to uniquely identify the entry.
         """
         super().__init__(composition, energy)
-        self.energy_adjustments = energy_adjustments if energy_adjustments else []
+        self.energy_adjustments = energy_adjustments or []
 
         if correction != 0.0:
             if energy_adjustments:
                 raise ValueError(
-                    "Argument conflict! Setting correction = {:.3f} conflicts "
+                    f"Argument conflict! Setting correction = {correction:.3f} conflicts "
                     "with setting energy_adjustments. Specify one or the "
-                    "other.".format(correction)
+                    "other."
                 )
 
             self.correction = correction
 
-        self.parameters = parameters if parameters else {}
-        self.data = data if data else {}
+        self.parameters = parameters or {}
+        self.data = data or {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
 
@@ -461,15 +459,9 @@ class ComputedEntry(Entry):
     def __repr__(self) -> str:
         n_atoms = self.composition.num_atoms
         output = [
-            "{} {:<10} - {:<12} ({})".format(
-                self.entry_id,
-                self.__class__.__name__,
-                self.composition.formula,
-                self.composition.reduced_formula,
-            ),
-            "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format(
-                "Energy (Uncorrected)", self._energy, self._energy / n_atoms
-            ),
+            f"{self.entry_id} {type(self).__name__:<10} "
+            f"- {self.composition.formula:<12} ({self.composition.reduced_formula})",
+            f"{'Energy (Uncorrected)':<24} = {self._energy:<9.4f} eV ({self._energy / n_atoms:<8.4f} eV/atom)",
             f"{'Correction':<24} = {self.correction:<9.4f} eV ({self.correction / n_atoms:<8.4f} eV/atom)",
             f"{'Energy (Final)':<24} = {self.energy:<9.4f} eV ({self.energy_per_atom:<8.4f} eV/atom)",
             "Energy Adjustments:",
@@ -564,7 +556,7 @@ class ComputedEntry(Entry):
         # NOTE It is assumed that the user will ensure entry_id is a
         # unique identifier for ComputedEntry type classes.
         if self.entry_id is not None:
-            return hash(f"{self.__class__.__name__}{self.entry_id}")
+            return hash(f"{type(self).__name__}{self.entry_id}")
 
         return super().__hash__()
 
@@ -687,7 +679,7 @@ class ComputedStructureEntry(ComputedEntry):
         # TODO: this should raise TypeError since normalization does not make sense
         # raise TypeError("You cannot normalize a structure.")
         warnings.warn(
-            f"Normalization of a `{self.__class__.__name__}` makes "
+            f"Normalization of a `{type(self).__name__}` makes "
             "`self.composition` and `self.structure.composition` inconsistent"
             " - please use self.composition for all further calculations."
         )
@@ -744,7 +736,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         integer_formula, _ = structure.composition.get_integer_formula_and_factor()
 
         self.experimental = False
-        if integer_formula in G_GASES.keys():
+        if integer_formula in G_GASES:
             self.experimental = True
             if "Experimental" not in str(entry_id):
                 entry_id = f"{entry_id} (Experimental)"
@@ -806,7 +798,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             data = G_GASES[integer_formula]
 
             if self.interpolated:
-                g_interp = interp1d([int(t) for t in data.keys()], list(data.values()))
+                g_interp = interp1d([int(t) for t in data], list(data.values()))
                 energy = g_interp(self.temp)
             else:
                 energy = data[str(self.temp)]
@@ -839,7 +831,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             sum_g_i = 0
             for elem, amt in elems.items():
                 g_interp = interp1d(
-                    [float(t) for t in G_ELEMS.keys()],
+                    [float(t) for t in G_ELEMS],
                     [g_dict[elem] for g_dict in G_ELEMS.values()],
                 )
                 sum_g_i += amt * g_interp(self.temp)
@@ -874,7 +866,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             alpha_i = pair[0][1]
             alpha_j = pair[1][1]
 
-            mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)  # type: ignore
+            mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)
 
         reduced_mass = (1 / denominator) * mass_sum
 

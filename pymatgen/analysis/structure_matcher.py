@@ -4,25 +4,19 @@
 """
 This module provides classes to perform fitting of structures.
 """
-
 import abc
 import itertools
 
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.analysis.defects.core import Defect, Interstitial, Substitution, Vacancy
-from pymatgen.core import PeriodicSite
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
-from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
+from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
-from pymatgen.util.coord_cython import (  # type: ignore
-    is_coord_subset_pbc,
-    pbc_shortest_vectors,
-)
+from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -105,8 +99,8 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
 
@@ -160,10 +154,10 @@ class SpinComparator(AbstractComparator):
         Returns:
             Boolean indicating whether species are equal.
         """
-        for s1 in sp1.keys():
+        for s1 in sp1:
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
-            for s2 in sp2.keys():
+            for s2 in sp2:
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if s1.symbol == s2.symbol and oxi1 == oxi2 and spin2 == -spin1:
@@ -349,7 +343,7 @@ class StructureMatcher(MSONable):
         scale=True,
         attempt_supercell=False,
         allow_subset=False,
-        comparator=SpeciesComparator(),
+        comparator=None,
         supercell_size="num_sites",
         ignored_species=None,
     ):
@@ -399,7 +393,7 @@ class StructureMatcher(MSONable):
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
-        self._comparator = comparator
+        self._comparator = comparator or SpeciesComparator()
         self._primitive_cell = primitive_cell
         self._scale = scale
         self._supercell = attempt_supercell
@@ -440,10 +434,9 @@ class StructureMatcher(MSONable):
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
-        Yields lattices for s with lengths and angles close to the
-        lattice of target_s. If supercell_size is specified, the
-        returned lattice will have that number of primitive cells
-        in it
+        Yields lattices for s with lengths and angles close to the lattice of target_s. If
+        supercell_size is specified, the returned lattice will have that number of primitive
+        cells in it
 
         Args:
             s, target_s: Structure objects
@@ -462,7 +455,7 @@ class StructureMatcher(MSONable):
         """
         Computes all supercells of one structure close to the lattice of the
         other
-        if s1_supercell == True, it makes the supercells of struct1, otherwise
+        if s1_supercell is True, it makes the supercells of struct1, otherwise
         it makes them of s2
 
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
@@ -582,7 +575,9 @@ class StructureMatcher(MSONable):
             inds = inds[::fu]
         return np.array(mask, dtype=int), inds, i
 
-    def fit(self, struct1, struct2, symmetric=False):
+    def fit(
+        self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False
+    ) -> bool:
         """
         Fit two structures.
 
@@ -592,6 +587,8 @@ class StructureMatcher(MSONable):
             symmetric (Bool): Defaults to False
                 If True, check the equality both ways.
                 This only impacts a small percentage of structures
+            skip_structure_reduction (Bool): Defaults to False
+                If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2
 
         Returns:
             True or False.
@@ -601,20 +598,26 @@ class StructureMatcher(MSONable):
         if not self._subset and self._comparator.get_hash(struct1.composition) != self._comparator.get_hash(
             struct2.composition
         ):
-            return None
+            return False
 
         if not symmetric:
-            struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+            struct1, struct2, fu, s1_supercell = self._preprocess(
+                struct1, struct2, skip_structure_reduction=skip_structure_reduction
+            )
             match = self._match(struct1, struct2, fu, s1_supercell, break_on_match=True)
             if match is None:
                 return False
 
             return match[0] <= self.stol
 
-        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+        struct1, struct2, fu, s1_supercell = self._preprocess(
+            struct1, struct2, skip_structure_reduction=skip_structure_reduction
+        )
         match1 = self._match(struct1, struct2, fu, s1_supercell, break_on_match=True)
         struct1, struct2 = struct2, struct1
-        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+        struct1, struct2, fu, s1_supercell = self._preprocess(
+            struct1, struct2, skip_structure_reduction=skip_structure_reduction
+        )
         match2 = self._match(struct1, struct2, fu, s1_supercell, break_on_match=True)
 
         if match1 is None or match2 is None:
@@ -655,23 +658,21 @@ class StructureMatcher(MSONable):
             copied_structures.append(ss)
         return copied_structures
 
-    def _preprocess(self, struct1, struct2, niggli=True):
+    def _preprocess(self, struct1, struct2, niggli=True, skip_structure_reduction: bool = False):
         """
         Rescales, finds the reduced structures (primitive and niggli),
         and finds fu, the supercell size to make struct1 comparable to
-        s2
+        s2.
+        If skip_structure_reduction is True, skip to get reduced structures (by primitive transformation and
+        niggli reduction). This option is useful for fitting a set of structures several times.
         """
-        struct1 = struct1.copy()
-        struct2 = struct2.copy()
-
-        if niggli:
-            struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
-            struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
-
-        # primitive cell transformation
-        if self._primitive_cell:
-            struct1 = struct1.get_primitive_structure()
-            struct2 = struct2.get_primitive_structure()
+        if skip_structure_reduction:
+            # Need to copy original structures to rescale lattices later
+            struct1 = struct1.copy()
+            struct2 = struct2.copy()
+        else:
+            struct1 = self._get_reduced_structure(struct1, self._primitive_cell, niggli)
+            struct2 = self._get_reduced_structure(struct2, self._primitive_cell, niggli)
 
         if self._supercell:
             fu, s1_supercell = self._get_supercell_size(struct1, struct2)
@@ -808,6 +809,8 @@ class StructureMatcher(MSONable):
 
         original_s_list = list(s_list)
         s_list = self._process_species(s_list)
+        # Prepare reduced structures beforehand
+        s_list = [self._get_reduced_structure(s, self._primitive_cell, niggli=True) for s in s_list]
 
         # Use structure hash to pre-group structures
         if anonymous:
@@ -825,19 +828,19 @@ class StructureMatcher(MSONable):
         all_groups = []
 
         # For each pre-grouped list of structures, perform actual matching.
-        for k, g in itertools.groupby(sorted_s_list, key=s_hash):
+        for _, g in itertools.groupby(sorted_s_list, key=s_hash):
             unmatched = list(g)
             while len(unmatched) > 0:
                 i, refs = unmatched.pop(0)
                 matches = [i]
                 if anonymous:
                     inds = filter(
-                        lambda i: self.fit_anonymous(refs, unmatched[i][1]),
+                        lambda i: self.fit_anonymous(refs, unmatched[i][1], skip_structure_reduction=True),
                         list(range(len(unmatched))),
                     )
                 else:
                     inds = filter(
-                        lambda i: self.fit(refs, unmatched[i][1]),
+                        lambda i: self.fit(refs, unmatched[i][1], skip_structure_reduction=True),
                         list(range(len(unmatched))),
                     )
                 inds = list(inds)
@@ -853,8 +856,8 @@ class StructureMatcher(MSONable):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "comparator": self._comparator.as_dict(),
             "stol": self.stol,
             "ltol": self.ltol,
@@ -873,7 +876,7 @@ class StructureMatcher(MSONable):
         :param d: Dict representation
         :return: StructureMatcher
         """
-        return StructureMatcher(
+        return cls(
             ltol=d["ltol"],
             stol=d["stol"],
             angle_tol=d["angle_tol"],
@@ -945,6 +948,18 @@ class StructureMatcher(MSONable):
                     break
         return matches
 
+    @classmethod
+    def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
+        """
+        Helper method to find a reduced structure
+        """
+        reduced = struct.copy()
+        if niggli:
+            reduced = reduced.get_reduced_structure(reduction_algo="niggli")
+        if primitive_cell:
+            reduced = reduced.get_primitive_structure()
+        return reduced
+
     def get_rms_anonymous(self, struct1, struct2):
         """
         Performs an anonymous fitting, which allows distinct species in one
@@ -985,7 +1000,7 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            min_mapping (Dict): Mapping of struct1 species to struct2 species
+            min_mapping (dict): Mapping of struct1 species to struct2 species
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
@@ -1032,7 +1047,9 @@ class StructureMatcher(MSONable):
 
         return None
 
-    def fit_anonymous(self, struct1, struct2, niggli=True):
+    def fit_anonymous(
+        self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
+    ):
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. E.g., to compare if the Li2O and Na2O
@@ -1041,12 +1058,15 @@ class StructureMatcher(MSONable):
         Args:
             struct1 (Structure): 1st structure
             struct2 (Structure): 2nd structure
+            niggli (Bool): If true, perform Niggli reduction for struct1 and struct2
+            skip_structure_reduction (Bool): Defaults to False
+                If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2
 
         Returns:
             True/False: Whether a species mapping can map struct1 to stuct2
         """
         struct1, struct2 = self._process_species([struct1, struct2])
-        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli)
+        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli, skip_structure_reduction)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, break_on_match=True, single_match=True)
 
@@ -1060,7 +1080,7 @@ class StructureMatcher(MSONable):
         """
         if self._primitive_cell:
             raise ValueError("get_supercell_matrix cannot be used with the primitive cell option")
-        struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, False)
+        struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, niggli=False)
 
         if not s1_supercell:
             raise ValueError("The non-supercell must be put onto the basis of the supercell, not the other way around")
@@ -1095,7 +1115,7 @@ class StructureMatcher(MSONable):
 
         struct1, struct2 = self._process_species((struct1, struct2))
 
-        s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
+        s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli=False)
         ratio = fu if s1_supercell else 1 / fu
         if s1_supercell and fu > 1:
             raise ValueError("Struct1 must be the supercell, not the other way around")
@@ -1183,97 +1203,10 @@ class StructureMatcher(MSONable):
         if len(subset) > len(superset):
             raise ValueError("subset is larger than superset")
 
-        superset, subset, _, _ = self._preprocess(superset, subset, True)
+        superset, subset, _, _ = self._preprocess(superset, subset, niggli=True)
         match = self._strict_match(superset, subset, 1, break_on_match=False)
 
         if match is None or match[0] > self.stol:
             return None
 
         return match[4]
-
-
-class PointDefectComparator(MSONable):
-    """
-    A class that matches pymatgen Point Defect objects even if their
-    Cartesian coordinates are different (compares sublattices for the defect)
-
-    NOTE: for defect complexes (more than a single defect),
-    this comparator will break.
-    """
-
-    def __init__(self, check_charge=False, check_primitive_cell=False, check_lattice_scale=False):
-        """
-        Args:
-            check_charge (bool): Gives option to check
-                if charges are identical.
-                Default is False (different charged defects can be same)
-            check_primitive_cell (bool): Gives option to
-                compare different supercells of bulk_structure,
-                rather than directly compare supercell sizes
-                Default is False (requires bulk_structure in each defect to be same size)
-            check_lattice_scale (bool): Gives option to scale volumes of
-                structures to each other identical lattice constants.
-                Default is False (enforces same
-                lattice constants in both structures)
-        """
-        self.check_charge = check_charge
-        self.check_primitive_cell = check_primitive_cell
-        self.check_lattice_scale = check_lattice_scale
-
-    def are_equal(self, d1, d2):
-        """
-        Args:
-            d1: First defect. A pymatgen Defect object.
-            d2: Second defect. A pymatgen Defect object.
-
-        Returns:
-            True if defects are identical in type and sublattice.
-        """
-        possible_defect_types = (Defect, Vacancy, Substitution, Interstitial)
-
-        if not isinstance(d1, possible_defect_types) or not isinstance(d2, possible_defect_types):
-            raise ValueError("Cannot use PointDefectComparator to compare non-defect objects...")
-
-        if not isinstance(d1, d2.__class__):
-            return False
-        if d1.site.specie != d2.site.specie:
-            return False
-        if self.check_charge and (d1.charge != d2.charge):
-            return False
-
-        sm = StructureMatcher(
-            ltol=0.01,
-            primitive_cell=self.check_primitive_cell,
-            scale=self.check_lattice_scale,
-        )
-
-        if not sm.fit(d1.bulk_structure, d2.bulk_structure):
-            return False
-
-        d1 = d1.copy()
-        d2 = d2.copy()
-        if self.check_primitive_cell or self.check_lattice_scale:
-            # if allowing for base structure volume or supercell modifications,
-            # then need to preprocess defect objects to allow for matching
-            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _ = sm._preprocess(d1.bulk_structure, d2.bulk_structure)
-            d1_defect_site = PeriodicSite(
-                d1.site.specie,
-                d1.site.coords,
-                d1_mod_bulk_structure.lattice,
-                to_unit_cell=True,
-                coords_are_cartesian=True,
-            )
-            d2_defect_site = PeriodicSite(
-                d2.site.specie,
-                d2.site.coords,
-                d2_mod_bulk_structure.lattice,
-                to_unit_cell=True,
-                coords_are_cartesian=True,
-            )
-
-            d1._structure = d1_mod_bulk_structure
-            d2._structure = d2_mod_bulk_structure
-            d1._defect_site = d1_defect_site
-            d2._defect_site = d2_defect_site
-
-        return sm.fit(d1.generate_defect_structure(), d2.generate_defect_structure())
