@@ -62,7 +62,7 @@ class LammpsInputFile(InputFile):
 
         self.nstages += 1
 
-        stage_name = "stage %s" % self.nstages
+        stage_name = f"stage {self.nstages}"
         self._add_stage_name(stage_name)
 
     def add_comment(self, comment: str, is_stage_header: bool = False) -> None:
@@ -84,7 +84,7 @@ class LammpsInputFile(InputFile):
             self.ncomments += 1
             self._add_command(f"comment_{self.ncomments}", "## " + comment)
 
-    def add_commands(self, commands: Union[str, list, dict], stage_name: str = None):
+    def add_commands(self, commands: str | list | dict, stage_name: str = None):
         """
         Adds LAMMPS command/s and its arguments to LAMMPS input file.
 
@@ -109,7 +109,7 @@ class LammpsInputFile(InputFile):
             for command, args in commands.items():
                 self._add_command(command=command, args=args)
 
-    def add_stage(self, stage_commands: Union[list, dict], header: str = None, description: str = None):
+    def add_stage(self, stage_commands: list | dict, header: str = None, description: str = None):
         """
         Adds an entire stage or block of LAMMPS input commands and argument.
 
@@ -152,7 +152,7 @@ class LammpsInputFile(InputFile):
         """
 
         lammps_input = "## LAMMPS input generated from LammpsInputConstructor\n\n"
-        for stage, command_dict in self.input_settings.items():
+        for command_dict in self.input_settings.values():
             for command, args in command_dict.items():
                 if command.startswith("comment") or command.startswith("header"):
                     if command.startswith("header"):
@@ -183,7 +183,7 @@ class LammpsInputFile(InputFile):
 
         return LammpsInputFile(self.input_settings)
 
-    def from_file(self, path: Union[str, Path]):  # type: ignore
+    def from_file(self, path: str | Path):  # type: ignore
         """
         Creates an InputFile object from a file.
 
@@ -248,9 +248,9 @@ class LammpsInputFile(InputFile):
         """
 
         if stage_name is None:
-            stage_name = self.curr_stage_name if self.curr_stage_name is not None else "stage %s" % self.nstages
+            stage_name = self.curr_stage_name if self.curr_stage_name is not None else f"stage {self.nstages}"
 
-        if not (stage_name in self.input_settings.keys()):
+        if stage_name not in self.input_settings.keys():
             self.input_settings[stage_name] = OrderedDict()
             self.curr_stage_name = stage_name  # type: ignore
 
