@@ -534,9 +534,9 @@ class BztInterpolator:
         if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for i, k in enumerate(kpath[:-1]):
-                    sta = kpoints_lbls_dict[kpath[i]]
-                    end = kpoints_lbls_dict[kpath[i + 1]]
+                for idx, k_pt in enumerate(kpath[:-1]):
+                    sta = kpoints_lbls_dict[k_pt]
+                    end = kpoints_lbls_dict[kpath[idx + 1]]
                     kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
         else:

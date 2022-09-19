@@ -119,7 +119,7 @@ class HighSymmKpath(KPathBase):
             self._path_lengths = []
 
             for bs in [lm_bs, sc_bs, hin_bs]:
-                for key, value in enumerate(bs.kpath["kpoints"]):
+                for value in bs.kpath["kpoints"]:
                     cat_points[index] = bs.kpath["kpoints"][value]
                     label_index[index] = value
                     index += 1
@@ -259,7 +259,7 @@ class HighSymmKpath(KPathBase):
             for o_num in range(0, n_op):
                 a_tr_coord = []
 
-                for (label_a, coord_a) in a_path["kpoints"].items():
+                for coord_a in a_path["kpoints"].values():
                     a_tr_coord.append(np.dot(rpg[o_num], coord_a))
 
                 for coord_a in a_tr_coord:
