@@ -1493,7 +1493,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         elements = list(elements)
 
-        dim = len(elements)
+        self.dim = len(elements)
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
@@ -1508,10 +1508,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
             min_entries.append(min_entry)
             all_entries.extend(g)
 
-        if len(el_refs) < dim:
+        if len(el_refs) < self.dim:
             missing = set(elements) - set(el_refs)
             raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
-        if len(el_refs) > dim:
+        if len(el_refs) > self.dim:
             extra = set(el_refs) - set(elements)
             raise ValueError(f"There are more terminal elements than dimensions: {extra}")
 
