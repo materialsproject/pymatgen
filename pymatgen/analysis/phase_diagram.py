@@ -420,9 +420,12 @@ class PhaseDiagram(MSONable):
             min_entries.append(min_entry)
             all_entries.extend(g)
 
-        if len(el_refs) != dim:
+        if len(el_refs) < dim:
             missing = set(elements) - set(el_refs)
-            raise ValueError(f"There are no entries for the terminal elements: {missing}")
+            raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
+        if len(el_refs) > dim:
+            extra = set(el_refs) - set(elements)
+            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -1168,7 +1171,7 @@ class PhaseDiagram(MSONable):
              which each element has a chemical potential set to a given
              value. "absolute" values (i.e., not referenced to element energies)
         """
-        muref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
+        mu_ref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != dep_elt])
 
         for e in self.elements:
@@ -1179,16 +1182,16 @@ class PhaseDiagram(MSONable):
 
         for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
-                multiplicator = e.composition[dep_elt] / target_comp[dep_elt]
-                ef = e.energy / multiplicator
+                multiplier = e.composition[dep_elt] / target_comp[dep_elt]
+                ef = e.energy / multiplier
                 all_coords = []
                 for s in chempots:
                     for v in s._coords:
-                        elts = [e for e in self.elements if e != dep_elt]
+                        elements = [e for e in self.elements if e != dep_elt]
                         res = {}
-                        for i, el in enumerate(elts):
-                            res[el] = v[i] + muref[i]
-                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[dep_elt]
+                        for i, el in enumerate(elements):
+                            res[el] = v[i] + mu_ref[i]
+                        res[dep_elt] = (np.dot(v + mu_ref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
                             dict_equals = True
@@ -1490,7 +1493,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         elements = list(elements)
 
-        dim = len(elements)
+        self.dim = len(elements)
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
@@ -1505,9 +1508,12 @@ class PatchedPhaseDiagram(PhaseDiagram):
             min_entries.append(min_entry)
             all_entries.extend(g)
 
-        if len(el_refs) != dim:
+        if len(el_refs) < self.dim:
             missing = set(elements) - set(el_refs)
-            raise ValueError(f"Terminal entries for: {missing} are missing")
+            raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
+        if len(el_refs) > self.dim:
+            extra = set(el_refs) - set(elements)
+            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -1528,7 +1534,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         spaces = {s for s in self._qhull_spaces if len(s) > 1}
 
         # Remove redundant chemical spaces
-        if not keep_all_spaces:
+        if not keep_all_spaces and len(spaces) > 1:
             max_size = max(len(s) for s in spaces)
 
             systems = []
