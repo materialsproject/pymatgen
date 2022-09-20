@@ -37,15 +37,13 @@ class LammpsInputFile(InputFile):
     specific task during the simulation such as energy minimization or
     NPT/NVT runs. But more broadly, a stage can also be block of LAMMPS
     input where simulation box is setup, a set of variables are declared or
-    quantities are computed. A comment beginning with '#' is treated as a
-    header for a stage and marks the start of a new stage in the LAMMPS input.
-    Other comments starting with '##' are treated as conventional comments.
+    quantities are computed.
     """
 
     def __init__(self, input_settings: dict = None):
         """
         Args:
-            input_settings: Ordered Dictionary of LAMMPS input settings.
+            input_settings: dictionary of LAMMPS input settings.
         """
         self.nstages = 0
         self.ncomments = 0
@@ -56,29 +54,41 @@ class LammpsInputFile(InputFile):
         Adds LAMMPS command(s) and its arguments to LAMMPS input file.
 
         Args:
-            command: LAMMPS command(s). Can pass single string or list of LAMMPS commands
-            with their arguments. Also accepts dictionary of LAMMPS commands and
-            corresponding arguments as key, value pairs.
+            command: LAMMPS command(s) for this stage of the run.
+                Can pass single string or list of LAMMPS commands
+                with their arguments. Also accepts dictionary of LAMMPS commands and
+                corresponding arguments as key, value pairs.
             stage_name: If a stage name is mentioned, the command is added
-                under that stage block else latest stage is assumed.
+                under that stage block else a new stage is created and named from numerotation.
         """
+        # Name the stage if not given
+        # + 1 so that if a new (list of) command is added without stage name,
+        # it goes in a new stage.
         if stage_name is None:
             stage_name = f"Stage {self.nstages + 1}"
 
+        # Initialize the stage if not already present
         if stage_name not in self.input_settings.keys():
             self.input_settings[stage_name] = {}
             self.nstages += 1
 
+        # Handle the different input formats to add commands to the stage
         if isinstance(command, str):
             self.add_command(command=command, stage_name=stage_name)
 
         elif isinstance(command, list):
             for comm in command:
-                self.add_command(command=comm, stage_name=stage_name)
+                if comm[0] == "#":
+                    self.add_comment(comment=comm[1:], inline=True, stage_name=stage_name, index_comment=True)
+                else:
+                    self.add_command(command=comm, stage_name=stage_name)
 
         elif isinstance(command, dict):
             for comm, args in command.items():
-                self.add_command(command=comm, args=args, stage_name=stage_name)
+                if comm[0] == "#":
+                    self.add_comment(comment=comm[1:], inline=True, stage_name=stage_name, index_comment=True)
+                else:
+                    self.add_command(command=comm, args=args, stage_name=stage_name)
 
         else:
             raise TypeError("The command should be a string, list of strings or dictionary.")
@@ -86,13 +96,13 @@ class LammpsInputFile(InputFile):
     def add_command(self, stage_name: str, command: str, args: str = None):
         """
         Helper method to add a single LAMMPS command and its arguments to
-        LAMMPS input file.
+        a LAMMPS input file. The stage name should be provided: a default behavior
+        is avoided here to avoid mistakes.
 
         Args:
-            command: LAMMPS command
-            args: Arguments for the LAMMPS command
-            stage_name: If a stage name is mentioned, the command is added
-                under that stage block else latest stage is assumed.
+            stage_name (str): name of the stage to which the command should be added.
+            command (str): LAMMPS command, with or without the arguments.
+            args (str): Arguments for the LAMMPS command.
         """
         if args is None:
             string_split = command.split()
@@ -105,27 +115,33 @@ class LammpsInputFile(InputFile):
             # In LAMMPS, the same command can be used multiple times
             self.input_settings[stage_name][command] += "\n" + command + " " + args
 
-    def add_comment(self, comment: str, inline: bool = False, stage_name: str = None):
+    def add_comment(self, comment: str, inline: bool = False, stage_name: str = None, index_comment: bool = False):
         """
-         Method to add a comment or a stage header.
+         Method to add a comment in a stage or as a whole stage (which will do nothing).
 
         Args:
             comment: Comment string to be added. The comment will be
                 preceded by '#' in the generated input.
-            inline: True if the comment should be inline within a given block of commands
+            inline: True if the comment should be inline within a given block of commands.
             stage_name: set the stage_name to which the comment will be written. Required if inline is True.
+            index_comment: True if the comment should start with "Comment x" with x its number in the ordering.
+                Used only for inline comments.
         """
+        self.ncomments += 1
         # "Stage" of comment only
         if not inline:
             if stage_name is None:
-                self.ncomments += 1
                 stage_name = f"Comment {self.ncomments}"
             self.add_stage(command="# " + comment, stage_name=stage_name)
             self.nstages += -1
 
         # Inline comment
         elif inline and stage_name:
-            self.add_command(command="# ", args=comment, stage_name=stage_name)
+            if index_comment:
+                command = f"# Comment {self.ncomments}:"
+            else:
+                command = "#"
+            self.add_command(command=command, args=comment, stage_name=stage_name)
 
         else:
             raise NotImplementedError("If you want to add an inline comment, please specify the stage name.")
@@ -133,27 +149,36 @@ class LammpsInputFile(InputFile):
     def get_string(self):
         """
         Generates and returns the string representation of LAMMPS input file.
+        Stages are separated by empty lines.
+        The headers of the stages will be put in comments preceding each stage.
+        Other comments will be put inline within stages, where they have been added.
 
         Returns: String representation of LAMMPS input file.
-
         """
         lammps_input = "# LAMMPS input generated from LammpsInputFile\n"
 
         for stage_name, stage_dict in self.input_settings.items():
+            # Print first the name of the stage in a comment
             if "Comment" not in stage_name:
                 lammps_input += "\n# " + stage_name + "\n"
+
+            # In case of a block of comment, the header is not printed (useless)
             else:
                 lammps_input += "\n"
 
+            # Then print the commands and arguments (including inline comments)
             for command, args in stage_dict.items():
                 lammps_input += f"{command} {args}\n"
 
         return lammps_input
 
     @classmethod
-    def from_string(cls, s: str):  # type: ignore
+    def from_string(cls, s: str):
         """
-        Helper method to parse string representation of LammpsInputFile
+        Helper method to parse string representation of LammpsInputFile.
+        If you created the input file by hand, there is no guarantee that the representation
+        will be perfect as it is difficult to account for all the cosmetic changes you
+        could have done on your input script. Always check that you have what you want !
 
         Args:
             s: String representation of LammpsInputFile.
@@ -162,7 +187,9 @@ class LammpsInputFile(InputFile):
         """
         LIF = cls()
 
+        # Remove unwanted lines from the string
         lines = cls._clean_lines(s.splitlines())
+        # Split the string into blocks based on the empty lines of the input file
         blocks = cls._get_blocks(lines)
 
         for block in blocks:
@@ -200,15 +227,16 @@ class LammpsInputFile(InputFile):
     @staticmethod
     def _clean_lines(string_list: list):
         """
-        Helper method to strips whitespaces, carriage returns and empty
+        Helper method to strips whitespaces, carriage returns and redundant empty
         lines from a list of strings.
         Also removes lines with "# LAMMPS input generated from LammpsInputFile"
+        to avoid possible repetitions.
 
         Args:
             string_list (list): List of strings.
         """
         if len(string_list) == 0 or all([s == "" for s in string_list]):
-            raise ValueError("The list of strings should contain some strings.")
+            raise ValueError("The list of strings should contain some non-empty strings.")
 
         # Remove the first comment line possibly added by previous input creations
         while "# LAMMPS input generated from LammpsInputFile" in string_list:
