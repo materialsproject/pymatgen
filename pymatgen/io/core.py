@@ -102,6 +102,9 @@ class InputFile(MSONable):
         with zopen(filename, "rt") as f:
             return cls.from_string(f.read())
 
+    def __str__(self):
+        return self.get_string()
+
 
 class InputSet(MSONable, MutableMapping):
     """
