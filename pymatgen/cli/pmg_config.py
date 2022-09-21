@@ -51,7 +51,7 @@ def setup_potcars(potcar_dirs: list[str]):
         "potUSPP_GGA": "POT_GGA_US_PW91",
     }
 
-    for (parent, subdirs, files) in os.walk(pspdir):
+    for parent, subdirs, _files in os.walk(pspdir):
         basename = os.path.basename(parent)
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:

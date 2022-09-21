@@ -664,7 +664,7 @@ class BztTransportProperties:
     def __init__(
         self,
         BztInterpolator,
-        temp_r=np.arange(100, 1400, 100),
+        temp_r=None,
         doping=None,
         npts_mu=4000,
         CRTA=1e-14,
@@ -703,6 +703,7 @@ class BztTransportProperties:
         Example:
             bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
         """
+        temp_r = temp_r or np.arange(100, 1400, 100)
 
         self.dosweight = BztInterpolator.data.dosweight
         self.volume = BztInterpolator.data.get_volume()

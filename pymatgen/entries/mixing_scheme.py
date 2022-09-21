@@ -52,10 +52,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def __init__(
         self,
-        structure_matcher: StructureMatcher = StructureMatcher(),
+        structure_matcher: StructureMatcher = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
-        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),
+        compat_1: Compatibility | None = None,
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
     ):
@@ -99,7 +99,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 match.
         """
         self.name = "MP DFT mixing scheme"
-        self.structure_matcher = structure_matcher
+        self.structure_matcher = structure_matcher or StructureMatcher()
         if run_type_1 == run_type_2:
             raise ValueError(
                 f"You specified the same run_type {run_type_1} for both run_type_1 and run_type_2. "
@@ -117,7 +117,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         else:
             self.valid_rtypes_2 = [self.run_type_2]
 
-        self.compat_1 = compat_1
+        self.compat_1 = compat_1 or MaterialsProject2020Compatibility()
         self.compat_2 = compat_2
         self.fuzzy_matching = fuzzy_matching
 
