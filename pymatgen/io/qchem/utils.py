@@ -111,10 +111,10 @@ def read_table_pattern(
 
 def lower_and_check_unique(dict_to_check):
     """
-    Takes a dictionary and makes all the keys lower case. Also replaces
-    "jobtype" with "job_type" just so that key specifically can be called
-    elsewhere without ambiguity. Finally, ensures that multiple identical
-    keys, that differed only due to different capitalizations, are not
+    Takes a dictionary and makes all the keys lower case. Also converts all numeric
+    values (floats, ints) to str and replaces "jobtype" with "job_type" just so that
+    key specifically can be called elsewhere without ambiguity. Finally, ensures that
+    multiple identical keys, that differed only due to different capitalizations, are not
     present. If there are multiple equivalent keys, an Exception is raised.
 
     Args:
