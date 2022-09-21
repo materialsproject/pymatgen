@@ -98,7 +98,7 @@ class QChemDictSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_DictSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_DictSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_DictSet.molecule, test_molecule)
 
         test_DictSet = QChemDictSet(
@@ -218,7 +218,51 @@ class QChemDictSetTest(PymatgenTest):
             "theory": "cpcm",
             "vdwscale": "1.1",
         }
-        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": "10.0"})
+        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": 10.0})
+        for k, v in qc_input.as_dict().items():
+            self.assertEqual(v, test_dict[k])
+        os.remove("mol.qin")
+
+    def test_isosvp_write(self):
+        """
+        Also tests overwrite_inputs with a RHOISO value
+        """
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        dict_set = QChemDictSet(
+            molecule=test_molecule,
+            job_type="opt",
+            basis_set="def2-SVPD",
+            scf_algorithm="diis",
+            dft_rung=5,
+            isosvp_dielectric=62,
+            max_scf_cycles=35,
+            overwrite_inputs={"svp": {"RHOISO": 0.0009}},
+        )
+        dict_set.write("mol.qin")
+        test_dict = QCInput.from_file("mol.qin").as_dict()
+        rem = {
+            "job_type": "opt",
+            "basis": "def2-SVPD",
+            "max_scf_cycles": "35",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "gen_scfman": "true",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "isosvp",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
+
+        qc_input = QCInput(
+            molecule=test_molecule,
+            rem=rem,
+            pcm_nonels=None,
+            svp={"RHOISO": 0.0009, "DIELST": 62, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2},
+        )
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
@@ -254,6 +298,60 @@ class QChemDictSetTest(PymatgenTest):
             "resp_charges": "true",
         }
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "water"})
+        for k, v in qc_input.as_dict().items():
+            self.assertEqual(v, test_dict[k])
+        os.remove("mol.qin")
+
+    def test_cmirs_write(self):
+        """
+        Also tests overwrite_inputs with a RHOISO value
+        """
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        dict_set = QChemDictSet(
+            molecule=test_molecule,
+            job_type="opt",
+            basis_set="def2-SVPD",
+            scf_algorithm="diis",
+            dft_rung=5,
+            cmirs_solvent="water",
+            max_scf_cycles=35,
+            overwrite_inputs={"svp": {"RHOISO": 0.0005}},
+        )
+        dict_set.write("mol.qin")
+        test_dict = QCInput.from_file("mol.qin").as_dict()
+        rem = {
+            "job_type": "opt",
+            "basis": "def2-SVPD",
+            "max_scf_cycles": "35",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "gen_scfman": "true",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "isosvp",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
+        pcm_nonels = {
+            "A": -0.006496,
+            "B": 0.050833,
+            "C": -566.7,
+            "D": -30.503,
+            "gamma": 3.2,
+            "solvrho": 0.05,
+            "Delta": 7,
+            "GauLag_N": 40,
+        }
+
+        qc_input = QCInput(
+            molecule=test_molecule,
+            rem=rem,
+            pcm_nonels=pcm_nonels,
+            svp={"RHOISO": 0.0005, "DIELST": 78.39, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2, "IDEFESR": 1},
+        )
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
@@ -355,7 +453,7 @@ class SinglePointSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_SPSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_SPSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -471,7 +569,7 @@ class OptSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_OptSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_OptSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_OptSet.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -586,7 +684,7 @@ class TransitionStateSetTest(PymatgenTest):
             test_TSSet.pcm,
             {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"},
         )
-        self.assertEqual(test_TSSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_TSSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_TSSet.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -666,7 +764,7 @@ class ForceSetTest(PymatgenTest):
             test_forceset.pcm,
             {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"},
         )
-        self.assertEqual(test_forceset.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_forceset.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_forceset.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -752,7 +850,7 @@ class PESScanSetTest(PymatgenTest):
             test_pes_scan.pcm,
             {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"},
         )
-        self.assertEqual(test_pes_scan.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_pes_scan.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_pes_scan.scan, {"stre": ["3 6 1.5 1.9 0.01"]})
         self.assertEqual(test_pes_scan.molecule, test_molecule)
 
@@ -842,7 +940,7 @@ class FreqSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_FreqSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_FreqSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_FreqSet.molecule, test_molecule)
 
     def test_smd_init(self):
