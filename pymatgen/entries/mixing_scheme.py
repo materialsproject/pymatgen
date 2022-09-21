@@ -55,7 +55,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         structure_matcher: StructureMatcher = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
-        compat_1: Compatibility | None = None,
+        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
     ):
@@ -117,7 +117,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         else:
             self.valid_rtypes_2 = [self.run_type_2]
 
-        self.compat_1 = compat_1 or MaterialsProject2020Compatibility()
+        self.compat_1 = compat_1
         self.compat_2 = compat_2
         self.fuzzy_matching = fuzzy_matching
 
