@@ -1771,6 +1771,7 @@ class MPRester:
 
         if api_key is None:
             api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+            kwargs["api_key"] = api_key
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
