@@ -466,7 +466,7 @@ class QCInput(InputFile):
             if value == "tetrahydrofuran":
                 smx_list.append(f"   {key} thf")
             # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
-            elif value == "dimthyl sulfoxide":
+            elif value == "dimethyl sulfoxide":
                 smx_list.append(f"   {key} dmso")
             else:
                 smx_list.append(f"   {key} {value}")
@@ -578,7 +578,7 @@ class QCInput(InputFile):
             geom_opt ():
 
         Returns:
-            (dict) geom_opt parameters.
+            (str) geom_opt parameters.
         """
         geom_opt_list = []
         geom_opt_list.append("$geom_opt")
