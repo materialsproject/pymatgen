@@ -85,7 +85,8 @@ class LammpsInputFileTest(unittest.TestCase):
 units metal
 atom_style full
 dimension 3
-pair_style hybrid/overlay morse 15 coul/long 15
+pair_style hybrid/overlay &
+morse 15 coul/long 15
 kspace_style ewald 1e-4
 boundary p p p
 

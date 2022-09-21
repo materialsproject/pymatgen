@@ -190,6 +190,18 @@ class LammpsInputFile(InputFile):
         # Strip string from starting and/or ending white spaces
         s = s.strip()
 
+        # Remove "&" symbols at the end of lines
+        while "&" in s:
+            sequence = "&"
+            index = s.index("&")
+            next_symbol = ""
+            i = 0
+            while next_symbol != "\n":
+                sequence += next_symbol
+                i += 1
+                next_symbol = s[index + i]
+            s = s.replace(sequence + "\n", "")
+
         # Remove unwanted lines from the string
         lines = cls._clean_lines(s.splitlines())
         # Split the string into blocks based on the empty lines of the input file
@@ -232,6 +244,7 @@ class LammpsInputFile(InputFile):
         """
         Helper method to strips whitespaces, carriage returns and redundant empty
         lines from a list of strings.
+        Transforms "& \n" and "&\n" into "" as the & symbol means the line continues.
         Also removes lines with "# LAMMPS input generated from LammpsInputFile"
         to avoid possible repetitions.
 
