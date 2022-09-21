@@ -962,12 +962,7 @@ class QCInput(InputFile):
         svp_list = svp_table[0][0][0].split(", ")
         svp_dict = {}
         for s in svp_list:
-            val = s.split("=")[1]
-            try:
-                val = int(val)
-            except ValueError:
-                val = float(val)
-            svp_dict[s.split("=")[0]] = val
+            svp_dict[s.split("=")[0]] = s.split("=")[1]
         return svp_dict
 
     @staticmethod

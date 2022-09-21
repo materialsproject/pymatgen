@@ -10,6 +10,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
+from pymatgen.io.qchem.utils import lower_and_check_unique
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
@@ -19,6 +20,19 @@ __email__ = "b.wood@berkeley.edu"
 __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
+
+
+class UtilTest(PymatgenTest):
+    """
+    test utils
+    """
+
+    def test_lower_and_check_unique(self):
+        d = {"sVp": {"RHOISO": 0.0009}, "jobType": "SP"}
+        d2 = lower_and_check_unique(d)
+        assert d2 == {"svp": {"RHOISO": 0.0009}, "job_type": "sp"}
+        d3 = lower_and_check_unique(d2["svp"])
+        assert d3 == {"rhoiso": "0.0009"}
 
 
 class TestQCInput(PymatgenTest):
@@ -773,13 +787,13 @@ RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1
 $end"""
         svp_test = QCInput.read_svp(str_svp)
         svp_actual = {
-            "RHOISO": 0.001,
-            "DIELST": 78.36,
-            "NPTLEB": 1202,
-            "ITRNGR": 2,
-            "IROTGR": 2,
-            "IPNRF": 1,
-            "IDEFESR": 1,
+            "RHOISO": "0.001",
+            "DIELST": "78.36",
+            "NPTLEB": "1202",
+            "ITRNGR": "2",
+            "IROTGR": "2",
+            "IPNRF": "1",
+            "IDEFESR": "1",
         }
         self.assertDictEqual(svp_actual, svp_test)
 

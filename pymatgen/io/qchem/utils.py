@@ -139,7 +139,11 @@ def lower_and_check_unique(dict_to_check):
             try:
                 to_return[new_key] = dict_to_check.get(key).lower()
             except AttributeError:
-                to_return[new_key] = dict_to_check.get(key)
+                # convert all numeric keys to str
+                if isinstance(dict_to_check.get(key), int) or isinstance(dict_to_check.get(key), float):
+                    to_return[new_key] = str(dict_to_check.get(key))
+                else:
+                    to_return[new_key] = dict_to_check.get(key)
     return to_return
 
 
