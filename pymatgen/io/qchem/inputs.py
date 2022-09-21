@@ -959,7 +959,11 @@ class QCInput(InputFile):
         if svp_table == []:
             print("No valid svp inputs found.")
             return {}
-        return {"svp": str(svp_table[0][0][0])}
+        svp_list = svp_table[0][0][0].split(", ")
+        svp_dict = {}
+        for s in svp_list:
+            svp_dict[s.split("=")[0]] = float(s.split("=")[1])
+        return svp_dict
 
     @staticmethod
     def read_pcm_nonels(string: str) -> dict:

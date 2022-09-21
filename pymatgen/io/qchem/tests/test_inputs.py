@@ -773,7 +773,13 @@ RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1
 $end"""
         svp_test = QCInput.read_svp(str_svp)
         svp_actual = {
-            "svp": "RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1",
+            "RHOISO": 0.001,
+            "DIELST": 78.36,
+            "NPTLEB": 1202,
+            "ITRNGR": 2,
+            "IROTGR": 2,
+            "IPNRF": 1,
+            "IDEFESR": 1,
         }
         self.assertDictEqual(svp_actual, svp_test)
 
