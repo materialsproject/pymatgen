@@ -889,7 +889,7 @@ class LammpsData(MSONable):
                      charges={3: -2}
         """
         for iat, q in charges.items():
-            self.atoms.loc[iat]["q"] = q
+            self.atoms.loc[iat, "q"] = q
 
     def set_charge_atom_type(self, charges):
         """

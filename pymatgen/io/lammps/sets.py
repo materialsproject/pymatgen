@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Dict, List, Union
 
 from pymatgen.io.core import InputGenerator, InputSet
-from pymatgen.io.lammps.inputs import CombinedData, LammpsInputFile
+from pymatgen.io.lammps.data import CombinedData
+from pymatgen.io.lammps.inputs import LammpsInputFile
 
 __author__ = "Ryan Kingsbury, ..."
 __copyright__ = "Copyright 2021, The Materials Project"

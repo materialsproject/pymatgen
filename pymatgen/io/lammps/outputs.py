@@ -8,7 +8,6 @@ files (log and dump).
 
 import glob
 import re
-from collections import defaultdict
 from io import StringIO
 
 import numpy as np
@@ -138,8 +137,9 @@ class LammpsDump(MSONable):
         self.timestep = timestep
         self.natoms = natoms
         self.box = box
-        data.set_index("id", inplace=True)
-        data.sort_index(inplace=True)
+        if "id" in data.columns:
+            data.set_index("id", inplace=True)
+            data.sort_index(inplace=True)
         self.data = data
 
     @classmethod
@@ -176,9 +176,13 @@ class LammpsDump(MSONable):
         Returns:
             LammpsDump
         """
-        items = {"timestep": d["timestep"], "natoms": d["natoms"]}
-        items["box"] = LammpsBox.from_dict(d["box"])
-        items["data"] = pd.read_json(d["data"], orient="split")
+        items = {
+            "timestep": d["timestep"],
+            "natoms": d["natoms"],
+            "box": LammpsBox.from_dict(d["box"]),
+            "data": pd.read_json(d["data"], orient="split"),
+        }
+        items["data"].index.name = "id"
         return cls(**items)
 
     def as_dict(self):
@@ -201,7 +205,7 @@ class LammpsTrajectory(MSONable):
     The timestep is considered to be constant for the time being.
 
     Args:
-        trajectory: dictionary with timesteps as keys and LammpsDump object as values
+        trajectory: dictionary with timesteps as keys and LammpsDump objects as values
     """
 
     def __init__(self, trajectory):
@@ -234,14 +238,27 @@ class LammpsTrajectory(MSONable):
         if timestep_max is None:
             timestep_max = 1e20
 
-        trajectory = defaultdict(lambda: "Not present in the dump file")
+        trajectory = {}
         for dump in parse_lammps_dumps(file_pattern):
             if timestep_min <= dump.timestep <= timestep_max:
                 trajectory[dump.timestep] = dump
 
         return cls(trajectory)
 
-    def get_MSD(self, atom_type=None, time_average=True):
+    @classmethod
+    def from_dict(cls, d):
+        trajectory = {}
+        for timestep, dump in d.items():
+            if not (isinstance(timestep, int) or isinstance(timestep, float)):
+                raise ValueError("The provided keys should be timesteps.")
+            if not isinstance(dump, LammpsDump):
+                raise ValueError("The provided values should be LammpsDump objects.")
+
+            trajectory[timestep] = dump
+
+        return LammpsTrajectory(trajectory)
+
+    def get_msd(self, atom_type=None, time_average=True):
         """
         Compute the mean-square displacement for a trajectory.
         MSD = (1/N) sum_i^N < | R_i(t' + t) - R_i(t') |^2 >
@@ -264,7 +281,7 @@ class LammpsTrajectory(MSONable):
 
         if atom_type is None:
             # Set the default atom_type to all if not specified
-            atom_type = np.unique(self.trajectory[t0].data["coordinates"]["type"])
+            atom_type = np.unique(self.trajectory[t0].data["type"])
         atom_type = np.atleast_1d(atom_type)
 
         # Initialize MSD [n_atom_type, n_timesteps, 4]
@@ -328,13 +345,14 @@ class LammpsTrajectory(MSONable):
                   By default, removes 10% of the data at the end of the MSD.
 
         Returns:
-            Tuple (D, time) with D the diffusion coefficient for the timesteps
-            given in time. The time dimension of D and time is 1 less than that of
-            the MSD.
+            Tuple (D, time) with D the diffusion coefficient for the atoms for which the MSD is provided,
+            and timesteps given in time. The time dimension of D and time is 1 less than that of
+            the MSD. The last dimension of D corresponds to [Dx, Dy, Dz, Dtot] based on the same
+            corresponding MSD.
         """
         # First we get the MSD if not present
         if MSD is None:
-            MSD = self.get_MSD()
+            MSD = self.get_msd()
         # Then we determine the start and end indexes of the time
         # dimension of the MSD, that should correspond to the linear part.
         # If they are not specified, we remove the first and final 10% of the data.
@@ -350,6 +368,10 @@ class LammpsTrajectory(MSONable):
             len(MSD[0, :, 0]) - 1,
         )
         time_div = np.atleast_3d(time)
-        D = (MSD[:, 1:, :] - MSD[:, 0, :]) / (6 * (time_div - time_div[0, 0, 0] + self.timestep))
+        D = np.zeros([MSD.shape[0], MSD.shape[1] - 1, MSD.shape[2]])
+        for i in range(MSD.shape[0]):
+            for j in range(MSD.shape[1] - 1):
+                D[i] += MSD[i, j + 1, :] - MSD[i, 0, :]
+        D = D / (6 * (time_div - time_div[0, 0, 0] + self.timestep))
 
         return D, time

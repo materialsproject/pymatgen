@@ -513,6 +513,24 @@ class LammpsDataTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(ld.masses["mass"], [22.989769, 190.23, 15.9994])
         np.testing.assert_array_equal(ld.atoms["type"], [2] * 4 + [3] * 16)
 
+    def test_set_charge_atom(self):
+        peptide = self.peptide
+        charges = {1: 0.8803}
+        peptide.set_charge_atom(charges)
+        self.assertAlmostEqual(peptide.atoms.loc[1, "q"], 0.8803)
+        self.assertAlmostEqual(peptide.atoms.loc[2, "q"], -0.270)
+
+    def test_set_charge_atom_type(self):
+        peptide = self.peptide
+        charges = {1: 0.8803}
+        peptide.set_charge_atom_type(charges)
+        self.assertAlmostEqual(peptide.atoms.loc[1, "q"], 0.8803)
+        self.assertAlmostEqual(peptide.atoms.loc[2, "q"], -0.270)
+        peptide.set_charge_atom_type({4: 2.345})
+        self.assertAlmostEqual(peptide.atoms.loc[4, "q"], 2.345)
+        self.assertAlmostEqual(peptide.atoms.loc[5, "q"], 2.345)
+        self.assertAlmostEqual(peptide.atoms.loc[2004, "q"], 0.4170)
+
     def test_json_dict(self):
         encoded = json.dumps(self.ethane.as_dict(), cls=MontyEncoder)
         c2h6 = json.loads(encoded, cls=MontyDecoder)
@@ -701,8 +719,8 @@ class ForceFieldTest(unittest.TestCase):
         v_ff = v.force_field
         assert isinstance(v_ff, dict)
         self.assertNotIn("Pair Coeffs", v_ff)
-        self.assertEqual(v_ff["PairIJ Coeffs"].iat[5, 4], 1.93631)
-        self.assertEqual(v_ff["Bond Coeffs"].at[2, "coeff2"], 0.855906)
+        self.assertEqual(v_ff["PairIJ Coeffs"].iat[5, 4], 1.93631)  # pylint: disable=E1136
+        self.assertEqual(v_ff["Bond Coeffs"].at[2, "coeff2"], 0.855906)  # pylint: disable=E1136
         v_maps = v.maps
         self.assertDictEqual(v_maps["Atoms"], {"A": 1, "B": 2, "C": 3, "D": 4})
         self.assertDictEqual(
@@ -721,19 +739,19 @@ class ForceFieldTest(unittest.TestCase):
         e_ff = e.force_field
         assert isinstance(e_ff, dict)
         self.assertNotIn("PairIJ Coeffs", e_ff)
-        self.assertEqual(e_ff["Pair Coeffs"].at[1, "coeff2"], 3.854)
-        self.assertEqual(e_ff["Bond Coeffs"].at[2, "coeff4"], 844.6)
-        self.assertEqual(e_ff["Angle Coeffs"].at[2, "coeff4"], -2.4318)
-        self.assertEqual(e_ff["Dihedral Coeffs"].at[1, "coeff1"], -0.1432)
-        self.assertEqual(e_ff["Improper Coeffs"].at[2, "coeff2"], 0.0)
-        self.assertEqual(e_ff["BondBond Coeffs"].at[2, "coeff1"], 5.3316)
-        self.assertEqual(e_ff["BondAngle Coeffs"].at[1, "coeff3"], 1.53)
-        self.assertEqual(e_ff["MiddleBondTorsion Coeffs"].at[1, "coeff1"], -14.261)
-        self.assertEqual(e_ff["EndBondTorsion Coeffs"].at[1, "coeff1"], 0.213)
-        self.assertEqual(e_ff["AngleTorsion Coeffs"].at[1, "coeff3"], -0.2466)
-        self.assertEqual(e_ff["AngleAngleTorsion Coeffs"].at[1, "coeff1"], -12.564)
-        self.assertEqual(e_ff["BondBond13 Coeffs"].at[1, "coeff1"], 0.0)
-        self.assertEqual(e_ff["AngleAngle Coeffs"].at[1, "coeff2"], -0.4825)
+        self.assertEqual(e_ff["Pair Coeffs"].at[1, "coeff2"], 3.854)  # pylint: disable=E1136
+        self.assertEqual(e_ff["Bond Coeffs"].at[2, "coeff4"], 844.6)  # pylint: disable=E1136
+        self.assertEqual(e_ff["Angle Coeffs"].at[2, "coeff4"], -2.4318)  # pylint: disable=E1136
+        self.assertEqual(e_ff["Dihedral Coeffs"].at[1, "coeff1"], -0.1432)  # pylint: disable=E1136
+        self.assertEqual(e_ff["Improper Coeffs"].at[2, "coeff2"], 0.0)  # pylint: disable=E1136
+        self.assertEqual(e_ff["BondBond Coeffs"].at[2, "coeff1"], 5.3316)  # pylint: disable=E1136
+        self.assertEqual(e_ff["BondAngle Coeffs"].at[1, "coeff3"], 1.53)  # pylint: disable=E1136
+        self.assertEqual(e_ff["MiddleBondTorsion Coeffs"].at[1, "coeff1"], -14.261)  # pylint: disable=E1136
+        self.assertEqual(e_ff["EndBondTorsion Coeffs"].at[1, "coeff1"], 0.213)  # pylint: disable=E1136
+        self.assertEqual(e_ff["AngleTorsion Coeffs"].at[1, "coeff3"], -0.2466)  # pylint: disable=E1136
+        self.assertEqual(e_ff["AngleAngleTorsion Coeffs"].at[1, "coeff1"], -12.564)  # pylint: disable=E1136
+        self.assertEqual(e_ff["BondBond13 Coeffs"].at[1, "coeff1"], 0.0)  # pylint: disable=E1136
+        self.assertEqual(e_ff["AngleAngle Coeffs"].at[1, "coeff2"], -0.4825)  # pylint: disable=E1136
         e_maps = e.maps
         self.assertDictEqual(e_maps["Atoms"], {"c4": 1, "h1": 2})
         self.assertDictEqual(e_maps["Bonds"], {("c4", "c4"): 1, ("c4", "h1"): 2, ("h1", "c4"): 2})

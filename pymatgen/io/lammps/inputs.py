@@ -18,7 +18,7 @@ from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.io.core import InputFile
-from pymatgen.io.lammps.data import LammpsData  # , CombinedData
+from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
@@ -187,6 +187,9 @@ class LammpsInputFile(InputFile):
         """
         LIF = cls()
 
+        # Strip string from starting and/or ending white spaces
+        s = s.strip()
+
         # Remove unwanted lines from the string
         lines = cls._clean_lines(s.splitlines())
         # Split the string into blocks based on the empty lines of the input file
@@ -286,12 +289,6 @@ class LammpsInputFile(InputFile):
                 i_block += 1
 
         return blocks
-
-
-class CombinedData(InputFile):
-    """
-    Class representing a LAMMPS data file, e.g. system.data
-    """
 
 
 class LammpsRun(MSONable):
