@@ -150,7 +150,16 @@ $end"""
         self.assertEqual(smx_actual, smx_test)
 
     def test_svp_template(self):
-        svp_params = {"svp": "RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1"}
+        svp_params = {
+            "RHOISO": 0.001,
+            "DIELST": 78.36,
+            "NPTLEB": 1202,
+            "ITRNGR": 2,
+            "IROTGR": 2,
+            "IPNRF": 1,
+            "IDEFESR": 1,
+        }
+        # svp_params = lower_and_check_unique(svp_params)
         svp_test = QCInput.svp_template(svp_params)
         svp_actual = """$svp
 RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1

@@ -18,11 +18,8 @@ from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
-__email__ = "b.wood@berkeley.edu"
-__credits__ = "Xiaohui Qu"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 
 logger = logging.getLogger(__name__)
 
@@ -101,10 +98,12 @@ class QCInput(InputFile):
                     This section is required when using the new libopt3 geometry optimizer.
             svp (dict):
                 A dictionary of all the input parameters for the svp section of QChem input file. This section
-                is required to use the SS(V)PE and CMIRS solvation models. Note that for the CMIRS model, the
-                RHOISO value must be coordinated with the solvent parameters specified in the $pcm_nonels section.
-                svp parameters should be passed as a FORTRAN namelist with all variables on a single line, e.g.
-                svp={"svp": "RHOISO=0.001, DIELST=78.39, NPTLEB=110"}
+                is required to use the isodensity SS(V)PE and CMIRS solvation models. Note that for the CMIRS model,
+                the RHOISO value must be coordinated with the solvent parameters specified in the $pcm_nonels section.
+                svp parameters should be passed as a dict, e.g.
+                svp={"RHOISO": 0.001, "DIELST": 78.39, "NPTLEB": 110}
+                Note that the "DIELST" setting has no effect on non-isodensity SS(V)PE calculations (i.e., when
+                solvent_method = PCM).
             pcm_nonels (dict):
                 A dictionary of all the input parameters for the pcm_nonels section of QChem input file. This
                 section is required to use the CMIRS implicit solvent model. For example, this input is valid
@@ -566,8 +565,8 @@ class QCInput(InputFile):
         """
         svp_list = []
         svp_list.append("$svp")
-        for _key, value in svp.items():
-            svp_list.append(f"{value}")
+        param_list = [f"{_key}={value}" for _key, value in svp.items()]
+        svp_list.append(", ".join(param_list))
         svp_list.append("$end")
         return "\n".join(svp_list)
 
