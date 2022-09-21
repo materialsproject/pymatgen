@@ -2416,7 +2416,7 @@ class DistanceNbSetWeight(NbSetWeight):
             all_nbs_voro_indices = set(range(len(voronoi)))
         else:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
-        all_nbs_indices_except_nb_set = all_nbs_voro_indices.difference(nb_set.site_voronoi_indices)
+        all_nbs_indices_except_nb_set = all_nbs_voro_indices - nb_set.site_voronoi_indices
         normalized_distances = [voronoi[inb]["normalized_distance"] for inb in all_nbs_indices_except_nb_set]
         if len(normalized_distances) == 0:
             return 1.0
@@ -2493,7 +2493,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
             all_nbs_voro_indices = set(range(len(voronoi)))
         else:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
-        all_nbs_indices_except_nb_set = all_nbs_voro_indices.difference(nb_set.site_voronoi_indices)
+        all_nbs_indices_except_nb_set = all_nbs_voro_indices - nb_set.site_voronoi_indices
         normalized_distances = [voronoi[inb]["normalized_distance"] for inb in all_nbs_indices_except_nb_set]
         if len(normalized_distances) == 0:
             return 1.0

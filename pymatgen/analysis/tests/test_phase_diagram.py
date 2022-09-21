@@ -8,6 +8,7 @@ from numbers import Number
 from pathlib import Path
 
 import numpy as np
+import pytest
 from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 
@@ -714,6 +715,11 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(
                 self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
             )
+
+    def test_raises_on_missing_terminal_entries(self):
+        entry = PDEntry("FeO", -1.23)
+        with pytest.raises(ValueError, match=r"Missing terminal entries for elements \['Fe', 'O'\]"):
+            PatchedPhaseDiagram(entries=[entry])
 
 
 class ReactionDiagramTest(unittest.TestCase):

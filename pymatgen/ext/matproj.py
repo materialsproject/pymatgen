@@ -900,7 +900,6 @@ class _MPResterLegacy:
 
         Returns:
             List of ComputedEntries.
-
         """
         if isinstance(elements, str):
             elements = elements.split("-")
