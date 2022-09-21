@@ -1968,7 +1968,7 @@ class IStructure(SiteCollection, MSONable):
 
             if len(unmapped_start_ind) == 1:
                 i = unmapped_start_ind[0]
-                j = list(set(range(len(start_coords))).difference(matched))[0]  # type: ignore
+                j = list(set(range(len(start_coords))) - set(matched))[0]  # type: ignore
                 sorted_end_coords[i] = end_coords[j]
 
             end_coords = sorted_end_coords
@@ -2141,7 +2141,7 @@ class IStructure(SiteCollection, MSONable):
         for size, ms in get_hnf(num_fu):
             inv_ms = np.linalg.inv(ms)
 
-            # find sets of lattice vectors that are are present in min_vecs
+            # find sets of lattice vectors that are present in min_vecs
             dist = inv_ms[:, :, None, :] - min_vecs[None, None, :, :]
             dist -= np.round(dist)
             np.abs(dist, dist)
@@ -2492,6 +2492,15 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.fleur import FleurInput
 
             writer = FleurInput(self, **kwargs)
+        elif fmt == "res" or fnmatch(fname, "*.res"):
+            from pymatgen.io.res import ResIO
+
+            s = ResIO.structure_to_str(self)
+            if filename:
+                with zopen(filename, "wt", encoding="utf8") as f:
+                    f.write(s)
+                return None
+            return s
         else:
             raise ValueError(f"Invalid format: `{str(fmt)}`")
 
@@ -2504,7 +2513,7 @@ class IStructure(SiteCollection, MSONable):
     def from_str(
         cls,
         input_string: str,
-        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs"],
+        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs", "res"],
         primitive: bool = False,
         sort: bool = False,
         merge_tol: float = 0.0,
@@ -2566,6 +2575,10 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.fleur import FleurInput
 
             s = FleurInput.from_string(input_string, inpgen_input=False).structure
+        elif fmt == "res":
+            from pymatgen.io.res import ResIO
+
+            s = ResIO.structure_from_str(input_string)
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
@@ -2669,6 +2682,10 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.fleur import FleurInput
 
             s = FleurInput.from_file(filename).structure
+        elif fnmatch(fname, "*.res"):
+            from pymatgen.io.res import ResIO
+
+            s = ResIO.structure_from_file(filename)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -4037,36 +4054,43 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure
         """
         prototype = prototype.lower()
-        if prototype == "fcc":
-            return Structure.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
-        if prototype == "bcc":
-            return Structure.from_spacegroup("Im-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
-        if prototype == "hcp":
-            return Structure.from_spacegroup(
-                "P6_3/mmc", Lattice.hexagonal(kwargs["a"], kwargs["c"]), species, [[1 / 3, 2 / 3, 1 / 4]]
-            )
-        if prototype == "diamond":
-            return Structure.from_spacegroup("Fd-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
-        if prototype == "rocksalt":
-            return Structure.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0]])
-        if prototype == "perovskite":
-            return Structure.from_spacegroup(
-                "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]]
-            )
-        if prototype in ("cscl"):
-            return Structure.from_spacegroup("Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5]])
-        if prototype in ("fluorite", "caf2"):
-            return Structure.from_spacegroup(
-                "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 1 / 4]]
-            )
-        if prototype in ("antifluorite"):
-            return Structure.from_spacegroup(
-                "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[1 / 4, 1 / 4, 1 / 4], [0, 0, 0]]
-            )
-        if prototype in ("zincblende"):
-            return Structure.from_spacegroup(
-                "F-43m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]]
-            )
+        try:
+            if prototype == "fcc":
+                return Structure.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
+            if prototype == "bcc":
+                return Structure.from_spacegroup("Im-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
+            if prototype == "hcp":
+                return Structure.from_spacegroup(
+                    "P6_3/mmc", Lattice.hexagonal(kwargs["a"], kwargs["c"]), species, [[1 / 3, 2 / 3, 1 / 4]]
+                )
+            if prototype == "diamond":
+                return Structure.from_spacegroup("Fd-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
+            if prototype == "rocksalt":
+                return Structure.from_spacegroup(
+                    "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0]]
+                )
+            if prototype == "perovskite":
+                return Structure.from_spacegroup(
+                    "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]]
+                )
+            if prototype in ("cscl"):
+                return Structure.from_spacegroup(
+                    "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5]]
+                )
+            if prototype in ("fluorite", "caf2"):
+                return Structure.from_spacegroup(
+                    "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 1 / 4]]
+                )
+            if prototype in ("antifluorite"):
+                return Structure.from_spacegroup(
+                    "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[1 / 4, 1 / 4, 1 / 4], [0, 0, 0]]
+                )
+            if prototype in ("zincblende"):
+                return Structure.from_spacegroup(
+                    "F-43m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]]
+                )
+        except KeyError as ex:
+            raise ValueError(f"Required parameter {ex} not specified as a kwargs!")
         raise ValueError(f"Unsupported prototype {prototype}!")
 
 

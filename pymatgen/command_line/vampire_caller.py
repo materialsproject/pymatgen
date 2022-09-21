@@ -83,7 +83,7 @@ class VampireCaller:
         Parameters:
             sgraph (StructureGraph): Ground state graph.
             unique_site_ids (dict): Maps each site to its unique identifier
-            nn_interacations (dict): {i: j} pairs of NN interactions
+            nn_interactions (dict): {i: j} pairs of NN interactions
                 between unique sites.
             ex_params (dict): Exchange parameter values (meV/atom)
             mft_t (float): Mean field theory estimate of critical T

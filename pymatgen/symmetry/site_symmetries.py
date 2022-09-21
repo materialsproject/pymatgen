@@ -48,7 +48,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
     return point_ops
 
 
-def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp]], tol=0.1):
+def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp]], tol: float = 0.1):
     """
     Get all the point group operations shared by a pair of atomic sites
     in the form [[point operations of site index 1],[],...,[]]

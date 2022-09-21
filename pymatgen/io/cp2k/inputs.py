@@ -713,7 +713,7 @@ class Cp2kInput(Section):
         Initialize Cp2kInput by calling the super
         """
         self.name = name
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "CP2K Input"
@@ -815,7 +815,7 @@ class Cp2kInput(Section):
                         self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s])
                 else:
                     self.by_path(current).insert(s)
-                current = current + "/" + alias if alias else current + "/" + name
+                current = f"{current}/{alias}" if alias else f"{current}/{name}"
             else:
                 kwd = Keyword.from_string(line)
                 tmp = self.by_path(current).get(kwd.name)
@@ -908,7 +908,7 @@ class ForceEval(Section):
             subsections (dict, optional): Defaults to None.
         """
 
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -962,7 +962,7 @@ class Dft(Section):
         self.potential_filename = potential_filename
         self.uks = uks
         self.wfn_restart_file_name = wfn_restart_file_name
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "Parameter needed by dft programs"
@@ -999,7 +999,7 @@ class Subsys(Section):
         """
         Initialize the subsys section
         """
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
         description = "A subsystem: coordinates, topology, molecules and cell"
         super().__init__("SUBSYS", description=description, subsections=subsections, **kwargs)
@@ -1039,7 +1039,7 @@ class QS(Section):
         self.method = method
         self.eps_default = eps_default
         self.extrapolation = extrapolation
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "Parameters needed to set up the Quickstep framework"
@@ -1095,7 +1095,7 @@ class Scf(Section):
         self.max_scf = max_scf
         self.eps_scf = eps_scf
         self.scf_guess = scf_guess
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "Parameters needed to perform an SCF run."
@@ -1142,7 +1142,7 @@ class Mgrid(Section):
             cutoff: Cutoff energy (in Rydbergs for historical reasons) defining how find of
                 Gaussians will be used
             rel_cutoff: The relative cutoff energy, which defines how to map the Gaussians onto
-                the multigrid. If the the value is too low then, even if you have a high cutoff
+                the multigrid. If the value is too low then, even if you have a high cutoff
                 with sharp Gaussians, they will be mapped to the course part of the multigrid
             ngrids: number of grids to use
             progression_factor: divisor that decides how to map Gaussians the multigrid after
@@ -1153,7 +1153,7 @@ class Mgrid(Section):
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
         self.progression_factor = progression_factor
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -1205,7 +1205,7 @@ class Diagonalization(Section):
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
         self.jacobi_threshold = jacobi_threshold
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
         self.location = "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION"
         self.description = "Settings for the SCF's diagonalization routines"
@@ -1333,7 +1333,7 @@ class OrbitalTransformation(Section):
         self.occupation_preconditioner = occupation_preconditioner
         self.energy_gap = energy_gap
         self.linesearch = linesearch
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -1435,7 +1435,7 @@ class Kind(Section):
         self.specie = specie
         self.alias = alias
         self.magnetization = magnetization
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.basis_set = basis_set
         self.potential = potential
         self.ghost = ghost
@@ -1478,7 +1478,7 @@ class Kind(Section):
         if aux_basis:
             keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", aux_basis)
 
-        kind_name = alias if alias else str(specie)
+        kind_name = alias or str(specie)
         self.alias = kind_name
 
         self.section_parameters = [kind_name]
@@ -1573,7 +1573,7 @@ class Coord(Section):
 
         self.structure = structure
         self.aliases = aliases
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -1672,7 +1672,7 @@ class V_Hartree_Cube(Section):
         Initialize the V_HARTREE_CUBE section
         """
 
-        self.keywords = keywords if keywords else {}
+        self.keywords = keywords or {}
         self.kwargs = kwargs
 
         description = (
@@ -1738,7 +1738,7 @@ class E_Density_Cube(Section):
         Initialize the E_DENSITY_CUBE Section
         """
 
-        self.keywords = keywords if keywords else {}
+        self.keywords = keywords or {}
         self.kwargs = kwargs
 
         description = (
@@ -1943,7 +1943,7 @@ class Xc_Functional(Section):
         """
 
         self.functionals = functionals or []
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
@@ -2053,7 +2053,7 @@ class Kpoints(Section):
         keywords = {}
 
         self.kpts = kpts
-        self.weights = weights if weights else [1] * len(kpts)
+        self.weights = weights or [1] * len(kpts)
         assert len(self.kpts) == len(self.weights)
         self.eps_geo = eps_geo
         self.full_grid = full_grid

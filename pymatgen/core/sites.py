@@ -483,7 +483,7 @@ class PeriodicSite(Site, MSONable):
 
     def to_unit_cell(self, in_place=False) -> PeriodicSite | None:
         """
-        Move frac coords to within the unit cell cell.
+        Move frac coords to within the unit cell.
         """
         frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
@@ -656,5 +656,5 @@ class PeriodicSite(Site, MSONable):
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
-        lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
+        lattice = lattice or Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)

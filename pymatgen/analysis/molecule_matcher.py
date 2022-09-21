@@ -103,8 +103,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             )
             if hasattr(mod, d["@class"]):
                 class_proxy = getattr(mod, d["@class"])
-                from_dict_proxy = getattr(class_proxy, "from_dict")
-                return from_dict_proxy(d)
+                return class_proxy.from_dict(d)
         raise ValueError("Invalid Comparator dict")
 
 
@@ -203,7 +202,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         Returns:
             IsomorphismMolAtomMapper
         """
-        return IsomorphismMolAtomMapper()
+        return cls()
 
 
 class InchiMolAtomMapper(AbstractMolAtomMapper):
@@ -240,7 +239,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Returns:
             InchiMolAtomMapper
         """
-        return InchiMolAtomMapper(angle_tolerance=d["angle_tolerance"])
+        return cls(angle_tolerance=d["angle_tolerance"])
 
     @staticmethod
     def _inchi_labels(mol):
@@ -494,7 +493,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     @staticmethod
     def _get_elements(mol, label):
         """
-        The the elements of the atoms in the specified order
+        The elements of the atoms in the specified order
 
         Args:
             mol: The molecule. OpenBabel OBMol object.
@@ -592,7 +591,7 @@ class MoleculeMatcher(MSONable):
         "Python bindings. Please get it at http://openbabel.org "
         "(version >=3.0.0).",
     )
-    def __init__(self, tolerance=0.01, mapper=InchiMolAtomMapper()):
+    def __init__(self, tolerance: float = 0.01, mapper=None) -> None:
         """
         Args:
             tolerance (float): RMSD difference threshold whether two molecules are
@@ -601,7 +600,7 @@ class MoleculeMatcher(MSONable):
                 molecule to uniform order
         """
         self._tolerance = tolerance
-        self._mapper = mapper
+        self._mapper = mapper or InchiMolAtomMapper()
 
     def fit(self, mol1, mol2):
         """
@@ -734,7 +733,7 @@ class MoleculeMatcher(MSONable):
         Returns:
             MoleculeMatcher
         """
-        return MoleculeMatcher(
+        return cls(
             tolerance=d["tolerance"],
             mapper=AbstractMolAtomMapper.from_dict(d["mapper"]),
         )

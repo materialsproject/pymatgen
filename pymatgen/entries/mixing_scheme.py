@@ -61,7 +61,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     ):
         """
         Instantiate the mixing scheme. The init method creates a generator class that
-        contains relevant settings (e.g., StrutureMatcher instance, Compatibility settings
+        contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
         for each functional) for processing groups of entries.
 
         Args:

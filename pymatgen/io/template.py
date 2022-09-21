@@ -42,7 +42,7 @@ class TemplateInputGen(InputGenerator):
             filename: name of the file to be written
         """
         self.template = template
-        self.variables = variables if variables else {}
+        self.variables = variables or {}
         self.filename = filename
 
         # load the template

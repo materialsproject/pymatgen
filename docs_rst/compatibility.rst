@@ -49,7 +49,7 @@ pulling in Pymatgen versions with breaking changes that may end up breaking
 your tool.
 
 An even more conservative approach is to pin the Pymatgen dependency to a fixed version, for
-example `pymatgen==2021.3.3`. While this will always install the the same version of pymatgen,
+example `pymatgen==2021.3.3`. While this will always install the same version of pymatgen,
 it can lead to unnecessary dependency conflicts with other tools that depend on (a different
 version of) Pymatgen.
 

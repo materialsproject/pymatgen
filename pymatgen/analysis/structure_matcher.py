@@ -434,10 +434,9 @@ class StructureMatcher(MSONable):
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
-        Yields lattices for s with lengths and angles close to the
-        lattice of target_s. If supercell_size is specified, the
-        returned lattice will have that number of primitive cells
-        in it
+        Yields lattices for s with lengths and angles close to the lattice of target_s. If
+        supercell_size is specified, the returned lattice will have that number of primitive
+        cells in it
 
         Args:
             s, target_s: Structure objects
@@ -456,7 +455,7 @@ class StructureMatcher(MSONable):
         """
         Computes all supercells of one structure close to the lattice of the
         other
-        if s1_supercell == True, it makes the supercells of struct1, otherwise
+        if s1_supercell is True, it makes the supercells of struct1, otherwise
         it makes them of s2
 
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
@@ -877,7 +876,7 @@ class StructureMatcher(MSONable):
         :param d: Dict representation
         :return: StructureMatcher
         """
-        return StructureMatcher(
+        return cls(
             ltol=d["ltol"],
             stol=d["stol"],
             angle_tol=d["angle_tol"],

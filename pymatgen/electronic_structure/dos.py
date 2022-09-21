@@ -234,7 +234,7 @@ class Dos(MSONable):
         Returns:
             Dict of Gaussian-smeared densities.
         """
-        from scipy.ndimage.filters import gaussian_filter1d
+        from scipy.ndimage import gaussian_filter1d
 
         smeared_dens = {}
         diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
@@ -826,9 +826,9 @@ class CompleteDos(Dos):
         up to the Fermi level
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
 
         Returns:
@@ -884,9 +884,9 @@ class CompleteDos(Dos):
         is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -916,9 +916,9 @@ class CompleteDos(Dos):
         Note that the band width is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -948,9 +948,9 @@ class CompleteDos(Dos):
         Note that the skewness is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbitals to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbitals to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -983,9 +983,9 @@ class CompleteDos(Dos):
         Note that the skewness is often highly sensitive to the selected erange.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -1020,9 +1020,9 @@ class CompleteDos(Dos):
 
         Args:
             n: The order for the moment
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.
@@ -1136,9 +1136,9 @@ class CompleteDos(Dos):
         Hilbert transform of the orbital-projected DOS.
 
         Args:
+            band: Orbital type to get the band center of (default is d-band)
             elements: Elements to get the band center of (cannot be used in conjunction with site)
             sites: Sites to get the band center of (cannot be used in conjunction with el)
-            band: Orbital type to get the band center of (default is d-band)
             spin: Spin channel to use. By default, the spin channels will be combined.
             erange: [min, max] energy range to consider, with respect to the Fermi level.
                 Default is None, which means all energies are considered.

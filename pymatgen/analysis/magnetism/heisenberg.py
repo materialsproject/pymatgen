@@ -36,7 +36,7 @@ class HeisenbergMapper:
     Class to compute exchange parameters from low energy magnetic orderings.
     """
 
-    def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
+    def __init__(self, ordered_structures, energies, cutoff=0.0, tol: float = 0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only
@@ -59,20 +59,14 @@ class HeisenbergMapper:
                 being equal.
 
         Parameters:
-            strategy (object): Class from pymatgen.analysis.local_env for
-                constructing graphs.
+            strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
             sgraphs (list): StructureGraph objects.
-            unique_site_ids (dict): Maps each site to its unique numerical
-                identifier.
-            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
-                position.
-            nn_interacations (dict): {i: j} pairs of NN interactions
-                between unique sites.
+            unique_site_ids (dict): Maps each site to its unique numerical identifier.
+            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
+            nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
             dists (dict): NN, NNN, and NNNN interaction distances
-            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
-                graph.
+            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
             ex_params (dict): Exchange parameter values (meV/atom)
-
         """
 
         # Save original copies of inputs
@@ -893,7 +887,7 @@ class HeisenbergModel(MSONable):
                 identifier.
             wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
                 position.
-            nn_interacations (dict): {i: j} pairs of NN interactions
+            nn_interactions (dict): {i: j} pairs of NN interactions
                 between unique sites.
             dists (dict): NN, NNN, and NNNN interaction distances
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each

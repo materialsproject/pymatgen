@@ -43,7 +43,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5.0):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5.0):
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -572,7 +572,7 @@ class SpacegroupAnalyzer:
         latt_type = self.get_lattice_type()
         sorted_lengths = sorted(latt.abc)
         sorted_dic = sorted(
-            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1, 2]),
+            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in range(3)),
             key=lambda k: k["length"],
         )
 
@@ -1709,7 +1709,7 @@ class PointGroupOperations(list):
         Schoenflies symbol of the point group.
     """
 
-    def __init__(self, sch_symbol, operations, tol=0.1):
+    def __init__(self, sch_symbol, operations, tol: float = 0.1):
         """
         Args:
             sch_symbol (str): Schoenflies symbol of the point group.

@@ -278,7 +278,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def is_element(self) -> bool:
         """
-        True if composition is for an element.
+        True if composition is an element.
         """
         return len(self) == 1
 

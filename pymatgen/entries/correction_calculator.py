@@ -20,13 +20,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 
 
-def _func(x, *m):
-    """
-    Helper function for curve_fit.
-    """
-    return np.dot(x, m)
-
-
 class CorrectionCalculator:
 
     """
@@ -289,10 +282,12 @@ class CorrectionCalculator:
 
         if np.isnan(mean_uncer):
             # no uncertainty values for any compounds, don't try to weight
-            popt, self.pcov = curve_fit(_func, self.coeff_mat, self.diffs, p0=np.ones(len(self.species)))
+            popt, self.pcov = curve_fit(
+                lambda x, *m: np.dot(x, m), self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
+            )
         else:
             popt, self.pcov = curve_fit(
-                _func,
+                lambda x, *m: np.dot(x, m),
                 self.coeff_mat,
                 self.diffs,
                 p0=np.ones(len(self.species)),

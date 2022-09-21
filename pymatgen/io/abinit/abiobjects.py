@@ -10,7 +10,7 @@ import abc
 import collections
 from enum import Enum
 from pprint import pformat
-from typing import cast
+from typing import List, cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -170,7 +170,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     )
 
 
-def species_by_znucl(structure: Structure) -> list[Species]:
+def species_by_znucl(structure: Structure) -> List[Species]:
     """
     Return list of unique specie found in structure **ordered according to sites**.
 
@@ -846,7 +846,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Monkhorst-Pack scheme with user-specified shiftk",
+            comment=comment or "Monkhorst-Pack scheme with user-specified shiftk",
         )
 
     @classmethod
@@ -884,7 +884,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Automatic Monkhorst-Pack scheme",
+            comment=comment or "Automatic Monkhorst-Pack scheme",
         )
 
     @classmethod
@@ -907,7 +907,7 @@ class KSampling(AbivarAble, MSONable):
 
             sp = HighSymmKpath(structure)
 
-            # Flat the array since "path" is a a list of lists!
+            # Flat the array since "path" is a list of lists!
             kpath_labels = []
             for labels in sp.kpath["path"]:
                 kpath_labels.extend(labels)
@@ -921,7 +921,7 @@ class KSampling(AbivarAble, MSONable):
             mode=KSamplingModes.path,
             num_kpts=ndivsm,
             kpts=kpath_bounds,
-            comment=comment if comment else "K-Path scheme",
+            comment=comment or "K-Path scheme",
         )
 
     @classmethod

@@ -188,7 +188,7 @@ class Cohpcar:
                     "sites": bond_data["sites"],
                 }
 
-        self.orb_res_cohp = orb_cohp if orb_cohp else None
+        self.orb_res_cohp = orb_cohp or None
         self.cohp_data = cohp_data
 
     @staticmethod
@@ -1748,6 +1748,9 @@ class SitePotential:
         struct = Structure.from_file(structure_filename)
         Mulliken = self.sitepotentials_Mulliken
         Loewdin = self.sitepotentials_Loewdin
-        site_properties = {"Mulliken Site Potentials (eV)": Mulliken, "Loewdin Site Potentials (eV)": Loewdin}
+        site_properties = {
+            "Mulliken Site Potentials (eV)": Mulliken,
+            "Loewdin Site Potentials (eV)": Loewdin,
+        }
         new_struct = struct.copy(site_properties=site_properties)
         return new_struct

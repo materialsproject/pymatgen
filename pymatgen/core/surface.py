@@ -196,7 +196,7 @@ class Slab(Structure):
             site_properties=self.site_properties,
         )
 
-    def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
+    def get_tasker2_slabs(self, tol: float = 0.01, same_species_only=True):
         """
         Get a list of slabs that have been Tasker 2 corrected.
 
@@ -297,7 +297,7 @@ class Slab(Structure):
         unique = [ss[0] for ss in s.group_structures(slabs)]
         return unique
 
-    def is_symmetric(self, symprec=0.1):
+    def is_symmetric(self, symprec: float = 0.1):
         """
         Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
             or screw axis (rotation and translation) about [hkl].
@@ -928,7 +928,7 @@ class SlabGenerator:
         self._proj_height = abs(np.dot(normal, c))
         self.reorient_lattice = reorient_lattice
 
-    def get_slab(self, shift=0, tol=0.1, energy=None):
+    def get_slab(self, shift=0, tol: float = 0.1, energy=None):
         """
         This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
@@ -1021,7 +1021,7 @@ class SlabGenerator:
             reorient_lattice=self.reorient_lattice,
         )
 
-    def _calculate_possible_shifts(self, tol=0.1):
+    def _calculate_possible_shifts(self, tol: float = 0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
 

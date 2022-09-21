@@ -157,7 +157,7 @@ class Vasprun(MSONable):
     Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of
     magnitude for larger files (~10Mb).
 
-    **Vasp results**
+    **VASP results**
 
     .. attribute:: ionic_steps
 
@@ -263,7 +263,7 @@ class Vasprun(MSONable):
             }
         ]
 
-    **Vasp inputs**
+    **VASP inputs**
 
     .. attribute:: incar
 
@@ -1049,7 +1049,7 @@ class Vasprun(MSONable):
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def calculate_efermi(self, tol=0.001):
+    def calculate_efermi(self, tol: float = 0.001):
         """
         Calculate the Fermi level using a robust algorithm.
 
@@ -1735,7 +1735,7 @@ class Outcar:
 
     .. attribute:: is_stopped
 
-        True if OUTCAR is from a stopped run (using STOPCAR, see Vasp Manual).
+        True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
 
     .. attribute:: run_stats
 
@@ -2010,6 +2010,8 @@ class Outcar:
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
                 r"maximum and minimum number of plane-waves",
+                last_one_only=False,
+                first_one_only=True,
             )
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
@@ -2165,6 +2167,7 @@ class Outcar:
         postprocess=str,
         attribute_name=None,
         last_one_only=True,
+        first_one_only=False,
     ):
         r"""
         Parse table-like data. A table composes of three parts: header,
@@ -2191,14 +2194,21 @@ class Outcar:
             last_one_only (bool): All the tables will be parsed, if this option
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
-                be returned. Default to be True.
+                be returned. Default to be True. Incompatible with first_one_only.
+            first_one_only (bool): Only the first occurence of the table will be
+                parsed and the parsing procedure will stop. The enclosing list
+                will be removed. i.e. Only a single table will be returned.
+                Incompatible with last_one_only.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
-            attribute values in case the the capturing group is defined without name in
+            attribute values in case the capturing group is defined without name in
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
+        if last_one_only and first_one_only:
+            raise ValueError("last_one_only and first_one_only options are incompatible")
+
         with zopen(self.filename, "rt") as f:
             text = f.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
@@ -2220,7 +2230,9 @@ class Outcar:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
             tables.append(table_contents)
-        if last_one_only:
+            if first_one_only:
+                break
+        if last_one_only or first_one_only:
             retained_data = tables[-1]
         else:
             retained_data = tables
@@ -3513,7 +3525,7 @@ class VolumetricData(MSONable):
         # convert data to numpy arrays incase they were jsanitized as lists
         self.data = {k: np.array(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
-        self.data_aug = data_aug if data_aug else {}
+        self.data_aug = data_aug or {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
@@ -4395,7 +4407,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     "branch_x". If the run has not been divided in branches the method will
     turn to parsing vasprun.xml directly.
 
-    The method returns None is there"s a parsing error
+    The method returns None is there's a parsing error
 
     Args:
         dir_name: Directory containing all bandstructure runs.
@@ -5718,11 +5730,22 @@ class WSWQ(MSONable):
     me_real: np.ndarray
     me_imag: np.ndarray
 
+    @property
+    def data(self):
+        """Complex overlap matrix."""
+        return self.me_real + 1j * self.me_imag
+
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename) -> WSWQ:
+        """Constructs a WSWQ object from a file.
+
+        Args:
+            filename: Name of WSWQ file.
+
+        Returns:
+            WSWQ object.
         """
-        Search for lines containing "spin"
-        """
+        # Grab the spin and kpoint values from lines containing "spin"
         spin_res = regrep(
             filename,
             {"spin": r"spin\s*=\s*(\d+)\s?\,\s?kpoint\s*=\s*(\d+)"},
@@ -5731,6 +5754,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["spin"]
         (nspin, nkpoints), _ = spin_res[0]
+        # Grab the index values from the parts with "i    =" and "j    ="
         ij_res = regrep(
             filename,
             {"ij": r"i\s*=\s*(\d+)\s?\,\s?j\s*=\s*(\d+)"},
@@ -5739,6 +5763,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["ij"]
         (nbands, _), _ = ij_res[0]
+        # Grab the matrix elements from the parts after the ":"
         data_res = regrep(
             filename,
             {"data": r"\:\s*([-+]?\d*\.\d+)\s+([-+]?\d*\.\d+)"},

@@ -47,7 +47,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
         structure (Structure): Structure object.
@@ -153,7 +153,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     are returned for the reciprocal cell basis defined in the paper.
     """
 
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
         structure (Structure): Structure object.
@@ -952,7 +952,7 @@ class KPathSeek(KPathBase):
         get_path is not None,
         "SeeK-path needs to be installed to use the convention of Hinuma et al. (2015)",
     )
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
             structure (Structure): Structure object

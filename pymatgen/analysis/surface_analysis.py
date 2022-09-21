@@ -308,7 +308,7 @@ class SlabEntry(ComputedStructureEntry):
         adsorbates = d["adsorbates"]
         clean_entry = d["clean_entry"]
 
-        return SlabEntry(
+        return cls(
             structure,
             energy,
             miller_index,
@@ -611,7 +611,7 @@ class SurfaceEnergyPlotter:
                 for each facet vs chemical potential.
         """
 
-        delu_dict = delu_dict if delu_dict else {}
+        delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
         all_chempots = np.linspace(min(chempot_range), max(chempot_range), increments)
 
@@ -1067,7 +1067,7 @@ class SurfaceEnergyPlotter:
 
     def monolayer_vs_BE(self, plot_eads=False):
         """
-        Plots the binding energy energy as a function of monolayers (ML), i.e.
+        Plots the binding energy as a function of monolayers (ML), i.e.
             the fractional area adsorbate density for all facets. For each
             facet at a specific monlayer, only plot the lowest binding energy.
 
@@ -1126,7 +1126,7 @@ class SurfaceEnergyPlotter:
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.0)
         axes.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
 
-        ylim = ylim if ylim else axes.get_ylim()
+        ylim = ylim or axes.get_ylim()
         plt.xticks(rotation=60)
         plt.ylim(ylim)
         xlim = axes.get_xlim()
@@ -1236,7 +1236,7 @@ class SurfaceEnergyPlotter:
         """
 
         # Set up
-        delu_dict = delu_dict if delu_dict else {}
+        delu_dict = delu_dict or {}
         plt = pretty_plot(12, 8) if not plt else plt
         el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol(f"delu_{str(elements[0])}")
@@ -1290,7 +1290,7 @@ class SurfaceEnergyPlotter:
                     # Shade the threshold and region at which se<=0
                     plt.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
                 elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0:
-                    # Any chempot at at this point will result
+                    # Any chempot at this point will result
                     # in se<0, shade the entire y range
                     if not show_unphyiscal_only:
                         plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
@@ -1659,7 +1659,7 @@ class WorkFunctionAnalyzer:
 
         return plt
 
-    def is_converged(self, min_points_frac=0.015, tol=0.0025):
+    def is_converged(self, min_points_frac=0.015, tol: float = 0.0025):
         """
         A well converged work function should have a flat electrostatic
             potential within some distance (min_point) about where the peak
@@ -1921,7 +1921,7 @@ class NanoscaleStability:
             normalize (str): Whether or not to normalize energy by volume
         """
 
-        plt = plt if plt else pretty_plot(width=8, height=7)
+        plt = plt or pretty_plot(width=8, height=7)
 
         wulffshape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
 
@@ -1982,7 +1982,7 @@ class NanoscaleStability:
                 area of the particle as a perfect sphere, or as a Wulff shape.
         """
 
-        plt = plt if plt else pretty_plot(width=8, height=7)
+        plt = plt or pretty_plot(width=8, height=7)
 
         for i, analyzer in enumerate(self.se_analyzers):
             label = labels[i] if labels else ""

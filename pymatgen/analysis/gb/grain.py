@@ -339,7 +339,7 @@ class GrainBoundaryGenerator:
     Users can use structure matcher in pymatgen to get rid of the redundant structures.
     """
 
-    def __init__(self, initial_structure, symprec=0.1, angle_tolerance=1):
+    def __init__(self, initial_structure, symprec: float = 0.1, angle_tolerance=1):
         """
         initial_structure (Structure): Initial input structure. It can
                be conventional or primitive cell (primitive cell works for bcc and fcc).
@@ -2358,23 +2358,6 @@ class GrainBoundaryGenerator:
                 miller[index[0]] = frac[0].numerator * int(round(com_lcm / frac[0].denominator))
                 miller[index[1]] = frac[1].numerator * int(round(com_lcm / frac[1].denominator))
         return miller
-
-
-def factors(n):
-    """
-    Compute the factors of a integer.
-    Args:
-        n: the input integer
-
-    Returns:
-        a set of integers that are the factors of the input integer.
-    """
-    return set(
-        reduce(
-            list.__add__,
-            ([i, n // i] for i in range(1, int(np.sqrt(n)) + 1) if n % i == 0),
-        )
-    )
 
 
 def fix_pbc(structure, matrix=None):

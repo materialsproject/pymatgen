@@ -474,7 +474,7 @@ def ion_ioncell_relax_input(
     return multi
 
 
-def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
+def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     """
     Find the values of ``shiftk`` and ``nshiftk`` appropriated for the sampling of the Brillouin zone.
 

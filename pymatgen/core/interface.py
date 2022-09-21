@@ -498,7 +498,7 @@ def count_layers(struc: Structure, el=None) -> int:
     """
     Counts the number of 'layers' along the c-axis
     """
-    el = el if el else struc.composition.elements[0]
+    el = el or struc.composition.elements[0]
     frac_coords = [site.frac_coords for site in struc if site.species_string == str(el)]
     n = len(frac_coords)
 

@@ -23,8 +23,8 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         self.assertEqual(csm_finite_ratio.evaluate(0.0), 1.0)
-        self.assertEqual(csm_finite_ratio.evaluate(2.0), 0.43807544047766522)
-        self.assertEqual(csm_finite_ratio.evaluate(4.0), 0.15163266492815836)
+        self.assertAlmostEqual(csm_finite_ratio.evaluate(2.0), 0.43807544047766522)
+        self.assertAlmostEqual(csm_finite_ratio.evaluate(4.0), 0.15163266492815836)
         self.assertEqual(csm_finite_ratio.evaluate(8.0), 0.0)
         self.assertEqual(csm_finite_ratio.evaluate(9.0), 0.0)
 
@@ -35,7 +35,7 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         self.assertEqual(csm_finite_ratio.evaluate(0.0), 1.0)
-        self.assertEqual(csm_finite_ratio.evaluate(4.0), 0.091969860292860584)
+        self.assertAlmostEqual(csm_finite_ratio.evaluate(4.0), 0.091969860292860584)
         self.assertEqual(csm_finite_ratio.evaluate(8.0), 0.0)
         self.assertEqual(csm_finite_ratio.evaluate(9.0), 0.0)
 
@@ -46,8 +46,8 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         self.assertEqual(csm_finite_ratio.evaluate(0.0), 1.0)
-        self.assertEqual(csm_finite_ratio.evaluate(1.0), 0.43807544047766522)
-        self.assertEqual(csm_finite_ratio.evaluate(2.0), 0.15163266492815836)
+        self.assertAlmostEqual(csm_finite_ratio.evaluate(1.0), 0.43807544047766522)
+        self.assertAlmostEqual(csm_finite_ratio.evaluate(2.0), 0.15163266492815836)
         self.assertEqual(csm_finite_ratio.evaluate(4.0), 0.0)
         self.assertEqual(csm_finite_ratio.evaluate(4.5), 0.0)
 
@@ -79,7 +79,7 @@ class FuncUtilsTest(unittest.TestCase):
         )
         # csm_infinite_ratio = CSMInfiniteRatioFunction(function='power2_inverse_decreasing')
         self.assertEqual(csm_infinite_ratio.evaluate(0.0), np.inf)
-        self.assertEqual(csm_infinite_ratio.evaluate(2.0), 2.25)
+        self.assertAlmostEqual(csm_infinite_ratio.evaluate(2.0), 2.25)
         self.assertEqual(csm_infinite_ratio.evaluate(4.0), 0.5)
         self.assertEqual(csm_infinite_ratio.evaluate(8.0), 0.0)
         self.assertEqual(csm_infinite_ratio.evaluate(9.0), 0.0)

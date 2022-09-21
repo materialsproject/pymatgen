@@ -5,6 +5,8 @@
 This module defines tools to generate and analyze phase diagrams.
 """
 
+from __future__ import annotations
+
 import collections
 import itertools
 import json
@@ -68,7 +70,7 @@ class PDEntry(Entry):
             attribute: Optional attribute of the entry. Must be MSONable.
         """
         super().__init__(composition, energy)
-        self.name = name if name else self.composition.reduced_formula
+        self.name = name or self.composition.reduced_formula
         self.attribute = attribute
 
     def __repr__(self):
@@ -129,7 +131,7 @@ class GrandPotPDEntry(PDEntry):
         super().__init__(
             entry.composition,
             entry.energy,
-            name if name else entry.name,
+            name or entry.name,
             entry.attribute if hasattr(entry, "attribute") else None,
         )
         # NOTE if we init GrandPotPDEntry from ComputedEntry _energy is the
@@ -222,7 +224,7 @@ class TransformedPDEntry(PDEntry):
         super().__init__(
             entry.composition,
             entry.energy,
-            name if name else entry.name,
+            name or entry.name,
             entry.attribute if hasattr(entry, "attribute") else None,
         )
         self.original_entry = entry
@@ -342,13 +344,13 @@ class PhaseDiagram(MSONable):
                 energy, energy_per_atom and composition.
             elements ([Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
-                the the entries themselves and are sorted alphabetically.
+                the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
             computed_data (dict): A dict containing pre-computed data. This allows
                 PhaseDiagram object to be reconstituted without performing the
                 expensive convex hull computation. The dict is the output from the
-                PhaseDiagram._compute() method and is stored in PhaseDigram.computed_data
+                PhaseDiagram._compute() method and is stored in PhaseDiagram.computed_data
                 when generated for the first time.
 
 
@@ -418,9 +420,12 @@ class PhaseDiagram(MSONable):
             min_entries.append(min_entry)
             all_entries.extend(g)
 
-        if len(el_refs) != dim:
-            missing = set(elements).difference(el_refs)
-            raise ValueError(f"There are no entries for the terminal elements: {missing}")
+        if len(el_refs) < dim:
+            missing = set(elements) - set(el_refs)
+            raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
+        if len(el_refs) > dim:
+            extra = set(el_refs) - set(elements)
+            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -484,7 +489,7 @@ class PhaseDiagram(MSONable):
             The coordinates for a given composition in the PhaseDiagram's basis
 
         """
-        if set(comp.elements).difference(self.elements):
+        if set(comp.elements) - set(self.elements):
             raise ValueError(f"{comp} has elements not in the phase diagram {self.elements}")
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
@@ -1166,7 +1171,7 @@ class PhaseDiagram(MSONable):
              which each element has a chemical potential set to a given
              value. "absolute" values (i.e., not referenced to element energies)
         """
-        muref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
+        mu_ref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != dep_elt])
 
         for e in self.elements:
@@ -1177,16 +1182,16 @@ class PhaseDiagram(MSONable):
 
         for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
-                multiplicator = e.composition[dep_elt] / target_comp[dep_elt]
-                ef = e.energy / multiplicator
+                multiplier = e.composition[dep_elt] / target_comp[dep_elt]
+                ef = e.energy / multiplier
                 all_coords = []
                 for s in chempots:
                     for v in s._coords:
-                        elts = [e for e in self.elements if e != dep_elt]
+                        elements = [e for e in self.elements if e != dep_elt]
                         res = {}
-                        for i, el in enumerate(elts):
-                            res[el] = v[i] + muref[i]
-                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[dep_elt]
+                        for i, el in enumerate(elements):
+                            res[el] = v[i] + mu_ref[i]
+                        res[dep_elt] = (np.dot(v + mu_ref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
                             dict_equals = True
@@ -1289,13 +1294,13 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 of the open elements.
             elements ([Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
-                the the entries themselves.
+                the entries themselves.
         """
         if elements is None:
             elements = {els for e in entries for els in e.composition.elements}
 
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
-        elements = set(elements).difference(self.chempots)
+        elements = set(elements) - set(self.chempots)
 
         all_entries = [
             GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.composition.elements)) > 0
@@ -1476,7 +1481,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 energy, energy_per_atom and composition.
             elements ([Element, ], optional): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
-                the the entries themselves and are sorted alphabetically.
+                the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
             keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
@@ -1488,7 +1493,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         elements = list(elements)
 
-        dim = len(elements)
+        self.dim = len(elements)
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
@@ -1503,9 +1508,12 @@ class PatchedPhaseDiagram(PhaseDiagram):
             min_entries.append(min_entry)
             all_entries.extend(g)
 
-        if len(el_refs) != dim:
-            missing = set(elements).difference(el_refs)
-            raise ValueError(f"Terminal entries for: {missing} are missing")
+        if len(el_refs) < self.dim:
+            missing = set(elements) - set(el_refs)
+            raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
+        if len(el_refs) > self.dim:
+            extra = set(el_refs) - set(elements)
+            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -1526,7 +1534,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         spaces = {s for s in self._qhull_spaces if len(s) > 1}
 
         # Remove redundant chemical spaces
-        if not keep_all_spaces:
+        if not keep_all_spaces and len(spaces) > 1:
             max_size = max(len(s) for s in spaces)
 
             systems = []
@@ -1539,7 +1547,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             spaces = systems
 
         # Calculate pds for smaller dimension spaces first
-        spaces.sort(key=len, reverse=False)
+        spaces = sorted(spaces, key=len, reverse=False)
 
         pds = [self._get_pd_patch_for_space(s) for s in tqdm(spaces, disable=(not verbose))]
         pds = dict(pds)
@@ -1753,7 +1761,7 @@ class ReactionDiagram:
     an electrolyte and an electrode.
     """
 
-    def __init__(self, entry1, entry2, all_entries, tol=1e-4, float_fmt="%.4f"):
+    def __init__(self, entry1, entry2, all_entries, tol: float = 1e-4, float_fmt="%.4f"):
         """
         Args:
             entry1 (ComputedEntry): Entry for 1st component. Note that
@@ -1773,11 +1781,11 @@ class ReactionDiagram:
             float_fmt (str): Formatting string to be applied to all floats.
                 Determines number of decimal places in reaction string.
         """
-        elements = set()
+        elem_set = set()
         for e in [entry1, entry2]:
-            elements.update([el.symbol for el in e.composition.elements])
+            elem_set.update([el.symbol for el in e.composition.elements])
 
-        elements = tuple(elements)  # Fix elements to ensure order.
+        elements = tuple(elem_set)  # Fix elements to ensure order.
 
         comp_vec1 = np.array([entry1.composition.get_atomic_fraction(el) for el in elements])
         comp_vec2 = np.array([entry2.composition.get_atomic_fraction(el) for el in elements])
@@ -1797,7 +1805,7 @@ class ReactionDiagram:
         logger.debug(f"{len(pd.qhull_entries)} qhull_entries")
 
         rxn_entries = []
-        done = []
+        done: list[tuple[float, float]] = []
 
         def fmt(fl):
             return float_fmt % fl
