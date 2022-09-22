@@ -332,13 +332,3 @@ class ThermalDisplacementMatrices(MSONable):
             temperature=temperature,
         )
 
-
-    @staticmethod
-    def from_P1_cif(filename):
-        Structure.from_file(filename)
-        # important: order of structure has to stay the same
-        # in the future: add this to the cif reader and include code to compute ADPs for P1 structure
-        pass
-
-
-    #TODO: include a sorting algorithm before further criteria are computed
