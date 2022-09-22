@@ -519,6 +519,33 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(test_SPSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
+    def test_isosvp_init(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(molecule=test_molecule, isosvp_dielectric=10.0)
+        self.assertEqual(
+            test_SPSet.rem,
+            {
+                "job_type": "sp",
+                "gen_scfman": "true",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": "100",
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "solvent_method": "isosvp",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+            },
+        )
+        self.assertEqual(
+            test_SPSet.svp,
+            {"dielst": "10.0", "rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"},
+        )
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
     def test_smd_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water")
@@ -542,6 +569,48 @@ class SinglePointSetTest(PymatgenTest):
             },
         )
         self.assertEqual(test_SPSet.smx, {"solvent": "water"})
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
+    def test_cmirs_init(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(
+            molecule=test_molecule, cmirs_solvent="benzene", overwrite_inputs={"svp": {"RHOISO": 0.0005}}
+        )
+        self.assertEqual(
+            test_SPSet.rem,
+            {
+                "job_type": "sp",
+                "gen_scfman": "true",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": "100",
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "solvent_method": "isosvp",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+            },
+        )
+        self.assertEqual(
+            test_SPSet.svp,
+            {"dielst": "2.28", "rhoiso": "0.0005", "nptleb": "1202", "itrngr": "2", "irotgr": "2", "idefesr": "1"},
+        )
+        self.assertEqual(
+            test_SPSet.pcm_nonels,
+            {
+                "a": "-0.00572",
+                "b": "0.01116",
+                "c": None,
+                "d": None,
+                "gamma": None,
+                "solvrho": "0.0421",
+                "gaulag_n": "40",
+                "delta": "7",
+            },
+        )
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
     def test_plots_init(self):
