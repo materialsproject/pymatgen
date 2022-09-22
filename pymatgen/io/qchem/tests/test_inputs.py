@@ -10,29 +10,12 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
-from pymatgen.io.qchem.utils import lower_and_check_unique
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
-__email__ = "b.wood@berkeley.edu"
-__credits__ = "Xiaohui Qu"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 
 logger = logging.getLogger(__name__)
-
-
-class UtilTest(PymatgenTest):
-    """
-    test utils
-    """
-
-    def test_lower_and_check_unique(self):
-        d = {"sVp": {"RHOISO": 0.0009}, "jobType": "SP"}
-        d2 = lower_and_check_unique(d)
-        assert d2 == {"svp": {"RHOISO": 0.0009}, "job_type": "sp"}
-        d3 = lower_and_check_unique(d2["svp"])
-        assert d3 == {"rhoiso": "0.0009"}
 
 
 class TestQCInput(PymatgenTest):

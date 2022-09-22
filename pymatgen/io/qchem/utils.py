@@ -128,22 +128,25 @@ def lower_and_check_unique(dict_to_check):
         return None
 
     to_return = {}
-    for key in dict_to_check:
+    for key, val in dict_to_check.items():
+        # lowercase the key
         new_key = key.lower()
+
+        if isinstance(val, str):
+            val = val.lower()
+        elif isinstance(val, int) or isinstance(val, float):
+            # convert all numeric keys to str
+            val = str(val)
+        else:
+            pass
+
         if new_key == "jobtype":
             new_key = "job_type"
-        if new_key in to_return:
-            if to_return[key] != to_return[new_key]:
-                raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
-        else:
-            try:
-                to_return[new_key] = dict_to_check.get(key).lower()
-            except AttributeError:
-                # convert all numeric keys to str
-                if isinstance(dict_to_check.get(key), int) or isinstance(dict_to_check.get(key), float):
-                    to_return[new_key] = str(dict_to_check.get(key))
-                else:
-                    to_return[new_key] = dict_to_check.get(key)
+
+        if new_key in to_return and val != to_return[new_key]:
+            raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
+
+        to_return[new_key] = val
     return to_return
 
 
