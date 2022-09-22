@@ -57,7 +57,14 @@ CMIRS_SETTINGS = {
             "gamma": None,
             "solvrho": "0.0421",
         },
-        "0.0005": {},
+        "0.0005": {
+            "a": "-0.00572",
+            "b": "0.01116",
+            "c": None,
+            "d": None,
+            "gamma": None,
+            "solvrho": "0.0421",
+        },
         "dielst": "2.28",
     },
     "cyclohexane": {
@@ -69,7 +76,14 @@ CMIRS_SETTINGS = {
             "gamma": None,
             "solvrho": "0.0396",
         },
-        "0.0005": {},
+        "0.0005": {
+            "a": "-0.00721",
+            "b": "0.05618",
+            "c": None,
+            "d": None,
+            "gamma": None,
+            "solvrho": "0.0396",
+        },
         "dielst": "2.02",
     },
     "dimethyl sulfoxide": {
@@ -81,7 +95,14 @@ CMIRS_SETTINGS = {
             "gamma": "4.1",
             "solvrho": "0.05279",
         },
-        "0.0005": {},
+        "0.0005": {
+            "a": "-0.002523",
+            "b": "0.011757",
+            "c": None,
+            "d": "-817.93",
+            "gamma": "4.3",
+            "solvrho": "0.05279",
+        },
         "dielst": "47",
     },
     "acetonitrile": {
@@ -93,7 +114,14 @@ CMIRS_SETTINGS = {
             "gamma": "1.3",
             "solvrho": "0.03764",
         },
-        "0.0005": {},
+        "0.0005": {
+            "a": "-0.003805",
+            "b": "0.03223",
+            "c": None,
+            "d": "-0.44492",
+            "gamma": "1.2",
+            "solvrho": "0.03764",
+        },
         "dielst": "36.64",
     },
 }
@@ -263,14 +291,14 @@ class QChemDictSet(QCInput):
         else:
             myscan = self.scan_variables
 
-        mypcm = dict()
-        mysolvent = dict()
-        mysmx = dict()
-        myvdw = dict()
-        myplots = dict()
-        myrem = dict()
-        mysvp = dict()
-        mypcm_nonels = dict()
+        mypcm: dict = dict()
+        mysolvent: dict = dict()
+        mysmx: dict = dict()
+        myvdw: dict = dict()
+        myplots: dict = dict()
+        myrem: dict = dict()
+        mysvp: dict = dict()
+        mypcm_nonels: dict = dict()
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
