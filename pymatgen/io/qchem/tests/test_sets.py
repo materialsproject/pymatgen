@@ -5,6 +5,8 @@
 import os
 import unittest
 
+import pytest
+
 from pymatgen.io.qchem.sets import (
     ForceSet,
     FreqSet,
@@ -395,6 +397,67 @@ class QChemDictSetTest(PymatgenTest):
             lines = sd.readlines()
             self.assertEqual(lines[0], "90.00,1.415,0.00,0.735,20.2,0.00,0.00")
         os.remove("solvent_data")
+
+    def test_solvation_warnings(self):
+        """
+        Tests warnings / errors resulting from nonsensical overwrite_inputs
+        """
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        with pytest.raises(RuntimeError, match="CMIRS is only parameterized"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                cmirs_solvent="water",
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"RHOISO": 0.0007}},
+            )
+        with pytest.warns(UserWarning, match="Setting IDEFESR=0"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                cmirs_solvent="water",
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"IDEFESR": 0}},
+            )
+        with pytest.warns(UserWarning, match="Setting IDEFESR=1"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                isosvp_dielectric=78,
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"IDEFESR": 1}},
+            )
+        with pytest.warns(UserWarning, match="Setting DIELST"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                pcm_dielectric=78,
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"DIELST": 67}},
+            )
+        with pytest.warns(UserWarning, match="The solvent section will be ignored"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                isosvp_dielectric=78,
+                max_scf_cycles=35,
+                overwrite_inputs={"solvent": {"dielectric": 67}},
+            )
 
 
 class SinglePointSetTest(PymatgenTest):

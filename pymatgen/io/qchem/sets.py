@@ -385,6 +385,8 @@ class QChemDictSet(QCInput):
                         mypcm[k] = v
                 if sec == "solvent":
                     temp_solvent = lower_and_check_unique(sec_dict)
+                    if myrem["solvent_method"] != "pcm":
+                        warnings.warn("The solvent section will be ignored unless solvent_method=pcm!", UserWarning)
                     for k, v in temp_solvent.items():
                         mysolvent[k] = v
                 if sec == "smx":
@@ -437,12 +439,21 @@ class QChemDictSet(QCInput):
                                     if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
                                         mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
                         if k == "idefesr":
-                            if self.cmirs_solvent is not None and v == 0:
-                                warnings.warn("Setting IDEFESR=0 will disable the CMIRS calculation you requested!")
-                            elif self.cmirs_solvent is None and v == 1:
+                            if self.cmirs_solvent is not None and v == "0":
                                 warnings.warn(
-                                    "Setting IDEFESR=1 will have no effect unless you specify a cmirs_solvent!"
+                                    "Setting IDEFESR=0 will disable the CMIRS calculation you requested!", UserWarning
                                 )
+                            if self.cmirs_solvent is None and v == "1":
+                                warnings.warn(
+                                    "Setting IDEFESR=1 will have no effect unless you specify a cmirs_solvent!",
+                                    UserWarning,
+                                )
+                        if k == "dielst" and myrem["solvent_method"] != "isosvp":
+                            warnings.warn(
+                                "Setting DIELST will have no effect unless you specify a solvent_method=isosvp!",
+                                UserWarning,
+                            )
+
                         mysvp[k] = v
                 if sec == "pcm_nonels":
                     temp_pcm_nonels = lower_and_check_unique(sec_dict)
