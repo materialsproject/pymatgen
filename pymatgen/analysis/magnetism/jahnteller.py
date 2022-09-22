@@ -110,7 +110,6 @@ class JahnTellerAnalyzer:
         Returns:
             analysis of structure, with key 'strength' which may be 'none', 'strong',
             'weak', or 'unknown' (Default value = 0.1) and decorated structure
-
         """
 
         structure = structure.get_primitive_structure()
@@ -330,7 +329,6 @@ class JahnTellerAnalyzer:
 
         Returns:
             Decorated Structure, will be in primitive setting.
-
         """
         try:
             analysis, structure = self.get_analysis_and_structure(
@@ -383,7 +381,6 @@ class JahnTellerAnalyzer:
           motif: "oct" or "tet"
 
         Returns: "none", "weak" or "strong
-
         """
 
         magnitude = "none"

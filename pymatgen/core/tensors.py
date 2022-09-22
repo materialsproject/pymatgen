@@ -167,7 +167,6 @@ class Tensor(np.ndarray, MSONable):
         Returns (float):
             scalar value corresponding to the projection of
             the tensor into the vector
-
         """
         n = get_uvec(n)
         return self.einsum_sequence([n] * self.rank)
@@ -184,7 +183,6 @@ class Tensor(np.ndarray, MSONable):
 
         Returns:
             Average of tensor projected into vectors on the unit sphere
-
         """
         quad = quad or DEFAULT_QUAD
         weights, points = quad["weights"], quad["points"]
@@ -210,7 +208,6 @@ class Tensor(np.ndarray, MSONable):
         Returns:
             list of index groups where tensor values are equivalent to
             within tolerances
-
         """
         if voigt:
             array = self.voigt
@@ -255,7 +252,6 @@ class Tensor(np.ndarray, MSONable):
             within tolerances
 
         Returns:
-
         """
         d = {}
         if voigt:
@@ -287,7 +283,6 @@ class Tensor(np.ndarray, MSONable):
 
         Returns (Tensor):
             rounded tensor of same type
-
         """
         return self.__class__(np.round(self, decimals=decimals))
 
@@ -684,7 +679,6 @@ class Tensor(np.ndarray, MSONable):
 
         Returns (dict):
             serialized format tensor object
-
         """
         input_array = self.voigt if voigt else self
         d = {

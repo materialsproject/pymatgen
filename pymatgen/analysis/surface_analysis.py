@@ -564,7 +564,7 @@ class SurfaceEnergyPlotter:
 
         latt = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
 
-        miller_list = self.all_slab_entries.keys()
+        miller_list = list(self.all_slab_entries)
         e_surf_list = []
         for hkl in miller_list:
             # For all configurations, calculate surface energy as a

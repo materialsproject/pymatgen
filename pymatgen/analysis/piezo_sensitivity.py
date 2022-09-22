@@ -654,7 +654,6 @@ class ForceConstantMatrix:
 
         Return:
             NxNx3x3 np.array representing the force constant matrix
-
         """
 
         numsites = len(self.structure.sites)

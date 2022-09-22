@@ -40,7 +40,6 @@ class LammpsDump(MSONable):
             natoms (int): Total number of atoms in the box.
             box (LammpsBox): Simulation box.
             data (pd.DataFrame): Dumped atomic data.
-
         """
         self.timestep = timestep
         self.natoms = natoms
@@ -54,7 +53,6 @@ class LammpsDump(MSONable):
 
         Args:
             string (str): Input string.
-
         """
         lines = string.split("\n")
         timestep = int(lines[1])

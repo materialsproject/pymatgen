@@ -739,7 +739,6 @@ class GruneisenPlotter:
             units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
         Returns: plot
-
         """
 
         u = freq_units(units)
@@ -772,7 +771,6 @@ class GruneisenPlotter:
             units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
         Returns: plot
-
         """
 
         plt = self.get_plot(units=units)
@@ -787,7 +785,6 @@ class GruneisenPlotter:
             units: accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
         Returns:
-
         """
 
         plt = self.get_plot(units=units)
@@ -814,7 +811,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         super().__init__(bs)
 
     def bs_plot_data(self):
-
         """
         Get the data nicely formatted for a plot
 
@@ -932,7 +928,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
         Returns:
             a matplotlib object with both band structures
-
         """
 
         data_orig = self.bs_plot_data()

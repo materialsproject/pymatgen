@@ -104,7 +104,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
         for itype1, itype2 in zip(def_typat, enforce_typat):
             assert def_znucl[itype1 - 1] == enforce_znucl[itype2 - 1]
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=None)
 
 

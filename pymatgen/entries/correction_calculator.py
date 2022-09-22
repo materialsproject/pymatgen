@@ -39,54 +39,10 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species: list[str] = [
-            "oxide",
-            "peroxide",
-            "superoxide",
-            "S",
-            "F",
-            "Cl",
-            "Br",
-            "I",
-            "N",
-            "Se",
-            "Si",
-            "Sb",
-            "Te",
-            "V",
-            "Cr",
-            "Mn",
-            "Fe",
-            "Co",
-            "Ni",
-            "W",
-            "Mo",
-            "H",
-        ],
+        species: list[str] = None,
         max_error: float = 0.1,
         allow_unstable: float | bool = 0.1,
-        exclude_polyanions: list[str] = [
-            "SO4",
-            "SO3",
-            "CO3",
-            "NO3",
-            "NO2",
-            "OCl3",
-            "ClO3",
-            "ClO4",
-            "HO",
-            "ClO",
-            "SeO3",
-            "TiO3",
-            "TiO4",
-            "WO4",
-            "SiO3",
-            "SiO4",
-            "Si2O5",
-            "PO3",
-            "PO4",
-            "P2O7",
-        ],
+        exclude_polyanions: list[str] = None,
     ) -> None:
         """
         Initializes a CorrectionCalculator.
@@ -102,16 +58,20 @@ class CorrectionCalculator:
             exclude_polyanions: a list of polyanions that contain additional sources of error that may negatively
                                 influence the quality of the fitted corrections. Compounds with these polyanions
                                 will be excluded from the fit
-
         """
 
-        self.species = species
+        self.species = species or "oxide peroxide superoxide S F Cl Br I N Se Si Sb Te V Cr Mn Fe Co Ni W Mo H".split()
+
         self.max_error = max_error
         if not allow_unstable:
             self.allow_unstable = 0.1
         else:
             self.allow_unstable = allow_unstable
-        self.exclude_polyanions = exclude_polyanions
+        self.exclude_polyanions = (
+            exclude_polyanions
+            if exclude_polyanions is not None
+            else "SO4 SO3 CO3 NO3 NO2 OCl3 ClO3 ClO4 HO ClO SeO3 TiO3 TiO4 WO4 SiO3 SiO4 Si2O5 PO3 PO4 P2O7".split()
+        )
 
         self.corrections: list[float] = []
         self.corrections_std_error: list[float] = []

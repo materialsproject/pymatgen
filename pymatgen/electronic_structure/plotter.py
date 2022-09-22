@@ -854,7 +854,6 @@ class BSPlotter:
 
         Returns:
             a matplotlib object with both band structures
-
         """
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
@@ -1162,7 +1161,6 @@ class BSPlotterProjected(BSPlotter):
 
         Returns:
             a pylab object
-
         """
         band_linewidth = 3.0
         if len(self._bs.structure.composition.elements) > 3:
@@ -2598,7 +2596,6 @@ class BSDOSPlotter:
             bs_projection: None for no projection, "elements" for element projection
 
         Returns:
-
         """
         contribs = {}
         if bs_projection and bs_projection.lower() == "elements":

@@ -385,7 +385,6 @@ class CifParser:
         :param data: CifBlock
         :return: data CifBlock
         """
-
         """
         This part of the code deals with handling formats of data as found in
         CIF files extracted from the Springer Materials/Pauling File
@@ -487,7 +486,6 @@ class CifParser:
                 data.data["_atom_site_fract_x"] += new_fract_x
                 data.data["_atom_site_fract_y"] += new_fract_y
                 data.data["_atom_site_fract_z"] += new_fract_z
-
         """
         This fixes inconsistencies in naming of several magCIF tags
         as a result of magCIF being in widespread use prior to
