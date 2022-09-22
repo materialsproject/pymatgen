@@ -10,6 +10,7 @@ from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.io.cif import CifWriter
+from pymatgen.core.structure import Structure
 
 try:
     import phonopy
@@ -330,3 +331,14 @@ class ThermalDisplacementMatrices(MSONable):
             structure=structure,
             temperature=temperature,
         )
+
+
+    @staticmethod
+    def from_P1_cif(filename):
+        Structure.from_file(filename)
+        # important: order of structure has to stay the same
+        # in the future: add this to the cif reader and include code to compute ADPs for P1 structure
+        pass
+
+
+    #TODO: include a sorting algorithm before further criteria are computed
