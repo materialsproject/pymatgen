@@ -9,7 +9,7 @@ import pytest
 from pymatgen.io.qchem.utils import lower_and_check_unique
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__author__ = "Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 logger = logging.getLogger(__name__)

@@ -7,6 +7,9 @@ from collections import defaultdict
 
 import numpy as np
 
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
+
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
     r"""
