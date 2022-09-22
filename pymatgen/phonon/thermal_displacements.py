@@ -9,8 +9,8 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.io.cif import CifWriter
 from pymatgen.core.structure import Structure
+from pymatgen.io.cif import CifWriter
 
 try:
     import phonopy
@@ -331,4 +331,3 @@ class ThermalDisplacementMatrices(MSONable):
             structure=structure,
             temperature=temperature,
         )
-
