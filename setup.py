@@ -124,7 +124,7 @@ setup(
         "pymatgen.command_line": ["OxideTersoffPotentials"],
         "pymatgen.util": ["structures/*.json", "*.json"],
         "pymatgen.vis": ["*.yaml"],
-        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/md.txt"],
+        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
     },
     author="Pymatgen Development Team",

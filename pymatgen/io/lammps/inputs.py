@@ -21,7 +21,7 @@ from pymatgen.io.core import InputFile
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
 
-__author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
+__author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __version__ = "1.0"
 __maintainer__ = "Zhi Deng"
@@ -359,7 +359,7 @@ class LammpsRun(MSONable):
     @classmethod
     def md(cls, data, force_field, temperature, nsteps, other_settings=None):
         r"""
-        Example for a simple MD run based on template md.txt.
+        Example for a simple MD run based on template md.template.
 
         Args:
             data (LammpsData or str): Data file as a LammpsData
@@ -371,7 +371,7 @@ class LammpsRun(MSONable):
             other_settings (dict): other settings to be filled into
                 placeholders.
         """
-        template_path = os.path.join(cls.template_dir, "md.txt")
+        template_path = os.path.join(cls.template_dir, "md.template")
         with open(template_path) as f:
             script_template = f.read()
         settings = other_settings.copy() if other_settings else {}
