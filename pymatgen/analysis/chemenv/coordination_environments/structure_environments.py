@@ -1506,8 +1506,10 @@ class LightStructureEnvironments(MSONable):
 
         def __eq__(self, other: object) -> bool:
             needed_attrs = ("isite", "all_nbs_sites_indices")
+
             if not all(hasattr(other, attr) for attr in needed_attrs):
                 return NotImplemented
+
             return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):

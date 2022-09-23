@@ -2850,7 +2850,7 @@ class LobsterSet(MPRelaxSet):
             for atomtype in structure.symbol_set:
                 if atomtype not in user_supplied_basis:
                     raise ValueError("There are no basis functions for the atom type " + str(atomtype))
-            basis = [key + " " + value for key, value in user_supplied_basis.items()]
+            basis = [f"{key} {value}" for key, value in user_supplied_basis.items()]
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
         nbands = lobsterin._get_nbands(structure=structure)
