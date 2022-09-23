@@ -157,7 +157,7 @@ class InputSet(MSONable, MutableMapping):
         del self.inputs[key]
 
     def __eq__(self, other):
-        return (self.inputs == other.inputs) and (self.__dict__ == other.__dict__)
+        return self.as_dict() == other.as_dict()
 
     def write_input(
         self,
