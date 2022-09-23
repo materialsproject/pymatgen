@@ -1145,7 +1145,6 @@ class CompleteDos(Dos):
 
         Returns:
             Upper band edge in eV, often denoted epsilon_u
-
         """
         # Get the Hilbert-transformed DOS
         transformed_dos = self.get_hilbert_transform(elements=elements, sites=sites, band=band)
@@ -1258,7 +1257,6 @@ class LobsterCompleteDos(CompleteDos):
         Returns:
             A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS
             for the site.
-
         """
 
         warnings.warn("Are the orbitals correctly oriented? Are you sure?")

@@ -93,7 +93,6 @@ class VampireCaller:
 
         TODO:
             * Create input files in a temp folder that gets cleaned up after run terminates
-
         """
 
         self.mc_box_size = mc_box_size
@@ -400,7 +399,6 @@ class VampireCaller:
         Returns:
             parsed_out (DataFrame): MSONable vampire output.
             critical_temp (float): Calculated critical temp.
-
         """
 
         names = ["T", "m_total"] + ["m_" + str(i) for i in range(1, nmats + 1)] + ["X_x", "X_y", "X_z", "X_m", "nan"]
@@ -429,7 +427,6 @@ class VampireOutput(MSONable):
             parsed_out (json): json rep of parsed stdout DataFrame.
             nmats (int): Number of distinct materials (1 for each specie and up/down spin).
             critical_temp (float): Monte Carlo Tc result.
-
         """
 
         self.parsed_out = parsed_out

@@ -527,7 +527,6 @@ class ElementBase(Enum):
         """
         Ground state term symbol
         Selected based on Hund's Rule
-
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 

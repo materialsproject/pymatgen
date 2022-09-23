@@ -247,12 +247,13 @@ def post_discourse(ctx, version):
 
 
 @task
-def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), sim=False):
+def update_changelog(ctx, version=None, sim=False):
     """
     Create a preliminary change log using the git logs.
 
     :param ctx:
     """
+    version = version or datetime.datetime.now().strftime("%Y.%-m.%-d")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{CURRENT_VER}..HEAD"])
     lines = []
     misc = []
@@ -289,13 +290,14 @@ def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d")
 
 
 @task
-def release(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), nodoc=False):
+def release(ctx, version=None, nodoc=False):
     """
     Run full sequence for releasing pymatgen.
 
     :param ctx:
     :param nodoc: Whether to skip doc generation.
     """
+    version = version or datetime.datetime.now().strftime("%Y.%-m.%-d")
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:

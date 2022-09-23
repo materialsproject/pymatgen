@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2022.9.21
+----------
+* @chunweizhu fix the bugs when runing `TEMCalculator`
+* @munrojm Support for new MPRester.
+
 v2022.9.8
 ---------
 * @janosh Add AirssProvider.as_dict

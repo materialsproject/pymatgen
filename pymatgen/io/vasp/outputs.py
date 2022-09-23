@@ -566,7 +566,6 @@ class Vasprun(MSONable):
         Returns:
             The ionic part of the static dielectric constant. Present when it's a
             DFPT run (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8
-
         """
         return self.ionic_steps[-1].get("epsilon_ion", [])
 
@@ -1173,11 +1172,12 @@ class Vasprun(MSONable):
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
             charge = potcar_nelect - nelect
 
-            if charge:
-                for s in self.structures:
-                    s._charge = charge
-                self.final_structure._charge = charge
+            for s in self.structures:
+                s._charge = charge
+            if hasattr(self, "initial_structure"):
                 self.initial_structure._charge = charge
+            if hasattr(self, "final_structure"):
+                self.final_structure._charge = charge
 
     def as_dict(self):
         """
@@ -2273,7 +2273,6 @@ class Outcar:
             line: line to parse
 
         Returns: an array of numbers if found, or empty array if not
-
         """
         m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
         if m:
@@ -3599,7 +3598,7 @@ class VolumetricData(MSONable):
         """
         if self.structure != other.structure:
             warnings.warn("Structures are different. Make sure you know what you are doing...")
-        if self.data.keys() != other.data.keys():
+        if list(self.data) != list(other.data):
             raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
 
         # To add checks

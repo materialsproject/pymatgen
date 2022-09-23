@@ -816,7 +816,6 @@ class GrainBoundaryGenerator:
                 0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
         Returns:
                axial ratio needed for GB generator (list of integers).
-
         """
         structure = self.initial_structure
         lat_type = self.lat_type
@@ -1342,7 +1341,6 @@ class GrainBoundaryGenerator:
                     When generate the microstructures of the grain boundary using these angles,
                     you need to analyze the symmetry of the structure. Different angles may
                     result in equivalent microstructures.
-
         """
         sigmas = {}
         # make sure gcd(r_axis)==1
@@ -1423,7 +1421,6 @@ class GrainBoundaryGenerator:
                     When generate the microstructure of the grain boundary using these
                     angles, you need to analyze the symmetry of the structure. Different
                     angles may result in equivalent microstructures.
-
         """
         sigmas = {}
         # make sure gcd(r_axis)==1
@@ -1545,7 +1542,6 @@ class GrainBoundaryGenerator:
                     When generate the microstructure of the grain boundary using these
                     angles, you need to analyze the symmetry of the structure. Different
                     angles may result in equivalent microstructures.
-
         """
         sigmas = {}
         # transform four index notation to three index notation
@@ -1683,7 +1679,6 @@ class GrainBoundaryGenerator:
                     When generate the microstructure of the grain boundary using these
                     angles, you need to analyze the symmetry of the structure. Different
                     angles may result in equivalent microstructures.
-
         """
         sigmas = {}
         # make sure gcd(r_axis)==1
@@ -1797,7 +1792,6 @@ class GrainBoundaryGenerator:
                     When generate the microstructure of the grain boundary using these
                     angles, you need to analyze the symmetry of the structure. Different
                     angles may result in equivalent microstructures.
-
         """
         sigmas = {}
         # make sure gcd(r_axis)==1

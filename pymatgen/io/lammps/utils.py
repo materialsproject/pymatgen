@@ -185,7 +185,7 @@ class PackmolRunner:
         input_file="pack.inp",
         tolerance=2.0,
         filetype="xyz",
-        control_params={"maxit": 20, "nloop": 600},
+        control_params=None,
         auto_box=True,
         output_file="packed.xyz",
         bin="packmol",
@@ -224,7 +224,7 @@ class PackmolRunner:
         self.param_list = param_list
         self.input_file = input_file
         self.boxit = auto_box
-        self.control_params = control_params
+        self.control_params = control_params or {"maxit": 20, "nloop": 600}
         if not self.control_params.get("tolerance"):
             self.control_params["tolerance"] = tolerance
         if not self.control_params.get("filetype"):
@@ -259,7 +259,7 @@ class PackmolRunner:
             length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
             net_volume += (length**3.0) * float(self.param_list[idx]["number"])
         length = net_volume ** (1.0 / 3.0)
-        for idx, mol in enumerate(self.mols):
+        for idx, _mol in enumerate(self.mols):
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"
 
     def _write_input(self, input_dir="."):
@@ -341,7 +341,7 @@ class PackmolRunner:
 
         # bma = BabelMolAdaptor(mol)
         pbm = pb.Molecule(bma._obmol)
-        for i, x in enumerate(pbm.residues):
+        for x in pbm.residues:
             x.OBResidue.SetName(name)
             x.OBResidue.SetNum(num)
 

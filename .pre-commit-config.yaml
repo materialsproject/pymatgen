@@ -2,7 +2,7 @@ exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [flake8, mypy, pylint]
+  skip: [mypy, pylint]
 
 repos:
 
