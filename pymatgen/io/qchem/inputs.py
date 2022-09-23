@@ -196,11 +196,11 @@ class QCInput(InputFile):
             combined_list.append(self.geom_opt_template(self.geom_opt))
             combined_list.append("")
         # svp section
-        if self.svp is not None:
+        if self.svp:
             combined_list.append(self.svp_template(self.svp))
             combined_list.append("")
         # pcm_nonels section
-        if self.pcm_nonels is not None:
+        if self.pcm_nonels:
             combined_list.append(self.pcm_nonels_template(self.pcm_nonels))
         return "\n".join(combined_list)
 
@@ -580,7 +580,7 @@ class QCInput(InputFile):
         """
         Template for the $pcm_nonels section.
 
-        Args:
+        Arg
             pcm_nonels: dict of CMIRS parameters, e.g.
             {
                 "a": "-0.006736",
