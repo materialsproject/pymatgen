@@ -178,6 +178,10 @@ multi_job_out_names = {
     "killed.qcout",
     "aux_mpi_time_mol.qcout",
     "new_qchem_files/VCLi_solv_eps10.qcout",
+    # "new_qchem_files/cmirs_benzene.qcout",
+    # "new_qchem_files/cmirs_dielst10.qcout",
+    # "new_qchem_files/isosvp_water.qcout",
+    # "new_qchem_files/isosvp_dielst10.qcout",
 }
 
 
