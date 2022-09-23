@@ -1536,7 +1536,6 @@ class Wavefunction:
             structure: Structure object
 
         Returns:
-
         """
         Nx = grid[0] - 1
         Ny = grid[1] - 1
@@ -1616,7 +1615,6 @@ class Wavefunction:
         will return a VolumetricData object including the imaginary part of the wave function
 
         Returns: VolumetricData object
-
         """
         if not hasattr(self, "volumetricdata_density"):
             self.set_volumetric_data(self.grid, self.structure)
@@ -1635,7 +1633,6 @@ class Wavefunction:
             part: which part of the wavefunction will be saved ("real" or "imaginary")
 
         Returns:
-
         """
         if not (
             hasattr(self, "volumetricdata_real")

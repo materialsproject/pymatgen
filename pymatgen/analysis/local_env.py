@@ -656,7 +656,6 @@ class NearNeighbors:
         Returns (dict[str, float]):
             A dict of order parameters (values) and the
             underlying motif type (keys; for example, tetrahedral).
-
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
@@ -1285,7 +1284,6 @@ class JmolNN(NearNeighbors):
             el2_sym: (str) symbol of atom 2
 
         Returns: (float) max bond length
-
         """
         return sqrt((self.el_radius[el1_sym] + self.el_radius[el2_sym] + self.tol) ** 2)
 
@@ -2461,7 +2459,6 @@ class LocalStructOrderParams:
                 of azimuth angles corresponds to a distinct sequence of
                 neighbors. And, this sequence has to equal the sequence
                 of neighbors in the list of polar angles.
-
         """
 
         if len(thetas) != len(phis):
@@ -4108,7 +4105,6 @@ class CrystalNN(NearNeighbors):
 
         Returns:
             (float) integral of portion of unit semicircle
-
         """
         r = 1
 

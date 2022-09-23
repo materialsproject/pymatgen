@@ -49,7 +49,7 @@ class ConnectivityFinder:
         logging.info("Setup of structure connectivity graph")
         structure_connectivity = StructureConnectivity(light_structure_environments)
         structure_connectivity.add_sites()
-        for isite, site in enumerate(light_structure_environments.structure):
+        for isite, _site in enumerate(light_structure_environments.structure):
             site_neighbors_sets = light_structure_environments.neighbors_sets[isite]
             if site_neighbors_sets is None:
                 continue

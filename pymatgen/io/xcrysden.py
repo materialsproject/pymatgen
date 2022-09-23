@@ -66,7 +66,6 @@ class XSF:
             input_string: String with the structure in XSF format.
                 See http://www.xcrysden.org/doc/XSF.html
             cls_: Structure class to be created. default: pymatgen structure
-
         """
         # CRYSTAL                                        see (1)
         # these are primitive lattice vectors (in Angstroms)

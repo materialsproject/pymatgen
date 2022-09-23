@@ -154,7 +154,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
         Returns: B as a numpy array, first dimension are the atoms in the structure
-
         """
 
         B = []
@@ -168,7 +167,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
         Returns: beta as a numpy array, first dimension are the atoms in the structure
-
         """
         # will compute beta based on Ustar
         beta = []
@@ -182,7 +180,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
         Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure
-
         """
         U1U2U3 = []
         for mat in self.thermal_displacement_matrix_cart_matrixform:
@@ -194,7 +191,6 @@ class ThermalDisplacementMatrices(MSONable):
         writes a cif including thermal displacements
         Args:
             filename: name of the cif file
-
         """
         w = CifWriter(self.structure)
         w.write_file(filename)
@@ -231,7 +227,7 @@ class ThermalDisplacementMatrices(MSONable):
     def compute_directionality_quality_criterion(self, other):
         """
         Will compute directionality of prolate displacement ellipsoids as described in
-        https://doi.org/10.1039/C9CE00794F with the ealier implementation: https://github.com/damMroz/Angle/
+        https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/
         Args:
             other: ThermalDisplacementMatrix
             please make sure that the order of the atoms in both objects that are compared
@@ -242,8 +238,7 @@ class ThermalDisplacementMatrices(MSONable):
             (largest principal axes of self object),
              "vector1" (largest principal axes of the other object), "angle" between both axes,
               These vectors can then, for example, be drawn into the structure with VESTA.
-              Vectors are given in cartesian coordinates
-
+              Vectors are given in Cartesian coordinates
         """
 
         # compare the atoms string at least
@@ -254,8 +249,8 @@ class ThermalDisplacementMatrices(MSONable):
                     "Please use structures that are similar to each other"
                 )
         # check if structures match
-        structurematch = StructureMatcher()
-        if not structurematch.fit(struct1=self.structure, struct2=other.structure):
+        structure_match = StructureMatcher()
+        if not structure_match.fit(struct1=self.structure, struct2=other.structure):
             raise ValueError("Structures have to be similar")
 
         results = []
@@ -266,7 +261,7 @@ class ThermalDisplacementMatrices(MSONable):
 
             # determine eigenvalues and vectors for inverted Ucart
             invUcart_eig_self, invUcart_eigv_self = np.linalg.eig(np.linalg.inv(self_Ucart))
-            invUcart_eig_other, invUcart_eigv_other = np.linalg.eig(np.linalg.inv(self_Ucart))
+            invUcart_eig_other, invUcart_eigv_other = np.linalg.eig(np.linalg.inv(other_Ucart))
 
             argmin_self = np.argmin(invUcart_eig_self)
             vec_self = invUcart_eigv_self.transpose()[argmin_self]
@@ -288,7 +283,6 @@ class ThermalDisplacementMatrices(MSONable):
         """
         This will compute ratio between largest eigenvalue of Ucart and smallest one
         Returns:
-
         """
         ratios = []
         for us in self.U1U2U3:
@@ -311,7 +305,6 @@ class ThermalDisplacementMatrices(MSONable):
 
         Returns:
             ThermalDisplacementMatrices
-
         """
         # get matrix form
         thermal_displacement_matrix_cif_matrix_form = ThermalDisplacementMatrices.get_full_matrix(

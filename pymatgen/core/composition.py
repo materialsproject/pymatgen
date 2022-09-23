@@ -888,7 +888,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 oxidation states for each site of that element. For example, Fe3O4 could
                 return a list of [2,2,2,3,3,3] for the oxidation states of If the composition
                 is
-
         """
         comp = self.copy()
         # reduce Composition if necessary

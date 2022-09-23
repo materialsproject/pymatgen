@@ -16,7 +16,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Sequence
 
 import numpy as np
 import plotly.graph_objs as go
@@ -26,7 +26,7 @@ from scipy.spatial import ConvexHull
 from tqdm.autonotebook import tqdm
 
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
-from pymatgen.core.composition import Composition
+from pymatgen.core.composition import Composition, SpeciesLike
 from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
@@ -219,7 +219,6 @@ class TransformedPDEntry(PDEntry):
             entry (PDEntry): Original entry to be transformed.
             sp_mapping ({Composition: DummySpecies}): dictionary
                 mapping Terminal Compositions to Dummy Species
-
         """
         super().__init__(
             entry.composition,
@@ -337,12 +336,12 @@ class PhaseDiagram(MSONable):
     formation_energy_tol = 1e-11
     numerical_tol = 1e-8
 
-    def __init__(self, entries, elements=None, *, computed_data=None):
+    def __init__(self, entries, elements: Sequence[SpeciesLike] = (), *, computed_data=None) -> None:
         """
         Args:
-            entries ([PDEntry]): A list of PDEntry-like objects having an
+            entries (list[PDEntry]): A list of PDEntry-like objects having an
                 energy, energy_per_atom and composition.
-            elements ([Element]): Optional list of elements in the phase
+            elements (list[Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
                 the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
@@ -352,8 +351,6 @@ class PhaseDiagram(MSONable):
                 expensive convex hull computation. The dict is the output from the
                 PhaseDiagram._compute() method and is stored in PhaseDiagram.computed_data
                 when generated for the first time.
-
-
         """
         self.elements = elements
         self.entries = entries
@@ -401,7 +398,7 @@ class PhaseDiagram(MSONable):
         return cls(entries, elements, computed_data=computed_data)
 
     def _compute(self):
-        if self.elements is None:
+        if self.elements == ():
             self.elements = sorted({els for e in self.entries for els in e.composition.elements})
 
         elements = list(self.elements)
@@ -487,7 +484,6 @@ class PhaseDiagram(MSONable):
 
         Returns:
             The coordinates for a given composition in the PhaseDiagram's basis
-
         """
         if set(comp.elements) - set(self.elements):
             raise ValueError(f"{comp} has elements not in the phase diagram {self.elements}")
@@ -588,7 +584,6 @@ class PhaseDiagram(MSONable):
 
         Args:
             comp (Composition): A composition
-
         """
         c = self.pd_coords(comp)
         for f, s in zip(self.facets, self.simplexes):
@@ -603,7 +598,6 @@ class PhaseDiagram(MSONable):
 
         Args:
             comp (Composition): A composition
-
         """
         c = self.pd_coords(comp)
 
@@ -781,11 +775,11 @@ class PhaseDiagram(MSONable):
 
     def get_decomp_and_phase_separation_energy(
         self,
-        entry,
-        space_limit=200,
-        stable_only=False,
-        tols=(1e-8,),
-        maxiter=1000,
+        entry: PDEntry,
+        space_limit: int = 200,
+        stable_only: bool = False,
+        tols: Sequence[float] = (1e-8,),
+        maxiter: int = 1000,
     ):
         """
         Provides the combination of entries in the PhaseDiagram that gives the
@@ -818,7 +812,7 @@ class PhaseDiagram(MSONable):
                 before calculating a second convex hull to reducing the complexity
                 of the optimization.
             stable_only (bool): Only use stable materials as competing entries.
-            tol (list): Tolerances for convergence of the SLSQP optimization
+            tols (list[int]): Tolerances for convergence of the SLSQP optimization
                 when finding the equilibrium reaction. Tighter tolerances tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
@@ -1486,7 +1480,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 is preserved.
             keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
                 that are subspaces of other spaces.
-
         """
         if elements is None:
             elements = sorted({els for e in entries for els in e.composition.elements})
@@ -2052,7 +2045,7 @@ class PDPlotter:
         from palettable.colorbrewer.qualitative import Set1_3
 
         self._pd = phasediagram
-        self._dim = len(self._pd.elements)
+        self._dim = len(self._pd.elements)  # type: ignore
         if self._dim > 4:
             raise ValueError("Only 1-4 components supported!")
         self.lines = uniquelines(self._pd.facets) if self._dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
@@ -2365,8 +2358,7 @@ class PDPlotter:
             plt.axis("off")
             center = (0.5, math.sqrt(3) / 6)
         else:
-            all_coords = labels.keys()
-            miny = min(c[1] for c in all_coords)
+            miny = min(c[1] for c in labels)
             ybuffer = max(abs(miny) * 0.1, 0.1)
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))

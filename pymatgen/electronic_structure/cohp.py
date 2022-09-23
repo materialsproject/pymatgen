@@ -159,7 +159,6 @@ class Cohp(MSONable):
         Returns dict indicating if there are antibonding states below the Fermi level depending on the spin
             spin: Spin
             limit: -COHP smaller -limit will be considered.
-
         """
         warnings.warn("This method has not been tested on many examples. Check the parameter limit, pls!")
 
@@ -193,7 +192,6 @@ class Cohp(MSONable):
     def from_dict(cls, d):
         """
         Returns a COHP object from a dict representation of the COHP.
-
         """
         if "ICOHP" in d:
             icohp = {Spin(int(key)): np.array(val) for key, val in d["ICOHP"].items()}
@@ -1007,7 +1005,6 @@ class IcohpValue(MSONable):
         tells if spin polarized calculation or not
         Returns:
             Boolean
-
         """
         return self._is_spin_polarized
 

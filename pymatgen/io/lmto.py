@@ -118,7 +118,6 @@ class LMTOCtrl:
         sga = SpacegroupAnalyzer(self.structure)
         alat = sga.get_conventional_standard_structure().lattice.a
         plat = self.structure.lattice.matrix / alat
-
         """
         The following is to find the classes (atoms that are not symmetry
         equivalent, and create labels. Note that LMTO only attaches

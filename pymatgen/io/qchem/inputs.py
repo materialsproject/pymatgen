@@ -97,7 +97,6 @@ class QCInput(InputFile):
             geom_opt (dict):
                     A dictionary of input parameters for the geom_opt section of the QChem input file.
                     This section is required when using the new libopt3 geometry optimizer.
-
         """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)

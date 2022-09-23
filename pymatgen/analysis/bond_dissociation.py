@@ -58,7 +58,6 @@ class BondDissociationEnergies(MSONable):
                                                        among fragments. Defaults to False. See the definition
                                                        of self.expected_charges below for more specific information.
             multibreak (bool): If True, additionally attempt to break pairs of bonds. Defaults to False.
-
         """
 
         self.molecule_entry = molecule_entry
