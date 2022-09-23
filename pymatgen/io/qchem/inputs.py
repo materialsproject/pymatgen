@@ -215,11 +215,11 @@ class QCInput(InputFile):
             combined_list.append(self.geom_opt_template(self.geom_opt))
             combined_list.append("")
         # svp section
-        if self.svp:
+        if self.svp is not None:
             combined_list.append(self.svp_template(self.svp))
             combined_list.append("")
         # pcm_nonels section
-        if self.pcm_nonels:
+        if self.pcm_nonels is not None:
             combined_list.append(self.pcm_nonels_template(self.pcm_nonels))
         return "\n".join(combined_list)
 
@@ -560,8 +560,16 @@ class QCInput(InputFile):
     @staticmethod
     def svp_template(svp: dict) -> str:
         """
+        Template for the $svp section.
+
         Args:
-            svp ():
+            svp: dict of SVP parameters, e.g.
+            {"rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
+
+        Returns:
+            str: the $svp section. Note that all parameters will be concatenated onto
+                 a single line formatted as a FORTRAN namelist. This is necessary
+                 because the isodensity SS(V)PE model in Q-Chem calls a secondary code.
         """
         svp_list = []
         svp_list.append("$svp")
@@ -589,10 +597,20 @@ class QCInput(InputFile):
     @staticmethod
     def pcm_nonels_template(pcm_nonels: dict) -> str:
         """
-        Pcm run template.
+        Template for the $pcm_nonels section.
 
         Args:
-            pcm ():
+            pcm_nonels: dict of CMIRS parameters, e.g.
+            {
+                "a": "-0.006736",
+                "b": "0.032698",
+                "c": "-1249.6",
+                "d": "-21.405",
+                "gamma": "3.7",
+                "solvrho": "0.05",
+                "delta": 7,
+                "gaulag_n": 40,
+            }
 
         Returns:
             (str)
@@ -601,7 +619,7 @@ class QCInput(InputFile):
         pcm_nonels_list.append("$pcm_nonels")
         for key, value in pcm_nonels.items():
             # if the value is None, don't write it to output
-            if value:
+            if value is not None:
                 pcm_nonels_list.append(f"   {key} {value}")
         pcm_nonels_list.append("$end")
         return "\n".join(pcm_nonels_list)
