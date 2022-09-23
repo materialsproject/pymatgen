@@ -16,7 +16,7 @@ import json
 import os
 import warnings
 from itertools import combinations
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -94,7 +94,7 @@ class EnergyAdjustment(MSONable):
     @abc.abstractmethod
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
 
     def __repr__(self):
@@ -126,7 +126,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         Args:
             value: float, value of the energy adjustment in eV
-            uncertainty: float, uncertaint of the energy adjustment in eV. (Default: np.nan)
+            uncertainty: float, uncertainty of the energy adjustment in eV. (Default: np.nan)
             name: str, human-readable name of the energy adjustment.
                 (Default: Constant energy adjustment)
             cls: dict, Serialized Compatibility class used to generate the energy
@@ -140,7 +140,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
     @property
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
         return self.description + f" ({self.value:.3f} eV)"
 
@@ -220,7 +220,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
     @property
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
         return self.description + f" ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
@@ -287,7 +287,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
     @property
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
         return self.description + f" ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
@@ -482,11 +482,17 @@ class ComputedEntry(Entry):
     def __str__(self):
         return self.__repr__()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         # NOTE: Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately.
         if self is other:
             return True
+
+        needed_attrs = ("composition", "energy", "entry_id")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(ComputedEntry, other)
 
         # Equality is defined based on composition and energy
         # If structures are involved, it is assumed that a {composition, energy} is
