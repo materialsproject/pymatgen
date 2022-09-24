@@ -5504,114 +5504,69 @@ class Eigenval:
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
+@dataclass
+class Waveder(MSONable):
+    """Represention of the WAVEDER file.
+    
+    The LOPTICS tag produces a WAVEDER file which contains the derivative of the orbitals with respect to k.
+    Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
 
-class Wavederf:
+    The order of the indices of the data are:
+    [   
+        band index1, 
+        band index2, 
+        kpoint index, 
+        spin index, 
+        cartesian direction,
+    ]
+
+    Attributes:
+        cder_real: Real part of the derivative of the orbitals with respect to k.
+        cder_imag: Imaginary part of the derivative of the orbitals with respect to k.
+
+    Author: Miguel Dias Costa, Kamal Choudhary, Jimmy-Xuan Shen
     """
-    Object for reading a WAVEDERF file.
+    cder_real: np.ndarray
+    cder_imag: np.ndarray
 
-    Note: This file is only produced when LOPTICS is true AND vasp has been
-    recompiled after uncommenting the line that calls
-    WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
+    @classmethod
+    def from_wavederf(cls, filename):
+        """Reads the WAVEDERF file and returns a Waveder object.
 
-    .. attribute:: data
-
-        A numpy array containing the WAVEDERF data of the form below. It should
-        be noted that VASP uses 1-based indexing for bands, but this is
-        converted to 0-based numpy array indexing.
-
-        For each kpoint (in the same order as in IBZKPT), and for each pair of
-        bands:
-
-            [ #kpoint index
-             [ #band 1 index
-              [ #band 2 index
-               [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
-              ]
-             ]
-            ]
-
-        This structure follows the file format. Numpy array methods can be used
-        to fetch data in a more useful way (e.g., get matrix elements between
-        wo specific bands at each kpoint, fetch x/y/z components,
-        real/imaginary parts, abs/phase, etc. )
-
-    Author: Miguel Dias Costa
-    """
-
-    def __init__(self, filename):
-        """
-        Args:
-            filename: Name of file containing WAVEDERF.
-        """
-        with zopen(filename, "rt") as f:
-            header = f.readline().split()
-            nb_kpoints = int(header[1])
-            nb_bands = int(header[2])
-            data = np.zeros((nb_kpoints, nb_bands, nb_bands, 6))
-            for ik in range(nb_kpoints):
-                for ib1 in range(nb_bands):
-                    for ib2 in range(nb_bands):
-                        # each line in the file includes besides the band
-                        # indexes, which are redundant, each band's energy
-                        # and occupation, which are already available elsewhere,
-                        # so we store only the 6 matrix elements after this 6
-                        # redundant values
-                        data[ik][ib1][ib2] = [float(element) for element in f.readline().split()[6:]]
-
-            self.data = data
-            self._nb_kpoints = nb_kpoints
-            self._nb_bands = nb_bands
-
-    @property
-    def nb_bands(self):
-        """
-        returns the number of bands in the band structure
-        """
-        return self._nb_bands
-
-    @property
-    def nb_kpoints(self):
-        """
-        Returns the number of k-points in the band structure calculation
-        """
-        return self._nb_kpoints
-
-    def get_elements_between_bands(self, band_i, band_j):
-        """
-        Method returning a numpy array with elements
-
-        [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
-
-        between bands band_i and band_j (vasp 1-based indexing) for all kpoints.
+        Note: This file is only produced when LOPTICS is true AND vasp has been
+        recompiled after uncommenting the line that calls
+        WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
 
         Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
+            filename (str): The name of the WAVEDER file.
 
         Returns:
-            a numpy list of elements for each kpoint
+            A Waveder object.
         """
-        if band_i < 1 or band_i > self.nb_bands or band_j < 1 or band_j > self.nb_bands:
-            raise ValueError("Band index out of bounds")
+        with zopen(filename, "rt") as f:
+            nspin, nkpts, nbands = f.readline().split()
+        # 1 and 4 are the eigenvalues of the bands (this data is missing in the WAVEDER file)
+        # 6:12 are the complex matrix elements in each cartesian direction.
+        data = np.loadtxt(filename, skiprows=1, delimiter="\t",usecols=(1,4,6,7,8,9,10,11))
+        data.reshape(int(nspin), int(nkpts), int(nbands), int(nbands), 8) # slowest to fastest
+        cder_real = data[:, :, :, :, 2::2]
+        cder_imag = data[:, :, :, :, 3::2]
+        # TODO add eigenvalues
+        return cls(cder_real, cder_imag)
+        
+    
+    @classmethod
+    def from_waveder(cls, filename, gamma_only=False):
+        """Read the WAVEDER file and returns a Waveder object.
 
-        return self.data[:, band_i - 1, band_j - 1, :]
-
-
-class Waveder:
-    """
-    Class for reading a WAVEDER file.
-    The LOPTICS tag produces a WAVEDER file.
-    The WAVEDER contains the derivative of the orbitals with respect to k.
-    Author: Kamal Choudhary, NIST
-    """
-
-    def __init__(self, filename, gamma_only=False):
-        """
         Args:
             filename: Name of file containing WAVEDER.
+            gamma_only: Whether this is from a gamma-only calculation.
+
+        Returns:
+            Waveder object.
         """
         with open(filename, "rb") as fp:
-
             def readData(dtype):
                 """Read records from Fortran binary file and convert to
                 np.array of given dtype."""
@@ -5637,63 +5592,19 @@ class Waveder:
                 cder = readData(np.complex64)
 
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
+            return cls(cder_data.real, cder_data.imag)
 
-            self._cder_data = cder_data
-            self._nkpoints = nk
-            self._ispin = ispin
-            self._nelect = nelect
-            self._nbands = nbands
+    def nspin(self):
+        """Returns the number of spin channels."""
+        return self.cder_real.shape[3]
 
-    @property
-    def cder_data(self):
-        """
-        Returns the orbital derivative between states
-        """
-        return self._cder_data
-
-    @property
-    def nbands(self):
-        """
-        Returns the number of bands in the calculation
-        """
-        return self._nbands
-
-    @property
     def nkpoints(self):
-        """
-        Returns the number of k-points in the calculation
-        """
-        return self._nkpoints
-
-    @property
-    def nelect(self):
-        """
-        Returns the number of electrons in the calculation
-        """
-        return self._nelect
-
-    def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
-        """
-        Method returning a value
-        between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
-        Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
-            kpoint (Integer): Index of k-point
-            spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of Cartesian direction (0,1,2)
-
-        Returns:
-            a float value
-        """
-        if band_i < 0 or band_i > self.nbands - 1 or band_j < 0 or band_j > self.nelect - 1:
-            raise ValueError("Band index out of bounds")
-        if kpoint > self.nkpoints:
-            raise ValueError("K-point index out of bounds")
-        if cart_dir > 2 or cart_dir < 0:
-            raise ValueError("cart_dir index out of bounds")
-
-        return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
+        """Returns the number of k-points."""
+        return self.cder_real.shape[2]
+    
+    def nbands(self):
+        """Returns the number of bands."""
+        return self.cder_real.shape[0]
 
 
 @dataclass
