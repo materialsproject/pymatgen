@@ -5554,7 +5554,6 @@ class Waveder(MSONable):
         """
         with zopen(filename, "rt") as f:
             nspin, nkpts, nbands = f.readline().split()
-            print(nspin, nkpts, nbands)
         # 1 and 4 are the eigenvalues of the bands (this data is missing in the WAVEDER file)
         # 6:12 are the complex matrix elements in each cartesian direction.
         data = np.loadtxt(filename, skiprows=1, usecols=(1, 4, 6, 7, 8, 9, 10, 11))
