@@ -5504,19 +5504,20 @@ class Eigenval:
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
+
 @dataclass
 class Waveder(MSONable):
     """Represention of the WAVEDER file.
-    
+
     The LOPTICS tag produces a WAVEDER file which contains the derivative of the orbitals with respect to k.
     Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
 
     The order of the indices of the data are:
-    [   
-        band index1, 
-        band index2, 
-        kpoint index, 
-        spin index, 
+    [
+        band index1,
+        band index2,
+        kpoint index,
+        spin index,
         cartesian direction,
     ]
 
@@ -5526,6 +5527,7 @@ class Waveder(MSONable):
 
     Author: Miguel Dias Costa, Kamal Choudhary, Jimmy-Xuan Shen
     """
+
     cder_real: np.ndarray
     cder_imag: np.ndarray
 
@@ -5547,14 +5549,13 @@ class Waveder(MSONable):
             nspin, nkpts, nbands = f.readline().split()
         # 1 and 4 are the eigenvalues of the bands (this data is missing in the WAVEDER file)
         # 6:12 are the complex matrix elements in each cartesian direction.
-        data = np.loadtxt(filename, skiprows=1, delimiter="\t",usecols=(1,4,6,7,8,9,10,11))
-        data.reshape(int(nspin), int(nkpts), int(nbands), int(nbands), 8) # slowest to fastest
+        data = np.loadtxt(filename, skiprows=1, delimiter="\t", usecols=(1, 4, 6, 7, 8, 9, 10, 11))
+        data.reshape(int(nspin), int(nkpts), int(nbands), int(nbands), 8)  # slowest to fastest
         cder_real = data[:, :, :, :, 2::2]
         cder_imag = data[:, :, :, :, 3::2]
         # TODO add eigenvalues
         return cls(cder_real, cder_imag)
-        
-    
+
     @classmethod
     def from_waveder(cls, filename, gamma_only=False):
         """Read the WAVEDER file and returns a Waveder object.
@@ -5567,6 +5568,7 @@ class Waveder(MSONable):
             Waveder object.
         """
         with open(filename, "rb") as fp:
+
             def readData(dtype):
                 """Read records from Fortran binary file and convert to
                 np.array of given dtype."""
@@ -5601,7 +5603,7 @@ class Waveder(MSONable):
     def nkpoints(self):
         """Returns the number of k-points."""
         return self.cder_real.shape[2]
-    
+
     def nbands(self):
         """Returns the number of bands."""
         return self.cder_real.shape[0]
