@@ -5512,6 +5512,13 @@ class Waveder(MSONable):
     The LOPTICS tag produces a WAVEDER file which contains the derivative of the orbitals with respect to k.
     Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
 
+    Note:
+        The way tha VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
+        This results in the formatted WAVDERF only indexing between filled bands. (i.e. all the matrix elements
+        are between the states i=1:8 and j=1:8 in a two atom Si calculation, which is likely a VASP bug).
+        As such, it is recommended to used the hidden ``LVEL=.True.`` flag in VASP which will force indexing over
+        all bands.
+
     The order of the indices of the data are:
     [
         band index1,
@@ -5532,7 +5539,7 @@ class Waveder(MSONable):
     cder_imag: np.ndarray
 
     @classmethod
-    def from_wavederf(cls, filename):
+    def from_formatted(cls, filename):
         """Reads the WAVEDERF file and returns a Waveder object.
 
         Note: This file is only produced when LOPTICS is true AND vasp has been
@@ -5552,14 +5559,16 @@ class Waveder(MSONable):
         # 6:12 are the complex matrix elements in each cartesian direction.
         data = np.loadtxt(filename, skiprows=1, usecols=(1, 4, 6, 7, 8, 9, 10, 11))
         data = data.reshape(int(nspin), int(nkpts), int(nbands), int(nbands), 8)  # slowest to fastest
-        print(data.shape)
         cder_real = data[:, :, :, :, 2::2]
         cder_imag = data[:, :, :, :, 3::2]
-        # TODO add eigenvalues
+        # change to [band1, band2, kpt, spin, cartesian]
+        cder_real = np.transpose(cder_real, (2, 3, 1, 0, 4))
+        cder_imag = np.transpose(cder_imag, (2, 3, 1, 0, 4))
+        # TODO add eigenvalues?
         return cls(cder_real, cder_imag)
 
     @classmethod
-    def from_waveder(cls, filename, gamma_only=False):
+    def from_binary(cls, filename, gamma_only=False):
         """Read the WAVEDER file and returns a Waveder object.
 
         Args:

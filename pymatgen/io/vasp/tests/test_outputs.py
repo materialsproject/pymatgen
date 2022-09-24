@@ -2197,7 +2197,7 @@ class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        wder = Waveder.from_waveder(self.TEST_FILES_DIR / "WAVEDER", gamma_only=True)
+        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER", gamma_only=True)
         self.assertEqual(wder.nbands, 36)
         self.assertEqual(wder.nkpoints, 56)
         band_i = 0
@@ -2229,8 +2229,10 @@ class WavederTest(PymatgenTest):
                 self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].real, wder_ref[i, 10], places=10)
                 self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].imag, wder_ref[i, 11], places=10)
 
-        wder = Waveder.from_waveder(self.TEST_FILES_DIR / "WAVEDER.Si")
+        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER.Si")
         _check(wder)
+        wderf = Waveder.from_formatted(self.TEST_FILES_DIR / "WAVEDERF.Si")
+        _check(wderf)
 
 
 class WSWQTest(PymatgenTest):
