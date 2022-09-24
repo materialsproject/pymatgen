@@ -5547,10 +5547,12 @@ class Waveder(MSONable):
         """
         with zopen(filename, "rt") as f:
             nspin, nkpts, nbands = f.readline().split()
+            print(nspin, nkpts, nbands)
         # 1 and 4 are the eigenvalues of the bands (this data is missing in the WAVEDER file)
         # 6:12 are the complex matrix elements in each cartesian direction.
-        data = np.loadtxt(filename, skiprows=1, delimiter="\t", usecols=(1, 4, 6, 7, 8, 9, 10, 11))
-        data.reshape(int(nspin), int(nkpts), int(nbands), int(nbands), 8)  # slowest to fastest
+        data = np.loadtxt(filename, skiprows=1, usecols=(1, 4, 6, 7, 8, 9, 10, 11))
+        data = data.reshape(int(nspin), int(nkpts), int(nbands), int(nbands), 8)  # slowest to fastest
+        print(data.shape)
         cder_real = data[:, :, :, :, 2::2]
         cder_imag = data[:, :, :, :, 3::2]
         # TODO add eigenvalues
@@ -5596,17 +5598,40 @@ class Waveder(MSONable):
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
             return cls(cder_data.real, cder_data.imag)
 
+    @property
+    def cder(self):
+        """Return the complex derivative of the orbitals with respect to k."""
+        return self.cder_real + 1j * self.cder_imag
+
+    @property
     def nspin(self):
         """Returns the number of spin channels."""
         return self.cder_real.shape[3]
 
+    @property
     def nkpoints(self):
         """Returns the number of k-points."""
         return self.cder_real.shape[2]
 
+    @property
     def nbands(self):
         """Returns the number of bands."""
         return self.cder_real.shape[0]
+
+    def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
+        """
+        Method returning a value
+        between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
+        Args:
+            band_i (Integer): Index of band i
+            band_j (Integer): Index of band j
+            kpoint (Integer): Index of k-point
+            spin   (Integer): Index of spin-channel (0 or 1)
+            cart_dir (Integer): Index of Cartesian direction (0,1,2)
+        Returns:
+            a float value
+        """
+        return self.cder[band_i, band_j, kpoint, spin, cart_dir]
 
 
 @dataclass
