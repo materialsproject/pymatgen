@@ -18,7 +18,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 logger = logging.getLogger(__name__)

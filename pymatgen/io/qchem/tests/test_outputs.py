@@ -19,9 +19,8 @@ try:
 except ImportError:
     have_babel = False
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 
 single_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "single_job.json"))
 multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "multi_job.json"))

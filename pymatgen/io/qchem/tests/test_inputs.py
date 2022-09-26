@@ -12,8 +12,9 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
+__credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
 

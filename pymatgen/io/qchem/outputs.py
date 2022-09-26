@@ -38,8 +38,9 @@ except ImportError:
     have_babel = False
 
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Gabe Gomes, Evan Spotte-Smith, Ryan Kingsbury"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
+__credits__ = "Gabe Gomes"
 
 logger = logging.getLogger(__name__)
 

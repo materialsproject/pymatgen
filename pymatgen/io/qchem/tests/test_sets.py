@@ -19,7 +19,7 @@ from pymatgen.io.qchem.sets import (
 )
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 

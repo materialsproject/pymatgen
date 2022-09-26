@@ -18,8 +18,9 @@ from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
+__credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
 
