@@ -32,6 +32,7 @@ from pymatgen.io.cp2k.inputs import (
     LDOS,
     PBE,
     PDOS,
+    DOS,
     QS,
     BrokenSymmetry,
     Cell,
@@ -56,6 +57,7 @@ from pymatgen.io.cp2k.inputs import (
     V_Hartree_Cube,
     Xc_Functional,
 )
+from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.cp2k.utils import (
     get_aux_basis,
     get_basis_and_potential,
@@ -66,9 +68,9 @@ from pymatgen.io.cp2k.utils import (
 )
 
 __author__ = "Nicholas Winner"
-__version__ = "1.0"
+__version__ = "2.0"
 __email__ = "nwinner@berkeley.edu"
-__date__ = "March 2022"
+__date__ = "September 2022"
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -242,7 +244,7 @@ class DftSet(Cp2kInputSet):
         progression_factor: int = 3,
         override_default_params: dict = {},
         wfn_restart_file_name: str = None,
-        kpoints: Kpoints | None = None,
+        kpoints: VaspKpoints | None = None,
         smearing: bool = False,
         **kwargs,
     ):
@@ -329,14 +331,22 @@ class DftSet(Cp2kInputSet):
         self.smearing = smearing
         self.kwargs = kwargs
 
+        if ot and kpoints:
+            warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
+            ot = False
+
+        # Build the global section
+        g = Global(
+            project_name=self.kwargs.get("project_name", "CP2K"), run_type=self.kwargs.get("run_type", "ENERGY_FORCE")
+        )
+        self.insert(g)
+
         # Build the QS Section
         qs = QS(eps_default=eps_default)
         max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
-        # If there's a band gap, use OT, else use diagonalization
         if ot:
-
             scf.insert(
                 OrbitalTransformation(
                     minimizer=minimizer,
@@ -386,26 +396,28 @@ class DftSet(Cp2kInputSet):
             progression_factor=progression_factor,
         )
 
+        if smearing and not ot:
+            scf["ADDED_MOS"] = Keyword("ADDED_MOS", -1, -1) if self.kwargs.get("spin_polarized", True) else -1
+            scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 300)))
+
         # Set the DFT calculation with global parameters
         dft = Dft(
             MULTIPLICITY=self.multiplicity,
             CHARGE=self.charge,
-            basis_set_filenames=self.basis_set_file_names,
+            uks=self.kwargs.get("spin_polarized", True),
+            basis_set_filenames=self.basis_set_file_names if self.basis_set_file_names else [],
             potential_filename=self.potential_file_name,
             subsections={"QS": qs, "SCF": scf, "MGRID": mgrid},
             wfn_restart_file_name=wfn_restart_file_name,
         )
 
         # Set kpoints only if user supplies them
-        if kpoints:
-            dft.insert(Kpoints.from_kpoints(kpoints, structure=self.structure, reduce=True))
-        if smearing:
-            scf.kwargs["ADDED_MOS"] = 500
-            scf["ADDED_MOS"] = 500  # TODO: how to grab the appropriate number?
-            scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 300)))
+        if self.kpoints:
+            dft.insert(Kpoints.from_kpoints(self.kpoints, structure=self.structure))
 
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
+
         xc_functionals = get_xc_functionals(kwargs.get("xc_functional", "PBE"))
         xc_functional = Xc_Functional(functionals=xc_functionals)
         xc = Section("XC", subsections={"XC_FUNCTIONAL": xc_functional})
@@ -415,18 +427,31 @@ class DftSet(Cp2kInputSet):
         if isinstance(structure, Molecule):
             self.activate_nonperiodic()
 
+        if kwargs.get("print_dos", False):
+            self.print_dos()
         if kwargs.get("print_pdos", True):
             self.print_pdos()
         if kwargs.get("print_ldos", False):
             self.print_ldos()
         if kwargs.get("print_mo_cubes", True):
             self.print_mo_cubes()
-        if kwargs.get("print_hartree_potential", True):
-            self.print_hartree_potential()
+        if kwargs.get("print_v_hartree", True):
+            self.print_v_hartree()
         if kwargs.get("print_e_density", True):
             self.print_e_density()
+        if kwargs.get("print_bandstructure", False):
+            self.print_bandstructure(kwargs.get("kpoints_line_density", 20))
 
         self.update(self.override_default_params)
+
+    def print_dos(self, ndigits=6):
+        """
+        Activate printing of the overall DOS file.
+
+        Note: As of 2022.1, ndigits needs to be set to a sufficient value to ensure data is not lost.
+        Note: As of 2022.1, can only be used with a k-point calculation.
+        """
+        self["force_eval"]["dft"]["print"].insert(DOS(ndigits))
 
     def print_pdos(self, nlumo=-1):
         """
@@ -470,7 +495,7 @@ class DftSet(Cp2kInputSet):
         """
         raise NotImplementedError
 
-    def print_hartree_potential(self, stride=(2, 2, 2)):
+    def print_v_hartree(self, stride=(2, 2, 2)):
         """
         Controls the printing of a cube file with eletrostatic potential generated by the total density
         (electrons+ions). It is valid only for QS with GPW formalism.
@@ -485,6 +510,26 @@ class DftSet(Cp2kInputSet):
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
+
+    def print_bandstructure(self, kpoints_line_density: int = 20):
+        """
+        Attaches a non-scf band structure calc the end of an SCF loop.
+
+        This requires a kpoint calculation, which is not always default in cp2k.
+
+        Args:
+            kpoints_line_density: number of kpoints along each branch in line-mode calc.
+        """
+
+        from pymatgen.io.cp2k.inputs import Band_Structure
+
+        if not self.kpoints:
+            raise ValueError("Kpoints must be provided to enable band structure printing")
+
+        bs = Band_Structure.from_kpoints(
+            self.kpoints, uks=self.kwargs.get("spin_polarized", True), kpoints_line_density=kpoints_line_density
+        )
+        self["force_eval"]["dft"]["print"].insert(bs)
 
     def set_charge(self, charge: int):
         """
@@ -853,7 +898,7 @@ class DftSet(Cp2kInputSet):
         )
         self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
-    def activate_nonperiodic(self, solver="MT"):
+    def activate_nonperiodic(self, solver="ANALYTIC"):
         """
         Activates a calculation with non-periodic calculations by turning of PBC and
         changing the poisson solver. Still requires a CELL to put the atoms
@@ -862,7 +907,7 @@ class DftSet(Cp2kInputSet):
             x = max(s.coords[0] for s in self.structure.sites)
             y = max(s.coords[1] for s in self.structure.sites)
             z = max(s.coords[2] for s in self.structure.sites)
-            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[x, 0, 0], [0, y, 0], [0, 0, z]])))
+            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]])))
         self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
         kwds = {"POISSON_SOLVER": Keyword("POISSON_SOLVER", solver), "PERIODIC": Keyword("PERIODIC", "NONE")}
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
