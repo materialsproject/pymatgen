@@ -291,23 +291,24 @@ class ThermalDisplacementTest(PymatgenTest):
     def test_ratio_prolate(self):
         self.assertAlmostEqual(self.thermal.ratio_prolate[0], 6.854889e-03 / 2.893872e-03)
 
-
-
     def test_to_structure_with_site_properties(self):
         # test creation of structure with site properties
-        structure=self.thermal.to_structure_with_site_properties_Ucif()
+        structure = self.thermal.to_structure_with_site_properties_Ucif()
         # test reading of structure with site properties
-        new_thermals=ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(structure)
-        self.assertArrayAlmostEqual(self.thermal.thermal_displacement_matrix_cart,
-                                    new_thermals.thermal_displacement_matrix_cart)
-        self.assertArrayAlmostEqual(self.thermal.structure.frac_coords,new_thermals.structure.frac_coords)
-        self.assertArrayAlmostEqual(self.thermal.structure.lattice.volume,new_thermals.structure.lattice.volume)
+        new_thermals = ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(structure)
+        self.assertArrayAlmostEqual(
+            self.thermal.thermal_displacement_matrix_cart, new_thermals.thermal_displacement_matrix_cart
+        )
+        self.assertArrayAlmostEqual(self.thermal.structure.frac_coords, new_thermals.structure.frac_coords)
+        self.assertArrayAlmostEqual(self.thermal.structure.lattice.volume, new_thermals.structure.lattice.volume)
 
     def test_visualization_directionality_criterion(self):
         # test file creation for VESTA
         printed = False
         with tempfile.TemporaryDirectory() as tmpdirname:
-            self.thermal.visualize_directionality_quality_criterion(filename=os.path.join(tmpdirname, "U.vesta"), other=self.thermal,which_structure=0)
+            self.thermal.visualize_directionality_quality_criterion(
+                filename=os.path.join(tmpdirname, "U.vesta"), other=self.thermal, which_structure=0
+            )
             with open(os.path.join(tmpdirname, "U.vesta")) as file:
                 file.seek(0)  # set position to start of file
                 lines = file.read().splitlines()  # now we won't have those newlines
@@ -319,9 +320,7 @@ class ThermalDisplacementTest(PymatgenTest):
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             self.thermal.write_cif(os.path.join(tmpdirname, "U.cif"))
-            new_thermals=ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmpdirname, "U.cif"))
-            self.assertArrayAlmostEqual(new_thermals[0].thermal_displacement_matrix_cif_matrixform,
-                                        self.thermal.Ucif)
-            self.assertArrayAlmostEqual(new_thermals[0].structure.frac_coords,self.thermal.structure.frac_coords)
-            self.assertArrayAlmostEqual(new_thermals[0].structure.lattice.volume,self.thermal.structure.lattice.volume)
-
+            new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmpdirname, "U.cif"))
+            self.assertArrayAlmostEqual(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
+            self.assertArrayAlmostEqual(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
+            self.assertArrayAlmostEqual(new_thermals[0].structure.lattice.volume, self.thermal.structure.lattice.volume)
