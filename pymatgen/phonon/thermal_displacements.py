@@ -5,11 +5,26 @@
 This module provides classes to handle thermal displacement matrices (anisotropic displacement parameters).
 """
 
-import numpy as np
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.io.cif import CifWriter
+from pymatgen.io.cif import CifFile, CifParser, str2float
+
+import re
+from collections import deque
+from functools import partial
+from inspect import getfullargspec as getargspec
+
+import numpy as np
+
+from pymatgen.core.periodic_table import DummySpecies, Species, get_el_sp
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.groups import SYMM_DATA
+
+sub_spgrp = partial(re.sub, r"[\s_]", "")
+
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
 try:
     import phonopy
@@ -158,7 +173,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         B = []
         for mat in self.Ucif:
-            mat_B = mat * 8 * np.pi**2
+            mat_B = mat * 8 * np.pi ** 2
             B.append(mat_B)
         return np.array(B)
 
@@ -171,7 +186,7 @@ class ThermalDisplacementMatrices(MSONable):
         # will compute beta based on Ustar
         beta = []
         for mat in self.Ustar:
-            mat_beta = mat * 2 * np.pi**2
+            mat_beta = mat * 2 * np.pi ** 2
             beta.append(mat_beta)
         return beta
 
@@ -255,7 +270,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         results = []
         for self_Ucart, other_Ucart in zip(
-            self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
+                self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
         ):
             result_dict = {}
 
@@ -277,6 +292,95 @@ class ThermalDisplacementMatrices(MSONable):
             results.append(result_dict)
 
         return results
+
+    def visualize_directionality_quality_criterion(self, other,
+                                                   filename: str = "visualization.vesta", which_structure: int = 0):
+        """
+        Will create a VESTA file for visualization of the directionality criterion.
+        Args:
+            other: ThermalDisplacementMatrices
+            filename:           Filename of the VESTA file
+            which_structure:    0 means structure of the self object will be used, 1 means structure of the other
+                                object will be used
+
+
+        """
+        # will return a VESTA file including vectors to visualize the quality criterion
+        result = self.compute_directionality_quality_criterion(other=other)
+        matrix_cif= self.thermal_displacement_matrix_cif if self.thermal_displacement_matrix_cif is not None else self.get_reduced_matrix(self.Ucif)
+
+        if which_structure == 0:
+            structure = self.structure
+        elif which_structure == 1:
+            structure = other.structure
+
+        with open(filename, 'w') as f:
+            #
+            f.write("#VESTA_FORMAT_VERSION 3.5.4\n \n \n")
+            f.write("CRYSTAL\n\n")
+            f.write("TITLE\n")
+            f.write("Directionality Criterion\n\n")
+            f.write("GROUP\n")
+            f.write("1 1 P 1\n\n")
+            f.write("CELLP\n")
+            f.write(
+                f"{structure.lattice.a} {structure.lattice.b} {structure.lattice.c} {structure.lattice.alpha} {structure.lattice.beta} {structure.lattice.gamma}\n")
+            f.write("  0.000000   0.000000   0.000000   0.000000   0.000000   0.000000\n")  # error on parameters
+            f.write("STRUC\n")
+
+            for isite, site in enumerate(structure):
+                f.write(
+                    f'{isite + 1} {site.species_string} {site.species_string}{isite + 1} 1.0000 {site.frac_coords[0]} {site.frac_coords[1]} {site.frac_coords[2]} 1a 1\n')
+                f.write(f' 0.000000 0.000000 0.000000 0.00\n')  # error on positions - zero here
+
+            # now we iterate over the whole structure and write down the frational coordinates (with errors)
+            f.write("  0 0 0 0 0 0 0\n")
+            f.write("THERT 0\n")
+            f.write("THERM\n")
+            # print all U11s (make sure they are in the correct order)
+            counter = 1
+            # order here:
+            # VESTA order _atom_site_aniso_U_12    _atom_site_aniso_U_13    _atom_site_aniso_U_23
+            # file.write("_atom_site_aniso_U_23\n")             file.write("_atom_site_aniso_U_13\n")        file.write("_atom_site_aniso_U_12\n")
+            for atom_therm, site in zip(matrix_cif, structure):
+                f.write(
+                    f"{counter} {site.species_string}{counter} {atom_therm[0]} {atom_therm[1]} {atom_therm[2]} {atom_therm[5]} {atom_therm[4]} {atom_therm[3]}\n")
+                counter += 1
+            f.write("  0 0 0 0 0 0 0 0\n")
+            f.write("VECTR\n")
+            vectorcounter = 1
+            sitecounter = 1
+            for vectors in result:
+                vector0_x = vectors["vector0"][0]
+                vector0_y = vectors["vector0"][1]
+                vector0_z = vectors["vector0"][2]
+                vector1_x = vectors["vector1"][0]
+                vector1_y = vectors["vector1"][1]
+                vector1_z = vectors["vector1"][2]
+
+                f.write(f"    {vectorcounter} {vector0_x} {vector0_y} {vector0_z} 0\n")
+                f.write(f"    {sitecounter} 0 0 0 0\n")
+
+                f.write(" 0 0 0 0 0\n")
+                vectorcounter += 1
+                f.write(f"    {vectorcounter} {vector1_x} {vector1_y} {vector1_z} 0\n")
+                f.write(f"    {sitecounter} 0 0 0 0\n")
+                vectorcounter += 1
+                sitecounter += 1
+                f.write(" 0 0 0 0 0\n")
+
+            f.write(" 0 0 0 0 0\n")
+            f.write("VECTT\n")
+
+            counter = 1
+            # two vectors per atom
+            for i in range(len(result)):
+                f.write(f"{counter} 0.2 255 0 0 1\n")
+                counter += 1
+                f.write(f"{counter} 0.2 0 0 255 1\n")
+                counter += 1
+
+            f.write(" 0 0 0 0 0\n")
 
     @property
     def ratio_prolate(self):
@@ -330,3 +434,127 @@ class ThermalDisplacementMatrices(MSONable):
             structure=structure,
             temperature=temperature,
         )
+
+    def to_structure_with_site_properties_Ucif(self):
+        """
+        Transfers this object into a structure with site properties (Ucif).
+        This is useful for sorting the atoms in the structure including site properties.
+        E.g., with code like this:
+        def sort_order(site):
+            return [site.specie.X, site.frac_coords[0], site.frac_coords[1], site.frac_coords[2]]
+        new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order))
+
+        Returns: Structure object.
+
+        """
+
+        site_properties = {"U11_cif": [], "U22_cif": [], "U33_cif": [], "U23_cif": [], "U13_cif": [], "U12_cif": []}
+        if self.thermal_displacement_matrix_cif is None:
+            cif_matrix=self.get_reduced_matrix(self.Ucif)
+        else:
+            cif_matrix=self.thermal_displacement_matrix_cif
+        for atom_ucif in cif_matrix:
+            ## U11, U22, U33, U23, U13, U12
+            site_properties["U11_cif"].append(atom_ucif[0])
+            site_properties["U22_cif"].append(atom_ucif[1])
+            site_properties["U33_cif"].append(atom_ucif[2])
+            site_properties["U23_cif"].append(atom_ucif[3])
+            site_properties["U13_cif"].append(atom_ucif[4])
+            site_properties["U12_cif"].append(atom_ucif[5])
+
+        return self.structure.copy(site_properties=site_properties)
+
+    @staticmethod
+    def from_structure_with_site_properties_Ucif(structure:Structure, temperature: float=None):
+        """
+        Will create this object with the help of a structure with site properties.
+        Args:
+            structure: Structure object including U11_cif, U22_cif, U33_cif, U23_cif, U13_cif, U12_cif as site
+            properties
+            temperature: temperature for Ucif data
+
+        Returns: ThermalDisplacementMatrices object
+
+        """
+        Ucif_matrix = []
+        ## U11, U22, U33, U23, U13, U12
+        for site in structure:
+            Ucif_matrix.append([site.properties["U11_cif"], site.properties["U22_cif"],
+                                site.properties["U33_cif"], site.properties["U23_cif"],
+                                site.properties["U13_cif"], site.properties["U12_cif"]])
+
+        return ThermalDisplacementMatrices.from_Ucif(Ucif_matrix, structure, temperature=temperature)
+
+    @staticmethod
+    def from_cif_P1(filename: str):
+        """
+        Reads a cif with P1 symmetry including positions and ADPs.
+        Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
+        Args:
+            filename: Filename of the cif
+
+        Returns: ThermalDisplacementMatrices Object.
+
+        """
+        # This code is adapted from the CifParser
+        # to reuse more code from there, the CifParser would need a major refactoring
+        # Future plans: add this part to CifParser (i.e., include handling of symmetry for ADPs)
+
+        cif = CifFile.from_file(filename)
+        thermals = []
+        for data in cif.data.values():
+            # can only handle P1 symmetry for now
+            # TODO: potenially add a check for the P1 here
+            # raise ValueError("Can only read cifs in P1 symmetry")
+
+            lattice = CifParser.get_lattice_no_exception(data)
+            oxi_states = CifParser.parse_oxi_states(data)
+
+            allcoords = []
+            allspecies = []
+            for i in range(len(data["_atom_site_label"])):
+
+                try:
+                    # If site type symbol exists, use it. Otherwise, we use the
+                    # label.
+                    symbol = CifParser(filename)._parse_symbol(data["_atom_site_type_symbol"][i])
+                except KeyError:
+                    symbol = CifParser(filename)._parse_symbol(data["_atom_site_label"][i])
+                if not symbol:
+                    continue
+
+                if oxi_states is not None:
+                    o_s = oxi_states.get(symbol, 0)
+                    # use _atom_site_type_symbol if possible for oxidation state
+                    if "_atom_site_type_symbol" in data.data:
+                        oxi_symbol = data["_atom_site_type_symbol"][i]
+                        o_s = oxi_states.get(oxi_symbol, o_s)
+                    try:
+                        el = Species(symbol, o_s)
+                    except Exception:
+                        el = DummySpecies(symbol, o_s)
+                else:
+                    el = get_el_sp(symbol)
+
+                allspecies.append(el)
+                x = str2float(data["_atom_site_fract_x"][i])
+                y = str2float(data["_atom_site_fract_y"][i])
+                z = str2float(data["_atom_site_fract_z"][i])
+
+                allcoords.append([x, y, z])
+
+            thermals_Ucif = []
+            # U11, U22, U33, U23, U13, U12
+            for i in range(len(data["_atom_site_aniso_label"])):
+                thermals_Ucif.append([str2float(data["_atom_site_aniso_U_11"][i]),
+                                      str2float(data["_atom_site_aniso_U_22"][i]),
+                                      str2float(data["_atom_site_aniso_U_33"][i]),
+                                      str2float(data["_atom_site_aniso_U_23"][i]),
+                                      str2float(data["_atom_site_aniso_U_13"][i]),
+                                      str2float(data["_atom_site_aniso_U_12"][i])])
+            struct = Structure(lattice, allspecies, allcoords)
+
+            thermal = ThermalDisplacementMatrices.from_Ucif(thermal_displacement_matrix_cif=thermals_Ucif,
+                                                            structure=struct, temperature=None)
+            thermals.append(thermal)
+        return thermals

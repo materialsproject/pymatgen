@@ -615,12 +615,7 @@ class CifParser:
         """
         try:
 
-            lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
-            angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
-            if not lattice_type:
-                return Lattice.from_parameters(*lengths, *angles)
-
-            return getattr(Lattice, lattice_type)(*(lengths + angles))
+            return self.get_lattice_no_exception(angle_strings, data, lattice_type, length_strings)
 
         except KeyError:
             # Missing Key search for cell setting
@@ -644,6 +639,18 @@ class CifParser:
                 else:
                     return None
         return None
+
+    @staticmethod
+    def get_lattice_no_exception(data,
+                          length_strings=("a", "b", "c"),
+        angle_strings=("alpha", "beta", "gamma"),
+        lattice_type=None):
+        """ Will use usual strings to get lattice"""
+        lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
+        angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
+        if not lattice_type:
+            return Lattice.from_parameters(*lengths, *angles)
+        return getattr(Lattice, lattice_type)(*(lengths + angles))
 
     def get_symops(self, data):
         """
