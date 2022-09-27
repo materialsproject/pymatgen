@@ -535,20 +535,7 @@ class ThermalDisplacementMatrices(MSONable):
                 if not symbol:
                     continue
 
-                if oxi_states is not None:
-                    o_s = oxi_states.get(symbol, 0)
-                    # use _atom_site_type_symbol if possible for oxidation state
-                    if "_atom_site_type_symbol" in data.data:
-                        oxi_symbol = data["_atom_site_type_symbol"][i]
-                        o_s = oxi_states.get(oxi_symbol, o_s)
-                    try:
-                        el = Species(symbol, o_s)
-                    except Exception:
-                        el = DummySpecies(symbol, o_s)
-                else:
-                    el = Species(get_el_sp(symbol))
-
-                allspecies.append(el)
+                allspecies.append(symbol)
                 x = str2float(data["_atom_site_fract_x"][i])
                 y = str2float(data["_atom_site_fract_y"][i])
                 z = str2float(data["_atom_site_fract_z"][i])
