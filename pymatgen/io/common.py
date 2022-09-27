@@ -437,8 +437,8 @@ class VolumetricData(MSONable):
         f = zopen(filename, "rt")
 
         # skip header lines
-        for i in range(2):
-            f.readline()
+        f.readline()
+        f.readline()
 
         # number of atoms followed by the position of the origin of the volumetric data
         line = f.readline().split()
@@ -465,7 +465,7 @@ class VolumetricData(MSONable):
         # the first is the atom number, second is charge,
         # the last three are the x,y,z coordinates of the atom center.
         sites = []
-        for i in range(natoms):
+        for _ in range(natoms):
             line = f.readline().split()
             sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 
