@@ -615,7 +615,7 @@ class CifParser:
         """
         try:
 
-            return self.get_lattice_no_exception(angle_strings, data, lattice_type, length_strings)
+            return self.get_lattice_no_exception(data=data, angle_strings=angle_strings,lattice_type=lattice_type, length_strings=length_strings)
 
         except KeyError:
             # Missing Key search for cell setting
@@ -645,7 +645,17 @@ class CifParser:
                           length_strings=("a", "b", "c"),
         angle_strings=("alpha", "beta", "gamma"),
         lattice_type=None):
-        """ Will use usual strings to get lattice"""
+        """
+        Generate the lattice from the provided lattice parameters.
+        Args:
+            data:
+            length_strings:
+            angle_strings:
+            lattice_type:
+
+        Returns:
+
+        """
         lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
         angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
         if not lattice_type:
