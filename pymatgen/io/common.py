@@ -2,17 +2,17 @@
 Module for defining common data used and produced by atomistic simulation packages.
 """
 
-import warnings
-import json
 import itertools
-import numpy as np
+import json
+import warnings
 
+import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
 
-from pymatgen.core import Structure, Site, Element
-from pymatgen.core.units import bohr_to_angstrom, ang_to_bohr
+from pymatgen.core import Element, Site, Structure
+from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 
 
