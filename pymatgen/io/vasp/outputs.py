@@ -1172,11 +1172,12 @@ class Vasprun(MSONable):
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
             charge = potcar_nelect - nelect
 
-            if charge:
-                for s in self.structures:
-                    s._charge = charge
-                self.final_structure._charge = charge
+            for s in self.structures:
+                s._charge = charge
+            if hasattr(self, "initial_structure"):
                 self.initial_structure._charge = charge
+            if hasattr(self, "final_structure"):
+                self.final_structure._charge = charge
 
     def as_dict(self):
         """
