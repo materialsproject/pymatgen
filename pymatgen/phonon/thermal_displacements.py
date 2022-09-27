@@ -546,7 +546,7 @@ class ThermalDisplacementMatrices(MSONable):
                     except Exception:
                         el = DummySpecies(symbol, o_s)
                 else:
-                    el = get_el_sp(symbol)
+                    el = Species(get_el_sp(symbol))
 
                 allspecies.append(el)
                 x = str2float(data["_atom_site_fract_x"][i])
