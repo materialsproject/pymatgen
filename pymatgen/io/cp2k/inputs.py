@@ -2162,7 +2162,7 @@ class Kpoints(Section):
             units = "CART_ANGSTROM"
             scheme = "GENERAL"
         elif kpoints.style == Kpoints_supported_modes.Gamma:
-            if kpts[0] == (1, 1, 1):
+            if tuple(kpts[0]) == (1, 1, 1):
                 scheme = "GAMMA"
                 units = "B_VECTOR"
             elif not structure:
@@ -2282,7 +2282,7 @@ class Band_Structure(Section):
                 )
                 for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts))
             ]
-        else:
+        elif kpoints.style in (Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian):
             kpoint_sets = [
                 Kpoint_Set(
                     npoints=1,
@@ -2290,4 +2290,6 @@ class Band_Structure(Section):
                     units="B_VECTOR" if kpoints.coord_type == "Reciprocal" else "CART_ANGSTROM",
                 )
             ]
+        else:
+            raise ValueError("Unsupported k-point style. Must be line-mode or explicit k-points (reciprocal/cartesian).")
         return Band_Structure(kpoint_sets=kpoint_sets, filename="BAND.bs")
