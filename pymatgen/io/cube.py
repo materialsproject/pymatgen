@@ -120,24 +120,27 @@ class Cube:
             radius: (float) of the mask (in Angstroms)
             cx, cy, cz: (float) the fractional coordinates of the center of the sphere
         """
-
-        # radius along x,y,z in terms of number of indices rather than angstroms
         dx, dy, dz = (
             np.floor(radius / np.linalg.norm(self.X)).astype(int),
             np.floor(radius / np.linalg.norm(self.Y)).astype(int),
             np.floor(radius / np.linalg.norm(self.Z)).astype(int),
         )
-        # gcd = max(np.gcd(dx, dy), np.gcd(dy, dz), np.gcd(dx, dz))
-        # sx, sy, sz = dx // gcd, dy // gcd, dz // gcd
+        gcd = max(np.gcd(dx, dy), np.gcd(dy, dz), np.gcd(dx, dz))
+        sx, sy, sz = dx // gcd, dy // gcd, dz // gcd
         r = min(dx, dy, dz)
 
-        # indices of center of sphere
         x0, y0, z0 = int(np.round(self.NX * cx)), int(np.round(self.NY * cy)), int(np.round(self.NZ * cz))
 
-        i, j, k = np.indices(self.data.shape)
+        centerx, centery, centerz = self.NX // 2, self.NY // 2, self.NZ // 2
+        a = np.roll(self.data, (centerx - x0, centery - y0, centerz - z0))
 
-        dist_from_center = np.sqrt((i - x0) ** 2 + (j - y0) ** 2 + (k - z0) ** 2)
-        return dist_from_center <= r
+        i, j, k = np.indices(a.shape, sparse=True)
+        a = np.sqrt((sx * i - sx * centerx) ** 2 + (sy * j - sy * centery) ** 2 + (sz * k - sz * centerz) ** 2)
+
+        indices = a > r
+        a[indices] = 0
+
+        return a
 
     def get_atomic_site_averages(self, atomic_site_radii):
         """
