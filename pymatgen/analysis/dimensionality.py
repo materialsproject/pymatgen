@@ -299,7 +299,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
 def get_dimensionality_cheon(
     structure_raw,
     tolerance=0.45,
-    ldict=JmolNN().el_radius,
+    ldict=None,
     standardize=True,
     larger_cell=False,
 ):
@@ -329,13 +329,15 @@ def get_dimensionality_cheon(
         standardize: works with conventional standard structures if True. It is
             recommended to keep this as True.
         larger_cell: tests with 3x3x3 supercell instead of 2x2x2. Testing with
-            2x2x2 supercell is faster but misclssifies rare interpenetrated 3D
+            2x2x2 supercell is faster but misclassifies rare interpenetrated 3D
              structures. Testing with a larger cell circumvents this problem
 
     Returns:
         (str): dimension of the largest cluster as a string. If there are ions
         or molecules it returns 'intercalated ion/molecule'
     """
+    if ldict is None:
+        ldict = JmolNN().el_radius
     if standardize:
         structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
     else:
@@ -392,7 +394,7 @@ def get_dimensionality_cheon(
     return dim
 
 
-def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
+def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     """
     Finds bonded atoms and returns a adjacency matrix of bonded atoms.
 
@@ -413,6 +415,9 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
         If any image of atom j is bonded to atom i with periodic boundary
         conditions, the matrix element [atom i, atom j] is 1.
     """
+    if ldict is None:
+        ldict = JmolNN().el_radius
+
     # pylint: disable=E1136
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
@@ -423,7 +428,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     species = list(map(str, struct.species))
     # in case of charged species
     for i, item in enumerate(species):
-        if item not in ldict.keys():
+        if item not in ldict:
             species[i] = str(Species.from_string(item).element)
     latmat = struct.lattice.matrix
     connected_matrix = np.zeros((n_atoms, n_atoms))

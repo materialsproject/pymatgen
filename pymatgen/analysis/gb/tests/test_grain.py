@@ -266,11 +266,11 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
         true_100 = [5, 13, 17, 25, 29, 37, 41]
         true_110 = [3, 9, 11, 17, 19, 27, 33, 41, 43]
         true_111 = [3, 7, 13, 19, 21, 31, 37, 39, 43, 49]
-        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 0, 0]).keys())
-        sigma_110 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 1, 0]).keys())
-        sigma_111 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 1, 1]).keys())
-        sigma_222 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [2, 2, 2]).keys())
-        sigma_888 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [8, 8, 8]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 0, 0]))
+        sigma_110 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 1, 0]))
+        sigma_111 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 1, 1]))
+        sigma_222 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [2, 2, 2]))
+        sigma_888 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [8, 8, 8]))
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
         self.assertListEqual(sorted(true_110), sorted(sigma_110))
@@ -282,11 +282,11 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
         true_100 = [17, 18, 22, 27, 38, 41]
         true_001 = [7, 13, 19, 31, 37, 43, 49]
         true_210 = [10, 11, 14, 25, 35, 49]
-        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [1, 0, 0], [8, 3]).keys())
-        sigma_001 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [0, 0, 1], [8, 3]).keys())
-        sigma_210 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [2, 1, 0], [8, 3]).keys())
-        sigma_420 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [4, 2, 0], [8, 3]).keys())
-        sigma_840 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [8, 4, 0], [8, 3]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [1, 0, 0], [8, 3]))
+        sigma_001 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [0, 0, 1], [8, 3]))
+        sigma_210 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [2, 1, 0], [8, 3]))
+        sigma_420 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [4, 2, 0], [8, 3]))
+        sigma_840 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [8, 4, 0], [8, 3]))
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
         self.assertListEqual(sorted(true_001), sorted(sigma_001))
@@ -297,21 +297,21 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
     def test_enum_sigma_tet(self):
         true_100 = [5, 37, 41, 13, 3, 15, 39, 25, 17, 29]
         true_331 = [9, 3, 21, 39, 7, 31, 43, 13, 19, 37, 49]
-        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_tet(50, [1, 0, 0], [9, 1]).keys())
-        sigma_331 = list(GrainBoundaryGenerator.enum_sigma_tet(50, [3, 3, 1], [9, 1]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_tet(50, [1, 0, 0], [9, 1]))
+        sigma_331 = list(GrainBoundaryGenerator.enum_sigma_tet(50, [3, 3, 1], [9, 1]))
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
         self.assertListEqual(sorted(true_331), sorted(sigma_331))
 
     def test_enum_sigma_ort(self):
         true_100 = [41, 37, 39, 5, 15, 17, 13, 3, 25, 29]
-        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_ort(50, [1, 0, 0], [270, 30, 29]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_ort(50, [1, 0, 0], [270, 30, 29]))
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
 
     def test_enum_sigma_rho(self):
         true_100 = [7, 11, 43, 13, 41, 19, 47, 31]
-        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_rho(50, [1, 0, 0], [15, 4]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_rho(50, [1, 0, 0], [15, 4]))
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
 

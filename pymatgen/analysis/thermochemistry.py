@@ -124,11 +124,7 @@ class ThermoData:
         return "\n".join(output)
 
     def __str__(self):
-        return "{}_{}_{} = {}, Valid T : {}, Ref = {}".format(
-            self.type,
-            self.formula,
-            self.phaseinfo,
-            self.value,
-            self.temp_range,
-            self.ref,
+        return (
+            f"{self.type}_{self.formula}_{self.phaseinfo} = {self.value}, Valid T : {self.temp_range}, "
+            f"Ref = {self.ref}"
         )

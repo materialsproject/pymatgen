@@ -64,7 +64,6 @@ class AdsorbateSiteFinder:
                 concurrent with the miller index, this enables use with
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
-
         """
         # get surface normal from miller index
         if mi_vec:
@@ -195,7 +194,7 @@ class AdsorbateSiteFinder:
         """
         Assigns site properties.
         """
-        if "surface_properties" in slab.site_properties.keys():
+        if "surface_properties" in slab.site_properties:
             return slab
 
         surf_sites = self.find_surface_sites_by_height(slab, height)
@@ -233,7 +232,7 @@ class AdsorbateSiteFinder:
         put_inside=True,
         symm_reduce=1e-2,
         near_reduce=1e-2,
-        positions=["ontop", "bridge", "hollow"],
+        positions=("ontop", "bridge", "hollow"),
         no_obtuse_hollow=True,
     ):
         """
@@ -403,9 +402,9 @@ class AdsorbateSiteFinder:
         struct = self.slab.copy()
         if repeat:
             struct.make_supercell(repeat)
-        if "surface_properties" in struct.site_properties.keys():
+        if "surface_properties" in struct.site_properties:
             molecule.add_site_property("surface_properties", ["adsorbate"] * molecule.num_sites)
-        if "selective_dynamics" in struct.site_properties.keys():
+        if "selective_dynamics" in struct.site_properties:
             molecule.add_site_property("selective_dynamics", [[True, True, True]] * molecule.num_sites)
         for site in molecule:
             struct.append(
@@ -658,7 +657,7 @@ def reorient_z(structure):
 
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__), "ElementColorSchemes.yaml"))
-color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"].keys()}
+color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"]}
 
 
 def plot_slab(

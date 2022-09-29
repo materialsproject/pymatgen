@@ -119,7 +119,7 @@ class HighSymmKpath(KPathBase):
             self._path_lengths = []
 
             for bs in [lm_bs, sc_bs, hin_bs]:
-                for key, value in enumerate(bs.kpath["kpoints"]):
+                for value in bs.kpath["kpoints"]:
                     cat_points[index] = bs.kpath["kpoints"][value]
                     label_index[index] = value
                     index += 1
@@ -223,8 +223,8 @@ class HighSymmKpath(KPathBase):
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
 
         warn(
-            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
-of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
+            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
         )
 
         return bs
@@ -259,11 +259,11 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
             for o_num in range(0, n_op):
                 a_tr_coord = []
 
-                for (label_a, coord_a) in a_path["kpoints"].items():
+                for coord_a in a_path["kpoints"].values():
                     a_tr_coord.append(np.dot(rpg[o_num], coord_a))
 
                 for coord_a in a_tr_coord:
-                    for key, value in b_path["kpoints"].items():
+                    for value in b_path["kpoints"].values():
                         if np.allclose(value, coord_a, atol=self._atol):
                             sc_count[o_num] += 1
                             break
@@ -357,17 +357,43 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
         new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
 
+        num_branches = len(bandstructure.branches)
+        new_branches = []
+
+        # This ensures proper format of bandstructure.branches
+        processed = []
+        for ind in range(num_branches):
+            branch = bandstructure.branches[ind]
+
+            if branch["name"] not in processed:
+
+                if tuple(branch["name"].split("-")) in plot_axis:
+                    new_branches.append(branch)
+                    processed.append(branch["name"])
+                else:
+                    next_branch = bandstructure.branches[ind + 1]
+                    combined = {
+                        "start_index": branch["start_index"],
+                        "end_index": next_branch["end_index"],
+                        "name": f"{branch['name'].split('-')[0]}-{next_branch['name'].split('-')[1]}",
+                    }
+                    processed.append(branch["name"])
+                    processed.append(next_branch["name"])
+
+                    new_branches.append(combined)
+
+        # Obtain new values
         for entry in distances_map:
+
+            branch = new_branches[entry[0]]
+
             if not entry[1]:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["start_index"]
                 stop = branch["end_index"] + 1
                 step = 1
-
             else:
-                branch = bandstructure.branches[entry[0]]
                 start = branch["end_index"]
-                stop = branch["start_index"] - 1
+                stop = branch["start_index"] - 1 if branch["start_index"] != 0 else None
                 step = -1
 
             # kpoints

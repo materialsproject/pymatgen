@@ -43,18 +43,20 @@ class Xr:
         self.structure = structure
 
     def __str__(self):
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
         output = [
-            "pymatgen   {:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
-            "{:.3f} {:.3f} {:.3f}".format(*self.structure.lattice.angles),
+            f"pymatgen   {a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.3f} {beta:.3f} {gamma:.3f}",
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
-        for i, site in enumerate(self.structure.sites):
-            output.append(f"{i + 1} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
+        for idx, site in enumerate(self.structure.sites):
+            output.append(f"{idx + 1} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
-        for i in range(2):
+        for _ in range(2):
             for j in range(3):
                 output.append(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}")
         return "\n".join(output)

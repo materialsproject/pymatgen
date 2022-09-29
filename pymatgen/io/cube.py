@@ -67,7 +67,7 @@ class Cube:
         f = zopen(fname, "rt")
 
         # skip header lines
-        for i in range(2):
+        for _ in range(2):
             f.readline()
 
         # number of atoms followed by the position of the origin of the volumetric data
@@ -98,7 +98,7 @@ class Cube:
         # the first is the atom number, second is charge,
         # the last three are the x,y,z coordinates of the atom center.
         self.sites = []
-        for i in range(self.natoms):
+        for _ in range(self.natoms):
             line = f.readline().split()
             self.sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 

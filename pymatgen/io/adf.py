@@ -122,7 +122,6 @@ class AdfKey(MSONable):
         ------
         ValueError
             If elements in ``subkeys`` are not ``AdfKey`` objects.
-
         """
         self.name = name
         self.options = options if options is not None else []
@@ -173,7 +172,6 @@ class AdfKey(MSONable):
         -----
         If this key is 'Atoms' and the coordinates are in Cartesian form, a
         different string format will be used.
-
         """
         s = f"{self.key}"
         if len(self.options) > 0:
@@ -182,7 +180,10 @@ class AdfKey(MSONable):
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(subkey.name, *subkey.options)
+                    s += (
+                        f"{subkey.name:2s}  {subkey.options[0]: 14.8f}"
+                        f"    {subkey.options[1]: 14.8f}    {subkey.options[2]: 14.8f}\n"
+                    )
             else:
                 for subkey in self.subkeys:
                     s += str(subkey)
@@ -212,7 +213,6 @@ class AdfKey(MSONable):
         -------
         has : bool
             True if this key contains the given key. Otherwise False.
-
         """
         if isinstance(subkey, str):
             key = subkey
@@ -237,7 +237,6 @@ class AdfKey(MSONable):
         Notes
         -----
         Duplicate check will not be performed if this is an 'Atoms' block.
-
         """
         if self.key.lower() == "atoms" or not self.has_subkey(subkey):
             self.subkeys.append(subkey)
@@ -250,7 +249,6 @@ class AdfKey(MSONable):
         ----------
         subkey : str or AdfKey
             The subkey to remove.
-
         """
         if len(self.subkeys) > 0:
             key = subkey if isinstance(subkey, str) else subkey.key
@@ -273,7 +271,6 @@ class AdfKey(MSONable):
         ------
         TypeError
             If the format of the given ``option`` is different.
-
         """
         if len(self.options) == 0:
             self.options.append(option)
@@ -296,7 +293,6 @@ class AdfKey(MSONable):
         ------
         TypeError
             If the option has a wrong type.
-
         """
         if len(self.options) > 0:
             if self._sized_op:
@@ -324,7 +320,6 @@ class AdfKey(MSONable):
         -------
         has : bool
             True if the option can be found. Otherwise False will be returned.
-
         """
         if len(self.options) == 0:
             return False
@@ -350,12 +345,6 @@ class AdfKey(MSONable):
             d.update({"subkeys": subkeys})
         return d
 
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfKey object.
-        """
-        return super().to_json()
-
     @classmethod
     def from_dict(cls, d):
         """
@@ -370,7 +359,6 @@ class AdfKey(MSONable):
         -------
         adfkey : AdfKey
             An AdfKey object recovered from the JSON dict ``d``.
-
         """
         key = d.get("name")
         options = d.get("options", None)
@@ -405,7 +393,6 @@ class AdfKey(MSONable):
         Notes
         -----
         Only the first block key will be returned.
-
         """
 
         def is_float(s):
@@ -501,9 +488,8 @@ class AdfTask(MSONable):
             The scf options.
         other_directives : Sized
             User-defined directives.
-
         """
-        if operation not in self.operations.keys():
+        if operation not in self.operations:
             raise AdfInputError(f"Invalid ADF task {operation}")
         self.operation = operation
         self.title = title
@@ -562,7 +548,6 @@ class AdfTask(MSONable):
         -----
         Most of the run types of ADF are specified in the Geometry block except
         the 'AnalyticFreq'.
-
         """
         self.geo = AdfKey("Geometry", subkeys=geo_subkeys)
         if self.operation.lower() == "energy":
@@ -581,19 +566,12 @@ class AdfTask(MSONable):
                 self.geo.remove_subkey("Frequencies")
 
     def __str__(self):
-        s = """TITLE {title}\n
-{units}
-{xc}
-{basis_set}
-{scf}
-{geo}""".format(
-            title=self.title,
-            units=str(self.units),
-            xc=str(self.xc),
-            basis_set=str(self.basis_set),
-            scf=str(self.scf),
-            geo=str(self.geo),
-        )
+        s = f"""TITLE {self.title}\n
+{str(self.units)}
+{str(self.xc)}
+{str(self.basis_set)}
+{str(self.scf)}
+{str(self.geo)}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
@@ -618,12 +596,6 @@ class AdfTask(MSONable):
             "others": [k.as_dict() for k in self.other_directives],
         }
 
-    def to_json(self):
-        """
-        Return a json string representation of the MSONable AdfTask object.
-        """
-        return super().to_json()
-
     @classmethod
     def from_dict(cls, d):
         """
@@ -638,7 +610,6 @@ class AdfTask(MSONable):
         -------
         task : AdfTask
             An AdfTask object recovered from the JSON dict ``d``.
-
         """
 
         def _from_dict(_d):
@@ -669,7 +640,6 @@ class AdfInput:
         ----------
         task : AdfTask
             An ADF task.
-
         """
         self.task = task
 
@@ -683,7 +653,6 @@ class AdfInput:
             The molecule for this task.
         inpfile : str
             The name where the input file will be saved.
-
         """
 
         mol_blocks = []
@@ -749,7 +718,6 @@ class AdfOutput:
         ----------
         filename : str
             The ADF output file to parse.
-
         """
         self.filename = filename
         self._parse()
@@ -796,7 +764,6 @@ class AdfOutput:
         -------
         mol : Molecule
             A ``Molecule`` object.
-
         """
         return Molecule([site[0] for site in sites], [site[1] for site in sites])
 
@@ -973,7 +940,7 @@ class AdfOutput:
                         parse_mode = True
                         parse_freq = False
                         self.frequencies.extend(map(float, el))
-                        for i in range(nnext):
+                        for _ in range(nnext):
                             self.normal_modes.append([])
 
                 elif parse_mode:

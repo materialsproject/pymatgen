@@ -82,7 +82,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             p = self.expected_properties[f]
 
             for k, v in p.items():
-                self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v, 2)
+                self.assertAlmostEqual(getattr(c, "get_" + k)(), v, 2)
 
             self.assertIsNotNone(c.get_summary_dict(True))
 
@@ -97,7 +97,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             d = c.as_dict()
             electrode = ConversionElectrode.from_dict(d)
             for k, v in p.items():
-                self.assertAlmostEqual(getattr(electrode, "get_" + k).__call__(), v, 2)
+                self.assertAlmostEqual(getattr(electrode, "get_" + k)(), v, 2)
 
     def test_summary(self):
         kmap = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}

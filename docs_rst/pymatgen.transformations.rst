@@ -15,7 +15,6 @@ Submodules
    :maxdepth: 7
 
    pymatgen.transformations.advanced_transformations
-   pymatgen.transformations.defect_transformations
    pymatgen.transformations.site_transformations
    pymatgen.transformations.standard_transformations
    pymatgen.transformations.transformation_abc

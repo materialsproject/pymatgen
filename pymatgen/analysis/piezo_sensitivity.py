@@ -8,6 +8,7 @@ import numpy as np
 from monty.dev import requires
 
 import pymatgen.io.phonopy
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
@@ -31,7 +32,7 @@ class BornEffectiveCharge:
     This class describes the Nx3x3 born effective charge tensor
     """
 
-    def __init__(self, structure, bec, pointops, tol=1e-3):
+    def __init__(self, structure: Structure, bec, pointops, tol: float = 1e-3):
         """
         Create an BornEffectiveChargeTensor object defined by a
         structure, point operations of the structure's atomic sites.
@@ -178,7 +179,7 @@ class InternalStrainTensor:
     structure, point operations of the structure's atomic sites.
     """
 
-    def __init__(self, structure, ist, pointops, tol=1e-3):
+    def __init__(self, structure: Structure, ist, pointops, tol: float = 1e-3):
         """
         Create an InternalStrainTensor object.
 
@@ -277,7 +278,7 @@ class ForceConstantMatrix:
     shared symmetry operations between pairs of atomic sites.
     """
 
-    def __init__(self, structure, fcm, pointops, sharedops, tol=1e-3):
+    def __init__(self, structure: Structure, fcm, pointops, sharedops, tol: float = 1e-3):
         """
         Create an ForceConstantMatrix object.
 
@@ -330,7 +331,7 @@ class ForceConstantMatrix:
                 index = np.argsort(eig1)
                 neweig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
 
-                for entry, p in enumerate(passed):
+                for p in passed:
                     if np.allclose(neweig, p[2], atol=eigtol):
                         relations.append([atom1, atom2, p[0], p[1]])
                         unique = 0
@@ -548,7 +549,7 @@ class ForceConstantMatrix:
 
     # acoustic sum
 
-    def get_asum_FCM(self, fcm, numiter=15):
+    def get_asum_FCM(self, fcm: np.ndarray, numiter: int = 15):
         """
         Generate a symmeterized force constant matrix that obeys the objects symmetry
         constraints and obeys the acoustic sum rule through an iterative procedure
@@ -561,13 +562,14 @@ class ForceConstantMatrix:
         Return:
             numpy array representing the force constant matrix
         """
-
         # set max force in reciprocal space
         operations = self.FCM_operations
+        assert operations is not None, "No symmetry operations found"
+
         numsites = len(self.structure)
 
         D = np.ones([numsites * 3, numsites * 3])
-        for num in range(numiter):
+        for _ in range(numiter):
             X = np.real(fcm)
 
             # symmetry operations
@@ -652,7 +654,6 @@ class ForceConstantMatrix:
 
         Return:
             NxNx3x3 np.array representing the force constant matrix
-
         """
 
         numsites = len(self.structure.sites)

@@ -9,10 +9,11 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
+from __future__ import annotations
+
 import logging
 import math
 import warnings
-from abc import ABCMeta
 
 import numpy as np
 import numpy.linalg as la
@@ -309,7 +310,7 @@ class NEBPathfinder:
         )
 
 
-class StaticPotential(metaclass=ABCMeta):
+class StaticPotential:
     """
     Defines a general static potential for diffusion calculations. Implements
     grid-rescaling and smearing for the potential grid. Also provides a

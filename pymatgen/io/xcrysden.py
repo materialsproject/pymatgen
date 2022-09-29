@@ -40,7 +40,7 @@ class XSF:
         app("PRIMVEC")
         cell = self.structure.lattice.matrix
         for i in range(3):
-            app(" %.14f %.14f %.14f" % tuple(cell[i]))
+            app(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}")
 
         cart_coords = self.structure.cart_coords
         app("# Cartesian coordinates in Angstrom.")
@@ -52,7 +52,8 @@ class XSF:
                 sp = site.specie.symbol
             else:
                 sp = f"{site.specie.Z}"
-            app(sp + " %20.14f %20.14f %20.14f" % tuple(coord))
+            x, y, z = coord
+            app(f"{sp} {x:20.14f} {y:20.14f} {z:20.14f}")
 
         return "\n".join(lines)
 
@@ -65,7 +66,6 @@ class XSF:
             input_string: String with the structure in XSF format.
                 See http://www.xcrysden.org/doc/XSF.html
             cls_: Structure class to be created. default: pymatgen structure
-
         """
         # CRYSTAL                                        see (1)
         # these are primitive lattice vectors (in Angstroms)

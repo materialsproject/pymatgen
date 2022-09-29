@@ -49,7 +49,7 @@ pulling in Pymatgen versions with breaking changes that may end up breaking
 your tool.
 
 An even more conservative approach is to pin the Pymatgen dependency to a fixed version, for
-example `pymatgen==2021.3.3`. While this will always install the the same version of pymatgen,
+example `pymatgen==2021.3.3`. While this will always install the same version of pymatgen,
 it can lead to unnecessary dependency conflicts with other tools that depend on (a different
 version of) Pymatgen.
 
@@ -65,8 +65,19 @@ Windows and Linux.
 Recent Breaking Changes
 -----------------------
 
-Unreleased
-~~~~~~~~~~
+v2022.9.28
+
+Merge `Waverder` and `Wavederf` objects into a single `Waverder` object.
+`#2666 <https://github.com/materialsproject/pymatgen/pull/2666>`_
+#. :code:`pymatgen.io.vasp.outputs` 
+
+v2022.2.1
+~~~~~~~~~
+
+Moved defect-specific code under `defects` module.
+`#2582 <https://github.com/materialsproject/pymatgen/pull/2582>`_
+#. :code:`pymatgen.transformations.defect_transformations`
+#. :code:`pymatgen.analysis.structure_matcher.PointDefectComparator`
 
 Removal of deprecated functions:
 

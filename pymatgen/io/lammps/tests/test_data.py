@@ -282,9 +282,9 @@ class LammpsDataTest(unittest.TestCase):
         c2h6 = LammpsData.from_file(filename1)
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
-        ff_kw = random.sample(self.ethane.force_field.keys(), 1)[0]
+        ff_kw = random.sample(sorted(self.ethane.force_field), 1)[0]
         pd.testing.assert_frame_equal(c2h6.force_field[ff_kw], self.ethane.force_field[ff_kw], ff_kw)
-        topo_kw = random.sample(self.ethane.topology.keys(), 1)[0]
+        topo_kw = random.sample(sorted(self.ethane.topology), 1)[0]
         pd.testing.assert_frame_equal(c2h6.topology[topo_kw], self.ethane.topology[topo_kw], topo_kw)
         filename2 = "test2.data"
         self.virus.write_file(filename=filename2)
@@ -699,6 +699,7 @@ class ForceFieldTest(unittest.TestCase):
         )
         self.assertEqual(v.masses.at[3, "mass"], 15.9994)
         v_ff = v.force_field
+        assert isinstance(v_ff, dict)
         self.assertNotIn("Pair Coeffs", v_ff)
         self.assertEqual(v_ff["PairIJ Coeffs"].iat[5, 4], 1.93631)
         self.assertEqual(v_ff["Bond Coeffs"].at[2, "coeff2"], 0.855906)
@@ -718,6 +719,7 @@ class ForceFieldTest(unittest.TestCase):
         e = self.ethane
         self.assertEqual(e.masses.at[1, "mass"], 12.01115)
         e_ff = e.force_field
+        assert isinstance(e_ff, dict)
         self.assertNotIn("PairIJ Coeffs", e_ff)
         self.assertEqual(e_ff["Pair Coeffs"].at[1, "coeff2"], 3.854)
         self.assertEqual(e_ff["Bond Coeffs"].at[2, "coeff4"], 844.6)
@@ -825,19 +827,19 @@ class FuncTest(unittest.TestCase):
 class CombinedDataTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data"))
-        cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data"))
+        cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data.gz"))
+        cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data.gz"))
         cls.li = LammpsData.from_file(filename=os.path.join(test_dir, "li.data"))
         cls.li_minimal = LammpsData.from_file(filename=os.path.join(test_dir, "li_minimal.data"))
-        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))
+        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz.gz"))
         cls.small_coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec.xyz"))
         cls.small_coord_2 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec_2.xyz"))
         cls.small_coord_3 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_2.xyz"))
         cls.ec_fec1 = CombinedData.from_files(
-            os.path.join(test_dir, "ec_fec.xyz"),
+            os.path.join(test_dir, "ec_fec.xyz.gz"),
             [1200, 300],
-            os.path.join(test_dir, "ec.data"),
-            os.path.join(test_dir, "fec.data"),
+            os.path.join(test_dir, "ec.data.gz"),
+            os.path.join(test_dir, "fec.data.gz"),
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()

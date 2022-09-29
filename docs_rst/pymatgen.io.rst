@@ -42,6 +42,7 @@ Submodules
    pymatgen.io.phonopy
    pymatgen.io.prismatic
    pymatgen.io.pwscf
+   pymatgen.io.res
    pymatgen.io.shengbte
    pymatgen.io.template
    pymatgen.io.wannier90

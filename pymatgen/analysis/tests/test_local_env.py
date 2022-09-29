@@ -5,11 +5,12 @@ import unittest
 import warnings
 from math import pi
 from shutil import which
+from typing import get_args
 
 import numpy as np
 import pytest
 
-from pymatgen.analysis.graphs import MoleculeGraph
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
     BrunnerNN_real,
     BrunnerNN_reciprocal,
@@ -31,12 +32,12 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
     get_neighbors_of_site_with_index,
     metal_edge_extender,
+    on_disorder_options,
     site_is_of_motif_type,
     solid_angle,
 )
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
@@ -89,8 +90,11 @@ class VoronoiNNTest(PymatgenTest):
         self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
 
     def test_get_cn(self):
-        self.assertAlmostEqual(self.nn.get_cn(self.s, 0, use_weights=True), 5.809265748999465, 7)
-        self.assertAlmostEqual(self.nn_sic.get_cn(self.s_sic, 0, use_weights=True), 4.5381161643940668, 7)
+        site_0_coord_num = self.nn.get_cn(self.s, 0, use_weights=True, on_disorder="take_max_species")
+        self.assertAlmostEqual(site_0_coord_num, 5.809265748999465, 7)
+
+        site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take_max_species")
+        self.assertAlmostEqual(site_0_coord_num, 4.5381161643940668, 7)
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
@@ -168,7 +172,7 @@ class VoronoiNNTest(PymatgenTest):
         neighbors = self.nn.get_voronoi_polyhedra(s, 0)
 
         # Each neighbor has 4 adjacent neighbors, all orthogonal
-        for nn_key, nn_info in neighbors.items():
+        for nn_info in neighbors.values():
             self.assertEqual(4, len(nn_info["adj_neighbors"]))
 
             for adj_key in nn_info["adj_neighbors"]:
@@ -630,6 +634,14 @@ class NearNeighborTest(PymatgenTest):
                 nn_info = subclass().get_nn_info(self.diamond, 0)
                 self.assertEqual(nn_info[0]["site_index"], 1)
                 self.assertEqual(nn_info[0]["image"][0], 1)
+
+    def test_on_disorder_options(self):
+        assert get_args(on_disorder_options) == (
+            "take_majority_strict",
+            "take_majority_drop",
+            "take_max_species",
+            "error",
+        )
 
     def tearDown(self):
         del self.diamond
@@ -1263,6 +1275,13 @@ class CrystalNNTest(PymatgenTest):
         self.prev_warnings = warnings.filters
         warnings.simplefilter("ignore")
 
+        self.disordered_struct = Structure(
+            Lattice.cubic(3), [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
+        self.disordered_struct_with_majority = Structure(
+            Lattice.cubic(3), [{"Fe": 0.6, "C": 0.4}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
+
     def tearDown(self):
         warnings.filters = self.prev_warnings
 
@@ -1278,36 +1297,7 @@ class CrystalNNTest(PymatgenTest):
     def test_discrete_cn(self):
         cnn = CrystalNN()
         cn_array = []
-        expected_array = [
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-        ]
+        expected_array = 8 * [6] + 20 * [4]
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx))
 
@@ -1317,36 +1307,13 @@ class CrystalNNTest(PymatgenTest):
         cnn = CrystalNN(weighted_cn=True)
         cn_array = []
 
+        # fmt: off
         expected_array = [
-            5.863,
-            5.8716,
-            5.863,
-            5.8716,
-            5.7182,
-            5.7182,
-            5.719,
-            5.7181,
-            3.991,
-            3.991,
-            3.991,
-            3.9907,
-            3.5997,
-            3.525,
-            3.4133,
-            3.4714,
-            3.4727,
-            3.4133,
-            3.525,
-            3.5997,
-            3.5997,
-            3.525,
-            3.4122,
-            3.4738,
-            3.4728,
-            3.4109,
-            3.5259,
-            3.5997,
+            5.863, 5.8716, 5.863, 5.8716, 5.7182, 5.7182, 5.719, 5.7181, 3.991, 3.991, 3.991,
+            3.9907, 3.5997, 3.525, 3.4133, 3.4714, 3.4727, 3.4133, 3.525, 3.5997, 3.5997, 3.525,
+            3.4122, 3.4738, 3.4728, 3.4109, 3.5259, 3.5997,
         ]
+        # fmt: on
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
 
@@ -1355,36 +1322,13 @@ class CrystalNNTest(PymatgenTest):
     def test_weighted_cn_no_oxid(self):
         cnn = CrystalNN(weighted_cn=True)
         cn_array = []
+        # fmt: off
         expected_array = [
-            5.8962,
-            5.8996,
-            5.8962,
-            5.8996,
-            5.7195,
-            5.7195,
-            5.7202,
-            5.7194,
-            4.0012,
-            4.0012,
-            4.0012,
-            4.0009,
-            3.3897,
-            3.2589,
-            3.1218,
-            3.1914,
-            3.1914,
-            3.1218,
-            3.2589,
-            3.3897,
-            3.3897,
-            3.2589,
-            3.1207,
-            3.1924,
-            3.1915,
-            3.1207,
-            3.2598,
-            3.3897,
+            5.8962, 5.8996, 5.8962, 5.8996, 5.7195, 5.7195, 5.7202, 5.7194, 4.0012, 4.0012,
+            4.0012, 4.0009, 3.3897, 3.2589, 3.1218, 3.1914, 3.1914, 3.1218, 3.2589, 3.3897,
+            3.3897, 3.2589, 3.1207, 3.1924, 3.1915, 3.1207, 3.2598, 3.3897,
         ]
+        # fmt: on
         s = self.lifepo4.copy()
         s.remove_oxidation_states()
         for idx, _ in enumerate(s):
@@ -1429,6 +1373,41 @@ class CrystalNNTest(PymatgenTest):
             len(bonded_struct.get_connected_sites(0)),
             len(bonded_struct_shifted.get_connected_sites(0)),
         )
+
+    def test_get_cn(self):
+        cnn = CrystalNN()
+
+        site_0_coord_num = cnn.get_cn(self.disordered_struct, 0, on_disorder="take_max_species")
+        site_0_coord_num_strict_majority = cnn.get_cn(
+            self.disordered_struct_with_majority, 0, on_disorder="take_majority_strict"
+        )
+        assert site_0_coord_num == 8
+        assert site_0_coord_num == site_0_coord_num_strict_majority
+
+        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="take_majority_strict")
+        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="error")
+
+    def test_get_bonded_structure(self):
+        cnn = CrystalNN()
+
+        structure_graph = cnn.get_bonded_structure(self.disordered_struct, on_disorder="take_max_species")
+        structure_graph_strict_majority = cnn.get_bonded_structure(
+            self.disordered_struct_with_majority, on_disorder="take_majority_strict"
+        )
+        structure_graph_drop_majority = cnn.get_bonded_structure(
+            self.disordered_struct_with_majority, on_disorder="take_majority_drop"
+        )
+
+        assert isinstance(structure_graph, StructureGraph)
+        assert len(structure_graph) == 2
+        assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
+
+        self.assertRaises(
+            ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="take_majority_strict"
+        )
+        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
+
+        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
 
 
 class CutOffDictNNTest(PymatgenTest):
@@ -1483,9 +1462,7 @@ class Critic2NNTest(PymatgenTest):
 class MetalEdgeExtenderTest(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
-
-    def test_metal_edge_extender(self):
-        mol_graph = MoleculeGraph.with_edges(
+        self.LiEC_graph = MoleculeGraph.with_edges(
             molecule=self.LiEC,
             edges={
                 (0, 2): None,
@@ -1501,9 +1478,62 @@ class MetalEdgeExtenderTest(PymatgenTest):
                 (5, 10): None,
             },
         )
-        self.assertEqual(len(mol_graph.graph.edges), 11)
-        extended_mol_graph = metal_edge_extender(mol_graph)
+
+        # potassium + 7 H2O. 4 at ~2.5 Ang and 3 more within 4.25 Ang
+        uncharged_K_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_K.xyz"))
+        K_sites = [s.coords for s in uncharged_K_cluster.sites]
+        K_species = [s.species for s in uncharged_K_cluster.sites]
+        charged_K_cluster = Molecule(K_species, K_sites, charge=1)
+        self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
+        assert len(self.water_cluster_K.graph.edges) == 0
+
+        # Mg + 6 H2O at 1.94 Ang from Mg
+        uncharged_Mg_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_Mg.xyz"))
+        Mg_sites = [s.coords for s in uncharged_Mg_cluster.sites]
+        Mg_species = [s.species for s in uncharged_Mg_cluster.sites]
+        charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
+        self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
+
+    def test_metal_edge_extender(self):
+        self.assertEqual(len(self.LiEC_graph.graph.edges), 11)
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph)
         self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+
+    def test_custom_metals(self):
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+
+        # empty metals should exit cleanly with no change to graph
+        mol_graph = metal_edge_extender(self.water_cluster_K, metals={}, cutoff=2.5)
+        self.assertEqual(len(mol_graph.graph.edges), 0)
+
+        mol_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=2.5)
+        self.assertEqual(len(mol_graph.graph.edges), 4)
+
+        extended_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=4.5)
+        self.assertEqual(len(extended_graph.graph.edges), 7)
+
+        # if None, should auto-detect Li
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals=None)
+        self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+
+    def test_custom_coordinators(self):
+        # leave out Oxygen, graph should not change
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={"N", "F", "S", "Cl"})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+        # empty coordinators should exit cleanly with no change
+        extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={})
+        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+
+    def test_custom_cutoff(self):
+        short_mol_graph = metal_edge_extender(self.LiEC_graph, cutoff=0.5)
+        self.assertEqual(len(short_mol_graph.graph.edges), 11)
+
+        # with a cutoff of 1.5, no edges should be found.
+        # test that the 2nd pass analysis (auto increasing cutoff to 2.5) picks
+        # up the six coordination bonds
+        short_mol_graph = metal_edge_extender(self.water_cluster_Mg, cutoff=1.5)
+        self.assertEqual(len(short_mol_graph.graph.edges), 6)
 
 
 if __name__ == "__main__":

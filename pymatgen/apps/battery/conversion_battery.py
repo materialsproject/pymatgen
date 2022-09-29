@@ -228,18 +228,11 @@ class ConversionElectrode(AbstractElectrode):
 
     def __repr__(self):
         output = [
-            "Conversion electrode with formula {} and nsteps {}".format(
-                self.initial_comp.reduced_formula, self.num_steps
-            ),
-            "Avg voltage {} V, min voltage {} V, max voltage {} V".format(
-                self.get_average_voltage(), self.min_voltage, self.max_voltage
-            ),
-            "Capacity (grav.) {} mAh/g, capacity (vol.) {} Ah/l".format(
-                self.get_capacity_grav(), self.get_capacity_vol()
-            ),
-            "Specific energy {} Wh/kg, energy density {} Wh/l".format(
-                self.get_specific_energy(), self.get_energy_density()
-            ),
+            f"Conversion electrode with formula {self.initial_comp.reduced_formula} and nsteps {self.num_steps}",
+            f"Avg voltage {self.get_average_voltage()} V, min voltage {self.min_voltage} V, "
+            f"max voltage {self.max_voltage} V",
+            f"Capacity (grav.) {self.get_capacity_grav()} mAh/g, capacity (vol.) {self.get_capacity_vol()} Ah/l",
+            f"Specific energy {self.get_specific_energy()} Wh/kg, energy density {self.get_energy_density()} Wh/l",
         ]
         return "\n".join(output)
 
@@ -255,7 +248,7 @@ class ConversionElectrode(AbstractElectrode):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
 
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)

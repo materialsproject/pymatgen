@@ -84,7 +84,6 @@ class BaderAnalysisTest(unittest.TestCase):
         test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
 
         summary = bader_analysis_from_path(test_dir)
-
         """
         Reference summary dict (with bader 1.0)
         summary_ref = {
@@ -104,7 +103,7 @@ class BaderAnalysisTest(unittest.TestCase):
         """
 
         self.assertEqual(
-            set(summary.keys()),
+            set(summary),
             {
                 "magmom",
                 "min_dist",

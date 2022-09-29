@@ -10,16 +10,14 @@ import abc
 import collections
 from enum import Enum
 from pprint import pformat
+from typing import List, cast
 
 import numpy as np
 from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
-from pymatgen.core import units
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.core.units import ArrayWithUnit
+from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 from pymatgen.util.serialization import pmg_serialize
 
 
@@ -172,7 +170,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     )
 
 
-def species_by_znucl(structure):
+def species_by_znucl(structure: Structure) -> List[Species]:
     """
     Return list of unique specie found in structure **ordered according to sites**.
 
@@ -439,17 +437,17 @@ class Smearing(AbivarAble, MSONable):
             s += f"tsmear {self.tsmear}"
         return s
 
-    def __eq__(self, other):
-        return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("occopt", "tsmear")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
 
-    def __ne__(self, other):
-        return not self == other
+        other = cast(Smearing, other)
+
+        return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
 
     def __bool__(self):
         return self.mode != "nosmearing"
-
-    # py2 old version
-    __nonzero__ = __bool__
 
     @classmethod
     def as_smearing(cls, obj):
@@ -848,7 +846,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Monkhorst-Pack scheme with user-specified shiftk",
+            comment=comment or "Monkhorst-Pack scheme with user-specified shiftk",
         )
 
     @classmethod
@@ -886,7 +884,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Automatic Monkhorst-Pack scheme",
+            comment=comment or "Automatic Monkhorst-Pack scheme",
         )
 
     @classmethod
@@ -909,7 +907,7 @@ class KSampling(AbivarAble, MSONable):
 
             sp = HighSymmKpath(structure)
 
-            # Flat the array since "path" is a a list of lists!
+            # Flat the array since "path" is a list of lists!
             kpath_labels = []
             for labels in sp.kpath["path"]:
                 kpath_labels.extend(labels)
@@ -923,7 +921,7 @@ class KSampling(AbivarAble, MSONable):
             mode=KSamplingModes.path,
             num_kpts=ndivsm,
             kpts=kpath_bounds,
-            comment=comment if comment else "K-Path scheme",
+            comment=comment or "K-Path scheme",
         )
 
     @classmethod
@@ -973,7 +971,7 @@ class KSampling(AbivarAble, MSONable):
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + f"{kppa} / atom"
+        comment = f"pymatge.io.abinit generated KPOINTS with grid density = {kppa} / atom"
 
         return cls(
             mode="monkhorst",
@@ -1203,9 +1201,12 @@ class PPModel(AbivarAble, MSONable):
         self.mode = mode
         self.plasmon_freq = plasmon_freq
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("mode", "plasmon_freq")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        other = cast(PPModel, other)
+
         if self.mode != other.mode:
             return False
 
@@ -1214,14 +1215,8 @@ class PPModel(AbivarAble, MSONable):
 
         return np.allclose(self.plasmon_freq, other.plasmon_freq)
 
-    def __ne__(self, other):
-        return not self == other
-
     def __bool__(self):
         return self.mode != PPModelModes.noppmodel
-
-    # py2 old version
-    __nonzero__ = __bool__
 
     def __repr__(self):
         return f"<{type(self).__name__} at {id(self)}, mode = {str(self.mode)}>"

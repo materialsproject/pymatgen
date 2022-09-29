@@ -476,7 +476,7 @@ loop_
         filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.01)
-        ans = """# generated using pymatgen
+        answer = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   10.41176687
@@ -514,7 +514,7 @@ loop_
   O  O2  8  0.16570974  0.04607233  0.28538394  1
   O  O3  4  0.04337231  0.75000000  0.70713767  1
   O  O4  4  0.09664244  0.25000000  0.74132035  1"""
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
     def test_symmetrized(self):
@@ -527,7 +527,7 @@ loop_
 
         self.assertTrue(m.fit(cif.get_structures()[0], poscar.structure))
 
-        # for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
         #     self.assertEqual(l1.strip(), l2.strip())
 
         s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
@@ -568,7 +568,7 @@ loop_
         )
         struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
         writer = CifWriter(struct)
-        ans = """# generated using pymatgen
+        answer = """# generated using pymatgen
 data_Si1.5N0.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
@@ -598,7 +598,7 @@ loop_
   Si  Si1  1  0.75000000  0.50000000  0.75000000  0.5
   N  N2  1  0.75000000  0.50000000  0.75000000  0.5"""
 
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
     def test_cifwrite_without_refinement(self):
@@ -628,7 +628,7 @@ loop_
         )
         struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
         writer = CifWriter(struct)
-        ans = """# generated using pymatgen
+        answer = """# generated using pymatgen
 data_X1.5Si1.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
@@ -665,11 +665,11 @@ loop_
   Si3+  Si2  1  0.75000000  0.50000000  0.75000000  0.5
   Si4+  Si3  1  0.00000000  0.00000000  0.00000000  1
 """
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
         # test that mixed valence works properly
-        s2 = Structure.from_str(ans, "cif")
+        s2 = Structure.from_str(answer, "cif")
         self.assertEqual(struct.composition, s2.composition)
 
     def test_primes(self):
@@ -1043,7 +1043,7 @@ loop_
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
         cw = CifWriter(s_ncl, write_magmoms=True)
-        self.assertEqual(cw.__str__(), cw_ref_string)
+        self.assertEqual(str(cw), cw_ref_string)
 
         # from list-type magmoms
         list_magmoms = [list(m) for m in s_ncl.site_properties["magmom"]]
@@ -1053,7 +1053,7 @@ loop_
 
         s_ncl.add_site_property("magmom", list_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
-        self.assertEqual(cw.__str__(), cw_ref_string)
+        self.assertEqual(str(cw), cw_ref_string)
 
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
@@ -1114,7 +1114,7 @@ loop_
   Gd2  0.00000000  0.00000000  -7.14177849
   Gd3  0.00000000  0.00000000  -7.14177849
 """
-        self.assertEqual(cw.__str__().strip(), cw_ref_string_magnitudes.strip())
+        self.assertEqual(str(cw).strip(), cw_ref_string_magnitudes.strip())
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.get_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
@@ -1170,7 +1170,7 @@ loop_
 """
         s_manual.add_oxidation_state_by_site([1, 1])
         cw = CifWriter(s_manual, write_magmoms=True)
-        self.assertEqual(cw.__str__(), cw_manual_oxi_string)
+        self.assertEqual(str(cw), cw_manual_oxi_string)
 
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):

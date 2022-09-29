@@ -136,7 +136,7 @@ class PymatgenTest(unittest.TestCase):
         pickle. This method tries to serialize the objects with pickle and the
         protocols specified in input. Then it deserializes the pickle format
         and compares the two objects with the __eq__ operator if
-        test_eq == True.
+        test_eq is True.
 
         Args:
             objects: Object or list of objects.

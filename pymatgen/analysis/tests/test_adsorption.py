@@ -100,7 +100,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         find_args = {"positions": ["hollow"]}
         structures_hollow = self.asf_111.generate_adsorption_structures(co, find_args=find_args)
         self.assertEqual(len(structures_hollow), len(sites["hollow"]))
-        for n, structure in enumerate(structures_hollow):
+        for structure in structures_hollow:
             self.assertTrue(in_coord_list(sites["hollow"], structure[-2].coords, 1e-4))
         # Check molecule not changed after rotation when added to surface
         co = Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]])

@@ -361,7 +361,7 @@ class PlanesUtilsTest(PymatgenTest):
                     np.linalg.norm(projected_2d[i1] - projected_2d[i2]),
                 )
             )
-        for ii, pp in enumerate(points_to_project):
+        for pp in points_to_project:
             projected_2d = self.plane.project_and_to2dim([pp], pp)
             self.assertTrue(np.allclose(projected_2d[0], 0.0))
         # Check some specific projections

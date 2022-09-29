@@ -105,6 +105,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
     def test_bulk_modulus(self):
         eos = EOS(self.eos)
         eos_fit = eos.fit(self.volumes, self.energies)
+        print(f"{str(eos_fit.b0_GPa)=}")
         bulk_modulus = float(str(eos_fit.b0_GPa).split()[0])
         bulk_modulus_ans = float(str(self.qhda.bulk_modulus).split()[0])
         np.testing.assert_almost_equal(bulk_modulus, bulk_modulus_ans, 3)

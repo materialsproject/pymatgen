@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
+from pymatgen.core import Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
 from pymatgen.util.testing import PymatgenTest
@@ -79,6 +79,19 @@ class FeffAtomsTest(unittest.TestCase):
         atoms_2 = Atoms(self.structure, 2, 10.0)
         self.assertEqual(atoms_1.absorbing_atom, "Co")
         self.assertEqual(atoms_2.absorbing_atom, "O")
+
+    def test_single_absorbing_atom(self):
+        """
+        When there is only one absorbing atom in the structure, it should not appear
+        in the pot_dict to avoid an error
+        """
+        # one Zn+2, 9 triflate, plus water
+        xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_radial_shell.xyz")
+        m = Molecule.from_file(xyz)
+        m.set_charge_and_spin(-7)
+        atoms = Atoms(m, "Zn", 9)
+        # Zn should not appear in the pot_dict
+        assert not atoms.pot_dict.get("Zn", False)
 
     def test_absorber_line(self):
         atoms_lines = self.atoms.get_lines()
@@ -214,6 +227,21 @@ class FeffPotTest(unittest.TestCase):
         feffpot = Potential.pot_string_from_file(filepath)
         d, dr = Potential.pot_dict_from_string(feffpot)
         self.assertEqual(d["Co"], 1, "Wrong symbols read in for Potential")
+
+    def test_single_absorbing_atom(self):
+        """
+        When there is only one absorbing atom in the structure, it should not appear
+        in the pot_dict to avoid an error
+        """
+        # one Zn+2, 9 triflate, plus water
+        xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_radial_shell.xyz")
+        m = Molecule.from_file(xyz)
+        m.set_charge_and_spin(-7)
+        pot = Potential(m, "Zn")
+        # Zn should not appear in the pot_dict
+        assert not pot.pot_dict.get("Zn", False)
+        # Zn should only appear in the first row of the string representation
+        assert str(pot).count("Zn") == 1
 
     def test_as_dict_and_from_dict(self):
         file_name = os.path.join(PymatgenTest.TEST_FILES_DIR, "HEADER")
@@ -378,8 +406,8 @@ class PathsTest(unittest.TestCase):
             "5.056157 2.964354 -2.082362 2 O",
             "0.000000 0.000000 0.000000 0 Fe",
         ]
-        ans = "\n".join(lines)
-        self.assertEqual(ans, str(self.paths))
+        answer = "\n".join(lines)
+        self.assertEqual(answer, str(self.paths))
 
 
 if __name__ == "__main__":

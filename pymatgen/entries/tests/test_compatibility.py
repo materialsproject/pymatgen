@@ -1,22 +1,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import warnings
-
-"""
-Created on Mar 19, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 19, 2012"
-
 import os
 import unittest
+import warnings
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
@@ -2047,7 +2034,7 @@ class TestMaterialsProjectAqueousCompatibility:
                 compat.process_entries(entry)
 
         # the corrections should set the energy of any H2 polymorph the same, because
-        # we have only processed one entry at at time. Energy differences of H2O
+        # we have only processed one entry at time. Energy differences of H2O
         # polymorphs should be preserved.
         assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
         assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom)

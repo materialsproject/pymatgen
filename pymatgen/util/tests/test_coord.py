@@ -62,6 +62,8 @@ class CoordUtilsTest(PymatgenTest):
         self.assertTrue(np.allclose(diff, 0))
         self.assertRaises(Exception, coord.coord_list_mapping_pbc, [c1, c2], [c2, c3])
         self.assertRaises(Exception, coord.coord_list_mapping_pbc, [c2], [c2, c2])
+        coord.coord_list_mapping_pbc([c1, c2], [c2, c1], pbc=(False, False, False))
+        self.assertRaises(Exception, coord.coord_list_mapping_pbc, a, b, pbc=(True, True, False))
 
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -83,6 +85,12 @@ class CoordUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
         self.assertArrayAlmostEqual(coord.pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
         self.assertArrayAlmostEqual(coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
+        self.assertArrayAlmostEqual(
+            coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.2, -0.4, -0.8]
+        )
+        self.assertArrayAlmostEqual(
+            coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.4, -0.4, 0.11]
+        )
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -101,6 +109,11 @@ class CoordUtilsTest(PymatgenTest):
         self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, atol=0.02)[0], 0)
         test_coord = [-0.499, -0.499, -0.499]
         self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, atol=0.01)[0], 1)
+        test_coord = [-0.5, -0.5, -0.5]
+        pbc = (True, True, False)
+        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, pbc=pbc).size, 0)
+        test_coord = [-0.5, -0.5, 0.5]
+        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, pbc=pbc)[0], 1)
 
     def test_is_coord_subset_pbc(self):
         c1 = [0, 0, 0]
@@ -129,6 +142,13 @@ class CoordUtilsTest(PymatgenTest):
         mask3 = [[False, True]]
         self.assertFalse(coord.is_coord_subset_pbc([c1], [c2, c1], mask=mask3))
         self.assertTrue(coord.is_coord_subset_pbc([c1], [c1, c2], mask=mask3))
+
+        # test pbc
+        c5 = [1.3 - 9e-9, 9e-9, 1 - 9e-9]
+        pbc = (True, False, True)
+        self.assertTrue(coord.is_coord_subset_pbc([c1], [c2, c1], pbc=pbc))
+        self.assertFalse(coord.is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2], pbc=pbc))
+        self.assertTrue(coord.is_coord_subset_pbc([c1, c2, c3], [c1, c5, c2], pbc=pbc))
 
     def test_lattice_points_in_supercell(self):
         supercell = np.array([[1, 3, 5], [-3, 2, 3], [-5, 3, 1]])
@@ -196,6 +216,19 @@ class CoordUtilsTest(PymatgenTest):
 
         coord.LOOP_THRESHOLD = prev_threshold
 
+        lattice_pbc = Lattice.from_parameters(8, 8, 4, 90, 76, 58, pbc=(True, True, False))
+        expected_pbc = np.array(
+            [
+                [0.000, 3.015, 4.072, 3.519, 4.089],
+                [3.015, 0.000, 3.207, 1.131, 4.453],
+                [4.072, 3.207, 0.000, 2.251, 3.578],
+                [3.519, 1.131, 2.251, 0.000, 4.235],
+            ]
+        )
+        vectors = coord.pbc_shortest_vectors(lattice_pbc, fcoords[:-1], fcoords)
+        dists = np.sum(vectors**2, axis=-1) ** 0.5
+        self.assertArrayAlmostEqual(dists, expected_pbc, 3)
+
     def test_get_angle(self):
         v1 = (1, 0, 0)
         v2 = (1, 1, 1)
@@ -220,7 +253,7 @@ class SimplexTest(PymatgenTest):
     def test_in_simplex(self):
         self.assertTrue(self.simplex.in_simplex([0.1, 0.1, 0.1]))
         self.assertFalse(self.simplex.in_simplex([0.6, 0.6, 0.6]))
-        for i in range(10):
+        for _ in range(10):
             coord = np.random.random_sample(size=3) / 3
             self.assertTrue(self.simplex.in_simplex(coord))
 
