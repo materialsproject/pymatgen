@@ -6,16 +6,40 @@ import itertools
 
 import numpy as np
 import numpy.typing as npt
+from monty.json import MSONable
 from scipy import constants, special
 
-# from pymatgen.core import Structure
-# from pymatgen.io.vasp.outputs import Waveder
+from pymatgen.io.vasp.outputs import BandStructure, Waveder
 
 au2ang = constants.physical_constants["atomic unit of length"][0] / 1e-10
 ryd2ev = constants.physical_constants["Rydberg constant times hc in eV"][0]
 edeps = 4 * np.pi * 2 * ryd2ev * au2ang  # from constant.inc in VASP
 
 KB = constants.physical_constants["Boltzmann constant in eV/K"][0]
+
+
+class DielectricFunction(MSONable):
+    """Class for postprocessing VASP optical properties calculations.
+
+    The standard vasprun.xml from anl ``LOPTICS=.True.`` calculation already contains
+    the complex frequency dependent dielectric functions.  However you have no way to decompose
+    The different contributions.  Since the ``WAVEDER`` file is also written during an optical calculation,
+    you can reconstruct the dielectric functions purely in python and have full control over contribution
+    from different bands and Kpoints.
+
+
+    Note on using this class for free carrier absoprtion calculations:
+
+    As of VAPS6.3, the only way to have the contribution from all possible band pairs is to set
+    ``LVEL=.True.`` in the INCAR.  However, this causes the bandstructure output in the
+    ``vasprun.xml`` file to print all kpoints, not the symmetry-reduces list of KPOINTS.
+    So you should make sure the vasp calculation with ``LOPTICS=.True.`` and ``LVEL=.True.``
+    is performed in a contained directory, where the bandstructure data is not used.
+
+    """
+
+    def __init__(self, waveder: Waveder, bandstructure: BandStructure) -> None:
+        super().__init__()
 
 
 def get_eps_constant(structure):
@@ -48,7 +72,9 @@ def step_methfessel_paxton(x, n):
 
 def delta_func(x, ismear):
     """Replication of VASP's delta function"""
-    if ismear == -1:
+    if ismear < -1:
+        raise ValueError("Delta function not implemented for ismear < -1")
+    elif ismear == -1:
         return step_func(x, -1) * (1 - step_func(x, -1))
     elif ismear < 0:
         return np.exp(-(x * x)) / np.sqrt(np.pi)
@@ -57,7 +83,9 @@ def delta_func(x, ismear):
 
 def step_func(x, ismear):
     """Replication of VASP's step function"""
-    if ismear == -1:
+    if ismear < -1:
+        raise ValueError("Delta function not implemented for ismear < -1")
+    elif ismear == -1:
         return 1 / (1.0 + np.exp(-x))
     elif ismear < 0:
         return 0.5 + 0.5 * special.erf(x)
@@ -67,7 +95,8 @@ def step_func(x, ismear):
 def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
     """Get the smeared delta function to be added to form the spectrum.
 
-    This replaces the `SLOT` function from VASP.
+    This replaces the `SLOT` function from VASP. Uses finite differences instead of
+    evaluating the delta function since the step function is more likely to have analytic form.
 
     Args:
         x0: The center of the dielectric function.
@@ -164,14 +193,31 @@ def epsilon_imag(
         yield egrid, epsdd
 
 
-# def epsilon_real():
-#     """Perform Kramer-Kronig transformation to get the real part of the dielectric function.
+def kramers_kronig(
+    eps: npt.ArrayLike,
+    nedos: int,
+    deltae: float,
+    cshift: float = 0.1,
+) -> npt.NDArray:
+    """Perform the Kramers-Kronig transformation.
 
-#     > EPSILON_REAL( WDES%COMM, NEDOS, EPSDD(:,IDIR,JDIR), LWARN, DELTAE, LCSHIFT, IWINDOW, WPLASMA_INTER(IDIR, JDIR))
-#     > WDES%COMM: for VASP MPI
-#     > LWARN, IWINDOW, WPLASMA_INTER: not used in this function
-#     > NEDOS: number of points in the energy grid
-#     > EPSDD: dielectric function after EPSILON_IMAG is called
-#     > DELTAE: energy grid spacing
-#     > LCSHIFT: Complex shift of poles in the dielectric function
-#     """
+    Perform the Kramers-Kronig transformation exactly as VASP does it.
+    The input eps should be complex and the imaginary part of the dielectric function
+    should be stored as the real part of the complex input array.
+    The output should be the complex dielectric function.
+
+    Args:
+        eps: The dielectric function with the imaginary part stored as the real part and nothing in the imaginary part.
+        nedos: The sampling of the energy values
+        deltae: The energy grid spacing
+        cshift: The shift of the imaginary part of the dielectric function.
+
+    Return:
+        np.array: Array of size `nedos` with the complex dielectric function.
+    """
+    egrid = np.linspace(0, deltae * nedos, nedos)
+    csfhit = cshift * 1.0j
+    cdiff = np.subtract.outer(egrid, egrid) + csfhit
+    csum = np.add.outer(egrid, egrid) + csfhit
+    vals = -0.5 * ((eps / cdiff) - (np.conj(eps) / csum))
+    return np.sum(vals, axis=1) * 2 / np.pi * deltae
