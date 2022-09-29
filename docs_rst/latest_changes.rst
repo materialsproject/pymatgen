@@ -1,6 +1,7 @@
 Change log
 ==========
 
-v2022.5.19
+v2022.9.21
 ----------
-* Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
+* @chunweizhu fix the bugs when runing `TEMCalculator`
+* @munrojm Support for new MPRester.

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import collections
 import json
+from typing import cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -160,8 +161,8 @@ class Site(collections.abc.Hashable, MSONable):
         String representation of species on the site.
         """
         if self.is_ordered:
-            return str(list(self.species.keys())[0])
-        sorted_species = sorted(self.species.keys())
+            return str(list(self.species)[0])
+        sorted_species = sorted(self.species)
         return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
 
     @property
@@ -178,7 +179,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         if not self.is_ordered:
             raise AttributeError("specie property only works for ordered sites!")
-        return list(self.species.keys())[0]
+        return list(self.species)[0]
 
     @property
     def is_ordered(self) -> bool:
@@ -195,29 +196,28 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return self.species[el]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Site is equal to another site if the species and occupancies are the
         same, and the coordinates are the same to some tolerance.  numpy
         function `allclose` is used to determine if coordinates are close.
         """
-        if other is None:
-            return False
+        needed_attrs = ("species", "coords", "properties")
+        if not all(hasattr(self, attr) for attr in needed_attrs):
+            return NotImplemented
+        other = cast(Site, other)
         return (
             self.species == other.species
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
             and self.properties == other.properties
         )
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __hash__(self):
         """
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum(el.Z for el in self.species.keys())
+        return sum(el.Z for el in self.species)
 
     def __contains__(self, el):
         return el in self.species
@@ -283,7 +283,7 @@ class Site(collections.abc.Hashable, MSONable):
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         if props is not None:
-            for key in props.keys():
+            for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
@@ -360,7 +360,7 @@ class PeriodicSite(Site, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        return sum(el.Z for el in self.species.keys())
+        return sum(el.Z for el in self.species)
 
     @property
     def lattice(self) -> Lattice:
@@ -483,7 +483,7 @@ class PeriodicSite(Site, MSONable):
 
     def to_unit_cell(self, in_place=False) -> PeriodicSite | None:
         """
-        Move frac coords to within the unit cell cell.
+        Move frac coords to within the unit cell.
         """
         frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
@@ -512,16 +512,19 @@ class PeriodicSite(Site, MSONable):
         frac_diff = pbc_diff(self.frac_coords, other.frac_coords, self.lattice.pbc)
         return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("species", "lattice", "properties", "coords")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(PeriodicSite, other)
+
         return (
             self.species == other.species
             and self.lattice == other.lattice
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
             and self.properties == other.properties
         )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def distance_and_image_from_frac_coords(
         self, fcoords: ArrayLike, jimage: ArrayLike | None = None
@@ -651,7 +654,7 @@ class PeriodicSite(Site, MSONable):
             species[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         if props is not None:
-            for key in props.keys():
+            for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
-        lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
+        lattice = lattice or Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)

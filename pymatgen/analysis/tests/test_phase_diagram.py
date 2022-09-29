@@ -8,6 +8,7 @@ from numbers import Number
 from pathlib import Path
 
 import numpy as np
+import pytest
 from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 
@@ -15,6 +16,7 @@ from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
     GrandPotentialPhaseDiagram,
     GrandPotPDEntry,
+    PatchedPhaseDiagram,
     PDEntry,
     PDPlotter,
     PhaseDiagram,
@@ -400,7 +402,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_get_element_profile(self):
         for el in self.pd.elements:
             for entry in self.pd.stable_entries:
-                if not (entry.composition.is_element):
+                if not entry.composition.is_element:
                     self.assertLessEqual(
                         len(self.pd.get_element_profile(el, entry.composition)),
                         len(self.pd.facets),
@@ -666,6 +668,58 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
+
+
+class PatchedPhaseDiagramTest(unittest.TestCase):
+    def setUp(self):
+        self.entries = EntrySet.from_csv(str(module_dir / "reaction_entries_test.csv"))
+        # NOTE add He to test for correct behaviour despite no patches involving He
+        self.entries.add(PDEntry("He", -1.23))
+
+        self.pd = PhaseDiagram(entries=self.entries)
+        self.ppd = PatchedPhaseDiagram(entries=self.entries)
+
+        # novel entries not in any of the patches
+        self.novel_comps = [Composition("H5C2OP"), Composition("V2PH4C")]
+        for c in self.novel_comps:
+            self.assertTrue(c.chemical_system not in self.ppd.spaces)
+
+        self.novel_entries = [PDEntry(c, -39.8) for c in self.novel_comps]
+
+    def test_get_stable_entries(self):
+        self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
+
+    def test_get_qhull_entries(self):
+        # NOTE qhull_entry is an specially sorted list due to it's construction, we
+        # can't mimic this in ppd therefore just test if sorted versions are equal.
+        self.assertEqual(
+            sorted(self.pd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+            sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+        )
+
+    def test_get_decomposition(self):
+        for c in self.novel_comps:
+            pd_decomp = self.pd.get_decomposition(c)
+            ppd_decomp = self.ppd.get_decomposition(c)
+
+            # NOTE unittest doesn't have an assert almost equal for dictionaries.
+            for e in pd_decomp:
+                self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
+
+    def test_get_phase_separation_energy(self):
+        for e in self.novel_entries:
+            self.assertAlmostEqual(self.pd.get_phase_separation_energy(e), self.ppd.get_phase_separation_energy(e), 7)
+
+    def test_get_equilibrium_reaction_energy(self):
+        for e in self.pd.stable_entries:
+            self.assertAlmostEqual(
+                self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
+            )
+
+    def test_raises_on_missing_terminal_entries(self):
+        entry = PDEntry("FeO", -1.23)
+        with pytest.raises(ValueError, match=r"Missing terminal entries for elements \['Fe', 'O'\]"):
+            PatchedPhaseDiagram(entries=[entry])
 
 
 class ReactionDiagramTest(unittest.TestCase):

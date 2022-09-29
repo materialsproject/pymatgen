@@ -12,6 +12,8 @@ v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
        as an interface to spglib for pymatgen Structures.
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 import logging
@@ -27,6 +29,7 @@ import spglib
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
@@ -40,7 +43,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5.0):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5.0):
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -59,7 +62,7 @@ class SpacegroupAnalyzer:
         self._siteprops = structure.site_properties
         latt = structure.lattice.matrix
         positions = structure.frac_coords
-        unique_species = []
+        unique_species: list[Element | Species] = []
         zs = []
         magmoms = []
 
@@ -307,7 +310,7 @@ class SpacegroupAnalyzer:
 
         Args:
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in
@@ -336,7 +339,7 @@ class SpacegroupAnalyzer:
 
         Args:
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in
@@ -386,6 +389,30 @@ class SpacegroupAnalyzer:
         for i, count in zip(*np.unique(mapping, return_counts=True)):
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
+
+    def get_ir_reciprocal_mesh_map(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
+        """
+        Same as 'get_ir_reciprocal_mesh' but the full grid together with
+        the mapping that maps a reducible to an irreducible kpoint is
+        returned.
+
+        Args:
+            mesh (3x1 array): The number of kpoint for the mesh needed in
+                each direction
+            is_shift (3x1 array): Whether to shift the kpoint grid. (1, 1,
+            1) means all points are shifted by 0.5, 0.5, 0.5.
+
+        Returns:
+            A tuple containing two numpy.ndarray. The first is the mesh in
+            fractional coordinates and the second is an array of integers
+            that maps all the reducible kpoints from to irreducible ones.
+        """
+        shift = np.array([1 if i else 0 for i in is_shift])
+        mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
+
+        grid_fractional_coords = (grid + shift * (0.5, 0.5, 0.5)) / mesh
+
+        return grid_fractional_coords, mapping
 
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
         """
@@ -444,7 +471,7 @@ class SpacegroupAnalyzer:
             international_monoclinic (bool): Whether to convert to proper international convention
                 such that beta is the non-right angle.
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in
@@ -528,7 +555,7 @@ class SpacegroupAnalyzer:
             international_monoclinic (bool): Whether to convert to proper international convention
                 such that beta is the non-right angle.
             keep_site_properties (bool): Whether to keep the input site properties (including
-                magnetic moments) on the sitesthat are still present after the refinement. Note:
+                magnetic moments) on the sites that are still present after the refinement. Note:
                 This is disabled by default because the magnetic moments are not always directly
                 transferable between unit cell definitions. For instance, long-range magnetic
                 ordering or antiferromagnetic character may no longer be present (or exist in
@@ -545,7 +572,7 @@ class SpacegroupAnalyzer:
         latt_type = self.get_lattice_type()
         sorted_lengths = sorted(latt.abc)
         sorted_dic = sorted(
-            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1, 2]),
+            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in range(3)),
             key=lambda k: k["length"],
         )
 
@@ -1117,7 +1144,7 @@ class PointGroupAnalyzer:
                             self.symmops.append(op)
                             if len(self.rot_sym) > 1:
                                 mirror_type = "d"
-                                for v, r in self.rot_sym:
+                                for v, _ in self.rot_sym:
                                     if np.linalg.norm(v - axis) >= self.tol:
                                         if np.dot(v, normal) < self.tol:
                                             mirror_type = "v"
@@ -1553,22 +1580,22 @@ def cluster_sites(mol, tol, give_only_index=False):
 
     f = spcluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
     clustered_dists = defaultdict(list)
-    for i, site in enumerate(mol):
-        clustered_dists[f[i]].append(dists[i])
+    for idx in range(len(mol)):
+        clustered_dists[f[idx]].append(dists[idx])
     avg_dist = {label: np.mean(val) for label, val in clustered_dists.items()}
     clustered_sites = defaultdict(list)
     origin_site = None
-    for i, site in enumerate(mol):
-        if avg_dist[f[i]] < tol:
+    for idx, site in enumerate(mol):
+        if avg_dist[f[idx]] < tol:
             if give_only_index:
-                origin_site = i
+                origin_site = idx
             else:
                 origin_site = site
         else:
             if give_only_index:
-                clustered_sites[(avg_dist[f[i]], site.species)].append(i)
+                clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
             else:
-                clustered_sites[(avg_dist[f[i]], site.species)].append(site)
+                clustered_sites[(avg_dist[f[idx]], site.species)].append(site)
     return origin_site, clustered_sites
 
 
@@ -1682,7 +1709,7 @@ class PointGroupOperations(list):
         Schoenflies symbol of the point group.
     """
 
-    def __init__(self, sch_symbol, operations, tol=0.1):
+    def __init__(self, sch_symbol, operations, tol: float = 0.1):
         """
         Args:
             sch_symbol (str): Schoenflies symbol of the point group.
@@ -1699,4 +1726,4 @@ class PointGroupOperations(list):
         return self.sch_symbol
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)

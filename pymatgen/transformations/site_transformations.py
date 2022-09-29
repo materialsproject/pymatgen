@@ -8,6 +8,8 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 import math
@@ -18,6 +20,8 @@ from monty.json import MSONable
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
@@ -68,10 +72,10 @@ class InsertSitesTransformation(AbstractTransformation):
         return s.get_sorted_structure()
 
     def __str__(self):
-        return "InsertSiteTransformation : " + f"species {self.species}, coords {self.coords}"
+        return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -123,7 +127,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -168,7 +172,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -229,7 +233,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         )
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -256,7 +260,7 @@ class TranslateSitesTransformation(AbstractTransformation):
 class PartialRemoveSitesTransformation(AbstractTransformation):
     """
     Remove fraction of specie from a structure.
-    Requires an oxidation state decorated structure for ewald sum to be
+    Requires an oxidation state decorated structure for Ewald sum to be
     computed.
 
     Given that the solution to selecting the right removals is NP-hard, there
@@ -316,54 +320,54 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.algo = algo
         self.logger = logging.getLogger(type(self).__name__)
 
-    def _best_first_ordering(self, structure, num_remove_dict):
+    def _best_first_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing best first ordering")
-        starttime = time.time()
-        self.logger.debug("Performing initial ewald sum...")
+        start_time = time.perf_counter()
+        self.logger.debug("Performing initial Ewald sum...")
         ewaldsum = EwaldSummation(structure)
-        self.logger.debug(f"Ewald sum took {time.time() - starttime} seconds.")
-        starttime = time.time()
+        self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
+        start_time = time.perf_counter()
 
         ematrix = ewaldsum.total_energy_matrix
         to_delete = []
 
         totalremovals = sum(num_remove_dict.values())
-        removed = {k: 0 for k in num_remove_dict.keys()}
-        for i in range(totalremovals):
-            maxindex = None
+        removed = {k: 0 for k in num_remove_dict}
+        for _ in range(totalremovals):
+            max_idx = None
             maxe = float("-inf")
             maxindices = None
-            for indices in num_remove_dict.keys():
+            for indices in num_remove_dict:
                 if removed[indices] < num_remove_dict[indices]:
                     for ind in indices:
                         if ind not in to_delete:
                             energy = sum(ematrix[:, ind]) + sum(ematrix[:, ind]) - ematrix[ind, ind]
                             if energy > maxe:
-                                maxindex = ind
+                                max_idx = ind
                                 maxe = energy
                                 maxindices = indices
             removed[maxindices] += 1
-            to_delete.append(maxindex)
-            ematrix[:, maxindex] = 0
-            ematrix[maxindex, :] = 0
+            to_delete.append(max_idx)
+            ematrix[:, max_idx] = 0
+            ematrix[max_idx, :] = 0
         s = structure.copy()
         s.remove_sites(to_delete)
-        self.logger.debug(f"Minimizing Ewald took {time.time() - starttime} seconds.")
-        return [{"energy": sum(sum(ematrix)), "structure": s.get_sorted_structure()}]
+        self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
+        return [{"energy": sum(ematrix), "structure": s.get_sorted_structure()}]
 
-    def _complete_ordering(self, structure, num_remove_dict):
+    def _complete_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
-        all_structures = []
+        all_structures: list[dict[str, float | Structure]] = []
         symprec = 0.2
         s = SpacegroupAnalyzer(structure, symprec=symprec)
         self.logger.debug(f"Symmetry of structure is determined to be {s.get_space_group_symbol()}.")
         sg = s.get_space_group_operations()
-        tested_sites = []
-        starttime = time.time()
-        self.logger.debug("Performing initial ewald sum...")
+        tested_sites: list[list[PeriodicSite]] = []
+        start_time = time.perf_counter()
+        self.logger.debug("Performing initial Ewald sum...")
         ewaldsum = EwaldSummation(structure)
-        self.logger.debug(f"Ewald sum took {time.time() - starttime} seconds.")
-        starttime = time.time()
+        self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
+        start_time = time.perf_counter()
 
         allcombis = []
         for ind, num in num_remove_dict.items():
@@ -393,16 +397,16 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
             count += 1
             if count % 10 == 0:
-                timenow = time.time()
-                self.logger.debug(f"{count} structures, {timenow - starttime:.2f} seconds.")
-                self.logger.debug(f"Average time per combi = {(timenow - starttime) / count} seconds")
+                timenow = time.perf_counter()
+                self.logger.debug(f"{count} structures, {timenow - start_time:.2f} seconds.")
+                self.logger.debug(f"Average time per combi = {(timenow - start_time) / count} seconds")
                 self.logger.debug(f"{len(all_structures)} symmetrically distinct structures found.")
 
         self.logger.debug(f"Total symmetrically distinct structures found = {len(all_structures)}")
         all_structures = sorted(all_structures, key=lambda s: s["energy"])
         return all_structures
 
-    def _fast_ordering(self, structure, num_remove_dict, num_to_return=1):
+    def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
         """
         This method uses the matrix form of ewaldsum to calculate the ewald
         sums of the potential structures. This is on the order of 4 orders of
@@ -412,19 +416,19 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         until the number of permutations is on the order of 30,000.
         """
         self.logger.debug("Performing fast ordering")
-        starttime = time.time()
-        self.logger.debug("Performing initial ewald sum...")
+        start_time = time.perf_counter()
+        self.logger.debug("Performing initial Ewald sum...")
 
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
-        self.logger.debug(f"Ewald sum took {time.time() - starttime} seconds.")
-        starttime = time.time()
+        self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
+        start_time = time.perf_counter()
         m_list = []
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
 
         self.logger.debug("Calling EwaldMinimizer...")
         minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
-        self.logger.debug(f"Minimizing Ewald took {time.time() - starttime} seconds.")
+        self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
 
         all_structures = []
 
@@ -467,7 +471,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
         Apply the transformation.
 
@@ -529,7 +533,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     @property
     def inverse(self):
@@ -566,7 +570,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
             Returns a copy of structure with sites properties added.
         """
         new_structure = structure.copy()
-        for prop in self.site_properties.keys():
+        for prop in self.site_properties:
             new_structure.add_site_property(prop, self.site_properties[prop])
         return new_structure
 

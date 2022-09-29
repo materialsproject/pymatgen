@@ -14,6 +14,7 @@ from fractions import Fraction
 import numpy as np
 from monty.design_patterns import cached_class
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
@@ -365,7 +366,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         return ops
 
-    def get_orbit(self, p, m, tol=1e-5):
+    def get_orbit(self, p, magmom, tol: float = 1e-5):
         """
         Returns the orbit for a point and its associated magnetic moment.
 
@@ -378,21 +379,21 @@ class MagneticSpaceGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            (([array], [array])) Tuple of orbit for point and magnetic moments for orbit.
+            tuple[list, list]: orbit for point and magnetic moments for orbit.
         """
-        orbit = []
+        orbit: list[np.ndarray] = []
         orbit_magmoms = []
-        m = Magmom(m)
-        for o in self.symmetry_ops:
-            pp = o.operate(p)
+        magmom = Magmom(magmom)
+        for sym_op in self.symmetry_ops:
+            pp = sym_op.operate(p)
             pp = np.mod(np.round(pp, decimals=10), 1)
-            mm = o.operate_magmom(m)
+            mm = sym_op.operate_magmom(magmom)
             if not in_array_list(orbit, pp, tol=tol):
                 orbit.append(pp)
                 orbit_magmoms.append(mm)
         return orbit, orbit_magmoms
 
-    def is_compatible(self, lattice, tol=1e-5, angle_tol=5):
+    def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
         """
         Checks whether a particular lattice is compatible with the
         *conventional* unit cell.
@@ -402,6 +403,9 @@ class MagneticSpaceGroup(SymmetryGroup):
             tol (float): The tolerance to check for equality of lengths.
             angle_tol (float): The tolerance to check for equality of angles
                 in degrees.
+
+        Returns:
+            bool: True if the lattice is compatible with the conventional cell.
         """
         # function from pymatgen.symmetry.groups.SpaceGroup
         abc = lattice.lengths

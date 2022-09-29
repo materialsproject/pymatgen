@@ -2,6 +2,8 @@
 Module implementing connectivity finding.
 """
 
+from __future__ import annotations
+
 import logging
 
 import numpy as np
@@ -47,7 +49,7 @@ class ConnectivityFinder:
         logging.info("Setup of structure connectivity graph")
         structure_connectivity = StructureConnectivity(light_structure_environments)
         structure_connectivity.add_sites()
-        for isite, site in enumerate(light_structure_environments.structure):
+        for isite, _site in enumerate(light_structure_environments.structure):
             site_neighbors_sets = light_structure_environments.neighbors_sets[isite]
             if site_neighbors_sets is None:
                 continue
@@ -74,7 +76,6 @@ class ConnectivityFinder:
         if multiple_environments_choice is not None:
             if multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
                 raise ValueError(
-                    'Option "{}" for multiple_environments_choice is '
-                    "not allowed".format(multiple_environments_choice)
+                    f'Option "{multiple_environments_choice}" for multiple_environments_choice is not allowed'
                 )
         self.multiple_environments_choice = multiple_environments_choice

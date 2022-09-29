@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.energy_models module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.analysis.energy_models module &mdash; pymatgen 2022.9.21 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,12 +16,13 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.eos module" href="pymatgen.analysis.eos.html" />
-    <link rel="prev" title="pymatgen.analysis.dimensionality module" href="pymatgen.analysis.dimensionality.html" />
+    <link rel="prev" title="pymatgen.analysis.disorder module" href="pymatgen.analysis.disorder.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.9.21
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,23 +115,23 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.analysis.energy_models">
-<span id="pymatgen-analysis-energy-models-module"></span><h1>pymatgen.analysis.energy_models module<a class="headerlink" href="#module-pymatgen.analysis.energy_models" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-analysis-energy-models-module"></span><h1>pymatgen.analysis.energy_models module<a class="headerlink" href="#module-pymatgen.analysis.energy_models" title="Permalink to this heading"></a></h1>
 <p>This module implements a EnergyModel abstract class and some basic
 implementations. Basically, an EnergyModel is any model that returns an
 “energy” for any given structure.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.EnergyModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnergyModel</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L20-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnergyModel</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L20-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Abstract structure filter class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.EnergyModel.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L33-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L33-L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>EnergyModel</p>
 </dd>
 </dl>
@@ -138,12 +139,12 @@ implementations. Basically, an EnergyModel is any model that returns an
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.EnergyModel.get_energy">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L25-L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.get_energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L25-L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.get_energy" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>structure</strong> – Structure</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Energy value</p>
 </dd>
 </dl>
@@ -153,13 +154,13 @@ implementations. Basically, an EnergyModel is any model that returns an
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.EwaldElectrostaticModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EwaldElectrostaticModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">real_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recip_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L42-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EwaldElectrostaticModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">real_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recip_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L42-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyModel</span></code></a></p>
 <p>Wrapper around EwaldSum to calculate the electrostatic energy.</p>
 <p>Initializes the model. Args have the same definitions as in
 <a class="reference internal" href="pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation" title="pymatgen.analysis.ewald.EwaldSummation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.ewald.EwaldSummation</span></code></a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>real_space_cut</strong> (<em>float</em>) – Real space cutoff radius dictating how
 many terms are used in the real space sum. Defaults to None,
@@ -177,9 +178,9 @@ converged to.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.EwaldElectrostaticModel.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L84-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L84-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
 </dd>
 </dl>
@@ -187,12 +188,12 @@ converged to.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.EwaldElectrostaticModel.get_energy">
-<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L70-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.get_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L70-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.get_energy" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>structure</strong> – Structure</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Energy value</p>
 </dd>
 </dl>
@@ -202,11 +203,11 @@ converged to.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.IsingModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IsingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_radius</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L142-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IsingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_radius</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L142-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyModel</span></code></a></p>
 <p>A very simple Ising model, with r^2 decay.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>j</strong> (<em>float</em>) – The interaction parameter. E = J * spin1 * spin2.</p></li>
 <li><p><strong>radius</strong> (<em>float</em>) – max_radius for the interaction.</p></li>
@@ -215,9 +216,9 @@ converged to.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.IsingModel.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L169-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L169-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
 </dd>
 </dl>
@@ -225,12 +226,12 @@ converged to.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.IsingModel.get_energy">
-<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L156-L167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.get_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L156-L167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.get_energy" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>structure</strong> – Structure</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Energy value</p>
 </dd>
 </dl>
@@ -240,16 +241,16 @@ converged to.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.NsitesModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NsitesModel</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L181-L204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NsitesModel</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L181-L204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyModel</span></code></a></p>
 <p>Sets the energy to the number of sites. More sites =&gt; higher “energy”.
 Used to rank structures from smallest number of sites to largest number
 of sites after enumeration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.NsitesModel.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L195-L204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L195-L204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
 </dd>
 </dl>
@@ -257,12 +258,12 @@ of sites after enumeration.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.NsitesModel.get_energy">
-<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L188-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.get_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L188-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.get_energy" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>structure</strong> – Structure</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Energy value</p>
 </dd>
 </dl>
@@ -272,14 +273,14 @@ of sites after enumeration.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.SymmetryModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SymmetryModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L101-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.energy_models.EnergyModel</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SymmetryModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L101-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.energy_models.EnergyModel" title="pymatgen.analysis.energy_models.EnergyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyModel</span></code></a></p>
 <p>Sets the energy to the -ve of the spacegroup number. Higher symmetry =&gt;
 lower “energy”.</p>
 <p>Args have same meaning as in
 <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.finder.SpacegroupAnalyzer</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>symprec</strong> (<em>float</em>) – Symmetry tolerance. Defaults to 0.1.</p></li>
 <li><p><strong>angle_tolerance</strong> (<em>float</em>) – Tolerance for angles. Defaults to 5 degrees.</p></li>
@@ -288,9 +289,9 @@ lower “energy”.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.SymmetryModel.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L127-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L127-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
 </dd>
 </dl>
@@ -298,12 +299,12 @@ lower “energy”.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.energy_models.SymmetryModel.get_energy">
-<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/energy_models.py#L119-L125"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.get_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/energy_models.py#L119-L125"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.get_energy" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>structure</strong> – Structure</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Energy value</p>
 </dd>
 </dl>

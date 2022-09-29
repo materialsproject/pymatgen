@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import ast
+import functools
 import json
 import re
 import warnings
@@ -13,7 +14,7 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, cast
 
 import numpy as np
 from monty.json import MSONable
@@ -28,6 +29,7 @@ with open(str(Path(__file__).absolute().parent / "periodic_table.json")) as f:
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
+@functools.total_ordering
 class ElementBase(Enum):
     """Element class defined without any enum values so it can be subclassed."""
 
@@ -299,7 +301,7 @@ class ElementBase(Enum):
                             else:
                                 unit = toks[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
                                 units = Unit(unit)
-                                if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
+                                if set(units).issubset(SUPPORTED_UNIT_NAMES):
                                     val = FloatWithUnit(toks[0], unit)
                         except ValueError:
                             # Ignore error. val will just remain a string.
@@ -324,7 +326,7 @@ class ElementBase(Enum):
     @property
     def electron_affinity(self) -> float:
         """
-        First ionization energy of element.
+        The amount of energy released when an electron is attached to a neutral atom.
         """
         return self._data["Electron affinity"]
 
@@ -525,7 +527,6 @@ class ElementBase(Enum):
         """
         Ground state term symbol
         Selected based on Hund's Rule
-
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
@@ -553,11 +554,8 @@ class ElementBase(Enum):
             return J_sorted_terms[0][0]
         return J_sorted_terms[-1][0]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, Element) and self.Z == other.Z
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __hash__(self):
         return self.Z
@@ -574,6 +572,8 @@ class ElementBase(Enum):
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
+        if not hasattr(other, "X") or not hasattr(other, "symbol"):
+            return NotImplemented
         x1 = float("inf") if self.X != self.X else self.X
         x2 = float("inf") if other.X != other.X else other.X
         if x1 != x2:
@@ -584,20 +584,36 @@ class ElementBase(Enum):
         return self.symbol < other.symbol
 
     @staticmethod
-    def from_Z(z: int) -> Element:
+    def from_Z(Z: int) -> Element:
         """
         Get an element from an atomic number.
 
         Args:
-            z (int): Atomic number
+            Z (int): Atomic number
 
         Returns:
-            Element with atomic number z.
+            Element with atomic number Z.
         """
         for sym, data in _pt_data.items():
-            if data["Atomic no"] == z:
+            if data["Atomic no"] == Z:
                 return Element(sym)
-        raise ValueError(f"No element with this atomic number {z}")
+        raise ValueError(f"No element with this atomic number {Z}")
+
+    @staticmethod
+    def from_name(name: str) -> Element:
+        """
+        Get an element from its long name.
+
+        Args:
+            name: Long name of the element, e.g. 'Hydrogen' or
+                  'Iron'. Not case-sensitive.
+        Returns:
+            Element with the name 'name'
+        """
+        for sym, data in _pt_data.items():
+            if data["Name"] == name.capitalize():
+                return Element(sym)
+        raise ValueError(f"No element with the name {name}")
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> Element:
@@ -620,7 +636,7 @@ class ElementBase(Enum):
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
-        for sym in _pt_data.keys():
+        for sym in _pt_data:
             el = Element(sym)
             if 57 <= el.Z <= 71:
                 el_pseudorow = 8
@@ -888,6 +904,7 @@ class ElementBase(Enum):
             print(" ".join(rowstr))
 
 
+@functools.total_ordering
 class Element(ElementBase):
     """Enum representing an element in the periodic table."""
 
@@ -1014,6 +1031,7 @@ class Element(ElementBase):
     Og = "Og"
 
 
+@functools.total_ordering
 class Species(MSONable, Stringify):
     """
     An extension of Element with an oxidation state and other optional
@@ -1057,7 +1075,7 @@ class Species(MSONable, Stringify):
         """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        self._properties = properties or {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
                 raise ValueError(f"{k} is not a supported property")
@@ -1070,20 +1088,14 @@ class Species(MSONable, Stringify):
             return p[a]
         return getattr(self._el, a)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
-        Species is equal to other only if element and oxidation states are
-        exactly the same.
+        Species is equal to other only if element and oxidation states are exactly the same.
         """
-        return (
-            isinstance(other, Species)
-            and self.symbol == other.symbol
-            and self.oxi_state == other.oxi_state
-            and self._properties == other._properties
-        )
+        if not hasattr(other, "oxi_state") or not hasattr(other, "symbol") or not hasattr(other, "_properties"):
+            return NotImplemented
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+        return all(getattr(self, attr) == getattr(other, attr) for attr in ["symbol", "oxi_state", "_properties"])
 
     def __hash__(self):
         """
@@ -1091,13 +1103,16 @@ class Species(MSONable, Stringify):
         should hash equally. Unequal Species will have different str
         representations.
         """
-        return self.__str__().__hash__()
+        return hash(str(self))
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
         """
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state, followed by spin.
         """
+        if not hasattr(other, "X") or not hasattr(other, "symbol"):
+            return NotImplemented
+        other = cast(Species, other)
         x1 = float("inf") if self.X != self.X else self.X
         x2 = float("inf") if other.X != other.X else other.X
         if x1 != x2:
@@ -1197,7 +1212,7 @@ class Species(MSONable, Stringify):
         raise ValueError("Invalid Species String")
 
     def __repr__(self):
-        return "Species " + self.__str__()
+        return f"Species {self}"
 
     def __str__(self):
         output = self.symbol
@@ -1238,7 +1253,7 @@ class Species(MSONable, Stringify):
             return 0.0
 
         if isotope is None:
-            isotopes = list(quad_mom.keys())
+            isotopes = list(quad_mom)
             isotopes.sort(key=lambda x: int(x.split("-")[1]), reverse=False)
             return quad_mom.get(isotopes[0], 0.0)
 
@@ -1357,6 +1372,7 @@ class Species(MSONable, Stringify):
         return cls(d["element"], d["oxidation_state"], d.get("properties", None))
 
 
+@functools.total_ordering
 class DummySpecies(Species):
     """
     A special specie for representing non-traditional elements or species. For
@@ -1409,7 +1425,7 @@ class DummySpecies(Species):
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        self._properties = properties or {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
                 raise ValueError(f"{k} is not a supported property")
@@ -1421,26 +1437,6 @@ class DummySpecies(Species):
         if a in p:
             return p[a]
         raise AttributeError(a)
-
-    def __hash__(self):
-        return self.symbol.__hash__()
-
-    def __eq__(self, other):
-        """
-        Species is equal to other only if element and oxidation states are
-        exactly the same.
-        """
-        if not isinstance(other, DummySpecies):
-            return False
-        return (
-            isinstance(other, Species)
-            and self.symbol == other.symbol
-            and self.oxi_state == other.oxi_state
-            and self._properties == other._properties
-        )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __lt__(self, other):
         """
@@ -1543,7 +1539,7 @@ class DummySpecies(Species):
         return cls(d["element"], d["oxidation_state"], d.get("properties", None))
 
     def __repr__(self):
-        return "DummySpecies " + self.__str__()
+        return f"DummySpecies {self}"
 
     def __str__(self):
         output = self.symbol
@@ -1557,6 +1553,7 @@ class DummySpecies(Species):
         return output
 
 
+@functools.total_ordering
 class Specie(Species):
     """
     This maps the historical grammatically inaccurate Specie to Species
@@ -1564,6 +1561,7 @@ class Specie(Species):
     """
 
 
+@functools.total_ordering
 class DummySpecie(DummySpecies):
     """
     This maps the historical grammatically inaccurate DummySpecie to DummySpecies

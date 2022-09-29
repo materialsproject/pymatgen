@@ -90,7 +90,7 @@ class VasprunTest(PymatgenTest):
     def test_optical_absorption_coeff(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.BSE.xml.gz")
         absorption_coeff = v.optical_absorption_coeff
-        self.assertEqual(absorption_coeff[1], 24966408728.917931)
+        self.assertEqual(absorption_coeff[1], 0.8327903762077188)
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with self.assertRaises(NotImplementedError):
@@ -177,7 +177,7 @@ class VasprunTest(PymatgenTest):
 
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
-        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]].keys())
+        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]])
         self.assertIn(OrbitalType.s, orbs)
 
     def test_standard(self):
@@ -738,14 +738,18 @@ class VasprunTest(PymatgenTest):
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
-        self.assertEqual(vasprun.structures[0].charge, 1)
+        self.assertEqual(vasprun.structures[0].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
         vpath = self.TEST_FILES_DIR / "vasprun.split.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.split.charged.gz"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
         self.assertEqual(vasprun.parameters.get("NELECT", 0), 7)
-        self.assertEqual(vasprun.structures[-1].charge, 1)
+        self.assertEqual(vasprun.structures[-1].charge, -1)
+        self.assertEqual(vasprun.initial_structure.charge, -1)
+        self.assertEqual(vasprun.final_structure.charge, -1)
 
     def test_kpointset_electronvelocities(self):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
@@ -823,7 +827,7 @@ class OutcarTest(PymatgenTest):
             self.assertFalse(outcar.lepsilon)
 
             toten = 0
-            for k in outcar.final_energy_contribs.keys():
+            for k in outcar.final_energy_contribs:
                 toten += outcar.final_energy_contribs[k]
             self.assertAlmostEqual(toten, outcar.final_energy, 6)
 
@@ -1213,7 +1217,7 @@ class OutcarTest(PymatgenTest):
         ]
         self.assertEqual(len(outcar.data["efg"][2:10]), len(expected_efg))
         for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
-            for k in e1.keys():
+            for k in e1:
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
         exepected_tensors = [
@@ -1539,6 +1543,34 @@ class OutcarTest(PymatgenTest):
         self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
         self.assertAlmostEqual(o.final_fr_energy, -15.92115453)
 
+    def test_read_table_pattern(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
+
+        header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
+        table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
+        footer_pattern = r"\s+E-fermi :"
+
+        pots = outcar.read_table_pattern(header_pattern, table_pattern, footer_pattern, last_one_only=True)
+        ref_last = [
+            ["       1 -26.0704       2 -45.5046       3 -45.5046       4 -72.9539       5 -73.0621"],
+            ["       6 -72.9539       7 -73.0621"],
+        ]
+        self.assertEqual(pots, ref_last)
+
+        pots = outcar.read_table_pattern(
+            header_pattern, table_pattern, footer_pattern, last_one_only=False, first_one_only=True
+        )
+        ref_first = [
+            ["       1 -26.1149       2 -45.5359       3 -45.5359       4 -72.9831       5 -73.1068"],
+            ["       6 -72.9831       7 -73.1068"],
+        ]
+        self.assertEqual(pots, ref_first)
+
+        with self.assertRaises(ValueError):
+            outcar.read_table_pattern(
+                header_pattern, table_pattern, footer_pattern, last_one_only=True, first_one_only=True
+            )
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1625,7 +1657,7 @@ class ChgcarTest(PymatgenTest):
 
     def test_soc_chgcar(self):
         self.assertEqual(
-            set(self.chgcar_NiO_SOC.data.keys()),
+            set(self.chgcar_NiO_SOC.data),
             {"total", "diff_x", "diff_y", "diff_z", "diff"},
         )
         self.assertTrue(self.chgcar_NiO_SOC.is_soc)
@@ -1679,8 +1711,7 @@ class ChgcarTest(PymatgenTest):
         os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
-        d = self.chgcar_spin.spin_data
-        for k, v in d.items():
+        for v in self.chgcar_spin.spin_data.values():
             self.assertEqual(v.shape, (48, 48, 48))
 
     def test_add(self):
@@ -2166,10 +2197,9 @@ class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        wder = Waveder(self.TEST_FILES_DIR / "WAVEDER", gamma_only=True)
+        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER", gamma_only=True)
         self.assertEqual(wder.nbands, 36)
         self.assertEqual(wder.nkpoints, 56)
-        self.assertEqual(wder.nelect, 8)
         band_i = 0
         band_j = 0
         kp_index = 0
@@ -2179,24 +2209,30 @@ class WavederTest(PymatgenTest):
         self.assertAlmostEqual(cder, -1.33639226092e-103, places=114)
 
     def test_consistency(self):
-        wder = Waveder(self.TEST_FILES_DIR / "WAVEDER.Si")
-        wderf = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
-        with open(self.TEST_FILES_DIR / "WAVEDERF.Si") as f:
-            first_line = [int(a) for a in f.readline().split()]
-        self.assertEqual(wder.nkpoints, first_line[1])
-        self.assertEqual(wder.nbands, first_line[2])
-        for i in range(10):
-            self.assertAlmostEqual(
-                first=wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real,
-                second=wderf[i, 6],
-                places=10,
-            )
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].real, wderf[i, 6], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].imag, wderf[i, 7], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].real, wderf[i, 8], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].imag, wderf[i, 9], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].real, wderf[i, 10], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].imag, wderf[i, 11], places=10)
+        wder_ref = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
+
+        def _check(wder):
+            with open(self.TEST_FILES_DIR / "WAVEDERF.Si") as f:
+                first_line = [int(a) for a in f.readline().split()]
+            self.assertEqual(wder.nkpoints, first_line[1])
+            self.assertEqual(wder.nbands, first_line[2])
+            for i in range(10):
+                self.assertAlmostEqual(
+                    first=wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real,
+                    second=wder_ref[i, 6],
+                    places=10,
+                )
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 0].real, wder_ref[i, 6], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 0].imag, wder_ref[i, 7], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 1].real, wder_ref[i, 8], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 1].imag, wder_ref[i, 9], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].real, wder_ref[i, 10], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].imag, wder_ref[i, 11], places=10)
+
+        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER.Si")
+        _check(wder)
+        wderf = Waveder.from_formatted(self.TEST_FILES_DIR / "WAVEDERF.Si")
+        _check(wderf)
 
 
 class WSWQTest(PymatgenTest):

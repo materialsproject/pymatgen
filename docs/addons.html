@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pymatgen Add-ons &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>Pymatgen Add-ons and External Tools &mdash; pymatgen 2022.9.21 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -37,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.9.21
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -73,7 +74,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Pymatgen Add-ons</li>
+      <li>Pymatgen Add-ons and External Tools</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/addons.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -83,22 +84,61 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-add-ons">
-<h1>Pymatgen Add-ons<a class="headerlink" href="#pymatgen-add-ons" title="Permalink to this headline"></a></h1>
+  <section id="pymatgen-add-ons-and-external-tools">
+<h1>Pymatgen Add-ons and External Tools<a class="headerlink" href="#pymatgen-add-ons-and-external-tools" title="Permalink to this heading"></a></h1>
+<section id="add-ons">
+<h2>Add-ons<a class="headerlink" href="#add-ons" title="Permalink to this heading"></a></h2>
 <p>With effect from v2022.0.3, pymatgen, pymatgen.analysis, pymatgen.ext and and pymatgen.io are now
-<a class="reference external" href="http://packaging.python.org/guides/packaging-namespace-packages/">namespace packages</a>. You may refer to the
+<a class="reference external" href="http://packaging.python.org/guides/packaging-namespace-packages">namespace packages</a>. You may refer to the
 <a class="reference internal" href="contributing.html"><span class="doc">contributing page</span></a>. for details on how to write such packages. This page serves as a universal
-resource page to list known pymatgen add-ons. It should be noted that while the <strong>pymatgen maintainers provide
-no guarantees whatsoever on the quality or reliability of any of the add-ons</strong> listed here. End users should make their
-own assessment of the functionality and quality. Feel free to submit a pull request to update this page when you
-release an add-on package.</p>
+resource page to list known pymatgen add-ons.</p>
+<p>It should be noted that the <strong>pymatgen maintainers provide no guarantees whatsoever on the quality or reliability of
+any of the add-ons</strong> listed here. End users should make their
+own assessment of the functionality and quality.</p>
+<p>Please submit a pull request to update this page when if release a new add-on package.</p>
+<section id="add-ons-for-analysis">
+<h3>Add-ons for Analysis<a class="headerlink" href="#add-ons-for-analysis" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p><a class="reference external" href="http://pypi.org/project/pymatgen-analysis-diffusion/">pymatgen-analysis-diffusion</a>: Provides modules for diffusion
+<li><p><a class="reference external" href="http://pypi.org/project/pymatgen-analysis-diffusion">pymatgen-analysis-diffusion</a>: Provides modules for diffusion
 analysis, including path determination for NEB calculations, analysis of MD trajectories (RDF, van Hove, Arrhenius
-plots, etc.)</p></li>
-<li><p><a class="reference external" href="http://pypi.org/project/pymatgen-io-fleur/">pymatgen-io-fleur</a>: Provides modules for reading and writing
-files used by the <a class="reference external" href="www.flapw.de/">fleur</a> DFT code</p></li>
+plots, etc.). This package is maintained by the Materials Virtual Lab.</p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/pymatgen-analysis-defects">pymatgen-analysis-defects</a>: Provides functionality related to
+defect analysis. This package is maintained by Jimmy-Xuan Shen, and officially supported by the Materials Project.</p></li>
 </ul>
+</section>
+<section id="add-ons-for-input-output">
+<h3>Add-ons for Input/Output<a class="headerlink" href="#add-ons-for-input-output" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="http://pypi.org/project/pymatgen-io-fleur">pymatgen-io-fleur</a>: Provides modules for reading and writing
+files used by the <a class="reference external" href="https://www.flapw.de/rel">fleur</a> DFT code. This package is maintained by the juDFT team.</p></li>
+</ul>
+</section>
+<section id="add-ons-for-externals-services">
+<h3>Add-ons for Externals Services<a class="headerlink" href="#add-ons-for-externals-services" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>None at present.</p></li>
+</ul>
+</section>
+</section>
+<section id="external-tools">
+<h2>External Tools<a class="headerlink" href="#external-tools" title="Permalink to this heading"></a></h2>
+<p>If you would like your own tool to be listed here, please <a class="reference external" href="https://github.com/materialsproject/pymatgen/edit/master/docs_rst/addons.rst">submit a PR</a>! For a more complete but less curated list, have a
+look at <a class="reference external" href="https://github.com/materialsproject/pymatgen/network/dependents">pymatgen dependents</a>.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/arosen93/quacc">QuAcc</a>: A platform to enable high-throughput, database-driven quantum
+chemistry and computational materials science.</p></li>
+<li><p><a class="reference external" href="https://github.com/JaGeo/LobsterPy">LobsterPy</a>: Automatically analyze Lobster (<a class="reference external" href="http://www.cohp.de">http://www.cohp.de</a>) runs.</p></li>
+<li><p><a class="reference external" href="https://github.com/janosh/pymatviz">pymatviz</a>: Complements <code class="docutils literal notranslate"><span class="pre">pymatgen</span></code> with additional plotting
+functionality for larger datasets common in materials informatics.</p></li>
+<li><p><a class="reference external" href="https://github.com/materialsvirtuallab/m3gnet">M3GNet</a>: Materials graph network with 3-body interactions featuring
+a DFT surrogate crystal relaxer and property predictor.</p></li>
+<li><p><a class="reference external" href="https://github.com/sparks-baird/mat_discover">DiSCoVeR</a>: A materials discovery algorithm geared towards exploring
+high-performance candidates in new chemical spaces.</p></li>
+<li><p><a class="reference external" href="https://github.com/GENESIS-EFRC/reaction-network">rxn-network</a>: Reaction Network is a Python package for predicting likely
+inorganic chemical reaction pathways using graph theory.</p></li>
+<li><p><a class="reference external" href="https://github.com/materialsproject/matbench">Matbench</a>: Benchmarks for materials science property prediction.</p></li>
+</ul>
+</section>
 </section>
 
 

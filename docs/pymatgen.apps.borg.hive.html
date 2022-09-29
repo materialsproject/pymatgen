@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.apps.borg.hive module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.apps.borg.hive module &mdash; pymatgen 2022.9.21 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.9.21
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -115,12 +116,12 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.apps.borg.hive">
-<span id="pymatgen-apps-borg-hive-module"></span><h1>pymatgen.apps.borg.hive module<a class="headerlink" href="#module-pymatgen.apps.borg.hive" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-apps-borg-hive-module"></span><h1>pymatgen.apps.borg.hive module<a class="headerlink" href="#module-pymatgen.apps.borg.hive" title="Permalink to this heading"></a></h1>
 <p>This module define the various drones used to assimilate data.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.AbstractDrone">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractDrone</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L26-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractDrone</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L26-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Abstract drone class that defines the various methods that must be
 implemented by drones. Because of the quirky nature of Python”s
 multiprocessing, the intermediate data representations has to be in the
@@ -129,15 +130,15 @@ MSONable. All drones must also implement the standard MSONable as_dict() and
 from_dict API.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.AbstractDrone.assimilate">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L36-L49"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone.assimilate" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L36-L49"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone.assimilate" title="Permalink to this definition"></a></dt>
 <dd><p>Assimilate data in a directory path into a pymatgen object. Because of
-the quirky nature of Python”s multiprocessing, the object must support
+the quirky nature of Python’s multiprocessing, the object must support
 pymatgen’s as_dict() for parallel processing.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – directory path</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An assimilated object</p>
 </dd>
 </dl>
@@ -145,7 +146,7 @@ pymatgen’s as_dict() for parallel processing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_valid_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L51-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_valid_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L51-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if path contains valid data for assimilation, and then returns
 the valid paths. The paths returned can be a list of directory or file
 paths, depending on what kind of data you are assimilating. For
@@ -154,11 +155,11 @@ directories containing vasprun.xml files. On the other hand, if you are
 interested converting all POSCARs in a directory tree to cifs for
 example, you will want the file paths.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – input path as a tuple generated from os.walk, i.e.,
 (parent, subdirs, files).</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of valid dir/file paths for assimilation</p>
 </dd>
 </dl>
@@ -168,8 +169,8 @@ example, you will want the file paths.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GaussianToComputedEntryDrone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inc_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_extensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('.log',)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L317-L439"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.AbstractDrone" title="pymatgen.apps.borg.hive.AbstractDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive.AbstractDrone</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GaussianToComputedEntryDrone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inc_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_extensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('.log',)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L317-L439"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.AbstractDrone" title="pymatgen.apps.borg.hive.AbstractDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractDrone</span></code></a></p>
 <p>GaussianToEntryDrone assimilates directories containing Gaussian output to
 ComputedEntry/ComputedStructureEntry objects. By default, it is assumed
 that Gaussian output files have a “.log” extension.</p>
@@ -178,7 +179,7 @@ that Gaussian output files have a “.log” extension.</p>
 <p>Like the GaussianOutput class, this is still in early beta.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
 ComputedStructureEntries to be returned instead of
@@ -186,12 +187,12 @@ ComputedEntries.</p></li>
 <li><p><strong>parameters</strong> (<em>list</em>) – Input parameters to include. It has to be one of
 the properties supported by the GaussianOutput object. See
 <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.gaussianio</span> <span class="pre">GaussianOutput</span></code>. The parameters
-have to be one of python”s primitive types, i.e., list, dict of
+have to be one of python’s primitive types, i.e., list, dict of
 strings and integers. If parameters is None, a default set of
 parameters will be set.</p></li>
 <li><p><strong>data</strong> (<em>list</em>) – Output data to include. Has to be one of the properties
 supported by the GaussianOutput object. The parameters have to
-be one of python”s primitive types, i.e. list, dict of strings
+be one of python’s primitive types, i.e. list, dict of strings
 and integers. If data is None, a default set will be set.</p></li>
 <li><p><strong>file_extensions</strong> (<em>list</em>) – File extensions to be considered as Gaussian output files.
 Defaults to just the typical “log” extension.</p></li>
@@ -200,19 +201,19 @@ Defaults to just the typical “log” extension.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L415-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L415-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate">
-<span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L366-L396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L366-L396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate" title="Permalink to this definition"></a></dt>
 <dd><p>Assimilate data in a directory path into a ComputedEntry object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – directory path</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>ComputedEntry</p>
 </dd>
 </dl>
@@ -220,12 +221,12 @@ Defaults to just the typical “log” extension.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L430-L439"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L430-L439"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>GaussianToComputedEntryDrone</p>
 </dd>
 </dl>
@@ -233,14 +234,14 @@ Defaults to just the typical “log” extension.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths">
-<span class="sig-name descname"><span class="pre">get_valid_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L398-L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_valid_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L398-L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if path contains files with define extensions.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – input path as a tuple generated from os.walk, i.e.,
 (parent, subdirs, files).</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of valid dir/file paths for assimilation</p>
 </dd>
 </dl>
@@ -250,14 +251,14 @@ Defaults to just the typical “log” extension.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SimpleVaspToComputedEntryDrone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inc_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L202-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone" title="pymatgen.apps.borg.hive.VaspToComputedEntryDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive.VaspToComputedEntryDrone</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SimpleVaspToComputedEntryDrone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inc_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L202-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone" title="pymatgen.apps.borg.hive.VaspToComputedEntryDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">VaspToComputedEntryDrone</span></code></a></p>
 <p>A simpler VaspToComputedEntryDrone. Instead of parsing vasprun.xml, it
 parses only the INCAR, POTCAR, OSZICAR and KPOINTS files, which are much
 smaller and faster to parse. However, much fewer properties are available
 compared to the standard VaspToComputedEntryDrone.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
 ComputedStructureEntries to be returned instead of
 ComputedEntries. Structure will be parsed from the CONTCAR.</p>
@@ -265,19 +266,19 @@ ComputedEntries. Structure will be parsed from the CONTCAR.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L295-L303"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L295-L303"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONAble dict</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate">
-<span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L220-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L220-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate" title="Permalink to this definition"></a></dt>
 <dd><p>Assimilate data in a directory path into a ComputedEntry object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – directory path</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>ComputedEntry</p>
 </dd>
 </dl>
@@ -285,12 +286,12 @@ ComputedEntries. Structure will be parsed from the CONTCAR.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L305-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L305-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>SimpleVaspToComputedEntryDrone</p>
 </dd>
 </dl>
@@ -300,8 +301,8 @@ ComputedEntries. Structure will be parsed from the CONTCAR.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VaspToComputedEntryDrone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inc_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L72-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.AbstractDrone" title="pymatgen.apps.borg.hive.AbstractDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive.AbstractDrone</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VaspToComputedEntryDrone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inc_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L72-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.AbstractDrone" title="pymatgen.apps.borg.hive.AbstractDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractDrone</span></code></a></p>
 <p>VaspToEntryDrone assimilates directories containing vasp output to
 ComputedEntry/ComputedStructureEntry objects. There are some restrictions
 on the valid directory structures:</p>
@@ -312,7 +313,7 @@ of an aflow style run, and only “relax2” is parsed.</p></li>
 <li><p>The drone parses only the vasprun.xml file.</p></li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
 ComputedStructureEntries to be returned instead of
@@ -329,19 +330,19 @@ supported by the Vasprun object.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L176-L188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L176-L188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: MSONABle dict</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate">
-<span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L110-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">assimilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L110-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate" title="Permalink to this definition"></a></dt>
 <dd><p>Assimilate data in a directory path into a ComputedEntry object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – directory path</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>ComputedEntry</p>
 </dd>
 </dl>
@@ -349,12 +350,12 @@ supported by the Vasprun object.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L190-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L190-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>VaspToComputedEntryDrone</p>
 </dd>
 </dl>
@@ -362,14 +363,14 @@ supported by the Vasprun object.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths">
-<span class="sig-name descname"><span class="pre">get_valid_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../apps/borg/hive.py#L145-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_valid_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../apps/borg/hive.py#L145-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if paths contains vasprun.xml or (POSCAR+OSZICAR)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – input path as a tuple generated from os.walk, i.e.,
 (parent, subdirs, files).</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of valid dir/file paths for assimilation</p>
 </dd>
 </dl>

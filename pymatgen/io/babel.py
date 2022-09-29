@@ -16,10 +16,10 @@ from monty.dev import requires
 from pymatgen.core.structure import IMolecule, Molecule
 
 try:
-    from openbabel import openbabel as ob
+    from openbabel import openbabel
     from openbabel import pybel as pb
 except Exception:
-    ob = None
+    openbabel = None
 
 
 __author__ = "Shyue Ping Ong, Qi Wang"
@@ -37,14 +37,14 @@ class BabelMolAdaptor:
     """
 
     @requires(
-        ob,
+        openbabel,
         "BabelMolAdaptor requires openbabel to be installed with "
         "Python bindings. Please get it at http://openbabel.org "
         "(version >=3.0.0).",
     )
     def __init__(self, mol):
         """
-        Initializes with pymatgen Molecule or OpenBabel"s OBMol.
+        Initializes with pymatgen Molecule or OpenBabel's OBMol.
 
         Args:
             mol: pymatgen's Molecule/IMolecule or OpenBabel OBMol
@@ -57,12 +57,12 @@ class BabelMolAdaptor:
             # the correct OBMol representation to do things like force field
             # optimization. So we go through the indirect route of creating
             # an XYZ file and reading in that file.
-            obmol = ob.OBMol()
+            obmol = openbabel.OBMol()
             obmol.BeginModify()
             for site in mol:
                 coords = list(site.coords)
                 atomno = site.specie.Z
-                obatom = ob.OBAtom()
+                obatom = openbabel.OBAtom()
                 obatom.thisown = 0
                 obatom.SetAtomicNum(atomno)
                 obatom.SetVector(*coords)
@@ -75,7 +75,7 @@ class BabelMolAdaptor:
             obmol.Center()
             obmol.EndModify()
             self._obmol = obmol
-        elif isinstance(mol, ob.OBMol):
+        elif isinstance(mol, openbabel.OBMol):
             self._obmol = mol
         elif isinstance(mol, pb.Molecule):
             self._obmol = mol.OBMol
@@ -87,7 +87,7 @@ class BabelMolAdaptor:
         """
         sp = []
         coords = []
-        for atom in ob.OBMolAtomIter(self._obmol):
+        for atom in openbabel.OBMolAtomIter(self._obmol):
             sp.append(atom.GetAtomicNum())
             coords.append([atom.GetX(), atom.GetY(), atom.GetZ()])
         return Molecule(sp, coords)
@@ -149,7 +149,7 @@ class BabelMolAdaptor:
             idx1: The atom index of one of the atoms participating the in bond
             idx2: The atom index of the other atom participating in the bond
         """
-        for obbond in ob.OBMolBondIter(self._obmol):
+        for obbond in openbabel.OBMolBondIter(self._obmol):
             if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (
                 obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1
             ):
@@ -181,14 +181,14 @@ class BabelMolAdaptor:
         else:
             self.add_hydrogen()
 
-        ff = ob.OBForceField_FindType(forcefield)
+        ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
             warnings.warn(
                 f"This input forcefield {forcefield} is not supported "
                 "in openbabel. The forcefield will be reset as "
                 "default 'mmff94' for now."
             )
-            ff = ob.OBForceField_FindType("mmff94")
+            ff = openbabel.OBForceField_FindType("mmff94")
 
         try:
             rotor_search = getattr(ff, algo)
@@ -225,7 +225,7 @@ class BabelMolAdaptor:
         3D structure generation which will involve different compromises
         between speed and finding the global energy minimum.
         """
-        gen3d = ob.OBOp.FindType("Gen3D")
+        gen3d = openbabel.OBOp.FindType("Gen3D")
         gen3d.Do(self._obmol)
 
     def confab_conformers(
@@ -263,19 +263,19 @@ class BabelMolAdaptor:
         else:
             self.add_hydrogen()
 
-        ff = ob.OBForceField_FindType(forcefield)
+        ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
             print(
                 f"Could not find forcefield {forcefield} in openbabel, the forcefield "
                 "will be reset as default 'mmff94'"
             )
-            ff = ob.OBForceField_FindType("mmff94")
+            ff = openbabel.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
             print(f"{len(freeze_atoms)} atoms will be freezed")
-            constraints = ob.OBFFConstraints()
+            constraints = openbabel.OBFFConstraints()
 
-            for atom in ob.OBMolAtomIter(self._obmol):
+            for atom in openbabel.OBMolAtomIter(self._obmol):
                 atom_id = atom.GetIndex() + 1
                 if id in freeze_atoms:
                     constraints.AddAtomConstraint(atom_id)

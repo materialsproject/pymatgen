@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.ewald module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.analysis.ewald module &mdash; pymatgen 2022.9.21 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.9.21
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,13 +115,13 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.analysis.ewald">
-<span id="pymatgen-analysis-ewald-module"></span><h1>pymatgen.analysis.ewald module<a class="headerlink" href="#module-pymatgen.analysis.ewald" title="Permalink to this headline"></a></h1>
-<p>This module provides classes for calculating the ewald sum of a structure.</p>
+<span id="pymatgen-analysis-ewald-module"></span><h1>pymatgen.analysis.ewald module<a class="headerlink" href="#module-pymatgen.analysis.ewald" title="Permalink to this heading"></a></h1>
+<p>This module provides classes for calculating the Ewald sum of a structure.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EwaldMinimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_to_return</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L504-L756"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EwaldMinimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_to_return</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L505-L760"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class determines the manipulations that will minimize an ewald matrix,
+<p>This class determines the manipulations that will minimize an Ewald matrix,
 given a list of possible manipulations. This class does not perform the
 manipulations on a structure, but will return the list of manipulations
 that should be done on one to produce the minimal structure. It returns the
@@ -128,14 +129,14 @@ manipulations for the n lowest energy orderings. This class should be used
 to perform fractional species substitution or fractional species removal to
 produce a new structure. These manipulations create large numbers of
 candidate structures, and this class can be used to pick out those with the
-lowest ewald sum.</p>
+lowest Ewald sum.</p>
 <p>An alternative (possibly more intuitive) interface to this class is the
 order disordered structure transformation.</p>
 <p>Author - Will Richards</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>matrix</strong> – A matrix of the ewald sum interaction energies. This is stored
+<li><p><strong>matrix</strong> – A matrix of the Ewald sum interaction energies. This is stored
 in the class as a diagonally symmetric array and so
 self._matrix will not be the same as the input matrix.</p></li>
 <li><p><strong>m_list</strong> – list of manipulations. each item is of the form
@@ -153,12 +154,12 @@ process is extremely expensive)</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST">
-<span class="sig-name descname"><span class="pre">ALGO_BEST_FIRST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ALGO_BEST_FIRST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST" title="Permalink to this definition"></a></dt>
 <dd><p>Slowly increases the speed (with the cost of decreasing
 accuracy) as the minimizer runs. Attempts to limit the run time to
 approximately 30 minutes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ALGO_TIME_LIMIT</p>
 </dd>
 </dl>
@@ -166,32 +167,32 @@ approximately 30 minutes.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE">
-<span class="sig-name descname"><span class="pre">ALGO_COMPLETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ALGO_COMPLETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST">
-<span class="sig-name descname"><span class="pre">ALGO_FAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ALGO_FAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT">
-<span class="sig-name descname"><span class="pre">ALGO_TIME_LIMIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ALGO_TIME_LIMIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.add_m_list">
-<span class="sig-name descname"><span class="pre">add_m_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix_sum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L592-L606"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.add_m_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_m_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix_sum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L593-L607"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.add_m_list" title="Permalink to this definition"></a></dt>
 <dd><p>This adds an m_list to the output_lists and updates the current
 minimum if the list is full.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.best_case">
-<span class="sig-name descname"><span class="pre">best_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_left</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L608-L661"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_case" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">best_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_left</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L609-L662"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_case" title="Permalink to this definition"></a></dt>
 <dd><p>Computes a best case given a matrix and manipulation list.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>matrix</strong> – the current matrix (with some permutations already
 performed)</p></li>
@@ -206,10 +207,10 @@ performed on them.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.best_m_list">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">best_m_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_m_list" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">best_m_list</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_m_list" title="Permalink to this definition"></a></dt>
 <dd><p>Best m_list found.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns</p>
 </dd>
 </dl>
@@ -217,24 +218,24 @@ performed on them.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.get_next_index">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_next_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manipulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_left</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L663-L678"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.get_next_index" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_next_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manipulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_left</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L664-L679"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.get_next_index" title="Permalink to this definition"></a></dt>
 <dd><p>Returns an index that should have the most negative effect on the
 matrix sum</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix">
-<span class="sig-name descname"><span class="pre">minimize_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L583-L590"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">minimize_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L584-L591"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>This method finds and returns the permutations that produce the lowest
-ewald sum calls recursive function to iterate through permutations</p>
+Ewald sum calls recursive function to iterate through permutations</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minimized_sum</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minimized_sum</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum" title="Permalink to this definition"></a></dt>
 <dd><p>Minimized sum</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns</p>
 </dd>
 </dl>
@@ -242,10 +243,10 @@ ewald sum calls recursive function to iterate through permutations</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldMinimizer.output_lists">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_lists</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.output_lists" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_lists</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.output_lists" title="Permalink to this definition"></a></dt>
 <dd><p>output lists.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns</p>
 </dd>
 </dl>
@@ -255,8 +256,8 @@ ewald sum calls recursive function to iterate through permutations</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EwaldSummation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recip_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7071067811865475</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_forces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L33-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EwaldSummation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recip_space_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7071067811865475</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_forces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L34-L502"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Calculates the electrostatic energy of a periodic array of charges using
 the Ewald technique.</p>
 <p>Ref:
@@ -264,14 +265,14 @@ Ewald summation techniques in perspective: a survey
 Abdulnour Y. Toukmaji and John A. Board Jr.
 DOI: 10.1016/0010-4655(96)00016-1
 URL: <a class="reference external" href="http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html">http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html</a></p>
-<p>This matrix can be used to do fast calculations of ewald sums after species
+<p>This matrix can be used to do fast calculations of Ewald sums after species
 removal.</p>
 <p>E = E_recip + E_real + E_point</p>
 <p>Atomic units used in the code, then converted to eV.</p>
 <p>Initializes and calculates the Ewald sum. Default convergence
 parameters have been specified, but you can override them if you wish.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure that must have proper
 Species on all sites, i.e. Element with oxidation state. Use
@@ -301,15 +302,15 @@ default since it is usually not needed.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.CONV_FACT">
-<span class="sig-name descname"><span class="pre">CONV_FACT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14.39964547842567</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">CONV_FACT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14.39964547842567</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L447-L471"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L448-L472"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Json-serialization dict representation of EwaldSummation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 0 only includes the
 matrix representation. Set to 1 for more details.</p>
 </dd>
@@ -318,25 +319,25 @@ matrix representation. Set to 1 for more details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy">
-<span class="sig-name descname"><span class="pre">compute_partial_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">removed_indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L131-L140"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy" title="Permalink to this definition"></a></dt>
-<dd><p>Gives total ewald energy for certain sites being removed, i.e. zeroed
+<span class="sig-name descname"><span class="pre">compute_partial_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">removed_indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L132-L141"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Gives total Ewald energy for certain sites being removed, i.e. zeroed
 out.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure">
-<span class="sig-name descname"><span class="pre">compute_sub_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L142-L185"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure" title="Permalink to this definition"></a></dt>
-<dd><p>Gives total ewald energy for an sub structure in the same
+<span class="sig-name descname"><span class="pre">compute_sub_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L143-L186"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Gives total Ewald energy for an sub structure in the same
 lattice. The sub_structure must be a subset of the original
 structure, with possible different charges.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>substructure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Substructure to compute Ewald sum for.</p></li>
 <li><p><strong>tol</strong> (<em>float</em>) – Tolerance for site matching in fractional coordinates.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Ewald sum of substructure.</p>
 </dd>
 </dl>
@@ -344,10 +345,10 @@ structure, with possible different charges.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.eta">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eta</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.eta" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eta</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.eta" title="Permalink to this definition"></a></dt>
 <dd><p>eta value used in Ewald summation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns</p>
 </dd>
 </dl>
@@ -355,26 +356,26 @@ structure, with possible different charges.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.forces">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forces</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.forces" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forces</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.forces" title="Permalink to this definition"></a></dt>
 <dd><p>The forces on each site as a Nx3 matrix. Each row corresponds to a
 site.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.ewald.EwaldSummation" title="pymatgen.analysis.ewald.EwaldSummation"><span class="pre">pymatgen.analysis.ewald.EwaldSummation</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L473-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.ewald.EwaldSummation" title="pymatgen.analysis.ewald.EwaldSummation"><span class="pre">EwaldSummation</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L474-L502"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Create an EwaldSummation instance from JSON-serialized dictionary.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>d</strong> (<em>Dict</em>) – Dictionary representation</p></li>
+<li><p><strong>d</strong> (<em>dict</em>) – Dictionary representation</p></li>
 <li><p><strong>fmt</strong> (<em>str</em><em>, </em><em>optional</em>) – Unused. Defaults to None.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>class instance</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#pymatgen.analysis.ewald.EwaldSummation" title="pymatgen.analysis.ewald.EwaldSummation">EwaldSummation</a></p>
 </dd>
 </dl>
@@ -382,13 +383,13 @@ site.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.get_site_energy">
-<span class="sig-name descname"><span class="pre">get_site_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L293-L306"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.get_site_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_site_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L294-L307"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.get_site_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the energy for a single site in the structure</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>site_index</strong> (<em>int</em>) – Index of site</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(float) - Energy of that site</p>
 </dd>
 </dl>
@@ -396,39 +397,39 @@ site.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.point_energy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">point_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">point_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy" title="Permalink to this definition"></a></dt>
 <dd><p>The point energy.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">point_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">point_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>The point space matrix. A diagonal matrix with the point terms for each
 site in the diagonal elements.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.real_space_energy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_space_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy" title="Permalink to this definition"></a></dt>
-<dd><p>The real space space energy.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_space_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy" title="Permalink to this definition"></a></dt>
+<dd><p>The real space energy.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_space_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_space_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>The real space energy matrix. Each matrix element (i, j) corresponds to
 the interaction energy between site i and site j in real space.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_space_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_space_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy" title="Permalink to this definition"></a></dt>
 <dd><p>The reciprocal space energy.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_space_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_space_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>The reciprocal space energy matrix. Each matrix element (i, j)
 corresponds to the interaction energy between site i and site j in
 reciprocal space.</p>
@@ -436,13 +437,13 @@ reciprocal space.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.total_energy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_energy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy" title="Permalink to this definition"></a></dt>
 <dd><p>The total energy.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_energy_matrix</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/ewald.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>The total energy matrix. Each matrix element (i, j) corresponds to the
 total interaction energy between site i and site j.</p>
 <p>Note that this does not include the charged-cell energy, which is only important
@@ -453,13 +454,13 @@ when the simulation cell is not charge balanced.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.ewald.compute_average_oxidation_state">
-<span class="sig-name descname"><span class="pre">compute_average_oxidation_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/ewald.py#L759-L781"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.compute_average_oxidation_state" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compute_average_oxidation_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/ewald.py#L763-L785"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ewald.compute_average_oxidation_state" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the average oxidation state of a site</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>site</strong> – Site to compute average oxidation state</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Average oxidation state of site.</p>
 </dd>
 </dl>

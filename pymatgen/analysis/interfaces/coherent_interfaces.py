@@ -144,7 +144,7 @@ class CoherentInterfaceBuilder:
                 zip(film_terminations, film_shits), zip(sub_terminations, sub_shifts)
             )
         }
-        self.terminations = list(self._terminations.keys())
+        self.terminations = list(self._terminations)
 
     def get_interfaces(
         self,
@@ -224,7 +224,7 @@ class CoherentInterfaceBuilder:
 
             # Add extra info
             match_dict = match.as_dict()
-            interface_properties = {k: match_dict[k] for k in match_dict.keys() if not k.startswith("@")}
+            interface_properties = {k: match_dict[k] for k in match_dict if not k.startswith("@")}
 
             dfm = Deformation(match.match_transformation)
 

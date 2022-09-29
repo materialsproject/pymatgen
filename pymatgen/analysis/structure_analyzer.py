@@ -20,6 +20,7 @@ from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
 
@@ -38,7 +39,7 @@ def average_coordination_number(structures, freq=10):
         Dictionary of elements as keys and average coordination numbers as values.
     """
     coordination_numbers = {}
-    for spec in structures[0].composition.as_dict().keys():
+    for spec in structures[0].composition.as_dict():
         coordination_numbers[spec] = 0.0
     count = 0
     for i, s in enumerate(structures):
@@ -79,7 +80,7 @@ class VoronoiAnalyzer:
         self.cutoff = cutoff
         self.qhull_options = qhull_options
 
-    def analyze(self, structure, n=0):
+    def analyze(self, structure: Structure, n=0):
         """
         Performs Voronoi analysis and returns the polyhedra around atom n
         in Schlaefli notation.
@@ -250,7 +251,7 @@ class VoronoiConnectivity:
     polyhedron between two sites.
     """
 
-    def __init__(self, structure, cutoff=10):
+    def __init__(self, structure: Structure, cutoff=10):
         """
         Args:
             structure (Structure): Input structure
@@ -420,7 +421,7 @@ class OxideType:
     Separate class for determining oxide type.
     """
 
-    def __init__(self, structure, relative_cutoff=1.1):
+    def __init__(self, structure: Structure, relative_cutoff=1.1):
         """
         Args:
             structure: Input structure.
@@ -461,7 +462,7 @@ class OxideType:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species.keys()]
+            syms = [sp.symbol for sp in site.species]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:

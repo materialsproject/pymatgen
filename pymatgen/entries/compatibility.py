@@ -785,7 +785,9 @@ class MaterialsProjectCompatibility(CorrectionsList):
     valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
+    def __init__(
+        self, compat_type: str = "Advanced", correct_peroxide: bool = True, check_potcar_hash: bool = False
+    ) -> None:
         """
         Args:
             compat_type: Two options, GGA or Advanced. GGA means all GGA+U
@@ -828,11 +830,11 @@ class MaterialsProject2020Compatibility(Compatibility):
 
     def __init__(
         self,
-        compat_type="Advanced",
-        correct_peroxide=True,
-        check_potcar_hash=False,
-        config_file=None,
-    ):
+        compat_type: str = "Advanced",
+        correct_peroxide: bool = True,
+        check_potcar_hash: bool = False,
+        config_file: str = None,
+    ) -> None:
         """
         Args:
             compat_type: Two options, GGA or Advanced. GGA means all GGA+U
@@ -871,7 +873,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 https://doi.org/10.1038/s41598-021-94550-5
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
-                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
+                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1-10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
             raise CompatibilityError(f"Invalid compat_type {compat_type}")
@@ -883,12 +885,10 @@ class MaterialsProject2020Compatibility(Compatibility):
         # load corrections and uncertainties
         if config_file:
             if os.path.isfile(config_file):
-                self.config_file = config_file
+                self.config_file: str | None = config_file
                 c = loadfn(self.config_file)
             else:
-                raise ValueError(
-                    f"Custom MaterialsProject2020Compatibility config_file ({config_file}) does not exist."
-                )
+                raise ValueError(f"Custom MaterialsProject2020Compatibility {config_file=} does not exist.")
         else:
             self.config_file = None
             c = loadfn(os.path.join(MODULE_DIR, "MP2020Compatibility.yaml"))
@@ -986,20 +986,9 @@ class MaterialsProject2020Compatibility(Compatibility):
                         "formulas, e.g., Li2O2."
                     )
 
-                    common_peroxides = [
-                        "Li2O2",
-                        "Na2O2",
-                        "K2O2",
-                        "Cs2O2",
-                        "Rb2O2",
-                        "BeO2",
-                        "MgO2",
-                        "CaO2",
-                        "SrO2",
-                        "BaO2",
-                    ]
-                    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-                    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+                    common_peroxides = "Li2O2 Na2O2 K2O2 Cs2O2 Rb2O2 BeO2 MgO2 CaO2 SrO2 BaO2".split()
+                    common_superoxides = "LiO2 NaO2 KO2 RbO2 CsO2".split()
+                    ozonides = "LiO3 NaO3 KO3 NaO5".split()
 
                     if rform in common_peroxides:
                         ox_type = "peroxide"
@@ -1030,7 +1019,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         # first check for a pre-populated oxidation states key
         # the key is expected to comprise a dict corresponding to the first element output by
         # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-        if "oxidation_states" not in entry.data.keys():
+        if "oxidation_states" not in entry.data:
             # try to guess the oxidation states from composition
             # for performance reasons, fail if the composition is too large
             try:
@@ -1198,7 +1187,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous
         equilibria: Scheme to combine first-principles calculations of solids with
         experimental aqueous states, Phys. Rev. B - Condens. Matter Mater. Phys.
-        85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
+        85 (2012) 1-12. doi:10.1103/PhysRevB.85.235438.
     """
 
     def __init__(

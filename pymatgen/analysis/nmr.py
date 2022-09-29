@@ -29,7 +29,7 @@ class ChemicalShielding(SquareTensor):
     NMR Chemical shielding tensors
 
     Three notations to describe chemical shielding tensor (RK Harris; Magn. Reson.
-    Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.
+    Chem. 2008, 46, 582-598; DOI: 10.1002/mrc.2225) are supported.
 
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
@@ -102,7 +102,7 @@ class ChemicalShielding(SquareTensor):
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         omega = np.diag(pas)[2] - np.diag(pas)[0]
-        # There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.
+        # There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582-598, the sign is wrong.
         # There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.
         kappa = 3.0 * (np.diag(pas)[1] - sigma_iso) / omega
         return self.MarylandNotation(sigma_iso, omega, kappa)

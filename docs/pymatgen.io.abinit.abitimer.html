@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.abinit.abitimer module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.io.abinit.abitimer module &mdash; pymatgen 2022.9.21 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.9.21
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -115,16 +116,16 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.io.abinit.abitimer">
-<span id="pymatgen-io-abinit-abitimer-module"></span><h1>pymatgen.io.abinit.abitimer module<a class="headerlink" href="#module-pymatgen.io.abinit.abitimer" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-io-abinit-abitimer-module"></span><h1>pymatgen.io.abinit.abitimer module<a class="headerlink" href="#module-pymatgen.io.abinit.abitimer" title="Permalink to this heading"></a></h1>
 <p>This module provides objects for extracting timing data from the ABINIT output files
 It also provides tools to analyze and to visualize the parallel efficiency.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_time</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L651-L932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_time</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L651-L932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Container class storing the timing results.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sections</strong> – List of sections</p></li>
 <li><p><strong>info</strong> – Dictionary with extra info.</p></li>
@@ -135,20 +136,16 @@ It also provides tools to analyze and to visualize the parallel efficiency.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram">
-<span class="sig-name descname"><span class="pre">cpuwall_histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../util/plotting.py#L823-L855"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cpuwall_histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../util/plotting.py#L823-L855"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram" title="Permalink to this definition"></a></dt>
 <dd><p>Plot histogram with cpu- and wall-time on axis <cite>ax</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</p>
 </dd>
 </dl>
 <p>Returns: <cite>matplotlib</cite> figure</p>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -188,47 +185,47 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.get_dataframe">
-<span class="sig-name descname"><span class="pre">get_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L728-L748"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.get_dataframe" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L728-L748"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.get_dataframe" title="Permalink to this definition"></a></dt>
 <dd><p>Return a pandas DataFrame with entries sorted according to <cite>sort_key</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.get_section">
-<span class="sig-name descname"><span class="pre">get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L685-L693"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.get_section" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L685-L693"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.get_section" title="Permalink to this definition"></a></dt>
 <dd><p>Return section associated to <cite>section_name</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.get_values">
-<span class="sig-name descname"><span class="pre">get_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L750-L759"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.get_values" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L750-L759"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.get_values" title="Permalink to this definition"></a></dt>
 <dd><p>Return a list of values associated to a particular list of keys.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.names_and_values">
-<span class="sig-name descname"><span class="pre">names_and_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L761-L810"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.names_and_values" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">names_and_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L761-L810"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.names_and_values" title="Permalink to this definition"></a></dt>
 <dd><p>Select the entries whose value[key] is &gt;= minval or whose fraction[key] is &gt;= minfract
 Return the names of the sections and the corresponding values.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.ncpus">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ncpus</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.ncpus" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ncpus</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.ncpus" title="Permalink to this definition"></a></dt>
 <dd><p>Total number of CPUs employed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.order_sections">
-<span class="sig-name descname"><span class="pre">order_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L819-L821"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.order_sections" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">order_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L819-L821"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.order_sections" title="Permalink to this definition"></a></dt>
 <dd><p>Sort sections according to the value of key.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.pie">
-<span class="sig-name descname"><span class="pre">pie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../util/plotting.py#L857-L875"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.pie" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../util/plotting.py#L857-L875"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.pie" title="Permalink to this definition"></a></dt>
 <dd><p>Plot pie chart for this timer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – Keyword used to extract data from the timer.</p></li>
 <li><p><strong>minfract</strong> – Don’t show sections whose relative weight is less that minfract.</p></li>
@@ -239,10 +236,6 @@ Return the names of the sections and the corresponding values.</p>
 <p>Returns: <cite>matplotlib</cite> figure</p>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -282,20 +275,16 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist">
-<span class="sig-name descname"><span class="pre">scatter_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../util/plotting.py#L877-L932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">scatter_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../util/plotting.py#L877-L932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist" title="Permalink to this definition"></a></dt>
 <dd><p>Scatter plot + histogram.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</p>
 </dd>
 </dl>
 <p>Returns: <cite>matplotlib</cite> figure</p>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -335,25 +324,25 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections">
-<span class="sig-name descname"><span class="pre">sum_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L815-L817"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sum_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L815-L817"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections" title="Permalink to this definition"></a></dt>
 <dd><p>Sum value of keys.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.to_csv">
-<span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileobj=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L695-L707"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.to_csv" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileobj=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L695-L707"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.to_csv" title="Permalink to this definition"></a></dt>
 <dd><p>Write data on file fileobj using CSV format.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.to_table">
-<span class="sig-name descname"><span class="pre">to_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L709-L723"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.to_table" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L709-L723"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.to_table" title="Permalink to this definition"></a></dt>
 <dd><p>Return a table (list of lists) with timer data</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimer.totable">
-<span class="sig-name descname"><span class="pre">totable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L709-L723"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.totable" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">totable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L709-L723"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.totable" title="Permalink to this definition"></a></dt>
 <dd><p>Return a table (list of lists) with timer data</p>
 </dd></dl>
 
@@ -361,8 +350,8 @@ Default: False</p></td>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimerParser</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L38-L506"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Iterable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimerParser</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L38-L506"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></p>
 <p>Responsible for parsing a list of output files, extracting the timing results
 and analyzing the results.
 Assume the Abinit output files have been produced with <cite>timopt -1</cite>.</p>
@@ -376,36 +365,36 @@ parser.parse(list_of_files)</p>
 <p>Initialize object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG">
-<span class="sig-name descname"><span class="pre">BEGIN_TAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'-&lt;BEGIN_TIMER'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">BEGIN_TAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'-&lt;BEGIN_TIMER'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.END_TAG">
-<span class="sig-name descname"><span class="pre">END_TAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'-&lt;END_TIMER&gt;'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.END_TAG" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">END_TAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'-&lt;END_TIMER&gt;'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.END_TAG" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.Error">
-<span class="sig-name descname"><span class="pre">Error</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L34-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.Error" title="Permalink to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abitimer.AbinitTimerParserError" title="pymatgen.io.abinit.abitimer.AbinitTimerParserError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abitimer.AbinitTimerParserError</span></code></a></p>
+<span class="sig-name descname"><span class="pre">Error</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L34-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.Error" title="Permalink to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abitimer.AbinitTimerParserError" title="pymatgen.io.abinit.abitimer.AbinitTimerParserError"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTimerParserError</span></code></a></p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.filenames">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filenames</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.filenames" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filenames</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.filenames" title="Permalink to this definition"></a></dt>
 <dd><p>List of files that have been parsed successfully.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.get_sections">
-<span class="sig-name descname"><span class="pre">get_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L235-L249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.get_sections" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L235-L249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.get_sections" title="Permalink to this definition"></a></dt>
 <dd><p>Return the list of sections stored in self.timers() given <cite>section_name</cite>
 A fake section is returned if the timer does not have section_name.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.parse">
-<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L103-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.parse" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L103-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.parse" title="Permalink to this definition"></a></dt>
 <dd><p>Read and parse a filename or a list of filenames.
 Files that cannot be opened are ignored. A single filename may also be given.</p>
 <p>Return: list of successfully read files.</p>
@@ -413,23 +402,23 @@ Files that cannot be opened are ignored. A single filename may also be given.</p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.pefficiency">
-<span class="sig-name descname"><span class="pre">pefficiency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L251-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.pefficiency" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pefficiency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L251-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.pefficiency" title="Permalink to this definition"></a></dt>
 <dd><p>Analyze the parallel efficiency.</p>
 <p>Return: <a class="reference internal" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="pymatgen.io.abinit.abitimer.ParallelEfficiency"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelEfficiency</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_all">
-<span class="sig-name descname"><span class="pre">plot_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L497-L506"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_all" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L497-L506"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_all" title="Permalink to this definition"></a></dt>
 <dd><p>Call all plot methods provided by the parser.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency">
-<span class="sig-name descname"><span class="pre">plot_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">what</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'good+bad'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../util/plotting.py#L330-L405"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">what</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'good+bad'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../util/plotting.py#L330-L405"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency" title="Permalink to this definition"></a></dt>
 <dd><p>Plot the parallel efficiency</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – Parallel efficiency is computed using the wall_time.</p></li>
 <li><p><strong>what</strong> – Specifies what to plot: <cite>good</cite> for sections with good parallel efficiency.
@@ -440,10 +429,6 @@ Files that cannot be opened are ignored. A single filename may also be given.</p
 </dd>
 </dl>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 24%" />
-<col style="width: 76%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -459,16 +444,12 @@ Files that cannot be opened are ignored. A single filename may also be given.</p
 </tbody>
 </table>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><cite>matplotlib</cite> figure</p>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -508,25 +489,21 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie">
-<span class="sig-name descname"><span class="pre">plot_pie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../util/plotting.py#L407-L433"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_pie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../util/plotting.py#L407-L433"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie" title="Permalink to this definition"></a></dt>
 <dd><p>Plot pie charts of the different timers.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – Keyword used to extract data from timers.</p></li>
 <li><p><strong>minfract</strong> – Don’t show sections whose relative weight is less that minfract.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><cite>matplotlib</cite> figure</p>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -566,10 +543,10 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist">
-<span class="sig-name descname"><span class="pre">plot_stacked_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../util/plotting.py#L435-L495"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_stacked_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../util/plotting.py#L435-L495"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist" title="Permalink to this definition"></a></dt>
 <dd><p>Plot stacked histogram of the different timers.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – Keyword used to extract data from the timers. Only the first <cite>nmax</cite>
 sections with largest value are show.</p></li>
@@ -578,16 +555,12 @@ in the <cite>others</cite> section.</p></li>
 <li><p><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><cite>matplotlib</cite> figure</p>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -627,26 +600,26 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.section_names">
-<span class="sig-name descname"><span class="pre">section_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L212-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.section_names" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">section_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L212-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.section_names" title="Permalink to this definition"></a></dt>
 <dd><p>Return the names of sections ordered by ordkey.
 For the time being, the values are taken from the first timer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.summarize">
-<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L302-L328"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.summarize" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L302-L328"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.summarize" title="Permalink to this definition"></a></dt>
 <dd><p>Return pandas DataFrame with the most important results stored in the timers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.timers">
-<span class="sig-name descname"><span class="pre">timers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpi_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L204-L210"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.timers" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">timers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpi_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L204-L210"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.timers" title="Permalink to this definition"></a></dt>
 <dd><p>Return the list of timers associated to the given <cite>filename</cite> and MPI rank mpi_rank.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParser.walk">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.abo'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L62-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.walk" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.abo'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L62-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.walk" title="Permalink to this definition"></a></dt>
 <dd><p>Scan directory tree starting from top, look for files with extension <cite>ext</cite> and
 parse timing data.</p>
 <dl class="simple">
@@ -661,18 +634,18 @@ is the list of files that have been parsed successfully.
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerParserError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimerParserError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L34-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParserError" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimerParserError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L34-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParserError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Errors raised by AbinitTimerParser</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimerSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_fract</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_fract</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncalls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflops</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L585-L648"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbinitTimerSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_fract</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_fract</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncalls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflops</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L585-L648"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Record with the timing results associated to a section of code.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – Name of the sections.</p></li>
 <li><p><strong>cpu_time</strong> – CPU time in seconds.</p></li>
@@ -686,40 +659,40 @@ is the list of files that have been parsed successfully.
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS">
-<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('name',</span> <span class="pre">'wall_time',</span> <span class="pre">'wall_fract',</span> <span class="pre">'cpu_time',</span> <span class="pre">'cpu_fract',</span> <span class="pre">'ncalls',</span> <span class="pre">'gflops')</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('name',</span> <span class="pre">'wall_time',</span> <span class="pre">'wall_fract',</span> <span class="pre">'cpu_time',</span> <span class="pre">'cpu_fract',</span> <span class="pre">'ncalls',</span> <span class="pre">'gflops')</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection.NUMERIC_FIELDS">
-<span class="sig-name descname"><span class="pre">NUMERIC_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['wall_time',</span> <span class="pre">'wall_fract',</span> <span class="pre">'cpu_time',</span> <span class="pre">'cpu_fract',</span> <span class="pre">'ncalls',</span> <span class="pre">'gflops']</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.NUMERIC_FIELDS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">NUMERIC_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['wall_time',</span> <span class="pre">'wall_fract',</span> <span class="pre">'cpu_time',</span> <span class="pre">'cpu_fract',</span> <span class="pre">'ncalls',</span> <span class="pre">'gflops']</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.NUMERIC_FIELDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection.STR_FIELDS">
-<span class="sig-name descname"><span class="pre">STR_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['name']</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.STR_FIELDS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">STR_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['name']</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/io/abinit/abitimer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.STR_FIELDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection.fake">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L601-L604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.fake" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L601-L604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.fake" title="Permalink to this definition"></a></dt>
 <dd><p>Return a fake section. Mainly used to fill missing entries if needed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline">
-<span class="sig-name descname"><span class="pre">to_csvline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L633-L641"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_csvline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L633-L641"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline" title="Permalink to this definition"></a></dt>
 <dd><p>Return a string with data in CSV format. Add header if <cite>with_header</cite></p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L629-L631"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L629-L631"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Convert object to dictionary.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple">
-<span class="sig-name descname"><span class="pre">to_tuple</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L625-L627"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_tuple</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L625-L627"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple" title="Permalink to this definition"></a></dt>
 <dd><p>Convert object to tuple.</p>
 </dd></dl>
 
@@ -727,11 +700,11 @@ is the list of files that have been parsed successfully.
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.ParallelEfficiency">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ParallelEfficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_idx</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L509-L582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ParallelEfficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_idx</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L509-L582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 <p>Store results concerning the parallel efficiency of the job.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filennames</strong> – List of filenames</p></li>
 <li><p><strong>ref_idx</strong> – Index of the Reference time (calculation done with the smallest number of cpus)</p></li>
@@ -740,22 +713,22 @@ is the list of files that have been parsed successfully.
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections">
-<span class="sig-name descname"><span class="pre">bad_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L577-L582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bad_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L577-L582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections" title="Permalink to this definition"></a></dt>
 <dd><p>Return first <cite>nmax</cite> sections with worst value of key <cite>key</cite> using criterion <cite>criterion</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections">
-<span class="sig-name descname"><span class="pre">good_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L570-L575"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">good_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wall_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L570-L575"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections" title="Permalink to this definition"></a></dt>
 <dd><p>Return first <cite>nmax</cite> sections with best value of key <cite>key</cite> using criterion <cite>criterion</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.ParallelEfficiency.totable">
-<span class="sig-name descname"><span class="pre">totable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L547-L568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.totable" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">totable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L547-L568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.totable" title="Permalink to this definition"></a></dt>
 <dd><p>Return table (list of lists) with timing results.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stop</strong> – Include results up to stop. None for all</p></li>
 <li><p><strong>reverse</strong> – Put items with highest wall_time in first positions if True.</p></li>
@@ -768,7 +741,7 @@ is the list of files that have been parsed successfully.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abitimer.alternate">
-<span class="sig-name descname"><span class="pre">alternate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">iterables</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../io/abinit/abitimer.py#L22-L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.alternate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">alternate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">iterables</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../io/abinit/abitimer.py#L22-L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.alternate" title="Permalink to this definition"></a></dt>
 <dd><p>[a[0], b[0], … , a[1], b[1], …, a[n], b[n] …]
 &gt;&gt;&gt; alternate([1,4], [2,5], [3,6])
 [1, 2, 3, 4, 5, 6]</p>

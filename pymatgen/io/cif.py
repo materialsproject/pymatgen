@@ -37,9 +37,9 @@ __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"].keys()}  # type: ignore
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
-space_groups.update({sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"].keys()})  # type: ignore
+space_groups.update({sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
 _COD_DATA = None
 
@@ -92,7 +92,7 @@ class CifBlock:
         Returns the cif string for the data block
         """
         s = [f"data_{self.header}"]
-        keys = self.data.keys()
+        keys = list(self.data)
         written = []
         for k in keys:
             if k in written:
@@ -325,7 +325,7 @@ class CifParser:
                 "_space_group_symop_magn",
             ]
             for d in self._cif.data.values():
-                for k in d.data.keys():
+                for k in d.data:
                     for prefix in prefixes:
                         if prefix in k:
                             return True
@@ -345,7 +345,7 @@ class CifParser:
                 return False
             prefixes = ["_cell_modulation_dimension", "_cell_wave_vector"]
             for d in self._cif.data.values():
-                for k in d.data.keys():
+                for k in d.data:
                     for prefix in prefixes:
                         if prefix in k:
                             return True
@@ -353,7 +353,7 @@ class CifParser:
 
         self.feature_flags["magcif_incommensurate"] = is_magcif_incommensurate()
 
-        for k in self._cif.data.keys():
+        for k in self._cif.data:
             # pass individual CifBlocks to _sanitize_data
             self._cif.data[k] = self._sanitize_data(self._cif.data[k])
 
@@ -385,7 +385,6 @@ class CifParser:
         :param data: CifBlock
         :return: data CifBlock
         """
-
         """
         This part of the code deals with handling formats of data as found in
         CIF files extracted from the Springer Materials/Pauling File
@@ -393,7 +392,7 @@ class CifParser:
         """
 
         # check for implicit hydrogens, warn if any present
-        if "_atom_site_attached_hydrogens" in data.data.keys():
+        if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
                 self.warnings.append(
@@ -404,7 +403,7 @@ class CifParser:
 
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
-        if "_atom_site_type_symbol" in data.data.keys():
+        if "_atom_site_type_symbol" in data.data:
 
             # Keep a track of which data row needs to be removed.
             # Example of a row: Nb,Zr '0.8Nb + 0.2Zr' .2a .m-3m 0 0 0 1 14
@@ -432,9 +431,7 @@ class CifParser:
                 # Below, we split the strings on ' + ' to
                 # check if the length (or number of elements) in the label and
                 # symbol are equal.
-                if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(
-                    data["_atom_site_label"][idx].split(" + ")
-                ):
+                if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(el_row.split(" + ")):
 
                     # Dictionary to hold extracted elements and occupancies
                     els_occu = {}
@@ -489,7 +486,6 @@ class CifParser:
                 data.data["_atom_site_fract_x"] += new_fract_x
                 data.data["_atom_site_fract_y"] += new_fract_y
                 data.data["_atom_site_fract_z"] += new_fract_z
-
         """
         This fixes inconsistencies in naming of several magCIF tags
         as a result of magCIF being in widespread use prior to
@@ -550,7 +546,7 @@ class CifParser:
         important_fracs = (1 / 3.0, 2 / 3.0)
         fracs_to_change = {}
         for label in ("_atom_site_fract_x", "_atom_site_fract_y", "_atom_site_fract_z"):
-            if label in data.data.keys():
+            if label in data.data:
                 for idx, frac in enumerate(data.data[label]):
                     try:
                         frac = str2float(frac)
@@ -883,7 +879,7 @@ class CifParser:
         # try with special symbols, otherwise check the first two letters,
         # then the first letter alone. If everything fails try extracting the
         # first letters.
-        m_sp = re.match("|".join(special.keys()), sym)
+        m_sp = re.match("|".join(special), sym)
         if m_sp:
             parsed_sym = special[m_sp.group()]
         elif Element.is_valid_symbol(sym[:2].title()):
@@ -930,7 +926,7 @@ class CifParser:
         coord_to_magmoms = {}
 
         def get_matching_coord(coord):
-            keys = list(coord_to_species.keys())
+            keys = list(coord_to_species)
             coords = np.array(keys)
             for op in self.symmetry_operations:
                 c = op.operate(coord)
@@ -957,7 +953,7 @@ class CifParser:
             if oxi_states is not None:
                 o_s = oxi_states.get(symbol, 0)
                 # use _atom_site_type_symbol if possible for oxidation state
-                if "_atom_site_type_symbol" in data.data.keys():
+                if "_atom_site_type_symbol" in data.data:
                     oxi_symbol = data["_atom_site_type_symbol"][i]
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
@@ -1017,7 +1013,7 @@ class CifParser:
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
-            for k, v in coord_to_magmoms.items():
+            for v in coord_to_magmoms.values():
                 if v is None:
                     # Proposed solution to this is to instead store magnetic
                     # moments as Species 'spin' property, instead of site
@@ -1330,7 +1326,7 @@ class CifWriter:
 
         try:
             symbol_to_oxinum = {str(el): float(el.oxi_state) for el in sorted(comp.elements)}
-            block["_atom_type_symbol"] = symbol_to_oxinum.keys()
+            block["_atom_type_symbol"] = list(symbol_to_oxinum)
             block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
         except (TypeError, AttributeError):

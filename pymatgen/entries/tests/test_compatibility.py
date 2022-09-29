@@ -2034,7 +2034,7 @@ class TestMaterialsProjectAqueousCompatibility:
                 compat.process_entries(entry)
 
         # the corrections should set the energy of any H2 polymorph the same, because
-        # we have only processed one entry at at time. Energy differences of H2O
+        # we have only processed one entry at time. Energy differences of H2O
         # polymorphs should be preserved.
         assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
         assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom)

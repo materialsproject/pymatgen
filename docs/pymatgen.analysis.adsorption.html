@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.adsorption module &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>pymatgen.analysis.adsorption module &mdash; pymatgen 2022.9.21 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.9.21
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,12 +115,12 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.analysis.adsorption">
-<span id="pymatgen-analysis-adsorption-module"></span><h1>pymatgen.analysis.adsorption module<a class="headerlink" href="#module-pymatgen.analysis.adsorption" title="Permalink to this headline"></a></h1>
+<span id="pymatgen-analysis-adsorption-module"></span><h1>pymatgen.analysis.adsorption module<a class="headerlink" href="#module-pymatgen.analysis.adsorption" title="Permalink to this heading"></a></h1>
 <p>This module provides classes used to enumerate surface sites
 and to find adsorption sites on slabs</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdsorbateSiteFinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_dynamics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mi_vec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L37-L613"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdsorbateSiteFinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_dynamics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mi_vec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L37-L613"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class finds adsorbate sites on slabs and generates
 adsorbate structures according to user-defined criteria.
@@ -152,7 +153,7 @@ Triangulation</p>
 </div></blockquote>
 <p>Create an AdsorbateSiteFinder object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – slab object for which to find adsorbate sites</p></li>
 <li><p><strong>selective_dynamics</strong> (<em>bool</em>) – flag for whether to assign
@@ -167,13 +168,13 @@ must be supplied manually</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate">
-<span class="sig-name descname"><span class="pre">add_adsorbate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ads_coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L374-L417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_adsorbate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ads_coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L374-L417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate" title="Permalink to this definition"></a></dt>
 <dd><p>Adds an adsorbate at a particular coordinate. Adsorbate
 represented by a Molecule object and is translated to (0, 0, 0) if
 translate is True, or positioned relative to the input adsorbate
 coordinate if translate is False.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule object representing the adsorbate</p></li>
 <li><p><strong>ads_coord</strong> (<em>array</em>) – coordinate of adsorbate position</p></li>
@@ -190,13 +191,13 @@ have its z-axis concurrent with miller index</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">
-<span class="sig-name descname"><span class="pre">adsorb_both_surfaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L482-L546"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">adsorb_both_surfaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L482-L546"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition"></a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate on both surfaces of a slab. This is useful
 for calculating surface energy where both surfaces need to be
 equivalent or if we want to calculate nonpolar systems.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule corresponding to adsorbate</p></li>
 <li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</p></li>
@@ -213,11 +214,11 @@ call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assign_selective_dynamics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L419-L435"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assign_selective_dynamics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L419-L435"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function to assign selective dynamics site_properties
 based on surface, subsurface site properties</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – slab for which to assign selective dynamics</p>
 </dd>
 </dl>
@@ -225,18 +226,18 @@ based on surface, subsurface site properties</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties">
-<span class="sig-name descname"><span class="pre">assign_site_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L194-L203"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">assign_site_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L194-L203"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties" title="Permalink to this definition"></a></dt>
 <dd><p>Assigns site properties.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.ensemble_center">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensemble_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L355-L372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.ensemble_center" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensemble_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L355-L372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.ensemble_center" title="Permalink to this definition"></a></dt>
 <dd><p>Finds the center of an ensemble of sites selected from
 a list of sites. Helper method for the find_adsorption_sites
 algorithm.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>site_list</strong> (<em>list of sites</em>) – list of sites</p></li>
 <li><p><strong>indices</strong> (<em>list of ints</em>) – list of ints from which to select
@@ -250,11 +251,11 @@ Cartesian coordinate</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites">
-<span class="sig-name descname"><span class="pre">find_adsorption_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">put_inside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">near_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['ontop',</span> <span class="pre">'bridge',</span> <span class="pre">'hollow']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_obtuse_hollow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L230-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_adsorption_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">put_inside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">near_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('ontop',</span> <span class="pre">'bridge',</span> <span class="pre">'hollow')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_obtuse_hollow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L230-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites" title="Permalink to this definition"></a></dt>
 <dd><p>Finds surface sites according to the above algorithm. Returns
 a list of corresponding Cartesian coordinates.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>distance</strong> (<em>float</em>) – distance from the coordinating ensemble
 of atoms along the miller index for the site (i. e.
@@ -280,11 +281,11 @@ obtuse triangular ensembles in hollow sites</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height">
-<span class="sig-name descname"><span class="pre">find_surface_sites_by_height</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L156-L192"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_surface_sites_by_height</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L156-L192"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height" title="Permalink to this definition"></a></dt>
 <dd><p>This method finds surface sites by determining which sites are within
 a threshold value in height from the topmost site in a list of sites</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>site_list</strong> (<em>list</em>) – list of sites from which to select surface sites</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – threshold in angstroms of distance from topmost
@@ -294,7 +295,7 @@ site determination</p></li>
 within a certain distance in the miller plane.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>list of sites selected to be within a threshold of the highest</p>
 </dd>
 </dl>
@@ -302,13 +303,13 @@ within a certain distance in the miller plane.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.from_bulk_and_miller">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bulk_and_miller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_normal_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_dynamics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undercoord_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.09</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L79-L154"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.from_bulk_and_miller" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bulk_and_miller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_normal_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_dynamics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undercoord_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.09</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L79-L154"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.from_bulk_and_miller" title="Permalink to this definition"></a></dt>
 <dd><p>This method constructs the adsorbate site finder from a bulk
 structure and a miller index, which allows the surface sites
 to be determined from the difference in bulk and slab coordination,
 as opposed to the height threshold.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure from which slab
 input to the ASF is constructed</p></li>
@@ -330,12 +331,12 @@ are 10% less coordinated than their bulk counterpart</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures">
-<span class="sig-name descname"><span class="pre">generate_adsorption_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L437-L480"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_adsorption_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L437-L480"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate. Can take repeat argument or minimum
 length/width of precursor slab as an input</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule corresponding to adsorbate</p></li>
 <li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</p></li>
@@ -354,14 +355,14 @@ call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures">
-<span class="sig-name descname"><span class="pre">generate_substitution_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_both_sides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_from_surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L548-L613"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_substitution_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_both_sides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_from_surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L548-L613"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Function that performs substitution-type doping on the surface and</dt><dd><p>returns all possible configurations where one dopant is substituted
 per surface. Can substitute one surface or both.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>atom</strong> (<em>str</em>) – atom corresponding to substitutional dopant</p></li>
 <li><p><strong>sub_both_sides</strong> (<em>bool</em>) – If true, substitute an equivalent
@@ -378,11 +379,11 @@ substitution sites, defaults to 0 to substitute at the surface</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh">
-<span class="sig-name descname"><span class="pre">get_extended_surface_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">5,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L205-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_extended_surface_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">5,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L205-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh" title="Permalink to this definition"></a></dt>
 <dd><p>Gets an extended surface mesh for to use for adsorption
 site finding by constructing supercell of surface sites</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>repeat</strong> (<em>3-tuple</em>) – repeat for getting extended surface mesh</p>
 </dd>
 </dl>
@@ -390,11 +391,11 @@ site finding by constructing supercell of surface sites</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce">
-<span class="sig-name descname"><span class="pre">near_reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L339-L353"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">near_reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L339-L353"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce" title="Permalink to this definition"></a></dt>
 <dd><p>Prunes coordinate set for coordinates that are within
 threshold</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coords_set</strong> (<em>Nx3 array-like</em>) – list or array of coordinates</p></li>
 <li><p><strong>threshold</strong> (<em>float</em>) – threshold value for distance</p></li>
@@ -405,23 +406,23 @@ threshold</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites">
-<span class="sig-name descname"><span class="pre">subsurface_sites</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L224-L228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">subsurface_sites</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L224-L228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites" title="Permalink to this definition"></a></dt>
 <dd><p>convenience method to return list of subsurface sites</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_sites</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/analysis/adsorption.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_sites</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/analysis/adsorption.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites" title="Permalink to this definition"></a></dt>
 <dd><p>convenience method to return a list of surface sites</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce">
-<span class="sig-name descname"><span class="pre">symm_reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L313-L337"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symm_reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L313-L337"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce" title="Permalink to this definition"></a></dt>
 <dd><p>Reduces the set of adsorbate sites by finding removing
 symmetrically equivalent duplicates</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coords_set</strong> – coordinate set in Cartesian coordinates</p></li>
 <li><p><strong>threshold</strong> – tolerance for distance equivalence, used
@@ -435,24 +436,24 @@ as input to in_coord_list_pbc for dupl. checking</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.get_mi_vec">
-<span class="sig-name descname"><span class="pre">get_mi_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L616-L622"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_mi_vec" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_mi_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L616-L622"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_mi_vec" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience function which returns the unit vector aligned
 with the miller index.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.get_rot">
-<span class="sig-name descname"><span class="pre">get_rot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L625-L637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_rot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_rot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L625-L637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_rot" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the transformation to rotate the z axis into the miller index</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.plot_slab">
-<span class="sig-name descname"><span class="pre">plot_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adsorption_sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L664-L753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.plot_slab" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adsorption_sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L664-L753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.plot_slab" title="Permalink to this definition"></a></dt>
 <dd><p>Function that helps visualize the slab in a 2-D plot, for
 convenient viewing of output of AdsorbateSiteFinder.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>slab</strong> (<em>slab</em>) – Slab object to be visualized</p></li>
 <li><p><strong>ax</strong> (<em>axes</em>) – matplotlib axes with which to visualize</p></li>
@@ -470,13 +471,13 @@ a fraction of the unit cell limits</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.put_coord_inside">
-<span class="sig-name descname"><span class="pre">put_coord_inside</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cart_coordinate</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L640-L645"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.put_coord_inside" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">put_coord_inside</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cart_coordinate</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L640-L645"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.put_coord_inside" title="Permalink to this definition"></a></dt>
 <dd><p>converts a Cartesian coordinate such that it is inside the unit cell.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.reorient_z">
-<span class="sig-name descname"><span class="pre">reorient_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.5.19/pymatgen/core/../analysis/adsorption.py#L648-L656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.reorient_z" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reorient_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.21/pymatgen/core/../analysis/adsorption.py#L648-L656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.reorient_z" title="Permalink to this definition"></a></dt>
 <dd><p>reorients a structure such that the z axis is concurrent with the
 normal to the A-B plane</p>
 </dd></dl>

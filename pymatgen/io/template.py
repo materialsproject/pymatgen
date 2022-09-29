@@ -3,9 +3,10 @@ This module defines a simple concrete implementation of the InputGenerator class
 used to facilitate writing large numbers of input files based on a template.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from string import Template
-from typing import Dict, Optional, Union
 
 from monty.io import zopen
 
@@ -28,7 +29,7 @@ class TemplateInputGen(InputGenerator):
     """
 
     def get_input_set(  # type: ignore
-        self, template: Union[str, Path], variables: Optional[Dict] = None, filename: str = "input.txt"
+        self, template: str | Path, variables: dict | None = None, filename: str = "input.txt"
     ):
         """
         Args:
@@ -41,7 +42,7 @@ class TemplateInputGen(InputGenerator):
             filename: name of the file to be written
         """
         self.template = template
-        self.variables = variables if variables else {}
+        self.variables = variables or {}
         self.filename = filename
 
         # load the template

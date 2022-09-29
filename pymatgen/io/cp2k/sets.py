@@ -1,6 +1,6 @@
 """
 This module defines input sets for CP2K and is a work in progress. The structure/philosophy
-of this module is based on the Vasp input sets in Pymatgen. These sets are meant to contain
+of this module is based on the VASP input sets in Pymatgen. These sets are meant to contain
 tested parameters that will result in successful, reproducible, consistent calculations without
 need for intervention 99% of the time. 99% of the time, you only need to provide a pymatgen
 structure object and let the defaults take over from there.
@@ -104,7 +104,7 @@ class Cp2kInputSet(Cp2kInput):
         basis_and_potential: dict | str = "preferred",
         multiplicity: int = 0,
         project_name: str = "CP2K",
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         **kwargs,
     ):
         """
@@ -133,7 +133,7 @@ class Cp2kInputSet(Cp2kInput):
         self.charge = int(structure.charge)
         self.basis_and_potential = basis_and_potential
         self.multiplicity = multiplicity  # spin multiplicity = 2s+1
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.project_name = project_name
         self.kwargs = kwargs
 
@@ -145,7 +145,7 @@ class Cp2kInputSet(Cp2kInput):
         if self.kwargs.get("print_forces", True):
             self.print_forces()
 
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
     def create_subsys(self, structure: Structure | Molecule):
         """
@@ -240,7 +240,7 @@ class DftSet(Cp2kInputSet):
         rel_cutoff: int = 50,
         ngrids: int = 5,
         progression_factor: int = 3,
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         wfn_restart_file_name: str = None,
         kpoints: Kpoints | None = None,
         smearing: bool = False,
@@ -288,7 +288,7 @@ class DftSet(Cp2kInputSet):
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate. By default cutoff is set to 0,
                 which will assign it to be the largest exponent of your basis times the rel_cutoff.
-            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
+            rel_cutoff (int): This cutoff decides how the Gaussians are mapped onto the different levels of the
                 multigrid. If REL_CUTOFF is too low, then even if you have a high CUTOFF, all Gaussians will be
                 mapped onto the coarsest level of the multi-grid, and thus the effective integration grid for
                 the calculation may still be too coarse. By default 50Ry is chosen, which should be sufficient
@@ -323,7 +323,7 @@ class DftSet(Cp2kInputSet):
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
         self.progression_factor = progression_factor
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.wfn_restart_file_name = wfn_restart_file_name
         self.kpoints = kpoints
         self.smearing = smearing
@@ -331,7 +331,7 @@ class DftSet(Cp2kInputSet):
 
         # Build the QS Section
         qs = QS(eps_default=eps_default)
-        max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
+        max_scf = max_scf or 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         # If there's a band gap, use OT, else use diagonalization
@@ -512,7 +512,6 @@ class DftSet(Cp2kInputSet):
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
     ):
-
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
@@ -569,7 +568,7 @@ class DftSet(Cp2kInputSet):
             screen_p_forces (bool): Same as screen_on_initial_p, but for screening of forces.
         """
         if admm:
-            aux_basis = aux_basis if aux_basis else {}
+            aux_basis = aux_basis or {}
             aux_basis = {s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set}
             basis = get_aux_basis(basis_type=aux_basis)
             if isinstance(self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"], KeywordList):
@@ -627,7 +626,7 @@ class DftSet(Cp2kInputSet):
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
 
-            potential_type = potential_type if potential_type else "SHORTRANGE"
+            potential_type = potential_type or "SHORTRANGE"
             xc_functional.insert(
                 Section(
                     "XWPBE",
@@ -680,7 +679,7 @@ class DftSet(Cp2kInputSet):
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
 
-            potential_type = potential_type if potential_type else "MIX_CL_TRUNC"
+            potential_type = potential_type or "MIX_CL_TRUNC"
             hf_fraction = 1
             ip_keywords.update(
                 {
@@ -885,7 +884,7 @@ class DftSet(Cp2kInputSet):
         assert add_last.lower() in ["no", "numeric", "symbolic"]
         if self.check("FORCE_EVAL/DFT/PRINT"):
             run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0]
-            for k, v in self["force_eval"]["dft"]["print"].subsections.items():
+            for v in self["force_eval"]["dft"]["print"].subsections.values():
 
                 if v.name.upper() in ["ACTIVE_SPACE", "BAND_STRUCTURE", "GAPW", "IMPLICIT_PSOLVER", "SCCS", "WFN_MIX"]:
                     continue
@@ -906,7 +905,7 @@ class StaticSet(DftSet):
         structure: Structure | Molecule,
         project_name: str = "Static",
         run_type: str = "ENERGY_FORCE",
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         **kwargs,
     ):
         """
@@ -920,9 +919,9 @@ class StaticSet(DftSet):
         self.structure = structure
         self.project_name = project_name
         self.run_type = run_type
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.insert(global_section)
-        self.update(override_default_params)
+        self.update(self.override_default_params)
         self.kwargs = kwargs
 
 
@@ -943,10 +942,9 @@ class RelaxSet(DftSet):
         max_iter: int = 200,
         project_name: str = "Relax",
         optimizer: str = "BFGS",
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         **kwargs,
     ):
-
         """
         Args:
             structure: Pymatgen structure object
@@ -988,7 +986,7 @@ class RelaxSet(DftSet):
         self.max_iter = max_iter
         self.project_name = project_name
         self.optimizer = optimizer
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.kwargs = kwargs
 
         global_section = Global(project_name=project_name, run_type="GEO_OPT")
@@ -1013,7 +1011,7 @@ class RelaxSet(DftSet):
         self["MOTION"].insert(geo_opt)
         self.insert(global_section)
         self.modify_dft_print_iters(0, add_last="numeric")
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 # TODO Add cell opt convergence criteria
@@ -1028,10 +1026,9 @@ class CellOptSet(DftSet):
         self,
         structure: Structure | Molecule,
         project_name: str = "CellOpt",
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         **kwargs,
     ):
-
         """
         Args:
             structure: Pymatgen structure object
@@ -1059,13 +1056,13 @@ class CellOptSet(DftSet):
 
         self.structure = structure
         self.project_name = project_name
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.kwargs = kwargs
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
         self.activate_motion()
         self.modify_dft_print_iters(0, add_last="numeric")
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 class HybridStaticSet(StaticSet):
@@ -1086,7 +1083,7 @@ class HybridStaticSet(StaticSet):
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
@@ -1120,7 +1117,7 @@ class HybridStaticSet(StaticSet):
         self.scale_coulomb = scale_coulomb
         self.scale_gaussian = scale_gaussian
         self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
         self.omega = omega
@@ -1151,7 +1148,7 @@ class HybridStaticSet(StaticSet):
             screen_on_initial_p=self.screen_on_initial_p,
             screen_p_forces=self.screen_p_forces,
         )
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 class HybridRelaxSet(RelaxSet):
@@ -1172,7 +1169,7 @@ class HybridRelaxSet(RelaxSet):
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
@@ -1206,7 +1203,7 @@ class HybridRelaxSet(RelaxSet):
         self.scale_coulomb = scale_coulomb
         self.scale_gaussian = scale_gaussian
         self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
         self.omega = omega
@@ -1237,7 +1234,7 @@ class HybridRelaxSet(RelaxSet):
             screen_on_initial_p=self.screen_on_initial_p,
             screen_p_forces=self.screen_p_forces,
         )
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 class HybridCellOptSet(CellOptSet):
@@ -1258,7 +1255,7 @@ class HybridCellOptSet(CellOptSet):
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = {},
+        override_default_params: dict = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
@@ -1292,7 +1289,7 @@ class HybridCellOptSet(CellOptSet):
         self.scale_coulomb = scale_coulomb
         self.scale_gaussian = scale_gaussian
         self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params or {}
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
         self.omega = omega
@@ -1323,4 +1320,4 @@ class HybridCellOptSet(CellOptSet):
             screen_on_initial_p=self.screen_on_initial_p,
             screen_p_forces=self.screen_p_forces,
         )
-        self.update(override_default_params)
+        self.update(self.override_default_params)

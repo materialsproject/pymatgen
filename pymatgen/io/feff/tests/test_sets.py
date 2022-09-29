@@ -7,8 +7,9 @@ import shutil
 import unittest
 
 import numpy as np
+import pytest
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
@@ -124,6 +125,20 @@ TITLE sites: 4
         self.assertEqual(elnes_2.tags["ELNES"]["BEAM_DIRECTION"], [1, 0, 0])
         self.assertEqual(elnes_2.tags["ELNES"]["ANGLES"], [7, 6])
 
+    def test_charged_structure(self):
+        # one Zn+2, 9 triflate, plus water
+        # Molecule, net charge of -7
+        xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_radial_shell.xyz")
+        m = Molecule.from_file(xyz)
+        m.set_charge_and_spin(-7)
+        # Zn should not appear in the pot_dict
+        with pytest.warns(UserWarning, match="ION tags"):
+            MPXANESSet("Zn", m)
+        s = self.structure.copy()
+        s.set_charge(1)
+        with pytest.raises(ValueError, match="not supported"):
+            MPXANESSet("Co", s)
+
     def test_reciprocal_tags_and_input(self):
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
         elnes = MPELNESSet(self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings)
@@ -217,7 +232,7 @@ TITLE sites: 4
 
         stru_orig = Structure.from_file(os.path.join(".", "xanes_reci/Co2O2.cif"))
         stru_reci = Structure.from_file(os.path.join(".", "Dup_reci/Co2O2.cif"))
-        self.assertTrue(stru_orig.__eq__(stru_reci))
+        self.assertTrue(stru_orig == stru_reci)
 
         shutil.rmtree(os.path.join(".", "Dup_reci"))
         shutil.rmtree(os.path.join(".", "xanes_reci"))

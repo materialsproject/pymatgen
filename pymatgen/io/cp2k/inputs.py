@@ -28,7 +28,6 @@ import os
 import re
 import textwrap
 import warnings
-from collections import OrderedDict
 from typing import Iterable, Sequence
 
 from monty.io import zopen
@@ -90,7 +89,7 @@ class Keyword(MSONable):
 
     def __str__(self):
         return (
-            self.name.__str__()
+            str(self.name)
             + " "
             + (f"[{self.units}] " if self.units else "")
             + " ".join(map(str, self.values))
@@ -254,8 +253,8 @@ class Section(MSONable):
         subsections: dict = None,
         repeats: bool = False,
         description: str | None = None,
-        keywords: dict = {},
-        section_parameters: list | tuple = [],
+        keywords: dict = None,
+        section_parameters: Sequence[str] = None,
         location: str = None,
         verbose: bool = True,
         alias: str = None,
@@ -299,8 +298,8 @@ class Section(MSONable):
         self.subsections = subsections if subsections is not None else {}
         self.repeats = repeats
         self.description = description
-        self.keywords = OrderedDict(keywords)
-        self.section_parameters = section_parameters
+        self.keywords = keywords or {}
+        self.section_parameters = section_parameters or []
         self.location = location
         self.verbose = verbose
         self.alias = alias
@@ -325,7 +324,7 @@ class Section(MSONable):
         s2.silence()
         return d2.as_dict() == s2.as_dict()
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
         c = copy.deepcopy(self.as_dict())
         return getattr(__import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]).from_dict(
             copy.deepcopy(self.as_dict())
@@ -557,7 +556,6 @@ class Section(MSONable):
 
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
-
         """
         _path = path.split("/")
         if _path[0].upper() == self.name.upper():
@@ -594,12 +592,12 @@ class Section(MSONable):
         string += "\t" * indent + "&" + d.name
         string += " " + " ".join(map(str, d.section_parameters)) + "\n"
 
-        for k, v in d.keywords.items():
+        for v in d.keywords.values():
             if isinstance(v, KeywordList):
                 string += v.get_string(indent=indent + 1) + "\n"
             else:
                 string += "\t" * (indent + 1) + v.get_string() + "\n"
-        for k, v in d.subsections.items():
+        for v in d.subsections.values():
             string += v._get_string(v, indent + 1)
         string += "\t" * indent + "&END " + d.name + "\n"
 
@@ -612,9 +610,9 @@ class Section(MSONable):
         helps de-clutter them.
         """
         self.verbose = verbosity
-        for k, v in self.keywords.items():
+        for v in self.keywords.values():
             v.verbosity(verbosity)
-        for k, v in self.subsections.items():
+        for v in self.subsections.values():
             v.verbosity(verbosity)
 
     def silence(self):
@@ -661,7 +659,7 @@ class SectionList(MSONable):
     def __getitem__(self, item):
         return self.sections[item]
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
         return SectionList(sections=[d.__deepcopy__() for d in self.sections])
 
     @staticmethod
@@ -714,7 +712,7 @@ class Cp2kInput(Section):
         Initialize Cp2kInput by calling the super
         """
         self.name = name
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "CP2K Input"
@@ -732,7 +730,7 @@ class Cp2kInput(Section):
         Get string representation of the Cp2kInput
         """
         s = ""
-        for k in self.subsections.keys():
+        for k in self.subsections:
             s += self.subsections[k].get_string()
         return s
 
@@ -816,7 +814,7 @@ class Cp2kInput(Section):
                         self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s])
                 else:
                     self.by_path(current).insert(s)
-                current = current + "/" + alias if alias else current + "/" + name
+                current = f"{current}/{alias}" if alias else f"{current}/{name}"
             else:
                 kwd = Keyword.from_string(line)
                 tmp = self.by_path(current).get(kwd.name)
@@ -909,7 +907,7 @@ class ForceEval(Section):
             subsections (dict, optional): Defaults to None.
         """
 
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -963,7 +961,7 @@ class Dft(Section):
         self.potential_filename = potential_filename
         self.uks = uks
         self.wfn_restart_file_name = wfn_restart_file_name
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "Parameter needed by dft programs"
@@ -1000,7 +998,7 @@ class Subsys(Section):
         """
         Initialize the subsys section
         """
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
         description = "A subsystem: coordinates, topology, molecules and cell"
         super().__init__("SUBSYS", description=description, subsections=subsections, **kwargs)
@@ -1040,7 +1038,7 @@ class QS(Section):
         self.method = method
         self.eps_default = eps_default
         self.extrapolation = extrapolation
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "Parameters needed to set up the Quickstep framework"
@@ -1096,7 +1094,7 @@ class Scf(Section):
         self.max_scf = max_scf
         self.eps_scf = eps_scf
         self.scf_guess = scf_guess
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = "Parameters needed to perform an SCF run."
@@ -1143,7 +1141,7 @@ class Mgrid(Section):
             cutoff: Cutoff energy (in Rydbergs for historical reasons) defining how find of
                 Gaussians will be used
             rel_cutoff: The relative cutoff energy, which defines how to map the Gaussians onto
-                the multigrid. If the the value is too low then, even if you have a high cutoff
+                the multigrid. If the value is too low then, even if you have a high cutoff
                 with sharp Gaussians, they will be mapped to the course part of the multigrid
             ngrids: number of grids to use
             progression_factor: divisor that decides how to map Gaussians the multigrid after
@@ -1154,7 +1152,7 @@ class Mgrid(Section):
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
         self.progression_factor = progression_factor
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -1206,7 +1204,7 @@ class Diagonalization(Section):
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
         self.jacobi_threshold = jacobi_threshold
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
         self.location = "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION"
         self.description = "Settings for the SCF's diagonalization routines"
@@ -1334,7 +1332,7 @@ class OrbitalTransformation(Section):
         self.occupation_preconditioner = occupation_preconditioner
         self.energy_gap = energy_gap
         self.linesearch = linesearch
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -1436,7 +1434,7 @@ class Kind(Section):
         self.specie = specie
         self.alias = alias
         self.magnetization = magnetization
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.basis_set = basis_set
         self.potential = potential
         self.ghost = ghost
@@ -1470,7 +1468,7 @@ class Kind(Section):
             self.magnetization = 0
 
         keywords = {
-            "ELEMENT": Keyword("ELEMENT", specie.__str__()),
+            "ELEMENT": Keyword("ELEMENT", str(specie)),
             "MAGNETIZATION": Keyword("MAGNETIZATION", magnetization),
             "BASIS_SET": Keyword("BASIS_SET", basis_set),
             "POTENTIAL": Keyword("POTENTIAL", potential),
@@ -1479,7 +1477,7 @@ class Kind(Section):
         if aux_basis:
             keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", aux_basis)
 
-        kind_name = alias if alias else specie.__str__()
+        kind_name = alias or str(specie)
         self.alias = kind_name
 
         self.section_parameters = [kind_name]
@@ -1574,7 +1572,7 @@ class Coord(Section):
 
         self.structure = structure
         self.aliases = aliases
-        self.subsections = subsections if subsections else {}
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         description = (
@@ -1673,7 +1671,7 @@ class V_Hartree_Cube(Section):
         Initialize the V_HARTREE_CUBE section
         """
 
-        self.keywords = keywords if keywords else {}
+        self.keywords = keywords or {}
         self.kwargs = kwargs
 
         description = (
@@ -1739,7 +1737,7 @@ class E_Density_Cube(Section):
         Initialize the E_DENSITY_CUBE Section
         """
 
-        self.keywords = keywords if keywords else {}
+        self.keywords = keywords or {}
         self.kwargs = kwargs
 
         description = (
@@ -1938,18 +1936,18 @@ class Xc_Functional(Section):
     Defines the XC functional(s) to use.
     """
 
-    def __init__(self, functionals: Iterable = [], subsections: dict = None, **kwargs):
+    def __init__(self, functionals: Iterable = None, subsections: dict = None, **kwargs):
         """
         Initialize the XC_FUNCTIONAL class
         """
 
-        self.functionals = functionals
-        self.subsections = subsections if subsections else {}
+        self.functionals = functionals or []
+        self.subsections = subsections or {}
         self.kwargs = kwargs
 
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
 
-        for functional in functionals:
+        for functional in self.functionals:
             self.subsections[functional] = Section(functional, subsections={}, repeats=False)
 
         super().__init__(
@@ -2054,7 +2052,7 @@ class Kpoints(Section):
         keywords = {}
 
         self.kpts = kpts
-        self.weights = weights if weights else [1] * len(kpts)
+        self.weights = weights or [1] * len(kpts)
         assert len(self.kpts) == len(self.weights)
         self.eps_geo = eps_geo
         self.full_grid = full_grid

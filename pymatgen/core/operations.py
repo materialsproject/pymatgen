@@ -33,7 +33,7 @@ class SymmOp(MSONable):
         A 4x4 numpy.array representing the symmetry operation.
     """
 
-    def __init__(self, affine_transformation_matrix: ArrayLike, tol=0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01):
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are
@@ -87,7 +87,7 @@ class SymmOp(MSONable):
         return 7
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         output = [
@@ -546,7 +546,7 @@ class MagSymmOp(SymmOp):
     def __hash__(self):
         # useful for obtaining a set of unique MagSymmOps
         hashable_value = tuple(self.affine_matrix.flatten()) + (self.time_reversal,)
-        return hashable_value.__hash__()
+        return hash(hashable_value)
 
     def operate_magmom(self, magmom):
         """
