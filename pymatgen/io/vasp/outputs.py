@@ -3678,7 +3678,7 @@ class Locpot(VolumetricData):
         :param filename: Filename
         :return: Locpot
         """
-        (poscar, data, data_aug) = VaspVolumetricData.parse_file(filename)
+        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data, **kwargs)
 
 
@@ -3715,7 +3715,7 @@ class Chgcar(VolumetricData):
         :param filename: Filename
         :return: Chgcar
         """
-        (poscar, data, data_aug) = VaspVolumetricData.parse_file(filename)
+        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
 
     @property
@@ -3767,7 +3767,7 @@ class Elfcar(VolumetricData):
         :param filename: Filename
         :return: Elfcar
         """
-        (poscar, data, data_aug) = VaspVolumetricData.parse_file(filename)
+        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data)
 
     def get_alpha(self):
