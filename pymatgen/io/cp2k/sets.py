@@ -29,10 +29,10 @@ from ruamel.yaml import YAML
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
+    DOS,
     LDOS,
     PBE,
     PDOS,
-    DOS,
     QS,
     BrokenSymmetry,
     Cell,
@@ -57,7 +57,6 @@ from pymatgen.io.cp2k.inputs import (
     V_Hartree_Cube,
     Xc_Functional,
 )
-from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.cp2k.utils import (
     get_aux_basis,
     get_basis_and_potential,
@@ -66,6 +65,7 @@ from pymatgen.io.cp2k.utils import (
     get_unique_site_indices,
     get_xc_functionals,
 )
+from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -142,9 +142,7 @@ class Cp2kInputSet(Cp2kInput):
         self.insert(ForceEval())  # always present in cp2k
         self.basis_set_file_names = None  # need for dft
         self.potential_file_name = None  # need for dft
-        self.create_subsys(
-            self.structure
-        )  # assemble structure with atom types and pseudopotentials assigned
+        self.create_subsys(self.structure)  # assemble structure with atom types and pseudopotentials assigned
 
         if self.kwargs.get("print_forces", True):
             self.print_forces()
@@ -160,9 +158,7 @@ class Cp2kInputSet(Cp2kInput):
             subsys.insert(Cell(structure.lattice))
 
         # Decide what basis sets/pseudopotentials to use
-        basis_and_potential = get_basis_and_potential(
-            structure.symbol_set, self.basis_and_potential
-        )
+        basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
@@ -175,11 +171,7 @@ class Cp2kInputSet(Cp2kInput):
                 if "oxi_state" in self.structure.site_properties
                 else 0
             )
-            _sp = (
-                self.structure.site_properties["spin"][v[0]]
-                if "spin" in self.structure.site_properties
-                else 0
-            )
+            _sp = self.structure.site_properties["spin"][v[0]] if "spin" in self.structure.site_properties else 0
 
             bs = BrokenSymmetry.from_el(kind, _ox, _sp) if _ox else None
 
@@ -345,17 +337,13 @@ class DftSet(Cp2kInputSet):
         self.kwargs = kwargs
 
         if ot and self.kpoints:
-            if self.kpoints == 1 or (
-                self.kpoints == 0 and tuple(self.kpoints.kpts[0]) == (1, 1, 1)
-            ):
+            if self.kpoints == 1 or (self.kpoints == 0 and tuple(self.kpoints.kpts[0]) == (1, 1, 1)):
                 # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying 1 1 1 disables
                 # modules that don't support kpoints. So, you have to drop it all together to get full
                 # support
                 self.kpoints = None
             else:
-                warnings.warn(
-                    "As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization"
-                )
+                warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
                 ot = False
 
         # Build the global section
@@ -407,9 +395,7 @@ class DftSet(Cp2kInputSet):
 
         # Create the multigrid for FFTs
         if not cutoff:
-            basis_and_potential = get_basis_and_potential(
-                structure.symbol_set, self.basis_and_potential
-            )
+            basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
             cutoff = get_cutoff_from_basis(
                 els=self.structure.symbol_set,
                 bases=[basis_and_potential[s]["basis"] for s in self.structure.symbol_set],
@@ -423,9 +409,7 @@ class DftSet(Cp2kInputSet):
         )
 
         if smearing and not ot:
-            scf["ADDED_MOS"] = (
-                Keyword("ADDED_MOS", -1, -1) if self.kwargs.get("spin_polarized", True) else -1
-            )
+            scf["ADDED_MOS"] = Keyword("ADDED_MOS", -1, -1) if self.kwargs.get("spin_polarized", True) else -1
             scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 300)))
 
         # Set the DFT calculation with global parameters
@@ -503,9 +487,7 @@ class DftSet(Cp2kInputSet):
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
         for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(
-                LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False)
-            )
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
 
     def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
         """
@@ -517,9 +499,7 @@ class DftSet(Cp2kInputSet):
             nhomo (int): Controls the number of homos that are printed and dumped as a cube (-1=all)
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/MO_CUBES"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
-                MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo)
-            )
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
 
     def print_mo(self):
         """
@@ -534,18 +514,14 @@ class DftSet(Cp2kInputSet):
         Note that by convention the potential has opposite sign than the expected physical one.
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
-                V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)})
-            )
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
     def print_e_density(self, stride=(2, 2, 2)):
         """
         Controls the printing of cube files with the electronic density and, for LSD calculations, the spin density
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
-                E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)})
-            )
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
     def print_bandstructure(self, kpoints_line_density: int = 20):
         """
@@ -652,16 +628,11 @@ class DftSet(Cp2kInputSet):
         """
         if admm:
             aux_basis = aux_basis if aux_basis else {}
-            aux_basis = {
-                s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set
-            }
+            aux_basis = {s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set}
             basis = get_aux_basis(basis_type=aux_basis)
             if isinstance(self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"], KeywordList):
                 self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"].extend(
-                    [
-                        Keyword("BASIS_SET_FILE_NAME", k)
-                        for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]
-                    ],
+                    [Keyword("BASIS_SET_FILE_NAME", k) for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]],
                 )
 
             for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
@@ -821,9 +792,7 @@ class DftSet(Cp2kInputSet):
                 }
             )
 
-        interaction_potential = Section(
-            "INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords
-        )
+        interaction_potential = Section("INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords)
 
         # Unlikely for users to override
         load_balance = Section(
@@ -866,9 +835,7 @@ class DftSet(Cp2kInputSet):
             self.insert(Section("MOTION", subsections={}))
 
         self["MOTION"].insert(Section("PRINT", subsections={}))
-        self["MOTION"]["PRINT"].insert(
-            Section("TRAJECTORY", section_parameters=["ON"], subsections={})
-        )
+        self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
         self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
@@ -953,9 +920,7 @@ class DftSet(Cp2kInputSet):
             x = max(s.coords[0] for s in self.structure.sites)
             y = max(s.coords[1] for s in self.structure.sites)
             z = max(s.coords[2] for s in self.structure.sites)
-            self["FORCE_EVAL"]["SUBSYS"].insert(
-                Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
-            )
+            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]])))
         self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
         kwds = {
             "POISSON_SOLVER": Keyword("POISSON_SOLVER", solver),
@@ -993,11 +958,7 @@ class DftSet(Cp2kInputSet):
                 ]:
                     continue
 
-                v.insert(
-                    Section(
-                        "EACH", subsections=None, keywords={run_type: Keyword(run_type, iters)}
-                    )
-                )
+                v.insert(Section("EACH", subsections=None, keywords={run_type: Keyword(run_type, iters)}))
                 v.keywords["ADD_LAST"] = Keyword("ADD_LAST", add_last)
 
 

@@ -87,9 +87,7 @@ def _preprocessor(s, d="."):
     c1 = re.findall(r"@IF", s, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError(
-            "This cp2k input processor does not currently support conditional blocks."
-        )
+        raise NotImplementedError("This cp2k input processor does not currently support conditional blocks.")
     return s
 
 
@@ -139,9 +137,7 @@ def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
             {
                 s: {
                     "basis": settings[s]["basis_sets"]["best_basis"],
-                    "potential": [
-                        p for p in settings[s]["potentials"]["gth_potentials"] if functional in p
-                    ][0],
+                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
                 }
                 for s in species
             }
@@ -151,9 +147,7 @@ def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
             {
                 s: {
                     "basis": settings[s]["basis_sets"]["preferred_basis"],
-                    "potential": [
-                        p for p in settings[s]["potentials"]["gth_potentials"] if functional in p
-                    ][0],
+                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
                 }
                 for s in species
             }
@@ -293,13 +287,8 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
             for k, v in _exponents.items()
             if v["basis_sets"].get("basis_set_largest_exponents")
         }
-        exponents = {
-            el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()
-        }
-        return max(
-            np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff
-            for el, basis in zip(els, bases)
-        )
+        exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
+        return max(np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases))
 
 
 # TODO this is not comprehensive. There are so many libxc functionals (e.g. see r2scan)
