@@ -142,9 +142,7 @@ class VolumetricData(MSONable):
         if self.structure != other.structure:
             warnings.warn("Structures are different. Make sure you know what you are doing...")
         if list(self.data) != list(other.data):
-            raise ValueError(
-                "Data have different keys! Maybe one is spin-" "polarized and the other is not?"
-            )
+            raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
 
         # To add checks
         data = {}
@@ -241,9 +239,7 @@ class VolumetricData(MSONable):
         # Use boolean indexing to find all charges within the desired distance.
         inds = data[:, 1] <= radius
         dists = data[inds, 1]
-        data_inds = np.rint(np.mod(list(data[inds, 0]), 1) * np.tile(a, (len(dists), 1))).astype(
-            int
-        )
+        data_inds = np.rint(np.mod(list(data[inds, 0]), 1) * np.tile(a, (len(dists), 1))).astype(int)
         vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
 
         hist, edges = np.histogram(dists, bins=nbins, range=[0, radius], weights=vals)
@@ -322,10 +318,7 @@ class VolumetricData(MSONable):
         returns:
             Array of site averages, [Average around site 1, Average around site 2, ...]
         """
-        return [
-            self._get_atomic_site_total(s, atomic_site_radii[s.species_string])
-            for s in self.structure.sites
-        ]
+        return [self._get_atomic_site_total(s, atomic_site_radii[s.species_string]) for s in self.structure.sites]
 
     def _get_atomic_site_total(self, site, radius):
         """
@@ -490,7 +483,5 @@ class VolumetricData(MSONable):
         )
 
         # Volumetric data
-        data = np.reshape(
-            np.array(file.read().split()).astype(float), (num_x_voxels, num_y_voxels, num_z_voxels)
-        )
+        data = np.reshape(np.array(file.read().split()).astype(float), (num_x_voxels, num_y_voxels, num_z_voxels))
         return cls(structure=structure, data={"total": data})
