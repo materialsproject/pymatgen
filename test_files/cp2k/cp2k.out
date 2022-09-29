@@ -392,7 +392,7 @@
  PW_GRID|   Real Space Points                        5.7          18           0
 
  POISSON| Solver                                                        PERIODIC
- POISSON| Periodicity                                                        XYZ
+ POISSON| Periodicity                                                        None
 
  RS_GRID| Information for grid number                                          1
  RS_GRID|   Bounds   1            -24      23                Points:          48
