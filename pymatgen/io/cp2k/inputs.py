@@ -194,7 +194,9 @@ class KeywordList(MSONable):
         Args:
             keywords: A list of keywords. Must all have the same name (case-insensitive)
         """
-        assert all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
+        assert (
+            all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
+        )
         self.name = keywords[0].name if keywords else None
         self.keywords = keywords
 
@@ -318,9 +320,9 @@ class Section(MSONable):
 
     def __deepcopy__(self, memodict={}):
         c = copy.deepcopy(self.as_dict())
-        return getattr(__import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]).from_dict(
-            copy.deepcopy(self.as_dict())
-        )
+        return getattr(
+            __import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]
+        ).from_dict(copy.deepcopy(self.as_dict()))
 
     def __getitem__(self, d):
         r = self.get_keyword(d)
@@ -643,7 +645,9 @@ class SectionList(MSONable):
         Args:
             sections: A list of keywords. Must all have the same name (case-insensitive)
         """
-        assert all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
+        assert (
+            all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
+        )
         self.name = sections[0].name if sections else None
         self.alias = sections[0].alias if sections else None
         self.sections = sections
@@ -798,7 +802,8 @@ class Cp2kInput(Section):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
                 subsection_params = (
                     []
-                    if len(subsection_params) == 1 and subsection_params[0].upper() in ("T", "TRUE", "F", "FALSE", "ON")
+                    if len(subsection_params) == 1
+                    and subsection_params[0].upper() in ("T", "TRUE", "F", "FALSE", "ON")
                     else subsection_params
                 )
                 alias = name + " " + " ".join(subsection_params) if subsection_params else None
@@ -852,7 +857,7 @@ class Cp2kInput(Section):
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
-        with open(filepath, "w") as f:
+        with open(filepath, "wt") as f:
             f.write(self.get_string())
 
 
@@ -881,7 +886,8 @@ class Global(Section):
         keywords = keywords if keywords else {}
 
         description = (
-            "Section with general information regarding which kind of simulation" + " to perform an general settings"
+            "Section with general information regarding which kind of simulation"
+            + " to perform an general settings"
         )
 
         _keywords = {
@@ -916,7 +922,8 @@ class ForceEval(Section):
         subsections = subsections if subsections else {}
 
         description = (
-            "Parameters needed to calculate energy and forces" + " and describe the system you want to analyze."
+            "Parameters needed to calculate energy and forces"
+            + " and describe the system you want to analyze."
         )
 
         _keywords = {
@@ -973,7 +980,9 @@ class Dft(Section):
         description = "Parameter needed by dft programs"
 
         _keywords = {
-            "BASIS_SET_FILE_NAME": KeywordList([Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]),
+            "BASIS_SET_FILE_NAME": KeywordList(
+                [Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]
+            ),
             "POTENTIAL_FILE_NAME": Keyword("POTENTIAL_FILE_NAME", potential_filename),
             "UKS": Keyword(
                 "UKS",
@@ -983,7 +992,9 @@ class Dft(Section):
         }
 
         if wfn_restart_file_name:
-            _keywords["WFN_RESTART_FILE_NAME"] = Keyword("WFN_RESTART_FILE_NAME", wfn_restart_file_name)
+            _keywords["WFN_RESTART_FILE_NAME"] = Keyword(
+                "WFN_RESTART_FILE_NAME", wfn_restart_file_name
+            )
 
         keywords.update(_keywords)
         super().__init__(
@@ -1008,7 +1019,9 @@ class Subsys(Section):
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = "A subsystem: coordinates, topology, molecules and cell"
-        super().__init__("SUBSYS", keywords=keywords, description=description, subsections=subsections, **kwargs)
+        super().__init__(
+            "SUBSYS", keywords=keywords, description=description, subsections=subsections, **kwargs
+        )
 
 
 class QS(Section):
@@ -1052,8 +1065,12 @@ class QS(Section):
 
         _keywords = {
             "METHOD": Keyword("METHOD", method),
-            "EPS_DEFAULT": Keyword("EPS_DEFAULT", eps_default, description="Base precision level (in Ha)"),
-            "EXTRAPOLATION": Keyword("EXTRAPOLATION", extrapolation, description="WFN extrapolation between steps"),
+            "EPS_DEFAULT": Keyword(
+                "EPS_DEFAULT", eps_default, description="Base precision level (in Ha)"
+            ),
+            "EXTRAPOLATION": Keyword(
+                "EXTRAPOLATION", extrapolation, description="WFN extrapolation between steps"
+            ),
         }
         keywords.update(_keywords)
         super().__init__(
@@ -1109,9 +1126,13 @@ class Scf(Section):
         description = "Parameters needed to perform an SCF run."
 
         _keywords = {
-            "MAX_SCF": Keyword("MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"),
+            "MAX_SCF": Keyword(
+                "MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"
+            ),
             "EPS_SCF": Keyword("EPS_SCF", eps_scf, description="Convergence threshold for SCF"),
-            "SCF_GUESS": Keyword("SCF_GUESS", scf_guess, description="How to initialize the density matrix"),
+            "SCF_GUESS": Keyword(
+                "SCF_GUESS", scf_guess, description="How to initialize the density matrix"
+            ),
             "MAX_ITER_LUMO": Keyword(
                 "MAX_ITER_LUMO",
                 kwargs.get("max_iter_lumo", 400),
@@ -1172,7 +1193,9 @@ class Mgrid(Section):
         )
 
         _keywords = {
-            "CUTOFF": Keyword("CUTOFF", cutoff, description="Cutoff in [Ry] for finest level of the MG."),
+            "CUTOFF": Keyword(
+                "CUTOFF", cutoff, description="Cutoff in [Ry] for finest level of the MG."
+            ),
             "REL_CUTOFF": Keyword(
                 "REL_CUTOFF",
                 rel_cutoff,
@@ -1322,22 +1345,24 @@ class OrbitalTransformation(Section):
             minimizer (str): The minimizer to use with the OT method. Default is conjugate gradient
                 method, which is more robust, but more well-behaved systems should use DIIS, which
                 can be as much as 50% faster.
-            preconditioner (str): Preconditioner to use for OT, FULL_ALL tends to be most robust, but is
-                not always most efficient. For difficult systems, FULL_SINGLE_INVERSE can be more robust,
-                and is reasonably efficient with large systems. For huge, but well behaved, systems,
-                where construction of the preconditioner can take a very long time, FULL_KINETIC can be a good
-                choice.
-            energy_gap (float): Guess for the band gap. For FULL_ALL, should be smaller than the actual band gap,
-                so simply using 0.01 is a robust value. Choosing a larger value will help if you start with a bad
-                initial guess though. For FULL_SINGLE_INVERSE, energy_gap is treated as a lower bound. Values lower
-                than 0.05 in this case can lead to stability issues.
-            algorithm (str): What algorithm to use for OT. 'Strict': Taylor or diagonalization based algorithm.
-                IRAC: Orbital Transformation based Iterative Refinement of the Approximative Congruence
-                transformation (OT/IR).
-            linesearch (str): From the manual: 1D line search algorithm to be used with the OT minimizer,
-                in increasing order of robustness and cost. MINIMIZER CG combined with LINESEARCH
-                GOLD should always find an electronic minimum. Whereas the 2PNT minimizer is almost always OK,
-                3PNT might be needed for systems in which successive OT CG steps do not decrease the total energy.
+            preconditioner (str): Preconditioner to use for OT, FULL_ALL tends to be most robust,
+                but is not always most efficient. For difficult systems, FULL_SINGLE_INVERSE can be
+                more robust, and is reasonably efficient with large systems. For huge, but well
+                behaved, systems, where construction of the preconditioner can take a very long
+                time, FULL_KINETIC can be a good choice.
+            energy_gap (float): Guess for the band gap. For FULL_ALL, should be smaller than the
+                actual band gap, so simply using 0.01 is a robust value. Choosing a larger value
+                will help if you start with a bad initial guess though. For FULL_SINGLE_INVERSE,
+                energy_gap is treated as a lower bound. Values lower than 0.05 in this case can
+                lead to stability issues.
+            algorithm (str): What algorithm to use for OT. 'Strict': Taylor or diagonalization
+                based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
+                Approximative Congruence transformation (OT/IR).
+            linesearch (str): From the manual: 1D line search algorithm to be used with the OT
+                minimizer, in increasing order of robustness and cost. MINIMIZER CG combined with
+                LINESEARCH GOLD should always find an electronic minimum. Whereas the 2PNT
+                minimizer is almost always OK, 3PNT might be needed for systems in which successive
+                OT CG steps do not decrease the total energy.
         """
 
         self.minimizer = minimizer
@@ -1369,7 +1394,9 @@ class OrbitalTransformation(Section):
             "ALGORITHM": Keyword("ALGORITHM", algorithm),
             "LINESEARCH": Keyword("LINESEARCH", linesearch),
             "ROTATION": Keyword("ROTATION", rotation),
-            "OCCUPATION_PRECONDITIONER": Keyword("OCCUPATION_PRECONDITIONER", occupation_preconditioner),
+            "OCCUPATION_PRECONDITIONER": Keyword(
+                "OCCUPATION_PRECONDITIONER", occupation_preconditioner
+            ),
         }
         keywords.update(_keywords)
         super().__init__(
@@ -1405,7 +1432,9 @@ class Cell(Section):
             "C": Keyword("C", *lattice.matrix[2]),
         }
         keywords.update(_keywords)
-        super().__init__("CELL", description=description, keywords=keywords, subsections={}, **kwargs)
+        super().__init__(
+            "CELL", description=description, keywords=keywords, subsections={}, **kwargs
+        )
 
 
 class Kind(Section):
@@ -1556,7 +1585,9 @@ class DftPlusU(Section):
             "U_RAMPING": Keyword("U_RAMPING", u_ramping),
         }
         keywords.update(_keywords)
-        super().__init__(name=name, subsections=None, description=description, keywords=keywords, **kwargs)
+        super().__init__(
+            name=name, subsections=None, description=description, keywords=keywords, **kwargs
+        )
 
 
 class Coord(Section):
@@ -1576,8 +1607,8 @@ class Coord(Section):
         """
         Args:
             structure: Pymatgen structure object
-            alias (bool): whether or not to identify the sites by Element + number so you can do things like
-                assign unique magnetization do different elements.
+            alias (bool): whether or not to identify the sites by Element + number so you can do
+                things like assign unique magnetization do different elements.
         """
 
         self.structure = structure
@@ -1594,7 +1625,9 @@ class Coord(Section):
             aliases = {index: kind for kind, indices in aliases.items() for index in indices}
 
         keywords = {
-            i: Keyword(aliases[i] if aliases else structure[i].species_string, *structure[i].coords)
+            i: Keyword(
+                aliases[i] if aliases else structure[i].species_string, *structure[i].coords
+            )
             for i in range(len(structure))
         }
         super().__init__(
@@ -1611,7 +1644,9 @@ class DOS(Section):
     Controls printing of the density of states.
     """
 
-    def __init__(self, ndigits: int = 6, keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(
+        self, ndigits: int = 6, keywords: dict = None, subsections: dict = None, **kwargs
+    ):
         """
         Initialize the DOS section
 
@@ -1625,7 +1660,9 @@ class DOS(Section):
         description = "Controls printing of the overall density of states"
         _keywords = {"NDIGITS": Keyword("NDIGITS", ndigits)}
         keywords.update(_keywords)
-        super().__init__("DOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
+        super().__init__(
+            "DOS", description=description, keywords=keywords, subsections=subsections, **kwargs
+        )
 
 
 class PDOS(Section):
@@ -1653,7 +1690,9 @@ class PDOS(Section):
             "COMPONENTS": Keyword("COMPONENTS"),
         }
         keywords.update(_keywords)
-        super().__init__("PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
+        super().__init__(
+            "PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs
+        )
 
 
 class LDOS(Section):
@@ -1663,7 +1702,12 @@ class LDOS(Section):
     """
 
     def __init__(
-        self, index: int = 1, alias: str | None = None, keywords: dict = None, subsections: dict = None, **kwargs
+        self,
+        index: int = 1,
+        alias: str | None = None,
+        keywords: dict = None,
+        subsections: dict = None,
+        **kwargs,
     ):
         """
         Initialize the LDOS section
@@ -1675,7 +1719,9 @@ class LDOS(Section):
         self.index = index
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
-        description = "Controls printing of the projected density of states decomposed by atom type"
+        description = (
+            "Controls printing of the projected density of states decomposed by atom type"
+        )
         _keywords = {"COMPONENTS": Keyword("COMPONENTS"), "LIST": Keyword("LIST", index)}
         keywords.update(_keywords)
         super().__init__(
@@ -1704,7 +1750,7 @@ class V_Hartree_Cube(Section):
         description = (
             "Controls the printing of a cube file with eletrostatic potential generated by "
             + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
-            + "Note that by convention the potential has opposite sign than the expected physical one."
+            + "Note: by convention the potential has opposite sign than the expected physical one."
         )
         super().__init__(
             "V_HARTREE_CUBE",
@@ -1742,7 +1788,7 @@ class MO_Cubes(Section):
         description = (
             "Controls the printing of a cube file with eletrostatic potential generated by "
             + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
-            + "Note that by convention the potential has opposite sign than the expected physical one."
+            + "Note: by convention the potential has opposite sign than the expected physical one."
         )
 
         _keywords = {
@@ -1969,7 +2015,9 @@ class Xc_Functional(Section):
     Defines the XC functional(s) to use.
     """
 
-    def __init__(self, functionals: Iterable = [], keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(
+        self, functionals: Iterable = [], keywords: dict = None, subsections: dict = None, **kwargs
+    ):
         """
         Initialize the XC_FUNCTIONAL class
         """
@@ -2103,7 +2151,9 @@ class Kpoints(Section):
         if len(kpts) == 1:
             keywords["SCHEME"] = Keyword("SCHEME", scheme, *kpts[0])
         elif len(kpts) > 1:
-            keywords["KPOINT"] = KeywordList([Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights)])
+            keywords["KPOINT"] = KeywordList(
+                [Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights)]
+            )
         else:
             raise ValueError("No k-points provided!")
 
@@ -2167,7 +2217,8 @@ class Kpoints(Section):
                 units = "B_VECTOR"
             elif not structure:
                 raise ValueError(
-                    "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
+                    "No cp2k automatic gamma constructor. "
+                    "A structure is required to construct from spglib"
                 )
             else:
                 sga = SpacegroupAnalyzer(structure)
@@ -2209,7 +2260,9 @@ class Kpoint_Set(Section):
             "UNITS": Keyword("UNITS", units),
             "SPECIAL_POINT": KeywordList(
                 [
-                    Keyword("SPECIAL_POINT", "Gamma" if label.upper() == "\\GAMMA" else label, *kpt)
+                    Keyword(
+                        "SPECIAL_POINT", "Gamma" if label.upper() == "\\GAMMA" else label, *kpt
+                    )
                     for label, kpt in kpoints
                 ]
             ),
@@ -2249,7 +2302,10 @@ class Band_Structure(Section):
         self.filename = filename
         self.added_mos = added_mos
         keywords = keywords if keywords else {}
-        _keywords = {"FILE_NAME": Keyword("FILE_NAME", filename), "ADDED_MOS": Keyword("ADDED_MOS", added_mos)}
+        _keywords = {
+            "FILE_NAME": Keyword("FILE_NAME", filename),
+            "ADDED_MOS": Keyword("ADDED_MOS", added_mos),
+        }
         keywords.update(_keywords)
         super().__init__(
             name="BAND_STRUCTURE",
@@ -2262,7 +2318,7 @@ class Band_Structure(Section):
     # TODO kpoints objects are defined in the vasp module instead of a code agnostic module
     # if this changes in the future as other codes are added, then this will need to change
     @staticmethod
-    def from_kpoints(kpoints: VaspKpoints, uks=True, kpoints_line_density=20):
+    def from_kpoints(kpoints: VaspKpoints, kpoints_line_density=20):
         """
         Initialize band structure section from a line-mode Kpoint object
 
@@ -2278,11 +2334,16 @@ class Band_Structure(Section):
 
             kpoint_sets = [
                 Kpoint_Set(
-                    npoints=kpoints_line_density, kpoints=[(lbls[0], kpts[0]), (lbls[1], kpts[1])], units="B_VECTOR"
+                    npoints=kpoints_line_density,
+                    kpoints=[(lbls[0], kpts[0]), (lbls[1], kpts[1])],
+                    units="B_VECTOR",
                 )
                 for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts))
             ]
-        elif kpoints.style in (Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian):
+        elif kpoints.style in (
+            Kpoints_supported_modes.Reciprocal,
+            Kpoints_supported_modes.Cartesian,
+        ):
             kpoint_sets = [
                 Kpoint_Set(
                     npoints=1,
@@ -2291,5 +2352,7 @@ class Band_Structure(Section):
                 )
             ]
         else:
-            raise ValueError("Unsupported k-point style. Must be line-mode or explicit k-points (reciprocal/cartesian).")
+            raise ValueError(
+                "Unsupported k-point style. Must be line-mode or explicit k-points (reciprocal/cartesian)."
+            )
         return Band_Structure(kpoint_sets=kpoint_sets, filename="BAND.bs")
