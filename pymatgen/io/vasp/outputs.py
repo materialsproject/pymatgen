@@ -42,7 +42,7 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-from pymatgen.io.common import VolumetricData
+from pymatgen.io.common import VolumetricData as BaseVolumetricData
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
@@ -3473,7 +3473,7 @@ class Outcar:
         self.data["fermi_contact_shift"] = fc_shift_table
 
 
-class VaspVolumetricData(VolumetricData):
+class VolumetricData(BaseVolumetricData):
     """
     Container for volumetric data that allows
     for reading/writing with Poscar-type data.
@@ -3656,7 +3656,7 @@ class VaspVolumetricData(VolumetricData):
                 write_spin("diff")
 
 
-class Locpot(VaspVolumetricData):
+class Locpot(VolumetricData):
     """
     Simple object for reading a LOCPOT file.
     """
@@ -3682,7 +3682,7 @@ class Locpot(VaspVolumetricData):
         return cls(poscar, data, **kwargs)
 
 
-class Chgcar(VaspVolumetricData):
+class Chgcar(VolumetricData):
     """
     Simple object for reading a CHGCAR file.
     """
@@ -3728,7 +3728,7 @@ class Chgcar(VaspVolumetricData):
         return None
 
 
-class Elfcar(VaspVolumetricData):
+class Elfcar(VolumetricData):
     """
     Read an ELFCAR file which contains the Electron Localization Function (ELF)
     as calculated by VASP.
