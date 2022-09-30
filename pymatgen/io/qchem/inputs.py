@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Literal
+from typing import Literal, List
 
 from monty.io import zopen
 
@@ -38,7 +38,7 @@ class QCInput(InputFile):
 
     def __init__(
         self,
-        molecule: Molecule | Literal["read"],
+        molecule: Molecule | List[Molecule] | Literal["read"],
         rem: dict,
         opt: dict[str, list] | None = None,
         pcm: dict | None = None,
@@ -50,13 +50,15 @@ class QCInput(InputFile):
         plots: dict | None = None,
         nbo: dict | None = None,
         geom_opt: dict | None = None,
+        cdft: List[List[dict]] | None = None,
+
     ):
         """
         Args:
-            molecule (pymatgen Molecule object or "read"):
-                Input molecule. molecule can be set as either a pymatgen Molecule object or as the str "read".
-                "read" can be used in multi_job QChem input files where the molecule is read in from the
-                previous calculation.
+            molecule (pymatgen Molecule object, list of Molecule objects, or "read"):
+                Input molecule(s). molecule can be set as a pymatgen Molecule object, a list of such
+                Molecule objects, or as the string "read". "read" can be used in multi_job QChem input
+                files where the molecule is read in from the previous calculation.
             rem (dict):
                 A dictionary of all the input parameters for the rem section of QChem input file.
                 Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
@@ -91,12 +93,41 @@ class QCInput(InputFile):
                 radius (e.g., 12 = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
             plots (dict):
-                    A dictionary of all the input parameters for the plots section of QChem input file.
+                    A dictionary of all the input parameters for the plots section of the QChem input file.
             nbo (dict):
-                    A dictionary of all the input parameters for the nbo section of QChem input file.
+                    A dictionary of all the input parameters for the nbo section of the QChem input file.
             geom_opt (dict):
                     A dictionary of input parameters for the geom_opt section of the QChem input file.
                     This section is required when using the new libopt3 geometry optimizer.
+            cdft (list of lists of dicts):
+                    A list of lists of dictionaries, where each dictionary represents a charge constraint in the
+                    cdft section of the QChem input file.
+
+                    Each entry in the main list represents one state (allowing for multiconfiguration calculations
+                    using constrainted density functional theory - configuration interaction (CDFT-CI).
+                    Each state is relresented by a list, which itself contains some number of constraints (dictionaries).
+
+                    Ex:
+
+                    1. For a single-state calculation with two constraints:
+                     cdft=[[
+                        {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [2], "type": "c"},
+                        {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19], "type": "s"}
+                    ]]
+
+                    2. For a multireference calculation:
+                    cdft=[
+                        [
+                            {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "c"},
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "s"},
+                        ],
+                        [
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "c"},
+                            {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "s"},
+                        ]
+                    ]
+
+
         """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
@@ -110,6 +141,7 @@ class QCInput(InputFile):
         self.plots = lower_and_check_unique(plots)
         self.nbo = lower_and_check_unique(nbo)
         self.geom_opt = lower_and_check_unique(geom_opt)
+        self.cdft = cdft
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -194,6 +226,10 @@ class QCInput(InputFile):
         if self.geom_opt is not None:
             combined_list.append(self.geom_opt_template(self.geom_opt))
             combined_list.append("")
+        # cdft section
+        if self.cdft is not None:
+            combined_list.append(self.cdft_template(self.cdft))
+            combined_list.append("")
         return "\n".join(combined_list)
 
     @staticmethod
@@ -256,6 +292,8 @@ class QCInput(InputFile):
             nbo = cls.read_nbo(string)
         if "geom_opt" in sections:
             geom_opt = cls.read_geom_opt(string)
+        if "cdft" in sections:
+            cdft = cls.read_cdft(string)
         return cls(
             molecule,
             rem,
@@ -269,6 +307,7 @@ class QCInput(InputFile):
             plots=plots,
             nbo=nbo,
             geom_opt=geom_opt,
+            cdft=cdft,
         )
 
     @staticmethod
@@ -314,26 +353,47 @@ class QCInput(InputFile):
             return input_list
 
     @staticmethod
-    def molecule_template(molecule: Molecule | Literal["read"]) -> str:
+    def molecule_template(molecule: Molecule | List[Molecule] | Literal["read"]) -> str:
         """
         Args:
-            molecule (Molecule): molecule
+            molecule (Molecule, list of Molecules, or "read")
 
         Returns:
             (str) Molecule template.
+
         """
-        # todo: add ghost atoms
+        #TODO: add ghost atoms
+        #TODO: handle multiple molecules
         mol_list = []
         mol_list.append("$molecule")
+
+        # Edge case; can't express molecule as fragments with only one fragment
+        if isinstance(molecule, list):
+            if len(molecule) == 1:
+                molecule = molecule[0]
+
         if isinstance(molecule, str):
             if molecule == "read":
                 mol_list.append(" read")
             else:
                 raise ValueError('The only acceptable text value for molecule is "read"')
-        else:
+        elif isinstance(molecule, Molecule):
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
                 mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+        else:
+            overall_charge = sum([x.charge for x in molecule])
+            unpaired_electrons = sum([x.spin_multiplicity - 1 for x in molecule])
+            overall_spin = unpaired_electrons + 1
+
+            mol_list.append(f" {int(overall_charge)} {int(overall_spin)}")
+
+            for fragment in molecule:
+                mol_list.append("-- ")
+                mol_list.append(f" {int(fragment.charge)} {fragment.spin_multiplicity}")
+                for site in fragment.sites:
+                    mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+
         mol_list.append("$end")
         return "\n".join(mol_list)
 
@@ -536,6 +596,40 @@ class QCInput(InputFile):
         return "\n".join(geom_opt_list)
 
     @staticmethod
+    def cdft_template(cdft: List[List[dict]]) -> str:
+        """
+        Args:
+            cdft: list of dicts
+
+        Returns:
+            (str)
+        """
+
+        cdft_list = list()
+        cdft_list.append("$cdft")
+        for ii, state in enumerate(cdft):
+            for constraint in state:
+                cdft_list.append(f"   {constraint['value']}")
+                if constraint.get("type", "c").lower() == "c":
+                    type_string = ""
+                elif constraint["type"].lower() == "s":
+                    type_string = "s"
+                else:
+                    raise ValueError("Invalid CDFT constraint type!")
+
+                for coef, first, last in zip(
+                    constraint["coefficients"],
+                    constraint["first_atoms"],
+                    constraint["last_atoms"],
+                ):
+                    cdft_list.append(f"   {coef} {first} {last} {type_string}")
+            if len(state) != 1 and ii + 1 < len(state):
+                cdft_list.append("--------------")
+
+        cdft_list.append("$end")
+        return cdft_list
+
+    @staticmethod
     def find_sections(string: str) -> list:
         """
         Find sections in the string.
@@ -562,7 +656,7 @@ class QCInput(InputFile):
         return sections
 
     @staticmethod
-    def read_molecule(string: str) -> Molecule | Literal["read"]:
+    def read_molecule(string: str) -> Molecule | List[Molecule] | Literal["read"]:
         """
         Read molecule from string.
 
@@ -576,8 +670,9 @@ class QCInput(InputFile):
         spin_mult = None
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
-            "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d",
-            "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*(\d)",
+            "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d+",
+            "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*((?:\-)*\d+)",
+            "fragment": r"^\s*\$molecule\n\s*(?:\-)*\d+\s+\d+\s*\n\s*(\-\-)"
         }
         matches = read_pattern(string, patterns)
         if "read" in matches:
@@ -586,17 +681,43 @@ class QCInput(InputFile):
             charge = float(matches["charge"][0][0])
         if "spin_mult" in matches:
             spin_mult = int(matches["spin_mult"][0][0])
-        header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s*\d"
-        row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer = r"^\$end"
-        mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        species = [val[0] for val in mol_table[0]]
-        coords = [[float(val[1]), float(val[2]), float(val[3])] for val in mol_table[0]]
-        if charge is None:
-            mol = Molecule(species=species, coords=coords)
+        if "fragment" in matches:
+            multi_mol = True
         else:
-            mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
-        return mol
+            multi_mol = False
+
+        if not multi_mol:
+            header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s+(?:\-)*\d+"
+            row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer = r"^\$end"
+            mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+            species = [val[0] for val in mol_table[0]]
+            coords = [[float(val[1]), float(val[2]), float(val[3])] for val in mol_table[0]]
+            if charge is None:
+                mol = Molecule(species=species, coords=coords)
+            else:
+                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
+            return mol
+        else:
+            header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
+            row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer = r"(:?(:?\-\-)|(:?\$end))"
+
+            molecules = list()
+
+            patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
+            matches = read_pattern(string, patterns)
+
+            mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+            for match, table in zip(matches.get("charge_spin"), mol_table):
+                charge = int(match[0])
+                spin = int(match[1])
+                species = [val[0] for val in table]
+                coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
+                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
+                molecules.append(mol)
+
+            return molecules
 
     @staticmethod
     def read_rem(string: str) -> dict:
@@ -872,3 +993,35 @@ class QCInput(InputFile):
         for key, val in geom_opt_table[0]:
             geom_opt[key] = val
         return geom_opt
+
+    @staticmethod
+    def read_cdft(string: str) -> List[dict]:
+        """
+        Read cdft parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+             (list of dicts) cdft parameters
+        """
+
+        # cdft_list = list()
+        # cdft_list.append("$cdft")
+        # for constraint in cdft:
+        #     cdft_list.append(f"   {constraint['value']}")
+        #     if constraint.get("type", "c").lower() == "c":
+        #         type_string = ""
+        #     elif constraint["type"].lower() == "s":
+        #         type_string = "s"
+        #     else:
+        #         raise ValueError("Invalid CDFT constraint type!")
+        #
+        #     for coef, first, last in zip(
+        #         constraint["coefficients"],
+        #         constraint["first_atoms"],
+        #         constraint["last_atoms"],
+        #     ):
+        #         cdft_list.append(f"   {coef} {first} {last} {type_string}")
+        # cdft_list.append("$end")
+
