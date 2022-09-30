@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import Literal, List
+import re
 
 from monty.io import zopen
 
@@ -118,12 +119,12 @@ class QCInput(InputFile):
                     2. For a multireference calculation:
                     cdft=[
                         [
-                            {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "c"},
-                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "s"},
+                            {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
                         ],
                         [
-                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "c"},
-                            {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "type": "s"},
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
+                            {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
                         ]
                     ]
 
@@ -609,25 +610,32 @@ class QCInput(InputFile):
         cdft_list.append("$cdft")
         for ii, state in enumerate(cdft):
             for constraint in state:
+                types = constraint["types"]
                 cdft_list.append(f"   {constraint['value']}")
-                if constraint.get("type", "c").lower() == "c":
-                    type_string = ""
-                elif constraint["type"].lower() == "s":
-                    type_string = "s"
-                else:
-                    raise ValueError("Invalid CDFT constraint type!")
 
-                for coef, first, last in zip(
+                type_strings = list()
+                for t in types:
+                    if t is None:
+                        type_strings.append("")
+                    elif t.lower() in ["c", "charge"]:
+                        type_strings.append("")
+                    elif t.lower() in ["s", "spin"]:
+                        type_strings.append("s")
+                    else:
+                        raise ValueError("Invalid CDFT constraint type!")
+
+                for coef, first, last, type_string in zip(
                     constraint["coefficients"],
                     constraint["first_atoms"],
                     constraint["last_atoms"],
+                    type_strings
                 ):
                     cdft_list.append(f"   {coef} {first} {last} {type_string}")
             if len(state) != 1 and ii + 1 < len(state):
                 cdft_list.append("--------------")
 
         cdft_list.append("$end")
-        return cdft_list
+        return "\n".join(cdft_list)
 
     @staticmethod
     def find_sections(string: str) -> list:
@@ -995,7 +1003,7 @@ class QCInput(InputFile):
         return geom_opt
 
     @staticmethod
-    def read_cdft(string: str) -> List[dict]:
+    def read_cdft(string: str) -> List[List[dict]]:
         """
         Read cdft parameters from string.
 
@@ -1003,25 +1011,49 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-             (list of dicts) cdft parameters
+             (list of lists of dicts) cdft parameters
         """
 
-        # cdft_list = list()
-        # cdft_list.append("$cdft")
-        # for constraint in cdft:
-        #     cdft_list.append(f"   {constraint['value']}")
-        #     if constraint.get("type", "c").lower() == "c":
-        #         type_string = ""
-        #     elif constraint["type"].lower() == "s":
-        #         type_string = "s"
-        #     else:
-        #         raise ValueError("Invalid CDFT constraint type!")
-        #
-        #     for coef, first, last in zip(
-        #         constraint["coefficients"],
-        #         constraint["first_atoms"],
-        #         constraint["last_atoms"],
-        #     ):
-        #         cdft_list.append(f"   {coef} {first} {last} {type_string}")
-        # cdft_list.append("$end")
+        pattern_sec = {
+            "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
+        }
 
+        pattern_const = {
+            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)(?:\s+[A-Za-z]+)?\s*)+)"
+        }
+
+        section = read_pattern(string, pattern_sec)["full_section"]
+        if len(section) == 0:
+            print("No valid cdft inputs found.")
+            return list()
+
+        cdft = list()
+        section = section[0][0]
+        states = re.split(r"\-{2,25}", section)
+        for state in states:
+            state_list = list()
+            const_out = list(read_pattern(state, pattern_const).get("constraint"))
+            if len(const_out) == 0:
+                continue
+            for const in const_out:
+                const_dict = {"value": float(const[0]),
+                              "coefficients": list(),
+                              "first_atoms": list(),
+                              "last_atoms": list(),
+                              "types": list()}
+                subconsts = const[1].strip().split("\n")
+                for subconst in subconsts:
+                    tokens = subconst.split()
+                    const_dict["coefficients"].append(float(tokens[0]))
+                    const_dict["first_atoms"].append(int(tokens[1]))
+                    const_dict["last_atoms"].append(int(tokens[2]))
+                    if len(tokens) > 3:
+                        const_dict["types"].append(tokens[3])
+                    else:
+                        const_dict["types"].append(None)
+
+                state_list.append(const_dict)
+
+            cdft.append(state_list)
+
+        return cdft
