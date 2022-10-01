@@ -1095,17 +1095,17 @@ class QCInput(InputFile):
                     "first_atoms": list(),
                     "last_atoms": list(),
                     "types": list(),
-                }
+                }  # type: ignore
                 subconsts = const[1].strip().split("\n")
                 for subconst in subconsts:
                     tokens = subconst.split()
-                    const_dict["coefficients"].append(float(tokens[0]))
-                    const_dict["first_atoms"].append(int(tokens[1]))
-                    const_dict["last_atoms"].append(int(tokens[2]))
+                    const_dict["coefficients"].append(float(tokens[0]))  # type: ignore
+                    const_dict["first_atoms"].append(int(tokens[1]))  # type: ignore
+                    const_dict["last_atoms"].append(int(tokens[2]))  # type: ignore
                     if len(tokens) > 3:
-                        const_dict["types"].append(tokens[3])
+                        const_dict["types"].append(tokens[3])  # type: ignore
                     else:
-                        const_dict["types"].append(None)
+                        const_dict["types"].append(None)  # type: ignore
 
                 state_list.append(const_dict)
 
