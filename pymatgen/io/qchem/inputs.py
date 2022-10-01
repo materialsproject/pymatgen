@@ -106,14 +106,16 @@ class QCInput(InputFile):
 
                     Each entry in the main list represents one state (allowing for multiconfiguration calculations
                     using constrainted density functional theory - configuration interaction (CDFT-CI).
-                    Each state is relresented by a list, which itself contains some number of constraints (dictionaries).
+                    Each state is relresented by a list, which itself contains some number of constraints
+                    (dictionaries).
 
                     Ex:
 
                     1. For a single-state calculation with two constraints:
                      cdft=[[
                         {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [2], "types": [None]},
-                        {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19], "types": ["s"]}
+                        {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19],
+                            "types": ["s"]}
                     ]]
 
                     Note that a type of None will default to a charge constraint (which can also be accessed by
@@ -122,19 +124,23 @@ class QCInput(InputFile):
                     2. For a multireference calculation:
                     cdft=[
                         [
-                            {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
-                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                            {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["c"]},
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["s"]},
                         ],
                         [
-                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
-                            {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["c"]},
+                            {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["s"]},
                         ]
                     ]
             almo (list of lists of int 2-tuples):
                 A list of lists of int 2-tuples used for calculations of diabatization and state coupling calculations
                     relying on the absolutely localized molecular orbitals (ALMO) methodology. Each entry in the main
-                    list represents a single state (two states are included in an ALMO calculation). Within a single state,
-                    each 2-tuple represents the charge and spin multiplicity of a single fragment.
+                    list represents a single state (two states are included in an ALMO calculation). Within a single
+                    state, each 2-tuple represents the charge and spin multiplicity of a single fragment.
                 ex: almo=[
                             [
                                 (1, 2),
@@ -1068,11 +1074,13 @@ class QCInput(InputFile):
         """
 
         pattern_sec = {
-            "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
+            "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|"
+                            r"(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
         }
 
         pattern_const = {
-            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)(?:\s+[A-Za-z]+)?\s*)+)"
+            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)"
+                          r"(?:\s+[A-Za-z]+)?\s*)+)"
         }
 
         section = read_pattern(string, pattern_sec)["full_section"]
@@ -1126,7 +1134,8 @@ class QCInput(InputFile):
         """
 
         pattern = {
-            "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"
+            "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-"
+                   r"((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"
         }
 
         section = read_pattern(string, pattern)["key"]
