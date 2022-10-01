@@ -733,82 +733,116 @@ class QCOutput(MSONable):
             self.data["warnings"]["mkl"] = True
 
         # Check if the job is being hindered by a lack of analytical derivatives
-        if read_pattern(
-            self.text,
-            {"key": r"Starting finite difference calculation for IDERIV"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"Starting finite difference calculation for IDERIV"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["missing_analytical_derivates"] = True
 
         # Check if the job is complaining about MO files of inconsistent size
-        if read_pattern(
-            self.text,
-            {"key": r"Inconsistent size for SCF MO coefficient file"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"Inconsistent size for SCF MO coefficient file"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["inconsistent_size"] = True
 
         # Check for AO linear depend
-        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"Linear dependence detected in AO basis"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["linear_dependence"] = True
 
         # Check for Hessian without desired local structure
-        if read_pattern(
-            self.text,
-            {"key": r"\*\*WARNING\*\* Hessian does not have the Desired Local Structure"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"\*\*WARNING\*\* Hessian does not have the Desired Local Structure"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["hessian_local_structure"] = True
 
         # Check if GetCART cycle iterations ever exceeded
-        if read_pattern(
-            self.text,
-            {"key": r"\*\*\*ERROR\*\*\* Exceeded allowed number of iterative cycles in GetCART"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"\*\*\*ERROR\*\*\* Exceeded allowed number of iterative cycles in GetCART"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["GetCART_cycles"] = True
 
         # Check for problems with internal coordinates
-        if read_pattern(
-            self.text,
-            {"key": r"\*\*WARNING\*\* Problems with Internal Coordinates"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"\*\*WARNING\*\* Problems with Internal Coordinates"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["internal_coordinates"] = True
 
         # Check for problem with eigenvalue magnitude
-        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["eigenvalue_magnitude"] = True
 
         # Check for problem with hereditary postivive definiteness
-        if read_pattern(
-            self.text,
-            {"key": r"\*\*WARNING\*\* Hereditary positive definiteness endangered"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"\*\*WARNING\*\* Hereditary positive definiteness endangered"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["positive_definiteness_endangered"] = True
 
         # Check if there were problems with a colinear bend
-        if read_pattern(
-            self.text,
-            {
-                "key": r"\*\*\*ERROR\*\*\* Angle[\s\d]+is near\-linear\s+"
-                r"But No atom available to define colinear bend"
-            },
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {
+                    "key": r"\*\*\*ERROR\*\*\* Angle[\s\d]+is near\-linear\s+"
+                    r"But No atom available to define colinear bend"
+                },
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["colinear_bend"] = True
 
         # Check if there were problems diagonalizing B*B(t)
-        if read_pattern(
-            self.text,
-            {"key": r"\*\*\*ERROR\*\*\* Unable to Diagonalize B\*B\(t\) in <MakeNIC>"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"\*\*\*ERROR\*\*\* Unable to Diagonalize B\*B\(t\) in <MakeNIC>"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["warnings"]["diagonalizing_BBt"] = True
 
     def _read_geometries(self):
@@ -983,9 +1017,14 @@ class QCOutput(MSONable):
                 temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
-            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
-                "key"
-            ) == [[]]:
+            if (
+                read_pattern(
+                    self.text,
+                    {"key": r"Error in back_transform"},
+                    terminate_on_match=True,
+                ).get("key")
+                == [[]]
+            ):
                 self.data["errors"] += ["back_transform_error"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
@@ -1007,27 +1046,41 @@ class QCOutput(MSONable):
                 and self.data.get("optimized_geometry") is None
                 and len(self.data.get("optimized_zmat")) == 0
             ):
-                if read_pattern(
-                    self.text,
-                    {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"},
-                    terminate_on_match=True,
-                ).get("key") == [[]]:
+                if (
+                    read_pattern(
+                        self.text,
+                        {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"},
+                        terminate_on_match=True,
+                    ).get("key")
+                    == [[]]
+                ):
                     self.data["errors"] += ["out_of_opt_cycles"]
-                elif read_pattern(
-                    self.text,
-                    {"key": r"Maximum number of iterations reached during minimization algorithm"},
-                    terminate_on_match=True,
-                ).get("key") == [[]]:
+                elif (
+                    read_pattern(
+                        self.text,
+                        {"key": r"Maximum number of iterations reached during minimization algorithm"},
+                        terminate_on_match=True,
+                    ).get("key")
+                    == [[]]
+                ):
                     self.data["errors"] += ["out_of_opt_cycles"]
-                elif read_pattern(
-                    self.text,
-                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
-                    terminate_on_match=True,
-                ).get("key") == [[]]:
+                elif (
+                    read_pattern(
+                        self.text,
+                        {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                        terminate_on_match=True,
+                    ).get("key")
+                    == [[]]
+                ):
                     self.data["errors"] += ["unable_to_determine_lamda"]
-                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
-                    "key"
-                ) == [[]]:
+                elif (
+                    read_pattern(
+                        self.text,
+                        {"key": r"Error in back_transform"},
+                        terminate_on_match=True,
+                    ).get("key")
+                    == [[]]
+                ):
                     self.data["errors"] += ["back_transform_error"]
 
     def _read_frequency_data(self):
@@ -1566,49 +1619,67 @@ class QCOutput(MSONable):
         """
         Parses potential errors that can cause jobs to crash
         """
-        if read_pattern(
-            self.text,
-            {"key": r"Coordinates do not transform within specified threshold"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        if (
+            read_pattern(
+                self.text,
+                {"key": r"Coordinates do not transform within specified threshold"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["failed_to_transform_coords"]
-        elif read_pattern(
-            self.text,
-            {"key": r"The Q\-Chem input file has failed to pass inspection"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"The Q\-Chem input file has failed to pass inspection"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["input_file_error"]
         elif read_pattern(self.text, {"key": r"Error opening input stream"}, terminate_on_match=True).get("key") == [
             []
         ]:
             self.data["errors"] += ["failed_to_read_input"]
-        elif read_pattern(
-            self.text,
-            {"key": r"FileMan error: End of file reached prematurely"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"FileMan error: End of file reached prematurely"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["premature_end_FileMan_error"]
-        elif read_pattern(
-            self.text,
-            {"key": r"need to increase the array of NLebdevPts"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"need to increase the array of NLebdevPts"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["NLebdevPts"]
         elif read_pattern(self.text, {"key": r"method not available"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["method_not_available"]
-        elif read_pattern(
-            self.text,
-            {"key": r"Could not find \$molecule section in ParseQInput"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Could not find \$molecule section in ParseQInput"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["read_molecule_error"]
         elif read_pattern(self.text, {"key": r"Welcome to Q-Chem"}, terminate_on_match=True).get("key") != [[]]:
             self.data["errors"] += ["never_called_qchem"]
-        elif read_pattern(
-            self.text,
-            {"key": r"\*\*\*ERROR\*\*\* Hessian Appears to have all zero or negative eigenvalues"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"\*\*\*ERROR\*\*\* Hessian Appears to have all zero or negative eigenvalues"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["hessian_eigenvalue_error"]
         elif read_pattern(self.text, {"key": r"FlexNet Licensing error"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["licensing_error"]
@@ -1616,49 +1687,86 @@ class QCOutput(MSONable):
             []
         ]:
             self.data["errors"] += ["licensing_error"]
-        elif read_pattern(
-            self.text,
-            {"key": r"Could not open driver file in ReadDriverFromDisk"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Could not open driver file in ReadDriverFromDisk"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["driver_error"]
-        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Basis not supported for the above atom"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["basis_not_supported"]
-        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Unable to find relaxed density"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["failed_cpscf"]
-        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Out of Iterations- IterZ"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["failed_cpscf"]
-        elif read_pattern(
-            self.text,
-            {"key": r"RUN_NBO6 \(rem variable\) is not correct"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"RUN_NBO6 \(rem variable\) is not correct"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["bad_old_nbo6_rem"]
-        elif read_pattern(
-            self.text,
-            {"key": r"NBO_EXTERNAL \(rem variable\) is not correct"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"NBO_EXTERNAL \(rem variable\) is not correct"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["bad_new_nbo_external_rem"]
-        elif read_pattern(
-            self.text,
-            {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["gdm_neg_precon_error"]
-        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"too many atoms in ESPChgFit"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["esp_chg_fit_error"]
-        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Please use larger MEM_STATIC"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
             self.data["errors"] += ["mem_static_too_small"]
         else:
             tmp_failed_line_searches = read_pattern(
