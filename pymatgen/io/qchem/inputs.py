@@ -1075,12 +1075,11 @@ class QCInput(InputFile):
 
         pattern_sec = {
             "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|"
-                            r"(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
+            r"(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
         }
 
         pattern_const = {
-            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)"
-                          r"(?:\s+[A-Za-z]+)?\s*)+)"
+            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)" r"(?:\s+[A-Za-z]+)?\s*)+)"
         }
 
         section = read_pattern(string, pattern_sec)["full_section"]
@@ -1135,7 +1134,7 @@ class QCInput(InputFile):
 
         pattern = {
             "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-"
-                   r"((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"
+            r"((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"
         }
 
         section = read_pattern(string, pattern)["key"]
