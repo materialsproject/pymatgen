@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Literal, List
+from typing import Literal, List, Tuple
 import re
 
 from monty.io import zopen
@@ -52,7 +52,7 @@ class QCInput(InputFile):
         nbo: dict | None = None,
         geom_opt: dict | None = None,
         cdft: List[List[dict]] | None = None,
-
+        almo: List[List[Tuple[int, int]]] | None = None
     ):
         """
         Args:
@@ -127,8 +127,21 @@ class QCInput(InputFile):
                             {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
                         ]
                     ]
-
-
+            almo (list of lists of int 2-tuples):
+                A list of lists of int 2-tuples used for calculations of diabatization and state coupling calculations
+                    relying on the absolutely localized molecular orbitals (ALMO) methodology. Each entry in the main
+                    list represents a single state (two states are included in an ALMO calculation). Within a single state,
+                    each 2-tuple represents the charge and spin multiplicity of a single fragment.
+                ex: almo=[
+                            [
+                                (1, 2),
+                                (0, 1)
+                            ],
+                            [
+                                (0, 1),
+                                (1, 2)
+                            ]
+                        ]
         """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
@@ -143,6 +156,7 @@ class QCInput(InputFile):
         self.nbo = lower_and_check_unique(nbo)
         self.geom_opt = lower_and_check_unique(geom_opt)
         self.cdft = cdft
+        self.almo = almo
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -231,6 +245,10 @@ class QCInput(InputFile):
         if self.cdft is not None:
             combined_list.append(self.cdft_template(self.cdft))
             combined_list.append("")
+        # almo section
+        if self.almo is not None:
+            combined_list.append(self.almo_template(self.almo))
+            combined_list.append("")
         return "\n".join(combined_list)
 
     @staticmethod
@@ -275,6 +293,8 @@ class QCInput(InputFile):
         plots = None
         nbo = None
         geom_opt = None
+        cdft = None
+        almo = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -295,6 +315,8 @@ class QCInput(InputFile):
             geom_opt = cls.read_geom_opt(string)
         if "cdft" in sections:
             cdft = cls.read_cdft(string)
+        if "almo_coupling" in sections:
+            almo = cls.read_almo(string)
         return cls(
             molecule,
             rem,
@@ -309,6 +331,7 @@ class QCInput(InputFile):
             nbo=nbo,
             geom_opt=geom_opt,
             cdft=cdft,
+            almo=almo,
         )
 
     @staticmethod
@@ -364,7 +387,6 @@ class QCInput(InputFile):
 
         """
         #TODO: add ghost atoms
-        #TODO: handle multiple molecules
         mol_list = []
         mol_list.append("$molecule")
 
@@ -600,7 +622,7 @@ class QCInput(InputFile):
     def cdft_template(cdft: List[List[dict]]) -> str:
         """
         Args:
-            cdft: list of dicts
+            cdft: list of lists of dicts
 
         Returns:
             (str)
@@ -636,6 +658,37 @@ class QCInput(InputFile):
 
         cdft_list.append("$end")
         return "\n".join(cdft_list)
+
+    @staticmethod
+    def almo_template(almo: List[List[Tuple[int, int]]]) -> str:
+        """
+        Args:
+            almo: list of lists of int 2-tuples
+
+        Returns:
+            (str)
+        """
+
+        almo_list = list()
+        almo_list.append("$almo_coupling")
+
+        # ALMO coupling calculations always involve 2 states
+        if len(almo) != 2:
+            raise ValueError("ALMO coupling calculations require exactly two states!")
+
+        state_1 = almo[0]
+        state_2 = almo[1]
+
+        for frag in state_1:
+            # Casting to int probably unnecessary, given type hint
+            # Doesn't hurt, though
+            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+        almo_list.append("   --")
+        for frag in state_2:
+            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+
+        almo_list.append("$end")
+        return "\n".join(almo_list)
 
     @staticmethod
     def find_sections(string: str) -> list:
@@ -1057,3 +1110,39 @@ class QCInput(InputFile):
             cdft.append(state_list)
 
         return cdft
+
+    @staticmethod
+    def read_almo(string: str) -> List[List[Tuple[int, int]]]:
+        """
+        Read ALMO coupling parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (list of lists of int 2-tuples) almo_coupling parameters
+        """
+
+        pattern = {"key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"}
+
+        section = read_pattern(string, pattern)["key"]
+
+        if len(section) == 0:
+            print("No valid cdft inputs found.")
+            return list()
+
+        section = section[0]
+
+        almo = [[], []]
+
+        state_1 = section[0]
+        for line in state_1.strip().split("\n"):
+            contents = line.split()
+            almo[0].append((int(contents[0]), int(contents[1])))
+
+        state_2 = section[1]
+        for line in state_2.strip().split("\n"):
+            contents = line.split()
+            almo[1].append((int(contents[0]), int(contents[1])))
+
+        return almo
