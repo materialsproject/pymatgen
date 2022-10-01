@@ -1495,7 +1495,7 @@ class QCOutput(MSONable):
              "s2": r"<S2>\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
              "diabat_basis_coeff": r"Diabatic basis coefficients\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
              "h_coupling": r"H passed to diabatic coupling calculation\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
-             "coupling": r"Coupling between diabats 1 and 2: ([\-\.0-9]+) \(([\-\.0-9]+) meV\)"}
+             "coupling": r"Coupling between diabats 1 and 2: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)"}
         )
 
         # Coupling states
@@ -1575,11 +1575,9 @@ class QCOutput(MSONable):
         # Electronic coupling
         if temp_dict.get("coupling") is None \
                 or len(temp_dict.get("coupling", [])) == 0:
-            self.data["almo_coupling_Ha"] = None
             self.data["almo_coupling_eV"] = None
         else:
-            self.data["almo_coupling_Ha"] = float(temp_dict["coupling"][0][0])
-            self.data["almo_coupling_eV"] = float(temp_dict["coupling"][0][1]) / 1000
+            self.data["almo_coupling_eV"] = float(temp_dict["coupling"][0][0]) / 1000
 
     def _check_completion_errors(self):
         """

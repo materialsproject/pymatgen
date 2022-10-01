@@ -98,6 +98,29 @@ property_list = {
     "ccsd_total_energy",
     "ccsd(t)_correlation_energy",
     "ccsd(t)_total_energy",
+    "cdft_becke_excess_electrons",
+    "cdft_becke_population",
+    "cdft_becke_net_spin",
+    "direct_coupling_Hif_Hartree",
+    "direct_coupling_Sif_Hartree",
+    "direct_coupling_Hii_Hartree",
+    "direct_coupling_Sii_Hartree",
+    "direct_coupling_Hff_Hartree",
+    "direct_coupling_Sff_Hartree",
+    "direct_coupling_eV",
+    "almo_coupling_states",
+    "almo_diabat_energies_Hartree",
+    "almo_adiabat_energies_Hartree",
+    "almo_hamiltonian",
+    "almo_overlap_matrix",
+    "almo_s2_matrix",
+    "almo_diabat_basis_coeff",
+    "almo_h_coupling_matrix",
+    "almo_coupling_eV",
+    "pod_coupling_eV",
+    "fodft_had_eV",
+    "fodft_hda_eV",
+    "fodft_coupling_eV"
 }
 
 if have_babel:
@@ -165,6 +188,13 @@ single_job_out_names = {
     "new_qchem_files/ts.out",
     "new_qchem_files/ccsd.qout",
     "new_qchem_files/ccsdt.qout",
+    "new_qchem_files/almo.out",
+    "new_qchem_files/cdft_simple.qout",
+    "new_qchem_files/fodft.out",
+    "new_qchem_files/fodft_2.out",
+    "new_qchem_files/fodft_3.out",
+    "new_qchem_files/pod1.out",
+    "new_qchem_files/pod2_gs.out",
 }
 
 multi_job_out_names = {
@@ -178,6 +208,7 @@ multi_job_out_names = {
     "killed.qcout",
     "aux_mpi_time_mol.qcout",
     "new_qchem_files/VCLi_solv_eps10.qcout",
+    "new_qchem_files/cdft_dc.qout"
 }
 
 
