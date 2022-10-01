@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 import re
 from pathlib import Path
-from typing import List, Literal, Tuple
+from typing import Literal
 
 from monty.io import zopen
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import List, Literal, Tuple
+from typing import Literal
 
 from monty.io import zopen
 
