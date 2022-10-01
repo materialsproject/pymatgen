@@ -224,6 +224,13 @@ class QCOutput(MSONable):
                         spin_contamination[ii] = abs(correct_s2 - entry)
                     self.data["warnings"]["spin_contamination"] = spin_contamination
 
+        # Parse data from CDFT calculations
+        self.data["cdft"] = read_pattern(
+            self.text, {"key": r"CDFT Becke Populations"}
+        ).get("key")
+        if self.data.get("cdft", []):
+            self._read_cdft()
+
         # Parse additional data from coupled-cluster calculations
         self.data["coupled_cluster"] = read_pattern(
             self.text, {"key": r"CCMAN2: suite of methods based on coupled cluster"}
@@ -1324,6 +1331,102 @@ class QCOutput(MSONable):
         for key, value in dfs.items():
             nbo_data[key] = [df.to_dict() for df in value]
         self.data["nbo_data"] = nbo_data
+
+    def _read_cdft(self):
+        """
+        Parses output from charge- or spin-constrained DFT (CDFT) calculations.
+        """
+
+        # Parse constraint and optimization parameters
+        temp_dict = read_pattern(
+            self.text,
+            {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)",
+             "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
+        )
+
+        self.data["cdft_constraints_multipliers"] = list()
+        for const, multip in zip(temp_dict.get("constraint", []),
+                                 temp_dict.get("multiplier", [])):
+            entry = {"index": int(const[0]),
+                     "constraint": float(const[1]),
+                     "multiplier": float(multip[0])}
+            self.data["cdft_constraints_multipliers"].append(entry)
+
+        # Parse Becke populations
+        header_pattern = r"\s*CDFT Becke Populations\s*\n\-+\s*\n\s*Atom\s+Excess Electrons\s+Population \(a\.u\.\)\s+Net Spin"
+        table_pattern = r"\s*(?:[0-9]+)\s+(?:[A-Za-z0-9]+)\s+([\-\.0-9]+)\s+([\.0-9]+)\s+([\-\.0-9]+)"
+        footer_pattern = r"\s*\-+"
+
+        becke_table = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+        if becke_table is None or len(becke_table) == 0:
+            self.data["cdft_becke_excess_electrons"] = None
+            self.data["cdft_becke_population"] = None
+            self.data["cdft_becke_net_spin"] = None
+        else:
+            self.data["cdft_becke_excess_electrons"] = list()
+            self.data["cdft_becke_population"] = list()
+            self.data["cdft_becke_net_spin"] = list()
+
+            for table in becke_table:
+                excess = list()
+                population = list()
+                spin = list()
+
+                for row in table:
+                    excess.append(float(row[0]))
+                    population.append(float(row[1]))
+                    spin.append(float(row[2]))
+
+                self.data["cdft_becke_excess_electrons"].append(excess)
+                self.data["cdft_becke_population"].append(population)
+                self.data["cdft_becke_net_spin"].append(spin)
+
+        # Parse direct-coupling calculation output
+        self.data["cdft_direct_coupling"] = read_pattern(
+            self.text, {"key": r"Start with Direct-Coupling Calculation"}
+        ).get("key")
+        if self.data.get("cdft_direct_coupling", []):
+            temp_dict = read_pattern(
+                self.text,
+                {"Hif": r"\s*DC Matrix Element\s+Hif =\s+([\-\.0-9]+)",
+                 "Sif": r"\s*DC Matrix Element\s+Sif =\s+([\-\.0-9]+)",
+                 "Hii": r"\s*DC Matrix Element\s+Hii =\s+([\-\.0-9]+)",
+                 "Sii": r"\s*DC Matrix Element\s+Sii =\s+([\-\.0-9]+)",
+                 "Hff": r"\s*DC Matrix Element\s+Hff =\s+([\-\.0-9]+)",
+                 "Sff": r"\s*DC Matrix Element\s+Sff =\s+([\-\.0-9]+)",
+                 "coupling": r"\s*Effective coupling (in eV) =\s+([\-\.0-9]+)"}
+            )
+
+            if len(temp_dict.get("Hif", [])) == 0:
+                self.data["direct_coupling_Hif_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hif_Hartree"] = float(temp_dict["Hif"][0][0])
+            if len(temp_dict.get("Sif", [])) == 0:
+                self.data["direct_coupling_Sif_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sif_Hartree"] = float(temp_dict["Sif"][0][0])
+            if len(temp_dict.get("Hii", [])) == 0:
+                self.data["direct_coupling_Hii_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hii_Hartree"] = float(temp_dict["Hii"][0][0])
+            if len(temp_dict.get("Sii", [])) == 0:
+                self.data["direct_coupling_Sii_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sii_Hartree"] = float(temp_dict["Sii"][0][0])
+            if len(temp_dict.get("Hff", [])) == 0:
+                self.data["direct_coupling_Hff_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hff_Hartree"] = float(temp_dict["Hff"][0][0])
+            if len(temp_dict.get("Sff", [])) == 0:
+                self.data["direct_coupling_Sff_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sff_Hartree"] = float(temp_dict["Sff"][0][0])
+            if len(temp_dict.get("coupling", [])) == 0:
+                self.data["direct_coupling_eV"] = None
+            else:
+                self.data["direct_coupling_eV"] = float(temp_dict["coupling"][0][0])
+
+        #TODO: CDFT-CI calculation outputs
 
     def _check_completion_errors(self):
         """
