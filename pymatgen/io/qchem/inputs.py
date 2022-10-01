@@ -1128,7 +1128,7 @@ class QCInput(InputFile):
         section = read_pattern(string, pattern)["key"]
 
         if len(section) == 0:
-            print("No valid cdft inputs found.")
+            print("No valid almo inputs found.")
             return list()
 
         section = section[0]
