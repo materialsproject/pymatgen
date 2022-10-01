@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Literal, List, Tuple
+from typing import List, Literal, Tuple
 
 from monty.io import zopen
 
@@ -47,8 +47,8 @@ class QChemDictSet(QCInput):
         nbo_params: dict | None = None,
         new_geom_opt: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
-        cdft_constraints: List[List[dict]] | None = None,
-        almo_coupling_states: List[List[Tuple[int, int]]] | None = None,
+        cdft_constraints: list[list[dict]] | None = None,
+        almo_coupling_states: list[list[tuple[int, int]]] | None = None,
         overwrite_inputs: dict | None = None,
     ):
         """
@@ -437,8 +437,8 @@ class SinglePointSet(QChemDictSet):
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
-        cdft_constraints: List[List[dict]] | None = None,
-        almo_coupling_states: List[List[Tuple[int, int]]] | None = None,
+        cdft_constraints: list[list[dict]] | None = None,
+        almo_coupling_states: list[list[tuple[int, int]]] | None = None,
         overwrite_inputs: dict | None = None,
     ):
         """
@@ -623,7 +623,7 @@ class OptSet(QChemDictSet):
         geom_opt_max_cycles: int = 200,
         new_geom_opt: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
-        cdft_constraints: List[List[dict]] | None = None,
+        cdft_constraints: list[list[dict]] | None = None,
         overwrite_inputs: dict | None = None,
     ):
         """
@@ -896,7 +896,7 @@ class ForceSet(QChemDictSet):
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
-        cdft_constraints: List[List[dict]] | None = None,
+        cdft_constraints: list[list[dict]] | None = None,
         overwrite_inputs: dict | None = None,
     ):
         """
@@ -1059,7 +1059,7 @@ class FreqSet(QChemDictSet):
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
-        cdft_constraints: List[List[dict]] | None = None,
+        cdft_constraints: list[list[dict]] | None = None,
         overwrite_inputs: dict | None = None,
     ):
         """

@@ -8,9 +8,9 @@ Classes for reading/manipulating/writing QChem input files.
 from __future__ import annotations
 
 import logging
-from pathlib import Path
-from typing import Literal, List, Tuple
 import re
+from pathlib import Path
+from typing import List, Literal, Tuple
 
 from monty.io import zopen
 
@@ -39,7 +39,7 @@ class QCInput(InputFile):
 
     def __init__(
         self,
-        molecule: Molecule | List[Molecule] | Literal["read"],
+        molecule: Molecule | list[Molecule] | Literal["read"],
         rem: dict,
         opt: dict[str, list] | None = None,
         pcm: dict | None = None,
@@ -51,8 +51,8 @@ class QCInput(InputFile):
         plots: dict | None = None,
         nbo: dict | None = None,
         geom_opt: dict | None = None,
-        cdft: List[List[dict]] | None = None,
-        almo: List[List[Tuple[int, int]]] | None = None,
+        cdft: list[list[dict]] | None = None,
+        almo: list[list[tuple[int, int]]] | None = None,
     ):
         """
         Args:
@@ -380,7 +380,7 @@ class QCInput(InputFile):
             return input_list
 
     @staticmethod
-    def molecule_template(molecule: Molecule | List[Molecule] | Literal["read"]) -> str:
+    def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:
         """
         Args:
             molecule (Molecule, list of Molecules, or "read")
@@ -408,8 +408,8 @@ class QCInput(InputFile):
             for site in molecule.sites:
                 mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
         else:
-            overall_charge = sum([x.charge for x in molecule])
-            unpaired_electrons = sum([x.spin_multiplicity - 1 for x in molecule])
+            overall_charge = sum(x.charge for x in molecule)
+            unpaired_electrons = sum(x.spin_multiplicity - 1 for x in molecule)
             overall_spin = unpaired_electrons + 1
 
             mol_list.append(f" {int(overall_charge)} {int(overall_spin)}")
@@ -622,7 +622,7 @@ class QCInput(InputFile):
         return "\n".join(geom_opt_list)
 
     @staticmethod
-    def cdft_template(cdft: List[List[dict]]) -> str:
+    def cdft_template(cdft: list[list[dict]]) -> str:
         """
         Args:
             cdft: list of lists of dicts
@@ -660,7 +660,7 @@ class QCInput(InputFile):
         return "\n".join(cdft_list)
 
     @staticmethod
-    def almo_template(almo: List[List[Tuple[int, int]]]) -> str:
+    def almo_template(almo: list[list[tuple[int, int]]]) -> str:
         """
         Args:
             almo: list of lists of int 2-tuples
@@ -717,7 +717,7 @@ class QCInput(InputFile):
         return sections
 
     @staticmethod
-    def read_molecule(string: str) -> Molecule | List[Molecule] | Literal["read"]:
+    def read_molecule(string: str) -> Molecule | list[Molecule] | Literal["read"]:
         """
         Read molecule from string.
 
@@ -1056,7 +1056,7 @@ class QCInput(InputFile):
         return geom_opt
 
     @staticmethod
-    def read_cdft(string: str) -> List[List[dict]]:
+    def read_cdft(string: str) -> list[list[dict]]:
         """
         Read cdft parameters from string.
 
@@ -1114,7 +1114,7 @@ class QCInput(InputFile):
         return cdft
 
     @staticmethod
-    def read_almo(string: str) -> List[List[Tuple[int, int]]]:
+    def read_almo(string: str) -> list[list[tuple[int, int]]]:
         """
         Read ALMO coupling parameters from string.
 
