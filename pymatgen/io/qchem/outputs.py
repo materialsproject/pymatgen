@@ -231,9 +231,54 @@ class QCOutput(MSONable):
         if self.data.get("cdft", []):
             self._read_cdft()
 
+         # Parse direct-coupling calculation output
+        self.data["cdft_direct_coupling"] = read_pattern(
+            self.text, {"key": r"Start with Direct-Coupling Calculation"}
+        ).get("key")
+        if self.data.get("cdft_direct_coupling", []):
+            temp_dict = read_pattern(
+                self.text,
+                {"Hif": r"\s*DC Matrix Element\s+Hif =\s+([\-\.0-9]+)",
+                 "Sif": r"\s*DC Matrix Element\s+Sif =\s+([\-\.0-9]+)",
+                 "Hii": r"\s*DC Matrix Element\s+Hii =\s+([\-\.0-9]+)",
+                 "Sii": r"\s*DC Matrix Element\s+Sii =\s+([\-\.0-9]+)",
+                 "Hff": r"\s*DC Matrix Element\s+Hff =\s+([\-\.0-9]+)",
+                 "Sff": r"\s*DC Matrix Element\s+Sff =\s+([\-\.0-9]+)",
+                 "coupling": r"\s*Effective Coupling \(in eV\) =\s+([\-\.0-9]+)"}
+            )
+
+            if len(temp_dict.get("Hif", [])) == 0:
+                self.data["direct_coupling_Hif_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hif_Hartree"] = float(temp_dict["Hif"][0][0])
+            if len(temp_dict.get("Sif", [])) == 0:
+                self.data["direct_coupling_Sif_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sif_Hartree"] = float(temp_dict["Sif"][0][0])
+            if len(temp_dict.get("Hii", [])) == 0:
+                self.data["direct_coupling_Hii_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hii_Hartree"] = float(temp_dict["Hii"][0][0])
+            if len(temp_dict.get("Sii", [])) == 0:
+                self.data["direct_coupling_Sii_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sii_Hartree"] = float(temp_dict["Sii"][0][0])
+            if len(temp_dict.get("Hff", [])) == 0:
+                self.data["direct_coupling_Hff_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hff_Hartree"] = float(temp_dict["Hff"][0][0])
+            if len(temp_dict.get("Sff", [])) == 0:
+                self.data["direct_coupling_Sff_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sff_Hartree"] = float(temp_dict["Sff"][0][0])
+            if len(temp_dict.get("coupling", [])) == 0:
+                self.data["direct_coupling_eV"] = None
+            else:
+                self.data["direct_coupling_eV"] = float(temp_dict["coupling"][0][0])
+
         # Parse data from ALMO(MSDFT2) calculation
         self.data["almo_msdft2"] = read_pattern(
-            self.text, {"key": r"ALMO(MSDFT2) method for electronic coupling"}
+            self.text, {"key": r"ALMO\(MSDFT2\) method for electronic coupling"}
         ).get("key")
         if self.data.get("almo_msdft2", []):
             self._read_almo_msdft2()
@@ -411,7 +456,7 @@ class QCOutput(MSONable):
         if not self.data.get("completion", []) and self.data.get("errors") == []:
             self._check_completion_errors()
 
-    @staticmethod
+    @classmethod
     def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
         """
         Parses a QChem output file with multiple calculations
@@ -1430,51 +1475,6 @@ class QCOutput(MSONable):
                 self.data["cdft_becke_population"].append(population)
                 self.data["cdft_becke_net_spin"].append(spin)
 
-        # Parse direct-coupling calculation output
-        self.data["cdft_direct_coupling"] = read_pattern(
-            self.text, {"key": r"Start with Direct-Coupling Calculation"}
-        ).get("key")
-        if self.data.get("cdft_direct_coupling", []):
-            temp_dict = read_pattern(
-                self.text,
-                {"Hif": r"\s*DC Matrix Element\s+Hif =\s+([\-\.0-9]+)",
-                 "Sif": r"\s*DC Matrix Element\s+Sif =\s+([\-\.0-9]+)",
-                 "Hii": r"\s*DC Matrix Element\s+Hii =\s+([\-\.0-9]+)",
-                 "Sii": r"\s*DC Matrix Element\s+Sii =\s+([\-\.0-9]+)",
-                 "Hff": r"\s*DC Matrix Element\s+Hff =\s+([\-\.0-9]+)",
-                 "Sff": r"\s*DC Matrix Element\s+Sff =\s+([\-\.0-9]+)",
-                 "coupling": r"\s*Effective coupling (in eV) =\s+([\-\.0-9]+)"}
-            )
-
-            if len(temp_dict.get("Hif", [])) == 0:
-                self.data["direct_coupling_Hif_Hartree"] = None
-            else:
-                self.data["direct_coupling_Hif_Hartree"] = float(temp_dict["Hif"][0][0])
-            if len(temp_dict.get("Sif", [])) == 0:
-                self.data["direct_coupling_Sif_Hartree"] = None
-            else:
-                self.data["direct_coupling_Sif_Hartree"] = float(temp_dict["Sif"][0][0])
-            if len(temp_dict.get("Hii", [])) == 0:
-                self.data["direct_coupling_Hii_Hartree"] = None
-            else:
-                self.data["direct_coupling_Hii_Hartree"] = float(temp_dict["Hii"][0][0])
-            if len(temp_dict.get("Sii", [])) == 0:
-                self.data["direct_coupling_Sii_Hartree"] = None
-            else:
-                self.data["direct_coupling_Sii_Hartree"] = float(temp_dict["Sii"][0][0])
-            if len(temp_dict.get("Hff", [])) == 0:
-                self.data["direct_coupling_Hff_Hartree"] = None
-            else:
-                self.data["direct_coupling_Hff_Hartree"] = float(temp_dict["Hff"][0][0])
-            if len(temp_dict.get("Sff", [])) == 0:
-                self.data["direct_coupling_Sff_Hartree"] = None
-            else:
-                self.data["direct_coupling_Sff_Hartree"] = float(temp_dict["Sff"][0][0])
-            if len(temp_dict.get("coupling", [])) == 0:
-                self.data["direct_coupling_eV"] = None
-            else:
-                self.data["direct_coupling_eV"] = float(temp_dict["coupling"][0][0])
-
         #TODO: CDFT-CI calculation outputs
 
     def _read_almo_msdft2(self):
@@ -1502,14 +1502,14 @@ class QCOutput(MSONable):
         if temp_dict.get("states") is None or len(temp_dict.get("states", [])) == 0:
             self.data["almo_coupling_states"] = None
         else:
-            charges_1 = [int(r.strip()) for r in temp_dict["states"][0][0].split("\n")]
-            spins_1 = [int(r.strip()) for r in temp_dict["states"][0][1].split("\n")]
-            charges_2 = [int(r.strip()) for r in temp_dict["states"][0][2].split("\n")]
-            spins_2 = [int(r.strip()) for r in temp_dict["states"][0][3].split("\n")]
+            charges_1 = [int(r.strip()) for r in temp_dict["states"][0][0].strip().split("\n")]
+            spins_1 = [int(r.strip()) for r in temp_dict["states"][0][1].strip().split("\n")]
+            charges_2 = [int(r.strip()) for r in temp_dict["states"][0][2].strip().split("\n")]
+            spins_2 = [int(r.strip()) for r in temp_dict["states"][0][3].strip().split("\n")]
 
             self.data["almo_coupling_states"] = [
-                [(i, j) for i, j in zip(charges_1, spins_1)],
-                [(i, j) for i, j in zip(charges_2, spins_2)]
+                [[i, j] for i, j in zip(charges_1, spins_1)],
+                [[i, j] for i, j in zip(charges_2, spins_2)]
             ]
 
         # State energies

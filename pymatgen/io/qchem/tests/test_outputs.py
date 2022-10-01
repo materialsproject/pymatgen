@@ -231,7 +231,7 @@ class TestQCOutput(PymatgenTest):
         multi_job_dict = {}
         for file in multi_job_out_names:
             outputs = QCOutput.multiple_outputs_from_file(
-                QCOutput, os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
             )
             data = []
             for sub_output in outputs:
@@ -262,7 +262,7 @@ class TestQCOutput(PymatgenTest):
         multi_outs = {}
         for file in multi_job_out_names:
             multi_outs[file] = QCOutput.multiple_outputs_from_file(
-                QCOutput, os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
             )
 
         for key in property_list:
@@ -354,6 +354,34 @@ class TestQCOutput(PymatgenTest):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_inf.qout")).data
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0], float("inf"))
 
+    def test_cdft_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_simple.qout")).data
+        self.assertEqual(data["cdft_becke_excess_electrons"][0][0], 0.432641)
+        self.assertEqual(len(data["cdft_becke_population"][0]), 12)
+        self.assertEqual(data["cdft_becke_net_spin"][0][6], -0.000316)
+
+    def test_cdft_dc_parsing(self):
+        data = QCOutput.multiple_outputs_from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_dc.qout"),
+            keep_sub_files=False
+        )[-1].data
+        self.assertEqual(data["direct_coupling_eV"], 0.0103038246)
+
+    def test_almo_msdft2_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "almo.out")).data
+        self.assertListEqual(data["almo_coupling_states"], [[[1, 2], [0, 1]], [[0, 1], [1, 2]]])
+        self.assertEqual(data["almo_hamiltonian"][0][0], -156.62929)
+        self.assertAlmostEqual(data["almo_coupling_eV"], 0.26895)
+
+    def test_pod_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "pod2_gs.out")).data
+        self.assertEqual(data["pod_coupling_eV"], 0.247818)
+
+    def test_fodft_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "fodft.out")).data
+        self.assertEqual(data["fodft_coupling_eV"], 0.268383)
 
 if __name__ == "__main__":
+    # TestQCOutput.generate_single_job_dict()
+    # TestQCOutput.generate_multi_job_dict()
     unittest.main()
