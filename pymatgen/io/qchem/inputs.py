@@ -1137,7 +1137,7 @@ class QCInput(InputFile):
 
         section = section[0]
 
-        almo = [[], []]
+        almo = [[], []]  # type: ignore
 
         state_1 = section[0]
         for line in state_1.strip().split("\n"):
