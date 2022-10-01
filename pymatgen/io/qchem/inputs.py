@@ -52,7 +52,7 @@ class QCInput(InputFile):
         nbo: dict | None = None,
         geom_opt: dict | None = None,
         cdft: List[List[dict]] | None = None,
-        almo: List[List[Tuple[int, int]]] | None = None
+        almo: List[List[Tuple[int, int]]] | None = None,
     ):
         """
         Args:
@@ -389,7 +389,7 @@ class QCInput(InputFile):
             (str) Molecule template.
 
         """
-        #TODO: add ghost atoms
+        # TODO: add ghost atoms
         mol_list = []
         mol_list.append("$molecule")
 
@@ -650,10 +650,7 @@ class QCInput(InputFile):
                         raise ValueError("Invalid CDFT constraint type!")
 
                 for coef, first, last, type_string in zip(
-                    constraint["coefficients"],
-                    constraint["first_atoms"],
-                    constraint["last_atoms"],
-                    type_strings
+                    constraint["coefficients"], constraint["first_atoms"], constraint["last_atoms"], type_strings
                 ):
                     cdft_list.append(f"   {coef} {first} {last} {type_string}")
             if len(state) != 1 and ii + 1 < len(state):
@@ -736,7 +733,7 @@ class QCInput(InputFile):
             "read": r"^\s*\$molecule\n\s*(read)",
             "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d+",
             "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*((?:\-)*\d+)",
-            "fragment": r"^\s*\$molecule\n\s*(?:\-)*\d+\s+\d+\s*\n\s*(\-\-)"
+            "fragment": r"^\s*\$molecule\n\s*(?:\-)*\d+\s+\d+\s*\n\s*(\-\-)",
         }
         matches = read_pattern(string, patterns)
         if "read" in matches:
@@ -1092,11 +1089,13 @@ class QCInput(InputFile):
             if len(const_out) == 0:
                 continue
             for const in const_out:
-                const_dict = {"value": float(const[0]),
-                              "coefficients": list(),
-                              "first_atoms": list(),
-                              "last_atoms": list(),
-                              "types": list()}
+                const_dict = {
+                    "value": float(const[0]),
+                    "coefficients": list(),
+                    "first_atoms": list(),
+                    "last_atoms": list(),
+                    "types": list(),
+                }
                 subconsts = const[1].strip().split("\n")
                 for subconst in subconsts:
                     tokens = subconst.split()
@@ -1126,7 +1125,9 @@ class QCInput(InputFile):
             (list of lists of int 2-tuples) almo_coupling parameters
         """
 
-        pattern = {"key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"}
+        pattern = {
+            "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"
+        }
 
         section = read_pattern(string, pattern)["key"]
 

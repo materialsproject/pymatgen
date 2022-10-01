@@ -120,7 +120,7 @@ property_list = {
     "pod_coupling_eV",
     "fodft_had_eV",
     "fodft_hda_eV",
-    "fodft_coupling_eV"
+    "fodft_coupling_eV",
 }
 
 if have_babel:
@@ -208,7 +208,7 @@ multi_job_out_names = {
     "killed.qcout",
     "aux_mpi_time_mol.qcout",
     "new_qchem_files/VCLi_solv_eps10.qcout",
-    "new_qchem_files/cdft_dc.qout"
+    "new_qchem_files/cdft_dc.qout",
 }
 
 
@@ -355,7 +355,9 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0], float("inf"))
 
     def test_cdft_parsing(self):
-        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_simple.qout")).data
+        data = QCOutput(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_simple.qout")
+        ).data
         self.assertEqual(data["cdft_becke_excess_electrons"][0][0], 0.432641)
         self.assertEqual(len(data["cdft_becke_population"][0]), 12)
         self.assertEqual(data["cdft_becke_net_spin"][0][6], -0.000316)
@@ -363,7 +365,7 @@ class TestQCOutput(PymatgenTest):
     def test_cdft_dc_parsing(self):
         data = QCOutput.multiple_outputs_from_file(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_dc.qout"),
-            keep_sub_files=False
+            keep_sub_files=False,
         )[-1].data
         self.assertEqual(data["direct_coupling_eV"], 0.0103038246)
 
@@ -380,6 +382,7 @@ class TestQCOutput(PymatgenTest):
     def test_fodft_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "fodft.out")).data
         self.assertEqual(data["fodft_coupling_eV"], 0.268383)
+
 
 if __name__ == "__main__":
     # TestQCOutput.generate_single_job_dict()

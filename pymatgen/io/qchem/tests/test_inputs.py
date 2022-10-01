@@ -50,7 +50,7 @@ $end"""
             [-0.574301, 0.000000, -0.928785],
             [-0.574301, 0.000000, 0.928785],
             [1.906301, 0.000000, 0.928785],
-            [1.906301, 0.000000, -0.928785]
+            [1.906301, 0.000000, -0.928785],
         ]
         coords_2 = [
             [0.000000, 4.000000, 0.000000],
@@ -58,7 +58,7 @@ $end"""
             [-0.574301, 4.000000, -0.928785],
             [-0.574301, 4.000000, 0.928785],
             [1.906301, 4.000000, 0.928785],
-            [1.906301, 4.000000, -0.928785]
+            [1.906301, 4.000000, -0.928785],
         ]
 
         mol_1 = Molecule(species, coords_1, charge=1)
@@ -205,7 +205,7 @@ $end"""
             [
                 {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
                 {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
-            ]
+            ],
         ]
 
         cdft_test = QCInput.cdft_template(cdft)
@@ -224,16 +224,7 @@ $end"""
         self.assertEqual(cdft_test, cdft_actual)
 
     def test_almo_template(self):
-        almo=[
-            [
-                (1, 2),
-                (0, 1)
-            ],
-            [
-                (0, 1),
-                (1, 2)
-            ]
-        ]
+        almo = [[(1, 2), (0, 1)], [(0, 1), (1, 2)]]
         almo_test = QCInput.almo_template(almo)
         almo_actual = """$almo_coupling
    1 2
@@ -244,7 +235,6 @@ $end"""
 $end"""
 
         self.assertEqual(almo_test, almo_actual)
-
 
     def test_find_sections(self):
         str_single_job_input = """$molecule
@@ -336,7 +326,7 @@ $end"""
             [-0.574301, 0.000000, -0.928785],
             [-0.574301, 0.000000, 0.928785],
             [1.906301, 0.000000, 0.928785],
-            [1.906301, 0.000000, -0.928785]
+            [1.906301, 0.000000, -0.928785],
         ]
         coords_2 = [
             [0.000000, 4.000000, 0.000000],
@@ -344,7 +334,7 @@ $end"""
             [-0.574301, 4.000000, -0.928785],
             [-0.574301, 4.000000, 0.928785],
             [1.906301, 4.000000, 0.928785],
-            [1.906301, 4.000000, -0.928785]
+            [1.906301, 4.000000, -0.928785],
         ]
 
         mol_1 = Molecule(species, coords_1, charge=1)
@@ -1072,7 +1062,7 @@ $end
             [
                 {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": [None]},
                 {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
-            ]
+            ],
         ]
 
         parsed = QCInput.read_cdft(str_cdft)
