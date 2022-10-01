@@ -238,6 +238,48 @@ class QCOutput(MSONable):
         if self.data.get("almo_msdft2", []):
             self._read_almo_msdft2()
 
+        # Parse data from Projection Operator Diabatization (POD) calculation
+        self.data["pod"] = read_pattern(
+            self.text,
+            {"key": r"POD2? based on the RSCF Fock matrix"}
+        ).get("key")
+        if self.data.get("pod", []):
+            coupling = read_pattern(
+                self.text,
+                {"coupling": r"The D\([0-9]+\) \- A\([0-9]+\) coupling:\s+(?:[\.\-0-9]+ \()?([\-\.0-9]+) meV\)?"}
+            ).get("coupling")
+
+            if coupling is None or len(coupling) == 0:
+                self.data["pod_coupling_eV"] = None
+            else:
+                self.data["pod_coupling_eV"] = float(coupling[0][0]) / 1000
+
+        # Parse data from Fragment Orbital DFT (FODFT) method
+        self.data["fodft"] = read_pattern(
+            self.text,
+            {"key": r"FODFT\(2n(?:[\-\+]1)?\)\@D(?:\^[\-\+])?A for [EH]T"}
+        ).get("key")
+        if self.data.get("fodft", []):
+            temp_dict = read_pattern(
+                self.text,
+                {"had": r"H_ad = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                 "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                 "coupling": r"The (?:averaged )?electronic coupling: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)"}
+            )
+
+            if temp_dict.get("had") is None or len(temp_dict.get("had", [])) == 0:
+                self.data["fodft_had_eV"] = None
+            else:
+                self.data["fodft_had_eV"] = float(temp_dict["had"][0][0]) / 1000
+            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:
+                self.data["fodft_hda_eV"] = None
+            else:
+                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000
+            if temp_dict.get("coupling") is None or len(temp_dict.get("coupling", [])) == 0:
+                self.data["fodft_coupling_eV"] = None
+            else:
+                self.data["fodft_coupling_eV"] = float(temp_dict["coupling"][0][0]) / 1000
+
         # Parse additional data from coupled-cluster calculations
         self.data["coupled_cluster"] = read_pattern(
             self.text, {"key": r"CCMAN2: suite of methods based on coupled cluster"}
