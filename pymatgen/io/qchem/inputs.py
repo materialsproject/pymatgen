@@ -112,9 +112,12 @@ class QCInput(InputFile):
 
                     1. For a single-state calculation with two constraints:
                      cdft=[[
-                        {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [2], "type": "c"},
-                        {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19], "type": "s"}
+                        {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [2], "types": [None]},
+                        {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19], "types": ["s"]}
                     ]]
+
+                    Note that a type of None will default to a charge constraint (which can also be accessed by
+                    requesting a type of "c" or "charge".
 
                     2. For a multireference calculation:
                     cdft=[

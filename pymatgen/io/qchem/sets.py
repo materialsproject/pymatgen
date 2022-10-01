@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Literal
+from typing import Literal, List, Tuple
 
 from monty.io import zopen
 
@@ -46,8 +46,10 @@ class QChemDictSet(QCInput):
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
         new_geom_opt: dict | None = None,
-        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        cdft_constraints: List[List[dict]] | None = None,
+        almo_coupling_states: List[List[Tuple[int, int]]] | None = None,
+        overwrite_inputs: dict | None = None,
     ):
         """
         Args:
@@ -104,6 +106,95 @@ class QChemDictSet(QCInput):
                 Note that the new optimizer remains under development and not officially released.
                 Further note that even passig an empty dictionary will trigger the new optimizer.
                 (Default: False)
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
+                        cdft_constraints (list of lists of dicts):
+                A list of lists of dictionaries, where each dictionary represents a charge
+                constraint in the cdft section of the QChem input file.
+
+                Each entry in the main list represents one state (allowing for multiconfiguration
+                calculations using constrainted density functional theory - configuration interaction
+                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                constraints (dictionaries).
+
+                Ex:
+
+                1. For a single-state calculation with two constraints:
+                 cdft_constraints=[[
+                    {
+                        "value": 1.0,
+                        "coefficients": [1.0],
+                        "first_atoms": [1],
+                        "last_atoms": [2],
+                        "types": [None]
+                    },
+                    {
+                        "value": 2.0,
+                        "coefficients": [1.0, -1.0],
+                        "first_atoms": [1, 17],
+                        "last_atoms": [3, 19],
+                        "types": ["s"]
+                    }
+                ]]
+
+                Note that a type of None will default to a charge constraint (which can also be
+                accessed by requesting a type of "c" or "charge").
+
+
+                2. For a CDFT-CI multireference calculation:
+                cdft_constraints=[
+                    [
+                        {
+                            "value": 1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ],
+                    [
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": -1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ]
+                ]
+            almo_coupling_states (list of lists of int 2-tuples):
+                A list of lists of int 2-tuples used for calculations of diabatization and state
+                coupling calculations relying on the absolutely localized molecular orbitals (ALMO)
+                methodology. Each entry in the main list represents a single state (two states are
+                included in an ALMO calculation). Within a single state, each 2-tuple represents the
+                charge and spin multiplicity of a single fragment.
+                ex: almo_coupling_states=[
+                            [
+                                (1, 2),
+                                (0, 1)
+                            ],
+                            [
+                                (0, 1),
+                                (1, 2)
+                            ]
+                        ]
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -119,11 +210,6 @@ class QChemDictSet(QCInput):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
-                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
-                In 'atomic' mode (default), dict keys represent the atomic number associated with each
-                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
-                position of a single specific atom in the input structure.
         """
         self.molecule = molecule
         self.job_type = job_type
@@ -140,8 +226,10 @@ class QChemDictSet(QCInput):
         self.plot_cubes = plot_cubes
         self.nbo_params = nbo_params
         self.new_geom_opt = new_geom_opt
-        self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
+        self.cdft_constraints = cdft_constraints
+        self.almo_coupling_states = almo_coupling_states
+        self.overwrite_inputs = overwrite_inputs
 
         pcm_defaults = {
             "heavypoints": "194",
@@ -316,6 +404,8 @@ class QChemDictSet(QCInput):
             plots=myplots,
             nbo=mynbo,
             geom_opt=my_geom_opt,
+            cdft=self.cdft_constraints,
+            almo=self.almo_coupling_states,
         )
 
     def write(self, input_file: str):
@@ -346,8 +436,10 @@ class SinglePointSet(QChemDictSet):
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
-        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        cdft_constraints: List[List[dict]] | None = None,
+        almo_coupling_states: List[List[Tuple[int, int]]] | None = None,
+        overwrite_inputs: dict | None = None,
     ):
         """
         Args:
@@ -383,6 +475,95 @@ class SinglePointSet(QChemDictSet):
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            cdft_constraints (list of lists of dicts):
+                A list of lists of dictionaries, where each dictionary represents a charge
+                constraint in the cdft section of the QChem input file.
+
+                Each entry in the main list represents one state (allowing for multiconfiguration
+                calculations using constrainted density functional theory - configuration interaction
+                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                constraints (dictionaries).
+
+                Ex:
+
+                1. For a single-state calculation with two constraints:
+                 cdft_constraints=[[
+                    {
+                        "value": 1.0,
+                        "coefficients": [1.0],
+                        "first_atoms": [1],
+                        "last_atoms": [2],
+                        "types": [None]
+                    },
+                    {
+                        "value": 2.0,
+                        "coefficients": [1.0, -1.0],
+                        "first_atoms": [1, 17],
+                        "last_atoms": [3, 19],
+                        "types": ["s"]
+                    }
+                ]]
+
+                Note that a type of None will default to a charge constraint (which can also be
+                accessed by requesting a type of "c" or "charge").
+
+
+                2. For a CDFT-CI multireference calculation:
+                cdft_constraints=[
+                    [
+                        {
+                            "value": 1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ],
+                    [
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": -1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ]
+                ]
+            almo_coupling_states (list of lists of int 2-tuples):
+                A list of lists of int 2-tuples used for calculations of diabatization and state
+                coupling calculations relying on the absolutely localized molecular orbitals (ALMO)
+                methodology. Each entry in the main list represents a single state (two states are
+                included in an ALMO calculation). Within a single state, each 2-tuple represents the
+                charge and spin multiplicity of a single fragment.
+                ex: almo_coupling_states=[
+                            [
+                                (1, 2),
+                                (0, 1)
+                            ],
+                            [
+                                (0, 1),
+                                (1, 2)
+                            ]
+                        ]
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -398,11 +579,6 @@ class SinglePointSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
-                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
-                In 'atomic' mode (default), dict keys represent the atomic number associated with each
-                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
-                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -419,8 +595,10 @@ class SinglePointSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
-            overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
+            cdft_constraints=cdft_constraints,
+            almo_coupling_states=almo_coupling_states,
+            overwrite_inputs=overwrite_inputs,
         )
 
 
@@ -444,8 +622,9 @@ class OptSet(QChemDictSet):
         opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
         new_geom_opt: dict | None = None,
-        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        cdft_constraints: List[List[dict]] | None = None,
+        overwrite_inputs: dict | None = None,
     ):
         """
         Args:
@@ -482,6 +661,79 @@ class OptSet(QChemDictSet):
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
+            cdft_constraints (list of lists of dicts):
+                A list of lists of dictionaries, where each dictionary represents a charge
+                constraint in the cdft section of the QChem input file.
+
+                Each entry in the main list represents one state (allowing for multiconfiguration
+                calculations using constrainted density functional theory - configuration interaction
+                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                constraints (dictionaries).
+
+                Ex:
+
+                1. For a single-state calculation with two constraints:
+                 cdft_constraints=[[
+                    {
+                        "value": 1.0,
+                        "coefficients": [1.0],
+                        "first_atoms": [1],
+                        "last_atoms": [2],
+                        "types": [None]
+                    },
+                    {
+                        "value": 2.0,
+                        "coefficients": [1.0, -1.0],
+                        "first_atoms": [1, 17],
+                        "last_atoms": [3, 19],
+                        "types": ["s"]
+                    }
+                ]]
+
+                Note that a type of None will default to a charge constraint (which can also be
+                accessed by requesting a type of "c" or "charge").
+
+
+                2. For a CDFT-CI multireference calculation:
+                cdft_constraints=[
+                    [
+                        {
+                            "value": 1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ],
+                    [
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": -1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ]
+                ]
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -522,8 +774,9 @@ class OptSet(QChemDictSet):
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
             new_geom_opt=new_geom_opt,
-            overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
+            cdft_constraints=cdft_constraints,
+            overwrite_inputs=overwrite_inputs,
         )
 
 
@@ -642,8 +895,9 @@ class ForceSet(QChemDictSet):
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
-        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        cdft_constraints: List[List[dict]] | None = None,
+        overwrite_inputs: dict | None = None,
     ):
         """
         Args:
@@ -677,6 +931,79 @@ class ForceSet(QChemDictSet):
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
+            cdft_constraints (list of lists of dicts):
+                A list of lists of dictionaries, where each dictionary represents a charge
+                constraint in the cdft section of the QChem input file.
+
+                Each entry in the main list represents one state (allowing for multiconfiguration
+                calculations using constrainted density functional theory - configuration interaction
+                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                constraints (dictionaries).
+
+                Ex:
+
+                1. For a single-state calculation with two constraints:
+                 cdft_constraints=[[
+                    {
+                        "value": 1.0,
+                        "coefficients": [1.0],
+                        "first_atoms": [1],
+                        "last_atoms": [2],
+                        "types": [None]
+                    },
+                    {
+                        "value": 2.0,
+                        "coefficients": [1.0, -1.0],
+                        "first_atoms": [1, 17],
+                        "last_atoms": [3, 19],
+                        "types": ["s"]
+                    }
+                ]]
+
+                Note that a type of None will default to a charge constraint (which can also be
+                accessed by requesting a type of "c" or "charge").
+
+
+                2. For a CDFT-CI multireference calculation:
+                cdft_constraints=[
+                    [
+                        {
+                            "value": 1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ],
+                    [
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": -1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ]
+                ]
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -692,11 +1019,6 @@ class ForceSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
-                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
-                In 'atomic' mode (default), dict keys represent the atomic number associated with each
-                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
-                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -713,8 +1035,9 @@ class ForceSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
-            overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
+            cdft_constraints=cdft_constraints,
+            overwrite_inputs=overwrite_inputs,
         )
 
 
@@ -735,8 +1058,9 @@ class FreqSet(QChemDictSet):
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
-        overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        cdft_constraints: List[List[dict]] | None = None,
+        overwrite_inputs: dict | None = None,
     ):
         """
         Args:
@@ -770,6 +1094,79 @@ class FreqSet(QChemDictSet):
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
+                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
+            cdft_constraints (list of lists of dicts):
+                A list of lists of dictionaries, where each dictionary represents a charge
+                constraint in the cdft section of the QChem input file.
+
+                Each entry in the main list represents one state (allowing for multiconfiguration
+                calculations using constrainted density functional theory - configuration interaction
+                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                constraints (dictionaries).
+
+                Ex:
+
+                1. For a single-state calculation with two constraints:
+                 cdft_constraints=[[
+                    {
+                        "value": 1.0,
+                        "coefficients": [1.0],
+                        "first_atoms": [1],
+                        "last_atoms": [2],
+                        "types": [None]
+                    },
+                    {
+                        "value": 2.0,
+                        "coefficients": [1.0, -1.0],
+                        "first_atoms": [1, 17],
+                        "last_atoms": [3, 19],
+                        "types": ["s"]
+                    }
+                ]]
+
+                Note that a type of None will default to a charge constraint (which can also be
+                accessed by requesting a type of "c" or "charge").
+
+
+                2. For a CDFT-CI multireference calculation:
+                cdft_constraints=[
+                    [
+                        {
+                            "value": 1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ],
+                    [
+                        {
+                            "value": 0.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["c"]
+                        },
+                        {
+                            "value": -1.0,
+                            "coefficients": [1.0],
+                            "first_atoms": [1],
+                            "last_atoms": [27],
+                            "types": ["s"]
+                        },
+                    ]
+                ]
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -785,11 +1182,6 @@ class FreqSet(QChemDictSet):
                 the PCM "radii" setting to "read".**
 
                 **Note that all keys must be given as strings, even when they are numbers!**
-            vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
-                only if you are using overwrite_inputs to add a $van_der_waals section to the input.
-                In 'atomic' mode (default), dict keys represent the atomic number associated with each
-                radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
-                position of a single specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -806,8 +1198,9 @@ class FreqSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             nbo_params=nbo_params,
-            overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
+            cdft_constraints=cdft_constraints,
+            overwrite_inputs=overwrite_inputs,
         )
 
 
