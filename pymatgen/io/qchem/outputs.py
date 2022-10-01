@@ -231,6 +231,13 @@ class QCOutput(MSONable):
         if self.data.get("cdft", []):
             self._read_cdft()
 
+        # Parse data from ALMO(MSDFT2) calculation
+        self.data["almo_msdft2"] = read_pattern(
+            self.text, {"key": r"ALMO(MSDFT2) method for electronic coupling"}
+        ).get("key")
+        if self.data.get("almo_msdft2", []):
+            self._read_almo_msdft2()
+
         # Parse additional data from coupled-cluster calculations
         self.data["coupled_cluster"] = read_pattern(
             self.text, {"key": r"CCMAN2: suite of methods based on coupled cluster"}
@@ -1427,6 +1434,110 @@ class QCOutput(MSONable):
                 self.data["direct_coupling_eV"] = float(temp_dict["coupling"][0][0])
 
         #TODO: CDFT-CI calculation outputs
+
+    def _read_almo_msdft2(self):
+        """
+        Parse output of ALMO(MSDFT2) calculations for coupling between diabatic states
+        """
+
+        temp_dict = read_pattern(
+            self.text,
+            {"states": r"Number of diabatic states: 2\s*\nstate 1\s*\ncharge per "
+                       r"fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)multiplicity per fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)"
+                       r"state 2\s*\ncharge per fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)multiplicity per "
+                       r"fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)",
+             "diabat_energies": r"Energies of the diabats:\s*\n\s*state 1:\s+([\-\.0-9]+)\s*\n\s*state 2:\s+([\-\.0-9]+)",
+             "adiabat_energies": r"Energy of the adiabatic states\s*\n\s*State 1:\s+([\-\.0-9]+)\s*\n\s*State 2:\s+([\-\.0-9]+)",
+             "hamiltonian": r"Hamiltonian\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+             "overlap": r"overlap\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+             "s2": r"<S2>\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+             "diabat_basis_coeff": r"Diabatic basis coefficients\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+             "h_coupling": r"H passed to diabatic coupling calculation\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+             "coupling": r"Coupling between diabats 1 and 2: ([\-\.0-9]+) \(([\-\.0-9]+) meV\)"}
+        )
+
+        # Coupling states
+        if temp_dict.get("states") is None or len(temp_dict.get("states", [])) == 0:
+            self.data["almo_coupling_states"] = None
+        else:
+            charges_1 = [int(r.strip()) for r in temp_dict["states"][0][0].split("\n")]
+            spins_1 = [int(r.strip()) for r in temp_dict["states"][0][1].split("\n")]
+            charges_2 = [int(r.strip()) for r in temp_dict["states"][0][2].split("\n")]
+            spins_2 = [int(r.strip()) for r in temp_dict["states"][0][3].split("\n")]
+
+            self.data["almo_coupling_states"] = [
+                [(i, j) for i, j in zip(charges_1, spins_1)],
+                [(i, j) for i, j in zip(charges_2, spins_2)]
+            ]
+
+        # State energies
+        if temp_dict.get("diabat_energies") is None \
+                or len(temp_dict.get("diabat_energies", [])) == 0:
+            self.data["almo_diabat_energies_Hartree"] = None
+        else:
+            self.data["almo_diabat_energies_Hartree"] = [float(x) for x in temp_dict["diabat_energies"][0]]
+        if temp_dict.get("adiabat_energies") is None \
+                or len(temp_dict.get("adiabat_energies", [])) == 0:
+            self.data["almo_adiabat_energies_Hartree"] = None
+        else:
+            self.data["almo_adiabat_energies_Hartree"] = [float(x) for x in temp_dict["adiabat_energies"][0]]
+
+        # Matrices
+        if temp_dict.get("hamiltonian") is None \
+                or len(temp_dict.get("hamiltonian", [])) == 0:
+            self.data["almo_hamiltonian"] = None
+        else:
+            self.data["almo_hamiltonian"] = [
+                [float(temp_dict["hamiltonian"][0][0]), float(temp_dict["hamiltonian"][0][1])],
+                [float(temp_dict["hamiltonian"][0][2]), float(temp_dict["hamiltonian"][0][3])]
+            ]
+        if temp_dict.get("overlap") is None \
+                or len(temp_dict.get("overlap", [])) == 0:
+            self.data["almo_overlap_matrix"] = None
+        else:
+            self.data["almo_overlap_matrix"] = [
+                [float(temp_dict["overlap"][0][0]), float(temp_dict["overlap"][0][1])],
+                [float(temp_dict["overlap"][0][2]), float(temp_dict["overlap"][0][3])]
+            ]
+        if temp_dict.get("s2") is None \
+                or len(temp_dict.get("s2", [])) == 0:
+            self.data["almo_s2_matrix"] = None
+        else:
+            self.data["almo_s2_matrix"] = [
+                [float(temp_dict["s2"][0][0]), float(temp_dict["s2"][0][1])],
+                [float(temp_dict["s2"][0][2]), float(temp_dict["s2"][0][3])]
+            ]
+        if temp_dict.get("diabat_basis_coeff") is None \
+                or len(temp_dict.get("diabat_basis_coeff", [])) == 0:
+            self.data["almo_diabat_basis_coeff"] = None
+        else:
+            self.data["almo_diabat_basis_coeff"] = [
+                [
+                    float(temp_dict["diabat_basis_coeff"][0][0]),
+                    float(temp_dict["diabat_basis_coeff"][0][1])
+                ],
+                [
+                    float(temp_dict["diabat_basis_coeff"][0][2]),
+                    float(temp_dict["diabat_basis_coeff"][0][3])
+                ]
+            ]
+        if temp_dict.get("h_coupling") is None \
+                or len(temp_dict.get("h_coupling", [])) == 0:
+            self.data["almo_h_coupling_matrix"] = None
+        else:
+            self.data["almo_h_coupling_matrix"] = [
+                [float(temp_dict["h_coupling"][0][0]), float(temp_dict["h_coupling"][0][1])],
+                [float(temp_dict["h_coupling"][0][2]), float(temp_dict["h_coupling"][0][3])]
+            ]
+
+        # Electronic coupling
+        if temp_dict.get("coupling") is None \
+                or len(temp_dict.get("coupling", [])) == 0:
+            self.data["almo_coupling_Ha"] = None
+            self.data["almo_coupling_eV"] = None
+        else:
+            self.data["almo_coupling_Ha"] = float(temp_dict["coupling"][0][0])
+            self.data["almo_coupling_eV"] = float(temp_dict["coupling"][0][1]) / 1000
 
     def _check_completion_errors(self):
         """
