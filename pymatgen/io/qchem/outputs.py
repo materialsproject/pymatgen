@@ -1491,9 +1491,9 @@ class QCOutput(MSONable):
                 "hamiltonian": r"Hamiltonian\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
                 r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "overlap": r"overlap\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
-                           r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "s2": r"<S2>\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
-                      r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "diabat_basis_coeff": r"Diabatic basis coefficients\s*\n\s*1\s+2\s*\n\s*"
                 r"1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "h_coupling": r"H passed to diabatic coupling calculation\s*\n\s*1\s+2\s*\n\s*"
