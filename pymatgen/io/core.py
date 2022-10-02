@@ -156,9 +156,6 @@ class InputSet(MSONable, MutableMapping):
     def __delitem__(self, key):
         del self.inputs[key]
 
-    def __eq__(self, other):
-        return (self.inputs == other.inputs) and (self.__dict__ == other.__dict__)
-
     def write_input(
         self,
         directory: str | Path,
