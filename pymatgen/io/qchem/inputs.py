@@ -421,7 +421,7 @@ class QCInput(InputFile):
             mol_list.append(f" {int(overall_charge)} {int(overall_spin)}")
 
             for fragment in molecule:
-                mol_list.append("-- ")
+                mol_list.append("--")
                 mol_list.append(f" {int(fragment.charge)} {fragment.spin_multiplicity}")
                 for site in fragment.sites:
                     mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
@@ -658,7 +658,10 @@ class QCInput(InputFile):
                 for coef, first, last, type_string in zip(
                     constraint["coefficients"], constraint["first_atoms"], constraint["last_atoms"], type_strings
                 ):
-                    cdft_list.append(f"   {coef} {first} {last} {type_string}")
+                    if type_string != "":
+                        cdft_list.append(f"   {coef} {first} {last} {type_string}")
+                    else:
+                        cdft_list.append(f"   {coef} {first} {last}")
             if len(state) != 1 and ii + 1 < len(state):
                 cdft_list.append("--------------")
 

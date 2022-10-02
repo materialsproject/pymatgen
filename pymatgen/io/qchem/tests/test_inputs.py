@@ -43,6 +43,7 @@ $end"""
         self.assertEqual(molecule_actual, molecule_test)
 
     def test_multi_molecule_template(self):
+        self.maxDiff = None
         species = ["C", "C", "H", "H", "H", "H"]
         coords_1 = [
             [0.000000, 0.000000, 0.000000],
