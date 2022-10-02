@@ -1485,19 +1485,19 @@ class QCOutput(MSONable):
                 r"state 2\s*\ncharge per fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)multiplicity per "
                 r"fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)",
                 "diabat_energies": r"Energies of the diabats:\s*\n\s*state 1:\s+([\-\.0-9]+)"
-                                   r"\s*\n\s*state 2:\s+([\-\.0-9]+)",
+                r"\s*\n\s*state 2:\s+([\-\.0-9]+)",
                 "adiabat_energies": r"Energy of the adiabatic states\s*\n\s*State 1:\s+([\-\.0-9]+)\s*\n\s*"
-                                    r"State 2:\s+([\-\.0-9]+)",
+                r"State 2:\s+([\-\.0-9]+)",
                 "hamiltonian": r"Hamiltonian\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
-                               r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "overlap": r"overlap\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
                            r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "s2": r"<S2>\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
                       r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "diabat_basis_coeff": r"Diabatic basis coefficients\s*\n\s*1\s+2\s*\n\s*"
-                                      r"1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                r"1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "h_coupling": r"H passed to diabatic coupling calculation\s*\n\s*1\s+2\s*\n\s*"
-                              r"1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                r"1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
                 "coupling": r"Coupling between diabats 1 and 2: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
             },
         )
