@@ -298,7 +298,7 @@ class QCOutput(MSONable):
 
         # Parse data from Fragment Orbital DFT (FODFT) method
         self.data["fodft"] = read_pattern(
-            self.text, {"key": r"FODFT\(2n(?:[\-\+]1)?\)\@D(?:\^[\-\+])?A for [EH]T"}
+            self.text, {"key": r"FODFT\(2n(?:[\-\+]1)?\)\@D(?:\^[\-\+])?A(?:\^\-)? for [EH]T"}
         ).get("key")
         if self.data.get("fodft", []):
             temp_dict = read_pattern(
