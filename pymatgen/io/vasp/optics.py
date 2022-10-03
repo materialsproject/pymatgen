@@ -3,7 +3,6 @@
 """Classes for parsing and manipulating VASP optical properties calculations."""
 from __future__ import annotations
 
-import itertools
 from dataclasses import dataclass
 
 import numpy as np
@@ -55,6 +54,7 @@ class DielectricFunctionCalculator(MSONable):
     efermi: float
     cshift: float
     ispin: int
+    volume: float
 
     @classmethod
     def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder):
@@ -78,6 +78,7 @@ class DielectricFunctionCalculator(MSONable):
         cshift = vrun.parameters["CSHIFT"]
         efermi = vrun.efermi
         ispin = vrun.parameters["ISPIN"]
+        volume = vrun.final_structure.volume
 
         return DielectricFunctionCalculator(
             cder=cder,
@@ -90,10 +91,13 @@ class DielectricFunctionCalculator(MSONable):
             efermi=efermi,
             cshift=cshift,
             ispin=ispin,
+            volume=volume,
         )
 
     def get_epsilon(
         self,
+        idir: int,
+        jdir: int,
         efermi: float = None,
         nedos: int = None,
         deltae: float = None,
@@ -112,10 +116,7 @@ class DielectricFunctionCalculator(MSONable):
         sigma = _use_default(sigma, self.sigma)
         cshift = _use_default(cshift, self.cshift)
 
-        res = dict()
-        g_out = None
-
-        for idir, jdir, egrid, eps_imag in epsilon_imag(  # type: ignore
+        egrid, eps_imag = epsilon_imag(  # type: ignore
             cder=self.cder,
             eigs=self.eigs,
             kweights=self.kweights,
@@ -124,15 +125,12 @@ class DielectricFunctionCalculator(MSONable):
             deltae=deltae,  # type: ignore
             ismear=ismear,  # type: ignore
             sigma=sigma,  # type: ignore
-            upper_triangulr=upper_triangle,
-        ):  # type: ignore
-            print(f"Calculating epsilon for {idir} {jdir}")
-            eps = kramers_kronig(eps_imag, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
-            if idir == jdir:
-                eps += 1
-            res[(idir, jdir)] = eps
-            g_out = egrid
-        return g_out, res
+            idir=idir,
+            jdir=jdir,
+        )
+        eps_in = eps_imag * edeps * np.pi / self.volume
+        eps = kramers_kronig(eps_in, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
+        return egrid, eps
 
 
 def get_eps_constant(structure):
@@ -242,7 +240,8 @@ def epsilon_imag(
     deltae: float,
     ismear: int,
     sigma: float,
-    upper_triangulr: bool = True,
+    idir: int,
+    jdir: int,
 ):
     """Replicate the EPSILON_IMAG function of VASP.
 
@@ -268,25 +267,21 @@ def epsilon_imag(
 
     # for the transition between two bands at one kpoint the contributions is:
     #  (fermi[band_i] - fermi[band_j]) * rspin * normalized_kpoint_weight
-
-    for idir, jdir in itertools.product(range(3), range(3)):
-        epsdd = np.zeros_like(egrid, dtype=np.complex128)
-        for ib, jb, ik, ispin in np.ndindex(cder.shape[:4]):
-            if upper_triangulr and ib > jb:
-                continue
-            # print(f"ib={ib}, jb={jb}, ik={ik}, ispin={ispin}")
-            fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
-            fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
-            weight = (fermi_w_j - fermi_w_i) * rspin * norm_kweights[ik]
-            decel = eigs[jb, ik, ispin] - eigs[ib, ik, ispin]
-            A = cder[ib, jb, ik, ispin, idir] * np.conjugate(cder[ib, jb, ik, ispin, jdir])
-            # Reproduce the `SLOT` function calls in VASP:
-            # CALL SLOT( REAL(DECEL,q), ISMEAR, SIGMA, NEDOS, DELTAE,  WEIGHT*A*CONST, EPSDD)
-            # The conjugate part is not needed since we are running over all pairs of ib, jb
-            # vasp just does the conjugate trick to save loop time
-            smeared = get_delta(x0=decel, sigma=sigma, nx=nedos, dx=deltae, ismear=ismear) * weight * A
-            epsdd += smeared
-        yield idir, jdir, egrid, epsdd
+    epsdd = np.zeros_like(egrid, dtype=np.complex128)
+    for ib, jb, ik, ispin in np.ndindex(cder.shape[:4]):
+        # print(f"ib={ib}, jb={jb}, ik={ik}, ispin={ispin}")
+        fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
+        fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
+        weight = (fermi_w_j - fermi_w_i) * rspin * norm_kweights[ik]
+        decel = eigs[jb, ik, ispin] - eigs[ib, ik, ispin]
+        A = cder[ib, jb, ik, ispin, idir] * np.conjugate(cder[ib, jb, ik, ispin, jdir])
+        # Reproduce the `SLOT` function calls in VASP:
+        # CALL SLOT( REAL(DECEL,q), ISMEAR, SIGMA, NEDOS, DELTAE,  WEIGHT*A*CONST, EPSDD)
+        # The conjugate part is not needed since we are running over all pairs of ib, jb
+        # vasp just does the conjugate trick to save loop time
+        smeared = get_delta(x0=decel, sigma=sigma, nx=nedos, dx=deltae, ismear=ismear) * weight * A
+        epsdd += smeared
+    return egrid, epsdd
 
 
 def kramers_kronig(
