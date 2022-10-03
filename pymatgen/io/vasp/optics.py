@@ -35,15 +35,15 @@ class DielectricFunctionCalculator(MSONable):
     you can reconstruct the dielectric functions purely in python and have full control over contribution
     from different bands and Kpoints.
 
+    Vasp's linear optics follow these steps:
+        - Calculate the imaginary part
+        - Perform symmetry operations
+        - Calculate the real part
 
-    Note on using this class for free carrier absoprtion calculations:
-
-    As of VAPS6.3, the only way to have the contribution from all possible band pairs is to set
-    ``LVEL=.True.`` in the INCAR.  However, this causes the bandstructure output in the
-    ``vasprun.xml`` file to print all kpoints, not the symmetry-reduces list of KPOINTS.
-    So you should make sure the vasp calculation with ``LOPTICS=.True.`` and ``LVEL=.True.``
-    is performed in a contained directory, where the bandstructure data is not used.
-
+    Currently, this Caculator only works for ``ISYM=0`` calculations since we cannot gauranttee that our
+    externally defined symmetry operations are the same as Vasp's.  This can be fixed by printing the
+    symmetry operators into the vasprun.xml file.  If this happens in future versions of VASP,
+    we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
 
     cder: npt.NDArray
@@ -244,7 +244,6 @@ def get_step(x0, sigma, nx, dx, ismear):
 
     Return:
         np.array: Array of size `nx` with step function on the desired outputgrid.
-
     """
     xgrid = np.arange(0, nx * dx, dx)
     xgrid -= x0
