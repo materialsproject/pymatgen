@@ -1,15 +1,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Classes for parsing and manipulating VASP optical properties calculations."""
+from __future__ import annotations
 
 import itertools
+from dataclasses import dataclass
 
 import numpy as np
 import numpy.typing as npt
 from monty.json import MSONable
 from scipy import constants, special
 
-from pymatgen.io.vasp.outputs import BandStructure, Waveder
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 au2ang = constants.physical_constants["atomic unit of length"][0] / 1e-10
 ryd2ev = constants.physical_constants["Rydberg constant times hc in eV"][0]
@@ -18,8 +21,12 @@ edeps = 4 * np.pi * 2 * ryd2ev * au2ang  # from constant.inc in VASP
 KB = constants.physical_constants["Boltzmann constant in eV/K"][0]
 
 
-class DielectricFunction(MSONable):
+@dataclass
+class DielectricFunctionCalculator(MSONable):
     """Class for postprocessing VASP optical properties calculations.
+
+    This objects helps load the different parameters from the vasprun.xml file but allows users to override
+    them as needed.
 
     The standard vasprun.xml from anl ``LOPTICS=.True.`` calculation already contains
     the complex frequency dependent dielectric functions.  However you have no way to decompose
@@ -38,8 +45,82 @@ class DielectricFunction(MSONable):
 
     """
 
-    def __init__(self, waveder: Waveder, bandstructure: BandStructure) -> None:
-        super().__init__()
+    cder: npt.NDArray
+    eigs: npt.NDArray
+    kweights: npt.NDArray
+    nedos: int
+    deltae: float
+    ismear: int
+    sigma: float
+    efermi: float
+    cshift: float
+
+    @classmethod
+    def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder):
+        """Construct a DielectricFunction from Vasprun, Kpoint, and Waveder objects.
+
+        Args:
+            vrun: Vasprun object
+            kpoint: Kpoint object
+            waveder: Waveder object
+        """
+        bands = vrun.eigenvalues
+        eigs = np.stack([bands[spin] for spin in [Spin.up, Spin.down]])
+        cder = waveder.cder
+        kweights = vrun.actual_kpoints_weights
+        nedos = vrun.parameters["NEDOS"]
+        deltae = vrun.parameters["DE"]
+        ismear = vrun.parameters["ISMEAR"]
+        sigma = vrun.parameters["SIGMA"]
+        cshift = vrun.parameters["CSHIFT"]
+        efermi = vrun.efermi
+        return DielectricFunctionCalculator(
+            cder=cder,
+            eigs=eigs,
+            kweights=kweights,
+            nedos=nedos,
+            deltae=deltae,
+            ismear=ismear,
+            sigma=sigma,
+            efermi=efermi,
+            cshift=cshift,
+        )
+
+    def get_epsilon(
+        self,
+        efermi: float = None,
+        nedos: int = None,
+        deltae: float = None,
+        ismear: int = None,
+        sigma: float = None,
+        cshift: float = None,
+    ) -> npt.NDArray:
+        def _use_default(param, default):
+            return param if param is not None else default
+
+        efermi = _use_default(efermi, self.efermi)
+        nedos = _use_default(nedos, self.nedos)
+        deltae = _use_default(deltae, self.deltae)
+        ismear = _use_default(ismear, self.ismear)
+        sigma = _use_default(sigma, self.sigma)
+        cshift = _use_default(cshift, self.cshift)
+
+        res = dict()
+        g_out = None
+        for idir, jdir, egrid, eps_imag in epsilon_imag(  # type: ignore
+            cder=self.cder,
+            eigs=self.eigs,
+            kweights=self.kweights,
+            efermi=efermi,  # type: ignore
+            nedos=nedos,  # type: ignore
+            deltae=deltae,  # type: ignore
+            ismear=ismear,  # type: ignore
+            sigma=sigma,  # type: ignore
+        ):  # type: ignore
+            eps = kramers_kronig(eps_imag, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
+            res[(idir, jdir)] = eps
+            g_out = egrid
+        return g_out, res
 
 
 def get_eps_constant(structure):
@@ -190,7 +271,7 @@ def epsilon_imag(
             # vasp just does the conjugate trick to save loop time
             smeared = get_delta(x0=decel, sigma=sigma, nx=nedos, dx=deltae, ismear=ismear) * weight * A
             epsdd += smeared
-        yield egrid, epsdd
+        yield idir, jdir, egrid, epsdd
 
 
 def kramers_kronig(
