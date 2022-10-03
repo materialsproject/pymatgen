@@ -115,6 +115,19 @@ class DielectricFunctionCalculator(MSONable):
         sigma: float = None,
         cshift: float = None,
     ) -> npt.NDArray:
+        """Compute the frequency dependent dielectric function.
+
+        Args:
+            idir: First direction of the dielectric tensor
+            jdir: Second direction of the dielectric tensor
+            efermi: Fermi energy
+            nedos: Number of points in the DOS
+            deltae: Energy step in the DOS
+            ismear: Smearing method (only has 0:gaussian, >0:Methfessel-Paxton)
+            sigma: Smearing width
+            cshift: Complex shift used for Kramer-Kronig transformation
+        """
+
         def _use_default(param, default):
             return param if param is not None else default
 
@@ -137,15 +150,12 @@ class DielectricFunctionCalculator(MSONable):
             idir=idir,
             jdir=jdir,
         )
+        # scaling constant: edeps * np.pi / structure.volume
         eps_in = eps_imag * edeps * np.pi / self.volume
         eps = kramers_kronig(eps_in, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
         if idir == jdir:
             eps += 1.0 + 0.0j
         return egrid, eps
-
-
-def get_eps_constant(structure):
-    return edeps * np.pi / structure.volume
 
 
 def delta_methfessel_paxton(x, n):
