@@ -7,13 +7,15 @@ Input sets for LAMMPS
 import logging
 import os
 from pathlib import Path
+from string import Template
 from typing import Dict, List
+
+from monty.io import zopen
 
 from pymatgen.core import Structure
 from pymatgen.io.core import InputGenerator, InputSet
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
-from pymatgen.io.template import TemplateInputGen
 
 __author__ = "Ryan Kingsbury, ..."
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -72,24 +74,27 @@ class LammpsInputSet(InputSet):
         raise NotImplementedError(f"from_directory has not been implemented in {cls}")
 
 
-class LammpsMinimization(InputGenerator):
+class BaseLammpsGenerator(InputGenerator):
     """
-    Yields a LammpsInputSet tailored for minimizing the energy of a system by iteratively
-    adjusting atom coordinates.
+    Doc
     """
 
-    template = os.path.join(template_dir, "minimization.template")
-    calc_type = "minimization"
+    template: str = os.path.join(template_dir, "md.template")
+    calc_type: str = "lammps"
 
     def __init__(self, settings: dict | None = None):  # pylint: disable=E1131
-        """ """
-        self.settings = settings
+        """
+        Doc
+        """
+        self.settings = settings or {}
 
-        # Get the input file using Templates
-        template_set = TemplateInputGen().get_input_set(
-            template=self.template, variables=self.settings, filename="in.lammps"
-        )
-        self.input_file = LammpsInputFile.from_string(template_set.inputs["in.lammps"])
+        # load the template
+        with zopen(self.template, "r") as f:
+            template_str = f.read()
+
+        # replace all variables
+        self.input_str = Template(template_str).safe_substitute(**self.settings)
+        self.input_file = LammpsInputFile.from_string(self.input_str)
 
     def get_input_set(  # type: ignore
         self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
@@ -108,6 +113,33 @@ class LammpsMinimization(InputGenerator):
         )
 
         return input_set
+
+
+class LammpsMinimization(BaseLammpsGenerator):
+    """
+    Yields a LammpsInputSet tailored for minimizing the energy of a system by iteratively
+    adjusting atom coordinates.
+    """
+
+    template = os.path.join(template_dir, "minimization.template")
+    calc_type = "minimization"
+
+    def __init__(
+        self,
+        units: str = "metal",
+        atom_style: str = "full",
+        dimension: int = 3,
+        boundary: str = "p p p",
+        read_data: str = "system.data",
+    ):
+        self.settings = {
+            "units": units,
+            "atom_style": atom_style,
+            "dimension": dimension,
+            "boundary": boundary,
+            "read_data": read_data,
+        }
+        super().__init__(settings=self.settings)
 
 
 class LammpsAqueousSet(InputGenerator):
