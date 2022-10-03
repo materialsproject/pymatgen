@@ -21,8 +21,10 @@ from __future__ import annotations
 
 import itertools
 import os
+from typing import Iterable
 import warnings
 from pathlib import Path
+import numpy as np
 
 from ruamel.yaml import YAML
 
@@ -82,22 +84,22 @@ with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
 class Cp2kInputSet(Cp2kInput):
 
     """
-    The basic representation of a CP2K input set as a collection of "sections" defining the simulation
-    connected to a structure object. At the most basis level, CP2K requires a &GLOBAL section and
-    &FORCE_EVAL section. Global sets parameters like "RUN_TYPE" or the overall verbosity. FORCE_EVAL is
-    the largest section usually, containing the cell and coordinates of atoms, the DFT settings, and more.
-    This top level input set is meant to initialize GLOBAL and FORCE_EVAL based on a structure object and
-    and sections that the user provides.
+    The basic representation of a CP2K input set as a collection of "sections" defining the
+    simulation connected to a structure object. At the most basis level, CP2K requires a &GLOBAL
+    section and &FORCE_EVAL section. Global sets parameters like "RUN_TYPE" or the overall
+    verbosity. FORCE_EVAL is the largest section usually, containing the cell and coordinates of
+    atoms, the DFT settings, and more. This top level input set is meant to initialize GLOBAL and
+    FORCE_EVAL based on a structure object and and sections that the user provides.
 
-    Like everything that goes into a cp2k input file, this base input set is essentially a section object.
-    These sets are distinguished by saving default settings for easy implementation of calculations such
-    as relaxation and static calculations. This base set is here to transfer a pymatgen structure object
-    into the input format for cp2k and associate the basis set and pseudopotential to use with each
-    element in the structure.
+    Like everything that goes into a cp2k input file, this base input set is essentially a section
+    object. These sets are distinguished by saving default settings for easy implementation of
+    calculations such as relaxation and static calculations. This base set is here to transfer a
+    pymatgen structure object into the input format for cp2k and associate the basis set and
+    pseudopotential to use with each element in the structure.
 
-    Generally, this class will not be used directly, and instead one of
-    its child-classes will be used, which contain more predefined initializations of various sections, and,
-    if modifications are required, the user can specify override_default_settings.
+    Generally, this class will not be used directly, and instead one of its child-classes will be
+    used, which contain more predefined initializations of various sections, and, if
+    modifications are required, the user can specify override_default_settings.
     """
 
     def __init__(
@@ -142,7 +144,9 @@ class Cp2kInputSet(Cp2kInput):
         self.insert(ForceEval())  # always present in cp2k
         self.basis_set_file_names = None  # need for dft
         self.potential_file_name = None  # need for dft
-        self.create_subsys(self.structure)  # assemble structure with atom types and pseudopotentials assigned
+        self.create_subsys(
+            self.structure
+        )  # assemble structure with atom types and pseudopotentials assigned
 
         if self.kwargs.get("print_forces", True):
             self.print_forces()
@@ -158,7 +162,9 @@ class Cp2kInputSet(Cp2kInput):
             subsys.insert(Cell(structure.lattice))
 
         # Decide what basis sets/pseudopotentials to use
-        basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
+        basis_and_potential = get_basis_and_potential(
+            structure.symbol_set, self.basis_and_potential
+        )
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
@@ -171,7 +177,11 @@ class Cp2kInputSet(Cp2kInput):
                 if "oxi_state" in self.structure.site_properties
                 else 0
             )
-            _sp = self.structure.site_properties["spin"][v[0]] if "spin" in self.structure.site_properties else 0
+            _sp = (
+                self.structure.site_properties["spin"][v[0]]
+                if "spin" in self.structure.site_properties
+                else 0
+            )
 
             bs = BrokenSymmetry.from_el(kind, _ox, _sp) if _ox else None
 
@@ -224,9 +234,9 @@ class Cp2kInputSet(Cp2kInput):
 
 class DftSet(Cp2kInputSet):
     """
-    Base for an input set using the Quickstep module (i.e. a DFT calculation). The DFT section is pretty vast
-    in CP2K, so this set hopes to make the DFT setup fairly simple. The provided parameters are pretty conservative,
-    and so they should not need to be changed very often.
+    Base for an input set using the Quickstep module (i.e. a DFT calculation). The DFT section is
+    pretty vast in CP2K, so this set hopes to make the DFT setup fairly simple. The provided
+    parameters are pretty conservative, and so they should not need to be changed very often.
     """
 
     def __init__(
@@ -256,60 +266,66 @@ class DftSet(Cp2kInputSet):
         """
         Args:
             structure: Pymatgen structure or molecule object
-            ot (bool): Whether or not to use orbital transformation method for matrix diagonalization. OT is the
-                flagship scf solver of CP2K, and will provide huge speed-ups for this part of the calculation,
-                but the system must have a band gap for OT to be used (higher band-gap --> faster convergence).
-                Band gap is also used by the preconditioner for OT, and should be set as a value SMALLER than the true
-                band gap to get good efficiency. Generally, this parameter does not need to be changed from
-                default of 0.01
-            energy_gap (float): Estimate of energy gap for preconditioner. Default is -1, leaving it up to cp2k.
-            eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this
-                value, ensuring an overall accuracy of at least this much.
-            eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-6. Should
-                ensure reasonable results, but is not applicable to all situations.
-                    Note: eps_scf is *not* in units of energy, as in most DFT codes. For OT method, it is the largest
-                    gradient of the energy with respect to changing any of the molecular orbital coefficients. For
-                    diagonalization, it is the largest change in the density matrix from the last step.
-            max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
-                corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
-                while with diagonalization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
+            ot (bool): Whether or not to use orbital transformation method for matrix
+                diagonalization. OT is the flagship scf solver of CP2K, and will provide
+                speed-ups for this part of the calculation, but the system must have a band gap
+                for OT to be used (higher band-gap --> faster convergence). 
+            energy_gap (float): Estimate of energy gap for preconditioner. Default is -1, leaving
+                it up to cp2k.
+            eps_default (float): Replaces all EPS_XX Keywords in the DFT section value, ensuring
+                an overall accuracy of at least this much.
+            eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-6.
+                Should ensure reasonable results, but is not applicable to all situations.
+                    Note: eps_scf is *not* in units of energy, as in most DFT codes. For OT method,
+                    it is the largest gradient of the energy with respect to changing any of the
+                    molecular orbital coefficients. For diagonalization, it is the largest change
+                    in the density matrix from the last step.
+            max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With
+                the OT solver, this corresponds to the max number of INNER scf loops, and then
+                the outer loops are set with outer_max_scf, while with diagonalization it
+                corresponds to the overall (INNER*OUTER) number of SCF steps, with the
                 inner loop limit set by
-            minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
-                gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
-            preconditioner (str): Preconditioner for the OT method. FULL_SINGLE_INVERSE is very robust and compatible
-                with non-integer occupations from IRAC+rotation. FULL_ALL is considered "best" but needs algorithm to
-                be set to STRICT. Only change from these two when simulation cell gets to be VERY large, in which case
-                FULL_KINETIC might be preferred.
-            algorithm (str): Algorithm for the OT method. STRICT assumes that the orbitals are strictly orthogonal to
-                each other, which works well for wide gap ionic systems, but can diverge for systems with small gaps,
-                fractional occupations, and some other cases. IRAC (iterative refinement of the approximate congruency)
-                transformation is not analytically correct and uses a truncated polynomial expansion, but is robust to
-                the problems with STRICT, and so is the default.
-            linesearch (str): Linesearch method for CG. 2PNT is the default, and is the fastest, but is not as robust
-                as 3PNT. 2PNT is required as of cp2k v9.1 for compatibility with irac+rotation. This may be upgraded
-                in the future. 3PNT can be good for wide gapped transition metal systems as an alternative.
-            rotation (bool): Whether or not to allow for rotation of the orbitals in the OT method. This equates to
-                allowing for fractional occupations in the calculation.
-            occupation_preconditioner (bool): Whether or not to account for fractional occupations in the
-                preconditioner. This method is not fully integrated as of cp2k v9.1 and is set to false by default.
-            cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
-                have very accurate calculations PROVIDED that REL_CUTOFF is appropriate. By default cutoff is set to 0,
-                which will assign it to be the largest exponent of your basis times the rel_cutoff.
-            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
-                multigrid. If REL_CUTOFF is too low, then even if you have a high CUTOFF, all Gaussians will be
-                mapped onto the coarsest level of the multi-grid, and thus the effective integration grid for
-                the calculation may still be too coarse. By default 50Ry is chosen, which should be sufficient
-                given the cutoff is large enough.
-                    From CP2K manual: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the
-                    function will cover number of grid points greater than or equal to the number of grid points
-                    will cover on a reference grid defined by REL_CUTOFF.
-            ngrids (int): number of multi-grids to use. CP2K default is 4, but the molopt basis files recommend 5.
-            progression_factor (int): Divisor of CUTOFF to get the cutoff for the next level of the multigrid.
+            minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the
+                more robust conjugate gradient method, and so it is chosen as default. Switch to CG
+                if dealing with a difficult system.
+            preconditioner (str): Preconditioner for the OT method. FULL_SINGLE_INVERSE is very
+                robust and compatible with non-integer occupations from IRAC+rotation. FULL_ALL is
+                considered "best" but needs algorithm to be set to STRICT. Only change from these
+                two when simulation cell gets to be VERY large, in which case FULL_KINETIC might be
+                preferred.
+            algorithm (str): Algorithm for the OT method. STRICT assumes that the orbitals are
+                strictly orthogonal to each other, which works well for wide gap ionic systems,
+                but can diverge for systems with small gaps, fractional occupations, and some
+                other cases. IRAC (iterative refinement of the approximate congruency)
+                transformation is not analytically correct and uses a truncated polynomial
+                expansion, but is robust to the problems with STRICT, and so is the default.
+            linesearch (str): Linesearch method for CG. 2PNT is the default, and is the fastest,
+                but is not as robust as 3PNT. 2PNT is required as of cp2k v9.1 for compatibility
+                with irac+rotation. This may be upgraded in the future. 3PNT can be good for wide
+                gapped transition metal systems as an alternative.
+            rotation (bool): Whether or not to allow for rotation of the orbitals in the OT method.
+                This equates to allowing for fractional occupations in the calculation.
+            occupation_preconditioner (bool): Whether or not to account for fractional occupations
+                in the preconditioner. This method is not fully integrated as of cp2k v9.1 and is
+                set to false by default.
+            cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high
+                cutoff will allow you to have very accurate calculations PROVIDED that REL_CUTOFF
+                is appropriate. By default cutoff is set to 0, leaving it up to the set.
+            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different
+                levels of the multigrid. If REL_CUTOFF is too low, then even if you have a high
+                CUTOFF, all Gaussians will be mapped onto the coarsest level of the multi-grid,
+                and thus the effective integration grid for the calculation may still be too
+                coarse. By default 50Ry is chosen, which should be sufficient given the cutoff is
+                large enough.
+            ngrids (int): number of multi-grids to use. CP2K default is 4, but the molopt basis
+                files recommend 5.
+            progression_factor (int): Divisor of CUTOFF to get the cutoff for the next level of
+                the multigrid.
             wfn_restart_file_name (str): RESTART file for the initial wavefunction guess.
-            kpoints (Kpoints): kpoints object from pymatgen.io.vasp.inputs.Kpoints. By default, CP2K runs with gamma
-                point only.
-            smearing (bool): whether or not to activate smearing (should be done for systems containing no (or a very
-                small) band gap.
+            kpoints (Kpoints): kpoints object from pymatgen.io.vasp.inputs.Kpoints. By default,
+                CP2K runs with gamma point only.
+            smearing (bool): whether or not to activate smearing (should be done for systems
+                containing no (or a very small) band gap.
         """
 
         super().__init__(structure, **kwargs)
@@ -337,13 +353,17 @@ class DftSet(Cp2kInputSet):
         self.kwargs = kwargs
 
         if ot and self.kpoints:
-            if self.kpoints.num_kpts == 1 or (self.kpoints.num_kpts == 0 and tuple(self.kpoints.kpts[0]) == (1, 1, 1)):
-                # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying 1 1 1 disables
-                # modules that don't support kpoints. So, you have to drop it all together to get full
-                # support
+            if self.kpoints.num_kpts == 0 or (
+                self.kpoints.num_kpts == 1 and np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
+            ):
+                # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
+                # 0,0,0 will disable certain features. So, you have to drop it all together to
+                # get full support
                 self.kpoints = None
             else:
-                warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
+                warnings.warn(
+                    "As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization"
+                )
                 ot = False
 
         # Build the global section
@@ -395,7 +415,9 @@ class DftSet(Cp2kInputSet):
 
         # Create the multigrid for FFTs
         if not cutoff:
-            basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
+            basis_and_potential = get_basis_and_potential(
+                structure.symbol_set, self.basis_and_potential
+            )
             cutoff = get_cutoff_from_basis(
                 els=self.structure.symbol_set,
                 bases=[basis_and_potential[s]["basis"] for s in self.structure.symbol_set],
@@ -409,7 +431,9 @@ class DftSet(Cp2kInputSet):
         )
 
         if smearing and not ot:
-            scf["ADDED_MOS"] = Keyword("ADDED_MOS", -1, -1) if self.kwargs.get("spin_polarized", True) else -1
+            scf["ADDED_MOS"] = (
+                Keyword("ADDED_MOS", -1, -1) if self.kwargs.get("spin_polarized", True) else -1
+            )
             scf.insert(Smear(elec_temp=kwargs.get("elec_temp", 300)))
 
         # Set the DFT calculation with global parameters
@@ -471,7 +495,8 @@ class DftSet(Cp2kInputSet):
 
         Args:
             nlumo (int): Number of virtual orbitals to be added to the MO set (-1=all).
-                CAUTION: Setting this value to be higher than the number of states present may cause a Cholesky error.
+                CAUTION: Setting this value to be higher than the number of states present may
+                cause a Cholesky error.
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
@@ -482,24 +507,29 @@ class DftSet(Cp2kInputSet):
 
         Args:
             nlumo (int): Number of virtual orbitals to be added to the MO set (-1=all).
-                CAUTION: Setting this value to be higher than the number of states present may cause a Cholesky error.
+                CAUTION: Setting this value to be higher than the number of states present may
+                cause a Cholesky error.
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
         for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(
+                LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False)
+            )
 
     def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
         """
         Activate printing of molecular orbitals.
 
         Args:
-            write_cube (bool): whether to write cube file for the MOs (setting false will just print levels in out file)
-            nlumo (int): Controls the number of lumos that are printed and dumped as a cube (-1=all)
-            nhomo (int): Controls the number of homos that are printed and dumped as a cube (-1=all)
+            write_cube (bool): whether to write cube file for the MOs instead of out file
+            nlumo (int): Controls the number of lumos printed and dumped as a cube (-1=all)
+            nhomo (int): Controls the number of homos printed and dumped as a cube (-1=all)
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/MO_CUBES"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
+                MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo)
+            )
 
     def print_mo(self):
         """
@@ -509,19 +539,23 @@ class DftSet(Cp2kInputSet):
 
     def print_v_hartree(self, stride=(2, 2, 2)):
         """
-        Controls the printing of a cube file with eletrostatic potential generated by the total density
-        (electrons+ions). It is valid only for QS with GPW formalism.
+        Controls the printing of a cube file with eletrostatic potential generated by the
+            total density (electrons+ions). It is valid only for QS with GPW formalism.
         Note that by convention the potential has opposite sign than the expected physical one.
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
+                V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)})
+            )
 
     def print_e_density(self, stride=(2, 2, 2)):
         """
-        Controls the printing of cube files with the electronic density and, for LSD calculations, the spin density
+        Controls the printing of cube files with electronic density and, for UKS, the spin density
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
+                E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)})
+            )
 
     def print_bandstructure(self, kpoints_line_density: int = 20):
         """
@@ -574,28 +608,29 @@ class DftSet(Cp2kInputSet):
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
-        Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements exceed
-        what is available (see max_memory), then CP2K will have to calculate the 4-electron integrals
-        for HFX during each step of the SCF cycle. ADMM provides a huge speed up by making the memory
-        requirements *feasible* to fit into RAM, which means you only need to calculate the integrals
-        once each SCF cycle. But, this only works if it fits into memory. When setting up ADMM
-        calculations, we recommend doing whatever is possible to fit all the 4EI into memory.
+        Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements
+        exceed what is available (see max_memory), then CP2K will have to calculate the 4-electron
+        integrals for HFX during each step of the SCF cycle. ADMM provides a huge speed up by
+        making the memory requirements *feasible* to fit into RAM, which means you only need to
+        calculate the integrals once each SCF cycle. But, this only works if it fits into memory.
+        When setting up ADMM calculations, we recommend doing whatever is possible to fit all the
+        4EI into memory.
 
         Note 2: This set is designed for reliable high-throughput calculations, NOT for extreme
         accuracy. Please review the in-line comments in this method if you want more control.
 
         Args:
-            hybrid_functional (str): Type of hybrid functional. This set supports HSE (screened) and PBE0
-                (truncated). Default is PBE0, which converges easier in the GPW basis used by
-                cp2k.
+            hybrid_functional (str): Type of hybrid functional. This set supports HSE (screened)
+                and PBE0 (truncated). Default is PBE0, which converges easier in the GPW basis
+                used by cp2k.
             hf_fraction (float): fraction of exact HF exchange energy to mix. Default: 0.25
             gga_x_fraction (float): fraction of gga exchange energy to retain. Default: 0.75
             gga_c_fraction (float): fraction of gga correlation energy to retain. Default: 1.0
-            max_memory (int): Maximum memory available to each MPI process (in Mb) in the calculation.
-                Most modern computing nodes will have ~2Gb per core, or 2048 Mb, but check for
-                your specific system. This value should be as large as possible while still leaving
-                some memory for the other parts of cp2k. Important: If this value is set larger
-                than the memory limits, CP2K will likely seg-fault.
+            max_memory (int): Maximum memory available to each MPI process (in Mb) in the
+                calculation. Most modern computing nodes will have ~2Gb per core, or 2048 Mb,
+                but check for your specific system. This value should be as large as possible
+                while still leaving some memory for the other parts of cp2k. Important: If
+                this value is set larger than the memory limits, CP2K will likely seg-fault.
                 Default: 2000
             cutoff_radius (float): for truncated hybrid functional (i.e. PBE0), this is the cutoff
                 radius. The default is selected as that which generally gives convergence, but
@@ -611,10 +646,10 @@ class DftSet(Cp2kInputSet):
             aux_basis (dict): If you want to specify the aux basis to use, specify it as a dict of
                 the form {'specie_1': 'AUX_BASIS_1', 'specie_2': 'AUX_BASIS_2'}
             admm (bool): Whether or not to use the auxiliary density matrix method for the exact
-                HF exchange contribution. Highly recommended. Speed ups between 10x and aaa1000x are
+                HF exchange contribution. Highly recommended. Speed ups between 10x and 1000x are
                 possible when compared to non ADMM hybrid calculations. Default: True
-            eps_schwarz (float): Screening threshold for HFX, in Ha. Contributions smaller than this
-                will be screened. The smaller the value, the more accurate, but also the more
+            eps_schwarz (float): Screening threshold for HFX, in Ha. Contributions smaller than
+                this will be screened. The smaller the value, the more accurate, but also the more
                 costly. Default value is 1e-7. 1e-6 works in a large number of cases, but is
                 quite aggressive, which can lead to convergence issues.
             eps_schwarz_forces (float): Same as for eps_schwarz, but for screening contributions to
@@ -628,11 +663,16 @@ class DftSet(Cp2kInputSet):
         """
         if admm:
             aux_basis = aux_basis if aux_basis else {}
-            aux_basis = {s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set}
+            aux_basis = {
+                s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set
+            }
             basis = get_aux_basis(basis_type=aux_basis)
             if isinstance(self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"], KeywordList):
                 self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"].extend(
-                    [Keyword("BASIS_SET_FILE_NAME", k) for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]],
+                    [
+                        Keyword("BASIS_SET_FILE_NAME", k)
+                        for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]
+                    ],
                 )
 
             for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
@@ -792,7 +832,9 @@ class DftSet(Cp2kInputSet):
                 }
             )
 
-        interaction_potential = Section("INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords)
+        interaction_potential = Section(
+            "INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords
+        )
 
         # Unlikely for users to override
         load_balance = Section(
@@ -835,7 +877,9 @@ class DftSet(Cp2kInputSet):
             self.insert(Section("MOTION", subsections={}))
 
         self["MOTION"].insert(Section("PRINT", subsections={}))
-        self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
+        self["MOTION"]["PRINT"].insert(
+            Section("TRAJECTORY", section_parameters=["ON"], subsections={})
+        )
         self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
@@ -920,7 +964,9 @@ class DftSet(Cp2kInputSet):
             x = max(s.coords[0] for s in self.structure.sites)
             y = max(s.coords[1] for s in self.structure.sites)
             z = max(s.coords[2] for s in self.structure.sites)
-            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]])))
+            self["FORCE_EVAL"]["SUBSYS"].insert(
+                Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
+            )
         self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
         kwds = {
             "POISSON_SOLVER": Keyword("POISSON_SOLVER", solver),
@@ -958,7 +1004,9 @@ class DftSet(Cp2kInputSet):
                 ]:
                     continue
 
-                v.insert(Section("EACH", subsections=None, keywords={run_type: Keyword(run_type, iters)}))
+                v.insert(
+                    Section("EACH", subsections=None, keywords={run_type: Keyword(run_type, iters)})
+                )
                 v.keywords["ADD_LAST"] = Keyword("ADD_LAST", add_last)
 
 
@@ -981,7 +1029,8 @@ class StaticSet(DftSet):
         Args:
             structure: Pymatgen structure object
             project_name (str): What to name this cp2k project (controls naming of files printed out)
-            run_type (str): Run type. As a static set it should be one of the static aliases, like 'ENERGY_FORCE'
+            run_type (str): Run type. As a static set it should be one of the static aliases,
+                like 'ENERGY_FORCE'
         """
         super().__init__(structure, **kwargs)
         global_section = Global(project_name=project_name, run_type=run_type)
@@ -997,8 +1046,8 @@ class StaticSet(DftSet):
 class RelaxSet(DftSet):
 
     """
-    CP2K input set containing the basic settings for performing geometry optimization. Values are all cp2k
-    defaults, and should be good for most systems of interest.
+    CP2K input set containing the basic settings for performing geometry optimization. Values are
+        all cp2k defaults, and should be good for most systems of interest.
     """
 
     def __init__(
@@ -1018,33 +1067,28 @@ class RelaxSet(DftSet):
         """
         Args:
             structure: Pymatgen structure object
-            max_drift: Convergence criterion for the maximum geometry change between the current and the
-                last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
-                Default value: 1.5.00000000E-003
+            max_drift: Convergence criterion for the maximum geometry change between the current
+                and the last optimizer iteration. 
+                precisely one real.
                 Default unit: [bohr]
-            rms_drift: Convergence criterion for the RMS geometry change between the current and the
-                last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
-                Default value: 1.00000000E-003
+            rms_drift: Convergence criterion for the RMS geometry change between the current and
+                the last optimizer iteration. 
+                precisely one real.
                 Default unit: [bohr]
-            max_force (float): Convergence criterion for the maximum force component of the current configuration.
-                This keyword cannot be repeated and it expects precisely one real.
-                Default value: 1e-3
+            max_force (float): Convergence criterion for the maximum force component of the current
+                configuration.
                 Default unit: [bohr^-1*hartree]
-            rms_force (float): Convergence criterion for the RMS force component of the current configuration.
-                This keyword cannot be repeated and it expects precisely one real.
-                Default value: 1e-3
+            rms_force (float): Convergence criterion for the RMS force component of the current
+                configuration. 
                 Default unit: [bohr^-1*hartree]
             max_iter (int): Specifies the maximum number of geometry optimization steps.
                 One step might imply several force evaluations for the CG and LBFGS optimizers.
-                This keyword cannot be repeated and it expects precisely one integer.
-                Default value: 200
             optimizer (str): Specify which method to use to perform a geometry optimization.
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweighs robustness. CG is more robust, especially when you are far from
-                the minimum, but it slower.
-                Default value: BFGS
+                efficiency outweighs robustness. CG is more robust, especially when you are far
+                from the minimum, but it slower.
         """
         super().__init__(structure, **kwargs)
 
@@ -1088,8 +1132,8 @@ class RelaxSet(DftSet):
 class CellOptSet(DftSet):
 
     """
-    CP2K input set containing the basic settings for performing geometry optimization. Values are all cp2k
-    defaults, and should be good for most systems of interest.
+    CP2K input set containing the basic settings for performing geometry optimization. Values are
+    all cp2k defaults, and should be good for most systems of interest.
     """
 
     def __init__(
@@ -1103,25 +1147,28 @@ class CellOptSet(DftSet):
         """
         Args:
             structure: Pymatgen structure object
-            max_drift: Convergence criterion for the maximum geometry change between the current and the
-                last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
-                Default value: 3.00000000E-003
+            max_drift: Convergence criterion for the maximum geometry change between the current
+                and the last optimizer iteration. 
+                precisely one real.
                 Default unit: [bohr]
-            max_force (float): Convergence criterion for the maximum force component of the current configuration.
-                This keyword cannot be repeated and it expects precisely one real.
-                Default value: 4.50000000E-004
+            rms_drift: Convergence criterion for the RMS geometry change between the current and
+                the last optimizer iteration. 
+                precisely one real.
+                Default unit: [bohr]
+            max_force (float): Convergence criterion for the maximum force component of the current
+                configuration.
+                Default unit: [bohr^-1*hartree]
+            rms_force (float): Convergence criterion for the RMS force component of the current
+                configuration. 
                 Default unit: [bohr^-1*hartree]
             max_iter (int): Specifies the maximum number of geometry optimization steps.
                 One step might imply several force evaluations for the CG and LBFGS optimizers.
-                This keyword cannot be repeated and it expects precisely one integer.
-                Default value: 200
             optimizer (str): Specify which method to use to perform a geometry optimization.
                 This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
                 quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
                 is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweighs robustness. CG is more robust, especially when you are far from
-                the minimum, but it slower.
-                Default value: BFGS
+                efficiency outweighs robustness. CG is more robust, especially when you are far
+                from the minimum, but it slower.
         """
         super().__init__(structure, **kwargs)
 
