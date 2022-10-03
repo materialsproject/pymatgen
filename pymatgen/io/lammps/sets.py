@@ -34,7 +34,7 @@ class LammpsInputSet(InputSet):
 
     def __init__(
         self,
-        inputfile: LammpsInputFile,
+        inputfile: LammpsInputFile | str,  # pylint: disable=E1131
         data: LammpsData | CombinedData,  # pylint: disable=E1131
         calc_type: str = None,
         template_file: str = None,
@@ -81,15 +81,8 @@ class LammpsMinimization(InputGenerator):
     template = os.path.join(template_dir, "minimization.template")
     calc_type = "minimization"
 
-    def __init__(
-        self, structure: Structure | LammpsData | CombinedData | None, settings: dict | None = None
-    ):  # pylint: disable=E1131
+    def __init__(self, settings: dict | None = None):  # pylint: disable=E1131
         """ """
-        if isinstance(structure, Structure):
-            self.data = LammpsData.from_structure(structure)
-        else:
-            self.data = structure
-
         self.settings = settings
 
         # Get the input file using Templates
@@ -98,14 +91,20 @@ class LammpsMinimization(InputGenerator):
         )
         self.input_file = LammpsInputFile.from_string(template_set.inputs["in.lammps"])
 
-    def get_input_set(self) -> LammpsInputSet:
+    def get_input_set(  # type: ignore
+        self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
+    ) -> LammpsInputSet:
         """
         Generate a LammpsInputSet tailored for minimizing the energy of a system
         """
+        if isinstance(structure, Structure):
+            data = LammpsData.from_structure(structure)
+        else:
+            data = structure
 
         # Get the LammpsInputSet from the input file and data
         input_set = LammpsInputSet(
-            inputfile=self.input_file, data=self.data, calc_type=self.calc_type, template_file=self.template
+            inputfile=self.input_file, data=data, calc_type=self.calc_type, template_file=self.template
         )
 
         return input_set
