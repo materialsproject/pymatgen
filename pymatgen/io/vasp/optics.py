@@ -100,6 +100,7 @@ class DielectricFunctionCalculator(MSONable):
         ismear: int = None,
         sigma: float = None,
         cshift: float = None,
+        upper_triangle: bool = True,
     ) -> npt.NDArray:
         def _use_default(param, default):
             return param if param is not None else default
@@ -123,9 +124,12 @@ class DielectricFunctionCalculator(MSONable):
             deltae=deltae,  # type: ignore
             ismear=ismear,  # type: ignore
             sigma=sigma,  # type: ignore
+            upper_triangulr=upper_triangle,
         ):  # type: ignore
             print(f"Calculating epsilon for {idir} {jdir}")
             eps = kramers_kronig(eps_imag, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
+            if idir == jdir:
+                eps += 1
             res[(idir, jdir)] = eps
             g_out = egrid
         return g_out, res
@@ -238,6 +242,7 @@ def epsilon_imag(
     deltae: float,
     ismear: int,
     sigma: float,
+    upper_triangulr: bool = True,
 ):
     """Replicate the EPSILON_IMAG function of VASP.
 
@@ -267,6 +272,8 @@ def epsilon_imag(
     for idir, jdir in itertools.product(range(3), range(3)):
         epsdd = np.zeros_like(egrid, dtype=np.complex128)
         for ib, jb, ik, ispin in np.ndindex(cder.shape[:4]):
+            if upper_triangulr and ib > jb:
+                continue
             # print(f"ib={ib}, jb={jb}, ik={ik}, ispin={ispin}")
             fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
             fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
