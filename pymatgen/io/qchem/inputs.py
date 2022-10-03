@@ -665,6 +665,10 @@ class QCInput(InputFile):
             if len(cdft) != 1 and ii + 1 < len(state):
                 cdft_list.append("--------------")
 
+        # Ensure that you don't have a line indicating a state that doesn't exist
+        if cdft_list[-1] == "--------------":
+            del cdft_list[-1]
+
         cdft_list.append("$end")
         return "\n".join(cdft_list)
 
