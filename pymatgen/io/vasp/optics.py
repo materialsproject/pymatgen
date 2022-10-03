@@ -124,6 +124,7 @@ class DielectricFunctionCalculator(MSONable):
             ismear=ismear,  # type: ignore
             sigma=sigma,  # type: ignore
         ):  # type: ignore
+            print(f"Calculating epsilon for {idir} {jdir}")
             eps = kramers_kronig(eps_imag, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
             res[(idir, jdir)] = eps
             g_out = egrid
