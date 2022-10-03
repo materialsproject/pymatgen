@@ -81,6 +81,8 @@ class DielectricFunctionCalculator(MSONable):
         efermi = vrun.efermi
         ispin = vrun.parameters["ISPIN"]
         volume = vrun.final_structure.volume
+        if vrun.parameters["ISYM"] != 0:
+            raise NotImplementedError("ISYM != 0 is not implemented yet")
 
         return DielectricFunctionCalculator(
             cder=cder,
