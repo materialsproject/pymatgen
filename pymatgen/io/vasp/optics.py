@@ -54,6 +54,7 @@ class DielectricFunctionCalculator(MSONable):
     sigma: float
     efermi: float
     cshift: float
+    ispin: int
 
     @classmethod
     def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder):
@@ -65,15 +66,19 @@ class DielectricFunctionCalculator(MSONable):
             waveder: Waveder object
         """
         bands = vrun.eigenvalues
-        eigs = np.stack([bands[spin] for spin in [Spin.up, Spin.down]])
+        sspins = [Spin.up, Spin.down]
+        eigs = np.stack([bands[spin] for spin in sspins[: vrun.parameters["ISPIN"]]], axis=2)[..., 0]
+        eigs = np.swapaxes(eigs, 0, 1)
         cder = waveder.cder
         kweights = vrun.actual_kpoints_weights
         nedos = vrun.parameters["NEDOS"]
-        deltae = vrun.parameters["DE"]
+        deltae = vrun.dielectric[0][1]
         ismear = vrun.parameters["ISMEAR"]
         sigma = vrun.parameters["SIGMA"]
         cshift = vrun.parameters["CSHIFT"]
         efermi = vrun.efermi
+        ispin = vrun.parameters["ISPIN"]
+
         return DielectricFunctionCalculator(
             cder=cder,
             eigs=eigs,
@@ -84,6 +89,7 @@ class DielectricFunctionCalculator(MSONable):
             sigma=sigma,
             efermi=efermi,
             cshift=cshift,
+            ispin=ispin,
         )
 
     def get_epsilon(
@@ -107,6 +113,7 @@ class DielectricFunctionCalculator(MSONable):
 
         res = dict()
         g_out = None
+
         for idir, jdir, egrid, eps_imag in epsilon_imag(  # type: ignore
             cder=self.cder,
             eigs=self.eigs,
@@ -260,10 +267,10 @@ def epsilon_imag(
         epsdd = np.zeros_like(egrid, dtype=np.complex128)
         for ib, jb, ik, ispin in np.ndindex(cder.shape[:4]):
             # print(f"ib={ib}, jb={jb}, ik={ik}, ispin={ispin}")
-            fermi_w_i = step_func((eigs_shifted[ib, ik]) / sigma, ismear)
-            fermi_w_j = step_func((eigs_shifted[jb, ik]) / sigma, ismear)
+            fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
+            fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
             weight = (fermi_w_j - fermi_w_i) * rspin * norm_kweights[ik]
-            decel = eigs[jb, ik] - eigs[ib, ik]
+            decel = eigs[jb, ik, ispin] - eigs[ib, ik, ispin]
             A = cder[ib, jb, ik, ispin, idir] * np.conjugate(cder[ib, jb, ik, ispin, jdir])
             # Reproduce the `SLOT` function calls in VASP:
             # CALL SLOT( REAL(DECEL,q), ISMEAR, SIGMA, NEDOS, DELTAE,  WEIGHT*A*CONST, EPSDD)
