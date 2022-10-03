@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
@@ -94,6 +95,14 @@ class DielectricFunctionCalculator(MSONable):
             ispin=ispin,
             volume=volume,
         )
+
+    @classmethod
+    def from_directory(cls, directory: Path | str):
+        """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
+        d_ = Path(directory)
+        vrun = Vasprun(d_ / "vasprun.xml")
+        waveder = Waveder.from_binary(d_ / "WAVEDER")
+        return cls.from_vasp_objects(vrun, waveder)
 
     def get_epsilon(
         self,
