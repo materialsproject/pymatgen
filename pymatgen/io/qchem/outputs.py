@@ -670,8 +670,7 @@ class QCOutput(MSONable):
         """
 
         check_pattern = (
-            r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+"
-            r"Spin\s\(a\.u\.\)\s+\-+"
+            r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+" r"Spin\s\(a\.u\.\)\s+\-+"
         )
 
         mull_spin = read_pattern(self.text, {"key": check_pattern}).get("key")
