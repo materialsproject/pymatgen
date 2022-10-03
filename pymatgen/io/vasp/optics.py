@@ -9,6 +9,7 @@ import numpy as np
 import numpy.typing as npt
 from monty.json import MSONable
 from scipy import constants, special
+from tqdm import tqdm
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
@@ -104,7 +105,6 @@ class DielectricFunctionCalculator(MSONable):
         ismear: int = None,
         sigma: float = None,
         cshift: float = None,
-        upper_triangle: bool = True,
     ) -> npt.NDArray:
         def _use_default(param, default):
             return param if param is not None else default
@@ -130,6 +130,8 @@ class DielectricFunctionCalculator(MSONable):
         )
         eps_in = eps_imag * edeps * np.pi / self.volume
         eps = kramers_kronig(eps_in, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
+        if idir == jdir:
+            eps += 1.0 + 0.0j
         return egrid, eps
 
 
@@ -268,7 +270,7 @@ def epsilon_imag(
     # for the transition between two bands at one kpoint the contributions is:
     #  (fermi[band_i] - fermi[band_j]) * rspin * normalized_kpoint_weight
     epsdd = np.zeros_like(egrid, dtype=np.complex128)
-    for ib, jb, ik, ispin in np.ndindex(cder.shape[:4]):
+    for ib, jb, ik, ispin in tqdm(np.ndindex(cder.shape[:4]), total=np.prod(cder.shape[:4])):
         # print(f"ib={ib}, jb={jb}, ik={ik}, ispin={ispin}")
         fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
         fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
