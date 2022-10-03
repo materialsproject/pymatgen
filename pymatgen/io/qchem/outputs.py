@@ -276,12 +276,12 @@ class QCOutput(MSONable):
             else:
                 self.data["direct_coupling_eV"] = float(temp_dict["coupling"][0][0])
 
-        # Parse data from ALMO(MSDFT2) calculation
-        self.data["almo_msdft2"] = read_pattern(
-            self.text, {"key": r"ALMO\(MSDFT2\) method for electronic coupling"}
+        # Parse data from ALMO(MSDFT) calculation
+        self.data["almo_msdft"] = read_pattern(
+            self.text, {"key": r"ALMO\(MSDFT2?\) method for electronic coupling"}
         ).get("key")
-        if self.data.get("almo_msdft2", []):
-            self._read_almo_msdft2()
+        if self.data.get("almo_msdft", []):
+            self._read_almo_msdft()
 
         # Parse data from Projection Operator Diabatization (POD) calculation
         self.data["pod"] = read_pattern(self.text, {"key": r"POD2? based on the RSCF Fock matrix"}).get("key")
@@ -1480,9 +1480,9 @@ class QCOutput(MSONable):
 
         # TODO: CDFT-CI calculation outputs
 
-    def _read_almo_msdft2(self):
+    def _read_almo_msdft(self):
         """
-        Parse output of ALMO(MSDFT2) calculations for coupling between diabatic states
+        Parse output of ALMO(MSDFT) calculations for coupling between diabatic states
         """
 
         temp_dict = read_pattern(
