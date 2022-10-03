@@ -668,11 +668,20 @@ class QCOutput(MSONable):
         """
         Parses Mulliken/ESP/RESP charges. Also parses spins given an unrestricted SCF.
         """
-        if self.data.get("unrestricted", []):
-            header_pattern = (
-                r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+"
-                r"Spin\s\(a\.u\.\)\s+\-+"
-            )
+
+        check_pattern = (
+            r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+"
+            r"Spin\s\(a\.u\.\)\s+\-+"
+        )
+
+        mull_spin = read_pattern(self.text, {"key": check_pattern}).get("key")
+        if mull_spin is not None and len(mull_spin) > 0:
+            include_spin = True
+        else:
+            include_spin = False
+
+        if include_spin:
+            header_pattern = check_pattern
             table_pattern = r"\s+\d+\s\w+\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
         else:
@@ -683,7 +692,7 @@ class QCOutput(MSONable):
         temp_mulliken = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         real_mulliken = []
         for one_mulliken in temp_mulliken:
-            if self.data.get("unrestricted", []):
+            if include_spin:
                 temp = np.zeros(shape=(len(one_mulliken), 2))
                 for ii, entry in enumerate(one_mulliken):
                     temp[ii, 0] = float(entry[0])
