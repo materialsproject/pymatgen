@@ -662,7 +662,7 @@ class QCInput(InputFile):
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
                     else:
                         cdft_list.append(f"   {coef} {first} {last}")
-            if len(state) != 1 and ii + 1 < len(state):
+            if len(cdft) != 1 and ii + 1 < len(state):
                 cdft_list.append("--------------")
 
         cdft_list.append("$end")
@@ -1082,7 +1082,7 @@ class QCInput(InputFile):
         }
 
         pattern_const = {
-            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)" r"(?:\s+[A-Za-z]+)?\s*)+)"
+            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)(?:\s+[A-Za-z]+)?\s*)+)"
         }
 
         section = read_pattern(string, pattern_sec)["full_section"]
