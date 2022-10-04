@@ -478,7 +478,7 @@ class ThermalDisplacementMatrices(MSONable):
             properties
             temperature: temperature for Ucif data
 
-        Returns: ThermalDisplacementMatrices object
+        Returns: ThermalDisplacementMatrices Object.
 
         """
         Ucif_matrix = []
