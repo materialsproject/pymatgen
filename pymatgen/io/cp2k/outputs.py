@@ -1247,7 +1247,7 @@ class Cp2kOutput:
         self.data["band_gap"] = bg
         self.band_gap = (bg[Spin.up][-1] + bg[Spin.down][-1]) / 2 if bg[Spin.up] and bg[Spin.down] else None
 
-    def parse_dos(self, dos_file=None, pdos_files=None, ldos_files=None, sigma=0):
+    def parse_dos(self, dos_file=None, pdos_files=None, ldos_files=None):
         """
         Parse the dos files produced by cp2k calculation. CP2K produces different files based
         on the input file rather than assimilating them all into one file.
@@ -1282,7 +1282,7 @@ class Cp2kOutput:
         tdos, pdoss, ldoss = None, {}, {}
         # Parse specie projected dos
         for pdos_file in pdos_files:
-            _pdos, _tdos = parse_pdos(pdos_file, total=True, sigma=sigma)
+            _pdos, _tdos = parse_pdos(pdos_file, total=True)
             for k in _pdos:
                 if k in pdoss:
                     for orbital in _pdos[k]:
@@ -1299,7 +1299,7 @@ class Cp2kOutput:
 
         # parse any site-projected dos
         for ldos_file in ldos_files:
-            _pdos = parse_pdos(ldos_file, sigma=sigma)
+            _pdos = parse_pdos(ldos_file)
             for k in _pdos:
                 if k in ldoss:
                     for orbital in _pdos[k]:
