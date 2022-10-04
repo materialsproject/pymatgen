@@ -633,7 +633,7 @@ class MagOrderingTransformation(AbstractTransformation):
             global order parameter and can take values from 0.0 to 1.0
             (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
             list has to be a list of
-            :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
+            :class:`pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
             to specify more complicated orderings, see documentation for
             MagOrderParameterConstraint more details on usage
         :param energy_model: Energy model to rank the returned structures,

@@ -96,7 +96,9 @@ class Keyword(MSONable):
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Keyword):
+            return NotImplemented
         if self.name.upper() == other.name.upper():
             v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]
             v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]
@@ -199,7 +201,9 @@ class KeywordList(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return all(k == o for k, o in zip(self.keywords, other.keywords))
 
     def __add__(self, other):
@@ -647,7 +651,9 @@ class SectionList(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SectionList):
+            return NotImplemented
         return all(k == o for k, o in zip(self.sections, other.sections))
 
     def __add__(self, other):
