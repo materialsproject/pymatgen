@@ -148,7 +148,7 @@ class Cp2kInputSet(Cp2kInput):
         if self.kwargs.get("print_forces", True):
             self.print_forces()
 
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
     def create_subsys(self, structure: Structure | Molecule):
         """
@@ -337,7 +337,7 @@ class DftSet(Cp2kInputSet):
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
         self.progression_factor = progression_factor
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else {}
         self.wfn_restart_file_name = wfn_restart_file_name
         self.kpoints = kpoints
         self.smearing = smearing
@@ -1003,7 +1003,7 @@ class StaticSet(DftSet):
         self.run_type = run_type
         self.override_default_params = override_default_params if override_default_params else {}
         self.insert(global_section)
-        self.update(override_default_params)
+        self.update(self.override_default_params)
         self.kwargs = kwargs
 
 
@@ -1089,7 +1089,7 @@ class RelaxSet(DftSet):
         self["MOTION"].insert(geo_opt)
         self.insert(global_section)
         self.modify_dft_print_iters(0, add_last="numeric")
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 # TODO Add cell opt convergence criteria
@@ -1144,7 +1144,7 @@ class CellOptSet(DftSet):
         self.insert(global_section)
         self.activate_motion()
         self.modify_dft_print_iters(0, add_last="numeric")
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 class HybridStaticSet(StaticSet):
@@ -1230,7 +1230,7 @@ class HybridStaticSet(StaticSet):
             screen_on_initial_p=self.screen_on_initial_p,
             screen_p_forces=self.screen_p_forces,
         )
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 class HybridRelaxSet(RelaxSet):
@@ -1316,7 +1316,7 @@ class HybridRelaxSet(RelaxSet):
             screen_on_initial_p=self.screen_on_initial_p,
             screen_p_forces=self.screen_p_forces,
         )
-        self.update(override_default_params)
+        self.update(self.override_default_params)
 
 
 class HybridCellOptSet(CellOptSet):
@@ -1371,7 +1371,7 @@ class HybridCellOptSet(CellOptSet):
         self.scale_coulomb = scale_coulomb
         self.scale_gaussian = scale_gaussian
         self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else {}
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
         self.omega = omega
@@ -1402,4 +1402,4 @@ class HybridCellOptSet(CellOptSet):
             screen_on_initial_p=self.screen_on_initial_p,
             screen_p_forces=self.screen_p_forces,
         )
-        self.update(override_default_params)
+        self.update(self.override_default_params)
