@@ -37,7 +37,7 @@ class DielectricFunctionCalculator(MSONable):
 
     Vasp's linear optics follow these steps:
         - Calculate the imaginary part
-        - Perform symmetry operations
+        - Perform symmetry operations (This is not implemented here)
         - Calculate the real part
 
     Currently, this Caculator only works for ``ISYM=0`` calculations since we cannot gauranttee that our
