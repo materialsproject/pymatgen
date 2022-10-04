@@ -23,7 +23,6 @@ import itertools
 import os
 import warnings
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 from ruamel.yaml import YAML
