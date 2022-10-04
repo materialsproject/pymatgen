@@ -1993,7 +1993,7 @@ class Xc_Functional(Section):
         subsections = subsections if subsections else {}
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
 
-        for functional in functionals:
+        for functional in self.functionals:
             subsections[functional] = Section(functional, subsections={}, repeats=False)
 
         super().__init__(
