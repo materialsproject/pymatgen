@@ -1500,7 +1500,7 @@ class IStructure(SiteCollection, MSONable):
         symmetry_ops = symmetry_ops[idcs_symid]
 
         # the groups of neighbors with the same symmetry index are ordered such that neighbors
-        # that are the first occurence of a new symmetry index in the ordered output are the ones
+        # that are the first occurrence of a new symmetry index in the ordered output are the ones
         # that are assigned the Identity as a symmetry operation.
         idcs_symop = np.arange(nbonds)
         identity_idcs = np.where(symmetry_ops == symmetry_identity)[0]

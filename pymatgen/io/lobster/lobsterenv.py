@@ -776,7 +776,7 @@ class LobsterNeighbors(NearNeighbors):
                         "weight": 1,
                         # Here, the ICOBIs and ICOOPs are added based on the bond
                         # strength cutoff of the ICOHP
-                        # more changes are neccessary here if we use icobis for cutoffs
+                        # more changes are necessary here if we use icobis for cutoffs
                         "edge_properties": {
                             "ICOHP": self.list_icohps[ineighbors][ineighbor],
                             "bond_length": self.list_lengths[ineighbors][ineighbor],

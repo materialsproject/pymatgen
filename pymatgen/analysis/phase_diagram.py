@@ -1553,7 +1553,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.elements = elements
 
         # Add terminal elements as we may not have PD patches including them
-        # NOTE add el_refs incase no multielement entries are present for el
+        # NOTE add el_refs in case no multielement entries are present for el
         _stable_entries = {se for pd in pds.values() for se in pd._stable_entries}
         self._stable_entries = tuple(_stable_entries.union(self.el_refs.values()))
         self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)

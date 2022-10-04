@@ -2,7 +2,7 @@ exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [mypy, pylint]
+  skip: [mypy, pylint, codespell]
 
 repos:
 
@@ -56,3 +56,10 @@ repos:
         types: [python]
         args: [-sn, --rcfile=pylintrc]
         additional_dependencies: [pylint]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.1
+    hooks:
+      - id: codespell
+        stages: [commit, commit-msg]
+        exclude_types: [html]

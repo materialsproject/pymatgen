@@ -3,7 +3,7 @@
 
 """
 This module defines the abstract interface for reading and writing calculation
-inputs in pymatgen. The interface comprises a 3-tiered hierarchy of clases.
+inputs in pymatgen. The interface comprises a 3-tiered hierarchy of classes.
 
 1. An InputFile object represents the contents of a single input file, e.g.
    the INCAR. This class standardizes file read and write operations.
