@@ -365,7 +365,7 @@ class Cp2kOutput:
             while True:
                 line = f.readline()
                 if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
-                    for i in range(self.data["num_atoms"][0][0]):
+                    for _ in range(self.data["num_atoms"][0][0]):
                         line = f.readline().split()
                         if line == []:
                             line = f.readline().split()
@@ -375,7 +375,7 @@ class Cp2kOutput:
         lattice = self.parse_cell_params()
         gs = {}
         self.data["atomic_kind_list"] = []
-        for k, v in self.data["atomic_kind_info"].items():
+        for v in self.data["atomic_kind_info"].values():
             if v["pseudo_potential"].upper() == "NONE":
                 gs[v["kind_number"]] = True
             else:
@@ -385,8 +385,8 @@ class Cp2kOutput:
             for k, v in self.data["atomic_kind_info"].items():
                 if int(v["kind_number"]) == int(c[1]):
                     v["element"] = c[2]
+                    self.data["atomic_kind_list"].append(k)
                     break
-            self.data["atomic_kind_list"].append(k)
 
         if self.is_molecule:
             self.initial_structure = Molecule(

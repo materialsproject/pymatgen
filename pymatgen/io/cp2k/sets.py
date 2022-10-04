@@ -107,7 +107,7 @@ class Cp2kInputSet(Cp2kInput):
         basis_and_potential: dict | str = "preferred",
         multiplicity: int = 0,
         project_name: str = "CP2K",
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         **kwargs,
     ):
         """
@@ -136,7 +136,7 @@ class Cp2kInputSet(Cp2kInput):
         self.charge = int(structure.charge)
         self.basis_and_potential = basis_and_potential
         self.multiplicity = multiplicity  # spin multiplicity = 2s+1
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else {}
         self.project_name = project_name
         self.kwargs = kwargs
 
@@ -958,7 +958,7 @@ class DftSet(Cp2kInputSet):
         assert add_last.lower() in ["no", "numeric", "symbolic"]
         if self.check("FORCE_EVAL/DFT/PRINT"):
             run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0]
-            for k, v in self["force_eval"]["dft"]["print"].subsections.items():
+            for v in self["force_eval"]["dft"]["print"].subsections.values():
 
                 if v.name.upper() in [
                     "ACTIVE_SPACE",
@@ -986,7 +986,7 @@ class StaticSet(DftSet):
         structure: Structure | Molecule,
         project_name: str = "Static",
         run_type: str = "ENERGY_FORCE",
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         **kwargs,
     ):
         """
@@ -1001,7 +1001,7 @@ class StaticSet(DftSet):
         self.structure = structure
         self.project_name = project_name
         self.run_type = run_type
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else {}
         self.insert(global_section)
         self.update(override_default_params)
         self.kwargs = kwargs
@@ -1024,7 +1024,7 @@ class RelaxSet(DftSet):
         max_iter: int = 200,
         project_name: str = "Relax",
         optimizer: str = "BFGS",
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         **kwargs,
     ):
 
@@ -1064,7 +1064,7 @@ class RelaxSet(DftSet):
         self.max_iter = max_iter
         self.project_name = project_name
         self.optimizer = optimizer
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else {}
         self.kwargs = kwargs
 
         global_section = Global(project_name=project_name, run_type="GEO_OPT")
@@ -1104,7 +1104,7 @@ class CellOptSet(DftSet):
         self,
         structure: Structure | Molecule,
         project_name: str = "CellOpt",
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         **kwargs,
     ):
 
@@ -1138,7 +1138,7 @@ class CellOptSet(DftSet):
 
         self.structure = structure
         self.project_name = project_name
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else {}
         self.kwargs = kwargs
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
@@ -1165,7 +1165,7 @@ class HybridStaticSet(StaticSet):
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
@@ -1199,7 +1199,7 @@ class HybridStaticSet(StaticSet):
         self.scale_coulomb = scale_coulomb
         self.scale_gaussian = scale_gaussian
         self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else {}
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
         self.omega = omega
@@ -1251,7 +1251,7 @@ class HybridRelaxSet(RelaxSet):
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
@@ -1285,7 +1285,7 @@ class HybridRelaxSet(RelaxSet):
         self.scale_coulomb = scale_coulomb
         self.scale_gaussian = scale_gaussian
         self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params
+        self.override_default_params = override_default_params if override_default_params else None
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
         self.omega = omega
@@ -1337,7 +1337,7 @@ class HybridCellOptSet(CellOptSet):
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,

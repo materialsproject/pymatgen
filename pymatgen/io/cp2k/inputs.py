@@ -194,7 +194,9 @@ class KeywordList(MSONable):
         Args:
             keywords: A list of keywords. Must all have the same name (case-insensitive)
         """
-        assert all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
+        assert (
+            all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
+        )
         self.name = keywords[0].name if keywords else None
         self.keywords = keywords
 
@@ -249,14 +251,14 @@ class Section(MSONable):
     def __init__(
         self,
         name: str,
-        subsections: dict = None,
+        subsections: dict | None = None,
         repeats: bool = False,
         description: str | None = None,
-        keywords: dict = {},
-        section_parameters: list | tuple = [],
-        location: str = None,
-        verbose: bool = True,
-        alias: str = None,
+        keywords: dict | None = None,
+        section_parameters: list | tuple | None = None,
+        location: str | None = None,
+        verbose: bool | None = True,
+        alias: str | None = None,
         **kwargs,
     ):
         """
@@ -294,11 +296,12 @@ class Section(MSONable):
         """
 
         self.name = name
-        self.subsections = subsections if subsections is not None else {}
+        self.subsections = subsections if subsections else {}
         self.repeats = repeats
         self.description = description
+        keywords = keywords if keywords else {}
         self.keywords = OrderedDict(keywords)
-        self.section_parameters = section_parameters
+        self.section_parameters = section_parameters if section_parameters else []
         self.location = location
         self.verbose = verbose
         self.alias = alias
@@ -316,11 +319,11 @@ class Section(MSONable):
         s2.silence()
         return d2.as_dict() == s2.as_dict()
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
         c = copy.deepcopy(self.as_dict())
-        return getattr(__import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]).from_dict(
-            copy.deepcopy(self.as_dict())
-        )
+        return getattr(
+            __import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]
+        ).from_dict(copy.deepcopy(self.as_dict()))
 
     def __getitem__(self, d):
         r = self.get_keyword(d)
@@ -596,12 +599,12 @@ class Section(MSONable):
         string += "\t" * indent + "&" + d.name
         string += " " + " ".join(map(str, d.section_parameters)) + "\n"
 
-        for k, v in d.keywords.items():
+        for v in d.keywords.values():
             if isinstance(v, KeywordList):
                 string += v.get_string(indent=indent + 1) + "\n"
             else:
                 string += "\t" * (indent + 1) + v.get_string() + "\n"
-        for k, v in d.subsections.items():
+        for v in d.subsections.values():
             string += v._get_string(v, indent + 1)
         string += "\t" * indent + "&END " + d.name + "\n"
 
@@ -614,9 +617,9 @@ class Section(MSONable):
         helps de-clutter them.
         """
         self.verbose = verbosity
-        for k, v in self.keywords.items():
+        for v in self.keywords.values():
             v.verbosity(verbosity)
-        for k, v in self.subsections.items():
+        for v in self.subsections.values():
             v.verbosity(verbosity)
 
     def silence(self):
@@ -643,7 +646,9 @@ class SectionList(MSONable):
         Args:
             sections: A list of keywords. Must all have the same name (case-insensitive)
         """
-        assert all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
+        assert (
+            all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
+        )
         self.name = sections[0].name if sections else None
         self.alias = sections[0].alias if sections else None
         self.sections = sections
@@ -663,7 +668,7 @@ class SectionList(MSONable):
     def __getitem__(self, item):
         return self.sections[item]
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
         return SectionList(sections=[d.__deepcopy__() for d in self.sections])
 
     @staticmethod
@@ -798,7 +803,8 @@ class Cp2kInput(Section):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
                 subsection_params = (
                     []
-                    if len(subsection_params) == 1 and subsection_params[0].upper() in ("T", "TRUE", "F", "FALSE", "ON")
+                    if len(subsection_params) == 1
+                    and subsection_params[0].upper() in ("T", "TRUE", "F", "FALSE", "ON")
                     else subsection_params
                 )
                 alias = name + " " + " ".join(subsection_params) if subsection_params else None
@@ -881,7 +887,8 @@ class Global(Section):
         keywords = keywords if keywords else {}
 
         description = (
-            "Section with general information regarding which kind of simulation" + " to perform an general settings"
+            "Section with general information regarding which kind of simulation"
+            + " to perform an general settings"
         )
 
         _keywords = {
@@ -916,7 +923,8 @@ class ForceEval(Section):
         subsections = subsections if subsections else {}
 
         description = (
-            "Parameters needed to calculate energy and forces" + " and describe the system you want to analyze."
+            "Parameters needed to calculate energy and forces"
+            + " and describe the system you want to analyze."
         )
 
         _keywords = {
@@ -942,7 +950,7 @@ class Dft(Section):
 
     def __init__(
         self,
-        basis_set_filenames: Iterable = ["BASIS_MOLOPT"],
+        basis_set_filenames: Iterable = ("BASIS_MOLOPT",),
         potential_filename="GTH_POTENTIALS",
         uks: bool = True,
         wfn_restart_file_name: str = None,
@@ -973,7 +981,9 @@ class Dft(Section):
         description = "Parameter needed by dft programs"
 
         _keywords = {
-            "BASIS_SET_FILE_NAME": KeywordList([Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]),
+            "BASIS_SET_FILE_NAME": KeywordList(
+                [Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]
+            ),
             "POTENTIAL_FILE_NAME": Keyword("POTENTIAL_FILE_NAME", potential_filename),
             "UKS": Keyword(
                 "UKS",
@@ -983,7 +993,9 @@ class Dft(Section):
         }
 
         if wfn_restart_file_name:
-            _keywords["WFN_RESTART_FILE_NAME"] = Keyword("WFN_RESTART_FILE_NAME", wfn_restart_file_name)
+            _keywords["WFN_RESTART_FILE_NAME"] = Keyword(
+                "WFN_RESTART_FILE_NAME", wfn_restart_file_name
+            )
 
         keywords.update(_keywords)
         super().__init__(
@@ -1008,7 +1020,9 @@ class Subsys(Section):
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = "A subsystem: coordinates, topology, molecules and cell"
-        super().__init__("SUBSYS", keywords=keywords, description=description, subsections=subsections, **kwargs)
+        super().__init__(
+            "SUBSYS", keywords=keywords, description=description, subsections=subsections, **kwargs
+        )
 
 
 class QS(Section):
@@ -1052,8 +1066,12 @@ class QS(Section):
 
         _keywords = {
             "METHOD": Keyword("METHOD", method),
-            "EPS_DEFAULT": Keyword("EPS_DEFAULT", eps_default, description="Base precision level (in Ha)"),
-            "EXTRAPOLATION": Keyword("EXTRAPOLATION", extrapolation, description="WFN extrapolation between steps"),
+            "EPS_DEFAULT": Keyword(
+                "EPS_DEFAULT", eps_default, description="Base precision level (in Ha)"
+            ),
+            "EXTRAPOLATION": Keyword(
+                "EXTRAPOLATION", extrapolation, description="WFN extrapolation between steps"
+            ),
         }
         keywords.update(_keywords)
         super().__init__(
@@ -1109,9 +1127,13 @@ class Scf(Section):
         description = "Parameters needed to perform an SCF run."
 
         _keywords = {
-            "MAX_SCF": Keyword("MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"),
+            "MAX_SCF": Keyword(
+                "MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"
+            ),
             "EPS_SCF": Keyword("EPS_SCF", eps_scf, description="Convergence threshold for SCF"),
-            "SCF_GUESS": Keyword("SCF_GUESS", scf_guess, description="How to initialize the density matrix"),
+            "SCF_GUESS": Keyword(
+                "SCF_GUESS", scf_guess, description="How to initialize the density matrix"
+            ),
             "MAX_ITER_LUMO": Keyword(
                 "MAX_ITER_LUMO",
                 kwargs.get("max_iter_lumo", 400),
@@ -1172,7 +1194,9 @@ class Mgrid(Section):
         )
 
         _keywords = {
-            "CUTOFF": Keyword("CUTOFF", cutoff, description="Cutoff in [Ry] for finest level of the MG."),
+            "CUTOFF": Keyword(
+                "CUTOFF", cutoff, description="Cutoff in [Ry] for finest level of the MG."
+            ),
             "REL_CUTOFF": Keyword(
                 "REL_CUTOFF",
                 rel_cutoff,
@@ -1371,7 +1395,9 @@ class OrbitalTransformation(Section):
             "ALGORITHM": Keyword("ALGORITHM", algorithm),
             "LINESEARCH": Keyword("LINESEARCH", linesearch),
             "ROTATION": Keyword("ROTATION", rotation),
-            "OCCUPATION_PRECONDITIONER": Keyword("OCCUPATION_PRECONDITIONER", occupation_preconditioner),
+            "OCCUPATION_PRECONDITIONER": Keyword(
+                "OCCUPATION_PRECONDITIONER", occupation_preconditioner
+            ),
         }
         keywords.update(_keywords)
         super().__init__(
@@ -1407,7 +1433,9 @@ class Cell(Section):
             "C": Keyword("C", *lattice.matrix[2]),
         }
         keywords.update(_keywords)
-        super().__init__("CELL", description=description, keywords=keywords, subsections={}, **kwargs)
+        super().__init__(
+            "CELL", description=description, keywords=keywords, subsections={}, **kwargs
+        )
 
 
 class Kind(Section):
@@ -1558,7 +1586,9 @@ class DftPlusU(Section):
             "U_RAMPING": Keyword("U_RAMPING", u_ramping),
         }
         keywords.update(_keywords)
-        super().__init__(name=name, subsections=None, description=description, keywords=keywords, **kwargs)
+        super().__init__(
+            name=name, subsections=None, description=description, keywords=keywords, **kwargs
+        )
 
 
 class Coord(Section):
@@ -1627,7 +1657,9 @@ class DOS(Section):
         description = "Controls printing of the overall density of states"
         _keywords = {"NDIGITS": Keyword("NDIGITS", ndigits)}
         keywords.update(_keywords)
-        super().__init__("DOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
+        super().__init__(
+            "DOS", description=description, keywords=keywords, subsections=subsections, **kwargs
+        )
 
 
 class PDOS(Section):
@@ -1655,7 +1687,9 @@ class PDOS(Section):
             "COMPONENTS": Keyword("COMPONENTS"),
         }
         keywords.update(_keywords)
-        super().__init__("PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
+        super().__init__(
+            "PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs
+        )
 
 
 class LDOS(Section):
@@ -1976,12 +2010,18 @@ class Xc_Functional(Section):
     Defines the XC functional(s) to use.
     """
 
-    def __init__(self, functionals: Iterable = [], keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(
+        self,
+        functionals: Iterable | None = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
+        **kwargs,
+    ):
         """
         Initialize the XC_FUNCTIONAL class
         """
 
-        self.functionals = functionals
+        self.functionals = functionals if functionals else []
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
@@ -2110,7 +2150,9 @@ class Kpoints(Section):
         if len(kpts) == 1:
             keywords["SCHEME"] = Keyword("SCHEME", scheme, *kpts[0])
         elif len(kpts) > 1:
-            keywords["KPOINT"] = KeywordList([Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights)])
+            keywords["KPOINT"] = KeywordList(
+                [Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights)]
+            )
         else:
             raise ValueError("No k-points provided!")
 
@@ -2176,7 +2218,8 @@ class Kpoints(Section):
                 units = "B_VECTOR"
             elif not structure:
                 raise ValueError(
-                    "No cp2k automatic gamma constructor. " "A structure is required to construct from spglib"
+                    "No cp2k automatic gamma constructor. "
+                    "A structure is required to construct from spglib"
                 )
             else:
                 sga = SpacegroupAnalyzer(structure)
