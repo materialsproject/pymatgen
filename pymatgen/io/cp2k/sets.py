@@ -1285,7 +1285,7 @@ class HybridRelaxSet(RelaxSet):
         self.scale_coulomb = scale_coulomb
         self.scale_gaussian = scale_gaussian
         self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params if override_default_params else {} 
+        self.override_default_params = override_default_params if override_default_params else {}
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
         self.omega = omega
