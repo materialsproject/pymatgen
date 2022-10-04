@@ -326,14 +326,16 @@ class ThermalDisplacementMatrices(MSONable):
             f.write("1 1 P 1\n\n")
             f.write("CELLP\n")
             f.write(
-                f"{structure.lattice.a} {structure.lattice.b} {structure.lattice.c} {structure.lattice.alpha} {structure.lattice.beta} {structure.lattice.gamma}\n"
+                f"{structure.lattice.a} {structure.lattice.b} {structure.lattice.c} "
+                f"{structure.lattice.alpha} {structure.lattice.beta} {structure.lattice.gamma}\n"
             )
             f.write("  0.000000   0.000000   0.000000   0.000000   0.000000   0.000000\n")  # error on parameters
             f.write("STRUC\n")
 
             for isite, site in enumerate(structure):
                 f.write(
-                    f"{isite + 1} {site.species_string} {site.species_string}{isite + 1} 1.0000 {site.frac_coords[0]} {site.frac_coords[1]} {site.frac_coords[2]} 1a 1\n"
+                    f"{isite + 1} {site.species_string} {site.species_string}{isite + 1} 1.0000 {site.frac_coords[0]} "
+                    f"{site.frac_coords[1]} {site.frac_coords[2]} 1a 1\n"
                 )
                 f.write(f" 0.000000 0.000000 0.000000 0.00\n")  # error on positions - zero here
 
@@ -343,12 +345,11 @@ class ThermalDisplacementMatrices(MSONable):
             f.write("THERM\n")
             # print all U11s (make sure they are in the correct order)
             counter = 1
-            # order here:
-            # VESTA order _atom_site_aniso_U_12    _atom_site_aniso_U_13    _atom_site_aniso_U_23
-            # file.write("_atom_site_aniso_U_23\n")             file.write("_atom_site_aniso_U_13\n")        file.write("_atom_site_aniso_U_12\n")
+            # VESTA order: _U_12    _U_13    _atom_site_aniso_U_23
             for atom_therm, site in zip(matrix_cif, structure):
                 f.write(
-                    f"{counter} {site.species_string}{counter} {atom_therm[0]} {atom_therm[1]} {atom_therm[2]} {atom_therm[5]} {atom_therm[4]} {atom_therm[3]}\n"
+                    f"{counter} {site.species_string}{counter} {atom_therm[0]} "
+                    f"{atom_therm[1]} {atom_therm[2]} {atom_therm[5]} {atom_therm[4]} {atom_therm[3]}\n"
                 )
                 counter += 1
             f.write("  0 0 0 0 0 0 0 0\n")
