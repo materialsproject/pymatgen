@@ -1119,7 +1119,7 @@ class Cp2kOutput:
                         while True:
                             if "WARNING : did not converge" in line:
                                 warnings.warn(
-                                    "Convergence of eigenvalues for unoccupied subspace spin 1 " "did NOT converge"
+                                    "Convergence of eigenvalues for unoccupied subspace spin 1 did NOT converge"
                                 )
                                 next(lines)
                                 next(lines)
@@ -1146,7 +1146,7 @@ class Cp2kOutput:
                             while True:
                                 if "WARNING : did not converge" in line:
                                     warnings.warn(
-                                        "Convergence of eigenvalues for unoccupied subspace spin 2 " "did NOT converge"
+                                        "Convergence of eigenvalues for unoccupied subspace spin 2 did NOT converge"
                                     )
                                     next(lines)
                                     next(lines)
@@ -1644,7 +1644,7 @@ def parse_dos(dos_file=None):
     return Dos(efermi=efermi, energies=energies, densities=densities)
 
 
-def parse_pdos(dos_file=None, spin_channel=None, total=False, sigma=0):
+def parse_pdos(dos_file=None, spin_channel=None, total=False):
     """
     Parse a single DOS file created by cp2k. Must contain one PDOS snapshot. i.e. you cannot
     use this cannot deal with multiple concatenated dos files.

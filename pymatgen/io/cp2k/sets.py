@@ -57,6 +57,7 @@ from pymatgen.io.cp2k.inputs import (
     Subsys,
     V_Hartree_Cube,
     Xc_Functional,
+    Band_Structure
 )
 from pymatgen.io.cp2k.utils import (
     get_aux_basis,
@@ -248,7 +249,7 @@ class DftSet(Cp2kInputSet):
         rel_cutoff: int = 50,
         ngrids: int = 5,
         progression_factor: int = 3,
-        override_default_params: dict = {},
+        override_default_params: dict | None = None,
         wfn_restart_file_name: str = None,
         kpoints: VaspKpoints | None = None,
         smearing: bool = False,
@@ -543,9 +544,6 @@ class DftSet(Cp2kInputSet):
         Args:
             kpoints_line_density: number of kpoints along each branch in line-mode calc.
         """
-
-        from pymatgen.io.cp2k.inputs import Band_Structure
-
         if not self.kpoints:
             raise ValueError("Kpoints must be provided to enable band structure printing")
 

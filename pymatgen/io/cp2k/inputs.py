@@ -420,9 +420,9 @@ class Section(MSONable):
             d: Name of section to get
             default: return if d is not found in subsections
         """
-        for k in self.subsections:
+        for k, v in self.subsections.items():
             if str(k).upper() == str(d).upper():
-                return self.subsections[k]
+                return v 
         return default
 
     def get_keyword(self, d, default=None):
@@ -627,8 +627,8 @@ class Section(MSONable):
         if self.subsections:
             if self.subsections.get("PRINT"):
                 del self.subsections["PRINT"]
-            for _s in self.subsections:
-                self.subsections[_s].silence()
+            for v in self.subsections.values():
+                v.silence()
 
 
 class SectionList(MSONable):
@@ -735,8 +735,8 @@ class Cp2kInput(Section):
         Get string representation of the Cp2kInput
         """
         s = ""
-        for k in self.subsections.keys():
-            s += self.subsections[k].get_string()
+        for v in self.subsections.values():
+            s += v.get_string()
         return s
 
     @classmethod
