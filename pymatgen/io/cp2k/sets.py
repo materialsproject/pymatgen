@@ -35,6 +35,7 @@ from pymatgen.io.cp2k.inputs import (
     PBE,
     PDOS,
     QS,
+    Band_Structure,
     BrokenSymmetry,
     Cell,
     Coord,
@@ -57,7 +58,6 @@ from pymatgen.io.cp2k.inputs import (
     Subsys,
     V_Hartree_Cube,
     Xc_Functional,
-    Band_Structure
 )
 from pymatgen.io.cp2k.utils import (
     get_aux_basis,

@@ -422,7 +422,7 @@ class Section(MSONable):
         """
         for k, v in self.subsections.items():
             if str(k).upper() == str(d).upper():
-                return v 
+                return v
         return default
 
     def get_keyword(self, d, default=None):
