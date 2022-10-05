@@ -479,7 +479,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         """
         Ucif_matrix = []
-        ## U11, U22, U33, U23, U13, U12
+        # U11, U22, U33, U23, U13, U12
         for site in structure:
             Ucif_matrix.append(
                 [
