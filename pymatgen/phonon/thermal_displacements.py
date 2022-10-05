@@ -6,15 +6,12 @@ This module provides classes to handle thermal displacement matrices (anisotropi
 """
 
 import re
-from collections import deque
 from functools import partial
-from inspect import getfullargspec as getargspec
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.periodic_table import DummySpecies, Species, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
@@ -337,7 +334,7 @@ class ThermalDisplacementMatrices(MSONable):
                     f"{isite + 1} {site.species_string} {site.species_string}{isite + 1} 1.0000 {site.frac_coords[0]} "
                     f"{site.frac_coords[1]} {site.frac_coords[2]} 1a 1\n"
                 )
-                f.write(f" 0.000000 0.000000 0.000000 0.00\n")  # error on positions - zero here
+                f.write(" 0.000000 0.000000 0.000000 0.00\n")  # error on positions - zero here
 
             # now we iterate over the whole structure and write down the frational coordinates (with errors)
             f.write("  0 0 0 0 0 0 0\n")
@@ -460,7 +457,7 @@ class ThermalDisplacementMatrices(MSONable):
         else:
             cif_matrix = self.thermal_displacement_matrix_cif
         for atom_ucif in cif_matrix:
-            ## U11, U22, U33, U23, U13, U12
+            # U11, U22, U33, U23, U13, U12
             site_properties["U11_cif"].append(atom_ucif[0])
             site_properties["U22_cif"].append(atom_ucif[1])
             site_properties["U33_cif"].append(atom_ucif[2])
@@ -521,7 +518,6 @@ class ThermalDisplacementMatrices(MSONable):
             # raise ValueError("Can only read cifs in P1 symmetry")
 
             lattice = CifParser.get_lattice_no_exception(data)
-            oxi_states = CifParser.parse_oxi_states(data)
 
             allcoords = []
             allspecies = []
