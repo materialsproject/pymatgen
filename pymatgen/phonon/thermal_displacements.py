@@ -10,6 +10,7 @@ from functools import partial
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
@@ -166,7 +167,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         B = []
         for mat in self.Ucif:
-            mat_B = mat * 8 * np.pi ** 2
+            mat_B = mat * 8 * np.pi**2
             B.append(mat_B)
         return np.array(B)
 
@@ -179,7 +180,7 @@ class ThermalDisplacementMatrices(MSONable):
         # will compute beta based on Ustar
         beta = []
         for mat in self.Ustar:
-            mat_beta = mat * 2 * np.pi ** 2
+            mat_beta = mat * 2 * np.pi**2
             beta.append(mat_beta)
         return beta
 
@@ -263,7 +264,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         results = []
         for self_Ucart, other_Ucart in zip(
-                self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
+            self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
         ):
             result_dict = {}
 
@@ -287,7 +288,7 @@ class ThermalDisplacementMatrices(MSONable):
         return results
 
     def visualize_directionality_quality_criterion(
-            self, other, filename: str = "visualization.vesta", which_structure: int = 0
+        self, other, filename: str = "visualization.vesta", which_structure: int = 0
     ):
         """
         Will create a VESTA file for visualization of the directionality criterion.
