@@ -377,7 +377,7 @@ class ThermalDisplacementMatrices(MSONable):
 
             counter = 1
             # two vectors per atom
-            for i in range(len(result)):
+            for _i in range(len(result)):
                 f.write(f"{counter} 0.2 255 0 0 1\n")
                 counter += 1
                 f.write(f"{counter} 0.2 0 0 255 1\n")
