@@ -381,17 +381,16 @@ class PhononBSPlotter:
 
         return plt
 
-    def _get_weight(self, vec,site_comb):
+    def _get_weight(self, vec, site_comb):
         """
         compute the weight for each combintaion of sites according to the
-        eigenvector 
+        eigenvector
         """
         num_atom = int(self._nb_bands / 3)
         new_vec = np.zeros(num_atom)
         for i in range(num_atom):
-            new_vec[i] = np.linalg.norm(vec[i*3:i*3+3])
-        
-        #get the projectors for each group
+            new_vec[i] = np.linalg.norm(vec[i * 3 : i * 3 + 3])
+        # get the projectors for each group
         gw = []
         norm_f = 0
         for i, comb in enumerate(site_comb):
@@ -403,35 +402,35 @@ class PhononBSPlotter:
             gw.append(group_weight)
             norm_f += group_weight
         return np.array(gw, dtype=float) / norm_f
-    
+
     @staticmethod
     def _make_color(colors):
         """
-        convert the eigendisplacements to rgb colors 
+        convert the eigendisplacements to rgb colors
 
         """
         # if there are two groups, use red and blue
         if len(colors) == 2:
-            return [colors[0],0,colors[1]]
+            return [colors[0], 0, colors[1]]
         elif len(colors) == 3:
             return colors
         # if there are four groups, use cyan, magenta, yellow and black
         elif len(colors) == 4:
-            r = (1-colors[0])*(1-colors[3]) 
-            g = (1-colors[1])*(1-colors[3]) 
-            b = (1-colors[2])*(1-colors[3])
-            return [r,g,b]
+            r = (1 - colors[0]) * (1 - colors[3])
+            g = (1 - colors[1]) * (1 - colors[3])
+            b = (1 - colors[2]) * (1 - colors[3])
+            return [r, g, b]
 
-    def get_proj_plot(self, site_comb='element', ylim=None, units="thz"): 
+    def get_proj_plot(self, site_comb="element", ylim=None, units="thz"):
         """
         Get a matplotlib object for the bandstructure plot projected olong atomic
         sites.
 
         Args:
             site_comb: a list of list, for example, [[0],[1],[2,3,4]];
-                the numbers in each sublist represents the indices of atoms; 
+                the numbers in each sublist represents the indices of atoms;
                 the atoms in a same sublist will be plotted in a same color；
-                if not specified, unique elements are automatically grouped. 
+                if not specified, unique elements are automatically grouped.
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
@@ -440,40 +439,49 @@ class PhononBSPlotter:
         import matplotlib.pyplot as plt
         from matplotlib.collections import LineCollection
         from pymatgen.electronic_structure.plotter import BSDOSPlotter
-        
-        if site_comb == 'element':
+
+        if site_comb == "element":
             elements = [e.symbol for e in self._bs.structure.composition.elements]
-            assert len(elements) in [2,3,4], "the compound must have 2, 3 or 4 unique elements"
+            assert len(elements) in [
+                2,
+                3,
+                4,
+            ], "the compound must have 2, 3 or 4 unique elements"
             indices = [[] for _ in range(len(elements))]
             for i, ele in enumerate(self._bs.structure.species):
-                for j, unique_species in enumerate(self._bs.structure.composition.elements):
+                for j, unique_species in enumerate(
+                    self._bs.structure.composition.elements
+                ):
                     if ele == unique_species:
                         indices[j].append(i)
         else:
-            assert len(site_comb) in [2,3,4], "the length of site_combs must be 2, 3 or 4"
+            assert len(site_comb) in [
+                2,
+                3,
+                4,
+            ], "the length of site_combs must be 2, 3 or 4"
             indices = site_comb
             pass
-
-        u = freq_units(units)   
-        fig, ax = plt.subplots(figsize=(12,8), dpi=300)
+        u = freq_units(units)
+        fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
         self._maketicks(plt)
 
         data = self.bs_plot_data()
-        k_dist = np.array(data['distances']).flatten()
-        for d in range(1,len(k_dist)):
-            #consider 2 k points each time so they connect
+        k_dist = np.array(data["distances"]).flatten()
+        for d in range(1, len(k_dist)):
+            # consider 2 k points each time so they connect
             colors = []
             for i in range(self._nb_bands):
-                eigenvec_1 = self._bs.eigendisplacements[i][d-1].flatten()
+                eigenvec_1 = self._bs.eigendisplacements[i][d - 1].flatten()
                 eigenvec_2 = self._bs.eigendisplacements[i][d].flatten()
                 colors1 = self._get_weight(eigenvec_1, indices)
                 colors2 = self._get_weight(eigenvec_2, indices)
-                colors.append(self._make_color((colors1 + colors2)/2))
+                colors.append(self._make_color((colors1 + colors2) / 2))
             seg = np.zeros((self._nb_bands, 2, 2))
-            seg[:,:, 1] = self._bs.bands[:,d-1:d+1] * u.factor
-            seg[:, 0, 0] = k_dist[d-1]
+            seg[:, :, 1] = self._bs.bands[:, d - 1 : d + 1] * u.factor
+            seg[:, 0, 0] = k_dist[d - 1]
             seg[:, 1, 0] = k_dist[d]
-            ls = LineCollection(seg, colors=colors, linestyles='-', linewidths=2.5)
+            ls = LineCollection(seg, colors=colors, linestyles="-", linewidths=2.5)
             ax.add_collection(ls)
         if ylim is None:
             y_max = max([max(b) for b in self._bs.bands]) * u.factor
@@ -488,7 +496,7 @@ class PhononBSPlotter:
         ax.set_ylabel(ylabel, fontsize=28)
         ax.tick_params(labelsize=28)
         # make color legend
-        if site_comb == 'element':
+        if site_comb == "element":
             labels = [e.symbol for e in self._bs.structure.composition.elements]
         else:
             labels = ["group{}".format(i) for i in range(len(site_comb))]
