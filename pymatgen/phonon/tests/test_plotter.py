@@ -76,7 +76,7 @@ class PhononBSPlotterTest(unittest.TestCase):
 
         rc("text", usetex=False)
         self.plotter.get_plot(units="mev")
-        
+
     def test_proj_plot(self):
         # Disabling latex for testing.
         from matplotlib import rc

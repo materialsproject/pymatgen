@@ -439,6 +439,7 @@ class PhononBSPlotter:
 
         import matplotlib.pyplot as plt
         from matplotlib.collections import LineCollection
+
         from pymatgen.electronic_structure.plotter import BSDOSPlotter
 
         if site_comb == "element":
@@ -450,9 +451,7 @@ class PhononBSPlotter:
             ], "the compound must have 2, 3 or 4 unique elements"
             indices = [[] for _ in range(len(elements))]
             for i, ele in enumerate(self._bs.structure.species):
-                for j, unique_species in enumerate(
-                    self._bs.structure.composition.elements
-                ):
+                for j, unique_species in enumerate(self._bs.structure.composition.elements):
                     if ele == unique_species:
                         indices[j].append(i)
         else:
@@ -485,8 +484,8 @@ class PhononBSPlotter:
             ls = LineCollection(seg, colors=colors, linestyles="-", linewidths=2.5)
             ax.add_collection(ls)
         if ylim is None:
-            y_max = max([max(b) for b in self._bs.bands]) * u.factor
-            y_min = min([min(b) for b in self._bs.bands]) * u.factor
+            y_max = max(max(b) for b in self._bs.bands) * u.factor
+            y_min = min(min(b) for b in self._bs.bands) * u.factor
             y_margin = (y_max - y_min) * 0.05
             ylim = [y_min - y_margin, y_max + y_margin]
         ax.set_ylim(ylim)
@@ -500,7 +499,7 @@ class PhononBSPlotter:
         if site_comb == "element":
             labels = [e.symbol for e in self._bs.structure.composition.elements]
         else:
-            labels = ["group{}".format(i) for i in range(len(site_comb))]
+            labels = [f"group{i}" for i in range(len(site_comb))]
         if len(indices) == 2:
             BSDOSPlotter._rb_line(ax, labels[0], labels[1], "best")
         elif len(indices) == 3:
@@ -509,7 +508,7 @@ class PhononBSPlotter:
             # for 4 combinations, build a color square?
             pass
         return ax
-        
+
     def show(self, ylim=None, units="thz"):
         """
         Show the plot using matplotlib.
