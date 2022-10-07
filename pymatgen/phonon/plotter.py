@@ -393,9 +393,10 @@ class PhononBSPlotter:
         # get the projectors for each group
         gw = []
         norm_f = 0
-        for i, comb in enumerate(site_comb):
+        for comb in site_comb:
             projector = np.zeros(len(new_vec))
-            for j in range(len(projector)):
+            l = len(projector)
+            for j in range(l):
                 if j in comb:
                     projector[j] = 1
             group_weight = np.dot(projector, new_vec)
@@ -423,7 +424,7 @@ class PhononBSPlotter:
 
     def get_proj_plot(self, site_comb="element", ylim=None, units="thz"):
         """
-        Get a matplotlib object for the bandstructure plot projected olong atomic
+        Get a matplotlib object for the bandstructure plot projected along atomic
         sites.
 
         Args:
