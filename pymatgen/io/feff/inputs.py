@@ -539,7 +539,7 @@ class Atoms(MSONable):
                 ]
             )
 
-        return sorted(lines, key=itemgetter(5))
+        return sorted(lines, key=lambda line: float(line[5]))
 
     def __str__(self):
         """
