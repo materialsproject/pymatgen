@@ -1032,7 +1032,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return self._additional_condition == other.additional_condition
+        return self._additional_condition == other.additional_condition  # type: ignore
 
     def as_dict(self):
         """
@@ -1089,8 +1089,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         :param max_csm:
         :param symmetry_measure_type:
         """
-        raise NotImplementedError("TargettedPenaltiedAbundanceChemenvStrategy not yet implemented")
-        SimpleAbundanceChemenvStrategy.__init__(
+        super.__init__(
             self,
             structure_environments,
             additional_condition=additional_condition,
@@ -1100,6 +1099,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         self.target_environments = target_environments
         self.target_penalty_type = target_penalty_type
         self.max_csm = max_csm
+        raise NotImplementedError("TargettedPenaltiedAbundanceChemenvStrategy not yet implemented")
 
     def get_site_coordination_environment(
         self,
@@ -1205,7 +1205,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
             return NotImplemented
 
         return (
-            self._additional_condition == other.additional_condition
+            self.additional_condition == other.additional_condition
             and self.max_nabundant == other.max_nabundant
             and self.target_environments == other.target_environments
             and self.target_penalty_type == other.target_penalty_type
@@ -1622,10 +1622,9 @@ class SelfCSMNbSetWeight(NbSetWeight):
         return weight
 
     def __eq__(self, other: object) -> bool:
-        if not all(
-            hasattr(other, attr) for attr in ["effective_csm_estimator", "weight_estimator", "symmetry_measure_type"]
-        ):
+        if not isinstance(other, type(self)):
             return NotImplemented
+
         return (
             self.effective_csm_estimator == other.effective_csm_estimator
             and self.weight_estimator == other.weight_estimator
@@ -2982,8 +2981,8 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
 
     def as_dict(self):
         """
-        Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
-        :return: Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
+        Returns:
+            Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
         """
         return {
             "@module": type(self).__module__,
