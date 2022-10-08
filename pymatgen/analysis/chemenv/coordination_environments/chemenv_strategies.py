@@ -2962,7 +2962,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         return False
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, AbstractChemenvStrategy):
+        if not isinstance(other, type(self)):
             return NotImplemented
 
         return (
