@@ -1559,7 +1559,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}\n Covering {len(self.spaces)} Sub-Spaces"
+        return f"{type(self).__name__}\n Covering {len(self.spaces)} Sub-Spaces"
 
     def as_dict(self):
         """
@@ -1567,8 +1567,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
             MSONable dictionary representation of PatchedPhaseDiagram
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "all_entries": [e.as_dict() for e in self.all_entries],
             "elements": [e.as_dict() for e in self.elements],
         }

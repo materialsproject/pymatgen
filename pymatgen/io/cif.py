@@ -81,7 +81,9 @@ class CifBlock:
         # get an Exception
         self.header = header[:74]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CifBlock):
+            return NotImplemented
         return self.loops == other.loops and self.data == other.data and self.header == other.header
 
     def __getitem__(self, key):
