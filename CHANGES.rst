@@ -464,7 +464,7 @@ v2021.3.3
 * **Backwards incompatible**: pymatgen.loadfn and get_structure_from_mp have been
   removed since no one was using them.
 * critic2_caller has been refactored. (@samblau)
-* Improved hash for Compositon (@CompRhys)
+* Improved hash for Composition (@CompRhys)
 * Fixes Outcar parsing for VASP 6.2.0. (@MichaelWolloch)
 * Allow None for Gaussian functional, bset, charge and multiplicity (@eimrek)
 

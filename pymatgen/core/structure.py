@@ -20,7 +20,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import Any, Callable, Iterable, Iterator, Literal, Sequence, Sized, cast
+from typing import Any, Callable, Iterable, Iterator, Literal, Sequence, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -1036,9 +1036,8 @@ class IStructure(SiteCollection, MSONable):
 
         # check for valid operand following class Student example from official functools docs
         # https://docs.python.org/3/library/functools.html#functools.total_ordering
-        if not hasattr(other, "lattice") or not isinstance(other, Sized):
+        if not isinstance(other, IStructure):
             return NotImplemented
-        other = cast(Structure, other)  # silence mypy errors below
 
         if other is self:
             return True
