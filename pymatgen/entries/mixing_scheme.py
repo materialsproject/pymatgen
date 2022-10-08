@@ -634,7 +634,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
-                    f"{self.compat_1.__class__.__name__}"
+                    f"{type(self.compat_1).__name__}"
                 )
         entries_type_1 = EntrySet(entries_type_1)
 
@@ -643,7 +643,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
-                    f"{self.compat_2.__class__.__name__}"
+                    f"{type(self.compat_2).__name__}"
                 )
         entries_type_2 = EntrySet(entries_type_2)
 

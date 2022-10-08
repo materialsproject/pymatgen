@@ -81,7 +81,9 @@ class CifBlock:
         # get an Exception
         self.header = header[:74]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CifBlock):
+            return NotImplemented
         return self.loops == other.loops and self.data == other.data and self.header == other.header
 
     def __getitem__(self, key):
@@ -615,12 +617,9 @@ class CifParser:
         """
         try:
 
-            lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
-            angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
-            if not lattice_type:
-                return Lattice.from_parameters(*lengths, *angles)
-
-            return getattr(Lattice, lattice_type)(*(lengths + angles))
+            return self.get_lattice_no_exception(
+                data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
+            )
 
         except KeyError:
             # Missing Key search for cell setting
@@ -644,6 +643,27 @@ class CifParser:
                 else:
                     return None
         return None
+
+    @staticmethod
+    def get_lattice_no_exception(
+        data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
+    ):
+        """
+        Generate the lattice from the provided lattice parameters.
+        Args:
+            data:
+            length_strings:
+            angle_strings:
+            lattice_type:
+
+        Returns:
+
+        """
+        lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
+        angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
+        if not lattice_type:
+            return Lattice.from_parameters(*lengths, *angles)
+        return getattr(Lattice, lattice_type)(*(lengths + angles))
 
     def get_symops(self, data):
         """

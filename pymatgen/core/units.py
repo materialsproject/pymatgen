@@ -131,8 +131,8 @@ DERIVED_UNITS = {
     "cross_section": {"barn": {"m": 2, 1e-28: 1}, "mbarn": {"m": 2, 1e-31: 1}},
 }
 
-ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))  # type: ignore
-SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)  # type: ignore
+ALL_UNITS = {**BASE_UNITS, **DERIVED_UNITS}  # type: ignore
+SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}  # type: ignore
