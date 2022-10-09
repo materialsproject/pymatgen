@@ -696,7 +696,13 @@ class PhaseDiagram(MSONable):
         """
         return comp.num_atoms * self.get_hull_energy_per_atom(comp)
 
-    def get_decomp_and_e_above_hull(self, entry, allow_negative=False, check_stable=True):
+    def get_decomp_and_e_above_hull(
+        self,
+        entry: PDEntry,
+        allow_negative: bool = False,
+        check_stable: bool = True,
+        on_error: Literal["raise", "warn", "ignore"] = "raise",
+    ) -> tuple[dict[PDEntry, float], float] | tuple[None, None]:
         """
         Provides the decomposition and energy above convex hull for an entry.
         Due to caching, can be much faster if entries with the same composition
@@ -711,6 +717,10 @@ class PhaseDiagram(MSONable):
                 stable entries is relatively fast. However, if you have a huge proportion
                 of unstable entries, then this check can slow things down. You should then
                 set this to False.
+            on_error ('raise' | 'warn' | 'ignore'): What to do if no valid decomposition was
+                found. 'raise' will throw ValueError. 'warn' will print return (None, None).
+                'ignore' just returns (None, None). Defaults to 'raise'.
+
 
         Returns:
             (decomp, energy_above_hull). The decomposition is provided
@@ -721,7 +731,7 @@ class PhaseDiagram(MSONable):
         # Avoid computation for stable_entries.
         # NOTE scaled duplicates of stable_entries will not be caught.
         if check_stable and entry in self.stable_entries:
-            return {entry: 1}, 0
+            return {entry: 1.0}, 0.0
 
         decomp, hull_energy = self.get_decomp_and_hull_energy_per_atom(entry.composition)
         e_above_hull = entry.energy_per_atom - hull_energy
@@ -729,7 +739,12 @@ class PhaseDiagram(MSONable):
         if allow_negative or e_above_hull >= -PhaseDiagram.numerical_tol:
             return decomp, e_above_hull
 
-        raise ValueError(f"No valid decomp found for {entry}! (e_h: {e_above_hull})")
+        msg = f"No valid decomposition found for {entry}! (e_h: {e_above_hull})"
+        if on_error == "raise":
+            raise ValueError(msg)
+        elif on_error == "warn":
+            warnings.warn(msg)
+        return None, None  # 'ignore' and 'warn' case
 
     def get_e_above_hull(self, entry, **kwargs):
         """
@@ -852,7 +867,7 @@ class PhaseDiagram(MSONable):
         if not any(id(e) in same_comp_mem_ids for e in self._get_stable_entries_in_space(entry_elems)):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
-        # take entries with negative e_form and different compositons as competing entries
+        # take entries with negative e_form and different compositions as competing entries
         competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries.
@@ -935,7 +950,7 @@ class PhaseDiagram(MSONable):
 
     def get_all_chempots(self, comp):
         """
-        Get chemical potentials at a given compositon.
+        Get chemical potentials at a given composition.
 
         Args:
             comp (Composition): Composition
