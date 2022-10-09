@@ -9,9 +9,10 @@ control tags.
 XANES and EXAFS input files, are available, for non-spin case at this time.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
-from typing import Union
 
 import numpy as np
 from monty.io import zopen
@@ -164,7 +165,7 @@ class Header(MSONable):
     """
 
     def __init__(
-        self, struct: Union[Structure, Molecule], source: str = "", comment: str = "", spacegroup_analyzer_settings=None
+        self, struct: Structure | Molecule, source: str = "", comment: str = "", spacegroup_analyzer_settings=None
     ):
         """
         Args:
