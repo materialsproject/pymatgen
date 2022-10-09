@@ -9,10 +9,10 @@ control tags.
 XANES and EXAFS input files, are available, for non-spin case at this time.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
-from operator import itemgetter
-from typing import Union
 
 import numpy as np
 from monty.io import zopen
@@ -165,7 +165,7 @@ class Header(MSONable):
     """
 
     def __init__(
-        self, struct: Union[Structure, Molecule], source: str = "", comment: str = "", spacegroup_analyzer_settings=None
+        self, struct: Structure | Molecule, source: str = "", comment: str = "", spacegroup_analyzer_settings=None
     ):
         """
         Args:
@@ -504,14 +504,13 @@ class Atoms(MSONable):
                 symbols.append(l[4])
         return Molecule(symbols, coords)
 
-    def get_lines(self):
+    def get_lines(self) -> list[list[str | int]]:
         """
         Returns a list of string representations of the atomic configuration
         information(x, y, z, ipot, atom_symbol, distance, id).
 
         Returns:
-            list: list of strings, sorted by the distance from the absorbing
-                atom.
+            list[list[str | int]]: lines sorted by the distance from the absorbing atom.
         """
         lines = [
             [
@@ -539,7 +538,8 @@ class Atoms(MSONable):
                 ]
             )
 
-        return sorted(lines, key=itemgetter(5))
+        # sort by distance from absorbing atom
+        return sorted(lines, key=lambda line: float(line[5]))
 
     def __str__(self):
         """
@@ -965,7 +965,7 @@ class Potential(MSONable):
                 continue
             ipot = self.pot_dict[el.symbol]
             ipotrow.append([ipot, el.Z, el.symbol, -1, -1, amt, 0])
-        ipot_sorted = sorted(ipotrow, key=itemgetter(0))
+        ipot_sorted = sorted(ipotrow, key=lambda x: x[0])
         ipotrow = str(
             tabulate(
                 ipot_sorted,
