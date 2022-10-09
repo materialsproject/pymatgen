@@ -265,6 +265,31 @@ class PhaseDiagramTest(unittest.TestCase):
                 self.assertTrue(isinstance(e_ah, Number))
                 self.assertGreaterEqual(e_ah, 0)
 
+    def test_get_decomp_and_e_above_hull_on_error(self):
+
+        for method, expected in (
+            (self.pd.get_e_above_hull, None),
+            (self.pd.get_decomp_and_e_above_hull, (None, None)),
+        ):
+
+            # test raises ValueError on entry with element not in the phase diagram
+            U_entry = PDEntry("U", 0)
+            with pytest.raises(ValueError, match="U1 has elements not in the phase diagram"):
+                method(U_entry)
+
+            # test raises ValueError on entry with very negative energy
+            too_neg_entry = PDEntry("Li", -1e10)
+            match_msg = "No valid decomposition found for PDEntry : Li1 with energy"
+            with pytest.raises(ValueError, match=match_msg):
+                method(too_neg_entry)
+
+            with pytest.warns(UserWarning, match=match_msg):
+                out = method(too_neg_entry, on_error="warn")
+                assert out == expected
+
+            out = method(too_neg_entry, on_error="ignore")
+            assert out == expected
+
     def test_get_equilibrium_reaction_energy(self):
         for entry in self.pd.stable_entries:
             self.assertLessEqual(
@@ -383,7 +408,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 "The number of decomposition phases can at most be equal to the number of components.",
             )
 
-        # Just to test decomp for a ficitious composition
+        # Just to test decomposition for a fictitious composition
         ansdict = {
             entry.composition.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()
         }
