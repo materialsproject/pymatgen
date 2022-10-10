@@ -23,7 +23,7 @@ import plotly.graph_objs as go
 from monty.json import MontyDecoder, MSONable
 from scipy.optimize import minimize
 from scipy.spatial import ConvexHull
-from tqdm.autonotebook import tqdm
+from tqdm import tqdm
 
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core.composition import Composition, SpeciesLike
