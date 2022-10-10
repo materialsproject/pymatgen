@@ -96,7 +96,7 @@ class SlabEntryTest(PymatgenTest):
                         self.assertEqual(label, str(hkl) + f" {comp}+O, 0.250 ML")
 
     def test_surface_energy(self):
-        # For a nonstoichiometric case, the cheimcal potentials do not
+        # For a non-stoichiometric case, the chemical potentials do not
         # cancel out, they serve as a reservoir for any missing atoms
         for slab_entry in self.MgO_slab_entry_dict[(1, 1, 1)]:
             se = slab_entry.surface_energy(self.MgO_ucell_entry, ref_entries=[self.Mg_ucell_entry])

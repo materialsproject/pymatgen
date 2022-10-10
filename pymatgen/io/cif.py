@@ -1083,9 +1083,9 @@ class CifParser:
 
             # rescale occupancies if necessary
             for i, species in enumerate(allspecies):
-                totaloccu = sum(species.values())
-                if 1 < totaloccu <= self._occupancy_tolerance:
-                    allspecies[i] = species / totaloccu
+                total_occu = sum(species.values())
+                if 1 < total_occu <= self._occupancy_tolerance:
+                    allspecies[i] = species / total_occu
 
         if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
             site_properties = {}
