@@ -29,19 +29,19 @@ class DielectricFunctionCalculator(MSONable):
     This objects helps load the different parameters from the vasprun.xml file but allows users to override
     them as needed.
 
-    The standard vasprun.xml from anl ``LOPTICS=.True.`` calculation already contains
+    The standard vasprun.xml from an ``LOPTICS=.True.`` calculation already contains
     the complex frequency dependent dielectric functions.  However you have no way to decompose
-    The different contributions.  Since the ``WAVEDER`` file is also written during an optical calculation,
-    you can reconstruct the dielectric functions purely in python and have full control over contribution
-    from different bands and Kpoints.
+    the different contributions.  Since the ``WAVEDER`` file is also written during an optical calculation,
+    you can reconstruct the dielectric functions purely in Python and have full control over contribution
+    from different bands and k-points.
 
-    Vasp's linear optics follow these steps:
+    VASP's linear optics follow these steps:
         - Calculate the imaginary part
-        - Perform symmetry operations (This is not implemented here)
+        - Perform symmetry operations (this is not implemented here)
         - Calculate the real part
 
-    Currently, this Caculator only works for ``ISYM=0`` calculations since we cannot gauranttee that our
-    externally defined symmetry operations are the same as Vasp's.  This can be fixed by printing the
+    Currently, this Calculator only works for ``ISYM=0`` calculations since we cannot gauranttee that our
+    externally defined symmetry operations are the same as VASP's.  This can be fixed by printing the
     symmetry operators into the vasprun.xml file.  If this happens in future versions of VASP,
     we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
