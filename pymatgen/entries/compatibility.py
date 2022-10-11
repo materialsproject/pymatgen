@@ -11,7 +11,7 @@ import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import Sequence, Union
+from typing import Literal, Sequence, Union
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -532,7 +532,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entry: A ComputedEntry object.
 
         Returns:
-            [EnergyAdjustment]: A list of EnergyAdjustment to be applied to the
+            list[EnergyAdjustment]: A list of EnergyAdjustment to be applied to the
                 Entry.
 
         Raises:
@@ -906,7 +906,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry: AnyCompEntry):
+    def get_adjustments(self, entry: AnyCompEntry) -> list[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
@@ -918,8 +918,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             entry: A ComputedEntry or ComputedStructureEntry object.
 
         Returns:
-            [EnergyAdjustment]: A list of EnergyAdjustment to be applied to the
-                Entry.
+            list[EnergyAdjustment]: A list of EnergyAdjustment to be applied to the Entry.
 
         Raises:
             CompatibilityError if the entry is not compatible
@@ -977,7 +976,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 if entry.data.get("oxide_type"):
                     ox_type = entry.data["oxide_type"]
                 elif hasattr(entry, "structure"):
-                    ox_type, nbonds = oxide_type(entry.structure, 1.05, return_nbonds=True)
+                    ox_type, _nbonds = oxide_type(entry.structure, 1.05, return_nbonds=True)
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note "
@@ -1066,21 +1065,21 @@ class MaterialsProject2020Compatibility(Compatibility):
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
         most_electroneg = elements[-1].symbol
-        ucorr = self.u_corrections.get(most_electroneg, defaultdict(float))
-        usettings = self.u_settings.get(most_electroneg, defaultdict(float))
-        uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
+        u_corrections = self.u_corrections.get(most_electroneg, defaultdict(float))
+        u_settings = self.u_settings.get(most_electroneg, defaultdict(float))
+        u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
 
         for el in comp.elements:
             sym = el.symbol
             # Check for bad U values
-            if calc_u.get(sym, 0) != usettings.get(sym, 0):
+            if calc_u.get(sym, 0) != u_settings.get(sym, 0):
                 raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0):.1f} on {sym}")
-            if sym in ucorr:
+            if sym in u_corrections:
                 adjustments.append(
                     CompositionEnergyAdjustment(
-                        ucorr[sym],
+                        u_corrections[sym],
                         comp[el],
-                        uncertainty_per_atom=uerrors[sym],
+                        uncertainty_per_atom=u_errors[sym],
                         name=f"MP2020 GGA/GGA+U mixing correction ({sym})",
                         cls=self.as_dict(),
                     )
@@ -1097,7 +1096,12 @@ class MITCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
+    def __init__(
+        self,
+        compat_type: Literal["GGA", "Advanced"] = "Advanced",
+        correct_peroxide: bool = True,
+        check_potcar_hash: bool = False,
+    ) -> None:
         """
         Args:
             compat_type: Two options, GGA or Advanced. GGA means all GGA+U
@@ -1133,7 +1137,12 @@ class MITAqueousCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
+    def __init__(
+        self,
+        compat_type: Literal["GGA", "Advanced"] = "Advanced",
+        correct_peroxide: bool = True,
+        check_potcar_hash: bool = False,
+    ) -> None:
         """
         Args:
             compat_type: Two options, GGA or Advanced. GGA means all GGA+U
@@ -1196,7 +1205,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         o2_energy: float | None = None,
         h2o_energy: float | None = None,
         h2o_adjustments: float | None = None,
-    ):
+    ) -> None:
         """
         Initialize the MaterialsProjectAqueousCompatibility class.
 
@@ -1213,7 +1222,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
                 If not set, this value will be determined from any O2 entries passed to process_entries.
                 Default: None
-            h2o_energy: The ground-state DFT energy of water, including any adjstments or corrections, in eV/atom.
+            h2o_energy: The ground-state DFT energy of water, including any adjustments or corrections, in eV/atom.
                 If not set, this value will be determined from any H2O entries passed to process_entries.
                 Default: None
             h2o_adjustments: Total energy adjustments applied to one water molecule, in eV/atom.
@@ -1258,7 +1267,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.name = "MP Aqueous free energy adjustment"
         super().__init__()
 
-    def get_adjustments(self, entry):
+    def get_adjustments(self, entry: ComputedEntry) -> list[EnergyAdjustment]:
         """
         Returns the corrections applied to a particular entry.
 
@@ -1266,7 +1275,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             entry: A ComputedEntry object.
 
         Returns:
-            [EnergyAdjustment]: Energy adjustments to be applied to entry.
+            list[EnergyAdjustment]: Energy adjustments to be applied to entry.
 
         Raises:
             CompatibilityError if the required O2 and H2O energies have not been provided to
@@ -1283,10 +1292,11 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             )
 
         # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
-        # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
+        # formation-free energy of H2O is equal to -2.4583 eV/H2O from experiments
         # (MU_H2O from Pourbaix module)
 
         # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
+        # https://journals.aps.org/prb/abstract/10.1103/PhysRevB.85.235438
         # for this calculation ONLY, we need the (corrected) DFT energy of water
         self.fit_h2_energy = round(
             0.5
@@ -1301,9 +1311,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # use fit_h2_energy to adjust the energy of all H2 polymorphs such that
         # the lowest energy polymorph has the correct experimental value
-        # if h2o and o2 energies have been set explicitly via kwargs, then
+        # if H2O and O2 energies have been set explicitly via kwargs, then
         # all H2 polymorphs will get the same energy.
         if rform == "H2":
+            assert self.h2_energy is not None, "H2 energy not set"
             adjustments.append(
                 ConstantEnergyAdjustment(
                     (self.fit_h2_energy - self.h2_energy) * comp.num_atoms,
@@ -1321,7 +1332,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         if rform in self.cpd_entropies:
             adjustments.append(
                 TemperatureEnergyAdjustment(
-                    -1 * self.cpd_entropies[rform] / 298,
+                    -self.cpd_entropies[rform] / 298,
                     298,
                     comp.num_atoms,
                     uncertainty_per_deg=np.nan,
@@ -1342,11 +1353,11 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # a superposition of the "real" solid DFT energy (FeO in this case) and the free
         # energy of some water molecules
         # e.g. that E_FeO.nH2O = E_FeO + n * g_H2O
-        # so, to get the most accurate gibbs free energy, we want to replace
+        # so, to get the most accurate Gibbs free energy, we want to replace
         # g_FeO.nH2O = E_FeO.nH2O + dE_Fe + (n+1) * dE_O + 2n dE_H
         # with
         # g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O
-        # where E is DFT energy, dE is an energy correction, and g is gibbs free energy
+        # where E is DFT energy, dE is an energy correction, and g is Gibbs free energy
         # This means we have to 1) remove energy corrections associated with H and O in water
         # and then 2) remove the free energy of the water molecules
         if not rform == "H2O":
@@ -1374,7 +1385,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         return adjustments
 
-    def process_entries(self, entries: ComputedEntry | list[ComputedEntry], clean: bool = False, verbose: bool = False):
+    def process_entries(
+        self, entries: ComputedEntry | list[ComputedEntry], clean: bool = False, verbose: bool = False
+    ) -> list[ComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -1428,6 +1441,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
         if h2_entries:
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
-            self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore
+            self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]
 
         return super().process_entries(entries, clean=clean, verbose=verbose)

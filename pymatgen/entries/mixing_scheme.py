@@ -533,10 +533,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             "hull_energy_2",
         ]
 
-        def _get_sg(struc) -> int:
+        def _get_sg(struct) -> int:
             """helper function to get spacegroup with a loose tolerance"""
             try:
-                return struc.get_space_group_info(symprec=0.1)[1]
+                return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
                 return -1
 

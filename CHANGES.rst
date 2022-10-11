@@ -3,7 +3,7 @@ Change log
 
 v2022.9.21
 ----------
-* @chunweizhu fix the bugs when runing `TEMCalculator`
+* @chunweizhu fix the bugs when running `TEMCalculator`
 * @munrojm Support for new MPRester.
 
 v2022.9.8
@@ -96,7 +96,7 @@ v2022.5.26
 
 v2022.5.19
 ----------
-* Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
+* Added option for additional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
 
 v2022.5.18.1
 ------------
@@ -714,7 +714,7 @@ v2019.10.4
 v2019.10.3
 ----------
 * Faster get_all_neighbors based on @chc273's improvements. get_all_neighbors
-  now returns a Site-like object with nn_distance, image and index attrbutes.
+  now returns a Site-like object with nn_distance, image and index attributes.
   Much easier to use.
 * Bug fix for XCrySDen parser (@stevetorr)
 * Added optional mid_struct to direct interpolation (@jmmshn)
@@ -1914,7 +1914,7 @@ v3.0.3
 * Lots of improvements to Gaussian support (Nicolas Dardenne) and Abinit IO
   (Matteo).
 * Lots of Py3k minor updates.
-* Updated doc for Diffusion anaylzer. Invert sq_disp_ions for more intuitive handling.
+* Updated doc for Diffusion analyzer. Invert sq_disp_ions for more intuitive handling.
 
 v3.0.2
 ------

@@ -125,9 +125,9 @@ class FeffAtomsTest(unittest.TestCase):
 
     def test_get_string(self):
         header = Header.from_string(header_string)
-        struc = header.struct
+        struct = header.struct
         central_atom = "O"
-        a = Atoms(struc, central_atom, radius=10.0)
+        a = Atoms(struct, central_atom, radius=10.0)
         atoms = str(a)
         self.assertEqual(
             atoms.splitlines()[3].split()[4],
