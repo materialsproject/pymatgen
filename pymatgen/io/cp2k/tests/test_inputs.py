@@ -7,7 +7,11 @@ from pathlib import Path
 import numpy as np
 
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cp2k.inputs import Coord, Cp2kInput, Keyword, KeywordList, Kind
+from pymatgen.io.cp2k.inputs import (
+    Coord, Cp2kInput, Keyword, KeywordList, Kind, Kpoints, Kpoint_Set,
+    Band_Structure,
+    Section, SectionList
+)
 from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(
@@ -41,6 +45,18 @@ class InputTest(PymatgenTest):
         self.assertEqual(ci["GLOBAL"]["RUN_TYPE"], Keyword("RUN_TYPE", "energy"))
         self.assertEqual(ci["GLOBAL"]["PROJECT_NAME"].description, "default name")
         self.assertMSONable(ci)
+    
+    def test_sectionlist(self):
+        s1 = Section("TEST")
+        sl = SectionList(sections=[s1,s1])
+        for s in sl:
+            assert isinstance(s, Section)
+        sl[0].name == "TEST"
+        sl[1].name == "TEST"
+        assert len(sl) == 2
+        sl += s1
+        assert len(sl) == 3
+        assert sl == sl
 
     def test_basic_keywords(self):
         kwd = Keyword("TEST1", 1, 2)
@@ -63,15 +79,8 @@ class InputTest(PymatgenTest):
                 self.assertEqual(spec, Kind(spec).specie)
 
     def test_ci_file(self):
-        # proper keyword retrieval
-        self.assertEqual(
-            self.ci["FORCE_EVAL"]["DFT"]["SCF"]["OT"]["MINIMIZER"],
-            Keyword("MINIMIZER", "DIIS"),
-        )
-
         # proper type retrieval
         self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)
-        # self.assertIsInstance(self.ci["FORCE_EVAL"]["SUBSYS"]["COORD"]["Si"], Sequence)
         self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)
         self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)
 
@@ -117,7 +126,7 @@ class InputTest(PymatgenTest):
         self.assertTrue(self.ci.check("INCLUDE"))
         self.assertEqual(self.ci["INCLUDE"]["KEYWORD"], Keyword("KEYWORD", "VALUE"))
         self.assertEqual(self.ci["FORCE_EVAL"]["METHOD"], Keyword("METHOD", "QS"))
-        self.assertEqual(self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"], Keyword("MAX_SCF", 20))
+        self.assertEqual(self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"], Keyword("MAX_SCF", 1))
 
     def test_mongo(self):
         s = """
@@ -136,7 +145,6 @@ class InputTest(PymatgenTest):
         s.set({"GLOBAL": {"SUBSEC": {"TEST2": 2}, "SUBSEC2": {"Test2": 1}}})
         self.assertTrue(s.check("global/SUBSEC"))
         self.assertTrue(s.check("global/subsec2"))
-
 
 if __name__ == "__main__":
     unittest.main()

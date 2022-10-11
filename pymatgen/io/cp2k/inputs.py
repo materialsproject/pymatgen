@@ -656,7 +656,8 @@ class SectionList(MSONable):
         return all(k == o for k, o in zip(self.sections, other.sections))
 
     def __add__(self, other):
-        return self.extend(other)
+        self.append(other)
+        return self
 
     def __len__(self):
         return len(self.sections)

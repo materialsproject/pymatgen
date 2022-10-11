@@ -16,14 +16,18 @@ class SetTest(PymatgenTest):
 
     def test_files(self):
         self.out.parse_files()
-        self.assertEqual(len(self.out.filenames["PDOS"]), 2)
+        self.assertEqual(len(self.out.filenames["PDOS"]), 1)
 
-    def test(self):
-        self.assertEqual(self.out.spin_polarized, False)
+    def test_basic(self):
+        self.assertEqual(self.out.spin_polarized, True)
         self.assertEqual(self.out.completed, True)
-        self.assertEqual(self.out.num_warnings, [[1]])
-        self.assertEqual(self.out.run_type.upper(), "GEO_OPT")
-
+        self.assertEqual(self.out.num_warnings, [[2]])
+        self.assertEqual(self.out.run_type.upper(), "ENERGY_FORCE")
+        self.assertEqual(self.out.final_energy, -197.40000341992783)
+    
+    def test_band(self):
+        self.assertTrue(self.out.band_structure)
+        self.assertEqual(self.out.band_structure.get_band_gap().get("energy"), 0.27940141999999923)
 
 if __name__ == "__main__":
     unittest.main()

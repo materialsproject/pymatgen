@@ -53,24 +53,35 @@ class SetTest(PymatgenTest):
             cis = Cp2kInputSet.from_dict(cis.as_dict())
             Cp2kInputSet.from_string(cis.get_string())
 
-            DftSet(s)
-            StaticSet(s)
-            HybridStaticSet(s)
-            RelaxSet(s)
-            HybridRelaxSet(s)
-            CellOptSet(s)
-            HybridCellOptSet(s)
+            ss = DftSet(s)
+
+            assert not ss.check("motion")
+            ss.activate_motion()
+            assert ss.check("motion")
+
+            ss.activate_hybrid()
+            assert ss.check("force_eval/dft/xc/hf")
+            assert ss.check("force_eval/dft/auxiliary_density_matrix_method")
+
 
     def test_aux_basis(self):
         Si_aux_bases = ["FIT", "cFIT", "pFIT", "cpFIT"]
         for s in Si_aux_bases:
-            HybridStaticSet(Si_structure, aux_basis={"Si": s})
+            ss = HybridStaticSet(Si_structure, aux_basis={"Si": s})
+            assert s in ss['force_eval']['subsys']['Si_1']['BASIS_SET'][1].values[-1]
 
     def test_prints(self):
-        cis = RelaxSet(Si_structure, print_ldos=False, print_pdos=False)
-        self.assertFalse(cis.check("FORCE_EVAL/DFT/PRINT/PRINT/PDOS"))
-        cis = RelaxSet(Si_structure, print_ldos=True, print_hartree_potential=True)
+        cis = RelaxSet(Si_structure, print_ldos=False, print_pdos=False, print_v_hartree=False, print_e_density=False)
+        self.assertFalse(cis.check("FORCE_EVAL/DFT/PRINT/PDOS"))
+        cis.print_pdos()
+        self.assertTrue(cis.check("FORCE_EVAL/DFT/PRINT/PDOS"))
+        
+        self.assertFalse(cis.check("FORCE_EVAL/DFT/PRINT/PDOS/LDOS 1"))
+        cis.print_ldos()
         self.assertTrue(cis.check("FORCE_EVAL/DFT/PRINT/PDOS/LDOS 1"))
+
+        self.assertFalse(cis.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"))
+        cis.print_v_hartree()
         self.assertTrue(cis.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"))
 
 
