@@ -57,10 +57,9 @@ class InputTest(PymatgenTest):
             assert isinstance(s, Section)
         sl[0].name == "TEST"
         sl[1].name == "TEST"
-        assert len(sl) == 2
+        self.assertEqual(len(sl), 2)
         sl += s1
-        assert len(sl) == 3
-        assert sl == sl
+        self.assertEqual(len(sl), 3)
 
     def test_basic_keywords(self):
         kwd = Keyword("TEST1", 1, 2)
