@@ -16,7 +16,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from typing import Literal, Sequence
+from typing import Any, Literal, Sequence
 
 import numpy as np
 import plotly.graph_objs as go
@@ -519,13 +519,13 @@ class PhaseDiagram(MSONable):
         return set(self._stable_entries)
 
     @lru_cache(1)
-    def _get_stable_entries_in_space(self, space):
+    def _get_stable_entries_in_space(self, space) -> list[Entry]:
         """
         Args:
-            space ({Elements, }): set of elements
+            space (set[Element]): set of Element objects
 
         Returns:
-            list of stable entries in the space.
+            list[Entry]: stable entries in the space.
         """
 
         return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
@@ -647,7 +647,7 @@ class PhaseDiagram(MSONable):
 
         return np.array(intersections)
 
-    def get_decomposition(self, comp):
+    def get_decomposition(self, comp: Composition) -> dict[PDEntry, float]:
         """
         Provides the decomposition at a particular composition.
 
@@ -664,7 +664,7 @@ class PhaseDiagram(MSONable):
             self.qhull_entries[f]: amt for f, amt in zip(facet, decomp_amts) if abs(amt) > PhaseDiagram.numerical_tol
         }
 
-    def get_decomp_and_hull_energy_per_atom(self, comp):
+    def get_decomp_and_hull_energy_per_atom(self, comp: Composition) -> tuple[dict[PDEntry, float], float]:
         """
         Args:
             comp (Composition): Input composition
@@ -675,7 +675,7 @@ class PhaseDiagram(MSONable):
         decomp = self.get_decomposition(comp)
         return decomp, sum(e.energy_per_atom * n for e, n in decomp.items())
 
-    def get_hull_energy_per_atom(self, comp):
+    def get_hull_energy_per_atom(self, comp: Composition) -> float:
         """
         Args:
             comp (Composition): Input composition
@@ -685,7 +685,7 @@ class PhaseDiagram(MSONable):
         """
         return self.get_decomp_and_hull_energy_per_atom(comp)[1]
 
-    def get_hull_energy(self, comp):
+    def get_hull_energy(self, comp: Composition) -> float:
         """
         Args:
             comp (Composition): Input composition
@@ -722,6 +722,9 @@ class PhaseDiagram(MSONable):
                 'ignore' just returns (None, None). Defaults to 'raise'.
 
 
+        Raises:
+            ValueError: If no valid decomposition exists in this phase diagram for given entry.
+
         Returns:
             (decomp, energy_above_hull). The decomposition is provided
                 as a dict of {PDEntry: amount} where amount is the amount of the
@@ -746,7 +749,7 @@ class PhaseDiagram(MSONable):
             warnings.warn(msg)
         return None, None  # 'ignore' and 'warn' case
 
-    def get_e_above_hull(self, entry, **kwargs):
+    def get_e_above_hull(self, entry: PDEntry, **kwargs: Any) -> float | None:
         """
         Provides the energy above convex hull for an entry
 
@@ -759,7 +762,7 @@ class PhaseDiagram(MSONable):
         """
         return self.get_decomp_and_e_above_hull(entry, **kwargs)[1]
 
-    def get_equilibrium_reaction_energy(self, entry):
+    def get_equilibrium_reaction_energy(self, entry: PDEntry) -> float | None:
         """
         Provides the reaction energy of a stable entry from the neighboring
         equilibrium stable entries (also known as the inverse distance to
@@ -772,10 +775,10 @@ class PhaseDiagram(MSONable):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        elem_space = frozenset(entry.composition.elements)
+        elem_space = entry.composition.elements
 
         # NOTE scaled duplicates of stable_entries will not be caught.
-        if entry not in self._get_stable_entries_in_space(elem_space):
+        if entry not in self._get_stable_entries_in_space(frozenset(elem_space)):
             raise ValueError(
                 f"{entry} is unstable, the equilibrium reaction energy is available only for stable entries."
             )
@@ -783,7 +786,7 @@ class PhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
-        entries = [e for e in self._get_stable_entries_in_space(elem_space) if e != entry]
+        entries = [e for e in self._get_stable_entries_in_space(frozenset(elem_space)) if e != entry]
         modpd = PhaseDiagram(entries, elements=elem_space)
 
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
@@ -827,7 +830,7 @@ class PhaseDiagram(MSONable):
                 before calculating a second convex hull to reducing the complexity
                 of the optimization.
             stable_only (bool): Only use stable materials as competing entries.
-            tols (list[int]): Tolerances for convergence of the SLSQP optimization
+            tols (list[float]): Tolerances for convergence of the SLSQP optimization
                 when finding the equilibrium reaction. Tighter tolerances tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
