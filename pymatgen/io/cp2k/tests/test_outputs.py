@@ -24,10 +24,11 @@ class SetTest(PymatgenTest):
         self.assertEqual(self.out.num_warnings, [[2]])
         self.assertEqual(self.out.run_type.upper(), "ENERGY_FORCE")
         self.assertEqual(self.out.final_energy, -197.40000341992783)
-    
+
     def test_band(self):
         self.assertTrue(self.out.band_structure)
         self.assertEqual(self.out.band_structure.get_band_gap().get("energy"), 0.27940141999999923)
+
 
 if __name__ == "__main__":
     unittest.main()

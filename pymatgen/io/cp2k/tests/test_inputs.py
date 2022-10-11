@@ -8,9 +8,13 @@ import numpy as np
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
-    Coord, Cp2kInput, Keyword, KeywordList, Kind, Kpoints, Kpoint_Set,
-    Band_Structure,
-    Section, SectionList
+    Coord,
+    Cp2kInput,
+    Keyword,
+    KeywordList,
+    Kind,
+    Section,
+    SectionList,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -45,10 +49,10 @@ class InputTest(PymatgenTest):
         self.assertEqual(ci["GLOBAL"]["RUN_TYPE"], Keyword("RUN_TYPE", "energy"))
         self.assertEqual(ci["GLOBAL"]["PROJECT_NAME"].description, "default name")
         self.assertMSONable(ci)
-    
+
     def test_sectionlist(self):
         s1 = Section("TEST")
-        sl = SectionList(sections=[s1,s1])
+        sl = SectionList(sections=[s1, s1])
         for s in sl:
             assert isinstance(s, Section)
         sl[0].name == "TEST"
@@ -145,6 +149,7 @@ class InputTest(PymatgenTest):
         s.set({"GLOBAL": {"SUBSEC": {"TEST2": 2}, "SUBSEC2": {"Test2": 1}}})
         self.assertTrue(s.check("global/SUBSEC"))
         self.assertTrue(s.check("global/subsec2"))
+
 
 if __name__ == "__main__":
     unittest.main()
