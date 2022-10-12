@@ -416,13 +416,13 @@ class PhaseDiagram(MSONable):
         el_refs = {}
         min_entries = []
         all_entries = []
-        for c, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
-            g = list(g)
-            min_entry = min(g, key=lambda e: e.energy_per_atom)
-            if c.is_element:
-                el_refs[c.elements[0]] = min_entry
+        for composition, group in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
+            group = list(group)
+            min_entry = min(group, key=lambda e: e.energy_per_atom)
+            if composition.is_element:
+                el_refs[composition.elements[0]] = min_entry
             min_entries.append(min_entry)
-            all_entries.extend(g)
+            all_entries.extend(group)
 
         if len(el_refs) < dim:
             missing = set(elements) - set(el_refs)
@@ -1523,11 +1523,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
         el_refs: dict[Element, PDEntry] = {}
         min_entries = []
         all_entries: list[PDEntry] = []
-        for c, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
+        for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
-            if c.is_element:
-                el_refs[c.elements[0]] = min_entry
+            if composition.is_element:
+                el_refs[composition.elements[0]] = min_entry
             min_entries.append(min_entry)
             all_entries.extend(group)
 
@@ -1560,14 +1560,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
         if not keep_all_spaces and len(spaces) > 1:
             max_size = max(len(s) for s in spaces)
 
-            systems = []
+            systems = set()
             # NOTE reduce the number of comparisons by only comparing to larger sets
             for i in range(2, max_size + 1):
                 test = (s for s in spaces if len(s) == i)
                 refer = (s for s in spaces if len(s) > i)
-                systems.extend([t for t in test if not any(t.issubset(r) for r in refer)])
+                systems |= {t for t in test if not any(t.issubset(r) for r in refer)}
 
-            spaces = {*systems}
+            spaces = systems
 
         # TODO comprhys: refactor to have self._compute method to allow serialisation
         self.spaces = sorted(spaces, key=len, reverse=False)  # Calculate pds for smaller dimension spaces first
