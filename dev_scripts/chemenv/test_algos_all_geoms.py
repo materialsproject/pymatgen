@@ -68,7 +68,7 @@ if __name__ == "__main__":
             except Exception:
                 raise ValueError(f"Could not turn {test} into integer ...")
             perms_iterator = []
-            for ii in range(nperms):
+            for _ in range(nperms):
                 shuffle(myindices)
                 perms_iterator.append(list(myindices))
 
