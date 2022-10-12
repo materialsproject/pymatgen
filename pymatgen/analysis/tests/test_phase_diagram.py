@@ -93,7 +93,7 @@ class PDEntryTest(unittest.TestCase):
         self.assertEqual(str(pde), "PDEntry : Li1 Fe1 O2 with energy = 53.0000")
 
     def test_read_csv(self):
-        entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
         self.assertEqual(entries.chemsys, {"Li", "Fe", "O"}, "Wrong elements!")
         self.assertEqual(len(entries), 490, "Wrong number of entries!")
 
@@ -149,7 +149,7 @@ class TransformedPDEntryTest(unittest.TestCase):
 
 class PhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
         self.pd = PhaseDiagram(self.entries)
         warnings.simplefilter("ignore")
 
@@ -634,7 +634,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
 
@@ -671,7 +671,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
 class CompoundPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
 
     def test_stable_entries(self):
@@ -697,9 +697,10 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
 
 class PatchedPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(str(module_dir / "reaction_entries_test.csv"))
-        # NOTE add He to test for correct behaviour despite no patches involving He
-        self.entries.add(PDEntry("He", -1.23))
+        self.entries = EntrySet.from_csv(module_dir / "reaction_entries_test.csv")
+        # NOTE add He to test for correct behavior despite no patches involving He
+        self.no_patch_entry = he_entry = PDEntry("He", -1.23)
+        self.entries.add(he_entry)
 
         self.pd = PhaseDiagram(entries=self.entries)
         self.ppd = PatchedPhaseDiagram(entries=self.entries)
@@ -712,34 +713,77 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
         self.novel_entries = [PDEntry(c, -39.8) for c in self.novel_comps]
 
     def test_get_stable_entries(self):
-        self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
+        assert self.pd.stable_entries == self.ppd.stable_entries
 
     def test_get_qhull_entries(self):
         # NOTE qhull_entry is an specially sorted list due to it's construction, we
         # can't mimic this in ppd therefore just test if sorted versions are equal.
-        self.assertEqual(
-            sorted(self.pd.qhull_entries, key=lambda e: e.composition.reduced_composition),
-            sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+        assert sorted(self.pd.qhull_entries, key=lambda e: e.composition) == sorted(
+            self.ppd.qhull_entries, key=lambda e: e.composition
         )
 
     def test_get_decomposition(self):
-        for c in self.novel_comps:
-            pd_decomp = self.pd.get_decomposition(c)
-            ppd_decomp = self.ppd.get_decomposition(c)
-
-            # NOTE unittest doesn't have an assert almost equal for dictionaries.
-            for e in pd_decomp:
-                self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
+        for comp in self.novel_comps:
+            decomp_pd = self.pd.get_decomposition(comp)
+            decomp_ppd = self.ppd.get_decomposition(comp)
+            assert decomp_pd == pytest.approx(decomp_ppd)
 
     def test_get_phase_separation_energy(self):
-        for e in self.novel_entries:
-            self.assertAlmostEqual(self.pd.get_phase_separation_energy(e), self.ppd.get_phase_separation_energy(e), 7)
+        for entry in self.novel_entries:
+            e_phase_sep_pd = self.pd.get_phase_separation_energy(entry)
+            e_phase_sep_ppd = self.ppd.get_phase_separation_energy(entry)
+            assert np.isclose(e_phase_sep_pd, e_phase_sep_ppd)
 
     def test_get_equilibrium_reaction_energy(self):
-        for e in self.pd.stable_entries:
-            self.assertAlmostEqual(
-                self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
-            )
+        for entry in self.pd.stable_entries:
+            e_equi_rxn_pd = self.pd.get_equilibrium_reaction_energy(entry)
+            e_equi_rxn_pdd = self.ppd.get_equilibrium_reaction_energy(entry)
+            assert np.isclose(e_equi_rxn_pd, e_equi_rxn_pdd)
+
+    def test_get_form_energy(self):
+        for entry in self.pd.stable_entries:
+            e_form_pd = self.pd.get_form_energy(entry)
+            e_form_ppd = self.ppd.get_form_energy(entry)
+            assert np.isclose(e_form_pd, e_form_ppd)
+
+    def test_dimensionality(self):
+        assert self.pd.dim == self.ppd.dim
+
+    def test_get_hull_energy(self):
+        for comp in self.novel_comps:
+            e_hull_pd = self.pd.get_hull_energy(comp)
+            e_hull_ppd = self.ppd.get_hull_energy(comp)
+            assert np.isclose(e_hull_pd, e_hull_ppd)
+
+    def test_get_decomp_and_e_above_hull(self):
+        for entry in self.pd.stable_entries:
+            decomp_pd, e_above_hull_pd = self.pd.get_decomp_and_e_above_hull(entry)
+            decomp_ppd, e_above_hull_ppd = self.ppd.get_decomp_and_e_above_hull(entry)
+            assert decomp_pd == decomp_ppd
+            assert np.isclose(e_above_hull_pd, e_above_hull_ppd)
+
+    def test_repr(self):
+        assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 15 sub-spaces"
+
+    def test_as_from_dict(self):
+        ppd_dict = self.ppd.as_dict()
+        assert ppd_dict["@module"] == self.ppd.__class__.__module__
+        assert ppd_dict["@class"] == self.ppd.__class__.__name__
+        assert ppd_dict["all_entries"] == [entry.as_dict() for entry in self.ppd.all_entries]
+        assert ppd_dict["elements"] == [elem.as_dict() for elem in self.ppd.elements]
+        # test round-trip dict serialization
+        assert PatchedPhaseDiagram.from_dict(ppd_dict).as_dict() == ppd_dict
+
+    def test_get_pd_for_entry(self):
+        for entry in self.ppd.all_entries:
+            if entry == self.no_patch_entry:
+                continue
+            pd = self.ppd.get_pd_for_entry(entry)
+            # test that entry is in pd and pd can return valid decomp
+            assert isinstance(pd.get_decomposition(entry.composition), dict)
+
+        with pytest.raises(ValueError, match="No suitable PhaseDiagrams found for PDEntry"):
+            self.ppd.get_pd_for_entry(self.no_patch_entry)
 
     def test_raises_on_missing_terminal_entries(self):
         entry = PDEntry("FeO", -1.23)
