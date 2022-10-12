@@ -87,9 +87,11 @@ class PhononBSPlotterTest(unittest.TestCase):
 
         rc("text", usetex=False)
         self.plotter.get_proj_plot(units="mev")
+        self.plotter.get_proj_plot(units="mev", ylim=(15,30))
         self.plotter.get_proj_plot(units="mev", site_comb=[[0],[1]])
         
         self.plotter_sto.get_proj_plot()
+        self.plotter_sto.get_proj_plot(ylim=(-2.5,5))
         self.plotter_sto.get_proj_plot(site_comb=[[0],[1],[2,3,4]])
         self.plotter_sto.get_proj_plot(site_comb=[[0],[1],[2],[3,4]])
 
