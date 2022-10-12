@@ -62,8 +62,8 @@ class Site(collections.abc.Hashable, MSONable):
                     species = Composition({get_el_sp(species): 1})
                 except TypeError:
                     species = Composition(species)
-            totaloccu = species.num_atoms
-            if totaloccu > 1 + Composition.amount_tolerance:
+            total_occu = species.num_atoms
+            if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             coords = np.array(coords)
         self._species: Composition = species  # type: ignore
@@ -92,8 +92,8 @@ class Site(collections.abc.Hashable, MSONable):
                 species = Composition({get_el_sp(species): 1})
             except TypeError:
                 species = Composition(species)
-        totaloccu = species.num_atoms
-        if totaloccu > 1 + Composition.amount_tolerance:
+        total_occu = species.num_atoms
+        if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
         self._species = species
 
@@ -186,8 +186,8 @@ class Site(collections.abc.Hashable, MSONable):
         True if site is an ordered site, i.e., with a single species with
         occupancy 1.
         """
-        totaloccu = self.species.num_atoms
-        return totaloccu == 1 and len(self.species) == 1
+        total_occu = self.species.num_atoms
+        return total_occu == 1 and len(self.species) == 1
 
     def __getitem__(self, el):
         """
@@ -343,8 +343,8 @@ class PeriodicSite(Site, MSONable):
                 except TypeError:
                     species = Composition(species)
 
-            totaloccu = species.num_atoms
-            if totaloccu > 1 + Composition.amount_tolerance:
+            total_occu = species.num_atoms
+            if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice: Lattice = lattice

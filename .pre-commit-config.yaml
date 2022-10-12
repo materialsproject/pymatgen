@@ -1,4 +1,4 @@
-exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
+exclude: ^(docs|.*test_files|cmd_line)
 
 ci:
   autoupdate_schedule: monthly

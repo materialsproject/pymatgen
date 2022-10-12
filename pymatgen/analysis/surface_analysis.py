@@ -182,7 +182,7 @@ class SlabEntry(ComputedStructureEntry):
         Args:
             ucell_entry (entry): An entry object for the bulk
             ref_entries (list: [entry]): A list of entries for each type
-                of element to be used as a reservoir for nonstoichiometric
+                of element to be used as a reservoir for non-stoichiometric
                 systems. The length of this list MUST be n-1 where n is the
                 number of different elements in the bulk entry. The chempot
                 of the element ref_entry that is not in the list will be
@@ -434,7 +434,7 @@ class SurfaceEnergyPlotter:
                 of the bulk reference for this particular material.
             ref_entries ([ComputedStructureEntries]): A list of entries for
                 each type of element to be used as a reservoir for
-                nonstoichiometric systems. The length of this list MUST be
+                non-stoichiometric systems. The length of this list MUST be
                 n-1 where n is the number of different elements in the bulk
                 entry. The bulk energy term in the grand surface potential can
                 be defined by a summation of the chemical potentials for each
@@ -917,7 +917,7 @@ class SurfaceEnergyPlotter:
         chempot_range = sorted(chempot_range)
 
         # use dashed lines for slabs that are not stoichiometric
-        # wrt bulk. Label with formula if nonstoichiometric
+        # wrt bulk. Label with formula if non-stoichiometric
         ucell_comp = self.ucell_entry.composition.reduced_composition
         if entry.adsorbates:
             s = entry.cleaned_up_slab
@@ -1719,7 +1719,7 @@ class NanoscaleStability:
         an energetic competition between the weighted surface energy
         (surface energy of the Wulff shape) and the bulk energy. A
         future release will include a 2D phase diagram (e.g. wrt size
-        vs chempot for adsorbed or nonstoichiometric surfaces). Based
+        vs chempot for adsorbed or non-stoichiometric surfaces). Based
         on the following work:
 
         Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale

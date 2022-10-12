@@ -1117,7 +1117,9 @@ class PhaseDiagram(MSONable):
             )
         return evolution
 
-    def get_chempot_range_map(self, elements, referenced=True, joggle=True):
+    def get_chempot_range_map(
+        self, elements: Sequence[Element], referenced: bool = True, joggle: bool = True
+    ) -> dict[Element, list[Simplex]]:
         """
         Returns a chemical potential range map for each stable entry.
 
@@ -1668,7 +1670,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             competing_entries = self._get_stable_entries_in_space(frozenset(comp.elements))
             return _get_slsqp_decomp(comp, competing_entries)
 
-    def get_equilibrium_reaction_energy(self, entry):
+    def get_equilibrium_reaction_energy(self, entry: Entry) -> float:
         """
         See PhaseDiagram
 
@@ -1759,10 +1761,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         raise NotImplementedError("`get_chempot_range_stability_phase` not implemented for `PatchedPhaseDiagram`")
 
-    def _get_pd_patch_for_space(self, space):
+    def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
         """
         Args:
-            space (str): chemical space of the form A-B-X
+            space (frozenset[Element]): chemical space of the form A-B-X
 
         Returns:
             space, PhaseDiagram for the given chemical space
