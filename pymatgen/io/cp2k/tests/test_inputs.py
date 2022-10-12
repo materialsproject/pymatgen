@@ -55,8 +55,8 @@ class InputTest(PymatgenTest):
         sl = SectionList(sections=[s1, s1])
         for s in sl:
             assert isinstance(s, Section)
-        sl[0].name == "TEST"
-        sl[1].name == "TEST"
+        self.assertEqual(sl[0].name, "TEST")
+        self.assertEqual(sl[1].name, "TEST")
         self.assertEqual(len(sl), 2)
         sl += s1
         self.assertEqual(len(sl), 3)
