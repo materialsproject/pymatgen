@@ -52,7 +52,7 @@ class QCInput(InputFile):
         nbo: dict | None = None,
         geom_opt: dict | None = None,
         cdft: list[list[dict]] | None = None,
-        almo: list[list[tuple[int, int]]] | None = None,
+        almo_coupling: list[list[tuple[int, int]]] | None = None,
     ):
         """
         Args:
@@ -136,7 +136,7 @@ class QCInput(InputFile):
                                 "types": ["s"]},
                         ]
                     ]
-            almo (list of lists of int 2-tuples):
+            almo_coupling (list of lists of int 2-tuples):
                 A list of lists of int 2-tuples used for calculations of diabatization and state coupling calculations
                     relying on the absolutely localized molecular orbitals (ALMO) methodology. Each entry in the main
                     list represents a single state (two states are included in an ALMO calculation). Within a single
@@ -165,7 +165,7 @@ class QCInput(InputFile):
         self.nbo = lower_and_check_unique(nbo)
         self.geom_opt = lower_and_check_unique(geom_opt)
         self.cdft = cdft
-        self.almo = almo
+        self.almo_coupling = almo_coupling
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -255,8 +255,8 @@ class QCInput(InputFile):
             combined_list.append(self.cdft_template(self.cdft))
             combined_list.append("")
         # almo section
-        if self.almo is not None:
-            combined_list.append(self.almo_template(self.almo))
+        if self.almo_coupling is not None:
+            combined_list.append(self.almo_template(self.almo_coupling))
             combined_list.append("")
         return "\n".join(combined_list)
 
@@ -303,7 +303,7 @@ class QCInput(InputFile):
         nbo = None
         geom_opt = None
         cdft = None
-        almo = None
+        almo_coupling = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -325,7 +325,7 @@ class QCInput(InputFile):
         if "cdft" in sections:
             cdft = cls.read_cdft(string)
         if "almo_coupling" in sections:
-            almo = cls.read_almo(string)
+            almo_coupling = cls.read_almo(string)
         return cls(
             molecule,
             rem,
@@ -340,7 +340,7 @@ class QCInput(InputFile):
             nbo=nbo,
             geom_opt=geom_opt,
             cdft=cdft,
-            almo=almo,
+            almo_coupling=almo_coupling,
         )
 
     @staticmethod
@@ -673,7 +673,7 @@ class QCInput(InputFile):
         return "\n".join(cdft_list)
 
     @staticmethod
-    def almo_template(almo: list[list[tuple[int, int]]]) -> str:
+    def almo_template(almo_coupling: list[list[tuple[int, int]]]) -> str:
         """
         Args:
             almo: list of lists of int 2-tuples
@@ -686,11 +686,11 @@ class QCInput(InputFile):
         almo_list.append("$almo_coupling")
 
         # ALMO coupling calculations always involve 2 states
-        if len(almo) != 2:
+        if len(almo_coupling) != 2:
             raise ValueError("ALMO coupling calculations require exactly two states!")
 
-        state_1 = almo[0]
-        state_2 = almo[1]
+        state_1 = almo_coupling[0]
+        state_2 = almo_coupling[1]
 
         for frag in state_1:
             # Casting to int probably unnecessary, given type hint
@@ -1152,16 +1152,16 @@ class QCInput(InputFile):
 
         section = section[0]
 
-        almo = [[], []]  # type: ignore
+        almo_coupling = [[], []]  # type: ignore
 
         state_1 = section[0]
         for line in state_1.strip().split("\n"):
             contents = line.split()
-            almo[0].append((int(contents[0]), int(contents[1])))
+            almo_coupling[0].append((int(contents[0]), int(contents[1])))
 
         state_2 = section[1]
         for line in state_2.strip().split("\n"):
             contents = line.split()
-            almo[1].append((int(contents[0]), int(contents[1])))
+            almo_coupling[1].append((int(contents[0]), int(contents[1])))
 
-        return almo
+        return almo_coupling

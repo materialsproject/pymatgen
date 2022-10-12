@@ -405,7 +405,7 @@ class QChemDictSet(QCInput):
             nbo=mynbo,
             geom_opt=my_geom_opt,
             cdft=self.cdft_constraints,
-            almo=self.almo_coupling_states,
+            almo_coupling=self.almo_coupling_states,
         )
 
     def write(self, input_file: str):
