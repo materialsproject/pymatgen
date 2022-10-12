@@ -427,7 +427,7 @@ class PhononBSPlotter:
 
     def get_proj_plot(self,
                       site_comb: str | list[list[int]] = "element",
-                      ylim: tuple(None | float, None | float) = None,
+                      ylim: tuple[None | float, None | float] = None,
                       units: str = "thz") -> plt.Axes:
         """
         Get a matplotlib object for the bandstructure plot projected along atomic
@@ -544,7 +544,7 @@ class PhononBSPlotter:
 
     def show_proj(self,
                   site_comb: str | list[list[int]] = "element",
-                  ylim: tuple(None | float, None | float)= None,
+                  ylim: tuple[None | float, None | float]= None,
                   units: str = "thz"):
         """
         Show the projected plot using matplotlib.
@@ -560,7 +560,7 @@ class PhononBSPlotter:
     def save_proj_plot(self, filename,
                        img_format="eps",
                        site_comb: str | list[list[int]] = "element",
-                       ylim: tuple(None | float, None | float) = None,
+                       ylim: tuple[None | float, None | float] = None,
                        units: str = "thz"):
         """
         Save matplotlib projected plot to a file.
