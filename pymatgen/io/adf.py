@@ -195,7 +195,7 @@ class AdfKey(MSONable):
             s += "END\n"
         return s
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, AdfKey):
             return False
         return str(self) == str(other)

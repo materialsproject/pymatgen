@@ -58,7 +58,7 @@ class Tensor(np.ndarray, MSONable):
         obj.rank = len(obj.shape)
 
         if check_rank and check_rank != obj.rank:
-            raise ValueError(f"{obj.__class__.__name__} input must be rank {check_rank}")
+            raise ValueError(f"{type(obj).__name__} input must be rank {check_rank}")
 
         vshape = tuple([3] * (obj.rank % 2) + [6] * (obj.rank // 2))
         obj._vscale = np.ones(vshape)
@@ -71,7 +71,7 @@ class Tensor(np.ndarray, MSONable):
                 "Pymatgen only supports 3-dimensional tensors, "
                 "and default tensor constructor uses standard "
                 "notation. To construct from voigt notation, use"
-                f" {obj.__class__.__name__}.from_voigt"
+                f" {type(obj).__name__}.from_voigt"
             )
         return obj
 

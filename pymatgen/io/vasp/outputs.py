@@ -2195,7 +2195,7 @@ class Outcar:
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
                 be returned. Default to be True. Incompatible with first_one_only.
-            first_one_only (bool): Only the first occurence of the table will be
+            first_one_only (bool): Only the first occurrence of the table will be
                 parsed and the parsing procedure will stop. The enclosing list
                 will be removed. i.e. Only a single table will be returned.
                 Incompatible with last_one_only.
@@ -3521,7 +3521,7 @@ class VolumetricData(MSONable):
         self.structure = structure
         self.is_spin_polarized = len(data) >= 2
         self.is_soc = len(data) >= 4
-        # convert data to numpy arrays incase they were jsanitized as lists
+        # convert data to numpy arrays in case they were jsanitized as lists
         self.data = {k: np.array(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
         self.data_aug = data_aug or {}
@@ -5507,7 +5507,7 @@ class Eigenval:
 
 @dataclass
 class Waveder(MSONable):
-    """Represention of the WAVEDER file.
+    """Representation of the WAVEDER file.
 
     The LOPTICS tag produces a WAVEDER file which contains the derivative of the orbitals with respect to k.
     Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
@@ -5651,7 +5651,7 @@ class Waveder(MSONable):
 class WSWQ(MSONable):
     r"""
     Class for reading a WSWQ file.
-    The WSWQ file is used to calculation the wave function overlaps betweeen
+    The WSWQ file is used to calculation the wave function overlaps between
         - W: Wavefunctions in the currenct directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq
 
