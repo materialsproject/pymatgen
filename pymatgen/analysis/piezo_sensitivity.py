@@ -70,8 +70,8 @@ class BornEffectiveCharge:
             the indexes of those sites.
         """
         bec = self.bec
-        struc = self.structure
-        ops = sga(struc).get_symmetry_operations(cartesian=True)
+        struct = self.structure
+        ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)
@@ -123,11 +123,11 @@ class BornEffectiveCharge:
             np.array Born effective charge tensor
         """
 
-        struc = self.structure
-        symstruc = sga(struc)
+        struct = self.structure
+        symstruc = sga(struct)
         symstruc = symstruc.get_symmetrized_structure()
 
-        l = len(struc)
+        l = len(struct)
         BEC = np.zeros((l, 3, 3))
         for atom, ops in enumerate(self.BEC_operations):
             if ops[0] == ops[1]:
@@ -214,8 +214,8 @@ class InternalStrainTensor:
             the indexes of those sites.
         """
 
-        struc = self.structure
-        ops = sga(struc).get_symmetry_operations(cartesian=True)
+        struct = self.structure
+        ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)
@@ -311,8 +311,8 @@ class ForceConstantMatrix:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
-        struc = self.structure
-        ops = sga(struc).get_symmetry_operations(cartesian=True)
+        struct = self.structure
+        ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)
@@ -386,10 +386,10 @@ class ForceConstantMatrix:
             numpy array representing the force constant matrix
         """
 
-        struc = self.structure
+        struct = self.structure
         operations = self.FCM_operations
         # set max force in reciprocal space
-        numsites = len(struc.sites)
+        numsites = len(struct.sites)
         D = (1 / max_force) * 2 * (np.ones([numsites * 3, numsites * 3]))
         for op in operations:
             same = 0
@@ -718,13 +718,13 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
 
 
 @requires(Phonopy, "phonopy not installed!")
-def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter=10):
+def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
     """
     Generate a random piezoelectric tensor based on a structure and corresponding
     symmetry
 
     Args:
-        struc (pymatgen structure): structure whose symmetry operations the piezo tensor must obey
+        struct (pymatgen structure): structure whose symmetry operations the piezo tensor must obey
         pointops: list of point operations obeyed by a single atomic site
         sharedops: list of point operations shared by a pair of atomic sites
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
@@ -735,18 +735,18 @@ def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """
-    bec = BornEffectiveCharge(struc, BEC, pointops)
+    bec = BornEffectiveCharge(struct, BEC, pointops)
     bec.get_BEC_operations()
     rand_BEC = bec.get_rand_BEC()
 
-    ist = InternalStrainTensor(struc, IST, pointops)
+    ist = InternalStrainTensor(struct, IST, pointops)
     ist.get_IST_operations()
     rand_IST = ist.get_rand_IST()
 
-    fcm = ForceConstantMatrix(struc, FCM, pointops, sharedops)
+    fcm = ForceConstantMatrix(struct, FCM, pointops, sharedops)
     fcm.get_FCM_operations()
     rand_FCM = fcm.get_rand_FCM()
 
-    P = get_piezo(rand_BEC, rand_IST, rand_FCM) * 16.0216559424 / struc.volume
+    P = get_piezo(rand_BEC, rand_IST, rand_FCM) * 16.0216559424 / struct.volume
 
     return (rand_BEC, rand_IST, rand_FCM, P)

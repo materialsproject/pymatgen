@@ -901,7 +901,7 @@ class QCOutput(MSONable):
                 )
             self._read_gradients()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
-            # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
+            # identified, check to see if the optimization failed to converge or if Lambda wasn't able
             # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0

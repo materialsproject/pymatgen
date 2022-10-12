@@ -907,8 +907,8 @@ class HeisenbergModel(MSONable):
         """
 
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["@version"] = __version__
         d["formula"] = self.formula
         d["structures"] = [s.as_dict() for s in self.structures]

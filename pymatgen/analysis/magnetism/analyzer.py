@@ -999,7 +999,6 @@ class MagneticStructureEnumerator:
             by the transformation.
             """
             if structures_to_add:
-                # type conversion
                 if isinstance(structures_to_add, Structure):
                     structures_to_add = [structures_to_add]
                 structures_to_add = [s["structure"] if isinstance(s, dict) else s for s in structures_to_add]

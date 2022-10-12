@@ -478,7 +478,9 @@ class Simplex(MSONable):
         assert len(barys) < 3
         return [self.point_from_bary_coords(b) for b in barys]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Simplex):
+            return NotImplemented
         for p in itertools.permutations(self._coords):
             if np.allclose(p, other.coords):
                 return True

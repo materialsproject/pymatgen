@@ -21,7 +21,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
         return NULL
     cdef void *ptr = malloc(size)
     if ptr == NULL:
-        raise MemoryError("Memory allocation of %s bytes failed!" % size)
+        raise MemoryError(f"Memory allocation of {size} bytes failed!")
     return ptr
 
 
@@ -32,7 +32,7 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
         return NULL
     cdef void *ptr = realloc(ptr_orig, size)
     if ptr == NULL:
-        raise MemoryError("Realloc memory of %s bytes failed!" % size)
+        raise MemoryError(f"Realloc memory of {size} bytes failed!")
     return ptr
 
 

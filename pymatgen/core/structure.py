@@ -20,7 +20,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import Any, Callable, Iterable, Iterator, Literal, Sequence, Sized, cast
+from typing import Any, Callable, Iterable, Iterator, Literal, Sequence, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -1036,9 +1036,8 @@ class IStructure(SiteCollection, MSONable):
 
         # check for valid operand following class Student example from official functools docs
         # https://docs.python.org/3/library/functools.html#functools.total_ordering
-        if not hasattr(other, "lattice") or not isinstance(other, Sized):
+        if not isinstance(other, IStructure):
             return NotImplemented
-        other = cast(Structure, other)  # silence mypy errors below
 
         if other is self:
             return True
@@ -1501,7 +1500,7 @@ class IStructure(SiteCollection, MSONable):
         symmetry_ops = symmetry_ops[idcs_symid]
 
         # the groups of neighbors with the same symmetry index are ordered such that neighbors
-        # that are the first occurence of a new symmetry index in the ordered output are the ones
+        # that are the first occurrence of a new symmetry index in the ordered output are the ones
         # that are assigned the Identity as a symmetry operation.
         idcs_symop = np.arange(nbonds)
         identity_idcs = np.where(symmetry_ops == symmetry_identity)[0]

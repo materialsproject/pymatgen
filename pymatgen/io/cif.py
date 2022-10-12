@@ -81,7 +81,9 @@ class CifBlock:
         # get an Exception
         self.header = header[:74]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CifBlock):
+            return NotImplemented
         return self.loops == other.loops and self.data == other.data and self.header == other.header
 
     def __getitem__(self, key):
@@ -615,12 +617,9 @@ class CifParser:
         """
         try:
 
-            lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
-            angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
-            if not lattice_type:
-                return Lattice.from_parameters(*lengths, *angles)
-
-            return getattr(Lattice, lattice_type)(*(lengths + angles))
+            return self.get_lattice_no_exception(
+                data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
+            )
 
         except KeyError:
             # Missing Key search for cell setting
@@ -644,6 +643,27 @@ class CifParser:
                 else:
                     return None
         return None
+
+    @staticmethod
+    def get_lattice_no_exception(
+        data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
+    ):
+        """
+        Generate the lattice from the provided lattice parameters.
+        Args:
+            data:
+            length_strings:
+            angle_strings:
+            lattice_type:
+
+        Returns:
+
+        """
+        lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
+        angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
+        if not lattice_type:
+            return Lattice.from_parameters(*lengths, *angles)
+        return getattr(Lattice, lattice_type)(*(lengths + angles))
 
     def get_symops(self, data):
         """
@@ -1063,9 +1083,9 @@ class CifParser:
 
             # rescale occupancies if necessary
             for i, species in enumerate(allspecies):
-                totaloccu = sum(species.values())
-                if 1 < totaloccu <= self._occupancy_tolerance:
-                    allspecies[i] = species / totaloccu
+                total_occu = sum(species.values())
+                if 1 < total_occu <= self._occupancy_tolerance:
+                    allspecies[i] = species / total_occu
 
         if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
             site_properties = {}

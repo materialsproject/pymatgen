@@ -1227,7 +1227,7 @@ class MPStaticSet(MPRelaxSet):
 class MPScanStaticSet(MPScanRelaxSet):
     """
     Creates input files for a static calculation using the accurate and numerically
-    efficient r2SCAN variant of the Strongly Constrainted and Appropriately Normed
+    efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
     (SCAN) metaGGA functional.
     """
 
@@ -2850,7 +2850,7 @@ class LobsterSet(MPRelaxSet):
             for atomtype in structure.symbol_set:
                 if atomtype not in user_supplied_basis:
                     raise ValueError("There are no basis functions for the atom type " + str(atomtype))
-            basis = [key + " " + value for key, value in user_supplied_basis.items()]
+            basis = [f"{key} {value}" for key, value in user_supplied_basis.items()]
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
         nbands = lobsterin._get_nbands(structure=structure)
@@ -3252,7 +3252,7 @@ class MPAbsorptionSet(MPRelaxSet):
             self.nbands = int(np.ceil(prev_nbands * self.nbands_factor))
 
         # Since in the optical calculation, only the q->0 transition is of interests, we can reduce the number of q by
-        # the factor of the number of kpoints in each corresonding x, y, z directions. This will reduce the
+        # the factor of the number of kpoints in each corresponding x, y, z directions. This will reduce the
         # computational work by factor of 1/nkredx*nkredy*nkredz. An isotropic NKRED can be used for cubic
         # lattice, but using NKREDX, NKREDY, NKREDZ is more sensible for other lattice.
         if self.mode.upper() == "RPA":

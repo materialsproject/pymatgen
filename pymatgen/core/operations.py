@@ -80,7 +80,9 @@ class SymmOp(MSONable):
         affine_matrix[0:3][:, 3] = translation_vec
         return SymmOp(affine_matrix, tol)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SymmOp):
+            return NotImplemented
         return np.allclose(self.affine_matrix, other.affine_matrix, atol=self.tol)
 
     def __hash__(self):
@@ -524,7 +526,9 @@ class MagSymmOp(SymmOp):
             raise Exception(f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}")
         self.time_reversal = time_reversal
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SymmOp):
+            return NotImplemented
         return np.allclose(self.affine_matrix, other.affine_matrix, atol=self.tol) and (
             self.time_reversal == other.time_reversal
         )

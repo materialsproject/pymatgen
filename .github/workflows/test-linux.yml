@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        python-version: ['3.9']
+        python-version: ['3.8']
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         include:
           - pkg: pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism

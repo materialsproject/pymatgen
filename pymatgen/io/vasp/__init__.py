@@ -21,6 +21,5 @@ from .outputs import (
     Vasprun,
     Wavecar,
     Waveder,
-    Wavederf,
     Xdatcar,
 )

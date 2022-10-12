@@ -504,17 +504,17 @@ class ChargemolAnalysis:
         Returns
             Pymatgen structure with site properties added
         """
-        struc = self.structure.copy()
-        struc.add_site_property("partial_charge_ddec6", self.ddec_charges)
+        struct = self.structure.copy()
+        struct.add_site_property("partial_charge_ddec6", self.ddec_charges)
         if self.dipoles:
-            struc.add_site_property("dipole_ddec6", self.dipoles)
+            struct.add_site_property("dipole_ddec6", self.dipoles)
         if self.bond_order_sums:
-            struc.add_site_property("bond_order_sum_ddec6", self.bond_order_sums)
+            struct.add_site_property("bond_order_sum_ddec6", self.bond_order_sums)
         if self.ddec_spin_moments:
-            struc.add_site_property("spin_moment_ddec6", self.ddec_spin_moments)
+            struct.add_site_property("spin_moment_ddec6", self.ddec_spin_moments)
         if self.cm5_charges:
-            struc.add_site_property("partial_charge_cm5", self.cm5_charges)
-        return struc
+            struct.add_site_property("partial_charge_cm5", self.cm5_charges)
+        return struct
 
     @property
     def summary(self):

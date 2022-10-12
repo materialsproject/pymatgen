@@ -315,8 +315,8 @@ class OpenBabelNNTest(PymatgenTest):
         self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
     def test_nn_orders(self):
-        strat = OpenBabelNN()
-        acetylene = strat.get_nn_info(self.acetylene, 0)
+        strategy = OpenBabelNN()
+        acetylene = strategy.get_nn_info(self.acetylene, 0)
         self.assertEqual(acetylene[0]["weight"], 3)
         self.assertEqual(acetylene[1]["weight"], 1)
 
@@ -325,14 +325,14 @@ class OpenBabelNNTest(PymatgenTest):
         # Instead of searching for aromatic bonds, we check that bonds are
         # detected in the same way from both sides
         self.assertEqual(
-            strat.get_nn_info(self.benzene, 0)[0]["weight"],
-            strat.get_nn_info(self.benzene, 1)[0]["weight"],
+            strategy.get_nn_info(self.benzene, 0)[0]["weight"],
+            strategy.get_nn_info(self.benzene, 1)[0]["weight"],
         )
 
     def test_nn_length(self):
-        strat = OpenBabelNN(order=False)
+        strategy = OpenBabelNN(order=False)
 
-        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+        benzene_bonds = strategy.get_nn_info(self.benzene, 0)
 
         c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
         h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
@@ -340,7 +340,7 @@ class OpenBabelNNTest(PymatgenTest):
         self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
         self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
 
-        self.assertAlmostEqual(strat.get_nn_info(self.acetylene, 0)[0]["weight"], 1.19, 2)
+        self.assertAlmostEqual(strategy.get_nn_info(self.acetylene, 0)[0]["weight"], 1.19, 2)
 
     def tearDown(self):
         del self.benzene
@@ -353,19 +353,19 @@ class CovalentBondNNTest(PymatgenTest):
         self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
     def test_nn_orders(self):
-        strat = CovalentBondNN()
+        strategy = CovalentBondNN()
 
-        acetylene = strat.get_nn_info(self.acetylene, 0)
+        acetylene = strategy.get_nn_info(self.acetylene, 0)
         self.assertEqual(acetylene[0]["weight"], 3)
         self.assertEqual(acetylene[1]["weight"], 1)
 
-        benzene = strat.get_nn_info(self.benzene, 0)
+        benzene = strategy.get_nn_info(self.benzene, 0)
         self.assertAlmostEqual(benzene[0]["weight"], 1.6596, places=4)
 
     def test_nn_length(self):
-        strat = CovalentBondNN(order=False)
+        strategy = CovalentBondNN(order=False)
 
-        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+        benzene_bonds = strategy.get_nn_info(self.benzene, 0)
 
         c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
         h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
@@ -373,16 +373,16 @@ class CovalentBondNNTest(PymatgenTest):
         self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
         self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
 
-        acetylene = strat.get_nn_info(self.acetylene, 0)
+        acetylene = strategy.get_nn_info(self.acetylene, 0)
         self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
 
     def test_bonded_structure(self):
-        strat = CovalentBondNN()
+        strategy = CovalentBondNN()
 
-        benzene = strat.get_bonded_structure(self.benzene)
+        benzene = strategy.get_bonded_structure(self.benzene)
         self.assertEqual(len(benzene.find_rings()), 1)
 
-        acetylene = strat.get_bonded_structure(self.acetylene)
+        acetylene = strategy.get_bonded_structure(self.acetylene)
         self.assertEqual(len(acetylene.graph.nodes), 4)
 
     def tearDown(self):
