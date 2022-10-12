@@ -13,7 +13,8 @@ from collections import namedtuple
 import numpy as np
 import scipy.constants as const
 from monty.json import jsanitize
-
+import matplotlib.pyplot as plt
+        
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
@@ -381,7 +382,9 @@ class PhononBSPlotter:
 
         return plt
 
-    def _get_weight(self, vec, site_comb):
+    def _get_weight(self,
+                    vec: np.array,
+                    indices: list[list[int]]) -> np.array:
         """
         compute the weight for each combintaion of sites according to the
         eigenvector
@@ -393,7 +396,7 @@ class PhononBSPlotter:
         # get the projectors for each group
         gw = []
         norm_f = 0
-        for comb in site_comb:
+        for comb in indices:
             projector = np.zeros(len(new_vec))
             l = len(projector)
             for j in range(l):
@@ -405,7 +408,7 @@ class PhononBSPlotter:
         return np.array(gw, dtype=float) / norm_f
 
     @staticmethod
-    def _make_color(colors):
+    def _make_color(colors: list[int]) -> list[int]:
         """
         convert the eigendisplacements to rgb colors
 
@@ -422,7 +425,10 @@ class PhononBSPlotter:
             b = (1 - colors[2]) * (1 - colors[3])
             return [r, g, b]
 
-    def get_proj_plot(self, site_comb="element", ylim=None, units="thz"):
+    def get_proj_plot(self,
+                      site_comb: str | list[list[int]] = "element",
+                      ylim: tuple(None | float, None | float) = None,
+                      units: str = "thz") -> plt.Axes:
         """
         Get a matplotlib object for the bandstructure plot projected along atomic
         sites.
@@ -437,31 +443,32 @@ class PhononBSPlotter:
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
 
-        import matplotlib.pyplot as plt
         from matplotlib.collections import LineCollection
 
         from pymatgen.electronic_structure.plotter import BSDOSPlotter
 
+        elements = [e.symbol for e in self._bs.structure.composition.elements]
         if site_comb == "element":
-            elements = [e.symbol for e in self._bs.structure.composition.elements]
-            assert len(elements) in [
-                2,
-                3,
-                4,
-            ], "the compound must have 2, 3 or 4 unique elements"
+            assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
             indices = [[] for _ in range(len(elements))]
             for i, ele in enumerate(self._bs.structure.species):
                 for j, unique_species in enumerate(self._bs.structure.composition.elements):
                     if ele == unique_species:
                         indices[j].append(i)
         else:
-            assert len(site_comb) in [
-                2,
-                3,
-                4,
-            ], "the length of site_combs must be 2, 3 or 4"
+            assert 2 <= len(site_comb) <= 4,\
+                "the length of site_comb must be 2, 3 or 4"
+            all_sites = self._bs.structure.sites
+            all_indices = set([i for i in range(len(all_sites))])
+            for comb in site_comb:
+                for i in comb:
+                    assert 0 <= i < len(all_sites),\
+                        "one or more indices in site_comb does not exist"
+                    all_indices.remove(i)
+            if len(all_indices) != 0:
+                raise Exception("not all {} indices are included in site_comb".format(len(all_sites)))
             indices = site_comb
-            pass
+            
         u = freq_units(units)
         fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
         self._maketicks(plt)
@@ -533,6 +540,39 @@ class PhononBSPlotter:
         """
         plt = self.get_plot(ylim=ylim, units=units)
         plt.savefig(filename, format=img_format)
+        plt.close()
+
+    def show_proj(self,
+                  site_comb: str | list[list[int]] = "element",
+                  ylim: tuple(None | float, None | float)= None,
+                  units: str = "thz"):
+        """
+        Show the projected plot using matplotlib.
+
+        Args:
+            ylim: Specify the y-axis (frequency) limits; by default None let
+                the code choose.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+        """
+        self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units)
+        plt.show()
+
+    def save_proj_plot(self, filename,
+                       img_format="eps",
+                       site_comb: str | list[list[int]] = "element",
+                       ylim: tuple(None | float, None | float) = None,
+                       units: str = "thz"):
+        """
+        Save matplotlib projected plot to a file.
+
+        Args:
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            ylim: Specifies the y-axis limits.
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+        """
+        ax = self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units)
+        ax.figure.savefig(filename, format=img_format)
         plt.close()
 
     def get_ticks(self):
@@ -867,7 +907,6 @@ class GruneisenPlotter:
             units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
         Returns: plot
-
         """
 
         u = freq_units(units)
@@ -900,7 +939,6 @@ class GruneisenPlotter:
             units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
         Returns: plot
-
         """
 
         plt = self.get_plot(units=units)
@@ -915,7 +953,6 @@ class GruneisenPlotter:
             units: accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
         Returns:
-
         """
 
         plt = self.get_plot(units=units)
@@ -942,7 +979,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         super().__init__(bs)
 
     def bs_plot_data(self):
-
         """
         Get the data nicely formatted for a plot
 
@@ -1060,7 +1096,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
         Returns:
             a matplotlib object with both band structures
-
         """
 
         data_orig = self.bs_plot_data()
