@@ -41,7 +41,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         self,
         composition: Composition | str | dict[str, float],
         energy: float,
-    ):
+    ) -> None:
         """
         Initializes an Entry.
 

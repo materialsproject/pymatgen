@@ -1,12 +1,11 @@
 ---
 code_id: 11962
 open_source: true
-repository_link: "https://github.com/materialsproject/pymatgen"
-accessibility: "OS"
-software_type: "S"
+repository_link: https://github.com/materialsproject/pymatgen
+accessibility: OS
+software_type: S
 developers:
-- affiliations: ['University of California, Berkeley', ' Lawrence Berkeley National
-      Laboratory']
+- affiliations: ['University of California, Berkeley', Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Iulia-Oxana
   last_name: Andriuc
@@ -41,7 +40,7 @@ developers:
   first_name: Brandon
   last_name: Bocklund
   orcid: 0000-0002-3264-8413
-- affiliations: [RWTH Aachen University, " Universit\xE9 catholique de Louvain"]
+- affiliations: [RWTH Aachen University, Université catholique de Louvain]
   email: ''
   first_name: Alexander
   last_name: Bonkowski
@@ -66,7 +65,7 @@ developers:
   first_name: Rees
   last_name: Chang
   orcid: ''
-- affiliations: ['University of California, San Diego']
+- affiliations: [University of California, San Diego]
   email: ''
   first_name: Chi
   last_name: Chen
@@ -76,7 +75,7 @@ developers:
   first_name: Xin
   last_name: Chen
   orcid: 0000-0001-9643-0870
-- affiliations: ['University of California, San Diego']
+- affiliations: [University of California, San Diego]
   email: ''
   first_name: Yiming
   last_name: Chen
@@ -91,7 +90,7 @@ developers:
   first_name: Kamal
   last_name: Choudhary
   orcid: 0000-0001-9737-8074
-- affiliations: ['UC Berkeley, Lawrence Berkeley National Laboratory']
+- affiliations: [UC Berkeley, Lawrence Berkeley National Laboratory]
   email: ''
   first_name: Orion
   last_name: Cohen
@@ -116,7 +115,7 @@ developers:
   first_name: Elizabeth
   last_name: Decolvenaere
   orcid: 0000-0002-6350-3559
-- affiliations: ['Centre for Advanced 2D Materials, National University of Singapore']
+- affiliations: [Centre for Advanced 2D Materials, National University of Singapore]
   email: ''
   first_name: Miguel
   last_name: Dias Costa
@@ -126,8 +125,7 @@ developers:
   first_name: Robert
   last_name: Dickson
   orcid: 0000-0003-3007-808X
-- affiliations: [Lawrence Berkeley National Laboratory, ' University of California,
-      Berkeley']
+- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   email: ''
   first_name: Alex
   last_name: Dunn
@@ -135,14 +133,14 @@ developers:
 - affiliations: [LBL]
   email: ''
   first_name: Shyam
-  last_name: Dwarknath
+  last_name: Dwaraknath
   orcid: 0000-0003-0289-2607
 - affiliations: [Northwestern University]
   email: ''
   first_name: Maxwell
   last_name: Dylla
   orcid: ''
-- affiliations: ['University of California, Santa Barbara']
+- affiliations: [University of California, Santa Barbara]
   email: ''
   first_name: Mark
   last_name: E. Turiansky
@@ -152,8 +150,7 @@ developers:
   first_name: Kristjan
   last_name: Eimre
   orcid: 0000-0002-3444-3286
-- affiliations: ['University of California, Berkeley', ' Lawrence Berkeley National
-      Laboratory']
+- affiliations: ['University of California, Berkeley', ' Lawrence Berkeley National Laboratory']
   email: ''
   first_name: Alex
   last_name: Epstein
@@ -163,12 +160,12 @@ developers:
   first_name: Matthew
   last_name: Evans
   orcid: 0000-0002-1182-9098
-- affiliations: ["CERMICS, Inria Paris and \xC9cole des Ponts ParisTech"]
+- affiliations: ["CERMICS, Inria Paris and École des Ponts-ParisTech"]
   email: ''
   first_name: Michael
   last_name: F. Herbst
   orcid: 0000-0003-0378-7921
-- affiliations: ["Universit\xE9 catholique de Louvain"]
+- affiliations: ["Université catholique de Louvain"]
   email: ''
   first_name: Adam
   last_name: Fekete
@@ -183,8 +180,7 @@ developers:
   first_name: Alex
   last_name: Ganose
   orcid: 0000-0002-4486-3321
-- affiliations: ["Federal Institute for Materials Research and Testing (BAM), Berlin,
-      Germany. Friedrich-Schiller-Universit\xE4t Jena, Germany."]
+- affiliations: ["Federal Institute for Materials Research and Testing (BAM), Berlin, Germany. Friedrich-Schiller-Universität Jena, Germany."]
   email: ''
   first_name: Janine
   last_name: George
@@ -194,12 +190,12 @@ developers:
   first_name: Salvato-Vallverdu
   last_name: Germain
   orcid: 0000-0003-1116-8776
-- affiliations: ["Universit\xE9 catholique de Louvain"]
+- affiliations: ["Université catholique de Louvain"]
   email: ''
   first_name: Matteo
   last_name: Giantomassi
   orcid: ''
-- affiliations: ["Universit\xE9 catholique de Louvain"]
+- affiliations: ["Université catholique de Louvain"]
   email: ''
   first_name: Yannick
   last_name: Gillet
@@ -229,7 +225,7 @@ developers:
   first_name: Steven
   last_name: Hartman
   orcid: ''
-- affiliations: ["Universit\xE9 catholique de Louvain"]
+- affiliations: ["Université catholique de Louvain"]
   email: ''
   first_name: Geoffroy
   last_name: Hautier
@@ -249,7 +245,7 @@ developers:
   first_name: Uthpala
   last_name: 'Herath '
   orcid: 0000-0002-4585-3002
-- affiliations: ['']
+- affiliations: []
   email: ''
   first_name: Tim
   last_name: Holme
@@ -284,8 +280,7 @@ developers:
   first_name: Linda
   last_name: Hung
   orcid: 0000-0002-1578-6152
-- affiliations: ['Scientific Computing Department, Science and Technology Facilities
-      Council, UK']
+- affiliations: [Scientific Computing Department, Science and Technology Facilities Council, UK]
   email: ''
   first_name: Adam
   last_name: J. Jackson
@@ -315,12 +310,12 @@ developers:
   first_name: Jan
   last_name: Janssen
   orcid: 0000-0001-9948-7119
-- affiliations: ["Max-Planck-Institut f\xFCr Eisenforschung GmbH"]
+- affiliations: ["Max-Planck-Institut für Eisenforschung GmbH"]
   email: ''
   first_name: Jan
   last_name: 'Janssen '
   orcid: 0000-0001-9948-7119
-- affiliations: [RWTH Aachen, " Forschungszentrum J\xFClich"]
+- affiliations: [RWTH Aachen, " Forschungszentrum Jülich"]
   email: ''
   first_name: Henning
   last_name: "Jan\xDFen"
@@ -355,7 +350,7 @@ developers:
   first_name: Michael
   last_name: Kocher
   orcid: ''
-- affiliations: ['Institute of Metal Physics, UB RAS']
+- affiliations: [Institute of Metal Physics, UB RAS]
   email: ''
   first_name: Dmitry
   last_name: Korotin
@@ -370,7 +365,7 @@ developers:
   first_name: Rachel
   last_name: Kurchin
   orcid: 0000-0002-2147-4809
-- affiliations: ['Physics, University of California, Berkeley']
+- affiliations: [Physics, University of California, Berkeley]
   email: ''
   first_name: Katherine
   last_name: Latimer
@@ -380,7 +375,7 @@ developers:
   first_name: Weitang
   last_name: Li
   orcid: 0000-0002-8739-641X
-- affiliations: ['University of California, San Diego']
+- affiliations: [University of California, San Diego]
   email: ''
   first_name: Xiangguo
   last_name: Li
@@ -395,8 +390,7 @@ developers:
   first_name: Handong
   last_name: Ling
   orcid: ''
-- affiliations: ["University of Michigan \u2013 Shanghai Jiao Tong University Joint
-      Institute"]
+- affiliations: ["University of Michigan - Shanghai Jiao Tong University Joint Institute"]
   email: ''
   first_name: Ke
   last_name: Liu
@@ -416,12 +410,12 @@ developers:
   first_name: Brandon
   last_name: M. Wood
   orcid: 0000-0002-7251-337X
-- affiliations: ["\xC9cole Polytechnique F\xE9d\xE9rale de Lausanne"]
+- affiliations: ["École Polytechnique Fédérale de Lausanne"]
   email: ''
   first_name: Kevin
   last_name: Maik Jablonka
   orcid: 0000-0003-4894-4660
-- affiliations: ['']
+- affiliations: []
   email: ''
   first_name: Kiran
   last_name: Mathew
@@ -431,8 +425,7 @@ developers:
   first_name: Tam
   last_name: Mayeshiba
   orcid: 0000-0003-3445-7925
-- affiliations: [Lawrence Berkeley National Laboratory, ' University of California,
-      Berkeley']
+- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   email: ''
   first_name: Matthew
   last_name: McDermott
@@ -457,7 +450,7 @@ developers:
   first_name: Andrius
   last_name: Merkys
   orcid: 0000-0002-7731-6236
-- affiliations: ["Universit\xE9 catholique de Louvain"]
+- affiliations: ["Université catholique de Louvain"]
   email: ''
   first_name: Henrique
   last_name: Miranda
@@ -477,8 +470,7 @@ developers:
   first_name: Joseph
   last_name: Montoya
   orcid: 0000-0001-5760-2860
-- affiliations: [Lawrence Berkeley National Laboratory, ' University of California,
-      Berkeley']
+- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   email: ''
   first_name: Guy
   last_name: Moore
@@ -508,18 +500,18 @@ developers:
   first_name: Anjli
   last_name: Patel
   orcid: 0000-0002-0590-7619
-- affiliations: ['Frontier Institute of Science and Technology, Xi''an Jiaotong University',
+- affiliations: [Frontier Institute of Science and Technology, Xi''an Jiaotong University,
     ' Massachusetts Institute of Technology']
   email: ''
   first_name: Kai
   last_name: Pei
   orcid: 0000-0001-7378-9987
-- affiliations: ['']
+- affiliations: []
   email: ''
   first_name: Ioannis
   last_name: Petousis
   orcid: ''
-- affiliations: ["Universit\xE9 catholique de Louvain"]
+- affiliations: ["Université catholique de Louvain"]
   email: ''
   first_name: Guido
   last_name: Petretto
@@ -529,18 +521,17 @@ developers:
   first_name: Xiaohui
   last_name: Qu
   orcid: 0000-0001-5651-8405
-- affiliations: ['Materials, Imperial College London', ' Chemistry, University College
-      London', ' Thomas Young Centre']
+- affiliations: ['Materials, Imperial College London', ' Chemistry, University College London', 'Thomas Young Centre']
   email: ''
   first_name: "Se\xE1n"
   last_name: R. Kavanagh
   orcid: 0000-0003-4577-9647
-- affiliations: ["Friedrich-Schiller-Universit\xE4t Jena"]
+- affiliations: ["Friedrich-Schiller-Universität Jena"]
   email: ''
   first_name: Jens
   last_name: "Ren\xE8 Suckert"
   orcid: ''
-- affiliations: ["IMCN/MODL - Universit\xE9 catholique de Louvain"]
+- affiliations: ["IMCN/MODL - Université catholique de Louvain"]
   email: ''
   first_name: Francesco
   last_name: Ricci
@@ -550,7 +541,7 @@ developers:
   first_name: Janosh
   last_name: Riebesell
   orcid: ''
-- affiliations: ['Department of Chemical & Biological Engineering, Northwestern University']
+- affiliations: [Department of Chemical & Biological Engineering, Northwestern University]
   email: ''
   first_name: Andrew
   last_name: Rosen
@@ -560,13 +551,12 @@ developers:
   first_name: Ann
   last_name: Rutt
   orcid: 0000-0001-6534-454X
-- affiliations: ['Department of Materials Science and Engineering, Massachusetts Institute
-      of Technology']
+- affiliations: [Department of Materials Science and Engineering, Massachusetts Institute of Technology]
   email: ''
   first_name: Daniel
   last_name: Schwalbe-Koda
   orcid: 0000-0001-9176-0854
-- affiliations: ['UC Berkeley, LBL']
+- affiliations: [UC Berkeley, LBL]
   email: ''
   first_name: Jimmy-Xuan
   last_name: Shen
@@ -576,14 +566,12 @@ developers:
   first_name: Kohei
   last_name: Shinohara
   orcid: ''
-- affiliations: [Lawrence Berkeley National Laboratory, ' University of California,
-      Berkeley']
+- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   email: ''
   first_name: Martin
   last_name: Siron
   orcid: 0000-0002-4562-7814
-- affiliations: ['University of California, Berkeley', ' Lawrence Berkeley National
-      Laboratory']
+- affiliations: ['University of California, Berkeley', ' Lawrence Berkeley National Laboratory']
   email: ''
   first_name: Eric
   last_name: Sivonxay
@@ -603,7 +591,7 @@ developers:
   first_name: Jack
   last_name: Sundberg
   orcid: 0000-0001-5739-8919
-- affiliations: ['High Energy Accelerator Research Organization, SOKENDAI']
+- affiliations: [High Energy Accelerator Research Organization, SOKENDAI]
   email: ''
   first_name: Yuta
   last_name: Suzuki
@@ -628,7 +616,7 @@ developers:
   first_name: Steven
   last_name: Torrisi
   orcid: 0000-0002-4283-8077
-- affiliations: ['University of California, San Diego']
+- affiliations: [University of California, San Diego]
   email: ''
   first_name: Richard
   last_name: Tran
@@ -648,7 +636,7 @@ developers:
   first_name: Sudarshan
   last_name: Vijay
   orcid: 0000-0001-8242-0161
-- affiliations: ["Humboldt-Universit\xE4t zu Berlin"]
+- affiliations: ["Humboldt-Universität zu Berlin"]
   email: ''
   first_name: Christian
   last_name: Vorwerk
@@ -663,8 +651,7 @@ developers:
   first_name: Nicholas
   last_name: Wagner
   orcid: ''
-- affiliations: [Lawrence Berkeley National Laboratory, ' University of California,
-      Berkeley']
+- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   email: ''
   first_name: Evan
   last_name: Walter Clark Spotte-Smith
@@ -674,7 +661,7 @@ developers:
   first_name: Amanda
   last_name: Wang
   orcid: ''
-- affiliations: ['University of California, San Diego']
+- affiliations: [University of California, San Diego]
   email: ''
   first_name: Zhenbin
   last_name: Wang
@@ -684,12 +671,12 @@ developers:
   first_name: Logan
   last_name: Ward
   orcid: 0000-0002-1323-5939
-- affiliations: ['Argonne National Laboratory ']
+- affiliations: [Argonne National Laboratory ]
   email: ''
   first_name: Logan
   last_name: 'Ward '
   orcid: 0000-0002-1323-5939
-- affiliations: ["Universit\xE9 catholique de Louvain"]
+- affiliations: ["Université catholique de Louvain"]
   email: ''
   first_name: David
   last_name: Waroquiers
@@ -704,7 +691,7 @@ developers:
   first_name: Oskar
   last_name: Weser
   orcid: 0000-0001-5503-1195
-- affiliations: ['University of California Berkeley, Lawrence Berkeley National Lab']
+- affiliations: [University of California Berkeley, Lawrence Berkeley National Lab]
   email: ''
   first_name: Nicholas
   last_name: Winner
@@ -714,14 +701,12 @@ developers:
   first_name: Donny
   last_name: Winston
   orcid: 0000-0002-8424-0604
-- affiliations: ['Computational Materials Physics, Faculty of Physics, University of
-      Vienna']
+- affiliations: [Computational Materials Physics, Faculty of Physics, University of Vienna]
   email: ''
   first_name: Michael
   last_name: Wolloch
   orcid: 0000-0002-3419-5526
-- affiliations: [Lawrence Berkeley National Laboratory, ' University of California,
-      Berkeley', ' National Renewable Energy Laboratory']
+- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley', ' National Renewable Energy Laboratory']
   email: ''
   first_name: Rachel
   last_name: Woods-Robinson
@@ -746,8 +731,7 @@ developers:
   first_name: Pezhman
   last_name: Zarabadi-Poor
   orcid: 0000-0002-6377-7592
-- affiliations: ['Hebei Vocational University of Technology and Engineering No. 473,
-      Quannan West Street, Xindu District, Xingtai, Hebei province']
+- affiliations: [Hebei Vocational University of Technology and Engineering]
   email: ''
   first_name: Hongsheng
   last_name: Zhao
@@ -769,20 +753,19 @@ developers:
   orcid: 0000-0001-9945-1941
 contributors: []
 sponsoring_organizations: []
-contributing_organizations: ["University of California, San Diego"]
-research_organizations: ["University of California, San Diego"]
+contributing_organizations: [University of California, San Diego]
+research_organizations: [University of California, San Diego]
 related_identifiers: []
-software_title: "pymatgen"
-acronym: "pymatgen"
-description: "Python Materials Genomics (pymatgen) is a robust materials analysis\
-  \ code that defines core object representations for structures and molecules with\
-  \ support for many electronic structure codes. It is currently the core analysis\
-  \ code powering the Materials Project."
-programming_languages:
-- "Python"
-documentation_url: "https://pymatgen.org/"
-country_of_origin: "United States"
-licenses:
-- "MIT License"
+software_title: pymatgen
+acronym: pymatgen
+description: |
+  Python Materials Genomics (pymatgen) is a robust materials analysis
+  code that defines core object representations for structures and molecules with
+  support for many electronic structure codes. It is currently the core analysis
+  code powering the Materials Project.
+programming_languages: [Python]
+documentation_url: https://pymatgen.org
+country_of_origin: United States
+licenses: [MIT License]
 date_record_added: "2018-06-14"
 date_record_updated: "2022-07-19"

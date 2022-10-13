@@ -308,7 +308,7 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0003-3132-3032
 
-| **Shyam Dwarknath** |shyamd| |0000-0003-0289-2607|
+| **Shyam Dwaraknath** |shyamd| |0000-0003-0289-2607|
 | LBL
 .. |shyamd| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:shyamd
