@@ -16,7 +16,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from typing import Any, Literal, Sequence
+from typing import Any, Iterator, Literal, Sequence
 
 import numpy as np
 import plotly.graph_objs as go
@@ -480,7 +480,7 @@ class PhaseDiagram(MSONable):
             qhull_entries=qhull_entries,
         )
 
-    def pd_coords(self, comp):
+    def pd_coords(self, comp: Composition) -> np.ndarray:
         """
         The phase diagram is generated in a reduced dimensional space
         (n_elements - 1). This function returns the coordinates in that space.
@@ -579,7 +579,7 @@ class PhaseDiagram(MSONable):
         output = [
             f"{'-'.join(symbols)} phase diagram",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in self.stable_entries]),
+            ", ".join([entry.name for entry in sorted(self.stable_entries, key=str)]),
         ]
         return "\n".join(output)
 
@@ -1499,7 +1499,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements: Sequence[Element] = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,
-        computed_data: dict[str, Any] = None,
     ) -> None:
         """
         Args:
@@ -1512,6 +1511,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 is preserved.
             keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
                 that are subspaces of other spaces.
+            verbose (bool): Whether to show progress bar during convex hull construction.
         """
         if elements is None:
             elements = sorted({els for e in entries for els in e.composition.elements})
@@ -1551,6 +1551,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
         self.qhull_entries = tuple(min_entries[i] for i in inds)
+        # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
+        # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
         self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
 
         # Get all unique chemical spaces
@@ -1584,6 +1586,24 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def __repr__(self):
         return f"{type(self).__name__} covering {len(self.spaces)} sub-spaces"
+
+    def __len__(self):
+        return len(self.spaces)
+
+    def __getitem__(self, item: frozenset[Element]) -> PhaseDiagram:
+        return self.pds[item]
+
+    def __setitem__(self, key: frozenset[Element], value: PhaseDiagram) -> None:
+        self.pds[key] = value
+
+    def __delitem__(self, key: frozenset[Element]) -> None:
+        del self.pds[key]
+
+    def __iter__(self) -> Iterator[PhaseDiagram]:
+        return iter(self.pds.values())
+
+    def __contains__(self, item: frozenset[Element]) -> bool:
+        return item in self.pds
 
     def as_dict(self) -> dict[str, Any]:
         """
@@ -1646,7 +1666,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 if space.issuperset(entry_space):
                     return pd
 
-            raise ValueError(f"No suitable PhaseDiagrams found for {entry}.")
+        raise ValueError(f"No suitable PhaseDiagrams found for {entry}.")
 
     def get_decomposition(self, comp: Composition) -> dict[PDEntry, float]:
         """
