@@ -480,7 +480,7 @@ class PhaseDiagram(MSONable):
             qhull_entries=qhull_entries,
         )
 
-    def pd_coords(self, comp):
+    def pd_coords(self, comp: Composition) -> np.ndarray:
         """
         The phase diagram is generated in a reduced dimensional space
         (n_elements - 1). This function returns the coordinates in that space.
@@ -1499,7 +1499,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements: Sequence[Element] = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,
-        computed_data: dict[str, Any] = None,
     ) -> None:
         """
         Args:
@@ -1512,6 +1511,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 is preserved.
             keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
                 that are subspaces of other spaces.
+            verbose (bool): Whether to show progress bar during convex hull construction.
         """
         if elements is None:
             elements = sorted({els for e in entries for els in e.composition.elements})
