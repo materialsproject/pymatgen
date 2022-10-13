@@ -5,7 +5,7 @@ from __future__ import annotations
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
-__maintainer__ = "Jimmy-Xuan Shen :"
+__maintainer__ = "Jimmy-Xuan Shen"
 __email__ = "jmmshn@gmail.com"
 
 
