@@ -1,13 +1,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Classes for parsing and manipulating VASP optical properties calculations."""
+from __future__ import annotations
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
-__maintainer__ = "Jimmy-Xuan Shen"
+__maintainer__ = "Jimmy-Xuan Shen :"
 __email__ = "jmmshn@gmail.com"
 
-from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -117,7 +117,7 @@ class DielectricFunctionCalculator(MSONable):
     @property
     def cder(self):
         """Complex CDER form WAVEDER."""
-        return self.cder_real + cder_imag * 1.0j
+        return self.cder_real + self.cder_imag * 1.0j
 
     def get_epsilon(
         self,
