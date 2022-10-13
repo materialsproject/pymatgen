@@ -339,7 +339,7 @@ class PhaseDiagramTest(unittest.TestCase):
                     ),
                 )
 
-        # Test that we get correct behaviour with a polymorph
+        # Test that we get correct behavior with a polymorph
         toy_entries = {
             "Li": 0.0,
             "Li2O": -5,
@@ -617,13 +617,13 @@ class PhaseDiagramTest(unittest.TestCase):
         # test round-trip for other entry types such as ComputedEntry
         entry = ComputedEntry("H", 0.0, 0.0, entry_id="test")
         pd = PhaseDiagram([entry])
-        d = pd.as_dict()
-        pd_roundtrip = PhaseDiagram.from_dict(d)
+        pd_dict = pd.as_dict()
+        pd_roundtrip = PhaseDiagram.from_dict(pd_dict)
         self.assertEqual(pd.all_entries[0].entry_id, pd_roundtrip.all_entries[0].entry_id)
         dd = self.pd.as_dict()
         new_pd = PhaseDiagram.from_dict(dd)
-        new_dd = new_pd.as_dict()
-        self.assertEqual(new_dd, dd)
+        new_pd_dict = new_pd.as_dict()
+        self.assertEqual(new_pd_dict, dd)
         self.assertIsInstance(pd.to_json(), str)
 
     def test_read_json(self):
@@ -765,7 +765,7 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
     def test_repr(self):
         assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 15 sub-spaces"
 
-    def test_as_from_dict(self):
+    def test_to_from_dict(self):
         ppd_dict = self.ppd.as_dict()
         assert ppd_dict["@module"] == self.ppd.__class__.__module__
         assert ppd_dict["@class"] == self.ppd.__class__.__name__

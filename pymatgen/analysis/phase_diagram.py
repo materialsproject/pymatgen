@@ -728,7 +728,6 @@ class PhaseDiagram(MSONable):
                 found. 'raise' will throw ValueError. 'warn' will print return (None, None).
                 'ignore' just returns (None, None). Defaults to 'raise'.
 
-
         Raises:
             ValueError: If no valid decomposition exists in this phase diagram for given entry.
 
@@ -764,8 +763,8 @@ class PhaseDiagram(MSONable):
             entry (PDEntry): A PDEntry like object
 
         Returns:
-            Energy above convex hull of entry. Stable entries should have
-            energy above hull of 0. The energy is given per atom.
+            float | None: Energy above convex hull of entry. Stable entries should have
+                energy above hull of 0. The energy is given per atom.
         """
         return self.get_decomp_and_e_above_hull(entry, **kwargs)[1]
 
@@ -779,8 +778,8 @@ class PhaseDiagram(MSONable):
             entry (PDEntry): A PDEntry like object
 
         Returns:
-            Equilibrium reaction energy of entry. Stable entries should have
-            equilibrium reaction energy <= 0. The energy is given per atom.
+            float | None: Equilibrium reaction energy of entry. Stable entries should have
+                equilibrium reaction energy <= 0. The energy is given per atom.
         """
         elem_space = entry.composition.elements
 
@@ -1492,7 +1491,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
             These are entries corresponding to the lowest energy element entries for
             simple compositional phase diagrams.
         elements (list[Element]): List of elements in the phase diagram.
-
     """
 
     def __init__(
