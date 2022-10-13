@@ -78,7 +78,7 @@ class DielectricFunctionCalculator(MSONable):
         sspins = [Spin.up, Spin.down]
         eigs = np.stack([bands[spin] for spin in sspins[: vrun.parameters["ISPIN"]]], axis=2)[..., 0]
         eigs = np.swapaxes(eigs, 0, 1)
-        cder = waveder.cder
+        waveder.cder
         kweights = vrun.actual_kpoints_weights
         nedos = vrun.parameters["NEDOS"]
         deltae = vrun.dielectric[0][1]
@@ -117,7 +117,7 @@ class DielectricFunctionCalculator(MSONable):
     @property
     def cder(self):
         """Complex CDER form WAVEDER."""
-        return self.cder_real + cder_imag * 1.j
+        return self.cder_real + cder_imag * 1.0j
 
     def get_epsilon(
         self,
