@@ -1,6 +1,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Classes for parsing and manipulating VASP optical properties calculations."""
+
+__author__ = "Jimmy-Xuan Shen"
+__copyright__ = "Copyright 2022, The Materials Project"
+__maintainer__ = "Jimmy-Xuan Shen"
+__email__ = "jmmshn@gmail.com"
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -46,7 +52,8 @@ class DielectricFunctionCalculator(MSONable):
     we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
 
-    cder: npt.NDArray
+    cder_real: npt.NDArray
+    cder_imag: npt.NDArray
     eigs: npt.NDArray
     kweights: npt.NDArray
     nedos: int
@@ -85,7 +92,8 @@ class DielectricFunctionCalculator(MSONable):
             raise NotImplementedError("ISYM != 0 is not implemented yet")
 
         return DielectricFunctionCalculator(
-            cder=cder,
+            cder_real=waveder.cder_real,
+            cder_imag=waveder.cder_imag,
             eigs=eigs,
             kweights=kweights,
             nedos=nedos,
@@ -105,6 +113,11 @@ class DielectricFunctionCalculator(MSONable):
         vrun = Vasprun(d_ / "vasprun.xml")
         waveder = Waveder.from_binary(d_ / "WAVEDER")
         return cls.from_vasp_objects(vrun, waveder)
+
+    @property
+    def cder(self):
+        """Complex CDER form WAVEDER."""
+        return self.cder_real + cder_imag * 1.j
 
     def get_epsilon(
         self,
