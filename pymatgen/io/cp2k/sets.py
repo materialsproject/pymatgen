@@ -344,7 +344,7 @@ class DftSet(Cp2kInputSet):
         self.smearing = smearing
         self.kwargs = kwargs
 
-        if ot and self.kpoints:
+        if self.kpoints:
             if self.kpoints.num_kpts == 0 or (
                 self.kpoints.num_kpts == 1 and np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
             ):
