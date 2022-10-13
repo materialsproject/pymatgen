@@ -428,7 +428,8 @@ class PhononBSPlotter:
     def get_proj_plot(self,
                       site_comb: str | list[list[int]] = "element",
                       ylim: tuple[None | float, None | float] = None,
-                      units: str = "thz") -> plt.Axes:
+                      units: str = "thz",
+                      rgb_labels: tuple[str] = None) -> plt.Axes:
         """
         Get a matplotlib object for the bandstructure plot projected along atomic
         sites.
@@ -468,6 +469,8 @@ class PhononBSPlotter:
             if len(all_indices) != 0:
                 raise Exception("not all {} indices are included in site_comb".format(len(all_sites)))
             indices = site_comb
+        assert rgb_labels is None or len(rgb_labels) == len(indices),\
+            "wrong number of rgb_labels"
             
         u = freq_units(units)
         fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
@@ -503,10 +506,13 @@ class PhononBSPlotter:
         ax.set_ylabel(ylabel, fontsize=28)
         ax.tick_params(labelsize=28)
         # make color legend
-        if site_comb == "element":
-            labels = [e.symbol for e in self._bs.structure.composition.elements]
+        if rgb_labels is not None:
+            labels = rgb_labels
         else:
-            labels = [f"group{i}" for i in range(len(site_comb))]
+            if site_comb == "element":
+                labels = [e.symbol for e in self._bs.structure.composition.elements]
+            else:
+                labels = [f"{i}" for i in range(len(site_comb))]
         if len(indices) == 2:
             BSDOSPlotter._rb_line(ax, labels[0], labels[1], "best")
         elif len(indices) == 3:
@@ -544,7 +550,7 @@ class PhononBSPlotter:
 
     def show_proj(self,
                   site_comb: str | list[list[int]] = "element",
-                  ylim: tuple[None | float, None | float]= None,
+                  ylim: tuple[None | float, None | float] = None,
                   units: str = "thz"):
         """
         Show the projected plot using matplotlib.
