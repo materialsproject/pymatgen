@@ -566,28 +566,6 @@ class PhononBSPlotter:
         self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units, rgb_labels=rgb_labels)
         plt.show()
 
-    def save_proj_plot(
-        self,
-        filename,
-        img_format="eps",
-        site_comb: str | list[list[int]] = "element",
-        ylim: tuple[None | float, None | float] = None,
-        units: str = "thz",
-        rgb_labels: tuple[str] = None,
-    ):
-        """
-        Save matplotlib projected plot to a file.
-
-        Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
-            ylim: Specifies the y-axis limits.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
-        """
-        ax = self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units, rgb_labels=rgb_labels)
-        ax.figure.savefig(filename, format=img_format)
-        plt.close()
-
     def get_ticks(self):
         """
         Get all ticks and labels for a band structure plot.
