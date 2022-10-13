@@ -382,9 +382,9 @@ class PhononBSPlotter:
 
         return plt
 
-    def _get_weight(self, vec: np.array, indices: list[list[int]]) -> np.array:
+    def _get_weight(self, vec: np.ndarray, indices: list[list[int]]) -> np.ndarray:
         """
-        compute the weight for each combintaion of sites according to the
+        compute the weight for each combination of sites according to the
         eigenvector
         """
         num_atom = int(self._nb_bands / 3)
@@ -422,6 +422,7 @@ class PhononBSPlotter:
             g = (1 - colors[1]) * (1 - colors[3])
             b = (1 - colors[2]) * (1 - colors[3])
             return [r, g, b]
+        raise ValueError(f"Expected 2, 3 or 4 colors, got {len(colors)}")
 
     def get_proj_plot(
         self,
@@ -451,22 +452,23 @@ class PhononBSPlotter:
         elements = [e.symbol for e in self._bs.structure.composition.elements]
         if site_comb == "element":
             assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
-            indices = [[] for _ in range(len(elements))]
+            indices: list[list[int]] = [[] for _ in range(len(elements))]
             for i, ele in enumerate(self._bs.structure.species):
                 for j, unique_species in enumerate(self._bs.structure.composition.elements):
                     if ele == unique_species:
                         indices[j].append(i)
         else:
+            assert isinstance(site_comb, list)
             assert 2 <= len(site_comb) <= 4, "the length of site_comb must be 2, 3 or 4"
             all_sites = self._bs.structure.sites
-            all_indices = {i for i in range(len(all_sites))}
+            all_indices = {*range(len(all_sites))}
             for comb in site_comb:
-                for i in comb:
-                    assert 0 <= i < len(all_sites), "one or more indices in site_comb does not exist"
-                    all_indices.remove(i)
+                for idx in comb:
+                    assert 0 <= idx < len(all_sites), "one or more indices in site_comb does not exist"
+                    all_indices.remove(idx)
             if len(all_indices) != 0:
                 raise Exception(f"not all {len(all_sites)} indices are included in site_comb")
-            indices = site_comb
+            indices = site_comb  # type: ignore[assignment]
         assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
 
         u = freq_units(units)
@@ -478,9 +480,9 @@ class PhononBSPlotter:
         for d in range(1, len(k_dist)):
             # consider 2 k points each time so they connect
             colors = []
-            for i in range(self._nb_bands):
-                eigenvec_1 = self._bs.eigendisplacements[i][d - 1].flatten()
-                eigenvec_2 = self._bs.eigendisplacements[i][d].flatten()
+            for idx in range(self._nb_bands):
+                eigenvec_1 = self._bs.eigendisplacements[idx][d - 1].flatten()
+                eigenvec_2 = self._bs.eigendisplacements[idx][d].flatten()
                 colors1 = self._get_weight(eigenvec_1, indices)
                 colors2 = self._get_weight(eigenvec_2, indices)
                 colors.append(self._make_color((colors1 + colors2) / 2))
@@ -491,10 +493,10 @@ class PhononBSPlotter:
             ls = LineCollection(seg, colors=colors, linestyles="-", linewidths=2.5)
             ax.add_collection(ls)
         if ylim is None:
-            y_max = max(max(b) for b in self._bs.bands) * u.factor
-            y_min = min(min(b) for b in self._bs.bands) * u.factor
+            y_max: float = max(max(b) for b in self._bs.bands) * u.factor
+            y_min: float = min(min(b) for b in self._bs.bands) * u.factor
             y_margin = (y_max - y_min) * 0.05
-            ylim = [y_min - y_margin, y_max + y_margin]
+            ylim = (y_min - y_margin, y_max + y_margin)
         ax.set_ylim(ylim)
         xlim = [min(k_dist), max(k_dist)]
         ax.set_xlim(xlim)
@@ -503,8 +505,9 @@ class PhononBSPlotter:
         ax.set_ylabel(ylabel, fontsize=28)
         ax.tick_params(labelsize=28)
         # make color legend
+        labels: list[str]
         if rgb_labels is not None:
-            labels = rgb_labels
+            labels = rgb_labels  # type: ignore[assignment]
         else:
             if site_comb == "element":
                 labels = [e.symbol for e in self._bs.structure.composition.elements]
