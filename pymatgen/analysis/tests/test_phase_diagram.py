@@ -1,6 +1,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import collections
 import os
 import unittest
 import warnings
@@ -164,6 +165,12 @@ class PhaseDiagramTest(unittest.TestCase):
             self.entries,
         )
         self.assertRaises(ValueError, PhaseDiagram, entries)
+
+    def test_repr(self):
+        assert (
+            str(self.pd) == "Li-Fe-O phase diagram\n11 stable phases: \nFe, FeO, "
+            "Fe2O3, Fe3O4, LiFeO2, Li, Li2O, LiO, Li5FeO4, Li2FeO3, O"
+        )
 
     def test_dim1(self):
         # Ensure that dim 1 PDs can be generated.
@@ -749,6 +756,10 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
     def test_dimensionality(self):
         assert self.pd.dim == self.ppd.dim
 
+        # test dims of sub PDs
+        dim_counts = collections.Counter(pd.dim for pd in self.ppd.pds.values())
+        assert dim_counts == {3: 7, 2: 6, 4: 2}
+
     def test_get_hull_energy(self):
         for comp in self.novel_comps:
             e_hull_pd = self.pd.get_hull_energy(comp)
@@ -789,6 +800,37 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
         entry = PDEntry("FeO", -1.23)
         with pytest.raises(ValueError, match=r"Missing terminal entries for elements \['Fe', 'O'\]"):
             PatchedPhaseDiagram(entries=[entry])
+
+    def test_contains(self):
+        for space in self.ppd.spaces:
+            assert space in self.ppd
+        unlikely_chem_space = frozenset(map(Element, "HBCNOFPS"))
+        assert unlikely_chem_space not in self.ppd
+
+    def test_getitem(self):
+        chem_space = self.ppd.spaces[0]
+        pd = self.ppd[chem_space]
+        assert isinstance(pd, PhaseDiagram)
+        assert chem_space in pd._qhull_spaces
+        assert str(pd) == "V-C phase diagram\n4 stable phases: \nC, V, V6C5, V2C"
+
+        with pytest.raises(KeyError):
+            self.ppd[frozenset(map(Element, "HBCNOFPS"))]
+
+    def test_iter(self):
+        for pd in self.ppd:
+            assert isinstance(pd, PhaseDiagram)
+        assert len(self.ppd) == len(self.ppd.pds)
+
+    def test_len(self):
+        assert len(self.ppd) == len(self.ppd.pds)
+
+    def test_setitem_and_delitem(self):
+        unlikely_chem_space = frozenset(map(Element, "HBCNOFPS"))
+        self.ppd[unlikely_chem_space] = self.pd
+        assert unlikely_chem_space in self.ppd
+        assert self.ppd[unlikely_chem_space] == self.pd
+        del self.ppd[unlikely_chem_space]  # test __delitem__() and restore original state
 
 
 class ReactionDiagramTest(unittest.TestCase):
