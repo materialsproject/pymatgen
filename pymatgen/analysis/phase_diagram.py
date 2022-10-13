@@ -1551,6 +1551,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
         self.qhull_entries = tuple(min_entries[i] for i in inds)
+        # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
+        # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
         self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
 
         # Get all unique chemical spaces
