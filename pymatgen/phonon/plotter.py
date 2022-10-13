@@ -551,7 +551,8 @@ class PhononBSPlotter:
     def show_proj(self,
                   site_comb: str | list[list[int]] = "element",
                   ylim: tuple[None | float, None | float] = None,
-                  units: str = "thz"):
+                  units: str = "thz",
+                  rgb_labels: tuple[str] = None):
         """
         Show the projected plot using matplotlib.
 
@@ -560,14 +561,15 @@ class PhononBSPlotter:
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units)
+        self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units, rgb_labels=rgb_labels)
         plt.show()
 
     def save_proj_plot(self, filename,
                        img_format="eps",
                        site_comb: str | list[list[int]] = "element",
                        ylim: tuple[None | float, None | float] = None,
-                       units: str = "thz"):
+                       units: str = "thz",
+                       rgb_labels: tuple[str] = None):
         """
         Save matplotlib projected plot to a file.
 
@@ -577,7 +579,7 @@ class PhononBSPlotter:
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        ax = self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units)
+        ax = self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units, rgb_labels=rgb_labels)
         ax.figure.savefig(filename, format=img_format)
         plt.close()
 
