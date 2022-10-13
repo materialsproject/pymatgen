@@ -16,7 +16,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from typing import Any, Literal, Sequence
+from typing import Any, Iterator, Literal, Sequence
 
 import numpy as np
 import plotly.graph_objs as go
@@ -1587,6 +1587,24 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def __repr__(self):
         return f"{type(self).__name__} covering {len(self.spaces)} sub-spaces"
 
+    def __len__(self):
+        return len(self.spaces)
+
+    def __getitem__(self, item: frozenset[Element]) -> PhaseDiagram:
+        return self.pds[item]
+
+    def __setitem__(self, key: frozenset[Element], value: PhaseDiagram) -> None:
+        self.pds[key] = value
+
+    def __delitem__(self, key: frozenset[Element]) -> None:
+        del self.pds[key]
+
+    def __iter__(self) -> Iterator[PhaseDiagram]:
+        return iter(self.pds.values())
+
+    def __contains__(self, item: frozenset[Element]) -> bool:
+        return item in self.pds
+
     def as_dict(self) -> dict[str, Any]:
         """
         Returns:
@@ -1648,7 +1666,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 if space.issuperset(entry_space):
                     return pd
 
-            raise ValueError(f"No suitable PhaseDiagrams found for {entry}.")
+        raise ValueError(f"No suitable PhaseDiagrams found for {entry}.")
 
     def get_decomposition(self, comp: Composition) -> dict[PDEntry, float]:
         """
