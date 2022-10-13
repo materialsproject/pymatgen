@@ -579,7 +579,7 @@ class PhaseDiagram(MSONable):
         output = [
             f"{'-'.join(symbols)} phase diagram",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in self.stable_entries]),
+            ", ".join([entry.name for entry in sorted(self.stable_entries, key=str)]),
         ]
         return "\n".join(output)
 
