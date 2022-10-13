@@ -429,7 +429,7 @@ class PhononBSPlotter:
                       site_comb: str | list[list[int]] = "element",
                       ylim: tuple[None | float, None | float] = None,
                       units: str = "thz",
-                      rgb_labels: tuple[str] = None) -> plt.Axes:
+                      rgb_labels: tuple[None | str] = None) -> plt.Axes:
         """
         Get a matplotlib object for the bandstructure plot projected along atomic
         sites.
