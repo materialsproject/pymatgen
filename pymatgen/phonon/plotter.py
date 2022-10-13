@@ -10,11 +10,11 @@ from __future__ import annotations
 import logging
 from collections import namedtuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as const
 from monty.json import jsanitize
-import matplotlib.pyplot as plt
-        
+
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
@@ -382,9 +382,7 @@ class PhononBSPlotter:
 
         return plt
 
-    def _get_weight(self,
-                    vec: np.array,
-                    indices: list[list[int]]) -> np.array:
+    def _get_weight(self, vec: np.array, indices: list[list[int]]) -> np.array:
         """
         compute the weight for each combintaion of sites according to the
         eigenvector
@@ -425,11 +423,13 @@ class PhononBSPlotter:
             b = (1 - colors[2]) * (1 - colors[3])
             return [r, g, b]
 
-    def get_proj_plot(self,
-                      site_comb: str | list[list[int]] = "element",
-                      ylim: tuple[None | float, None | float] = None,
-                      units: str = "thz",
-                      rgb_labels: tuple[None | str] = None) -> plt.Axes:
+    def get_proj_plot(
+        self,
+        site_comb: str | list[list[int]] = "element",
+        ylim: tuple[None | float, None | float] = None,
+        units: str = "thz",
+        rgb_labels: tuple[None | str] = None,
+    ) -> plt.Axes:
         """
         Get a matplotlib object for the bandstructure plot projected along atomic
         sites.
@@ -457,21 +457,18 @@ class PhononBSPlotter:
                     if ele == unique_species:
                         indices[j].append(i)
         else:
-            assert 2 <= len(site_comb) <= 4,\
-                "the length of site_comb must be 2, 3 or 4"
+            assert 2 <= len(site_comb) <= 4, "the length of site_comb must be 2, 3 or 4"
             all_sites = self._bs.structure.sites
-            all_indices = set([i for i in range(len(all_sites))])
+            all_indices = {i for i in range(len(all_sites))}
             for comb in site_comb:
                 for i in comb:
-                    assert 0 <= i < len(all_sites),\
-                        "one or more indices in site_comb does not exist"
+                    assert 0 <= i < len(all_sites), "one or more indices in site_comb does not exist"
                     all_indices.remove(i)
             if len(all_indices) != 0:
-                raise Exception("not all {} indices are included in site_comb".format(len(all_sites)))
+                raise Exception(f"not all {len(all_sites)} indices are included in site_comb")
             indices = site_comb
-        assert rgb_labels is None or len(rgb_labels) == len(indices),\
-            "wrong number of rgb_labels"
-            
+        assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
+
         u = freq_units(units)
         fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
         self._maketicks(plt)
@@ -548,11 +545,13 @@ class PhononBSPlotter:
         plt.savefig(filename, format=img_format)
         plt.close()
 
-    def show_proj(self,
-                  site_comb: str | list[list[int]] = "element",
-                  ylim: tuple[None | float, None | float] = None,
-                  units: str = "thz",
-                  rgb_labels: tuple[str] = None):
+    def show_proj(
+        self,
+        site_comb: str | list[list[int]] = "element",
+        ylim: tuple[None | float, None | float] = None,
+        units: str = "thz",
+        rgb_labels: tuple[str] = None,
+    ):
         """
         Show the projected plot using matplotlib.
 
@@ -564,12 +563,15 @@ class PhononBSPlotter:
         self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units, rgb_labels=rgb_labels)
         plt.show()
 
-    def save_proj_plot(self, filename,
-                       img_format="eps",
-                       site_comb: str | list[list[int]] = "element",
-                       ylim: tuple[None | float, None | float] = None,
-                       units: str = "thz",
-                       rgb_labels: tuple[str] = None):
+    def save_proj_plot(
+        self,
+        filename,
+        img_format="eps",
+        site_comb: str | list[list[int]] = "element",
+        ylim: tuple[None | float, None | float] = None,
+        units: str = "thz",
+        rgb_labels: tuple[str] = None,
+    ):
         """
         Save matplotlib projected plot to a file.
 

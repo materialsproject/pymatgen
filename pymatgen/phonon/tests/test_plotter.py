@@ -87,14 +87,14 @@ class PhononBSPlotterTest(unittest.TestCase):
 
         rc("text", usetex=False)
         self.plotter.get_proj_plot(units="mev")
-        self.plotter.get_proj_plot(units="mev", ylim=(15,30), rgb_labels=("NA","CL"))
-        self.plotter.get_proj_plot(units="mev", site_comb=[[0],[1]])
-        self.plotter.get_proj_plot(units="mev", site_comb=[[0],[1]])
-        
+        self.plotter.get_proj_plot(units="mev", ylim=(15, 30), rgb_labels=("NA", "CL"))
+        self.plotter.get_proj_plot(units="mev", site_comb=[[0], [1]])
+        self.plotter.get_proj_plot(units="mev", site_comb=[[0], [1]])
+
         self.plotter_sto.get_proj_plot()
-        self.plotter_sto.get_proj_plot(ylim=(-2.5,5),site_comb=[[0],[1],[2,3,4]])
-        self.plotter_sto.get_proj_plot(site_comb=[[0],[1],[2,3,4]], rgb_labels=("SR", "TI", "O"))
-        self.plotter_sto.get_proj_plot(site_comb=[[0],[1],[2],[3,4]])
+        self.plotter_sto.get_proj_plot(ylim=(-2.5, 5), site_comb=[[0], [1], [2, 3, 4]])
+        self.plotter_sto.get_proj_plot(site_comb=[[0], [1], [2, 3, 4]], rgb_labels=("SR", "TI", "O"))
+        self.plotter_sto.get_proj_plot(site_comb=[[0], [1], [2], [3, 4]])
 
     def test_plot_compare(self):
         # Disabling latex for testing.
