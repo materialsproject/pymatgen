@@ -538,6 +538,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if the entry is not compatible
         """
+        raise NotImplementedError
 
     def process_entry(self, entry: ComputedEntry) -> ComputedEntry | None:
         """
