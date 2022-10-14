@@ -285,7 +285,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 method(U_entry)
 
             # test raises ValueError on entry with very negative energy
-            too_neg_entry = PDEntry("Li", -1e10)
+            too_neg_entry = PDEntry("Li", -1e6)
             match_msg = "No valid decomposition found for PDEntry : Li1 with energy"
             with pytest.raises(ValueError, match=match_msg):
                 method(too_neg_entry)
@@ -296,6 +296,26 @@ class PhaseDiagramTest(unittest.TestCase):
 
             out = method(too_neg_entry, on_error="ignore")
             assert out == expected
+
+    def test_downstream_methods_can_also_ignore_errors(self):
+        # test that downstream methods get_e_above_hull() and get_phase_separation_energy()
+        # can also ignore errors
+        too_neg_entry = PDEntry("Li", -1e6)
+        exotic_entry = PDEntry("U W", -1e6)
+
+        # get_e_above_hull
+        with pytest.raises(ValueError, match="No valid decomposition found for PDEntry "):
+            self.pd.get_e_above_hull(too_neg_entry, on_error="raise")
+        assert self.pd.get_e_above_hull(too_neg_entry, on_error="ignore") is None
+
+        with pytest.raises(RuntimeError, match="Unable to get decomposition for PDEntry"):
+            self.pd.get_e_above_hull(exotic_entry, on_error="raise")
+        assert self.pd.get_e_above_hull(exotic_entry, on_error="ignore") is None
+
+        # get_phase_separation_energy
+        with pytest.raises(RuntimeError, match="Unable to get decomposition for PDEntry"):
+            self.pd.get_phase_separation_energy(exotic_entry, on_error="raise")
+        assert self.pd.get_phase_separation_energy(exotic_entry, on_error="ignore") is None
 
     def test_get_equilibrium_reaction_energy(self):
         for entry in self.pd.stable_entries:
