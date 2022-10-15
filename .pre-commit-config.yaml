@@ -2,7 +2,7 @@ exclude: ^(docs|.*test_files|cmd_line)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [mypy, pylint, codespell]
+  skip: [mypy, pylint, codespell, pydocstyle]
 
 repos:
 
@@ -63,3 +63,9 @@ repos:
       - id: codespell
         stages: [commit, commit-msg]
         exclude_types: [html]
+
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        exclude: tests
