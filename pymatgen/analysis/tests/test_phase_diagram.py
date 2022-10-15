@@ -281,7 +281,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
             # test raises ValueError on entry with element not in the phase diagram
             U_entry = PDEntry("U", 0)
-            with pytest.raises(ValueError, match="U1 has elements not in the phase diagram"):
+            with pytest.raises(ValueError, match="Unable to get decomposition for PDEntry : U1 with energy"):
                 method(U_entry)
 
             # test raises ValueError on entry with very negative energy
@@ -308,12 +308,12 @@ class PhaseDiagramTest(unittest.TestCase):
             self.pd.get_e_above_hull(too_neg_entry, on_error="raise")
         assert self.pd.get_e_above_hull(too_neg_entry, on_error="ignore") is None
 
-        with pytest.raises(RuntimeError, match="Unable to get decomposition for PDEntry"):
+        with pytest.raises(ValueError, match="Unable to get decomposition for PDEntry"):
             self.pd.get_e_above_hull(exotic_entry, on_error="raise")
         assert self.pd.get_e_above_hull(exotic_entry, on_error="ignore") is None
 
         # get_phase_separation_energy
-        with pytest.raises(RuntimeError, match="Unable to get decomposition for PDEntry"):
+        with pytest.raises(ValueError, match="Unable to get decomposition for PDEntry"):
             self.pd.get_phase_separation_energy(exotic_entry, on_error="raise")
         assert self.pd.get_phase_separation_energy(exotic_entry, on_error="ignore") is None
 
