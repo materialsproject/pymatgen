@@ -560,8 +560,10 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         self, entries: AnyComputedEntry | list[AnyComputedEntry], clean: bool = True, verbose: bool = False
     ) -> list[AnyComputedEntry]:
         """
-        Process a sequence of entries with the chosen Compatibility scheme. Note
-        that this method will change the data of the original entries.
+        Process a sequence of entries with the chosen Compatibility scheme.
+
+        Warning: This method changes entries in place! All changes can be undone and original entries
+        restored by setting entry.energy_adjustments = [].
 
         Args:
             entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
