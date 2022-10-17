@@ -265,11 +265,11 @@ class StructureGraph(MSONable):
     def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False):
         """
         Constructor for StructureGraph, using a strategy
-        from :Class: `pymatgen.analysis.local_env`.
+        from :class:`pymatgen.analysis.local_env`.
 
         :param structure: Structure object
         :param strategy: an instance of a
-            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+            :class:`pymatgen.analysis.local_env.NearNeighbors` object
         :param weights: if True, use weights from local_env class
             (consult relevant class for their meaning)
         :param edge_properties: if True, edge_properties from neighbors will be used
@@ -1097,7 +1097,7 @@ class StructureGraph(MSONable):
 
     def as_dict(self):
         """
-        As in :Class: `pymatgen.core.Structure` except
+        As in :class:`pymatgen.core.Structure` except
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
@@ -1114,7 +1114,7 @@ class StructureGraph(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        As in :Class: `pymatgen.core.Structure` except
+        As in :class:`pymatgen.core.Structure` except
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
@@ -1424,7 +1424,7 @@ class StructureGraph(MSONable):
     def __copy__(self):
         return StructureGraph.from_dict(self.as_dict())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Two StructureGraphs are equal if they have equal Structures,
         and have the same edges between Sites. Edge weights can be
@@ -1433,7 +1433,8 @@ class StructureGraph(MSONable):
         :param other: StructureGraph
         :return (bool):
         """
-
+        if not isinstance(other, StructureGraph):
+            return NotImplemented
         # sort for consistent node indices
         # PeriodicSite should have a proper __hash__() value,
         # using its frac_coords as a convenient key
@@ -1747,11 +1748,11 @@ class MoleculeGraph(MSONable):
     def with_local_env_strategy(molecule, strategy):
         """
         Constructor for MoleculeGraph, using a strategy
-        from :Class: `pymatgen.analysis.local_env`.
+        from :class:`pymatgen.analysis.local_env`.
 
         :param molecule: Molecule object
         :param strategy: an instance of a
-            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+            :class:`pymatgen.analysis.local_env.NearNeighbors` object
         :return: mg, a MoleculeGraph
         """
 
@@ -2748,7 +2749,7 @@ class MoleculeGraph(MSONable):
 
     def as_dict(self):
         """
-        As in :Class: `pymatgen.core.Molecule` except
+        As in :class:`pymatgen.core.Molecule` except
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
@@ -2765,7 +2766,7 @@ class MoleculeGraph(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        As in :Class: `pymatgen.core.Molecule` except
+        As in :class:`pymatgen.core.Molecule` except
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
@@ -2860,7 +2861,7 @@ class MoleculeGraph(MSONable):
     def __copy__(self):
         return MoleculeGraph.from_dict(self.as_dict())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Two MoleculeGraphs are equal if they have equal Molecules,
         and have the same edges between Sites. Edge weights can be
@@ -2869,6 +2870,8 @@ class MoleculeGraph(MSONable):
         :param other: MoleculeGraph
         :return (bool):
         """
+        if not isinstance(other, type(self)):
+            return NotImplemented
 
         # sort for consistent node indices
         # PeriodicSite should have a proper __hash__() value,

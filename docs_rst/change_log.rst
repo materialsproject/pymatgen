@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2022.9.21
+----------
+* @chunweizhu fix the bugs when runing `TEMCalculator`
+* @munrojm Support for new MPRester.
+
 v2022.9.8
 ---------
 * @janosh Add AirssProvider.as_dict
@@ -265,7 +270,7 @@ you are acknowledged appropriately by filling out the linked form.
 * General improvements to Phase Diagram code (@CompyRhys, #2263, #2264, #2268)
 * Improve appearance of periodic table heatmap (@penicillin0, #2272)
 * Small improvements to battery classes (@jmmshn, #2262)
-* Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
+* Fix for Composition.chemical_system to match expected behavior for compositions with oxidation states (@CompRhys, #2249)
 * Fix for bad param in OPTIMADE response fields (@ml-evs, #2244)
 * Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
 * Fix for Moladaptor (@orioncohen, #2269)
@@ -459,7 +464,7 @@ v2021.3.3
 * **Backwards incompatible**: pymatgen.loadfn and get_structure_from_mp have been
   removed since no one was using them.
 * critic2_caller has been refactored. (@samblau)
-* Improved hash for Compositon (@CompRhys)
+* Improved hash for Composition (@CompRhys)
 * Fixes Outcar parsing for VASP 6.2.0. (@MichaelWolloch)
 * Allow None for Gaussian functional, bset, charge and multiplicity (@eimrek)
 
@@ -878,12 +883,12 @@ v2019.3.13
                 user_kpoints_settings={"reciprocal_density": k_dens})
             vi = vis.get_vasp_input()
             kpoints = vi["KPOINTS"].kpts[0][0]
-            d = "Li2O_kpoints_%d" % kpoints
+            d = f"Li2O_kpoints_%{kpoints}"
 
             # Directly run vasp.
             vi.run_vasp(d, vasp_cmd=VASP_CMD)
             # Use the final structure as the new initial structure to speed up calculations.
-            structure = Vasprun("%s/vasprun.xml" % d).final_structure
+            structure = Vasprun(f"{d}/vasprun.xml").final_structure
 
 
     if __name__ == "__main__":

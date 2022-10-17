@@ -95,7 +95,7 @@ class Trajectory(MSONable):
                 `M=2`, the `frame_properties` can be [{'energy':1.0}, {'energy':2.0}].
             constant_lattice: Whether the lattice changes during the simulation.
                 Should be used together with `lattice`. See usage there.
-            time_step: Timestep of MD simulation in femto-seconds. Should be `None`
+            time_step: Time step of MD simulation in femto-seconds. Should be `None`
                 for relaxation trajectory.
             coords_are_displacement: Whether `frac_coords` are given in displacements
                 (True) or positions (False). Note, if this is `True`, `frac_coords`
@@ -539,8 +539,8 @@ class Trajectory(MSONable):
             "dict": [prop2] * len2,
             "list": prop2,
         }
-        p1_selected: list = p1_candidates[prop1.__class__.__name__]  # type: ignore
-        p2_selected: list = p2_candidates[prop2.__class__.__name__]  # type: ignore
+        p1_selected: list = p1_candidates[type(prop1).__name__]  # type: ignore
+        p2_selected: list = p2_candidates[type(prop2).__name__]  # type: ignore
 
         return p1_selected + p2_selected
 

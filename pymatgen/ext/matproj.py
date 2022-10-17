@@ -1422,7 +1422,7 @@ class _MPResterLegacy:
         Reference for surface data:
 
         Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
-        A., & Ong, S. P. (2016). Data Descripter: Surface energies of elemental
+        A., & Ong, S. P. (2016). Data Descriptor: Surface energies of elemental
         crystals. Scientific Data, 3(160080), 1-13.
         https://doi.org/10.1038/sdata.2016.80
 
@@ -1569,7 +1569,6 @@ class _MPResterLegacy:
                 reactant mixing ratio, `energy` is the reaction energy
                 in eV/atom, and `rxn` is a
                 `pymatgen.analysis.reaction_calculator.Reaction`.
-
         """
         payload = {
             "reactants": " ".join([reactant1, reactant2]),
@@ -1771,6 +1770,7 @@ class MPRester:
 
         if api_key is None:
             api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+            kwargs["api_key"] = api_key
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")

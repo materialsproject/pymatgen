@@ -41,7 +41,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         self,
         composition: Composition | str | dict[str, float],
         energy: float,
-    ):
+    ) -> None:
         """
         Initializes an Entry.
 
@@ -135,7 +135,9 @@ class Entry(MSONable, metaclass=ABCMeta):
             "composition": self._composition.as_dict(),
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         # NOTE: Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately.
         if self is other:

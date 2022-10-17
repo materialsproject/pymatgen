@@ -20,7 +20,9 @@ class FakeNodeWithEqMethod:
     def __init__(self, isite):
         self.isite = isite
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self.isite == other.isite
 
     def __hash__(self):
@@ -31,7 +33,9 @@ class FakeNodeWithEqLtMethods:
     def __init__(self, isite):
         self.isite = isite
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self.isite == other.isite
 
     def __lt__(self, other):
@@ -52,7 +56,10 @@ class FakeNodeWithEqMethodWrongSortable:
     def __init__(self, isite):
         self.isite = isite
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return self.isite == other.isite
 
     def __hash__(self):

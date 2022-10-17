@@ -12,18 +12,13 @@ import logging
 import math
 import warnings
 from collections import Counter
-from typing import Literal, cast
+from typing import List, Literal, cast
 
 import matplotlib.lines as mlines
 import numpy as np
 import scipy.interpolate as scint
 from monty.dev import requires
 from monty.json import jsanitize
-
-try:
-    from mayavi import mlab
-except ImportError:
-    mlab = None
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -32,6 +27,11 @@ from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
 from pymatgen.util.typing import ArrayLike
+
+try:
+    from mayavi import mlab
+except ImportError:
+    mlab = None
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -854,7 +854,6 @@ class BSPlotter:
 
         Returns:
             a matplotlib object with both band structures
-
         """
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
@@ -1162,7 +1161,6 @@ class BSPlotterProjected(BSPlotter):
 
         Returns:
             a pylab object
-
         """
         band_linewidth = 3.0
         if len(self._bs.structure.composition.elements) > 3:
@@ -2418,7 +2416,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(list[float], band)
+                    band = cast(List[float], band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level
@@ -2598,7 +2596,6 @@ class BSDOSPlotter:
             bs_projection: None for no projection, "elements" for element projection
 
         Returns:
-
         """
         contribs = {}
         if bs_projection and bs_projection.lower() == "elements":

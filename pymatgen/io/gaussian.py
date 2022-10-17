@@ -433,7 +433,6 @@ class GaussianInput:
 
         Option: when cart_coords is set to True return the Cartesian coordinates
                 instead of the z-matrix
-
         """
 
         def para_dict_to_string(para, joiner=" "):

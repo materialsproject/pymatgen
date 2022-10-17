@@ -556,7 +556,6 @@ class BoltztrapRunner(MSONable):
                 convergence mode
 
         Returns:
-
         """
 
         # TODO: consider making this a part of custodian rather than pymatgen
@@ -677,7 +676,7 @@ class BoltztrapRunner(MSONable):
 
                     if warning:
                         self.lpfac += 10
-                        logging.warn(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
+                        logging.warning(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
 
                     else:
                         converged = True
@@ -1486,7 +1485,6 @@ class BoltztrapAnalyzer:
         Returns:
             A dictionary with keys {"p", "n", "best"} with sub-keys:
             {"value", "temperature", "doping", "isotropic"}
-
         """
 
         def is_isotropic(x, isotropy_tolerance):
@@ -1724,7 +1722,6 @@ class BoltztrapAnalyzer:
 
         Returns:
             tuple - (run_type, warning, efermi, gap, doping_levels)
-
         """
         run_type = None
         warning = None
@@ -2006,7 +2003,6 @@ class BoltztrapAnalyzer:
 
         Returns:
             a BoltztrapAnalyzer object
-
         """
         (
             run_type,

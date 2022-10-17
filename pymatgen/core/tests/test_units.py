@@ -166,7 +166,6 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         for obj in [Energy, EnergyArray]:
             a = obj(...)
             self.assert(...)
-
         """
         a = EnergyArray(1.1, "eV")
         b = a.to("Ha")

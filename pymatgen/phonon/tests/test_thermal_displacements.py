@@ -242,11 +242,47 @@ class ThermalDisplacementTest(PymatgenTest):
             self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector0"],
             [-0.6502072, 0.67306922, 0.35243215],
         )
+
         self.assertArrayAlmostEqual(
             self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector1"],
             [-0.6502072, 0.67306922, 0.35243215],
         )
+
+        thermal = ThermalDisplacementMatrices(
+            thermal_displacement_matrix_cart=[
+                [6.12e-03, 5.48e-03, 3.95e-03, 1.57e-03, -1.30e-04, -7.90e-04],
+                [5.16e-03, 6.13e-03, 4.15e-03, -1.10e-04, -1.58e-03, -8.10e-04],
+                [4.20e-03, 4.25e-03, 5.33e-03, 0.00e00, -3.00e-05, -1.39e-03],
+                [5.18e-03, 6.33e-03, 3.94e-03, 1.40e-04, -1.52e-03, -6.80e-04],
+                [6.16e-03, 5.22e-03, 4.14e-03, 1.53e-03, 1.00e-04, -8.90e-04],
+                [5.16e-03, 6.13e-03, 4.15e-03, 1.10e-04, -1.58e-03, 8.10e-04],
+                [6.12e-03, 5.48e-03, 3.95e-03, -1.57e-03, -1.30e-04, 7.90e-04],
+                [4.20e-03, 4.25e-03, 5.33e-03, -0.00e00, -3.00e-05, 1.39e-03],
+                [5.18e-03, 6.33e-03, 3.94e-03, -1.40e-04, -1.52e-03, 6.80e-04],
+                [6.16e-03, 5.22e-03, 4.14e-03, -1.53e-03, 1.00e-04, 8.90e-04],
+                [4.27e-03, 4.51e-03, 3.70e-03, 3.20e-04, -5.90e-04, -8.30e-04],
+                [4.38e-03, 4.44e-03, 3.65e-03, 5.90e-04, -4.20e-04, -8.60e-04],
+                [4.46e-03, 4.33e-03, 3.70e-03, 5.70e-04, -3.30e-04, -8.30e-04],
+                [4.13e-03, 4.19e-03, 3.81e-03, 3.70e-04, -3.90e-04, -9.00e-04],
+                [4.33e-03, 4.44e-03, 3.65e-03, 4.10e-04, -5.90e-04, -8.20e-04],
+                [4.27e-03, 4.51e-03, 3.70e-03, -3.20e-04, -5.90e-04, 8.30e-04],
+                [4.38e-03, 4.44e-03, 3.65e-03, -5.90e-04, -4.20e-04, 8.60e-04],
+                [4.46e-03, 4.33e-03, 3.70e-03, -5.70e-04, -3.30e-04, 8.30e-04],
+                [4.13e-03, 4.19e-03, 3.81e-03, -3.70e-04, -3.90e-04, 9.00e-04],
+                [4.33e-03, 4.44e-03, 3.65e-03, -4.10e-04, -5.90e-04, 8.20e-04],
+                [4.88e-03, 4.97e-03, 3.97e-03, 7.00e-04, -7.00e-04, -1.44e-03],
+                [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
+            ],
+            structure=Structure.from_file(
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR")
+            ),
+            temperature=0.0,
+        )
         self.assertAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"], 0.0)
+        self.assertArrayAlmostEqual(
+            self.thermal.compute_directionality_quality_criterion(thermal)[0]["vector0"],
+            self.thermal.compute_directionality_quality_criterion(thermal)[1]["vector1"],
+        )
 
     def test_angle(self):
         self.assertAlmostEqual(self.thermal._angle_dot([-1, -1, -1], [1, 1, 1]), 180.0)
@@ -254,3 +290,37 @@ class ThermalDisplacementTest(PymatgenTest):
 
     def test_ratio_prolate(self):
         self.assertAlmostEqual(self.thermal.ratio_prolate[0], 6.854889e-03 / 2.893872e-03)
+
+    def test_to_structure_with_site_properties(self):
+        # test creation of structure with site properties
+        structure = self.thermal.to_structure_with_site_properties_Ucif()
+        # test reading of structure with site properties
+        new_thermals = ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(structure)
+        self.assertArrayAlmostEqual(
+            self.thermal.thermal_displacement_matrix_cart, new_thermals.thermal_displacement_matrix_cart
+        )
+        self.assertArrayAlmostEqual(self.thermal.structure.frac_coords, new_thermals.structure.frac_coords)
+        self.assertArrayAlmostEqual(self.thermal.structure.lattice.volume, new_thermals.structure.lattice.volume)
+
+    def test_visualization_directionality_criterion(self):
+        # test file creation for VESTA
+        printed = False
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            self.thermal.visualize_directionality_quality_criterion(
+                filename=os.path.join(tmpdirname, "U.vesta"), other=self.thermal, which_structure=0
+            )
+            with open(os.path.join(tmpdirname, "U.vesta")) as file:
+                file.seek(0)  # set position to start of file
+                lines = file.read().splitlines()  # now we won't have those newlines
+                if "VECTR" in lines:
+                    printed = True
+        self.assertTrue(printed)
+
+    def test_from_cif_P1(self):
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            self.thermal.write_cif(os.path.join(tmpdirname, "U.cif"))
+            new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmpdirname, "U.cif"))
+            self.assertArrayAlmostEqual(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
+            self.assertArrayAlmostEqual(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
+            self.assertArrayAlmostEqual(new_thermals[0].structure.lattice.volume, self.thermal.structure.lattice.volume)

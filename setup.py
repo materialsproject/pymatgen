@@ -77,7 +77,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.9.8",
+    version="2022.9.21",
     python_requires=">=3.8",
     setup_requires=[
         "Cython>=0.29.23",
@@ -129,8 +129,8 @@ setup(
     },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
-    maintainer="Shyue Ping Ong, Matthew Horton",
-    maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
+    maintainer="Shyue Ping Ong, Matthew Horton, Janosh Riebesell",
+    maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
     url="https://pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "

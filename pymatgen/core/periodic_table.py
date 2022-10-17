@@ -14,7 +14,7 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Any, Callable, Literal, cast
+from typing import Any, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -527,7 +527,6 @@ class ElementBase(Enum):
         """
         Ground state term symbol
         Selected based on Hund's Rule
-
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
@@ -1111,9 +1110,9 @@ class Species(MSONable, Stringify):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state, followed by spin.
         """
-        if not hasattr(other, "X") or not hasattr(other, "symbol"):
+        if not isinstance(other, type(self)):
             return NotImplemented
-        other = cast(Species, other)
+
         x1 = float("inf") if self.X != self.X else self.X
         x2 = float("inf") if other.X != other.X else other.X
         if x1 != x2:

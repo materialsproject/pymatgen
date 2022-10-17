@@ -388,7 +388,6 @@ class Lobsterin(dict, MSONable):
 
         Returns: List of dictionaries that can be used to create new Lobsterin objects in
         standard_calculations_from_vasp_files as dict_for_basis
-
         """
         max_basis = Lobsterin.get_basis(
             structure=structure,
