@@ -5518,7 +5518,7 @@ class Waveder(MSONable):
     Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
 
     Note:
-        The way tha VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
+        The way that VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
         This results in the formatted WAVDERF only indexing between filled bands. (i.e. all the matrix elements
         are between the states i=1:8 and j=1:8 in a two atom Si calculation, which is likely a VASP bug).
         As such, it is recommended to used the hidden ``LVEL=.True.`` flag in VASP which will force indexing over

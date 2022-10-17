@@ -213,7 +213,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 
     Returns:
         LammpsBox, SymmOp
-
     """
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
@@ -234,7 +233,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 class LammpsData(MSONable):
     """
     Object for representing the data in a LAMMPS data file.
-
     """
 
     def __init__(
@@ -884,7 +882,7 @@ class LammpsData(MSONable):
 
         Args:
             charges: Dict containing the charges for the atom types to set.
-                     The dict should containg atom types as integers or labels and charges.
+                     The dict should contain atom types as integers or labels and charges.
                      Example: change the charge of Li atoms to +3:
                          charges={"Li": 3}
                          charges={1: 3} if Li atoms are of type 1
@@ -1031,7 +1029,6 @@ class ForceField(MSONable):
         force_field (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.
-
     """
 
     @staticmethod
