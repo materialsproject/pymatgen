@@ -433,7 +433,6 @@ class GaussianInput:
 
         Option: when cart_coords is set to True return the Cartesian coordinates
                 instead of the z-matrix
-
         """
 
         def para_dict_to_string(para, joiner=" "):
@@ -520,7 +519,7 @@ class GaussianInput:
         :param d: dict
         :return: GaussianInput
         """
-        return GaussianInput(
+        return cls(
             mol=Molecule.from_dict(d["molecule"]),
             functional=d["functional"],
             basis_set=d["basis_set"],

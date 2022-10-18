@@ -297,7 +297,7 @@ class Slab(Structure):
         unique = [ss[0] for ss in s.group_structures(slabs)]
         return unique
 
-    def is_symmetric(self, symprec=0.1):
+    def is_symmetric(self, symprec: float = 0.1):
         """
         Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
             or screw axis (rotation and translation) about [hkl].
@@ -827,7 +827,6 @@ class SlabGenerator:
                 usually sufficient.
             reorient_lattice (bool): reorients the lattice parameters such that
                 the c direction is the third vector of the lattice matrix
-
         """
         # pylint: disable=E1130
         # Add Wyckoff symbols of the bulk, will help with
@@ -1286,7 +1285,6 @@ class SlabGenerator:
         )
 
     def nonstoichiometric_symmetrized_slab(self, init_slab):
-
         """
         This method checks whether or not the two surfaces of the slab are
         equivalent. If the point group of the slab has an inversion symmetry (

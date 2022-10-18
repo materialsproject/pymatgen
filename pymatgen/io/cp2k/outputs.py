@@ -1380,7 +1380,7 @@ class Cp2kOutput:
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
-            attribute values in case the the capturing group is defined without name in
+            attribute values in case the capturing group is defined without name in
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
@@ -1567,7 +1567,7 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
             vbmtop = i
 
         # set fermi level to be vbm plus tolerance for
-        # PMG compatability
+        # PMG compatibility
         # *not* middle of the gap, which pdos might report
         efermi = energies[vbmtop] + 1e-6
 

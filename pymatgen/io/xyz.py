@@ -121,7 +121,6 @@ class XYZ:
 
         Returns:
             pandas.DataFrame
-
         """
         lines = str(self)
 

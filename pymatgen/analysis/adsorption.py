@@ -64,7 +64,6 @@ class AdsorbateSiteFinder:
                 concurrent with the miller index, this enables use with
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
-
         """
         # get surface normal from miller index
         if mi_vec:

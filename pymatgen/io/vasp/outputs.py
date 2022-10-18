@@ -157,7 +157,7 @@ class Vasprun(MSONable):
     Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of
     magnitude for larger files (~10Mb).
 
-    **Vasp results**
+    **VASP results**
 
     .. attribute:: ionic_steps
 
@@ -263,7 +263,7 @@ class Vasprun(MSONable):
             }
         ]
 
-    **Vasp inputs**
+    **VASP inputs**
 
     .. attribute:: incar
 
@@ -566,7 +566,6 @@ class Vasprun(MSONable):
         Returns:
             The ionic part of the static dielectric constant. Present when it's a
             DFPT run (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8
-
         """
         return self.ionic_steps[-1].get("epsilon_ion", [])
 
@@ -1173,11 +1172,12 @@ class Vasprun(MSONable):
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
             charge = potcar_nelect - nelect
 
-            if charge:
-                for s in self.structures:
-                    s._charge = charge
-                self.final_structure._charge = charge
+            for s in self.structures:
+                s._charge = charge
+            if hasattr(self, "initial_structure"):
                 self.initial_structure._charge = charge
+            if hasattr(self, "final_structure"):
+                self.final_structure._charge = charge
 
     def as_dict(self):
         """
@@ -1735,7 +1735,7 @@ class Outcar:
 
     .. attribute:: is_stopped
 
-        True if OUTCAR is from a stopped run (using STOPCAR, see Vasp Manual).
+        True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
 
     .. attribute:: run_stats
 
@@ -2010,6 +2010,8 @@ class Outcar:
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
                 r"maximum and minimum number of plane-waves",
+                last_one_only=False,
+                first_one_only=True,
             )
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
@@ -2165,6 +2167,7 @@ class Outcar:
         postprocess=str,
         attribute_name=None,
         last_one_only=True,
+        first_one_only=False,
     ):
         r"""
         Parse table-like data. A table composes of three parts: header,
@@ -2191,14 +2194,21 @@ class Outcar:
             last_one_only (bool): All the tables will be parsed, if this option
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
-                be returned. Default to be True.
+                be returned. Default to be True. Incompatible with first_one_only.
+            first_one_only (bool): Only the first occurrence of the table will be
+                parsed and the parsing procedure will stop. The enclosing list
+                will be removed. i.e. Only a single table will be returned.
+                Incompatible with last_one_only.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
-            attribute values in case the the capturing group is defined without name in
+            attribute values in case the capturing group is defined without name in
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
+        if last_one_only and first_one_only:
+            raise ValueError("last_one_only and first_one_only options are incompatible")
+
         with zopen(self.filename, "rt") as f:
             text = f.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
@@ -2220,7 +2230,9 @@ class Outcar:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
             tables.append(table_contents)
-        if last_one_only:
+            if first_one_only:
+                break
+        if last_one_only or first_one_only:
             retained_data = tables[-1]
         else:
             retained_data = tables
@@ -2261,7 +2273,6 @@ class Outcar:
             line: line to parse
 
         Returns: an array of numbers if found, or empty array if not
-
         """
         m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
         if m:
@@ -3510,7 +3521,7 @@ class VolumetricData(MSONable):
         self.structure = structure
         self.is_spin_polarized = len(data) >= 2
         self.is_soc = len(data) >= 4
-        # convert data to numpy arrays incase they were jsanitized as lists
+        # convert data to numpy arrays in case they were jsanitized as lists
         self.data = {k: np.array(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
         self.data_aug = data_aug or {}
@@ -3587,7 +3598,7 @@ class VolumetricData(MSONable):
         """
         if self.structure != other.structure:
             warnings.warn("Structures are different. Make sure you know what you are doing...")
-        if self.data.keys() != other.data.keys():
+        if list(self.data) != list(other.data):
             raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
 
         # To add checks
@@ -4395,7 +4406,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     "branch_x". If the run has not been divided in branches the method will
     turn to parsing vasprun.xml directly.
 
-    The method returns None is there"s a parsing error
+    The method returns None is there's a parsing error
 
     Args:
         dir_name: Directory containing all bandstructure runs.
@@ -5494,110 +5505,77 @@ class Eigenval:
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
 
-class Wavederf:
-    """
-    Object for reading a WAVEDERF file.
+@dataclass
+class Waveder(MSONable):
+    """Representation of the WAVEDER file.
 
-    Note: This file is only produced when LOPTICS is true AND vasp has been
-    recompiled after uncommenting the line that calls
-    WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
+    The LOPTICS tag produces a WAVEDER file which contains the derivative of the orbitals with respect to k.
+    Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
 
-    .. attribute:: data
+    Note:
+        The way tha VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
+        This results in the formatted WAVDERF only indexing between filled bands. (i.e. all the matrix elements
+        are between the states i=1:8 and j=1:8 in a two atom Si calculation, which is likely a VASP bug).
+        As such, it is recommended to used the hidden ``LVEL=.True.`` flag in VASP which will force indexing over
+        all bands.
 
-        A numpy array containing the WAVEDERF data of the form below. It should
-        be noted that VASP uses 1-based indexing for bands, but this is
-        converted to 0-based numpy array indexing.
+    The order of the indices of the data are:
+    [
+        band index1,
+        band index2,
+        kpoint index,
+        spin index,
+        cartesian direction,
+    ]
 
-        For each kpoint (in the same order as in IBZKPT), and for each pair of
-        bands:
+    Attributes:
+        cder_real: Real part of the derivative of the orbitals with respect to k.
+        cder_imag: Imaginary part of the derivative of the orbitals with respect to k.
 
-            [ #kpoint index
-             [ #band 1 index
-              [ #band 2 index
-               [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
-              ]
-             ]
-            ]
-
-        This structure follows the file format. Numpy array methods can be used
-        to fetch data in a more useful way (e.g., get matrix elements between
-        wo specific bands at each kpoint, fetch x/y/z components,
-        real/imaginary parts, abs/phase, etc. )
-
-    Author: Miguel Dias Costa
+    Author: Miguel Dias Costa, Kamal Choudhary, Jimmy-Xuan Shen
     """
 
-    def __init__(self, filename):
-        """
-        Args:
-            filename: Name of file containing WAVEDERF.
-        """
-        with zopen(filename, "rt") as f:
-            header = f.readline().split()
-            nb_kpoints = int(header[1])
-            nb_bands = int(header[2])
-            data = np.zeros((nb_kpoints, nb_bands, nb_bands, 6))
-            for ik in range(nb_kpoints):
-                for ib1 in range(nb_bands):
-                    for ib2 in range(nb_bands):
-                        # each line in the file includes besides the band
-                        # indexes, which are redundant, each band's energy
-                        # and occupation, which are already available elsewhere,
-                        # so we store only the 6 matrix elements after this 6
-                        # redundant values
-                        data[ik][ib1][ib2] = [float(element) for element in f.readline().split()[6:]]
+    cder_real: np.ndarray
+    cder_imag: np.ndarray
 
-            self.data = data
-            self._nb_kpoints = nb_kpoints
-            self._nb_bands = nb_bands
+    @classmethod
+    def from_formatted(cls, filename):
+        """Reads the WAVEDERF file and returns a Waveder object.
 
-    @property
-    def nb_bands(self):
-        """
-        returns the number of bands in the band structure
-        """
-        return self._nb_bands
-
-    @property
-    def nb_kpoints(self):
-        """
-        Returns the number of k-points in the band structure calculation
-        """
-        return self._nb_kpoints
-
-    def get_elements_between_bands(self, band_i, band_j):
-        """
-        Method returning a numpy array with elements
-
-        [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
-
-        between bands band_i and band_j (vasp 1-based indexing) for all kpoints.
+        Note: This file is only produced when LOPTICS is true AND vasp has been
+        recompiled after uncommenting the line that calls
+        WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
 
         Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
+            filename (str): The name of the WAVEDER file.
 
         Returns:
-            a numpy list of elements for each kpoint
+            A Waveder object.
         """
-        if band_i < 1 or band_i > self.nb_bands or band_j < 1 or band_j > self.nb_bands:
-            raise ValueError("Band index out of bounds")
+        with zopen(filename, "rt") as f:
+            nspin, nkpts, nbands = f.readline().split()
+        # 1 and 4 are the eigenvalues of the bands (this data is missing in the WAVEDER file)
+        # 6:12 are the complex matrix elements in each cartesian direction.
+        data = np.loadtxt(filename, skiprows=1, usecols=(1, 4, 6, 7, 8, 9, 10, 11))
+        data = data.reshape(int(nspin), int(nkpts), int(nbands), int(nbands), 8)  # slowest to fastest
+        cder_real = data[:, :, :, :, 2::2]
+        cder_imag = data[:, :, :, :, 3::2]
+        # change to [band1, band2, kpt, spin, cartesian]
+        cder_real = np.transpose(cder_real, (2, 3, 1, 0, 4))
+        cder_imag = np.transpose(cder_imag, (2, 3, 1, 0, 4))
+        # TODO add eigenvalues?
+        return cls(cder_real, cder_imag)
 
-        return self.data[:, band_i - 1, band_j - 1, :]
+    @classmethod
+    def from_binary(cls, filename, gamma_only=False):
+        """Read the WAVEDER file and returns a Waveder object.
 
-
-class Waveder:
-    """
-    Class for reading a WAVEDER file.
-    The LOPTICS tag produces a WAVEDER file.
-    The WAVEDER contains the derivative of the orbitals with respect to k.
-    Author: Kamal Choudhary, NIST
-    """
-
-    def __init__(self, filename, gamma_only=False):
-        """
         Args:
             filename: Name of file containing WAVEDER.
+            gamma_only: Whether this is from a gamma-only calculation.
+
+        Returns:
+            Waveder object.
         """
         with open(filename, "rb") as fp:
 
@@ -5626,40 +5604,32 @@ class Waveder:
                 cder = readData(np.complex64)
 
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
-
-            self._cder_data = cder_data
-            self._nkpoints = nk
-            self._ispin = ispin
-            self._nelect = nelect
-            self._nbands = nbands
+            return cls(cder_data.real, cder_data.imag)
 
     @property
-    def cder_data(self):
-        """
-        Returns the orbital derivative between states
-        """
-        return self._cder_data
+    def cder(self):
+        """Return the complex derivative of the orbitals with respect to k."""
+        if self.cder_real.shape[0] != self.cder_real.shape[1]:  # pragma: no cover
+            warnings.warn(
+                "Not all band pairs are present in the WAVEDER file."
+                "If you want to get all the matrix elements set LVEL=.True. in the INCAR."
+            )
+        return self.cder_real + 1j * self.cder_imag
 
     @property
-    def nbands(self):
-        """
-        Returns the number of bands in the calculation
-        """
-        return self._nbands
+    def nspin(self):
+        """Returns the number of spin channels."""
+        return self.cder_real.shape[3]
 
     @property
     def nkpoints(self):
-        """
-        Returns the number of k-points in the calculation
-        """
-        return self._nkpoints
+        """Returns the number of k-points."""
+        return self.cder_real.shape[2]
 
     @property
-    def nelect(self):
-        """
-        Returns the number of electrons in the calculation
-        """
-        return self._nelect
+    def nbands(self):
+        """Returns the number of bands."""
+        return self.cder_real.shape[0]
 
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
@@ -5671,25 +5641,17 @@ class Waveder:
             kpoint (Integer): Index of k-point
             spin   (Integer): Index of spin-channel (0 or 1)
             cart_dir (Integer): Index of Cartesian direction (0,1,2)
-
         Returns:
             a float value
         """
-        if band_i < 0 or band_i > self.nbands - 1 or band_j < 0 or band_j > self.nelect - 1:
-            raise ValueError("Band index out of bounds")
-        if kpoint > self.nkpoints:
-            raise ValueError("K-point index out of bounds")
-        if cart_dir > 2 or cart_dir < 0:
-            raise ValueError("cart_dir index out of bounds")
-
-        return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
+        return self.cder[band_i, band_j, kpoint, spin, cart_dir]
 
 
 @dataclass
 class WSWQ(MSONable):
     r"""
     Class for reading a WSWQ file.
-    The WSWQ file is used to calculation the wave function overlaps betweeen
+    The WSWQ file is used to calculation the wave function overlaps between
         - W: Wavefunctions in the currenct directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq
 
@@ -5718,11 +5680,22 @@ class WSWQ(MSONable):
     me_real: np.ndarray
     me_imag: np.ndarray
 
+    @property
+    def data(self):
+        """Complex overlap matrix."""
+        return self.me_real + 1j * self.me_imag
+
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename) -> WSWQ:
+        """Constructs a WSWQ object from a file.
+
+        Args:
+            filename: Name of WSWQ file.
+
+        Returns:
+            WSWQ object.
         """
-        Search for lines containing "spin"
-        """
+        # Grab the spin and kpoint values from lines containing "spin"
         spin_res = regrep(
             filename,
             {"spin": r"spin\s*=\s*(\d+)\s?\,\s?kpoint\s*=\s*(\d+)"},
@@ -5731,6 +5704,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["spin"]
         (nspin, nkpoints), _ = spin_res[0]
+        # Grab the index values from the parts with "i    =" and "j    ="
         ij_res = regrep(
             filename,
             {"ij": r"i\s*=\s*(\d+)\s?\,\s?j\s*=\s*(\d+)"},
@@ -5739,6 +5713,7 @@ class WSWQ(MSONable):
             postprocess=int,
         )["ij"]
         (nbands, _), _ = ij_res[0]
+        # Grab the matrix elements from the parts after the ":"
         data_res = regrep(
             filename,
             {"data": r"\:\s*([-+]?\d*\.\d+)\s+([-+]?\d*\.\d+)"},

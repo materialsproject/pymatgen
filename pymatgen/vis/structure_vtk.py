@@ -55,7 +55,7 @@ class StructureVis:
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
                 123,0), ....} If None is specified, a default based on
-                Jmol"s color scheme is used.
+                Jmol's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
             show_bonds: Set to True to show bonds. Defaults to True.
@@ -967,7 +967,7 @@ class MultiStructuresVis(StructureVis):
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
                 123,0), ....} If None is specified, a default based on
-                Jmol"s color scheme is used.
+                Jmol's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
             show_bonds: Set to True to show bonds. Defaults to True.

@@ -182,7 +182,7 @@ class SlabEntry(ComputedStructureEntry):
         Args:
             ucell_entry (entry): An entry object for the bulk
             ref_entries (list: [entry]): A list of entries for each type
-                of element to be used as a reservoir for nonstoichiometric
+                of element to be used as a reservoir for non-stoichiometric
                 systems. The length of this list MUST be n-1 where n is the
                 number of different elements in the bulk entry. The chempot
                 of the element ref_entry that is not in the list will be
@@ -308,7 +308,7 @@ class SlabEntry(ComputedStructureEntry):
         adsorbates = d["adsorbates"]
         clean_entry = d["clean_entry"]
 
-        return SlabEntry(
+        return cls(
             structure,
             energy,
             miller_index,
@@ -434,7 +434,7 @@ class SurfaceEnergyPlotter:
                 of the bulk reference for this particular material.
             ref_entries ([ComputedStructureEntries]): A list of entries for
                 each type of element to be used as a reservoir for
-                nonstoichiometric systems. The length of this list MUST be
+                non-stoichiometric systems. The length of this list MUST be
                 n-1 where n is the number of different elements in the bulk
                 entry. The bulk energy term in the grand surface potential can
                 be defined by a summation of the chemical potentials for each
@@ -564,7 +564,7 @@ class SurfaceEnergyPlotter:
 
         latt = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
 
-        miller_list = self.all_slab_entries.keys()
+        miller_list = list(self.all_slab_entries)
         e_surf_list = []
         for hkl in miller_list:
             # For all configurations, calculate surface energy as a
@@ -917,7 +917,7 @@ class SurfaceEnergyPlotter:
         chempot_range = sorted(chempot_range)
 
         # use dashed lines for slabs that are not stoichiometric
-        # wrt bulk. Label with formula if nonstoichiometric
+        # wrt bulk. Label with formula if non-stoichiometric
         ucell_comp = self.ucell_entry.composition.reduced_composition
         if entry.adsorbates:
             s = entry.cleaned_up_slab
@@ -1067,7 +1067,7 @@ class SurfaceEnergyPlotter:
 
     def monolayer_vs_BE(self, plot_eads=False):
         """
-        Plots the binding energy energy as a function of monolayers (ML), i.e.
+        Plots the binding energy as a function of monolayers (ML), i.e.
             the fractional area adsorbate density for all facets. For each
             facet at a specific monlayer, only plot the lowest binding energy.
 
@@ -1097,7 +1097,7 @@ class SurfaceEnergyPlotter:
             plt.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
-        plt.xlabel(" %s" * len(adsorbates) % adsorbates + " Coverage (ML)")
+        plt.xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
         plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
         plt.legend()
         plt.tight_layout()
@@ -1290,7 +1290,7 @@ class SurfaceEnergyPlotter:
                     # Shade the threshold and region at which se<=0
                     plt.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
                 elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0:
-                    # Any chempot at at this point will result
+                    # Any chempot at this point will result
                     # in se<0, shade the entire y range
                     if not show_unphyiscal_only:
                         plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
@@ -1719,7 +1719,7 @@ class NanoscaleStability:
         an energetic competition between the weighted surface energy
         (surface energy of the Wulff shape) and the bulk energy. A
         future release will include a 2D phase diagram (e.g. wrt size
-        vs chempot for adsorbed or nonstoichiometric surfaces). Based
+        vs chempot for adsorbed or non-stoichiometric surfaces). Based
         on the following work:
 
         Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale

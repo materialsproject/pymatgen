@@ -11,8 +11,6 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
-from typing import cast
-
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
@@ -1270,12 +1268,9 @@ class StructureEnvironments(MSONable):
         return differences
 
     def __eq__(self, other: object) -> bool:
-        needed_attrs = ("ce_list", "voronoi", "valences", "sites_map", "equivalent_sites", "structure", "info")
 
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not isinstance(other, StructureEnvironments):
             return NotImplemented
-
-        other = cast(StructureEnvironments, other)
 
         if len(self.ce_list) != len(other.ce_list):
             return False
@@ -1506,8 +1501,10 @@ class LightStructureEnvironments(MSONable):
 
         def __eq__(self, other: object) -> bool:
             needed_attrs = ("isite", "all_nbs_sites_indices")
+
             if not all(hasattr(other, attr) for attr in needed_attrs):
                 return NotImplemented
+
             return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):
@@ -2066,11 +2063,8 @@ class LightStructureEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
-        needed_attrs = ("strategy", "structure", "coordination_environments", "valences", "neighbors_sets")
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not isinstance(other, LightStructureEnvironments):
             return NotImplemented
-
-        other = cast(LightStructureEnvironments, other)  # silence mypy warnings
 
         is_equal = (
             self.strategy == other.strategy
@@ -2385,11 +2379,8 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
-        needed_attrs = ("coord_geoms",)
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not isinstance(other, ChemicalEnvironments):
             return NotImplemented
-
-        other = cast(ChemicalEnvironments, other)  # silence mypy warnings on other below
 
         if set(self.coord_geoms) != set(other.coord_geoms):
             return False

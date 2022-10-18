@@ -18,7 +18,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
-from typing import Any
+from typing import Any, Literal, get_args
 
 import numpy as np
 from monty.dev import requires
@@ -211,22 +211,66 @@ class ValenceIonicRadiusEvaluator:
         return valences
 
 
+on_disorder_options = Literal["take_majority_strict", "take_majority_drop", "take_max_species", "error"]
+
+
+def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
+    """What to do in bonding and coordination number analysis if a site is disordered."""
+
+    if all(site.is_ordered for site in structure):
+        return structure
+
+    if on_disorder == "error":
+        raise ValueError(
+            f"""Generating StructureGraphs for disordered Structures is unsupported. Pass on_disorder='take
+            majority' | 'take_max_species' | 'error'. 'take_majority_strict' considers only the majority species from
+            each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {{Fe:
+            0.4, O: 0.4, C: 0.2}}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds as
+            if it didn't exist. 'take_max_species' extracts the first max species on each site (Fe in prev.
+            example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case
+            of disordered structure. Offending {structure = }
+        """
+        )
+    elif on_disorder.startswith("take_"):
+        # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
+        # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
+        # As a workaround, we create a new structure with majority species on each site.
+        structure = structure.copy()  # make a copy so we don't mutate the original structure
+        for idx, site in enumerate(structure):
+            max_specie = max(site.species, key=site.species.get)  # type: ignore
+            max_val = site.species[max_specie]
+            if max_val <= 0.5:
+                if on_disorder == "take_majority_strict":
+                    raise ValueError(
+                        f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
+                    )
+                elif on_disorder == "take_majority_drop":
+                    continue
+
+            # this is the take_max_species case
+            site.species = max_specie  # set site species in copied structure to max specie
+    else:
+        raise ValueError(f"Unexpected {on_disorder = }, should be one of {get_args(on_disorder_options)}")
+
+    return structure
+
+
 class NearNeighbors:
     """
     Base class to determine near neighbors that typically include nearest
     neighbors and others that are within some tolerable distance.
     """
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
             return self.__dict__ == other.__dict__
         return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self.__dict__.items())
 
     @property
-    def structures_allowed(self):
+    def structures_allowed(self) -> bool:
         """
         Boolean property: can this NearNeighbors class be used with Structure
         objects?
@@ -234,7 +278,7 @@ class NearNeighbors:
         raise NotImplementedError("structures_allowed is not defined!")
 
     @property
-    def molecules_allowed(self):
+    def molecules_allowed(self) -> bool:
         """
         Boolean property: can this NearNeighbors class be used with Molecule
         objects?
@@ -242,7 +286,7 @@ class NearNeighbors:
         raise NotImplementedError("molecules_allowed is not defined!")
 
     @property
-    def extend_structure_molecules(self):
+    def extend_structure_molecules(self) -> bool:
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
@@ -250,31 +294,42 @@ class NearNeighbors:
         """
         raise NotImplementedError("extend_structures_molecule is not defined!")
 
-    def get_cn(self, structure: Structure, n, use_weights=False):
+    def get_cn(
+        self,
+        structure: Structure,
+        n: int,
+        use_weights: bool = False,
+        on_disorder: on_disorder_options = "take_majority_strict",
+    ) -> float:
         """
         Get coordination number, CN, of site with index n in structure.
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
-                to use weights for computing the coordination number
-                or not (False, default: each coordinated site has equal
-                weight).
+            n (int): index of site for which to determine CN.
+            use_weights (boolean): flag indicating whether (True) to use weights for computing the coordination
+                number or not (False, default: each coordinated site has equal weight).
+            on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
+                What to do when encountering a disordered structure. 'error' will raise ValueError.
+                'take_majority_strict' will use the majority specie on each site and raise
+                ValueError if no majority exists. 'take_max_species' will use the first max specie
+                on each site. For {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take_majority_strict'
+                will raise ValueError, while 'take_majority_drop' ignores this site altogether and
+                'take_max_species' will use Fe as the site specie.
         Returns:
-            cn (integer or float): coordination number.
+            cn (int or float): coordination number.
         """
-
+        structure = _handle_disorder(structure, on_disorder)
         siw = self.get_nn_info(structure, n)
         return sum(e["weight"] for e in siw) if use_weights else len(siw)
 
-    def get_cn_dict(self, structure: Structure, n, use_weights=False):
+    def get_cn_dict(self, structure: Structure, n: int, use_weights: bool = False):
         """
         Get coordination number, CN, of each element bonded to site with index n in structure
 
         Args:
             structure (Structure): input structure
-            n (integer): index of site for which to determine CN.
+            n (int): index of site for which to determine CN.
             use_weights (boolean): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
@@ -287,16 +342,16 @@ class NearNeighbors:
         siw = self.get_nn_info(structure, n)
 
         cn_dict = {}
-        for i in siw:
-            site_element = i["site"].species_string
+        for idx in siw:
+            site_element = idx["site"].species_string
             if site_element not in cn_dict:
                 if use_weights:
-                    cn_dict[site_element] = i["weight"]
+                    cn_dict[site_element] = idx["weight"]
                 else:
                     cn_dict[site_element] = 1
             else:
                 if use_weights:
-                    cn_dict[site_element] += i["weight"]
+                    cn_dict[site_element] += idx["weight"]
                 else:
                     cn_dict[site_element] += 1
         return cn_dict
@@ -307,7 +362,7 @@ class NearNeighbors:
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site in structure for which to determine
+            n (int): index of site in structure for which to determine
                     neighbors.
         Returns:
             sites (list of Site objects): near neighbors.
@@ -322,7 +377,7 @@ class NearNeighbors:
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine the weights.
+            n (int): index of site for which to determine the weights.
         Returns:
             weights (list of floats): near-neighbor weights.
         """
@@ -336,7 +391,7 @@ class NearNeighbors:
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine the image
+            n (int): index of site for which to determine the image
                 location of near neighbors.
         Returns:
             images (list of 3D integer array): image locations of
@@ -547,6 +602,7 @@ class NearNeighbors:
         decorate: bool = False,
         weights: bool = True,
         edge_properties: bool = False,
+        on_disorder: on_disorder_options = "take_majority_strict",
     ) -> StructureGraph | MoleculeGraph:
         """
         Obtain a StructureGraph object using this NearNeighbor
@@ -555,16 +611,22 @@ class NearNeighbors:
 
         Args:
             structure: Structure object.
-            decorate (bool): whether to annotate site properties
-            with order parameters using neighbors determined by
-            this NearNeighbor class
-            weights (bool): whether to include edge weights from
-            NearNeighbor class in StructureGraph
-            edge_properties (bool) whether to include further
-             edge properties from NearNeighbor class in StructureGraph
+            decorate (bool): whether to annotate site properties with order parameters using neighbors
+                determined by this NearNeighbor class
+            weights (bool): whether to include edge weights from NearNeighbor class in StructureGraph
+            edge_properties (bool) whether to include further edge properties from NearNeighbor class in StructureGraph
+            on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
+                What to do when encountering a disordered structure. 'error' will raise ValueError.
+                'take_majority_strict' will use the majority specie on each site and raise
+                ValueError if no majority exists. 'take_max_species' will use the first max specie
+                on each site. For {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take_majority_strict'
+                will raise ValueError, while 'take_majority_drop' ignores this site altogether and
+                'take_max_species' will use Fe as the site specie.
 
         Returns: a pymatgen.analysis.graphs.StructureGraph object
         """
+        structure = _handle_disorder(structure, on_disorder)
+
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
@@ -594,7 +656,6 @@ class NearNeighbors:
         Returns (dict[str, float]):
             A dict of order parameters (values) and the
             underlying motif type (keys; for example, tetrahedral).
-
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
@@ -610,7 +671,7 @@ class NearNeighbors:
                 params.append(tmp)
             lostops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n]] + self.get_nn(structure, n)
-            lostop_vals = lostops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))
+            lostop_vals = lostops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
             d = {}
             for i, lostop in enumerate(lostop_vals):
                 d[names[i]] = lostop
@@ -685,7 +746,7 @@ class VoronoiNN(NearNeighbors):
         Args:
             structure (Structure): structure for which to evaluate the
                 coordination environment.
-            n (integer): site index.
+            n (int): site index.
 
         Returns:
             A dict of sites sharing a common Voronoi facet with the site
@@ -941,7 +1002,7 @@ class VoronoiNN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 sites.
 
         Returns:
@@ -1045,7 +1106,7 @@ class IsayevNN(VoronoiNN):
         """
         Get all near-neighbor site information.
 
-        Gets the the associated image locations and weights of the site with index n
+        Gets the associated image locations and weights of the site with index n
         in structure using Voronoi decomposition and distance cutoff.
 
         Args:
@@ -1223,7 +1284,6 @@ class JmolNN(NearNeighbors):
             el2_sym: (str) symbol of atom 2
 
         Returns: (float) max bond length
-
         """
         return sqrt((self.el_radius[el1_sym] + self.el_radius[el2_sym] + self.tol) ** 2)
 
@@ -1235,7 +1295,7 @@ class JmolNN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near
+            n (int): index of site for which to determine near
                 neighbors.
 
         Returns:
@@ -1327,7 +1387,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near
+            n (int): index of site for which to determine near
                 neighbors.
 
         Returns:
@@ -1737,7 +1797,7 @@ class MinimumOKeeffeNN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near
+            n (int): index of site for which to determine near
                 neighbors.
 
         Returns:
@@ -1824,7 +1884,7 @@ class MinimumVIRENN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near
+            n (int): index of site for which to determine near
                 neighbors.
 
         Returns:
@@ -2399,7 +2459,6 @@ class LocalStructOrderParams:
                 of azimuth angles corresponds to a distinct sequence of
                 neighbors. And, this sequence has to equal the sequence
                 of neighbors in the list of polar angles.
-
         """
 
         if len(thetas) != len(phis):
@@ -2800,7 +2859,9 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
         return self._params[index]
 
-    def get_order_parameters(self, structure: Structure, n, indices_neighs=None, tol: float = 0.0, target_spec=None):
+    def get_order_parameters(
+        self, structure: Structure, n: int, indices_neighs: list[int] = None, tol: float = 0.0, target_spec=None
+    ):
         """
         Compute all order parameters of site n.
 
@@ -2810,7 +2871,7 @@ class LocalStructOrderParams:
                 for which OPs are to be
                 calculated. Note that we do not use the sites iterator
                 here, but directly access sites via struct[index].
-            indices_neighs ([int]): list of indices of those neighbors
+            indices_neighs (list[int]): list of indices of those neighbors
                 in Structure object
                 structure that are to be considered for OP computation.
                 This optional argument overwrites the way neighbors are
@@ -3391,7 +3452,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 sites.
 
         Returns:
@@ -3464,7 +3525,7 @@ class BrunnerNN_relative(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 sites.
 
         Returns:
@@ -3537,7 +3598,7 @@ class BrunnerNN_real(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 sites.
 
         Returns:
@@ -3634,7 +3695,7 @@ class EconNN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 sites.
 
         Returns:
@@ -3819,7 +3880,7 @@ class CrystalNN(NearNeighbors):
         """
         return False
 
-    def get_nn_info(self, structure: Structure, n: int = None) -> list[dict]:
+    def get_nn_info(self, structure: Structure, n: int) -> list[dict]:
         """
         Get all near-neighbor information.
         Args:
@@ -3834,7 +3895,6 @@ class CrystalNN(NearNeighbors):
                 to the coordination number (1 or smaller), 'site_index' gives index of
                 the corresponding site in the original structure.
         """
-
         nndata = self.get_nn_data(structure, n)
 
         if not self.weighted_cn:
@@ -3855,7 +3915,7 @@ class CrystalNN(NearNeighbors):
 
         return nndata.all_nninfo
 
-    def get_nn_data(self, structure: Structure, n, length=None):
+    def get_nn_data(self, structure: Structure, n: int, length=None):
         """
         The main logic of the method to compute near neighbor.
 
@@ -3986,32 +4046,41 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure: Structure, n, use_weights=False):
+    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore
         """
         Get coordination number, CN, of site with index n in structure.
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine CN.
+            n (int): index of site for which to determine CN.
             use_weights (boolean): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
+            on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
+                What to do when encountering a disordered structure. 'error' will raise ValueError.
+                'take_majority_strict' will use the majority specie on each site and raise
+                ValueError if no majority exists. 'take_max_species' will use the first max specie
+                on each site. For {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take_majority_strict'
+                will raise ValueError, while 'take_majority_drop' ignores this site altogether and
+                'take_max_species' will use Fe as the site specie.
+
         Returns:
-            cn (integer or float): coordination number.
+            cn (int or float): coordination number.
         """
+        use_weights = kwargs.get("use_weights", False)
         if self.weighted_cn != use_weights:
             raise ValueError("The weighted_cn parameter and use_weights parameter should match!")
 
-        return super().get_cn(structure, n, use_weights)
+        return super().get_cn(structure, n, **kwargs)
 
-    def get_cn_dict(self, structure: Structure, n, use_weights=False):
+    def get_cn_dict(self, structure: Structure, n: int, use_weights: bool = False, **kwargs):
         """
         Get coordination number, CN, of each element bonded to site with index n in structure
 
         Args:
             structure (Structure): input structure
-            n (integer): index of site for which to determine CN.
+            n (int): index of site for which to determine CN.
             use_weights (boolean): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
@@ -4036,7 +4105,6 @@ class CrystalNN(NearNeighbors):
 
         Returns:
             (float) integral of portion of unit semicircle
-
         """
         r = 1
 
@@ -4217,7 +4285,7 @@ class CutOffDictNN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 sites.
 
         Returns:
@@ -4329,7 +4397,7 @@ class Critic2NN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine near-neighbor
+            n (int): index of site for which to determine near-neighbor
                 sites.
 
         Returns:

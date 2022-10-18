@@ -78,7 +78,7 @@ def read_table_pattern(
 
     Returns:
         List of tables. 1) A table is a list of rows. 2) A row if either a list of
-        attribute values in case the the capturing group is defined without name in
+        attribute values in case the capturing group is defined without name in
         row_pattern, or a dict in case that named capturing groups are defined by
         row_pattern.
     """

@@ -513,7 +513,7 @@ def get_ax_fig_plt(ax=None, **kwargs):
 
     if ax is None:
         fig = plt.figure(**kwargs)
-        ax = fig.add_subplot(1, 1, 1)
+        ax = fig.gca()
     else:
         fig = plt.gcf()
 

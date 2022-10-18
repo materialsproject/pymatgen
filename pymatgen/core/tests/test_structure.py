@@ -1056,7 +1056,7 @@ class StructureTest(PymatgenTest):
         assert isinstance(s2, Structure)
 
     def test_to_from_file_string(self):
-        for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf"]:
+        for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
             s = self.structure.to(fmt=fmt)
             assert s is not None
             ss = Structure.from_str(s, fmt=fmt)

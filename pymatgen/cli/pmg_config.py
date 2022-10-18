@@ -51,7 +51,7 @@ def setup_potcars(potcar_dirs: list[str]):
         "potUSPP_GGA": "POT_GGA_US_PW91",
     }
 
-    for (parent, subdirs, files) in os.walk(pspdir):
+    for parent, subdirs, _files in os.walk(pspdir):
         basename = os.path.basename(parent)
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
@@ -122,7 +122,7 @@ def build_bader(fortran_command="gfortran"):
     :param fortran_command:
     """
     bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
-    currdir = os.getcwd()
+    cwd = os.getcwd()
     state = True
     try:
         urlretrieve(bader_url, "bader.tar.gz")
@@ -135,11 +135,11 @@ def build_bader(fortran_command="gfortran"):
         shutil.rmtree("bader")
         os.remove("bader.tar.gz")
         shutil.move("bader_exe", "bader")
-    except Exception as ex:
-        print(str(ex))
+    except Exception as exc:
+        print(str(exc))
         state = False
     finally:
-        os.chdir(currdir)
+        os.chdir(cwd)
     return state
 
 

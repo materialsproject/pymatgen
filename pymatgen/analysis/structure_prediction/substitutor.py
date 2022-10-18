@@ -38,7 +38,7 @@ class Substitutor(MSONable):
     Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h
     """
 
-    def __init__(self, threshold=1e-3, symprec=0.1, **kwargs):
+    def __init__(self, threshold=1e-3, symprec: float = 0.1, **kwargs):
         """
         This substitutor uses the substitution probability class to
         find good substitutions for a given chemistry or structure.

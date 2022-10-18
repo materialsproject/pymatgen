@@ -20,7 +20,9 @@ class FakeNodeWithEqMethod:
     def __init__(self, isite):
         self.isite = isite
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self.isite == other.isite
 
     def __hash__(self):
@@ -31,7 +33,9 @@ class FakeNodeWithEqLtMethods:
     def __init__(self, isite):
         self.isite = isite
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self.isite == other.isite
 
     def __lt__(self, other):
@@ -52,7 +56,10 @@ class FakeNodeWithEqMethodWrongSortable:
     def __init__(self, isite):
         self.isite = isite
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return self.isite == other.isite
 
     def __hash__(self):
@@ -696,7 +703,7 @@ class GraphUtilsTest(PymatgenTest):
         self.assertEqual(mgc.edge_indices, tuple([0, 1, 4, 0, 2, 2, 5, 3]))
 
         # Testing all cases for a length-4 cycle
-        nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in [0, 1, 2, 3])
+        nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in range(4))
         edges_ref = (3, 6, 9, 12)
         for inodes, iedges in [
             ((0, 1, 2, 3), (3, 6, 9, 12)),

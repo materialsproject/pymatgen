@@ -59,20 +59,14 @@ class HeisenbergMapper:
                 being equal.
 
         Parameters:
-            strategy (object): Class from pymatgen.analysis.local_env for
-                constructing graphs.
+            strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
             sgraphs (list): StructureGraph objects.
-            unique_site_ids (dict): Maps each site to its unique numerical
-                identifier.
-            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
-                position.
-            nn_interacations (dict): {i: j} pairs of NN interactions
-                between unique sites.
+            unique_site_ids (dict): Maps each site to its unique numerical identifier.
+            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
+            nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
             dists (dict): NN, NNN, and NNNN interaction distances
-            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
-                graph.
+            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
             ex_params (dict): Exchange parameter values (meV/atom)
-
         """
 
         # Save original copies of inputs
@@ -121,7 +115,6 @@ class HeisenbergMapper:
 
         Returns:
             sgraphs (list): StructureGraph objects.
-
         """
 
         # Strategy for finding neighbors
@@ -148,7 +141,6 @@ class HeisenbergMapper:
                 unique int identifier
             wyckoff_ids (dict): maps tuples of equivalent site indices to their
                 wyckoff symbols
-
         """
 
         # Get a nonmagnetic representation of the supercell geometry
@@ -185,7 +177,6 @@ class HeisenbergMapper:
 
         Returns:
             None: (sets self.nn_interactions and self.dists instance variables)
-
         """
 
         tol = self.tol  # tolerance on NN distances
@@ -262,7 +253,6 @@ class HeisenbergMapper:
 
         TODO:
             * Deal with large variance in |S| across configs
-
         """
 
         sgraphs = self.sgraphs
@@ -382,7 +372,6 @@ class HeisenbergMapper:
 
         Returns:
             ex_params (dict): Exchange parameter values (meV/atom).
-
         """
 
         ex_mat = self.ex_mat
@@ -422,7 +411,6 @@ class HeisenbergMapper:
             afm_struct (Structure): afm structure with 'magmom' site property
             fm_e (float): fm energy
             afm_e (float): afm energy
-
         """
 
         fm_struct, afm_struct = None, None
@@ -496,7 +484,6 @@ class HeisenbergMapper:
 
         Returns:
             j_avg (float): Average exchange parameter (meV/atom)
-
         """
 
         # Get low energy orderings if not supplied
@@ -537,7 +524,6 @@ class HeisenbergMapper:
 
         Returns:
             mft_t (float): Critical temperature (K)
-
         """
 
         num_sublattices = len(self.unique_site_ids)
@@ -671,7 +657,6 @@ class HeisenbergMapper:
 
         Returns:
             hmodel (HeisenbergModel): MSONable object.
-
         """
 
         # Original formula unit with nonmagnetic ions
@@ -764,7 +749,6 @@ class HeisenbergScreener:
         Returns:
             ordered_structures (list): Sanitized structures.
             ordered_energies (list): Sorted energies.
-
         """
 
         # Get only magnetic ions & give all structures site_properties['magmom']
@@ -824,7 +808,6 @@ class HeisenbergScreener:
         Returns:
             screened_structures (list): Sorted structures.
             screened_energies (list): Sorted energies.
-
         """
 
         magmoms = [s.site_properties["magmom"] for s in structures]
@@ -893,7 +876,7 @@ class HeisenbergModel(MSONable):
                 identifier.
             wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
                 position.
-            nn_interacations (dict): {i: j} pairs of NN interactions
+            nn_interactions (dict): {i: j} pairs of NN interactions
                 between unique sites.
             dists (dict): NN, NNN, and NNNN interaction distances
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
@@ -901,7 +884,6 @@ class HeisenbergModel(MSONable):
             ex_params (dict): Exchange parameter values (meV/atom).
             javg (float): <J> exchange param (meV/atom).
             igraph (StructureGraph): Exchange interaction graph.
-
         """
 
         self.formula = formula
@@ -925,8 +907,8 @@ class HeisenbergModel(MSONable):
         """
 
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["@version"] = __version__
         d["formula"] = self.formula
         d["structures"] = [s.as_dict() for s in self.structures]

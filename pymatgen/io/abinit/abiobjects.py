@@ -234,7 +234,6 @@ or the Virtual Crystal Approximation."""
 
     if not enforce_order:
         types_of_specie = species_by_znucl(structure)
-        # types_of_specie = structure.types_of_species
 
         # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
@@ -907,7 +906,7 @@ class KSampling(AbivarAble, MSONable):
 
             sp = HighSymmKpath(structure)
 
-            # Flat the array since "path" is a a list of lists!
+            # Flat the array since "path" is a list of lists!
             kpath_labels = []
             for labels in sp.kpath["path"]:
                 kpath_labels.extend(labels)

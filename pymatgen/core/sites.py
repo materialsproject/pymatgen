@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import collections
 import json
-from typing import cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -63,8 +62,8 @@ class Site(collections.abc.Hashable, MSONable):
                     species = Composition({get_el_sp(species): 1})
                 except TypeError:
                     species = Composition(species)
-            totaloccu = species.num_atoms
-            if totaloccu > 1 + Composition.amount_tolerance:
+            total_occu = species.num_atoms
+            if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             coords = np.array(coords)
         self._species: Composition = species  # type: ignore
@@ -93,8 +92,8 @@ class Site(collections.abc.Hashable, MSONable):
                 species = Composition({get_el_sp(species): 1})
             except TypeError:
                 species = Composition(species)
-        totaloccu = species.num_atoms
-        if totaloccu > 1 + Composition.amount_tolerance:
+        total_occu = species.num_atoms
+        if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
         self._species = species
 
@@ -187,8 +186,8 @@ class Site(collections.abc.Hashable, MSONable):
         True if site is an ordered site, i.e., with a single species with
         occupancy 1.
         """
-        totaloccu = self.species.num_atoms
-        return totaloccu == 1 and len(self.species) == 1
+        total_occu = self.species.num_atoms
+        return total_occu == 1 and len(self.species) == 1
 
     def __getitem__(self, el):
         """
@@ -202,10 +201,9 @@ class Site(collections.abc.Hashable, MSONable):
         same, and the coordinates are the same to some tolerance.  numpy
         function `allclose` is used to determine if coordinates are close.
         """
-        needed_attrs = ("species", "coords", "properties")
-        if not all(hasattr(self, attr) for attr in needed_attrs):
+        if not isinstance(other, type(self)):
             return NotImplemented
-        other = cast(Site, other)
+
         return (
             self.species == other.species
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
@@ -345,8 +343,8 @@ class PeriodicSite(Site, MSONable):
                 except TypeError:
                     species = Composition(species)
 
-            totaloccu = species.num_atoms
-            if totaloccu > 1 + Composition.amount_tolerance:
+            total_occu = species.num_atoms
+            if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice: Lattice = lattice
@@ -483,7 +481,7 @@ class PeriodicSite(Site, MSONable):
 
     def to_unit_cell(self, in_place=False) -> PeriodicSite | None:
         """
-        Move frac coords to within the unit cell cell.
+        Move frac coords to within the unit cell.
         """
         frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
@@ -513,11 +511,8 @@ class PeriodicSite(Site, MSONable):
         return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
     def __eq__(self, other: object) -> bool:
-        needed_attrs = ("species", "lattice", "properties", "coords")
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not isinstance(other, Site):
             return NotImplemented
-
-        other = cast(PeriodicSite, other)
 
         return (
             self.species == other.species

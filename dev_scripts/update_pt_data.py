@@ -141,7 +141,7 @@ def update_ionic_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
 
-    for el, d in data.items():
+    for d in data.values():
         if "Ionic_radii" in d:
             d["Ionic radii"] = {k: v / 100 for k, v in d["Ionic_radii"].items()}
             del d["Ionic_radii"]

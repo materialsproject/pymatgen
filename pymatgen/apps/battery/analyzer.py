@@ -204,7 +204,7 @@ class BatteryAnalyzer:
             redox_els - the full list of elements that might be oxidized or reduced
             numa - a running set of numbers of A ion at integer oxidation steps
         Returns:
-            a set of numbers A; steps for for oxidizing oxid_el first, then the other oxid_els in this list
+            a set of numbers A; steps for oxidizing oxid_el first, then the other oxid_els in this list
         """
 
         # If a given redox_el has multiple oxidation states present in the structure, we want

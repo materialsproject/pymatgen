@@ -35,9 +35,10 @@ for materials analysis. These are some of the main features:
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen's [Github page]
-(https://github.com/materialsproject/pymatgen). For help with any pymatgen
-issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
+reports. Please report any bugs and issues to the [pymatgen repo]. For help with any
+pymatgen issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
+
+[pymatgen repo]: https://github.com/materialsproject/pymatgen
 
 Why use pymatgen?
 =================
@@ -76,7 +77,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.8.23",
+    version="2022.9.21",
     python_requires=">=3.8",
     setup_requires=[
         "Cython>=0.29.23",
@@ -98,6 +99,7 @@ setup(
         "uncertainties>=3.1.4",
         "pybtex",
         "tqdm",
+        "mp-api>=0.27.3",
     ],
     extras_require={"ase": ["ase>=3.3"], "vis": ["vtk>=6.0.0"], "abinit": ["netcdf4"], "relaxation": ["m3gnet"]},
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
@@ -127,8 +129,8 @@ setup(
     },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
-    maintainer="Shyue Ping Ong, Matthew Horton",
-    maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
+    maintainer="Shyue Ping Ong, Matthew Horton, Janosh Riebesell",
+    maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
     url="https://pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
@@ -189,5 +191,5 @@ setup(
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },
-    include_dirs=numpy.get_include(),
+    include_dirs=[numpy.get_include()],
 )

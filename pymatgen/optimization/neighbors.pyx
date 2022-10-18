@@ -7,8 +7,6 @@
 # distutils: language = c
 # distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
 
-from __future__ import print_function
-
 import numpy as np
 
 cimport numpy as np
@@ -23,7 +21,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
         return NULL
     cdef void *ptr = malloc(size)
     if ptr == NULL:
-        raise MemoryError("Memory allocation of %s bytes failed!" % size)
+        raise MemoryError(f"Memory allocation of {size} bytes failed!")
     return ptr
 
 
@@ -34,7 +32,7 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
         return NULL
     cdef void *ptr = realloc(ptr_orig, size)
     if ptr == NULL:
-        raise MemoryError("Realloc memory of %s bytes failed!" % size)
+        raise MemoryError(f"Realloc memory of {size} bytes failed!")
     return ptr
 
 
@@ -43,7 +41,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                            double tol=1e-8, float min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
-    cutoff radius `r`. All the coordinates should be in cartesian.
+    cutoff radius `r`. All the coordinates should be in Cartesian.
 
     Args:
         all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,

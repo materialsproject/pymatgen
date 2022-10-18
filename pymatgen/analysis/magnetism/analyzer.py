@@ -385,7 +385,6 @@ class CollinearMagneticStructureAnalyzer:
 
         Returns:
           Structure
-
         """
 
         structure = self.structure.copy()
@@ -406,7 +405,6 @@ class CollinearMagneticStructureAnalyzer:
 
         Returns:
           Structure
-
         """
 
         structure = self.structure.copy()
@@ -437,7 +435,6 @@ class CollinearMagneticStructureAnalyzer:
         magnetic species.
 
         Returns: types of Species as a list
-
         """
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
@@ -492,7 +489,6 @@ class CollinearMagneticStructureAnalyzer:
 
         Returns: Number of symmetrically-distinct magnetic sites present
         in structure.
-
         """
 
         structure = self.get_nonmagnetic_structure()
@@ -560,7 +556,6 @@ class CollinearMagneticStructureAnalyzer:
 
         Returns:
           spacegroup_symbol, international_number
-
         """
 
         structure = self.get_structure_with_spin()
@@ -752,7 +747,6 @@ class MagneticStructureEnumerator:
           input_structure: Structure
 
         Returns: Structure
-
         """
 
         input_structure = input_structure.copy()
@@ -788,7 +782,6 @@ class MagneticStructureEnumerator:
         enumeration strategy (keys)
 
         Returns: dict of Transformations keyed by strategy
-
         """
 
         formula = structure.composition.reduced_formula
@@ -1006,7 +999,6 @@ class MagneticStructureEnumerator:
             by the transformation.
             """
             if structures_to_add:
-                # type conversion
                 if isinstance(structures_to_add, Structure):
                     structures_to_add = [structures_to_add]
                 structures_to_add = [s["structure"] if isinstance(s, dict) else s for s in structures_to_add]

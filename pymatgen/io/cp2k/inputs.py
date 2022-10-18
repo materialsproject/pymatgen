@@ -96,7 +96,9 @@ class Keyword(MSONable):
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Keyword):
+            return NotImplemented
         if self.name.upper() == other.name.upper():
             v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]
             v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]
@@ -199,7 +201,9 @@ class KeywordList(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return all(k == o for k, o in zip(self.keywords, other.keywords))
 
     def __add__(self, other):
@@ -556,7 +560,6 @@ class Section(MSONable):
 
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
-
         """
         _path = path.split("/")
         if _path[0].upper() == self.name.upper():
@@ -648,7 +651,9 @@ class SectionList(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SectionList):
+            return NotImplemented
         return all(k == o for k, o in zip(self.sections, other.sections))
 
     def __add__(self, other):
@@ -1142,7 +1147,7 @@ class Mgrid(Section):
             cutoff: Cutoff energy (in Rydbergs for historical reasons) defining how find of
                 Gaussians will be used
             rel_cutoff: The relative cutoff energy, which defines how to map the Gaussians onto
-                the multigrid. If the the value is too low then, even if you have a high cutoff
+                the multigrid. If the value is too low then, even if you have a high cutoff
                 with sharp Gaussians, they will be mapped to the course part of the multigrid
             ngrids: number of grids to use
             progression_factor: divisor that decides how to map Gaussians the multigrid after

@@ -512,7 +512,6 @@ class DftSet(Cp2kInputSet):
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
     ):
-
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
@@ -715,7 +714,7 @@ class DftSet(Cp2kInputSet):
             )
         else:
             warnings.warn(
-                "Uknown hybrid functional. Using PBE base functional"
+                "Unknown hybrid functional. Using PBE base functional"
                 " and overriding all settings manually. Proceed with"
                 " caution."
             )
@@ -946,7 +945,6 @@ class RelaxSet(DftSet):
         override_default_params: dict = None,
         **kwargs,
     ):
-
         """
         Args:
             structure: Pymatgen structure object
