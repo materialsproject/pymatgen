@@ -902,23 +902,9 @@ class SpacegroupAnalyzer:
 
     def is_laue(self):
         """
-        Check if the point group of the structure
-            has Laue symmetry (centrosymmetry)
+        Check if the point group of the structure has Laue symmetry (centrosymmetry)
         """
-
-        laue = [
-            "-1",
-            "2/m",
-            "mmm",
-            "4/m",
-            "4/mmm",
-            "-3",
-            "-3m",
-            "6/m",
-            "6/mmm",
-            "m-3",
-            "m-3m",
-        ]
+        laue = ("-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m")
 
         return str(self.get_point_group_symbol()) in laue
 

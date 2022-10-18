@@ -47,9 +47,12 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(len(a.find_primitive()), 1)
 
     def test_is_laue(self):
-        s = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"], [[0, 0, 0]])
-        a = SpacegroupAnalyzer(s)
-        self.assertTrue(a.is_laue())
+        struct = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"], [[0, 0, 0]])
+        assert SpacegroupAnalyzer(struct).is_laue()
+
+        assert self.sg.is_laue()
+
+        assert self.disordered_sg.is_laue()
 
     def test_magnetic(self):
         lfp = PymatgenTest.get_structure("LiFePO4")

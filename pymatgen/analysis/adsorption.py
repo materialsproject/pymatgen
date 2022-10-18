@@ -506,7 +506,7 @@ class AdsorbateSiteFinder:
 
         # Get the adsorbed surfaces first
         find_args = find_args or {}
-        adslabs = self.generate_adsorption_structures(
+        ad_slabss = self.generate_adsorption_structures(
             molecule,
             repeat=repeat,
             min_lw=min_lw,
@@ -515,34 +515,34 @@ class AdsorbateSiteFinder:
             find_args=find_args,
         )
 
-        new_adslabs = []
-        for adslab in adslabs:
+        new_ad_slabss = []
+        for ad_slabs in ad_slabss:
 
             # Find the adsorbate sites and indices in each slab
             _, adsorbates, indices = False, [], []
-            for i, site in enumerate(adslab.sites):
+            for i, site in enumerate(ad_slabs.sites):
                 if site.surface_properties == "adsorbate":
                     adsorbates.append(site)
                     indices.append(i)
 
             # Start with the clean slab
-            adslab.remove_sites(indices)
-            slab = adslab.copy()
+            ad_slabs.remove_sites(indices)
+            slab = ad_slabs.copy()
 
             # For each site, we add it back to the slab along with a
             # symmetrically equivalent position on the other side of
             # the slab using symmetry operations
             for adsorbate in adsorbates:
-                p2 = adslab.get_symmetric_site(adsorbate.frac_coords)
+                p2 = ad_slabs.get_symmetric_site(adsorbate.frac_coords)
                 slab.append(adsorbate.specie, p2, properties={"surface_properties": "adsorbate"})
                 slab.append(
                     adsorbate.specie,
                     adsorbate.frac_coords,
                     properties={"surface_properties": "adsorbate"},
                 )
-            new_adslabs.append(slab)
+            new_ad_slabss.append(slab)
 
-        return new_adslabs
+        return new_ad_slabss
 
     def generate_substitution_structures(
         self,
