@@ -241,7 +241,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
             self.assertIn("energy", ss)
 
         # Check ordering of energy/atom
-        self.assertLessEqual(alls[0]["energy"]/alls[0]["num_sites"], alls[-1]["energy"]/alls[-1]["num_sites"])
+        self.assertLessEqual(alls[0]["energy"] / alls[0]["num_sites"], alls[-1]["energy"] / alls[-1]["num_sites"])
 
     def test_max_disordered_sites(self):
         l = Lattice.cubic(4)

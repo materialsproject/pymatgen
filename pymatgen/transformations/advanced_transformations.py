@@ -459,13 +459,17 @@ class EnumerateStructureTransformation(AbstractTransformation):
             elif self.sort_criteria == "m3gnet":
                 if m3gnet_relaxer is None:
                     from m3gnet.models import Relaxer
+
                     m3gnet_relaxer = Relaxer()
                 relax_results = m3gnet_relaxer.relax(s)
 
                 all_structures.append(
-                    {"num_sites": len(s),
-                     "energy": float(relax_results["trajectory"].energies[-1]),
-                     "structure": relax_results["final_structure"]})
+                    {
+                        "num_sites": len(s),
+                        "energy": float(relax_results["trajectory"].energies[-1]),
+                        "structure": relax_results["final_structure"],
+                    }
+                )
             else:
                 all_structures.append({"num_sites": len(s), "structure": s})
 
