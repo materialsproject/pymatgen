@@ -52,6 +52,7 @@ jobs:
           pip install --upgrade pip wheel
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
+          pip install m3gnet
           pip install scikit-image==0.18.1
           pip install -e .
       - name: pytest ${{ matrix.pkg }}
