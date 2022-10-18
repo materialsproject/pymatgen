@@ -180,9 +180,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertIn("SymmetrizedStructure", str(ss))
 
     def test_find_primitive(self):
-        """
-        F m -3 m Li2O testing of converting to primitive cell
-        """
+        """F m -3 m Li2O testing of converting to primitive cell."""
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure)
@@ -432,11 +430,11 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         # 1.7 can't find symmetry either, but at least doesn't kill python
         s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.tricky_symmetry"))
         sa = SpacegroupAnalyzer(s, 0.1)
-        sa.get_space_group_symbol()
-        sa.get_space_group_number()
-        sa.get_point_group_symbol()
-        sa.get_crystal_system()
-        sa.get_hall()
+        assert sa.get_space_group_symbol() == "I4/mmm"
+        assert sa.get_space_group_number() == 139
+        assert sa.get_point_group_symbol() == "4/mmm"
+        assert sa.get_crystal_system() == "tetragonal"
+        assert sa.get_hall() == "-I 4 2"
 
 
 class SpacegroupTest(unittest.TestCase):
