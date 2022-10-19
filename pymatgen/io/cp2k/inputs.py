@@ -436,9 +436,9 @@ class Section(MSONable):
             d: Name of keyword to get
             default: return if d is not found in keyword list
         """
-        for k in self.keywords:
+        for k, v in self.keywords.items():
             if str(k).upper() == str(d).upper():
-                return self.keywords[k]
+                return v
         return default
 
     def update(self, d: dict, strict=False):
