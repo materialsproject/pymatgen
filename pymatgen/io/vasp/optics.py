@@ -200,8 +200,14 @@ class DielectricFunctionCalculator(MSONable):
         eigs_shifted = self.eigs - self.efermi
         rspin = 3 - cderm.shape[3]
         # limit the first two indices based on the mask
-        min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
-        min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
+        try:
+            min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
+            min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
+        except ValueError as e:
+            if "zero-size array" in str(e):
+                raise ValueError("No matrix elements found.  Check the mask.")
+            else:
+                raise e
 
         x_val = []
         y_val = []
@@ -368,9 +374,16 @@ def epsilon_imag(
     else:
         cderm = cder
 
+    # min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
+    # min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
     # limit the first two indices based on the mask
-    min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
-    min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
+    try:
+        min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
+        min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
+    except ValueError as e:
+        if "zero-size array" in str(e):
+            return egrid, np.zeros_like(egrid, dtype=np.complex_)
+        raise e
 
     (
         _,
