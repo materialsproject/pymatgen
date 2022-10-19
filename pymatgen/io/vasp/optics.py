@@ -3,6 +3,8 @@
 """Classes for parsing and manipulating VASP optical properties calculations."""
 from __future__ import annotations
 
+import itertools
+
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
 __maintainer__ = "Jimmy-Xuan Shen"
@@ -128,6 +130,7 @@ class DielectricFunctionCalculator(MSONable):
         ismear: int = None,
         sigma: float = None,
         cshift: float = None,
+        mask: npt.NDArray | None = None,
     ) -> npt.NDArray:
         """Compute the frequency dependent dielectric function.
 
@@ -163,6 +166,7 @@ class DielectricFunctionCalculator(MSONable):
             sigma=sigma,  # type: ignore
             idir=idir,
             jdir=jdir,
+            mask=mask,
         )
         # scaling constant: edeps * np.pi / structure.volume
         eps_in = eps_imag * edeps * np.pi / self.volume
@@ -170,6 +174,63 @@ class DielectricFunctionCalculator(MSONable):
         if idir == jdir:
             eps += 1.0 + 0.0j
         return egrid, eps
+
+    def plot_me_data(self, idir: int, jdir, mask: npt.NDArray | None = None, min_val: float = 0.0):
+        """Data for plotting the matrix elements as a scatter plot.
+
+        Since the computation of the final spectrum (especially the smearing part)
+        is still fairly expensive.  This function can be used to check the values
+        of some portion of the spectrum (defined by the mask).
+        In a sense, we are lookin at the imaginary part of the dielectric function
+        before the smearing is applied.
+
+        Args:
+            idir: First direction of the dielectric tensor.
+            jdir: Second direction of the dielectric tensor.
+            mask: Mask to apply to the CDER.
+            min_val: Minimum value below this value the matrix element will not be shown.
+        """
+
+        if mask is not None:
+            cderm = self.cder * mask
+        else:
+            cderm = self.cder
+
+        norm_kweights = np.array(self.kweights) / np.sum(self.kweights)
+        eigs_shifted = self.eigs - self.efermi
+        rspin = 3 - cderm.shape[3]
+        # limit the first two indices based on the mask
+        min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
+        min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
+
+        x_val = []
+        y_val = []
+        text = []
+        (
+            nb,
+            _,
+            nk,
+            nspin,
+        ) = cderm.shape[:4]
+        iter_idx = [
+            range(min_band0, max_band0 + 1),
+            range(min_band1, max_band1 + 1),
+            range(nk),
+            range(nspin),
+        ]
+        num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk * nspin
+        for ib, jb, ik, ispin in tqdm(itertools.product(*iter_idx), total=num_):
+            fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / self.sigma, self.ismear)
+            fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / self.sigma, self.ismear)
+            weight = (fermi_w_j - fermi_w_i) * rspin * norm_kweights[ik]
+            A = cderm[ib, jb, ik, ispin, idir] * np.conjugate(cderm[ib, jb, ik, ispin, jdir])
+            decel = self.eigs[jb, ik, ispin] - self.eigs[ib, ik, ispin]
+            matrix_el = np.abs(A) * float(weight)  # can have negative weight due to fermi function
+            if matrix_el > min_val:
+                x_val.append(decel)
+                y_val.append(matrix_el)
+                text.append(f"s:{ispin}, k:{ik}, {ib} -> {jb} ({decel:.2f})")
+        return x_val, y_val, text
 
 
 def delta_methfessel_paxton(x, n):
@@ -276,6 +337,7 @@ def epsilon_imag(
     sigma: float,
     idir: int,
     jdir: int,
+    mask: npt.NDArray | None = None,
 ):
     """Replicate the EPSILON_IMAG function of VASP.
 
@@ -301,14 +363,36 @@ def epsilon_imag(
 
     # for the transition between two bands at one kpoint the contributions is:
     #  (fermi[band_i] - fermi[band_j]) * rspin * normalized_kpoint_weight
+    if mask is not None:
+        cderm = cder * mask
+    else:
+        cderm = cder
+
+    # limit the first two indices based on the mask
+    min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
+    min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
+
+    (
+        _,
+        _,
+        nk,
+        nspin,
+    ) = cder.shape[:4]
+    iter_idx = [
+        range(min_band0, max_band0 + 1),
+        range(min_band1, max_band1 + 1),
+        range(nk),
+        range(nspin),
+    ]
+    num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk * nspin
     epsdd = np.zeros_like(egrid, dtype=np.complex128)
-    for ib, jb, ik, ispin in tqdm(np.ndindex(cder.shape[:4]), total=np.prod(cder.shape[:4])):
+    for ib, jb, ik, ispin in tqdm(itertools.product(*iter_idx), total=num_):
         # print(f"ib={ib}, jb={jb}, ik={ik}, ispin={ispin}")
         fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
         fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
         weight = (fermi_w_j - fermi_w_i) * rspin * norm_kweights[ik]
         decel = eigs[jb, ik, ispin] - eigs[ib, ik, ispin]
-        A = cder[ib, jb, ik, ispin, idir] * np.conjugate(cder[ib, jb, ik, ispin, jdir])
+        A = cderm[ib, jb, ik, ispin, idir] * np.conjugate(cderm[ib, jb, ik, ispin, jdir])
         # Reproduce the `SLOT` function calls in VASP:
         # CALL SLOT( REAL(DECEL,q), ISMEAR, SIGMA, NEDOS, DELTAE,  WEIGHT*A*CONST, EPSDD)
         # The conjugate part is not needed since we are running over all pairs of ib, jb
@@ -346,3 +430,5 @@ def kramers_kronig(
     csum = np.add.outer(egrid, egrid) + csfhit
     vals = -0.5 * ((eps / cdiff) - (np.conj(eps) / csum))
     return np.sum(vals, axis=1) * 2 / np.pi * deltae
+
+    # loop over that

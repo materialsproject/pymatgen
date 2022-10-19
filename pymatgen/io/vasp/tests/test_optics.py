@@ -16,6 +16,10 @@ class VasprunTest(PymatgenTest):
         dfc = DielectricFunctionCalculator.from_directory(eps_data_path)
         egrid, eps = dfc.get_epsilon(0, 0)
 
+        mask = np.zeros_like(dfc.cder, dtype=float)
+        _, eps = dfc.get_epsilon(0, 0, mask=mask)
+        assert np.max(eps) == 0.0
+
         _, eps_real_ref, eps_imag_ref = vrun.dielectric
         eps_real_ref = np.array(eps_real_ref)[:, 0]
         eps_imag_ref = np.array(eps_imag_ref)[:, 0]
