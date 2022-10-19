@@ -20,7 +20,16 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import Any, Callable, Iterable, Iterator, Literal, Sequence, cast
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    Literal,
+    Sequence,
+    SupportsIndex,
+    cast,
+)
 
 import numpy as np
 from monty.dev import deprecated
@@ -422,6 +431,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Adds a property to a site. Note: This is the preferred method
         for adding magnetic moments, selective dynamics, and related
         site-specific properties to a structure/molecule object.
+
         Examples:
             structure.add_site_property("magmom", [1.0, 0.0])
             structure.add_site_property("selective_dynamics", [[True, True, True], [False, False, False]])
@@ -456,7 +466,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
                 {Element('Si): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
         """
-
         sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
         sp_to_replace = set(sp_mapping)
         sp_in_structure = set(self.composition)
@@ -896,6 +905,9 @@ class IStructure(SiteCollection, MSONable):
                 coordinates in Cartesian coordinates. Defaults to False.
             tol (float): A fractional tolerance to deal with numerical
                 precision issues in determining if orbits are the same.
+
+        Returns:
+            Structure | IStructure
         """
         if "magmom" not in site_properties:
             raise ValueError("Magnetic moments have to be defined.")
@@ -1379,6 +1391,7 @@ class IStructure(SiteCollection, MSONable):
         output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
         two bonds connecting two points is given. Out of the two, the bond that does not
         reverse the sites is chosen.
+
         Args:
             r (float): Radius of sphere
             sg (str/int): The spacegroup the symmetry operations of which will be
@@ -1400,7 +1413,6 @@ class IStructure(SiteCollection, MSONable):
         Returns: (center_indices, points_indices, offset_vectors, distances,
                   symmetry_indices, symmetry_ops)
         """
-
         from pymatgen.symmetry.groups import SpaceGroup
 
         if sg is None:
@@ -1650,9 +1662,8 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [[:class:`pymatgen.core.structure.PeriodicNeighbor`],...]
+            list[list[PeriodicNeighbor]]
         """
-
         if sites is None:
             sites = self.sites
         site_coords = np.array([site.coords for site in sites])
@@ -2532,9 +2543,8 @@ class IStructure(SiteCollection, MSONable):
                 0.01 should be enough to deal with common numerical issues.
 
         Returns:
-            IStructure / Structure
+            IStructure | Structure
         """
-
         fmt_low = fmt.lower()
         if fmt_low == "cif":
             from pymatgen.io.cif import CifParser
@@ -3404,31 +3414,30 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 checked). Or more conveniently, you can provide a
                 specie-like object or a tuple of up to length 3.
 
-            Examples:
-                s[0] = "Fe"
-                s[0] = Element("Fe")
-                both replaces the species only.
-                s[0] = "Fe", [0.5, 0.5, 0.5]
-                Replaces site and *fractional* coordinates. Any properties
-                are inherited from current site.
-                s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}
-                Replaces site and *fractional* coordinates and properties.
+        Examples:
+            s[0] = "Fe"
+            s[0] = Element("Fe")
+            both replaces the species only.
+            s[0] = "Fe", [0.5, 0.5, 0.5]
+            Replaces site and *fractional* coordinates. Any properties
+            are inherited from current site.
+            s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}
+            Replaces site and *fractional* coordinates and properties.
 
-                s[(0, 2, 3)] = "Fe"
-                Replaces sites 0, 2 and 3 with Fe.
+            s[(0, 2, 3)] = "Fe"
+            Replaces sites 0, 2 and 3 with Fe.
 
-                s[0::2] = "Fe"
-                Replaces all even index sites with Fe.
+            s[0::2] = "Fe"
+            Replaces all even index sites with Fe.
 
-                s["Mn"] = "Fe"
-                Replaces all Mn in the structure with Fe. This is
-                a short form for the more complex replace_species.
+            s["Mn"] = "Fe"
+            Replaces all Mn in the structure with Fe. This is
+            a short form for the more complex replace_species.
 
-                s["Mn"] = "Fe0.5Co0.5"
-                Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,
-                creates a disordered structure!
+            s["Mn"] = "Fe0.5Co0.5"
+            Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,
+            creates a disordered structure!
         """
-
         if isinstance(i, int):
             indices = [i]
         elif isinstance(i, (str, Element, Species)):
@@ -3457,11 +3466,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     if len(site) > 2:
                         self._sites[ii].properties = site[2]  # type: ignore
 
-    def __delitem__(self, i):
-        """
-        Deletes a site from the Structure.
-        """
-        self._sites.__delitem__(i)
+    def __delitem__(self, idx: SupportsIndex | slice) -> None:
+        """Deletes a site from the Structure."""
+        self._sites.__delitem__(idx)
 
     @property
     def lattice(self) -> Lattice:
@@ -3579,7 +3586,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
         self._sites[i] = new_site
 
-    def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1):
+    def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1) -> None:
         """
         Substitute atom at index with a functional group.
 
@@ -3591,7 +3598,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                    must be a DummySpecies X, indicating the position of
                    nearest neighbor. The second atom must be the next
                    nearest atom. For example, for a methyl group
-                   substitution, func_grp should be X-CH3, where X is the
+                   substitution, func_group should be X-CH3, where X is the
                    first site and C is the second site. What the code will
                    do is to remove the index site, and connect the nearest
                    neighbor to the C atom in CH3. The X-C bond indicates the
@@ -3602,7 +3609,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
         """
-
         # Find the nearest neighbor that is not a terminal atom.
         all_non_terminal_nn = []
         for nn, dist, _, _ in self.get_neighbors(self[index], 3):
@@ -3834,7 +3840,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
             to_unit_cell (bool): Whether new sites are transformed to unit
                 cell
         """
-
         from numpy import cross, eye
         from numpy.linalg import norm
         from scipy.linalg import expm
@@ -3997,13 +4002,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Performs a crystal structure relaxation using some algorithm.
 
         Args:
-            calculator: A string or an ASE calculator. Defaults to M3GNet universal potential.
-            relax_cell (bool): whether to relax the lattice cell
-            stress_weight (float): the stress weight for relaxation.
+            calculator: A string or an ASE calculator. Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            relax_cell (bool): whether to relax the lattice cell. Defaults to True.
+            stress_weight (float): the stress weight for relaxation. Defaults to 0.01.
+            steps (int): max number of steps for relaxation. Defaults to 500.
             fmax (float): total force tolerance for relaxation convergence.
-                Here fmax is a sum of force and stress forces
-            steps (int): max number of steps for relaxation.
-            verbose (bool_
+                Here fmax is a sum of force and stress forces. Defaults to 0.1.
+            verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns: Relaxed structure
         """
@@ -4145,13 +4150,13 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self._sites: list[Site] = list(self._sites)  # type: ignore
 
     def __setitem__(  # type: ignore
-        self, i: int | slice | Sequence[int] | SpeciesLike, site: SpeciesLike | Site | Sequence
+        self, idx: int | slice | Sequence[int] | SpeciesLike, site: SpeciesLike | Site | Sequence
     ) -> None:
         """
         Modify a site in the molecule.
 
         Args:
-            i (int, [int], slice, Species-like): Indices to change. You can
+            idx (int, [int], slice, Species-like): Indices to change. You can
                 specify these as an int, a list of int, or a species-like
                 string.
             site (PeriodicSite/Species/Sequence): Three options exist. You can
@@ -4159,17 +4164,16 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 simply a Species-like string/object, or finally a (Species,
                 coords) sequence, e.g., ("Fe", [0.5, 0.5, 0.5]).
         """
-
-        if isinstance(i, int):
-            indices = [i]
-        elif isinstance(i, (str, Element, Species)):
-            self.replace_species({i: site})  # type: ignore
+        if isinstance(idx, int):
+            indices = [idx]
+        elif isinstance(idx, (str, Element, Species)):
+            self.replace_species({idx: site})  # type: ignore
             return
-        elif isinstance(i, slice):
-            to_mod = self[i]
+        elif isinstance(idx, slice):
+            to_mod = self[idx]
             indices = [ii for ii, s in enumerate(self._sites) if s in to_mod]
         else:
-            indices = list(i)
+            indices = list(idx)
 
         for ii in indices:
             if isinstance(site, Site):
@@ -4184,10 +4188,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     if len(site) > 2:
                         self._sites[ii].properties = site[2]  # type: ignore
 
-    def __delitem__(self, idx) -> None:
-        """
-        Deletes a site from the Structure.
-        """
+    def __delitem__(self, idx: SupportsIndex | slice) -> None:
+        """Deletes a site from the Structure."""
         self._sites.__delitem__(idx)
 
     def append(  # type: ignore
@@ -4332,7 +4334,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
         """
-
         from numpy import cross, eye
         from numpy.linalg import norm
         from scipy.linalg import expm
@@ -4407,13 +4408,13 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         Args:
             index (int): Index of atom to substitute.
-            func_grp: Substituent molecule. There are two options:
+            func_group: Substituent molecule. There are two options:
 
                 1. Providing an actual molecule as the input. The first atom
                    must be a DummySpecies X, indicating the position of
                    nearest neighbor. The second atom must be the next
                    nearest atom. For example, for a methyl group
-                   substitution, func_grp should be X-CH3, where X is the
+                   substitution, func_group should be X-CH3, where X is the
                    first site and C is the second site. What the code will
                    do is to remove the index site, and connect the nearest
                    neighbor to the C atom in CH3. The X-C bond indicates the
@@ -4424,7 +4425,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
         """
-
         # Find the nearest neighbor that is not a terminal atom.
         all_non_terminal_nn = []
         for nn in self.get_neighbors(self[index], 3):

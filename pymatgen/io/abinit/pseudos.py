@@ -666,7 +666,7 @@ class AbinitHeader(dict):
 
     def __getattr__(self, name):
         try:
-            # Default behaviour
+            # Default behavior
             return super().__getattribute__(name)
         except AttributeError:
             try:

@@ -270,7 +270,7 @@ you are acknowledged appropriately by filling out the linked form.
 * General improvements to Phase Diagram code (@CompyRhys, #2263, #2264, #2268)
 * Improve appearance of periodic table heatmap (@penicillin0, #2272)
 * Small improvements to battery classes (@jmmshn, #2262)
-* Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
+* Fix for Composition.chemical_system to match expected behavior for compositions with oxidation states (@CompRhys, #2249)
 * Fix for bad param in OPTIMADE response fields (@ml-evs, #2244)
 * Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
 * Fix for Moladaptor (@orioncohen, #2269)

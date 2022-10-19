@@ -3,6 +3,12 @@
 """Classes for parsing and manipulating VASP optical properties calculations."""
 from __future__ import annotations
 
+__author__ = "Jimmy-Xuan Shen"
+__copyright__ = "Copyright 2022, The Materials Project"
+__maintainer__ = "Jimmy-Xuan Shen"
+__email__ = "jmmshn@gmail.com"
+
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -46,7 +52,8 @@ class DielectricFunctionCalculator(MSONable):
     we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
 
-    cder: npt.NDArray
+    cder_real: npt.NDArray
+    cder_imag: npt.NDArray
     eigs: npt.NDArray
     kweights: npt.NDArray
     nedos: int
@@ -71,7 +78,6 @@ class DielectricFunctionCalculator(MSONable):
         sspins = [Spin.up, Spin.down]
         eigs = np.stack([bands[spin] for spin in sspins[: vrun.parameters["ISPIN"]]], axis=2)[..., 0]
         eigs = np.swapaxes(eigs, 0, 1)
-        cder = waveder.cder
         kweights = vrun.actual_kpoints_weights
         nedos = vrun.parameters["NEDOS"]
         deltae = vrun.dielectric[0][1]
@@ -85,7 +91,8 @@ class DielectricFunctionCalculator(MSONable):
             raise NotImplementedError("ISYM != 0 is not implemented yet")
 
         return DielectricFunctionCalculator(
-            cder=cder,
+            cder_real=waveder.cder_real,
+            cder_imag=waveder.cder_imag,
             eigs=eigs,
             kweights=kweights,
             nedos=nedos,
@@ -105,6 +112,11 @@ class DielectricFunctionCalculator(MSONable):
         vrun = Vasprun(d_ / "vasprun.xml")
         waveder = Waveder.from_binary(d_ / "WAVEDER")
         return cls.from_vasp_objects(vrun, waveder)
+
+    @property
+    def cder(self):
+        """Complex CDER from WAVEDER."""
+        return self.cder_real + self.cder_imag * 1.0j
 
     def get_epsilon(
         self,

@@ -19,8 +19,11 @@ A list of pymatgen developers can also be found `on GitHub`_.
 
 :caption: A zoomable, interactive map of pymatgen contributors based on associated institutions. If you spot an error or an omission, let us know or fill out the form above.
 
+Maintainers
+===========
+
 Lead Maintainers
-================
+----------------
 
 | **Shyue Ping Ong** |shyuep| |0000-0001-7777-8871|
 | Founding developer of *pymatgen*
@@ -54,6 +57,19 @@ Lead Maintainers
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0001-7777-8871
+
+Pull Request Review
+-------------------
+
+Additional support for reviewing pull requests from:
+
+| **Janosh Riebesell** |janosh|
+| University of Cambridge
+.. |janosh| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for janosh
 
 Newest Contributors
 ===================
@@ -308,7 +324,7 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0003-3132-3032
 
-| **Shyam Dwarknath** |shyamd| |0000-0003-0289-2607|
+| **Shyam Dwaraknath** |shyamd| |0000-0003-0289-2607|
 | LBL
 .. |shyamd| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:shyamd
@@ -522,14 +538,6 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0001-9948-7119
-
-| **Janosh Riebesell** |janosh|
-| University of Cambridge
-.. |janosh| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
-   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh
-   :width: 16
-   :height: 16
-   :alt: GitHub profile for janosh
 
 | **Jason Munro** |munrojm|
 | Lawrence Berkeley National Laboratory
