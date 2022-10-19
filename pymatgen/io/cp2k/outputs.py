@@ -1726,7 +1726,7 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
             vbmtop = i
 
         # set fermi level to be vbm plus tolerance for
-        # PMG compatability
+        # PMG compatibility
         # *not* middle of the gap, which pdos might report
         efermi = energies[vbmtop] + 1e-6
 

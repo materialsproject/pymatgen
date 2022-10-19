@@ -306,7 +306,9 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         return cls(bns_label)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self._data == other._data
 
     @property

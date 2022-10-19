@@ -341,7 +341,13 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 max_disordered_sites. Must set max_cell_size to None when using
                 this parameter.
             sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
-                states and slow) or by number of sites ("nsites", much faster).
+                states and slow) or by M3GNet energy ("m3gnet", which is the most
+                accurate but most expensive - needs m3gnet package installed.), or
+                by number of sites ("nsites", much faster, the default). If m3gnet
+                is selected, the structures are also relaxed. The expense of m3gnet
+                can be worth it if it significantly reduces the number of structures
+                to be considered and the pre-relaxation speeds up the subsequent DFT
+                calculations.
             timeout (float): timeout in minutes to pass to EnumlibAdaptor
         """
         self.symm_prec = symm_prec
@@ -436,6 +442,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
         all_structures = []
+        m3gnet_relaxer = None
         for s in structures:
             new_latt = s.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
@@ -449,13 +456,27 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     ewald = ewald_matrices[transformation]
                 energy = ewald.compute_sub_structure(s)
                 all_structures.append({"num_sites": len(s), "energy": energy, "structure": s})
+            elif self.sort_criteria == "m3gnet":
+                if m3gnet_relaxer is None:
+                    from m3gnet.models import Relaxer
+
+                    m3gnet_relaxer = Relaxer()
+                relax_results = m3gnet_relaxer.relax(s)
+
+                all_structures.append(
+                    {
+                        "num_sites": len(s),
+                        "energy": float(relax_results["trajectory"].energies[-1]),
+                        "structure": relax_results["final_structure"],
+                    }
+                )
             else:
                 all_structures.append({"num_sites": len(s), "structure": s})
 
         def sort_func(s):
             return (
                 s["energy"] / s["num_sites"]
-                if contains_oxidation_state and self.sort_criteria == "ewald"
+                if self.sort_criteria == "m3gnet" or (contains_oxidation_state and self.sort_criteria == "ewald")
                 else s["num_sites"]
             )
 
@@ -633,7 +654,7 @@ class MagOrderingTransformation(AbstractTransformation):
             global order parameter and can take values from 0.0 to 1.0
             (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
             list has to be a list of
-            :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
+            :class:`pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
             to specify more complicated orderings, see documentation for
             MagOrderParameterConstraint more details on usage
         :param energy_model: Energy model to rank the returned structures,
@@ -1562,7 +1583,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
         if self.force_diagonal:
             scale = self.min_length / np.array(structure.lattice.abc)
-            self.transformation_matrix = np.diag(np.ceil(scale).astype(int))
+            self.transformation_matrix = np.diag(np.ceil(scale).astype(int))  # type: ignore
             st = SupercellTransformation(self.transformation_matrix)
             return st.apply_transformation(structure)
 
@@ -1570,7 +1591,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         target_sc_size = self.min_length
         while sc_not_found:
             target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
-            self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
+            self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)  # type: ignore
 
             # round the entries of T and force T to be nonsingular
             self.transformation_matrix = _round_and_make_arr_singular(self.transformation_matrix)  # type: ignore
@@ -1971,11 +1992,11 @@ class SQSTransformation(AbstractTransformation):
         self.reduction_algo = reduction_algo
 
     @staticmethod
-    def _get_max_neighbor_distance(struc, shell):
+    def _get_max_neighbor_distance(struct, shell):
         """
         Calculate maximum nearest neighbor distance
         Args:
-            struc: pymatgen Structure object
+            struct: pymatgen Structure object
             shell: nearest neighbor shell, such that shell=1 is the first nearest
                 neighbor, etc.
 
@@ -1986,11 +2007,11 @@ class SQSTransformation(AbstractTransformation):
         mdnn = MinimumDistanceNN()
         distances = []
 
-        for site_num, site in enumerate(struc):
-            shell_info = mdnn.get_nn_shell_info(struc, site_num, shell)
+        for site_num, site in enumerate(struct):
+            shell_info = mdnn.get_nn_shell_info(struct, site_num, shell)
             for entry in shell_info:
                 image = entry["image"]
-                distance = site.distance(struc[entry["site_index"]], jimage=image)
+                distance = site.distance(struct[entry["site_index"]], jimage=image)
                 distances.append(distance)
 
         return max(distances)
@@ -2115,10 +2136,10 @@ class SQSTransformation(AbstractTransformation):
         for d in sqs.allsqs:
             # filter for best structures only if enabled, else use full sqs.all_sqs list
             if (not best_only) or (best_only and d["objective_function"] == sqs.objective_function):
-                struc = d["structure"]
+                struct = d["structure"]
                 # add temporary objective_function attribute to access objective_function after grouping
-                struc.objective_function = d["objective_function"]
-                strucs.append(struc)
+                struct.objective_function = d["objective_function"]
+                strucs.append(struct)
 
         if remove_duplicate_structures:
             matcher = StructureMatcher()
@@ -2130,7 +2151,7 @@ class SQSTransformation(AbstractTransformation):
         # sort structures by objective function
         strucs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
 
-        to_return = [{"structure": struc, "objective_function": struc.objective_function} for struc in strucs]
+        to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
 
         for d in to_return:
 

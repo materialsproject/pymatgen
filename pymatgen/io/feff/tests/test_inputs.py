@@ -72,7 +72,7 @@ class FeffAtomsTest(unittest.TestCase):
     def setUpClass(cls):
         r = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif"))
         cls.structure = r.get_structures()[0]
-        cls.atoms = Atoms(cls.structure, "O", 10.0)
+        cls.atoms = Atoms(cls.structure, "O", 12.0)
 
     def test_absorbing_atom(self):
         atoms_1 = Atoms(self.structure, 0, 10.0)
@@ -125,9 +125,9 @@ class FeffAtomsTest(unittest.TestCase):
 
     def test_get_string(self):
         header = Header.from_string(header_string)
-        struc = header.struct
+        struct = header.struct
         central_atom = "O"
-        a = Atoms(struc, central_atom, radius=10.0)
+        a = Atoms(struct, central_atom, radius=10.0)
         atoms = str(a)
         self.assertEqual(
             atoms.splitlines()[3].split()[4],

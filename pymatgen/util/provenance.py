@@ -400,4 +400,8 @@ class StructureNL:
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
         return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)

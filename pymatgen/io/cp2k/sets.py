@@ -783,7 +783,7 @@ class DftSet(Cp2kInputSet):
             )
         else:
             warnings.warn(
-                "Uknown hybrid functional. Using PBE base functional"
+                "Unknown hybrid functional. Using PBE base functional"
                 " and overriding all settings manually. Proceed with"
                 " caution."
             )

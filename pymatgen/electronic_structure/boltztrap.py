@@ -676,7 +676,7 @@ class BoltztrapRunner(MSONable):
 
                     if warning:
                         self.lpfac += 10
-                        logging.warn(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
+                        logging.warning(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
 
                     else:
                         converged = True

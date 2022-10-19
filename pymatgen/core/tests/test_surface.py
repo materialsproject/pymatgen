@@ -568,9 +568,9 @@ class SlabGeneratorTest(PymatgenTest):
         assert slab_with_site_props.site_properties == norm_slab.site_properties
 
     def test_get_tasker2_slabs(self):
-        # The uneven distribution of ions on the (111) facets of Halite
-        # type slabs are typical examples of Tasker 3 structures. We
-        # will test this algo to generate a Tasker 2 structure instead
+        # The uneven distribution of ions on the (111) facets of Halite type
+        # slabs are typical examples of Tasker 3 structures. We will test
+        # this algo to generate a Tasker 2 structure instead
         slabgen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10, max_normal_search=1)
         # We generate the Tasker 3 structure first
         slab = slabgen.get_slabs()[0]
@@ -586,7 +586,7 @@ class SlabGeneratorTest(PymatgenTest):
             assert not slab.is_polar()
 
     def test_nonstoichiometric_symmetrized_slab(self):
-        # For the (111) halite slab, sometimes a nonstoichiometric
+        # For the (111) halite slab, sometimes a non-stoichiometric
         # system is preferred over the stoichiometric Tasker 2.
         slabgen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10, max_normal_search=1)
         slabs = slabgen.get_slabs(symmetrize=True)
@@ -598,8 +598,8 @@ class SlabGeneratorTest(PymatgenTest):
             assert slab.is_symmetric()
 
         # For a low symmetry primitive_elemental system such as
-        # R-3m, there should be some nonsymmetric slabs
-        # without using nonstoichiometric_symmetrized_slab
+        # R-3m, there should be some non-symmetric slabs
+        # without using non-stoichiometric_symmetrized_slab
         slabs = generate_all_slabs(self.Dy, 1, 30, 30, center_slab=True, symmetrize=True)
         for s in slabs:
             assert s.is_symmetric()
@@ -722,8 +722,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
     @unittest.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):
 
-        # Test to see if we generated all reconstruction
-        # types correctly and nothing changes
+        # Test to see if we generated all reconstruction types correctly and nothing changes
 
         m = StructureMatcher()
         for n in self.rec_archive:

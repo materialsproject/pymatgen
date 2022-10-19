@@ -1422,7 +1422,7 @@ class _MPResterLegacy:
         Reference for surface data:
 
         Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
-        A., & Ong, S. P. (2016). Data Descripter: Surface energies of elemental
+        A., & Ong, S. P. (2016). Data Descriptor: Surface energies of elemental
         crystals. Scientific Data, 3(160080), 1-13.
         https://doi.org/10.1038/sdata.2016.80
 

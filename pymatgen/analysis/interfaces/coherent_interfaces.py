@@ -248,7 +248,7 @@ class CoherentInterfaceBuilder:
 
 def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     """
-    Finds a trasnformation matrix that will rotate and strain the film to the subtrate while preserving the c-axis
+    Finds a transformation matrix that will rotate and strain the film to the substrate while preserving the c-axis
     """
     film_matrix = np.array(film_matrix)
     film_matrix = film_matrix.tolist()[:2]

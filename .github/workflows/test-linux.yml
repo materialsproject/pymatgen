@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        python-version: ['3.9']
+        python-version: ['3.8']
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         include:
           - pkg: pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
@@ -64,6 +64,7 @@ jobs:
           pip install --upgrade pip wheel
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
+          pip install m3gnet
           pip install scikit-image==0.18.1
           pip install -e .
       - name: pytest ${{ matrix.pkg }}

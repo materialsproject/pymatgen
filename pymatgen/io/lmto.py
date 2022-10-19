@@ -48,7 +48,9 @@ class LMTOCtrl:
         self.header = header
         self.version = version
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self.get_string() == other.get_string()
 
     def __repr__(self):
