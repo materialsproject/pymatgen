@@ -27,7 +27,6 @@ import itertools
 import os
 import re
 import textwrap
-from collections import OrderedDict
 from typing import Iterable, Sequence
 
 from monty.io import zopen
@@ -302,7 +301,7 @@ class Section(MSONable):
         self.repeats = repeats
         self.description = description
         keywords = keywords if keywords else {}
-        self.keywords = OrderedDict(keywords)
+        self.keywords = keywords
         self.section_parameters = section_parameters if section_parameters else []
         self.location = location
         self.verbose = verbose
