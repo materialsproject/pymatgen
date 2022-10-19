@@ -42,7 +42,7 @@ __date__ = "April 2020"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 
-AnyCompEntry = Union[ComputedEntry, ComputedStructureEntry]
+AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
 
 
 class CompatibilityError(Exception):
@@ -149,7 +149,7 @@ class PotcarCorrection(Correction):
         self.input_set = input_set
         self.check_hash = check_hash
 
-    def get_correction(self, entry) -> ufloat:
+    def get_correction(self, entry: AnyComputedEntry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
@@ -169,7 +169,7 @@ class PotcarCorrection(Correction):
             raise CompatibilityError("Incompatible potcar")
         return ufloat(0.0, 0.0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.input_set.__name__} Potcar Correction"
 
 
@@ -515,11 +515,11 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract Compatibility class, not intended for direct use.
     Compatibility classes are used to correct the energies of an entry or a set
-    of entries. All Compatibility classes must implement .get_adjustments method.
+    of entries. All Compatibility classes must implement get_adjustments() method.
     """
 
     @abc.abstractmethod
-    def get_adjustments(self, entry: AnyCompEntry) -> list[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -538,6 +538,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if the entry is not compatible
         """
+        raise NotImplementedError
 
     def process_entry(self, entry: ComputedEntry) -> ComputedEntry | None:
         """
@@ -546,9 +547,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         Args:
             entry: A ComputedEntry object.
+
         Returns:
-            An adjusted entry if entry is compatible, otherwise None is
-            returned.
+            An adjusted entry if entry is compatible, else None.
         """
         try:
             return self.process_entries(entry)[0]
@@ -556,14 +557,15 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return None
 
     def process_entries(
-        self, entries: AnyCompEntry | list[AnyCompEntry], clean: bool = True, verbose: bool = False
-    ) -> list[ComputedEntry]:
+        self, entries: AnyComputedEntry | list[AnyComputedEntry], clean: bool = True, verbose: bool = False
+    ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
 
         Args:
-            entries: ComputedEntry or [ComputedEntry]
+            entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
+                Computed(Structure)Entry objects.
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
@@ -574,11 +576,11 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
-        # convert input arg to a list if not already
-        if isinstance(entries, ComputedEntry):
+        # if single entry convert to list
+        if isinstance(entries, ComputedEntry):  # True for ComputedStructureEntry too
             entries = [entries]
 
-        processed_entry_list = []
+        processed_entry_list: list[AnyComputedEntry] = []
 
         for entry in tqdm(entries, disable=(not verbose)):
             ignore_entry = False
@@ -586,11 +588,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             if clean:
                 entry.energy_adjustments = []
 
-            # get the energy adjustments
-            try:
+            try:  # get the energy adjustments
                 adjustments = self.get_adjustments(entry)
             except CompatibilityError:
-                ignore_entry = True
                 continue
 
             for ea in adjustments:
@@ -652,18 +652,16 @@ class CorrectionsList(Compatibility):
     MITCompatibility subclasses instead.
     """
 
-    def __init__(self, corrections: Sequence):
+    def __init__(self, corrections: Sequence[Correction]):
         """
         Args:
-            corrections: List of corrections to apply.
+            corrections (list[Correction]): Correction objects to apply.
         """
         self.corrections = corrections
         super().__init__()
 
-    def get_adjustments(self, entry):
-        """
-        Get the list of energy adjustments to be applied to an entry.
-        """
+    def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
+        """Get the list of energy adjustments to be applied to an entry."""
         adjustment_list = []
         corrections, uncertainties = self.get_corrections_dict(entry)
 
@@ -683,15 +681,16 @@ class CorrectionsList(Compatibility):
 
         return adjustment_list
 
-    def get_corrections_dict(self, entry):
+    def get_corrections_dict(self, entry: AnyComputedEntry) -> tuple[dict[str, float], dict[str, float]]:
         """
-        Returns the corrections applied to a particular entry.
+        Returns the correction values and uncertainties applied to a particular entry.
 
         Args:
             entry: A ComputedEntry object.
 
         Returns:
-            ({correction_name: value})
+            tuple[dict[str, float], dict[str, float]]: Map from correction names to values
+                (1st) and uncertainties (2nd).
         """
         corrections = {}
         uncertainties = {}
@@ -720,15 +719,11 @@ class CorrectionsList(Compatibility):
             "Corrections": [{"Name of Correction": {
             "Value": float, "Explanation": "string", "Uncertainty": float}]}
         """
-        centry = self.process_entry(entry)
-        if centry is None:
-            uncorrected_energy = entry.uncorrected_energy
-            corrected_energy = None
-            correction_uncertainty = None
-        else:
-            uncorrected_energy = centry.uncorrected_energy
-            corrected_energy = centry.energy
-            correction_uncertainty = centry.correction_uncertainty
+        corr_entry = self.process_entry(entry)
+        uncorrected_energy = (corr_entry or entry).uncorrected_energy
+        corrected_energy = corr_entry.energy if corr_entry else None
+        correction_uncertainty = corr_entry.correction_uncertainty if corr_entry else None
+
         d = {
             "compatibility": type(self).__name__,
             "uncorrected_energy": uncorrected_energy,
@@ -813,6 +808,18 @@ class MaterialsProjectCompatibility(CorrectionsList):
                 UCorrection(fp, MPRelaxSet, compat_type),
             ]
         )
+
+
+"""
+Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
+instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
+When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
+require CorrectionsList.
+
+This was particularly helpful for the AqueousCorrection class. The new system gives complete
+flexibility to process entries however needed inside the get_adjustments() method, rather than
+having to create a list of separate correction classes.
+"""
 
 
 @cached_class
@@ -906,7 +913,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry: AnyCompEntry) -> list[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
@@ -1062,7 +1069,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                     )
 
         # GGA / GGA+U mixing scheme corrections
-        calc_u = entry.parameters.get("hubbards", None)
+        calc_u = entry.parameters.get("hubbards")
         calc_u = defaultdict(int) if calc_u is None else calc_u
         most_electroneg = elements[-1].symbol
         u_corrections = self.u_corrections.get(most_electroneg, defaultdict(float))
@@ -1386,13 +1393,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         return adjustments
 
     def process_entries(
-        self, entries: ComputedEntry | list[ComputedEntry], clean: bool = False, verbose: bool = False
-    ) -> list[ComputedEntry]:
+        self, entries: list[AnyComputedEntry], clean: bool = False, verbose: bool = False
+    ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:
-            entries: ComputedEntry or [ComputedEntry]
+            entries (list[ComputedEntry | ComputedStructureEntry]): Entries to be processed.
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is False.

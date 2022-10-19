@@ -143,6 +143,7 @@ class DielectricFunctionCalculator(MSONable):
             ismear: Smearing method (only has 0:gaussian, >0:Methfessel-Paxton)
             sigma: Smearing width
             cshift: Complex shift used for Kramer-Kronig transformation
+            mask: Mask for the bands/kpoint/spin index to include in the calculation
         """
 
         def _use_default(param, default):
@@ -187,10 +188,10 @@ class DielectricFunctionCalculator(MSONable):
         Args:
             idir: First direction of the dielectric tensor.
             jdir: Second direction of the dielectric tensor.
-            mask: Mask to apply to the CDER.
+            mask: Mask to apply to the CDER for the bands/kpoint/spin
+                index to include in the calculation
             min_val: Minimum value below this value the matrix element will not be shown.
         """
-
         if mask is not None:
             cderm = self.cder * mask
         else:
@@ -356,6 +357,9 @@ def epsilon_imag(
         deltae: The energy grid spacing
         ismear: The smearing parameter used by the ``step_func``.
         sigma: The width of the smearing
+        idir: The first direction of the dielectric tensor
+        jdir: The second direction of the dielectric tensor
+        mask: Mask for the bands/kpoint/spin index to include in the calculation
 
     Return:
         np.array: Array of size `nedos` with the imaginary part of the dielectric function.

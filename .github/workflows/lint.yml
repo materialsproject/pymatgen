@@ -31,9 +31,6 @@ jobs:
           mypy --version
           rm -rf .mypy_cache
           mypy pymatgen
-      - name: pydocstyle
-        run: |
-          pydocstyle --count pymatgen
       - name: pylint
         run: |
           pylint pymatgen
