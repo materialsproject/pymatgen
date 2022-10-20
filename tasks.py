@@ -1,5 +1,4 @@
-"""
-Pyinvoke tasks.py file for automating releases and admin stuff.
+"""Pyinvoke tasks.py file for automating releases and admin stuff.
 
 Author: Shyue Ping Ong
 """
@@ -12,16 +11,15 @@ import subprocess
 import webbrowser
 
 import requests
-from invoke import task
+from invoke import Context, task
 from monty.os import cd
 
 from pymatgen.core import __version__ as CURRENT_VER
 
 
 @task
-def make_doc(ctx):
-    """
-    Generate API documentation + run Sphinx.
+def make_doc(ctx: Context) -> None:
+    """Generate API documentation + run Sphinx.
 
     :param ctx:
     """
@@ -83,9 +81,8 @@ def make_doc(ctx):
 
 
 @task
-def make_dash(ctx):
-    """
-    Make customized doc version for Dash
+def make_dash(ctx: Context) -> None:
+    """Make customized doc version for Dash.
 
     :param ctx:
     """
@@ -149,9 +146,8 @@ def submit_dash_pr(ctx, version):
 
 
 @task
-def update_doc(ctx):
-    """
-    Update the web documentation.
+def update_doc(ctx: Context) -> None:
+    """Update the web documentation.
 
     :param ctx:
     """
@@ -163,9 +159,8 @@ def update_doc(ctx):
 
 
 @task
-def publish(ctx):
-    """
-    Upload release to Pypi using twine.
+def publish(ctx: Context) -> None:
+    """Upload release to Pypi using twine.
 
     :param ctx:
     """
@@ -193,8 +188,7 @@ def set_ver(ctx, version):
 
 @task
 def release_github(ctx, version):
-    """
-    Release to Github using Github API.
+    """Release to Github using Github API.
 
     :param ctx:
     """
@@ -222,8 +216,7 @@ def release_github(ctx, version):
 
 @task
 def post_discourse(ctx, version):
-    """
-    Post release announcement to http://discuss.matsci.org/c/pymatgen.
+    """Post release announcement to http://discuss.matsci.org/c/pymatgen.
 
     :param ctx:
     """
@@ -248,8 +241,7 @@ def post_discourse(ctx, version):
 
 @task
 def update_changelog(ctx, version=None, sim=False):
-    """
-    Create a preliminary change log using the git logs.
+    """Create a preliminary change log using the git logs.
 
     :param ctx:
     """
@@ -291,8 +283,7 @@ def update_changelog(ctx, version=None, sim=False):
 
 @task
 def release(ctx, version=None, nodoc=False):
-    """
-    Run full sequence for releasing pymatgen.
+    """Run full sequence for releasing pymatgen.
 
     :param ctx:
     :param nodoc: Whether to skip doc generation.
@@ -314,9 +305,8 @@ def release(ctx, version=None, nodoc=False):
 
 
 @task
-def open_doc(ctx):
-    """
-    Open local documentation in web browser.
+def open_doc(ctx: Context) -> None:
+    """Open local documentation in web browser.
 
     :param ctx:
     """
@@ -325,6 +315,7 @@ def open_doc(ctx):
 
 
 @task
-def lint(ctx):
+def lint(ctx: Context) -> None:
+    """Run linters."""
     for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
         ctx.run(f"{cmd} pymatgen")

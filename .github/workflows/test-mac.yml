@@ -13,7 +13,6 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [macos-latest]
         python-version: ['3.8']
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         pkg:
@@ -22,7 +21,7 @@ jobs:
           - pymatgen/electronic_structure pymatgen/symmetry pymatgen/command_line  pymatgen/ext
           - pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
 
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}

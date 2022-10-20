@@ -47,9 +47,12 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(len(a.find_primitive()), 1)
 
     def test_is_laue(self):
-        s = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"], [[0, 0, 0]])
-        a = SpacegroupAnalyzer(s)
-        self.assertTrue(a.is_laue())
+        struct = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"], [[0, 0, 0]])
+        assert SpacegroupAnalyzer(struct).is_laue()
+
+        assert self.sg.is_laue()
+
+        assert self.disordered_sg.is_laue()
 
     def test_magnetic(self):
         lfp = PymatgenTest.get_structure("LiFePO4")
@@ -87,22 +90,21 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         for sg, structure in [(self.sg, self.structure), (self.sg4, self.structure4)]:
 
-            pgops = sg.get_point_group_operations()
-            fracsymmops = sg.get_symmetry_operations()
+            pg_ops = sg.get_point_group_operations()
+            frac_symmops = sg.get_symmetry_operations()
             symmops = sg.get_symmetry_operations(True)
-            latt = structure.lattice
-            for fop, op, pgop in zip(fracsymmops, symmops, pgops):
+            for fop, op, pgop in zip(frac_symmops, symmops, pg_ops):
                 # translation vector values should all be 0 or 0.5
                 t = fop.translation_vector * 2
                 self.assertArrayAlmostEqual(t - np.round(t), 0)
 
                 self.assertArrayAlmostEqual(fop.rotation_matrix, pgop.rotation_matrix)
                 for site in structure:
-                    newfrac = fop.operate(site.frac_coords)
-                    newcart = op.operate(site.coords)
-                    self.assertTrue(np.allclose(latt.get_fractional_coords(newcart), newfrac))
+                    new_frac = fop.operate(site.frac_coords)
+                    new_cart = op.operate(site.coords)
+                    self.assertTrue(np.allclose(structure.lattice.get_fractional_coords(new_cart), new_frac))
                     found = False
-                    newsite = PeriodicSite(site.species, newcart, latt, coords_are_cartesian=True)
+                    newsite = PeriodicSite(site.species, new_cart, structure.lattice, coords_are_cartesian=True)
                     for testsite in structure:
                         if newsite.is_periodic_image(testsite, 1e-3):
                             found = True
@@ -112,10 +114,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                 # Make sure this works for any position, not just the atomic
                 # ones.
                 random_fcoord = np.random.uniform(size=(3))
-                random_ccoord = latt.get_cartesian_coords(random_fcoord)
-                newfrac = fop.operate(random_fcoord)
-                newcart = op.operate(random_ccoord)
-                self.assertTrue(np.allclose(latt.get_fractional_coords(newcart), newfrac))
+                random_ccoord = structure.lattice.get_cartesian_coords(random_fcoord)
+                new_frac = fop.operate(random_fcoord)
+                new_cart = op.operate(random_ccoord)
+                self.assertTrue(np.allclose(structure.lattice.get_fractional_coords(new_cart), new_frac))
 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
@@ -180,9 +182,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertIn("SymmetrizedStructure", str(ss))
 
     def test_find_primitive(self):
-        """
-        F m -3 m Li2O testing of converting to primitive cell
-        """
+        """F m -3 m Li2O testing of converting to primitive cell."""
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure)
@@ -432,11 +432,11 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         # 1.7 can't find symmetry either, but at least doesn't kill python
         s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.tricky_symmetry"))
         sa = SpacegroupAnalyzer(s, 0.1)
-        sa.get_space_group_symbol()
-        sa.get_space_group_number()
-        sa.get_point_group_symbol()
-        sa.get_crystal_system()
-        sa.get_hall()
+        assert sa.get_space_group_symbol() == "I4/mmm"
+        assert sa.get_space_group_number() == 139
+        assert sa.get_point_group_symbol() == "4/mmm"
+        assert sa.get_crystal_system() == "tetragonal"
+        assert sa.get_hall() == "-I 4 2"
 
 
 class SpacegroupTest(unittest.TestCase):

@@ -324,11 +324,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         (Composition) Returns the composition
         """
-        elmap: dict[Species, float] = collections.defaultdict(float)
+        elem_map: dict[Species, float] = collections.defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
-                elmap[species] += occu
-        return Composition(elmap)
+                elem_map[species] += occu
+        return Composition(elem_map)
 
     @property
     def charge(self) -> float:
@@ -1023,7 +1023,7 @@ class IStructure(SiteCollection, MSONable):
         a = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
         return a.get_space_group_symbol(), a.get_space_group_number()
 
-    def matches(self, other, anonymous=False, **kwargs) -> bool:
+    def matches(self, other: IStructure | Structure, anonymous: bool = False, **kwargs) -> bool:
         """
         Check whether this structure is similar to another structure.
         Basically a convenience method to call structure matching.
@@ -3681,7 +3681,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True)
             self._sites.append(s_new)
 
-    def remove_species(self, species: Sequence[SpeciesLike]):
+    def remove_species(self, species: Sequence[SpeciesLike]) -> None:
         """
         Remove all occurrences of several species from a structure.
 

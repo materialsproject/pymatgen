@@ -559,7 +559,7 @@ class PhaseDiagram(MSONable):
             Formation energy from the elemental references.
         """
         comp = entry.composition
-        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in entry.composition.elements)
+        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
 
     def get_form_energy_per_atom(self, entry: PDEntry) -> float:
         """

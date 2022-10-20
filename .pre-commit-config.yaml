@@ -63,6 +63,7 @@ repos:
       - id: codespell
         stages: [commit, commit-msg]
         exclude_types: [html]
+        args: [--ignore-words-list, rute]
 
   - repo: https://github.com/PyCQA/pydocstyle
     rev: 6.1.1
