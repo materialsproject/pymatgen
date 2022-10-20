@@ -374,21 +374,18 @@ class LocalGeometryFinder:
 
     def __init__(
         self,
-        permutations_safe_override=False,
-        plane_ordering_override=True,
-        debug_level=None,
-        plane_safe_permutations=False,
+        permutations_safe_override: bool = False,
+        plane_ordering_override: bool = True,
+        plane_safe_permutations: bool = False,
         only_symbols=None,
-        print_citation=False,
+        print_citation: bool = False,
     ):
         """
-
         Args:
-            permutations_safe_override:  If set to True, all permutations are tested (very time-consuming for large
+            permutations_safe_override: If set to True, all permutations are tested (very time-consuming for large
             coordination numbers!)
             plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
-            debug_level: decides the level of debugging
-            permutations_safe_override: Whether to use safe permutations.
+            plane_safe_permutations: Whether to use safe permutations.
             only_symbols: Whether to restrict the list of environments to be identified.
             print_citation: If True, the ChemEnv citation will be printed
         """
@@ -530,8 +527,11 @@ class LocalGeometryFinder:
             if valences == "undefined":
                 vals = valences
             else:
-                if len(valences) != len(structure):
-                    raise ValueError("Valences do not match the number of sites in the structure")
+                len_vals, len_sites = len(valences), len(structure)
+                if len_vals != len_sites:
+                    raise ValueError(
+                        f"Valences ({len_vals}) do not match the number of sites in the structure ({len_sites})"
+                    )
                 vals = valences
         # TODO: add something to compute only the neighbors sets needed for the strategy.
         se = self.compute_structure_environments(
@@ -1592,12 +1592,14 @@ class LocalGeometryFinder:
         """
         Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
+
         Args:
             coordination_geometry: The coordination geometry to be investigated.
             separation_plane_algo: Separation Plane algorithm used.
             points_perfect: Points corresponding to the perfect geometry.
             nb_set: Neighbor set for this set of points. (used to store already computed separation planes)
             optimization: Optimization level (1 or 2).
+
         Returns:
             tuple: Continuous symmetry measures for the given coordination geometry for each plane and permutation
                    investigated, corresponding permutations, corresponding algorithms,

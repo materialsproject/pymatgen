@@ -560,8 +560,10 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         self, entries: AnyComputedEntry | list[AnyComputedEntry], clean: bool = True, verbose: bool = False
     ) -> list[AnyComputedEntry]:
         """
-        Process a sequence of entries with the chosen Compatibility scheme. Note
-        that this method will change the data of the original entries.
+        Process a sequence of entries with the chosen Compatibility scheme.
+
+        Warning: This method changes entries in place! All changes can be undone and original entries
+        restored by setting entry.energy_adjustments = [].
 
         Args:
             entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
@@ -633,8 +635,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         if len(entry.energy_adjustments) > 0:
             print("The following energy adjustments have been applied to this entry:")
-            for e in entry.energy_adjustments:
-                print(f"\t\t{e.name}: {e.value:.3f} eV ({e.value / entry.composition.num_atoms:.3f} eV/atom)")
+            for adj in entry.energy_adjustments:
+                print(f"\t\t{adj.name}: {adj.value:.3f} eV ({adj.value / entry.composition.num_atoms:.3f} eV/atom)")
         elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 

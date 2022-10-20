@@ -3,7 +3,11 @@
 # The ext package is also only tested in this workflow. Coverage is also computed based on this platform.
 name: Testing Linux
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 permissions:
   contents: read
