@@ -36,5 +36,5 @@ class VasprunTest(PymatgenTest):
 
         # plotting
         mask = np.ones_like(dfc.cder, dtype=float)
-        x_val, y_val, text = dfc.plot_me_data(0, 0, mask=mask, min_val=0.001)
+        x_val, y_val, text = dfc.plot_weighted_transition_data(0, 0, mask=mask, min_val=0.001)
         assert len(x_val) == len(y_val) == len(text)

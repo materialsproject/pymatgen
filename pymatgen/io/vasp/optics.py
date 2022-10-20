@@ -112,7 +112,11 @@ class DielectricFunctionCalculator(MSONable):
         """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
         d_ = Path(directory)
         vrun = Vasprun(d_ / "vasprun.xml")
-        waveder = Waveder.from_binary(d_ / "WAVEDER")
+
+        try:
+            waveder = Waveder.from_binary(d_ / "WAVEDER")
+        except ValueError:
+            waveder = Waveder.from_binary(d_ / "WAVEDER", gamma_only=True)
         return cls.from_vasp_objects(vrun, waveder)
 
     @property
@@ -176,8 +180,10 @@ class DielectricFunctionCalculator(MSONable):
             eps += 1.0 + 0.0j
         return egrid, eps
 
-    def plot_me_data(self, idir: int, jdir, mask: npt.NDArray | None = None, min_val: float = 0.0):
-        """Data for plotting the matrix elements as a scatter plot.
+    def plot_weighted_transition_data(
+        self, idir: int, jdir: int, mask: npt.NDArray | None = None, min_val: float = 0.0
+    ):
+        """Data for plotting the weight matrix elements as a scatter plot.
 
         Since the computation of the final spectrum (especially the smearing part)
         is still fairly expensive.  This function can be used to check the values
