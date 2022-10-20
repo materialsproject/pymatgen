@@ -89,7 +89,7 @@ class SpacegroupAnalyzer:
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance
         )
 
-    def get_space_group_symbol(self):
+    def get_space_group_symbol(self) -> str:
         """Get the spacegroup symbol (e.g., Pnma) for structure.
 
         Returns:
@@ -97,7 +97,7 @@ class SpacegroupAnalyzer:
         """
         return self._space_group_data["international"]
 
-    def get_space_group_number(self):
+    def get_space_group_number(self) -> int:
         """Get the international spacegroup number (e.g., 62) for structure.
 
         Returns:
@@ -105,7 +105,7 @@ class SpacegroupAnalyzer:
         """
         return int(self._space_group_data["number"])
 
-    def get_space_group_operations(self):
+    def get_space_group_operations(self) -> SpacegroupOperations:
         """Get the SpacegroupOperations for the Structure.
 
         Returns:
@@ -117,7 +117,7 @@ class SpacegroupAnalyzer:
             self.get_symmetry_operations(),
         )
 
-    def get_hall(self):
+    def get_hall(self) -> str:
         """Returns Hall symbol for structure.
 
         Returns:
@@ -125,7 +125,7 @@ class SpacegroupAnalyzer:
         """
         return self._space_group_data["hall"]
 
-    def get_point_group_symbol(self):
+    def get_point_group_symbol(self) -> str:
         """Get the point group associated with the structure.
 
         Returns:
