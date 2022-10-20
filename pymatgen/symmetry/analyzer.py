@@ -59,8 +59,6 @@ class SpacegroupAnalyzer:
         self._angle_tol = angle_tolerance
         self._structure = structure
         self._siteprops = structure.site_properties
-        latt = structure.lattice.matrix
-        positions = structure.frac_coords
         unique_species: list[Element | Species] = []
         zs = []
         magmoms = []
@@ -83,7 +81,7 @@ class SpacegroupAnalyzer:
 
         self._unique_species = unique_species
         self._numbers = zs
-        self._cell = latt, positions, zs, magmoms
+        self._cell = structure.lattice.matrix, structure.frac_coords, zs, magmoms
 
         self._space_group_data = spglib.get_symmetry_dataset(
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance

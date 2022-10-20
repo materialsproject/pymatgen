@@ -89,7 +89,7 @@ setup(
         "monty>=3.0.2",
         "scipy>=1.5.0",
         "tabulate",
-        "spglib>=1.9.9.44",
+        "spglib>=2.0",
         "networkx>=2.2",
         "matplotlib>=1.5",
         "palettable>=3.1.1",

@@ -7,7 +7,7 @@ scipy==1.9.0
 tabulate==0.8.10
 matplotlib==3.5.2
 palettable==3.3.0
-spglib==1.16.3
+spglib==2.0.1
 pandas==1.4.4
 networkx==2.7.1
 plotly==5.9.0
