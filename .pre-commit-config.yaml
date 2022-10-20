@@ -65,7 +65,6 @@ repos:
         exclude_types: [html]
         args:
           - --ignore-words-list='titel,titels,reson,'
-          - --skip="notebooks/*"
 
   - repo: https://github.com/PyCQA/pydocstyle
     rev: 6.1.1
