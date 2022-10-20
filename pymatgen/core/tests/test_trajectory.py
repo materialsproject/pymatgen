@@ -96,11 +96,11 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory(lattice, species, frac_coords, site_properties=props)
 
         # compare the overall site properties list
-        self.assertEqual(traj.site_properties, props)
+        assert traj.site_properties == props
 
         # compare the site properties after slicing
-        self.assertEqual(traj[0].site_properties, props[0])
-        self.assertEqual(traj[1:].site_properties, props[1:])
+        assert traj[0].site_properties == props[0]
+        assert traj[1:].site_properties == props[1:]
 
     def test_frame_properties(self):
         lattice, species, frac_coords = self._get_lattice_species_and_coords()
@@ -110,11 +110,11 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory(lattice, species, frac_coords, frame_properties=props)
 
         # compare the overall site properties
-        self.assertEqual(traj.frame_properties, props)
+        assert traj.frame_properties == props
 
         # compare the site properties after slicing
         expected = props[1:]
-        self.assertEqual(traj[1:].frame_properties, expected)
+        assert traj[1:].frame_properties == expected
 
     def test_extend(self):
         traj = copy.deepcopy(self.traj)
@@ -175,61 +175,61 @@ class TrajectoryTest(PymatgenTest):
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_1)
         expected_site_props = props_1
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # const & const (both constant but different site properties)
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_2)
         expected_site_props = [props_1] * num_frames + [props_2] * num_frames
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # const & changing
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_3)
         expected_site_props = [props_1] * num_frames + props_3
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # const & none
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_4)
         expected_site_props = [props_1] * num_frames + [None] * num_frames
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # changing & const
         traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_1)
         expected_site_props = props_3 + [props_1] * num_frames
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # changing & changing
         traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_3)
         expected_site_props = props_3 + props_3
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # changing & none
         traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_4)
         expected_site_props = props_3 + [None] * num_frames
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # none & const
         traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_1)
         expected_site_props = [None] * num_frames + [props_1] * num_frames
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # none & changing
         traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_3)
         expected_site_props = [None] * num_frames + props_3
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
         # none & none
         traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_4)
         expected_site_props = None
-        self.assertEqual(traj_combined.site_properties, expected_site_props)
+        assert traj_combined.site_properties == expected_site_props
 
     def test_extend_frame_props(self):
         lattice, species, frac_coords = self._get_lattice_species_and_coords()
@@ -253,18 +253,18 @@ class TrajectoryTest(PymatgenTest):
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_2)
         expected_props = props_1 + props_2
-        self.assertEqual(traj_combined.frame_properties, expected_props)
+        assert traj_combined.frame_properties == expected_props
 
         # test combining two where one has properties and the other does not
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_3)
         expected_props = props_1 + [None] * len(frac_coords)
-        self.assertEqual(traj_combined.frame_properties, expected_props)
+        assert traj_combined.frame_properties == expected_props
 
         # test combining two both of which have no properties
         traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_3)
-        self.assertEqual(traj_combined.frame_properties, None)
+        assert traj_combined.frame_properties is None
 
     def test_length(self):
         assert len(self.traj) == len(self.structures)
