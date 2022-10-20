@@ -5597,9 +5597,9 @@ class Waveder(MSONable):
             _ = readData(np.float_)  # wplasmon
             if gamma_only:
                 try:
-                    cder = readData(np.float_)
-                except Exception:
                     cder = readData(np.float32)  # some times gamma_only vasp is compiled with float32
+                except ValueError:
+                    cder = readData(np.float64)
             else:
                 cder = readData(np.complex64)
 
