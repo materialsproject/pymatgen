@@ -112,7 +112,7 @@ class DielectricFunctionCalculator(MSONable):
         """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
         d_ = Path(directory)
         vrun = Vasprun(d_ / "vasprun.xml")
-        is_gamma = "gamma" in vrun.generator["subversion"]
+        is_gamma = "gamma" in vrun.generator["subversion"].lower()
         waveder = Waveder.from_binary(d_ / "WAVEDER", gamma_only=is_gamma)
         return cls.from_vasp_objects(vrun, waveder)
 
