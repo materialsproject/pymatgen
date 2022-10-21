@@ -34,16 +34,16 @@ SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 def _load_pmg_settings() -> dict[str, str]:
     settings = {}
     # Load .pmgrc.yaml file
-    if os.path.exists(SETTINGS_FILE):
-        try:
-            yaml = YAML()
-            with open(SETTINGS_FILE) as f:
-                d_yml = yaml.load(f)
-            settings.update(d_yml)
-        except Exception as ex:
-            # If there are any errors, default to using environment variables
-            # if present.
-            warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
+    try:
+        yaml = YAML()
+        with open(SETTINGS_FILE) as yml_file:
+            settings = yaml.load(yml_file)
+    except FileNotFoundError:
+        pass
+    except Exception as ex:
+        # If there are any errors, default to using environment variables
+        # if present.
+        warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
 
     # Override .pmgrc.yaml with env vars if present
     for k, v in os.environ.items():
