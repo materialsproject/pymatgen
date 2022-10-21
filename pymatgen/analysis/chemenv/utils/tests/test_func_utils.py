@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import unittest
 
 import numpy as np
@@ -13,6 +8,8 @@ from pymatgen.analysis.chemenv.utils.func_utils import (
     CSMInfiniteRatioFunction,
     DeltaCSMRatioFunction,
 )
+
+__author__ = "waroquiers"
 
 
 class FuncUtilsTest(unittest.TestCase):

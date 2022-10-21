@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import itertools
 import random
 import unittest
@@ -11,6 +6,8 @@ import numpy as np
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 
 class PlanesUtilsTest(PymatgenTest):

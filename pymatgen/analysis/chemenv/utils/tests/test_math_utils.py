@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import unittest
 
 import numpy as np
@@ -21,6 +16,8 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     smoothstep,
 )
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 
 class MathUtilsTest(PymatgenTest):

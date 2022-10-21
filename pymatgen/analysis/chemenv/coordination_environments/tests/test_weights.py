@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import json
 import os
 import unittest
@@ -23,6 +18,8 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     StructureEnvironments,
 )
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 se_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,

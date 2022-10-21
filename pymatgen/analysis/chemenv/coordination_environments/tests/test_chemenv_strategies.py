@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import unittest
 
 import pytest
@@ -15,6 +10,8 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SimplestChemenvStrategy,
 )
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 
 class StrategyOptionsTest(PymatgenTest):

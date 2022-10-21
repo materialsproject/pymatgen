@@ -30,14 +30,22 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://materialsproject.org").status_code == 200
+    website_down = requests.get("https://materialsproject.org").status_code != 200
 except requests.exceptions.ConnectionError:
-    website_is_up = False
+    website_down = True
+
+
+PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
+if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
+    msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
+    if len(PMG_MAPI_KEY) == 32:
+        msg += " (this looks like a new API key)"
+    raise ValueError(msg)
 
 
 @unittest.skipIf(
-    (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
-    "PMG_MAPI_KEY environment variable not set or MP is down.",
+    website_down or not PMG_MAPI_KEY,
+    "PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class MPResterOldTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -399,12 +407,12 @@ class MPResterOldTest(PymatgenTest):
         gb_f = mo_s3_112[0]["final_structure"]
         self.assertArrayAlmostEqual(gb_f.rotation_axis, [1, 1, 0])
         assert gb_f.rotation_angle == pytest.approx(109.47122)
-        assert mo_s3_112[0]["gb_energy"] == pytest.approx(0.47965)
+        assert mo_s3_112[0]["gb_energy"] == pytest.approx(0.47965, rel=1e-4)
         assert mo_s3_112[0]["work_of_separation"] == pytest.approx(6.318144)
         assert "Mo24" in gb_f.formula
         hcp_s7 = self.rester.get_gb_data(material_id="mp-87", gb_plane=[0, 0, 0, 1], include_work_of_separation=True)
-        assert hcp_s7[0]["gb_energy"] == pytest.approx(1.12)
-        assert hcp_s7[0]["work_of_separation"] == pytest.approx(2.47)
+        assert hcp_s7[0]["gb_energy"] == pytest.approx(1.1206, rel=1e-4)
+        assert hcp_s7[0]["work_of_separation"] == pytest.approx(2.4706, rel=1e-4)
 
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")

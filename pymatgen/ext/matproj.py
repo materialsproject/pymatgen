@@ -946,7 +946,6 @@ class _MPResterLegacy:
         Returns:
             An ExpEntry object.
         """
-
         return ExpEntry(Composition(formula), self.get_exp_thermo_data(formula))
 
     def query(
@@ -1349,9 +1348,11 @@ class _MPResterLegacy:
         Gets the cohesive for a material (eV per formula unit). Cohesive energy
             is defined as the difference between the bulk energy and the sum of
             total DFT energy of isolated atoms for atom elements in the bulk.
+
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
             per_atom (bool): Whether or not to return cohesive energy per atom
+
         Returns:
             Cohesive energy (eV).
         """
@@ -1412,7 +1413,6 @@ class _MPResterLegacy:
         Returns:
             list of material_ids corresponding to possible substrates
         """
-
         return self._make_request("/materials/all_substrate_ids")
 
     def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
@@ -1433,6 +1433,7 @@ class _MPResterLegacy:
             of this specific plane will be returned.
             inc_structures (bool): Include final surface slab structures.
                 These are unnecessary for Wulff shape construction.
+
         Returns:
             Surface data for material. Energies are given in SI units (J/m^2).
         """
@@ -1457,6 +1458,7 @@ class _MPResterLegacy:
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
+
         Returns:
             pymatgen.analysis.wulff.WulffShape
         """
@@ -1580,7 +1582,7 @@ class _MPResterLegacy:
 
     def get_download_info(self, material_ids, task_types=None, file_patterns=None):
         """
-        get a list of URLs to retrieve raw VASP output files from the NoMaD repository
+        Get a list of URLs to retrieve raw VASP output files from the NoMaD repository
 
         Args:
             material_ids (list): list of material identifiers (mp-id's)
@@ -1762,23 +1764,16 @@ class MPRester:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.
         """
-
         if len(args) > 0:
             api_key = args[0]
         else:
-            api_key = kwargs.get("api_key", None)
-
-        if api_key is None:
-            api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+            api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
             kwargs["api_key"] = api_key
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
 
-        if len(api_key) == 32:
-            return _MPResterNew(*args, **kwargs)
-        else:
-            return _MPResterLegacy(*args, **kwargs)
+        return (_MPResterNew if len(api_key) == 32 else _MPResterLegacy)(*args, **kwargs)
 
 
 class MPRestError(Exception):
