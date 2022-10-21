@@ -590,8 +590,9 @@ class Vasprun(MSONable):
         Calculate the optical absorption coefficient
         from the dielectric constants. Note that this method is only
         implemented for optical properties calculated with GGA and BSE.
+
         Returns:
-        optical absorption coefficient in list
+            optical absorption coefficient in list
         """
         if self.dielectric_data["density"]:
             real_avg = [
@@ -2285,7 +2286,6 @@ class Outcar:
         LOPTICS). Frequencies (in eV) are in self.frequencies, and dielectric
         tensor function is given as self.dielectric_tensor_function.
         """
-
         plasma_pattern = r"plasma frequency squared.*"
         dielectric_pattern = (
             r"frequency dependent\s+IMAGINARY "
@@ -2474,7 +2474,6 @@ class Outcar:
         Returns:
             A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR
         """
-
         header_pattern = (
             r"Electric field gradients \(V/A\^2\)\n" r"-*\n" r" ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n" r"-*\n"
         )
@@ -2545,7 +2544,6 @@ class Outcar:
         Parse the onsite density matrices, returns list with index corresponding
         to atom index in Structure.
         """
-
         # matrix size will vary depending on if d or f orbitals are present
         # therefore regex assumes f, but filter out None values if d
 
@@ -2647,7 +2645,6 @@ class Outcar:
         (See VASP section "LBERRY,  IGPAR,  NPPSTR,  DIPOL tags" for info on
         what these are).
         """
-
         # variables to be filled
         self.er_ev = {}  # will  be  dict (Spin.up/down) of array(3*float)
         self.er_bp = {}  # will  be  dics (Spin.up/down) of array(3*float)
@@ -3258,7 +3255,6 @@ class Outcar:
             The core state eigenenergie of the 2s AO of the 6th atom of the
             structure at the last ionic step is [5]["2s"][-1]
         """
-
         with zopen(self.filename, "rt") as foutcar:
             line = foutcar.readline()
             while line != "":
@@ -3404,7 +3400,7 @@ class Outcar:
 
     def read_fermi_contact_shift(self):
         """
-        output example:
+        Output example:
         Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         -------------------------------------------------------------
         ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
@@ -3418,7 +3414,6 @@ class Outcar:
          [-0.002, -0.002, -0.051, 0.0, -0.052],
          [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data
         """
-
         # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         header_pattern1 = (
             r"\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+"
@@ -4242,7 +4237,6 @@ class Procar:
         Returns:
             Sum occupation of orbital of atom.
         """
-
         orbital_index = self.orbitals.index(orbital)
         return {
             spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None]) for spin, d in self.data.items()
@@ -4469,6 +4463,7 @@ class Xdatcar:
             filename (str): Filename of input XDATCAR file.
             ionicstep_start (int): Starting number of ionic step.
             ionicstep_end (int): Ending number of ionic step.
+            comment (str): Optional comment attached to this set of structures.
         """
         preamble = None
         coords_str = []
@@ -4715,7 +4710,7 @@ class Dynmat:
                     self.data[atom][disp]["dynmat"].append(v)
 
     def get_phonon_frequencies(self):
-        """calculate phonon frequencies"""
+        """Calculate phonon frequencies"""
         # TODO: the following is most likely not correct or suboptimal
         # hence for demonstration purposes only
         frequencies = []
@@ -4728,22 +4723,22 @@ class Dynmat:
 
     @property
     def nspecs(self):
-        """returns the number of species"""
+        """Returns the number of species"""
         return self._nspecs
 
     @property
     def natoms(self):
-        """returns the number of atoms"""
+        """Returns the number of atoms"""
         return self._natoms
 
     @property
     def ndisps(self):
-        """returns the number of displacements"""
+        """Returns the number of displacements"""
         return self._ndisps
 
     @property
     def masses(self):
-        """returns the list of atomic masses"""
+        """Returns the list of atomic masses"""
         return list(self._masses)
 
 
@@ -5120,7 +5115,6 @@ class Wavecar:
         Returns:
             a list containing valid G-points
         """
-
         if gamma:
             kmax = self._nbmax[0] + 1
         else:
@@ -5177,6 +5171,7 @@ class Wavecar:
                             ISPIN = 2, default = 0)
             spinor (int): component of the spinor that is evaluated (only used
                             if vasp_type == 'ncl')
+
         Returns:
             a complex value corresponding to the evaluation of the wavefunction
         """
@@ -5275,6 +5270,7 @@ class Wavecar:
                 wavefunctions.
             scale (int): scaling for the FFT grid. The default value of 2 is at
                 least as fine as the VASP default.
+
         Returns:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
@@ -5416,7 +5412,6 @@ class Eigenval:
         Returns:
             a pymatgen.io.vasp.outputs.Eigenval object
         """
-
         self.filename = filename
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
@@ -5513,7 +5508,7 @@ class Waveder(MSONable):
     Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
 
     Note:
-        The way tha VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
+        The way that VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
         This results in the formatted WAVDERF only indexing between filled bands. (i.e. all the matrix elements
         are between the states i=1:8 and j=1:8 in a two atom Si calculation, which is likely a VASP bug).
         As such, it is recommended to used the hidden ``LVEL=.True.`` flag in VASP which will force indexing over
@@ -5545,6 +5540,8 @@ class Waveder(MSONable):
         Note: This file is only produced when LOPTICS is true AND vasp has been
         recompiled after uncommenting the line that calls
         WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
+        It is recommended to use `from_binary` instead since the binary file is
+        much smaller and contains the same information.
 
         Args:
             filename (str): The name of the WAVEDER file.
@@ -5567,12 +5564,14 @@ class Waveder(MSONable):
         return cls(cder_real, cder_imag)
 
     @classmethod
-    def from_binary(cls, filename, gamma_only=False):
+    def from_binary(cls, filename, data_type="complex64"):
         """Read the WAVEDER file and returns a Waveder object.
 
         Args:
             filename: Name of file containing WAVEDER.
-            gamma_only: Whether this is from a gamma-only calculation.
+            data_type: Data type of the WAVEDER file. Default is complex64.
+                If the file was generated with the "gamma" version of VASP,
+                the data type can be either "float64" or "float32".
 
         Returns:
             Waveder object.
@@ -5580,8 +5579,10 @@ class Waveder(MSONable):
         with open(filename, "rb") as fp:
 
             def readData(dtype):
-                """Read records from Fortran binary file and convert to
-                np.array of given dtype."""
+                """
+                Read records from Fortran binary file
+                and convert to np.array of given dtype.
+                """
                 data = b""
                 while True:
                     prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
@@ -5598,10 +5599,8 @@ class Waveder(MSONable):
             nbands, nelect, nk, ispin = readData(np.int32)
             _ = readData(np.float_)  # nodes_in_dielectric_function
             _ = readData(np.float_)  # wplasmon
-            if gamma_only:
-                cder = readData(np.float_)
-            else:
-                cder = readData(np.complex64)
+            me_datatype = np.dtype(data_type)
+            cder = readData(me_datatype)
 
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
             return cls(cder_data.real, cder_data.imag)
@@ -5635,12 +5634,14 @@ class Waveder(MSONable):
         """
         Method returning a value
         between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
+
         Args:
             band_i (Integer): Index of band i
             band_j (Integer): Index of band j
             kpoint (Integer): Index of k-point
             spin   (Integer): Index of spin-channel (0 or 1)
             cart_dir (Integer): Index of Cartesian direction (0,1,2)
+
         Returns:
             a float value
         """
