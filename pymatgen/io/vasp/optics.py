@@ -118,8 +118,10 @@ class DielectricFunctionCalculator(MSONable):
                 try:
                     waveder = Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
                     return waveder
-                except ValueError:
-                    pass
+                except ValueError as e:
+                    if "reshape" in str(e):
+                        continue
+                    raise e
             return None
 
         vrun = Vasprun(d_ / "vasprun.xml")
