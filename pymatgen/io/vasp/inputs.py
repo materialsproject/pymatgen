@@ -470,7 +470,6 @@ class Poscar(MSONable):
         Returns:
             String representation of POSCAR.
         """
-
         # This corrects for VASP really annoying bug of crashing on lattices
         # which have triple product < 0. We will just invert the lattice
         # vectors.
@@ -1244,12 +1243,9 @@ class Kpoints(MSONable):
             reciprocal lattice vector proportional to its length.
 
         Args:
-            structure:
-                Input structure
-            kppa:
-                Grid density
+            structure: Input structure
+            kppa: Grid density
         """
-
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
@@ -1889,8 +1885,8 @@ class PotcarSingle:
         :param functional: E.g., PBE
         :return: PotcarSingle
         """
-        if functional is None:
-            functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+        functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+        assert isinstance(functional, str)  # type narrowing
         funcdir = PotcarSingle.functional_dir[functional]
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
@@ -2158,7 +2154,6 @@ class PotcarSingle:
         For float type properties, they are converted to the correct float. By
         default, all energies in eV and all length scales are in Angstroms.
         """
-
         try:
             return self.keywords[a.upper()]
         except Exception:
@@ -2420,7 +2415,9 @@ class VaspInput(dict, MSONable):
         :param err_file: File to write err.
         """
         self.write_input(output_dir=run_dir)
-        vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
+        vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")  # type: ignore[assignment]
+        if not vasp_cmd:
+            raise ValueError("No VASP executable specified!")
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
