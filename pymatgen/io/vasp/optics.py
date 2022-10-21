@@ -216,12 +216,7 @@ class DielectricFunctionCalculator(MSONable):
         x_val = []
         y_val = []
         text = []
-        (
-            nb,
-            _,
-            nk,
-            nspin,
-        ) = cderm.shape[:4]
+        nb, _, nk, nspin = cderm.shape[:4]
         iter_idx = [
             range(min_band0, max_band0 + 1),
             range(min_band1, max_band1 + 1),
@@ -391,13 +386,7 @@ def epsilon_imag(
         if "zero-size array" in str(e):
             return egrid, np.zeros_like(egrid, dtype=np.complex_)
         raise e
-
-    (
-        _,
-        _,
-        nk,
-        nspin,
-    ) = cder.shape[:4]
+    _, _, nk, nspin = cderm.shape[:4]
     iter_idx = [
         range(min_band0, max_band0 + 1),
         range(min_band1, max_band1 + 1),
