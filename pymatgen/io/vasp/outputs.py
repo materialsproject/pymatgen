@@ -2356,7 +2356,7 @@ class Outcar:
             List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.
         """
         header_pattern = (
-            r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "  # noqa: 65
+            r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "
             r"285 \(1993\)\)\s+"
             r"\s+-{50,}\s+"
             r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+"
