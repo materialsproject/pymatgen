@@ -6,6 +6,8 @@ This package contains core modules and classes for representing structures and
 operations on them.
 """
 
+from __future__ import annotations
+
 import os
 import warnings
 
@@ -29,28 +31,28 @@ __version__ = "2022.9.21"
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
-def _load_pmg_settings():
-    # Load environment variables by default as backup
-    d = {}
-    for k, v in os.environ.items():
-        if k.startswith("PMG_"):
-            d[k] = v
-        elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
-            d["PMG_" + k] = v
-
-    # Override anything in env vars with that in yml file
+def _load_pmg_settings() -> dict[str, str]:
+    settings = {}
+    # Load .pmgrc.yaml file
     if os.path.exists(SETTINGS_FILE):
         try:
             yaml = YAML()
             with open(SETTINGS_FILE) as f:
                 d_yml = yaml.load(f)
-            d.update(d_yml)
+            settings.update(d_yml)
         except Exception as ex:
             # If there are any errors, default to using environment variables
             # if present.
             warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
 
-    return d
+    # Override .pmgrc.yaml with env vars if present
+    for k, v in os.environ.items():
+        if k.startswith("PMG_"):
+            settings[k] = v
+        elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
+            settings["PMG_" + k] = v
+
+    return settings
 
 
 SETTINGS = _load_pmg_settings()
