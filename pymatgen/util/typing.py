@@ -38,6 +38,5 @@ SpeciesLike = Union[str, Element, Species, DummySpecies]
 # Things that can be cast to a Composition
 CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
 
-
 # Entry or any of its subclasses or dicts that can be unpacked into any of them
 EntryLike = Union[Dict[str, Any], "Entry", "PDEntry", "ComputedEntry", "ComputedStructureEntry"]
