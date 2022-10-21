@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import warnings
+from typing import Any
 
 from ruamel.yaml import YAML
 
@@ -32,13 +33,14 @@ SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
 OLD_SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
-def _load_pmg_settings() -> dict[str, str]:
-    settings = {}
+def _load_pmg_settings() -> dict[str, Any]:
+    settings: dict[str, Any] = {}
+
     # Load .pmgrc.yaml file
     yaml = YAML()
     try:
         with open(SETTINGS_FILE) as yml_file:
-            settings = yaml.load(yml_file)
+            settings = yaml.load(yml_file) or {}
     except FileNotFoundError:
         try:
             with open(OLD_SETTINGS_FILE) as yml_file:
