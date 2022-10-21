@@ -28,29 +28,34 @@ __maintainer_email__ = "shyuep@gmail.com"
 __version__ = "2022.9.21"
 
 
-SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
+OLD_SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
 def _load_pmg_settings() -> dict[str, str]:
     settings = {}
     # Load .pmgrc.yaml file
+    yaml = YAML()
     try:
-        yaml = YAML()
         with open(SETTINGS_FILE) as yml_file:
             settings = yaml.load(yml_file)
     except FileNotFoundError:
-        pass
+        try:
+            with open(OLD_SETTINGS_FILE) as yml_file:
+                settings = yaml.load(yml_file)
+        except FileNotFoundError:
+            pass
     except Exception as ex:
         # If there are any errors, default to using environment variables
         # if present.
         warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
 
     # Override .pmgrc.yaml with env vars if present
-    for k, v in os.environ.items():
-        if k.startswith("PMG_"):
-            settings[k] = v
-        elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
-            settings["PMG_" + k] = v
+    for key, val in os.environ.items():
+        if key.startswith("PMG_"):
+            settings[key] = val
+        elif key in ("VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"):
+            settings[f"PMG_{key}"] = val
 
     return settings
 
