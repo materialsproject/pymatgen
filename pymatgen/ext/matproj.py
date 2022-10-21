@@ -188,7 +188,7 @@ class _MPResterLegacy:
         if api_key is not None:
             self.api_key = api_key
         else:
-            self.api_key = SETTINGS.get("PMG_MAPI_KEY")
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
         if endpoint is not None:
             self.preamble = endpoint
         else:

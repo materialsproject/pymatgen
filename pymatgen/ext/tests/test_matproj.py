@@ -36,12 +36,11 @@ except requests.exceptions.ConnectionError:
 
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
-if PMG_MAPI_KEY:
-    if not 15 <= len(PMG_MAPI_KEY) <= 17:
-        msg = f"Invalid old PMG_MAPI_KEY, should be 15-17 characters, got {len(PMG_MAPI_KEY)}"
-        if len(PMG_MAPI_KEY) == 32:
-            msg += " (this looks like a new API key)"
-        raise ValueError(msg)
+if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
+    msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
+    if len(PMG_MAPI_KEY) == 32:
+        msg += " (this looks like a new API key)"
+    raise ValueError(msg)
 
 
 @unittest.skipIf(
