@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import unittest
 
 import numpy as np
@@ -15,6 +10,8 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
     SeparationPlane,
 )
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 allcg = AllCoordinationGeometries()
 

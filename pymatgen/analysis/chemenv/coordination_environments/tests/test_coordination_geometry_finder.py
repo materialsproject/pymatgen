@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import os
 import unittest
 
@@ -19,6 +14,8 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 )
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 json_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,

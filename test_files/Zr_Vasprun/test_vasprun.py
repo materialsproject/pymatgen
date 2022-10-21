@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from os.path import abspath, dirname
 
 from pymatgen.io.vasp.outputs import Vasprun
