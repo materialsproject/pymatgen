@@ -14,6 +14,10 @@ from pymatgen.util.typing import (
 
 # This module tests types are as expected and can be imported without circular ImportError.
 
+__author__ = "Janosh Riebesell"
+__date__ = "2022-10-20"
+__email__ = "janosh@lbl.gov"
+
 
 def _type_str(some_type: Any) -> str:
     return str(some_type).replace("typing.", "").replace("pymatgen.core.periodic_table.", "")
