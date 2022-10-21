@@ -35,9 +35,18 @@ except requests.exceptions.ConnectionError:
     website_is_up = False
 
 
+PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
+if PMG_MAPI_KEY:
+    if not 15 <= len(PMG_MAPI_KEY) <= 17:
+        msg = f"Invalid old PMG_MAPI_KEY, should be 15-17 characters, got {len(PMG_MAPI_KEY)}"
+        if len(PMG_MAPI_KEY) == 32:
+            msg += " (this looks like a new API key)"
+        raise ValueError(msg)
+
+
 @unittest.skipIf(
-    (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
-    "PMG_MAPI_KEY environment variable not set or MP is down.",
+    website_down or not PMG_MAPI_KEY,
+    "PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class MPResterOldTest(PymatgenTest):
     _multiprocess_shared_ = True
