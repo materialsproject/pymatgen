@@ -27,8 +27,8 @@ class SiteSymmetriesTest(PymatgenTest):
 
     def test_get_site_symmetries(self):
         point_ops = ss.get_site_symmetries(self.piezo_struc)
-        self.assertTrue(np.all(point_ops == self.point_ops))
+        assert np.all(point_ops == self.point_ops)
 
     def test_get_shared_symmetries_operations(self):
         shared_ops = ss.get_shared_symmetry_operations(self.piezo_struc, self.point_ops)
-        self.assertTrue(np.all(shared_ops == self.shared_ops))
+        assert np.all(shared_ops == self.shared_ops)

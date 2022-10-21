@@ -510,19 +510,18 @@ class PhaseDiagram(MSONable):
         return np.array(data)[:, 1:]
 
     @property
-    def unstable_entries(self):
+    def unstable_entries(self) -> set[Entry]:
         """
         Returns:
-            list of Entries that are unstable in the phase diagram.
-                Includes positive formation energy entries.
+            set[Entry]: unstable entries in the phase diagram. Includes positive formation energy entries.
         """
-        return [e for e in self.all_entries if e not in self.stable_entries]
+        return {e for e in self.all_entries if e not in self.stable_entries}
 
     @property
-    def stable_entries(self):
+    def stable_entries(self) -> set[Entry]:
         """
         Returns:
-            the set of stable entries in the phase diagram.
+            set[Entry]: of stable entries in the phase diagram.
         """
         return set(self._stable_entries)
 
@@ -537,7 +536,7 @@ class PhaseDiagram(MSONable):
         """
         return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
 
-    def get_reference_energy_per_atom(self, comp):
+    def get_reference_energy_per_atom(self, comp: Composition) -> float:
         """
         Args:
             comp (Composition): Input composition
@@ -556,7 +555,7 @@ class PhaseDiagram(MSONable):
             entry (PDEntry): A PDEntry-like object.
 
         Returns:
-            Formation energy from the elemental references.
+            float: Formation energy from the elemental references.
         """
         comp = entry.composition
         return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
@@ -574,7 +573,7 @@ class PhaseDiagram(MSONable):
         """
         return self.get_form_energy(entry) / entry.composition.num_atoms
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         symbols = [el.symbol for el in self.elements]
         output = [
             f"{'-'.join(symbols)} phase diagram",
@@ -584,7 +583,7 @@ class PhaseDiagram(MSONable):
         return "\n".join(output)
 
     @lru_cache(1)
-    def _get_facet_and_simplex(self, comp):
+    def _get_facet_and_simplex(self, comp: Composition) -> tuple[Simplex, Simplex]:
         """
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
@@ -885,7 +884,7 @@ class PhaseDiagram(MSONable):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True, **kwargs)
 
         # take entries with negative e_form and different compositions as competing entries
-        competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
+        competing_entries = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries.
         if len(competing_entries) > space_limit and not stable_only:
@@ -905,7 +904,7 @@ class PhaseDiagram(MSONable):
             inner_hull = PhaseDiagram(reduced_space)
 
             competing_entries = inner_hull.stable_entries.union(self._get_stable_entries_in_space(entry_elems))
-            competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
+            competing_entries = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
 
         if len(competing_entries) > space_limit:
             warnings.warn(
@@ -1969,7 +1968,7 @@ class PhaseDiagramError(Exception):
     """
 
 
-def get_facets(qhull_data, joggle=False):
+def get_facets(qhull_data: np.ndarray, joggle: bool = False) -> ConvexHull:
     """
     Get the simplex facets for the Convex hull.
 
