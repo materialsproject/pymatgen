@@ -1768,11 +1768,10 @@ class MPRester:
             api_key = args[0]
         else:
             api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
+            kwargs["api_key"] = api_key
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
-
-        kwargs["api_key"] = api_key
 
         return (_MPResterNew if len(api_key) == 32 else _MPResterLegacy)(*args, **kwargs)
 
