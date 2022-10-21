@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pytest import MonkeyPatch
+
 from pymatgen.core import _load_pmg_settings
 
 __author__ = "Janosh Riebesell"
@@ -7,8 +9,10 @@ __date__ = "2022-10-21"
 __email__ = "janosh@lbl.gov"
 
 
-def test_load_settings(tmp_path: Path, monkeypatch) -> None:
-    """Test that the settings file can be loaded."""
+def test_load_settings(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
+    """Test .pmgrc.yaml file is loaded correctly and env vars take precedence."""
+    monkeypatch.setattr("os.environ", {})  # reset outer env vars
+
     settings_file = tmp_path / ".pmgrc.yaml"
     monkeypatch.setattr("pymatgen.core.SETTINGS_FILE", settings_file)
 
@@ -26,8 +30,8 @@ def test_load_settings(tmp_path: Path, monkeypatch) -> None:
     assert _load_pmg_settings() == {"PMG_MAPI_KEY": "FOOBAR"}
 
     # env vars should override .pmgrc.yaml
-    with monkeypatch.context() as m:
-        m.setenv("PMG_MAPI_KEY", "BAZ")
+    with monkeypatch.context() as ctx:
+        ctx.setenv("PMG_MAPI_KEY", "BAZ")
         assert _load_pmg_settings() == {"PMG_MAPI_KEY": "BAZ"}
 
     # should return empty dict if file is invalid
