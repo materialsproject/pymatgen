@@ -11,12 +11,12 @@ import requests
 from pymatgen.ext.cod import COD
 
 try:
-    website_is_up = requests.get("https://www.crystallography.net").status_code == 200
+    website_down = requests.get("https://www.crystallography.net").status_code != 200
 except requests.exceptions.ConnectionError:
-    website_is_up = False
+    website_down = True
 
 
-@unittest.skipIf(not website_is_up, "www.crystallography.net is down.")
+@unittest.skipIf(website_down, "www.crystallography.net is down.")
 class CODTest(unittest.TestCase):
     _multiprocess_shared_ = True
 

@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import os
 import unittest
 
@@ -12,11 +7,9 @@ from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
 from pymatgen.core import SETTINGS
 from pymatgen.util.testing import PymatgenTest
 
-config_file_dir = os.path.join(
-    PymatgenTest.TEST_FILES_DIR,
-    "chemenv",
-    "config",
-)
+__author__ = "waroquiers"
+
+config_file_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "config")
 
 
 class ChemenvConfigTest(unittest.TestCase):
@@ -24,7 +17,7 @@ class ChemenvConfigTest(unittest.TestCase):
         with ScratchDir("."):
             config = ChemEnvConfig()
 
-            if SETTINGS.get("PMG_MAPI_KEY", "") != "":
+            if SETTINGS.get("PMG_MAPI_KEY"):
                 assert config.has_materials_project_access
             else:
                 assert not config.has_materials_project_access

@@ -10,13 +10,13 @@ from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://materialsproject.org").status_code == 200
+    website_down = requests.get("https://materialsproject.org").status_code != 200
 except requests.exceptions.ConnectionError:
-    website_is_up = False
+    website_down = True
 
 
 @unittest.skipIf(
-    (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
+    not SETTINGS.get("PMG_MAPI_KEY") or website_down,
     "PMG_MAPI_KEY environment variable not set or MP is down.",
 )
 class OptimadeTest(PymatgenTest):
@@ -39,7 +39,7 @@ class OptimadeTest(PymatgenTest):
 
                 assert len(structs["mp"]) == len(
                     raw_filter_structs["mp"]
-                ), "Raw filter {_filter} did not return the same number of results as the query builder."
+                ), f"Raw filter {_filter} did not return the same number of results as the query builder."
 
     def test_get_snls_mp(self):
         with OptimadeRester("mp") as optimade:

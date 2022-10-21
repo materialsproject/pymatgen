@@ -30,9 +30,9 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://materialsproject.org").status_code == 200
+    website_down = requests.get("https://materialsproject.org").status_code != 200
 except requests.exceptions.ConnectionError:
-    website_is_up = False
+    website_down = True
 
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
