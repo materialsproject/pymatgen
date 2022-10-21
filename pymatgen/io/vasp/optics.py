@@ -111,9 +111,22 @@ class DielectricFunctionCalculator(MSONable):
     def from_directory(cls, directory: Path | str):
         """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
         d_ = Path(directory)
+
+        def _try_reading(dtypes):
+            """Return None if failed."""
+            for dtype in dtypes:
+                try:
+                    waveder = Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
+                    return waveder
+                except ValueError:
+                    pass
+            return None
+
         vrun = Vasprun(d_ / "vasprun.xml")
-        is_gamma = "gamma" in vrun.generator["subversion"].lower()
-        waveder = Waveder.from_binary(d_ / "WAVEDER", gamma_only=is_gamma)
+        if "gamma" in vrun.generator["subversion"].lower():
+            waveder = _try_reading(["float64", "float32"])  # large one first should give value error
+        else:
+            waveder = _try_reading(["complex128", "complex64"])
         return cls.from_vasp_objects(vrun, waveder)
 
     @property

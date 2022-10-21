@@ -5540,6 +5540,8 @@ class Waveder(MSONable):
         Note: This file is only produced when LOPTICS is true AND vasp has been
         recompiled after uncommenting the line that calls
         WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
+        It is recommended to use `from_binary` instead since the binary file is
+        much smaller and contains the same information.
 
         Args:
             filename (str): The name of the WAVEDER file.
@@ -5562,12 +5564,14 @@ class Waveder(MSONable):
         return cls(cder_real, cder_imag)
 
     @classmethod
-    def from_binary(cls, filename, gamma_only=False):
+    def from_binary(cls, filename, data_type="complex64"):
         """Read the WAVEDER file and returns a Waveder object.
 
         Args:
             filename: Name of file containing WAVEDER.
-            gamma_only: Whether this is from a gamma-only calculation.
+            data_type: Data type of the WAVEDER file. Default is complex64.
+                If the file was generated with the "gamma" version of VASP,
+                the data type can be either "float64" or "float32".
 
         Returns:
             Waveder object.
@@ -5595,13 +5599,8 @@ class Waveder(MSONable):
             nbands, nelect, nk, ispin = readData(np.int32)
             _ = readData(np.float_)  # nodes_in_dielectric_function
             _ = readData(np.float_)  # wplasmon
-            if gamma_only:
-                try:
-                    cder = readData(np.float32)  # some times gamma_only vasp is compiled with float32
-                except ValueError:
-                    cder = readData(np.float64)
-            else:
-                cder = readData(np.complex64)
+            me_datatype = np.dtype(data_type)
+            cder = readData(me_datatype)
 
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
             return cls(cder_data.real, cder_data.imag)
