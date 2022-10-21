@@ -22,6 +22,11 @@ try:
 except ImportError:
     ArrayLike = Union[Sequence[float], Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]  # type: ignore
 
+if TYPE_CHECKING:  # needed to avoid circular imports
+    from pymatgen.analysis.phase_diagram import PDEntry
+    from pymatgen.entries import Entry
+    from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
 VectorLike = Union[Sequence[float], np.ndarray]
 MatrixLike = Union[Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]
 
@@ -33,10 +38,6 @@ SpeciesLike = Union[str, Element, Species, DummySpecies]
 # Things that can be cast to a Composition
 CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
 
-if TYPE_CHECKING:  # needed to avoid circular imports
-    from pymatgen.analysis.phase_diagram import PDEntry
-    from pymatgen.entries import Entry
-    from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
-    # Entry or any of its subclasses or dicts that can be unpacked into any of them
-    EntryLike = Union[Dict[str, Any], Entry, PDEntry, ComputedEntry, ComputedStructureEntry]
+# Entry or any of its subclasses or dicts that can be unpacked into any of them
+EntryLike = Union[Dict[str, Any], "Entry", "PDEntry", "ComputedEntry", "ComputedStructureEntry"]
