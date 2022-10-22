@@ -3,6 +3,7 @@ import os
 import unittest
 
 import numpy as np
+import pytest
 from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -109,23 +110,20 @@ class StructureEnvironmentsTest(PymatgenTest):
 
             assert len(ce), 4
 
-            symbol, mingeom = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
+            symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
             assert symbol == "T:4"
-            assert round(abs(mingeom["symmetry_measure"] - 0.00988778424054), 7) == 0
+            assert min_geometry["symmetry_measure"] == pytest.approx(0.00988778424054)
 
             np.testing.assert_array_almost_equal(
-                mingeom["other_symmetry_measures"]["rotation_matrix_wcs_csc"],
+                min_geometry["other_symmetry_measures"]["rotation_matrix_wcs_csc"],
                 [
                     [-0.8433079817973094, -0.19705747216466898, 0.5000000005010193],
                     [0.4868840909509757, 0.11377118475194581, 0.8660254034951744],
                     [-0.22754236927612112, 0.9737681809261427, 1.3979531202869064e-13],
                 ],
             )
-            assert mingeom["detailed_voronoi_index"] == {"index": 0, "cn": 4}
-            assert (
-                round(abs(mingeom["other_symmetry_measures"]["scaling_factor_wocs_ctwocc"] - 1.6270605877934026), 7)
-                == 0
-            )
+            assert min_geometry["detailed_voronoi_index"] == {"index": 0, "cn": 4}
+            assert min_geometry["other_symmetry_measures"]["scaling_factor_wocs_ctwocc"] == pytest.approx(1.627060)
 
             assert "csm1 (with central site) : 0.00988" in str(ce)
             assert "csm2 (without central site) : 0.00981" in str(ce)
@@ -136,12 +134,12 @@ class StructureEnvironmentsTest(PymatgenTest):
             assert "csm1 (with central site) : 34.644" in str(ce)
             assert "csm2 (without central site) : 32.466" in str(ce)
 
-            mingeoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwocc", max_csm=12.0)
-            assert len(mingeoms) == 2
-            mingeoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwcc", max_csm=12.0)
-            assert len(mingeoms) == 1
-            mingeoms = ce.minimum_geometries(n=3)
-            assert len(mingeoms) == 3
+            min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwocc", max_csm=12.0)
+            assert len(min_geoms) == 2
+            min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwcc", max_csm=12.0)
+            assert len(min_geoms) == 1
+            min_geoms = ce.minimum_geometries(n=3)
+            assert len(min_geoms) == 3
 
             ce2 = se.ce_list[7][4][0]
 
@@ -246,8 +244,8 @@ class StructureEnvironmentsTest(PymatgenTest):
             lse_multi = LightStructureEnvironments.from_structure_environments(
                 strategy=multi_strategy, structure_environments=se, valences="undefined"
             )
-            assert round(abs(lse_multi.coordination_environments[isite][0]["csm"] - 0.009887784240541068), 7) == 0
-            assert round(abs(lse_multi.coordination_environments[isite][0]["ce_fraction"] - 1.0), 7) == 0
+            assert lse_multi.coordination_environments[isite][0]["csm"] == pytest.approx(0.009887784240541068)
+            assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == pytest.approx(1.0)
             assert lse_multi.coordination_environments[isite][0]["ce_symbol"] == "T:4"
 
 
