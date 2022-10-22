@@ -1,4 +1,5 @@
-"""Pyinvoke tasks.py file for automating releases and admin stuff.
+"""
+Pyinvoke tasks.py file for automating releases and admin stuff.
 
 Author: Shyue Ping Ong
 """
@@ -11,15 +12,16 @@ import subprocess
 import webbrowser
 
 import requests
-from invoke import Context, task
+from invoke import task
 from monty.os import cd
 
 from pymatgen.core import __version__ as CURRENT_VER
 
 
 @task
-def make_doc(ctx: Context) -> None:
-    """Generate API documentation + run Sphinx.
+def make_doc(ctx):
+    """
+    Generate API documentation + run Sphinx.
 
     :param ctx:
     """
@@ -81,8 +83,9 @@ def make_doc(ctx: Context) -> None:
 
 
 @task
-def make_dash(ctx: Context) -> None:
-    """Make customized doc version for Dash.
+def make_dash(ctx):
+    """
+    Make customized doc version for Dash
 
     :param ctx:
     """
@@ -146,8 +149,9 @@ def submit_dash_pr(ctx, version):
 
 
 @task
-def update_doc(ctx: Context) -> None:
-    """Update the web documentation.
+def update_doc(ctx):
+    """
+    Update the web documentation.
 
     :param ctx:
     """
@@ -159,8 +163,9 @@ def update_doc(ctx: Context) -> None:
 
 
 @task
-def publish(ctx: Context) -> None:
-    """Upload release to Pypi using twine.
+def publish(ctx):
+    """
+    Upload release to Pypi using twine.
 
     :param ctx:
     """
@@ -188,7 +193,8 @@ def set_ver(ctx, version):
 
 @task
 def release_github(ctx, version):
-    """Release to Github using Github API.
+    """
+    Release to Github using Github API.
 
     :param ctx:
     """
@@ -216,7 +222,8 @@ def release_github(ctx, version):
 
 @task
 def post_discourse(ctx, version):
-    """Post release announcement to http://discuss.matsci.org/c/pymatgen.
+    """
+    Post release announcement to http://discuss.matsci.org/c/pymatgen.
 
     :param ctx:
     """
@@ -240,12 +247,12 @@ def post_discourse(ctx, version):
 
 
 @task
-def update_changelog(ctx, version=None, sim=False):
-    """Create a preliminary change log using the git logs.
+def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), sim=False):
+    """
+    Create a preliminary change log using the git logs.
 
     :param ctx:
     """
-    version = version or datetime.datetime.now().strftime("%Y.%-m.%-d")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{CURRENT_VER}..HEAD"])
     lines = []
     misc = []
@@ -256,8 +263,9 @@ def update_changelog(ctx, version=None, sim=False):
             contrib, pr_name = m.group(2).split("/", 1)
             response = requests.get(f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}")
             lines.append(f"* PR #{pr_number} from @{contrib} {pr_name}")
-            if "body" in response.json():
-                for ll in response.json()["body"].split("\n"):
+            json_resp = response.json()
+            if "body" in json_resp and json_resp["body"]:
+                for ll in json_resp["body"].split("\n"):
                     ll = ll.strip()
                     if ll in ["", "## Summary"]:
                         continue
@@ -282,13 +290,13 @@ def update_changelog(ctx, version=None, sim=False):
 
 
 @task
-def release(ctx, version=None, nodoc=False):
-    """Run full sequence for releasing pymatgen.
+def release(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), nodoc=False):
+    """
+    Run full sequence for releasing pymatgen.
 
     :param ctx:
     :param nodoc: Whether to skip doc generation.
     """
-    version = version or datetime.datetime.now().strftime("%Y.%-m.%-d")
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:
@@ -305,8 +313,9 @@ def release(ctx, version=None, nodoc=False):
 
 
 @task
-def open_doc(ctx: Context) -> None:
-    """Open local documentation in web browser.
+def open_doc(ctx):
+    """
+    Open local documentation in web browser.
 
     :param ctx:
     """
@@ -315,7 +324,6 @@ def open_doc(ctx: Context) -> None:
 
 
 @task
-def lint(ctx: Context) -> None:
-    """Run linters."""
+def lint(ctx):
     for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
         ctx.run(f"{cmd} pymatgen")
