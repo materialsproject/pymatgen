@@ -1,11 +1,10 @@
-exclude: ^(docs|.*test_files|cmd_line)
+exclude: ^(docs|.*test_files|cmd_line|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
   skip: [mypy, pylint, codespell, pydocstyle]
 
 repos:
-
   - repo: https://github.com/PyCQA/autoflake
     rev: v1.6.1
     hooks:
@@ -63,6 +62,7 @@ repos:
       - id: codespell
         stages: [commit, commit-msg]
         exclude_types: [html]
+        args: [--ignore-words-list, 'titel,titels,reson,rute,']
 
   - repo: https://github.com/PyCQA/pydocstyle
     rev: 6.1.1

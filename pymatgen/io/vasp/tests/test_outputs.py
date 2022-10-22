@@ -2197,7 +2197,7 @@ class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER", gamma_only=True)
+        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER", "float64")
         self.assertEqual(wder.nbands, 36)
         self.assertEqual(wder.nkpoints, 56)
         band_i = 0

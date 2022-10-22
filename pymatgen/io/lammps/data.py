@@ -271,7 +271,6 @@ class LammpsData(MSONable):
                 keys, and each value is a DataFrame.
             atom_style (str): Output atom_style. Default to "full".
         """
-
         if velocities is not None:
             assert len(velocities) == len(atoms), "Inconsistency found between atoms and velocities"
 
@@ -1018,7 +1017,7 @@ class ForceField(MSONable):
                 of an element. It is recommended to use
                 dict.items() to prevent key duplications.
                 [("C", 12.01), ("H", Element("H")), ("O", "O"), ...]
-            nonbond_coeffs [coeffs]: List of pair or pairij
+            nonbond_coeffs (list): List of Pair or PairIJ
                 coefficients, of which the sequence must be sorted
                 according to the species in mass_dict. Pair or PairIJ
                 determined by the length of list. Optional with default
@@ -1215,7 +1214,6 @@ class CombinedData(LammpsData):
                 columns of ["x", "y", "z"] for coordinates of atoms.
             atom_style (str): Output atom_style. Default to "full".
         """
-
         self._list_of_molecules = list_of_molecules
         self._list_of_names = list_of_names
         self._list_of_numbers = list_of_numbers
@@ -1257,7 +1255,7 @@ class CombinedData(LammpsData):
             mols_in_data = len(atoms_df["molecule-ID"].unique())
             self.mols_per_data.append(mols_in_data)
             for _ in range(self.nums[i]):
-                self.atoms = self.atoms.append(atoms_df, ignore_index=True)
+                self.atoms = pd.concat([self.atoms, atoms_df], ignore_index=True)
                 atoms_df["molecule-ID"] += mols_in_data
             type_count += len(mol.masses)
             mol_count += self.nums[i] * mols_in_data
@@ -1281,7 +1279,7 @@ class CombinedData(LammpsData):
                     for col in topo_df.columns[1:]:
                         topo_df[col] += atom_count
                     for _ in range(self.nums[i]):
-                        self.topology[kw] = self.topology[kw].append(topo_df, ignore_index=True)
+                        self.topology[kw] = pd.concat([self.topology[kw], topo_df], ignore_index=True)
                         for col in topo_df.columns[1:]:
                             topo_df[col] += len(mol.atoms)
                     count[kw] += len(mol.force_field[kw[:-1] + " Coeffs"])
@@ -1297,6 +1295,7 @@ class CombinedData(LammpsData):
         """
         Exports a periodic structure object representing the simulation
         box.
+
         Return:
             Structure
         """
@@ -1314,6 +1313,7 @@ class CombinedData(LammpsData):
         2. No intermolecular topologies (with atoms from different
             molecule-ID) since a Topology object includes data for ONE
             molecule or structure only.
+
         Args:
             atom_labels ([str]): List of strings (must be different
                 from one another) for labelling each atom type found in
@@ -1328,6 +1328,7 @@ class CombinedData(LammpsData):
                 well as on the species of molecule in each Topology.
             ff_label (str): Site property key for labeling atoms of
                 different types. Default to "ff_map".
+
         Returns:
             [(LammpsBox, ForceField, [Topology]), ...]
         """
@@ -1355,7 +1356,7 @@ class CombinedData(LammpsData):
     @classmethod
     def parse_xyz(cls, filename):
         """
-        load xyz file generated from packmol (for those who find it hard to install openbabel)
+        Load xyz file generated from packmol (for those who find it hard to install openbabel)
 
         Returns:
             pandas.DataFrame

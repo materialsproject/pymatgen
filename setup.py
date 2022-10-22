@@ -77,7 +77,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2022.9.21",
+    version="2022.10.22",
     python_requires=">=3.8",
     setup_requires=[
         "Cython>=0.29.23",
@@ -89,7 +89,7 @@ setup(
         "monty>=3.0.2",
         "scipy>=1.5.0",
         "tabulate",
-        "spglib>=1.9.9.44",
+        "spglib>=2.0",
         "networkx>=2.2",
         "matplotlib>=1.5",
         "palettable>=3.1.1",

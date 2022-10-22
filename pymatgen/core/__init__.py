@@ -6,8 +6,11 @@ This package contains core modules and classes for representing structures and
 operations on them.
 """
 
+from __future__ import annotations
+
 import os
 import warnings
+from typing import Any
 
 from ruamel.yaml import YAML
 
@@ -23,34 +26,40 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.9.21"
+__version__ = "2022.10.22"
 
 
-SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
+OLD_SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
-def _load_pmg_settings():
-    # Load environment variables by default as backup
-    d = {}
-    for k, v in os.environ.items():
-        if k.startswith("PMG_"):
-            d[k] = v
-        elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
-            d["PMG_" + k] = v
+def _load_pmg_settings() -> dict[str, Any]:
+    settings: dict[str, Any] = {}
 
-    # Override anything in env vars with that in yml file
-    if os.path.exists(SETTINGS_FILE):
+    # Load .pmgrc.yaml file
+    yaml = YAML()
+    try:
+        with open(SETTINGS_FILE) as yml_file:
+            settings = yaml.load(yml_file) or {}
+    except FileNotFoundError:
         try:
-            yaml = YAML()
-            with open(SETTINGS_FILE) as f:
-                d_yml = yaml.load(f)
-            d.update(d_yml)
-        except Exception as ex:
-            # If there are any errors, default to using environment variables
-            # if present.
-            warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
+            with open(OLD_SETTINGS_FILE) as yml_file:
+                settings = yaml.load(yml_file)
+        except FileNotFoundError:
+            pass
+    except Exception as ex:
+        # If there are any errors, default to using environment variables
+        # if present.
+        warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
 
-    return d
+    # Override .pmgrc.yaml with env vars if present
+    for key, val in os.environ.items():
+        if key.startswith("PMG_"):
+            settings[key] = val
+        elif key in ("VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"):
+            settings[f"PMG_{key}"] = val
+
+    return settings
 
 
 SETTINGS = _load_pmg_settings()
