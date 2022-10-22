@@ -356,11 +356,9 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
     def __str__(self):
         out = "Separation plane algorithm with the following reference separation :\n"
-        out += "[{}] | [{}] | [{}]".format(
-            "-".join(str(pp) for pp in [self.point_groups[0]]),
-            "-".join(str(pp) for pp in [self.plane_points]),
-            "-".join(str(pp) for pp in [self.point_groups[1]]),
-        )
+        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[0]])}] | "
+        out += f"[{'-'.join(str(pp) for pp in [self.plane_points])}] | "
+        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[1]])}]"
         return out
 
 
@@ -533,7 +531,7 @@ class CoordinationGeometry:
         IUPAC_symbol=None,
         IUCr_symbol=None,
         coordination=None,
-        central_site=np.zeros(3),
+        central_site=None,
         points=None,
         solid_angles=None,
         permutations_safe_override=False,
@@ -575,7 +573,7 @@ class CoordinationGeometry:
         self.IUPACsymbol = IUPAC_symbol
         self.IUCrsymbol = IUCr_symbol
         self.coordination = coordination
-        self.central_site = np.array(central_site)
+        self.central_site = np.array(central_site or np.zeros(3))
         self.points = points
         self._solid_angles = solid_angles
         self.permutations_safe_override = permutations_safe_override
@@ -997,7 +995,7 @@ class AllCoordinationGeometries(dict):
                     self.separations_cg[cn][sep].append(cg.mp_symbol)
                     self.minpoints[cn] = min(self.minpoints[cn], algo.minimum_number_of_points)
                     self.maxpoints[cn] = max(self.maxpoints[cn], algo.maximum_number_of_points)
-        self.maxpoints_inplane = {cn: max(sep[1] for sep in seps.keys()) for cn, seps in self.separations_cg.items()}
+        self.maxpoints_inplane = {cn: max(sep[1] for sep in seps) for cn, seps in self.separations_cg.items()}
 
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)
@@ -1284,40 +1282,29 @@ class AllCoordinationGeometries(dict):
                 mystring += f"\\section*{{Coordination {cn}}}\n\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
                     mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
-                    mystring += "IUPAC : {iupac}\n\nIUCr : {iucr}\n\n".format(
-                        iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol
-                    )
+                    mystring += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
                     mystring += "\\begin{center}\n"
-                    mystring += "\\includegraphics[scale=0.15]{{images/{let}_{cif}.png}}\n".format(
-                        let=cg.mp_symbol.split(":")[0], cif=cg.mp_symbol.split(":")[1]
-                    )
+                    mystring += f"\\includegraphics[scale=0.15]{{images/{cg.mp_symbol.split(':')[0]}_"
+                    mystring += f"{cg.mp_symbol.split(':')[1]}.png}}\n"
                     mystring += "\\end{center}\n\n"
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
                     mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
-                    mystring += "IUPAC : {iupac}\n\nIUCr : {iucr}\n\n".format(
-                        iupac=cg.IUPAC_symbol, iucr=cg.IUCr_symbol
-                    )
+                    mystring += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
         elif type == "all_geometries_latex":
             mystring = ""
             for cn in range(1, maxcn + 1):
                 mystring += f"\\subsection*{{Coordination {cn}}}\n\n"
                 mystring += "\\begin{itemize}\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
-                    mystring += "\\item {mp} $\\rightarrow$ {name} ".format(
-                        mp=cg.mp_symbol.replace("_", "\\_"), name=cg.get_name()
-                    )
-                    mystring += "(IUPAC : {iupac} - IUCr : {iucr})\n".format(
-                        iupac=cg.IUPAC_symbol_str,
-                        iucr=cg.IUCr_symbol_str.replace("[", "$[$").replace("]", "$]$"),
-                    )
+                    escaped_mp_symbol = cg.mp_symbol.replace("_", "\\_")
+                    mystring += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
+                    mystring += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
+                    mystring += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
-                    mystring += "\\item {mp} $\\rightarrow$ {name} ".format(
-                        mp=cg.mp_symbol.replace("_", "\\_"), name=cg.get_name()
-                    )
-                    mystring += "(IUPAC : {iupac} - IUCr : {iucr})\n".format(
-                        iupac=cg.IUPAC_symbol_str,
-                        iucr=cg.IUCr_symbol_str.replace("[", "$[$").replace("]", "$]$"),
-                    )
+                    escaped_mp_symbol = cg.mp_symbol.replace("_", "\\_")
+                    mystring += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
+                    mystring += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
+                    mystring += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
                 mystring += "\\end{itemize}\n\n"
         else:
             mystring = "+-------------------------+\n| Coordination geometries |\n+-------------------------+\n\n"

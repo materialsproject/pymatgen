@@ -55,7 +55,7 @@ class StructureVis:
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
                 123,0), ....} If None is specified, a default based on
-                Jmol"s color scheme is used.
+                Jmol's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
             show_bonds: Set to True to show bonds. Defaults to True.
@@ -106,7 +106,7 @@ class StructureVis:
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
         self.poly_radii_tol_factor = poly_radii_tol_factor
-        self.excluded_bonding_elements = excluded_bonding_elements if excluded_bonding_elements else []
+        self.excluded_bonding_elements = excluded_bonding_elements or []
         self.show_help = True
         self.supercell = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         self.redraw()
@@ -210,7 +210,7 @@ class StructureVis:
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
 
-    def set_structure(self, structure, reset_camera=True, to_unit_cell=True):
+    def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=True):
         """
         Add a structure to the visualizer.
 
@@ -259,7 +259,7 @@ class StructureVis:
             anion = elements[-1]
 
             def contains_anion(site):
-                for sp in site.species.keys():
+                for sp in site.species:
                     if sp.symbol == anion.symbol:
                         return True
                 return False
@@ -464,7 +464,7 @@ class StructureVis:
         color,
         opacity=1.0,
         draw_edges=False,
-        edges_color=[0.0, 0.0, 0.0],
+        edges_color=(0.0, 0.0, 0.0),
         edges_linewidth=2,
     ):
         """
@@ -527,7 +527,7 @@ class StructureVis:
         center=None,
         opacity=0.4,
         draw_edges=False,
-        edges_color=[0.0, 0.0, 0.0],
+        edges_color=(0.0, 0.0, 0.0),
         edges_linewidth=2,
     ):
         """
@@ -649,7 +649,7 @@ class StructureVis:
             else:
                 raise ValueError("Number of points for a face should be >= 3")
 
-    def add_edges(self, edges, type="line", linewidth=2, color=[0.0, 0.0, 0.0]):
+    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):
         """
         Args:
             edges (): List of edges
@@ -967,7 +967,7 @@ class MultiStructuresVis(StructureVis):
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
                 123,0), ....} If None is specified, a default based on
-                Jmol"s color scheme is used.
+                Jmol's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
             show_bonds: Set to True to show bonds. Defaults to True.
@@ -1033,7 +1033,7 @@ class MultiStructuresVis(StructureVis):
             self.all_vis_radii.append(struct_vis_radii)
         self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
-    def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
+    def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=False):
         """
         Add a structure to the visualizer.
 
@@ -1061,7 +1061,7 @@ class MultiStructuresVis(StructureVis):
             opacity = tag.get("opacity", 0.5)
             if site_index == "unit_cell_all":
                 struct_radii = self.all_vis_radii[self.istruct]
-                for isite, site in enumerate(self.current_structure):
+                for isite, _site in enumerate(self.current_structure):
                     vis_radius = 1.5 * tag.get("radius", struct_radii[isite])
                     tags[(isite, (0, 0, 0))] = {
                         "radius": vis_radius,
@@ -1120,7 +1120,7 @@ class MultiStructuresVis(StructureVis):
         else:
             self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
             for key in animated_movie_options:
-                if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS.keys():
+                if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS:
                     raise ValueError("Wrong option for animated movie")
             self.animated_movie_options.update(animated_movie_options)
 

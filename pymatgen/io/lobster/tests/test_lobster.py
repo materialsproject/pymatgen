@@ -72,7 +72,8 @@ class CohpcarTest(PymatgenTest):
             are_coops=True,
         )
         self.cobi = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster"), are_cobis=True
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster"),
+            are_cobis=True,
         )
 
     def test_attributes(self):
@@ -171,28 +172,28 @@ class CohpcarTest(PymatgenTest):
         }
 
         for data in [self.cohp_bise.cohp_data, self.coop_bise.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_bise[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_bise[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 241)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 241)
+                    self.assertEqual(val["length"], lengths_sites_bise[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_bise[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 241)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 241)
         for data in [self.cohp_fe.cohp_data, self.coop_fe.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_fe[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_fe[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 301)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 301)
+                    self.assertEqual(val["length"], lengths_sites_fe[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_fe[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 301)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 301)
 
         # Lobster 3.1
         for data in [self.cohp_KF.cohp_data, self.coop_KF.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_KF[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_KF[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 6)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 6)
+                    self.assertEqual(val["length"], lengths_sites_KF[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_KF[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 6)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 6)
 
     def test_orbital_resolved_cohp(self):
         orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4) for i in range(4)]
@@ -420,11 +421,13 @@ class IcohplistTest(unittest.TestCase):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.gz")
         )
         self.icoop_fe = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"), are_coops=True
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"),
+            are_coops=True,
         )
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"), are_cobis=True
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"),
+            are_cobis=True,
         )
         # TODO: test orbitalwise ICOHPs with and without spin polarization
 
@@ -443,7 +446,9 @@ class IcohplistTest(unittest.TestCase):
         )
         self.icobi_orbitalwise_spinpolarized_add = Icohplist(
             filename=os.path.join(
-                PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized.additional_case"
+                PymatgenTest.TEST_FILES_DIR,
+                "cohp",
+                "ICOBILIST.lobster.spinpolarized.additional_case",
             ),
             are_cobis=True,
         )
@@ -636,9 +641,21 @@ class IcohplistTest(unittest.TestCase):
         self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up], 0.58649 / 2, 3)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down], 0.58649 / 2, 3)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down], 0.58649 / 2, 3)
+        self.assertAlmostEqual(
+            self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up],
+            0.58649 / 2,
+            3,
+        )
+        self.assertAlmostEqual(
+            self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down],
+            0.58649 / 2,
+            3,
+        )
+        self.assertAlmostEqual(
+            self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down],
+            0.58649 / 2,
+            3,
+        )
 
 
 class DoscarTest(unittest.TestCase):
@@ -1910,7 +1927,14 @@ class LobsterinTest(unittest.TestCase):
                 self.assertEqual("skipcoop" not in lobsterin1, True)
             if option in ["standard_from_projection"]:
                 self.assertTrue(lobsterin1["loadProjectionFromFile"], True)
-            if option in ["onlyprojection", "onlycohp", "onlycoop", "onlycobi", "onlycohpcoop", "onlycohpcoopcobi"]:
+            if option in [
+                "onlyprojection",
+                "onlycohp",
+                "onlycoop",
+                "onlycobi",
+                "onlycohpcoop",
+                "onlycohpcoopcobi",
+            ]:
                 self.assertTrue(lobsterin1["skipdos"], True)
                 self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
                 self.assertTrue(lobsterin1["skipGrossPopulation"], True)
@@ -1965,6 +1989,19 @@ class LobsterinTest(unittest.TestCase):
                 option="standard_with_fatband",
             )
 
+    def test_standard_with_energy_range_from_vasprun(self):
+        # test standard_with_energy_range_from_vasprun
+        lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
+            os.path.join(test_dir_doscar, "POSCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "INCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "POTCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "vasprun.xml.C2.gz"),
+            option="standard_with_energy_range_from_vasprun",
+        )
+        self.assertEqual(lobsterin_comp["COHPstartEnergy"], -28.3679)
+        self.assertEqual(lobsterin_comp["COHPendEnergy"], 32.8968)
+        self.assertEqual(lobsterin_comp["COHPSteps"], 301)
+
     def test_diff(self):
         # test diff
         self.assertDictEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"], {})
@@ -1974,14 +2011,14 @@ class LobsterinTest(unittest.TestCase):
         )
 
         # test diff in both directions
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys())
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys())
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys())
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys())
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]:
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"])
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"]:
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"])
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]:
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"])
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]:
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"])
 
         self.assertEqual(
             self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"],
@@ -2289,7 +2326,10 @@ class BandoverlapsTest(unittest.TestCase):
             1.0,
         )
         self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][0][0], 1)
-        self.assertAlmostEqual(self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][0][0], 0.995849)
+        self.assertAlmostEqual(
+            self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][0][0],
+            0.995849,
+        )
 
         self.assertAlmostEqual(
             self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["maxDeviation"],
@@ -2763,7 +2803,10 @@ class SitePotentialsTest(PymatgenTest):
 
     def test_attributes(self):
         self.assertListEqual(self.sitepotential.sitepotentials_Loewdin, [-8.77, -17.08, 9.57, 9.57, 8.45])
-        self.assertListEqual(self.sitepotential.sitepotentials_Mulliken, [-11.38, -19.62, 11.18, 11.18, 10.09])
+        self.assertListEqual(
+            self.sitepotential.sitepotentials_Mulliken,
+            [-11.38, -19.62, 11.18, 11.18, 10.09],
+        )
         self.assertAlmostEqual(self.sitepotential.madelungenergies_Loewdin, -28.64)
         self.assertAlmostEqual(self.sitepotential.madelungenergies_Mulliken, -40.02)
         self.assertListEqual(self.sitepotential.atomlist, ["La1", "Ta2", "N3", "N4", "O5"])
@@ -2776,10 +2819,12 @@ class SitePotentialsTest(PymatgenTest):
             os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite")
         )
         self.assertListEqual(
-            structure.site_properties["Loewdin Site Potentials (eV)"], [-8.77, -17.08, 9.57, 9.57, 8.45]
+            structure.site_properties["Loewdin Site Potentials (eV)"],
+            [-8.77, -17.08, 9.57, 9.57, 8.45],
         )
         self.assertListEqual(
-            structure.site_properties["Mulliken Site Potentials (eV)"], [-11.38, -19.62, 11.18, 11.18, 10.09]
+            structure.site_properties["Mulliken Site Potentials (eV)"],
+            [-11.38, -19.62, 11.18, 11.18, 10.09],
         )
 
 

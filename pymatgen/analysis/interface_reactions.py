@@ -12,11 +12,11 @@ References:
 
     (1) Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp; Ceder, G. (2015).
     Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
-    266–273. https://doi.org/10.1021/acs.chemmater.5b04082
+    266-273. https://doi.org/10.1021/acs.chemmater.5b04082
 
     (2) Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp; Ceder, G. (2019).
     Understanding interface stability in solid-state batteries.
-    Nature Reviews Materials, 5(2), 105–126. https://doi.org/10.1038/s41578-019-0157-5
+    Nature Reviews Materials, 5(2), 105-126. https://doi.org/10.1038/s41578-019-0157-5
 
 """
 
@@ -62,11 +62,11 @@ class InterfacialReactivity(MSONable):
     References:
         Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp; Ceder, G. (2015).
         Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
-        266–273. https://doi.org/10.1021/acs.chemmater.5b04082
+        266-273. https://doi.org/10.1021/acs.chemmater.5b04082
 
         Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp; Ceder, G. (2019).
         Understanding interface stability in solid-state batteries.
-        Nature Reviews Materials, 5(2), 105–126.
+        Nature Reviews Materials, 5(2), 105-126.
         https://doi.org/10.1038/s41578-019-0157-5
     """
 
@@ -363,7 +363,7 @@ class InterfacialReactivity(MSONable):
         rxn_min = reactions.pop(min_idx)
 
         labels = [
-            rf"{htmlify(str(r))} <br>" + "\u0394" + f"E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
+            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
             for r, e in zip(reactions, energy)
         ]
 
@@ -383,9 +383,7 @@ class InterfacialReactivity(MSONable):
             hoverlabel=dict(bgcolor="navy"),
         )
 
-        min_label = (
-            rf"{htmlify(str(rxn_min))} <br>" + "\u0394" + f"E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
-        )
+        min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
 
         minimum = Scatter(
             x=[x_min],

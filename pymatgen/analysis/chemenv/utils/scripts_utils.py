@@ -25,7 +25,6 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import (
     NeighborsNotComputedChemenvError,
 )
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
 from pymatgen.ext.matproj import MPRester
@@ -135,7 +134,7 @@ def draw_cg(
             else:
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
-            symbol = list(site.species.keys())[0].symbol
+            symbol = list(site.species)[0].symbol
             if faces_color_override:
                 mycolor = faces_color_override
             else:
@@ -205,26 +204,6 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     return vis
 
 
-def welcome(chemenv_config):
-    """
-    Show welcome message.
-    :param chemenv_config:
-    :return:
-    """
-    print("Chemical Environment package (ChemEnv)")
-    print(chemenv_citations())
-    print(chemenv_config.package_options_description())
-
-
-def thankyou():
-    """
-    Show thank you message.
-    :return:
-    """
-    print("Thank you for using the ChemEnv package")
-    print(chemenv_citations())
-
-
 def compute_environments(chemenv_configuration):
     """
     Compute the environments.
@@ -256,8 +235,8 @@ def compute_environments(chemenv_configuration):
             test = input(" ... ")
             if test == "q":
                 break
-            if test not in list(questions.keys()):
-                for key_character, qq in questions.items():
+            if test not in list(questions):
+                for qq in questions.values():
                     if re.match(string_sources[qq]["regexp"], str(test)) is not None:
                         found = True
                         source_type = qq
@@ -314,25 +293,18 @@ def compute_environments(chemenv_configuration):
                         if ce is None:
                             continue
                         thecg = allcg.get_geometry_from_mp_symbol(ce[0])
-                        mystring = "Environment for site #{} {} ({}) : {} ({})\n".format(
-                            str(isite),
-                            comp.get_reduced_formula_and_factor()[0],
-                            str(comp),
-                            thecg.name,
-                            ce[0],
+                        mystring = (
+                            f"Environment for site #{isite} {comp.get_reduced_formula_and_factor()[0]}"
+                            f" ({comp}) : {thecg.name} ({ce[0]})\n"
                         )
                     else:
-                        mystring = "Environments for site #{} {} ({}) : \n".format(
-                            str(isite),
-                            comp.get_reduced_formula_and_factor()[0],
-                            str(comp),
+                        mystring = (
+                            f"Environments for site #{isite} {comp.get_reduced_formula_and_factor()[0]} ({comp}) : \n"
                         )
                         for ce in ces:
                             cg = allcg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += " - {} ({}): {:.2f} % (csm : {:2f})\n".format(
-                                cg.name, cg.mp_symbol, 100.0 * ce[2], csm
-                            )
+                            mystring += f" - {cg.name} ({cg.mp_symbol}): {100.0 * ce[2]:.2f} % (csm : {csm:2f})\n"
                     if test in ["d", "g"] and strategy.uniquely_determines_coordination_environments:
                         if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
                             mystring += "  <Continuous symmetry measures>  "
@@ -389,7 +361,7 @@ def compute_environments(chemenv_configuration):
                     firsttime = False
                 vis.set_structure(se.structure)
                 strategy.set_structure_environments(se)
-                for isite, site in enumerate(se.structure):
+                for site in se.structure:
                     try:
                         ces = strategy.get_site_coordination_environments(site)
                     except NeighborsNotComputedChemenvError:

@@ -119,7 +119,7 @@ class HighSymmKpath(KPathBase):
             self._path_lengths = []
 
             for bs in [lm_bs, sc_bs, hin_bs]:
-                for key, value in enumerate(bs.kpath["kpoints"]):
+                for value in bs.kpath["kpoints"]:
                     cat_points[index] = bs.kpath["kpoints"][value]
                     label_index[index] = value
                     index += 1
@@ -223,8 +223,8 @@ class HighSymmKpath(KPathBase):
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
 
         warn(
-            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
-of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
+            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
         )
 
         return bs
@@ -259,11 +259,11 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
             for o_num in range(0, n_op):
                 a_tr_coord = []
 
-                for (label_a, coord_a) in a_path["kpoints"].items():
+                for coord_a in a_path["kpoints"].values():
                     a_tr_coord.append(np.dot(rpg[o_num], coord_a))
 
                 for coord_a in a_tr_coord:
-                    for key, value in b_path["kpoints"].items():
+                    for value in b_path["kpoints"].values():
                         if np.allclose(value, coord_a, atol=self._atol):
                             sc_count[o_num] += 1
                             break

@@ -68,8 +68,8 @@ class CohpTest(unittest.TestCase):
             str_cohp = f.read()
         with open(os.path.join(test_dir, "coop.str")) as f:
             str_coop = f.read()
-        self.assertEqual(self.cohp.__str__(), str_cohp)
-        self.assertEqual(self.coop.__str__(), str_coop)
+        self.assertEqual(str(self.cohp), str_cohp)
+        self.assertEqual(str(self.coop), str_coop)
 
     def test_antibnd_states_below_efermi(self):
         self.assertDictEqual(
@@ -659,9 +659,7 @@ class CombinedIcohpTest(unittest.TestCase):
             maxbondlength=8.0,
         )
         self.assertEqual(len(dict_Fe4), 1)
-        values = []
-        for key, value in dict_Fe4.items():
-            values.append(value)
+        values = list(dict_Fe4.values())
         v = values[0].as_dict()
         if "@version" in v:
             v.pop("@version")
@@ -675,9 +673,7 @@ class CombinedIcohpTest(unittest.TestCase):
             maxbondlength=8.0,
         )
         self.assertEqual(len(dict_Fe5), 1)
-        values = []
-        for key, value in dict_Fe5.items():
-            values.append(value)
+        values = list(dict_Fe5.values())
         v = values[0].as_dict()
         if "@version" in v:
             v.pop("@version")
@@ -692,9 +688,7 @@ class CombinedIcohpTest(unittest.TestCase):
         )
 
         self.assertEqual(len(dict_Fe6), 1)
-        values = []
-        for key, value in dict_Fe6.items():
-            values.append(value)
+        values = list(dict_Fe6.values())
         v = values[0].as_dict()
         if "@version" in v:
             v.pop("@version")
@@ -708,9 +702,7 @@ class CombinedIcohpTest(unittest.TestCase):
             maxbondlength=8.0,
         )
         self.assertEqual(len(dict_Fe7), 1)
-        values = []
-        for key, value in dict_Fe7.items():
-            values.append(value)
+        values = list(dict_Fe7.values())
         v = values[0].as_dict()
         if "@version" in v:
             v.pop("@version")
@@ -866,9 +858,9 @@ class CompleteCohpTest(PymatgenTest):
             "2": {Spin.up: -0.28485, Spin.down: -0.58279},
         }
         all_cohps_lobster = self.cohp_lobster.all_cohps
-        for bond in icohp_ef_dict:
+        for bond, val in icohp_ef_dict.items():
             icohp_ef = all_cohps_lobster[bond].get_interpolated_value(self.cohp_lobster.efermi, integrated=True)
-            self.assertEqual(icohp_ef_dict[bond], icohp_ef)
+            self.assertEqual(val, icohp_ef)
 
         icoop_ef_dict = {
             "1": {Spin.up: 0.14245},
@@ -884,9 +876,9 @@ class CompleteCohpTest(PymatgenTest):
             "11": {Spin.up: -0.12395},
         }
         all_coops_lobster = self.coop_lobster.all_cohps
-        for bond in icoop_ef_dict:
+        for bond, val in icoop_ef_dict.items():
             icoop_ef = all_coops_lobster[bond].get_interpolated_value(self.coop_lobster.efermi, integrated=True)
-            self.assertEqual(icoop_ef_dict[bond], icoop_ef)
+            self.assertEqual(val, icoop_ef)
 
     def test_get_cohp_by_label(self):
         self.assertEqual(self.cohp_orb.get_cohp_by_label("1").energies[0], -11.7225)

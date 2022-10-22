@@ -5,6 +5,8 @@
 This module provides classes that define a chemical reaction.
 """
 
+from __future__ import annotations
+
 import logging
 import re
 from itertools import chain, combinations
@@ -63,7 +65,7 @@ class BalancedReaction(MSONable):
         self._coeffs = []
         self._els = []
         self._all_comp = []
-        for c in set(list(reactants_coeffs.keys()) + list(products_coeffs.keys())):
+        for c in set(list(reactants_coeffs) + list(products_coeffs)):
             coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
             if abs(coeff) > self.TOLERANCE:
@@ -180,9 +182,9 @@ class BalancedReaction(MSONable):
         """
         return self.normalized_repr_and_factor()[0]
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         for comp in self._all_comp:
             coeff2 = other.get_coeff(comp) if comp in other._all_comp else 0
             if abs(self.get_coeff(comp) - coeff2) > self.TOLERANCE:

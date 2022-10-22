@@ -5,10 +5,13 @@
 Provides classes for generating high-symmetry k-paths using different conventions.
 """
 
+from __future__ import annotations
+
 import abc
 import itertools
 import operator
 from math import ceil, cos, e, pi, sin, tan
+from typing import Any
 from warnings import warn
 
 import networkx as nx
@@ -19,7 +22,9 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.typing import SpeciesLike
 
 try:
     from seekpath import get_path
@@ -42,11 +47,11 @@ class KPathBase(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
-        structure (Structure): Structure object
-        symprec (float): Tolerance for symmetry finding
+        structure (Structure): Structure object.
+        symprec (float): Tolerance for symmetry finding.
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare structures
             and determine symmetric equivalence of points and lines
@@ -56,7 +61,7 @@ class KPathBase(metaclass=abc.ABCMeta):
         self._structure = structure
         self._latt = self._structure.lattice
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
-        self._kpath = None
+        self._kpath: dict[str, Any] | None = None
 
         self._symprec = symprec
         self._atol = atol
@@ -97,8 +102,8 @@ class KPathBase(metaclass=abc.ABCMeta):
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
         """
         Returns:
-        the kpoints along the paths in Cartesian coordinates
-        together with the labels for symmetry points -Wei.
+        kpoints along the path in Cartesian coordinates
+        together with the critical-point labels.
         """
         list_k_points = []
         sym_point_labels = []
@@ -131,34 +136,34 @@ class KPathBase(metaclass=abc.ABCMeta):
 
 class KPathSetyawanCurtarolo(KPathBase):
     """
-    This class looks for path along high symmetry lines in
-    the Brillouin Zone.
+    This class looks for a path along high-symmetry lines in
+    the Brillouin zone.
     It is based on Setyawan, W., & Curtarolo, S. (2010).
     High-throughput electronic band structure calculations:
     Challenges and tools. Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
     It should be used with primitive structures that
-    comply with the definition from the paper.
-    The symmetry is determined by spglib through the
+    comply with the definition given in the paper.
+    The symmetry is determined by spglib using the
     SpacegroupAnalyzer class. The analyzer can be used to
-    produce the correct primitive structure (method
-    get_primitive_standard_structure(international_monoclinic=False)).
+    produce the correct primitive structure with the method
+    get_primitive_standard_structure(international_monoclinic=False).
     A warning will signal possible compatibility problems
-    with the given structure. KPoints from get_kpoints() method
-    are returned in the reciprocal cell basis defined in the paper.
+    with the given structure. k-points generated using the get_kpoints() method
+    are returned for the reciprocal cell basis defined in the paper.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
-        structure (Structure): Structure object
-        symprec (float): Tolerance for symmetry finding
+        structure (Structure): Structure object.
+        symprec (float): Tolerance for symmetry finding.
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare the input
             structure with the one expected as primitive standard.
-            A warning will be issued if the lattices don't match.
+            A warning will be issued if the cells don't match.
         """
-        if "magmom" in structure.site_properties.keys():
+        if "magmom" in structure.site_properties:
             warn(
                 "'magmom' entry found in site properties but will be ignored \
                   for the Setyawan and Curtarolo convention."
@@ -172,12 +177,12 @@ class KPathSetyawanCurtarolo(KPathBase):
         self._rec_lattice = self._prim.lattice.reciprocal_lattice
 
         # Note: this warning will be issued for space groups 38-41, since the primitive cell must be
-        # reformatted to match Setyawan/Curtarolo convention in order to work with the current k-path
+        # reformatted to match the Setyawan/Curtarolo convention in order to work with the current k-path
         # generation scheme.
         if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
             warn(
                 "The input structure does not match the expected standard primitive! "
-                "The path can be incorrect. Use at your own risk."
+                "The path may be incorrect. Use at your own risk."
             )
 
         lattice_type = self._sym.get_lattice_type()
@@ -934,24 +939,20 @@ class KPathSetyawanCurtarolo(KPathBase):
 
 class KPathSeek(KPathBase):
     """
-    This class looks for path along high symmetry lines in
-    the Brillouin Zone.
-    It is based on Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F.,
-    & Tanaka, I. (2017). Band structure diagram paths based on
-    crystallography. Computational Materials Science, 128, 140–184.
-    https://doi.org/10.1016/j.commatsci.2016.10.015
-    It should be used with primitive structures that
-    comply with the definition from the paper.
-    The symmetry is determined by spglib through the
-    SpacegroupAnalyzer class. KPoints from get_kpoints() method
-    are returned in the reciprocal cell basis defined in the paper.
+    This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
+    Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F., & Tanaka, I. (2017). Band structure diagram paths
+    based on crystallography. Computational Materials Science, 128, 140-184.
+    https://doi.org/10.1016/j.commatsci.2016.10.015. It should be used with primitive structures that
+    comply with the definition given in the paper. The symmetry is determined by spglib using the
+    SpacegroupAnalyzer class. k-points are generated using the get_kpoints() method for the
+    reciprocal cell basis defined in the paper.
     """
 
     @requires(
         get_path is not None,
-        "SeeK-path is required to use the convention by Hinuma et al.",
+        "SeeK-path needs to be installed to use the convention of Hinuma et al. (2015)",
     )
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
             structure (Structure): Structure object
@@ -973,9 +974,9 @@ class KPathSeek(KPathBase):
 
         if not system_is_tri:
             warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.")
-            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])
+            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])  # type: ignore
 
-        unique_species = []
+        unique_species: list[SpeciesLike] = []
         numbers = []
 
         for species, g in itertools.groupby(site_data):
@@ -1061,12 +1062,10 @@ class KPathSeek(KPathBase):
 
 class KPathLatimerMunro(KPathBase):
     """
-    This class looks for a path along high symmetry lines in the
+    This class looks for a path along high-symmetry lines in the
     Brillouin zone. It is based on the method outlined in:
-
     npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
-
-    The user should ensure that the lattice of the input structure
+    The user should ensure that the unit cell of the input structure
     is as reduced as possible, i.e. that there is no linear
     combination of lattice vectors which can produce a vector of
     lesser magnitude than the given set (this is required to
@@ -1076,9 +1075,9 @@ class KPathLatimerMunro(KPathBase):
     In the case of magnetic structures, care must also be taken to
     provide the magnetic primitive cell (i.e. that which reproduces
     the entire crystal, including the correct magnetic ordering,
-    upon application of lattice translations). There is no way to
-    programmatically check for this, so if the input structure is
-    incorrect, the class will output the incorrect kpath without
+    upon application of lattice translations). There is no algorithm to
+        check for this, so if the input structure is
+    incorrect, the class will output the incorrect k-path without
     any warning being issued.
     """
 
@@ -1107,11 +1106,11 @@ class KPathLatimerMunro(KPathBase):
             symprec (float): Tolerance for symmetry finding
             angle_tolerance (float): Angle tolerance for symmetry finding.
             atol (float): Absolute tolerance used to determine symmetric
-                equivalence of points and lines on the BZ.
+                equivalence of points and lines in the BZ.
         """
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
-        # Check to see if input lattice is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
+        # Check to see if input cell is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
         # pp. 433-440 ('The Relationship between Reduced Cells in a General Bravais lattice').
         # The correct BZ will still be obtained if the lattice vectors are reducible by any
         # linear combination of themselves with coefficients of absolute value less than 2,
@@ -1135,8 +1134,8 @@ class KPathLatimerMunro(KPathBase):
         if np.any(reducible):
             print("reducible")
             warn(
-                "The lattice of the input structure is not fully reduced!"
-                "The path can be incorrect. Use at your own risk."
+                "The unit cell of the input structure is not fully reduced!"
+                "The path may be incorrect. Use at your own risk."
             )
 
         if magmom_axis is None:
@@ -1240,16 +1239,16 @@ class KPathLatimerMunro(KPathBase):
 
         # 3: Find symmetry-equivalent points, which can be mapped to each other by a combination of point group
         # operations and integer translations by lattice vectors. The integers will only be -1, 0, or 1, since
-        # we are restricting to the BZ.
+        # we are restricted to the BZ.
 
         key_points_inds_orbits = self._get_key_point_orbits(key_points=key_points)
 
-        # 4: Get all lines on BZ between adjacent key points and between gamma
+        # 4: Get all lines in BZ between adjacent key points and between gamma
         # and key points ("key lines")
 
         key_lines = self._get_key_lines(key_points=key_points, bz_as_key_point_inds=bz_as_key_point_inds)
 
-        # 5: Find symmetry-equivalent key lines, defined as endpoints of first line being equivalent
+        # 5: Find symmetry-equivalent key lines, defined as end points of first line being equivalent
         # to end points of second line, and a random point in between being equivalent to the mapped
         # random point.
 
@@ -1283,9 +1282,9 @@ class KPathLatimerMunro(KPathBase):
             little_groups_lines=little_groups_lines,
         )
 
-        # 10: Consolidate selected segments into a single irreducible section of the Brilouin zone (as determined
+        # 10: Consolidate selected segments into a single irreducible section of the BZ (as determined
         # by the reciprocal point and lattice symmetries). This is accomplished by identifying the boundary
-        # planes of the IRBZ. Also, get labels for points according to distance away from axes.
+        # planes of the IRBZ. Also, get labels for points according to distance from axes.
 
         IRBZ_points_inds = self._get_IRBZ(recip_point_group, W, key_points, face_center_inds, atol)
         lines_in_path_inds = []
@@ -1300,7 +1299,7 @@ class KPathLatimerMunro(KPathBase):
         points_in_path_inds_unique = list(set(points_in_path_inds))
 
         orbit_cosines = []
-        for i, orbit in enumerate(key_points_inds_orbits[:-1]):
+        for orbit in key_points_inds_orbits[:-1]:
 
             orbit_cosines.append(
                 sorted(
@@ -1334,11 +1333,11 @@ class KPathLatimerMunro(KPathBase):
         reverse_kpoints = {}
         for point_ind in points_in_path_inds_unique:
             point_label = key_points_labels[point_ind]
-            if point_label not in kpoints.keys():
+            if point_label not in kpoints:
                 kpoints[point_label] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label
             else:
-                existing_labels = [key for key in kpoints.keys() if point_label in key]
+                existing_labels = [key for key in kpoints if point_label in key]
                 if "'" not in point_label:
                     existing_labels[:] = [label for label in existing_labels if "'" not in label]
                 if len(existing_labels) == 1:
@@ -1396,7 +1395,7 @@ class KPathLatimerMunro(KPathBase):
             nC2 = 0
             nC3 = 0
             nsig = 0
-            for j, opind in enumerate(little_group):
+            for opind in little_group:
                 op = self._rpg[opind]
                 if not (op == ID).all():
                     if (np.dot(op, op) == ID).all():
@@ -1532,14 +1531,14 @@ class KPathLatimerMunro(KPathBase):
 
     def _get_key_point_orbits(self, key_points):
         key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1]))
-        # gamma not equivalent to any on BZ and is last point added to
+        # gamma not equivalent to any in BZ and is last point added to
         # key_points
         key_points_inds_orbits = []
 
         i = 0
         while len(key_points_copy) > 0:
             key_points_inds_orbits.append([])
-            k0ind = list(key_points_copy.keys())[0]
+            k0ind = list(key_points_copy)[0]
             k0 = key_points_copy[k0ind]
             key_points_inds_orbits[i].append(k0ind)
             key_points_copy.pop(k0ind)
@@ -1566,7 +1565,7 @@ class KPathLatimerMunro(KPathBase):
         key_lines = []
         gamma_ind = len(key_points) - 1
 
-        for (i, facet_as_key_point_inds) in enumerate(bz_as_key_point_inds):
+        for facet_as_key_point_inds in bz_as_key_point_inds:
             facet_as_key_point_inds_bndy = facet_as_key_point_inds[: len(facet_as_key_point_inds) - 1]
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
@@ -1607,7 +1606,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_lines_copy) > 0:
             key_lines_inds_orbits.append([])
-            l0ind = list(key_lines_copy.keys())[0]
+            l0ind = list(key_lines_copy)[0]
             l0 = key_lines_copy[l0ind]
             key_lines_inds_orbits[i].append(l0)
             key_lines_copy.pop(l0ind)
@@ -1821,8 +1820,8 @@ class KPathLatimerMunro(KPathBase):
 
         if len(pos1) != len(pos2):
             return False
-        for i, v in enumerate(pos1):
-            if abs(pos1[i] - pos2[i]) > tolerance[i] and abs(pos1[i] - pos2[i]) < 1.0 - tolerance[i]:
+        for idx, p1 in enumerate(pos1):
+            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1.0 - tolerance[idx]:
                 return False
         return True
 
@@ -1831,7 +1830,7 @@ class KPathLatimerMunro(KPathBase):
         # in this implementation, G and H are lists of objects of type
         # SymmOp
         gH = []
-        for i, op1 in enumerate(G):
+        for op1 in G:
             in_H = False
             for op2 in H:
                 if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
@@ -2324,7 +2323,7 @@ class KPathLatimerMunro(KPathBase):
     @staticmethod
     def LabelSymbol(index):
         """
-        Letters used in generating labels for Latimer-Munro convention
+        Letters used in generating labels for the Latimer-Munro convention
         """
 
         symbols = [

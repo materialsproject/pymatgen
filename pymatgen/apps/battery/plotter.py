@@ -137,7 +137,6 @@ class VoltageProfilePlotter:
             **kwargs:
 
         Returns:
-
         """
         font_dict = dict(family="Arial", size=24, color="#000000") if font_dict is None else font_dict
         hover_temp = "Voltage : %{y:.2f} V"

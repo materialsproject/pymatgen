@@ -100,7 +100,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         find_args = {"positions": ["hollow"]}
         structures_hollow = self.asf_111.generate_adsorption_structures(co, find_args=find_args)
         self.assertEqual(len(structures_hollow), len(sites["hollow"]))
-        for n, structure in enumerate(structures_hollow):
+        for structure in structures_hollow:
             self.assertTrue(in_coord_list(sites["hollow"], structure[-2].coords, 1e-4))
         # Check molecule not changed after rotation when added to surface
         co = Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]])
@@ -124,24 +124,24 @@ class AdsorbateSiteFinderTest(PymatgenTest):
 
         # Test out for monatomic adsorption
         o = Molecule("O", [[0, 0, 0]])
-        adslabs = self.asf_100.adsorb_both_surfaces(o)
-        adslabs_one = self.asf_100.generate_adsorption_structures(o)
-        self.assertEqual(len(adslabs), len(adslabs_one))
-        for adslab in adslabs:
-            sg = SpacegroupAnalyzer(adslab)
-            sites = sorted(adslab, key=lambda site: site.frac_coords[2])
+        ad_slabs = self.asf_100.adsorb_both_surfaces(o)
+        ad_slabs_one = self.asf_100.generate_adsorption_structures(o)
+        self.assertEqual(len(ad_slabs), len(ad_slabs_one))
+        for ad_slab in ad_slabs:
+            sg = SpacegroupAnalyzer(ad_slab)
+            sites = sorted(ad_slab, key=lambda site: site.frac_coords[2])
             self.assertTrue(sites[0].species_string == "O")
             self.assertTrue(sites[-1].species_string == "O")
             self.assertTrue(sg.is_laue())
 
         # Test out for molecular adsorption
         oh = Molecule(["O", "H"], [[0, 0, 0], [0, 0, 1]])
-        adslabs = self.asf_100.adsorb_both_surfaces(oh)
-        adslabs_one = self.asf_100.generate_adsorption_structures(oh)
-        self.assertEqual(len(adslabs), len(adslabs_one))
-        for adslab in adslabs:
-            sg = SpacegroupAnalyzer(adslab)
-            sites = sorted(adslab, key=lambda site: site.frac_coords[2])
+        ad_slabs = self.asf_100.adsorb_both_surfaces(oh)
+        ad_slabs_one = self.asf_100.generate_adsorption_structures(oh)
+        self.assertEqual(len(ad_slabs), len(ad_slabs_one))
+        for ad_slab in ad_slabs:
+            sg = SpacegroupAnalyzer(ad_slab)
+            sites = sorted(ad_slab, key=lambda site: site.frac_coords[2])
             self.assertTrue(sites[0].species_string in ["O", "H"])
             self.assertTrue(sites[-1].species_string in ["O", "H"])
             self.assertTrue(sg.is_laue())
@@ -153,35 +153,35 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         for slab in slabs:
             adsgen = AdsorbateSiteFinder(slab)
 
-            adslabs = adsgen.generate_substitution_structures("Ni")
+            ad_slabss = adsgen.generate_substitution_structures("Ni")
             # There should be 2 configs (sub O and sub
             # Mg) for (110) and (100), 1 for (111)
             if tuple(slab.miller_index) != (1, 1, 1):
-                self.assertEqual(len(adslabs), 2)
+                self.assertEqual(len(ad_slabss), 2)
             else:
-                self.assertEqual(len(adslabs), 1)
+                self.assertEqual(len(ad_slabss), 1)
 
             # Test out whether it can correctly dope both
             # sides. Avoid (111) because it is not symmetric
             if tuple(slab.miller_index) != (1, 1, 1):
-                adslabs = adsgen.generate_substitution_structures("Ni", sub_both_sides=True, target_species=["Mg"])
+                ad_slabss = adsgen.generate_substitution_structures("Ni", sub_both_sides=True, target_species=["Mg"])
                 # Test if default parameters dope the surface site
-                for i, site in enumerate(adslabs[0]):
+                for i, site in enumerate(ad_slabss[0]):
                     if adsgen.slab[i].surface_properties == "surface" and site.species_string == "Mg":
                         print(
-                            adslabs[0][i].surface_properties,
+                            ad_slabss[0][i].surface_properties,
                             adsgen.slab[i].surface_properties,
                         )
-                        self.assertTrue(adslabs[0][i].surface_properties == "substitute")
+                        self.assertTrue(ad_slabss[0][i].surface_properties == "substitute")
 
-                self.assertTrue(adslabs[0].is_symmetric())
+                self.assertTrue(ad_slabss[0].is_symmetric())
                 # Correctly dope the target species
                 self.assertEqual(
-                    adslabs[0].composition.as_dict()["Mg"],
+                    ad_slabss[0].composition.as_dict()["Mg"],
                     slab.composition.as_dict()["Mg"] - 2,
                 )
                 # There should be one config (sub Mg)
-                self.assertEqual(len(adslabs), 1)
+                self.assertEqual(len(ad_slabss), 1)
 
     def test_functions(self):
         slab = self.slab_dict["111"]

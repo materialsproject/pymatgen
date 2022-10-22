@@ -28,8 +28,8 @@ class ChemicalShielding(SquareTensor):
     This class extends the SquareTensor to perform extra analysis unique to
     NMR Chemical shielding tensors
 
-    Three notations to describe chemical shielding tensor (RK Harris; Magn. Reson.
-    Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.
+    Three notations to describe chemical shielding tensor (RK Harris; Magn. Resonance
+    Chem. 2008, 46, 582-598; DOI: 10.1002/mrc.2225) are supported.
 
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
@@ -51,7 +51,7 @@ class ChemicalShielding(SquareTensor):
                 or a 1x3 array of the primary sigma values corresponding
                 to the principal axis system
             vscale (6x1 array-like): 6x1 array-like scaling the
-                voigt-notation vector with the tensor entries
+                Voigt-notation vector with the tensor entries
         """
         t_array = np.array(cs_matrix)
 
@@ -102,8 +102,8 @@ class ChemicalShielding(SquareTensor):
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         omega = np.diag(pas)[2] - np.diag(pas)[0]
-        # There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.
-        # There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.
+        # There is a typo in equation 20 from Magn. Resonance Chem. 2008, 46, 582-598, the sign is wrong.
+        # There correct order is presented in Solid State Nucl. Magn. Resonance 1993, 2, 285-288.
         kappa = 3.0 * (np.diag(pas)[1] - sigma_iso) / omega
         return self.MarylandNotation(sigma_iso, omega, kappa)
 

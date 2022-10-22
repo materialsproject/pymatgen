@@ -7,6 +7,8 @@ including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
 
+from __future__ import annotations
+
 import itertools
 import warnings
 
@@ -18,6 +20,7 @@ from scipy.special import factorial
 
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import (
     DEFAULT_QUAD,
     SquareTensor,
@@ -46,7 +49,7 @@ class NthOrderElasticTensor(Tensor):
     GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
     symbol = "C"
 
-    def __new__(cls, input_array, check_rank=None, tol=1e-4):
+    def __new__(cls, input_array, check_rank=None, tol: float = 1e-4):
         """
         Args:
             input_array ():
@@ -92,7 +95,7 @@ class NthOrderElasticTensor(Tensor):
         return e_density
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol=1e-10):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
         """
 
         Args:
@@ -103,7 +106,6 @@ class NthOrderElasticTensor(Tensor):
             tol ():
 
         Returns:
-
         """
         return cls(diff_fit(strains, stresses, eq_stress, order, tol)[order - 2])
 
@@ -122,7 +124,6 @@ def raise_error_if_unphysical(f):
             **kwargs ():
 
         Returns:
-
         """
         if self.k_vrh < 0 or self.g_vrh < 0:
             raise ValueError("Bulk or shear modulus is negative, property cannot be determined")
@@ -139,7 +140,7 @@ class ElasticTensor(NthOrderElasticTensor):
     the second order elastic tensor
     """
 
-    def __new__(cls, input_array, tol=1e-4):
+    def __new__(cls, input_array, tol: float = 1e-4):
         """
         Create an ElasticTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3x3, i. e. in true
@@ -224,7 +225,7 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         return 9.0e9 * self.k_vrh * self.g_vrh / (3.0 * self.k_vrh + self.g_vrh)
 
-    def directional_poisson_ratio(self, n, m, tol=1e-8):
+    def directional_poisson_ratio(self, n, m, tol: float = 1e-8):
         """
         Calculates the poisson ratio for a specific direction
         relative to a second, orthogonal direction
@@ -258,7 +259,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: transverse sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -279,7 +279,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: longitudinal sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -299,7 +298,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Snyder's acoustic sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -323,7 +321,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Snyder's optical sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -345,7 +342,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Snyder's total sound velocity (in SI units)
-
         """
         return self.snyder_ac(structure) + self.snyder_opt(structure)
 
@@ -358,7 +354,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Clarke's thermal conductivity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -378,7 +373,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Cahill's thermal conductivity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -395,7 +389,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: debye temperature (in SI units)
-
         """
         v0 = structure.volume * 1e-30 / structure.num_sites
         vl, vt = self.long_v(structure), self.trans_v(structure)
@@ -441,7 +434,9 @@ class ElasticTensor(NthOrderElasticTensor):
         ]
         return {prop: getattr(self, prop) for prop in props}
 
-    def get_structure_property_dict(self, structure, include_base_props=True, ignore_errors=False):
+    def get_structure_property_dict(
+        self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
+    ) -> dict[str, float | Structure | None]:
         """
         returns a dictionary of properties derived from the elastic tensor
         and an associated structure
@@ -464,6 +459,7 @@ class ElasticTensor(NthOrderElasticTensor):
             "cahill_thermalcond",
             "debye_temperature",
         ]
+        sp_dict: dict[str, float | Structure | None]
         if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
             sp_dict = {prop: None for prop in s_props}
         else:
@@ -498,7 +494,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol=1e-10):
+    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10):
         """
         Constructs the elastic tensor least-squares fit of independent strains
         Args:
@@ -513,9 +509,9 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         strain_states = [tuple(ss) for ss in np.eye(6)]
         ss_dict = get_strain_state_dict(strains, stresses, eq_stress=eq_stress)
-        if not set(strain_states) <= set(ss_dict.keys()):
+        if not set(strain_states) <= set(ss_dict):
             raise ValueError(f"Missing independent strain states: {set(strain_states) - set(ss_dict)}")
-        if len(set(ss_dict.keys()) - set(strain_states)) > 0:
+        if len(set(ss_dict) - set(strain_states)) > 0:
             warnings.warn("Extra strain states in strain-stress pairs are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
         for i in range(6):
@@ -571,7 +567,7 @@ class ElasticTensorExpansion(TensorCollection):
         super().__init__(c_list)
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol=1e-10, order=3):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3):
         """
         Generates an elastic tensor expansion via the fitting function
         defined below in diff_fit
@@ -638,7 +634,7 @@ class ElasticTensorExpansion(TensorCollection):
         if temperature and not structure:
             raise ValueError("If using temperature input, you must also include structure")
 
-        quad = quad if quad else DEFAULT_QUAD
+        quad = quad or DEFAULT_QUAD
         points = quad["points"]
         weights = quad["weights"]
         num, denom, c = np.zeros((3, 3)), 0, 1
@@ -670,7 +666,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         return np.trace(self.get_tgt(temperature, structure, quad)) / 3.0
 
-    def get_heat_capacity(self, temperature, structure, n, u, cutoff=1e2):
+    def get_heat_capacity(self, temperature, structure: Structure, n, u, cutoff=1e2):
         """
         Gets the directional heat capacity for a higher order tensor
         expansion as a function of direction and polarization.
@@ -694,7 +690,7 @@ class ElasticTensorExpansion(TensorCollection):
         c *= np.exp(hbar_w / kt) / (np.exp(hbar_w / kt) - 1) ** 2
         return c * 6.022e23
 
-    def omega(self, structure, n, u):
+    def omega(self, structure: Structure, n, u):
         """
         Finds directional frequency contribution to the heat
         capacity from direction and polarization
@@ -713,7 +709,7 @@ class ElasticTensorExpansion(TensorCollection):
         vel = (1e9 * self[0].einsum_sequence([n, u, n, u]) / (weight / vol)) ** 0.5
         return vel / l0
 
-    def thermal_expansion_coeff(self, structure, temperature, mode="debye"):
+    def thermal_expansion_coeff(self, structure: Structure, temperature, mode="debye"):
         """
         Gets thermal expansion coefficient from third-order constants.
 
@@ -861,7 +857,7 @@ class ElasticTensorExpansion(TensorCollection):
 
 
 # TODO: abstract this for other tensor fitting procedures
-def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
+def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
     """
     nth order elastic constant fitting function based on
     central-difference derivatives with respect to distinct
@@ -912,7 +908,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
             coef = get_diff_coeff(hvec, i)
             dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
 
-    m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
+    m, absent = generate_pseudo(list(strain_state_dict), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i + 1)
         svec = np.ravel(dei_dsi[i - 1].T)
@@ -921,7 +917,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     return [Tensor.from_voigt(c) for c in c_list]
 
 
-def find_eq_stress(strains, stresses, tol=1e-10):
+def find_eq_stress(strains, stresses, tol: float = 1e-10):
     """
     Finds stress corresponding to zero strain state in stress-strain list
 
@@ -949,7 +945,7 @@ def find_eq_stress(strains, stresses, tol=1e-10):
     return eq_stress
 
 
-def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=True, sort=True):
+def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10, add_eq=True, sort=True):
     """
     Creates a dictionary of voigt-notation stress-strain sets
     keyed by "strain state", i. e. a tuple corresponding to
@@ -982,7 +978,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=T
         else:
             veq_stress = find_eq_stress(strains, stresses).voigt
 
-    for n, ind in enumerate(independent):
+    for ind in independent:
         # match strains with templates
         template = np.zeros(6, dtype=bool)
         np.put(template, ind, True)
@@ -1035,7 +1031,7 @@ def generate_pseudo(strain_states, order=3):
         for n, strain_v in enumerate(ni):
             # Get expressions
             exps = carr.copy()
-            for i in range(degree - 1):
+            for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
             exps /= np.math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]

@@ -21,7 +21,7 @@ References are:
     BoltzTraP. A code for calculating band-structure dependent quantities.
     Computer Physics Communications, 175, 67-71
 
-TODO:
+Todo:
 - DONE: spin polarized bands
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
@@ -69,6 +69,7 @@ class VasprunBSLoader:
             obj: Either a pmg Vasprun or a BandStructure object.
             structure: Structure object in case is not included in the BandStructure object.
             nelect: number of electrons in case a BandStructure obj is provided.
+
         Example:
             vrun = Vasprun('vasprun.xml')
             data = VasprunBSLoader(vrun)
@@ -534,9 +535,9 @@ class BztInterpolator:
         if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for i, k in enumerate(kpath[:-1]):
-                    sta = kpoints_lbls_dict[kpath[i]]
-                    end = kpoints_lbls_dict[kpath[i + 1]]
+                for idx, k_pt in enumerate(kpath[:-1]):
+                    sta = kpoints_lbls_dict[k_pt]
+                    end = kpoints_lbls_dict[kpath[idx + 1]]
                     kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
         else:
@@ -664,7 +665,7 @@ class BztTransportProperties:
     def __init__(
         self,
         BztInterpolator,
-        temp_r=np.arange(100, 1400, 100),
+        temp_r=None,
         doping=None,
         npts_mu=4000,
         CRTA=1e-14,
@@ -703,6 +704,8 @@ class BztTransportProperties:
         Example:
             bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
         """
+        if temp_r is None:
+            temp_r = np.arange(100, 1400, 100)
 
         self.dosweight = BztInterpolator.data.dosweight
         self.volume = BztInterpolator.data.get_volume()

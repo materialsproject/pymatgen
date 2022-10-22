@@ -8,6 +8,7 @@ import numpy as np
 from monty.dev import requires
 
 import pymatgen.io.phonopy
+from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
@@ -31,7 +32,7 @@ class BornEffectiveCharge:
     This class describes the Nx3x3 born effective charge tensor
     """
 
-    def __init__(self, structure, bec, pointops, tol=1e-3):
+    def __init__(self, structure: Structure, bec, pointops, tol: float = 1e-3):
         """
         Create an BornEffectiveChargeTensor object defined by a
         structure, point operations of the structure's atomic sites.
@@ -69,8 +70,8 @@ class BornEffectiveCharge:
             the indexes of those sites.
         """
         bec = self.bec
-        struc = self.structure
-        ops = sga(struc).get_symmetry_operations(cartesian=True)
+        struct = self.structure
+        ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)
@@ -122,11 +123,11 @@ class BornEffectiveCharge:
             np.array Born effective charge tensor
         """
 
-        struc = self.structure
-        symstruc = sga(struc)
+        struct = self.structure
+        symstruc = sga(struct)
         symstruc = symstruc.get_symmetrized_structure()
 
-        l = len(struc)
+        l = len(struct)
         BEC = np.zeros((l, 3, 3))
         for atom, ops in enumerate(self.BEC_operations):
             if ops[0] == ops[1]:
@@ -178,7 +179,7 @@ class InternalStrainTensor:
     structure, point operations of the structure's atomic sites.
     """
 
-    def __init__(self, structure, ist, pointops, tol=1e-3):
+    def __init__(self, structure: Structure, ist, pointops, tol: float = 1e-3):
         """
         Create an InternalStrainTensor object.
 
@@ -213,8 +214,8 @@ class InternalStrainTensor:
             the indexes of those sites.
         """
 
-        struc = self.structure
-        ops = sga(struc).get_symmetry_operations(cartesian=True)
+        struct = self.structure
+        ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)
@@ -277,7 +278,7 @@ class ForceConstantMatrix:
     shared symmetry operations between pairs of atomic sites.
     """
 
-    def __init__(self, structure, fcm, pointops, sharedops, tol=1e-3):
+    def __init__(self, structure: Structure, fcm, pointops, sharedops, tol: float = 1e-3):
         """
         Create an ForceConstantMatrix object.
 
@@ -310,8 +311,8 @@ class ForceConstantMatrix:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
-        struc = self.structure
-        ops = sga(struc).get_symmetry_operations(cartesian=True)
+        struct = self.structure
+        ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)
@@ -330,7 +331,7 @@ class ForceConstantMatrix:
                 index = np.argsort(eig1)
                 neweig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
 
-                for entry, p in enumerate(passed):
+                for p in passed:
                     if np.allclose(neweig, p[2], atol=eigtol):
                         relations.append([atom1, atom2, p[0], p[1]])
                         unique = 0
@@ -385,10 +386,10 @@ class ForceConstantMatrix:
             numpy array representing the force constant matrix
         """
 
-        struc = self.structure
+        struct = self.structure
         operations = self.FCM_operations
         # set max force in reciprocal space
-        numsites = len(struc.sites)
+        numsites = len(struct.sites)
         D = (1 / max_force) * 2 * (np.ones([numsites * 3, numsites * 3]))
         for op in operations:
             same = 0
@@ -548,7 +549,7 @@ class ForceConstantMatrix:
 
     # acoustic sum
 
-    def get_asum_FCM(self, fcm, numiter=15):
+    def get_asum_FCM(self, fcm: np.ndarray, numiter: int = 15):
         """
         Generate a symmeterized force constant matrix that obeys the objects symmetry
         constraints and obeys the acoustic sum rule through an iterative procedure
@@ -561,13 +562,14 @@ class ForceConstantMatrix:
         Return:
             numpy array representing the force constant matrix
         """
-
         # set max force in reciprocal space
         operations = self.FCM_operations
+        assert operations is not None, "No symmetry operations found"
+
         numsites = len(self.structure)
 
         D = np.ones([numsites * 3, numsites * 3])
-        for num in range(numiter):
+        for _ in range(numiter):
             X = np.real(fcm)
 
             # symmetry operations
@@ -652,7 +654,6 @@ class ForceConstantMatrix:
 
         Return:
             NxNx3x3 np.array representing the force constant matrix
-
         """
 
         numsites = len(self.structure.sites)
@@ -717,13 +718,13 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
 
 
 @requires(Phonopy, "phonopy not installed!")
-def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter=10):
+def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
     """
     Generate a random piezoelectric tensor based on a structure and corresponding
     symmetry
 
     Args:
-        struc (pymatgen structure): structure whose symmetry operations the piezo tensor must obey
+        struct (pymatgen structure): structure whose symmetry operations the piezo tensor must obey
         pointops: list of point operations obeyed by a single atomic site
         sharedops: list of point operations shared by a pair of atomic sites
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
@@ -734,18 +735,18 @@ def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """
-    bec = BornEffectiveCharge(struc, BEC, pointops)
+    bec = BornEffectiveCharge(struct, BEC, pointops)
     bec.get_BEC_operations()
     rand_BEC = bec.get_rand_BEC()
 
-    ist = InternalStrainTensor(struc, IST, pointops)
+    ist = InternalStrainTensor(struct, IST, pointops)
     ist.get_IST_operations()
     rand_IST = ist.get_rand_IST()
 
-    fcm = ForceConstantMatrix(struc, FCM, pointops, sharedops)
+    fcm = ForceConstantMatrix(struct, FCM, pointops, sharedops)
     fcm.get_FCM_operations()
     rand_FCM = fcm.get_rand_FCM()
 
-    P = get_piezo(rand_BEC, rand_IST, rand_FCM) * 16.0216559424 / struc.volume
+    P = get_piezo(rand_BEC, rand_IST, rand_FCM) * 16.0216559424 / struct.volume
 
     return (rand_BEC, rand_IST, rand_FCM, P)

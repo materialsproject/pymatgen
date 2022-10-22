@@ -1,9 +1,10 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
+import copy
+import json
+import os
 
 import networkx as nx
+import numpy as np
+import pytest
 
 from pymatgen.analysis.chemenv.connectivity.connected_components import (
     ConnectedComponent,
@@ -28,15 +29,11 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import bson  # type: ignore  # Ignore bson import for mypy
+    import bson
 except ModuleNotFoundError:
     bson = None
-import copy
-import json
-import os
 
-import numpy as np
-import pytest  # type: ignore  # Ignore pytest import for mypy
+__author__ = "waroquiers"
 
 
 class ConnectedComponentTest(PymatgenTest):
@@ -147,7 +144,7 @@ class ConnectedComponentTest(PymatgenTest):
             assert set(list(cc.graph.nodes())) == set(list(loaded_cc.graph.nodes()))
             assert sorted_edges == sorted(sorted(e) for e in loaded_cc.graph.edges())
 
-            for ii, e in enumerate(sorted_edges):
+            for e in sorted_edges:
                 assert cc.graph[e[0]][e[1]] == loaded_cc.graph[e[0]][e[1]]
 
             for node in loaded_cc.graph.nodes():
@@ -389,7 +386,7 @@ class ConnectedComponentTest(PymatgenTest):
         assert cc.is_periodic
         assert cc.periodicity == "2D"
         assert np.allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
-        assert type(cc.periodicity_vectors) is list
+        assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
         # Test a 3d periodicity
@@ -462,12 +459,12 @@ class ConnectedComponentTest(PymatgenTest):
             cc.periodicity_vectors,
             [np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([1, 1, 1])],
         )
-        assert type(cc.periodicity_vectors) is list
+        assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
     def test_real_systems(self):
         # Initialize geometry and connectivity finders
-        strat = SimplestChemenvStrategy()
+        strategy = SimplestChemenvStrategy()
         lgf = LocalGeometryFinder()
         cf = ConnectivityFinder()
 
@@ -475,7 +472,7 @@ class ConnectedComponentTest(PymatgenTest):
         struct = self.get_structure("LiFePO4")
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "P"], maximum_distance_factor=1.2)
-        lse = LightStructureEnvironments.from_structure_environments(strategy=strat, structure_environments=se)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
         for isite in range(0, 4):
             assert lse.structure[isite].specie.symbol == "Li"
@@ -490,7 +487,7 @@ class ConnectedComponentTest(PymatgenTest):
         sc = cf.get_structure_connectivity(lse)
         assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default
         ccs = sc.get_connected_components()  # by default, will use all the environments (O:6 and T:4 here)
-        assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4"]  # Now the default components are there
+        assert list(sc.environment_subgraphs) == ["O:6-T:4"]  # Now the default components are there
         assert len(sc.environment_subgraphs) == 1
         assert len(ccs) == 1
         cc = ccs[0]
@@ -755,21 +752,21 @@ Node #11 P (T:4), connected to :
         # Get the connectivity for T:4 and O:6 separately and check results
         # Only tetrahedral
         sc.setup_environment_subgraph(environments_symbols=["T:4"])
-        assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4", "T:4"]
+        assert list(sc.environment_subgraphs) == ["O:6-T:4", "T:4"]
         ccs = sc.get_connected_components()
         assert len(ccs) == 4
         for cc in ccs:
             assert cc.periodicity == "0D"
         # Only octahedral
         sc.setup_environment_subgraph(environments_symbols=["O:6"])
-        assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4", "T:4", "O:6"]
+        assert list(sc.environment_subgraphs) == ["O:6-T:4", "T:4", "O:6"]
         ccs = sc.get_connected_components()
         assert len(ccs) == 1
         cc = ccs[0]
         assert cc.periodicity == "3D"
         # Only Manganese octahedral
         sc.setup_environment_subgraph(environments_symbols=["O:6"], only_atoms=["Fe"])
-        assert list(sc.environment_subgraphs.keys()) == [
+        assert list(sc.environment_subgraphs) == [
             "O:6-T:4",
             "T:4",
             "O:6",
@@ -784,7 +781,7 @@ Node #11 P (T:4), connected to :
         struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
-        lse = LightStructureEnvironments.from_structure_environments(strategy=strat, structure_environments=se)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
         for isite in range(0, 4):
             assert lse.structure[isite].specie.symbol == "Li"
@@ -803,14 +800,14 @@ Node #11 P (T:4), connected to :
         assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default
         ccs = sc.get_connected_components()  # by default, will use all the environments (O:6 and T:4 here)
         # Now connected components for the defaults are there :
-        assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4"]
+        assert list(sc.environment_subgraphs) == ["O:6-T:4"]
         assert len(sc.environment_subgraphs) == 1
         assert len(ccs) == 1
         cc = ccs[0]
         assert cc.periodicity == "3D"
         # Get the connectivity for Li octahedral only
         ccs = sc.get_connected_components(environments_symbols=["O:6"], only_atoms=["Li"])
-        assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4", "O:6#Li"]
+        assert list(sc.environment_subgraphs) == ["O:6-T:4", "O:6#Li"]
         assert len(ccs) == 2
         for cc in ccs:
             assert cc.periodicity == "1D"
@@ -845,12 +842,12 @@ Node #3 Li (O:6), connected to :
         )
         # Get the connectivity for Mn octahedral only
         ccs = sc.get_connected_components(environments_symbols=["O:6"], only_atoms=["Mn"])
-        assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4", "O:6#Li", "O:6#Mn"]
+        assert list(sc.environment_subgraphs) == ["O:6-T:4", "O:6#Li", "O:6#Mn"]
         assert len(ccs) == 1
         assert ccs[0].periodicity == "0D"
         # Get the connectivity for Fe octahedral only
         ccs = sc.get_connected_components(environments_symbols=["O:6"], only_atoms=["Fe"])
-        assert list(sc.environment_subgraphs.keys()) == [
+        assert list(sc.environment_subgraphs) == [
             "O:6-T:4",
             "O:6#Li",
             "O:6#Mn",

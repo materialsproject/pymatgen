@@ -1,6 +1,8 @@
 """
 Pyinvoke tasks.py file for automating releases and admin stuff.
 
+To cut a new pymatgen release, use `invoke update-changelog` followed by `invoke release`.
+
 Author: Shyue Ping Ong
 """
 import datetime
@@ -263,8 +265,9 @@ def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d")
             contrib, pr_name = m.group(2).split("/", 1)
             response = requests.get(f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}")
             lines.append(f"* PR #{pr_number} from @{contrib} {pr_name}")
-            if "body" in response.json():
-                for ll in response.json()["body"].split("\n"):
+            json_resp = response.json()
+            if "body" in json_resp and json_resp["body"]:
+                for ll in json_resp["body"].split("\n"):
                     ll = ll.strip()
                     if ll in ["", "## Summary"]:
                         continue

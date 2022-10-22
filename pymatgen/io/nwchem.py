@@ -121,10 +121,10 @@ class NwTask(MSONable):
                 constant of 78, you'd supply {'cosmo': {"dielectric": 78}}.
         """
         # Basic checks.
-        if theory.lower() not in NwTask.theories.keys():
+        if theory.lower() not in NwTask.theories:
             raise NwInputError(f"Invalid theory {theory}")
 
-        if operation.lower() not in NwTask.operations.keys():
+        if operation.lower() not in NwTask.operations:
             raise NwInputError(f"Invalid operation {operation}")
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
@@ -150,12 +150,12 @@ class NwTask(MSONable):
         theory_spec = []
         if self.theory_directives:
             theory_spec.append(f"{self.theory}")
-            for k in sorted(self.theory_directives.keys()):
+            for k in sorted(self.theory_directives):
                 theory_spec.append(f" {k} {self.theory_directives[k]}")
             theory_spec.append("end")
-        for k in sorted(self.alternate_directives.keys()):
+        for k in sorted(self.alternate_directives):
             theory_spec.append(k)
-            for k2 in sorted(self.alternate_directives[k].keys()):
+            for k2 in sorted(self.alternate_directives[k]):
                 theory_spec.append(f" {k2} {self.alternate_directives[k][k2]}")
             theory_spec.append("end")
 
@@ -282,7 +282,7 @@ $theory_spec
         else:
             spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
-        elements = set(mol.composition.get_el_amt_dict().keys())
+        elements = set(mol.composition.get_el_amt_dict())
         if isinstance(basis_set, str):
             basis_set = {el: basis_set for el in elements}
 
@@ -935,10 +935,10 @@ class NwOutput:
                         corrections[m.group(1)] = FloatWithUnit(m.group(2), "kJ mol^-1").to("eV atom^-1")
 
         if frequencies:
-            for freq, mode in frequencies:
+            for _freq, mode in frequencies:
                 mode[:] = zip(*[iter(mode)] * 3)
         if normal_frequencies:
-            for freq, mode in normal_frequencies:
+            for _freq, mode in normal_frequencies:
                 mode[:] = zip(*[iter(mode)] * 3)
         if hessian:
             n = len(hessian)

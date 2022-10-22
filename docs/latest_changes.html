@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.5.19 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.10.22 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,7 +16,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.5.19
+                2022.10.22
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -84,11 +86,20 @@
            <div itemprop="articleBody">
              
   <section id="change-log">
-<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
-<section id="v2022-5-19">
-<h2>v2022.5.19<a class="headerlink" href="#v2022-5-19" title="Permalink to this headline"></a></h2>
+<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2022-10-22">
+<h2>v2022.10.22<a class="headerlink" href="#v2022-10-22" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (&#64;shyuep).</p></li>
+<li><p>Allow env settings to override .pmgrc.yaml (&#64;janosh)</p></li>
+<li><p>Add EntryLike type (&#64;janosh)</p></li>
+<li><p>Update spglib to 2.0+.</p></li>
+<li><p>&#64;cnncnnzh Method to plot the atom-resolved phonon band structures.</p></li>
+<li><p>&#64;jmmshn More Flexible reproduction of VASP’s optical code</p></li>
+<li><p>&#64;Ameyanagi Fix the sorting of the FEFF IO module to create ATOMS input.</p></li>
+<li><p>&#64;JaGeo Extend the ThermalDisplacementMatrices class to read cif files in P1 format.</p></li>
+<li><p>&#64;rkingsbury Changes to FEFF I/O to support the use of non-periodic input structures.</p></li>
+<li><p>&#64;jmmshn Merge Waverder and Wavederf</p></li>
+<li><p>&#64;jmmshn  Set the structure_charge while parsing Potcar</p></li>
 </ul>
 </section>
 </section>

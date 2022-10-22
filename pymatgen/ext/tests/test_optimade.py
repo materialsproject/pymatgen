@@ -10,13 +10,13 @@ from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+    website_down = requests.get("https://materialsproject.org").status_code != 200
 except requests.exceptions.ConnectionError:
-    website_is_up = False
+    website_down = True
 
 
 @unittest.skipIf(
-    (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
+    not SETTINGS.get("PMG_MAPI_KEY") or website_down,
     "PMG_MAPI_KEY environment variable not set or MP is down.",
 )
 class OptimadeTest(PymatgenTest):
@@ -35,13 +35,11 @@ class OptimadeTest(PymatgenTest):
             if ("mp" in structs) and ("mp" in raw_filter_structs):
 
                 test_struct = next(iter(structs["mp"].values()))
-                self.assertEqual([str(el) for el in test_struct.types_of_species], ["Ga", "N"])
+                assert [str(el) for el in test_struct.types_of_species] == ["Ga", "N"]
 
-                self.assertEqual(
-                    len(structs["mp"]),
-                    len(raw_filter_structs["mp"]),
-                    msg="Raw filter {_filter} did not return the same number of results as the query builder.",
-                )
+                assert len(structs["mp"]) == len(
+                    raw_filter_structs["mp"]
+                ), f"Raw filter {_filter} did not return the same number of results as the query builder."
 
     def test_get_snls_mp(self):
         with OptimadeRester("mp") as optimade:
@@ -56,8 +54,8 @@ class OptimadeTest(PymatgenTest):
                 elements=["Ga", "N"], nelements=2, additional_response_fields={"nsites", "nelements"}
             )
             if ("mp" in response_field_structs_single) and ("mp" in response_field_structs_set):
-                self.assertEqual(len(structs["mp"]), len(response_field_structs_single["mp"]))
-                self.assertEqual(len(structs["mp"]), len(response_field_structs_set["mp"]))
+                assert len(structs["mp"]) == len(response_field_structs_single["mp"])
+                assert len(structs["mp"]) == len(response_field_structs_set["mp"])
 
                 # Check that the requested response fields appear in the SNL metadata
                 s = list(response_field_structs_single["mp"].values())[0]

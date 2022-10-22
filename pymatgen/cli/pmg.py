@@ -64,7 +64,7 @@ def diff_incar(args):
         ["----------------", "", ""],
     ]
     output.extend(
-        [(k, format_lists(d["Same"][k]), format_lists(d["Same"][k])) for k in sorted(d["Same"].keys()) if k != "SYSTEM"]
+        [(k, format_lists(d["Same"][k]), format_lists(d["Same"][k])) for k in sorted(d["Same"]) if k != "SYSTEM"]
     )
     output.extend(
         [
@@ -73,7 +73,7 @@ def diff_incar(args):
                 format_lists(d["Different"][k]["INCAR1"]),
                 format_lists(d["Different"][k]["INCAR2"]),
             )
-            for k in sorted(d["Different"].keys())
+            for k in sorted(d["Different"])
             if k != "SYSTEM"
         ]
     )
@@ -141,7 +141,7 @@ def main():
     )
     parser_config.set_defaults(func=configure_pmg)
 
-    parser_analyze = subparsers.add_parser("analyze", help="Vasp calculation analysis tools.")
+    parser_analyze = subparsers.add_parser("analyze", help="VASP calculation analysis tools.")
     parser_analyze.add_argument(
         "directories",
         metavar="dir",
@@ -440,7 +440,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        getattr(args, "func")
+        args.func
     except AttributeError:
         parser.print_help()
         sys.exit(-1)

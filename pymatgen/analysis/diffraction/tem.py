@@ -13,7 +13,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from functools import lru_cache
-from typing import cast
+from typing import List, Tuple, cast
 
 import numpy as np
 import pandas as pd
@@ -131,7 +131,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        result_tuples = cast(list[tuple[int, int, int]], [tuple(x) for x in result.tolist()])
+        result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
         return result_tuples
 
     def get_interplanar_spacings(
@@ -161,7 +161,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             dict of hkl plane (3-tuple) to Bragg angle in radians (float)
         """
-        plane = list(interplanar_spacings.keys())
+        plane = list(interplanar_spacings)
         interplanar_spacings_val = np.array(list(interplanar_spacings.values()))
         bragg_angles_val = np.arcsin(self.wavelength_rel() / (2 * interplanar_spacings_val))
         bragg_angles = dict(zip(plane, bragg_angles_val))
@@ -171,12 +171,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
         Args:
-            bragg_angles (Dict): The bragg angles for each hkl plane.
+            bragg_angles (dict): The bragg angles for each hkl plane.
         Returns:
             Dict of hkl plane to s2 parameter, calculates the s squared parameter
                 (= square of sin theta over lambda).
         """
-        plane = list(bragg_angles.keys())
+        plane = list(bragg_angles)
         bragg_angles_val = np.array(list(bragg_angles.values()))
         s2_val = (np.sin(bragg_angles_val) / self.wavelength_rel()) ** 2
         s2 = dict(zip(plane, s2_val))
@@ -190,7 +190,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         by the equivalent process in the xrd module.
         Args:
             structure (Structure): The input structure.
-            bragg_angles (Dict): Dictionary of hkl plane to Bragg angle.
+            bragg_angles (dict): Dictionary of hkl plane to Bragg angle.
         Returns:
             dict of atomic symbol to another dict of hkl plane to x-ray factor (in angstroms).
         """
@@ -250,7 +250,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         scattering_factor_curr = 0
         for plane in bragg_angles:
             for site in structure:
-                for sp, occu in site.species.items():
+                for sp in site.species:
                     g_dot_r = np.dot(np.array(plane), np.transpose(site.frac_coords))
                     scattering_factor_curr += electron_scattering_factors[sp.symbol][plane] * np.exp(
                         2j * np.pi * g_dot_r
@@ -307,10 +307,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         rows_list = []
         for dot in tem_dots:
             dict1 = {
-                "Pos": dot.position,
+                "Position": dot.position,
                 "(hkl)": dot.hkl,
-                "Intnsty (norm)": dot.intensity,
-                "Film rad": dot.film_radius,
+                "Intensity (norm)": dot.intensity,
+                "Film radius": dot.film_radius,
                 "Interplanar Spacing": dot.d_spacing,
             }
             rows_list.append(dict1)
@@ -367,7 +367,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         max_d_plane = (0, 0, 1)
         points = self.zone_axis_filter(points)
         spacings = self.get_interplanar_spacings(structure, points)
-        for plane in sorted(spacings.keys()):
+        for plane in sorted(spacings):
             if spacings[plane] > max_d:
                 max_d_plane = plane
                 max_d = spacings[plane]
@@ -467,7 +467,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         spacings = self.get_interplanar_spacings(structure, points)
         # second is the first non-parallel-to-first-point vector when sorted.
         # note 000 is "parallel" to every plane vector.
-        for plane in sorted(spacings.keys()):
+        for plane in sorted(spacings):
             second_point, second_d = plane, spacings[plane]
             if not self.is_parallel(structure, first_point, second_point):
                 break

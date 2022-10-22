@@ -206,7 +206,6 @@ class MoleculeStructureComparator(MSONable):
             priority_bonds ():
 
         Returns:
-
         """
         all_bond_pairs = list(itertools.combinations(priority_bonds, r=2))
         all_2_bond_atoms = [set(b1 + b2) for b1, b2 in all_bond_pairs]
@@ -236,8 +235,7 @@ class MoleculeStructureComparator(MSONable):
             covalent_atoms = list(range(num_atoms))
         all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
-        elements = mol.composition.as_dict().keys()
-        unavailable_elements = list(set(elements) - set(self.covalent_radius.keys()))
+        unavailable_elements = list(set(mol.composition.as_dict()) - set(self.covalent_radius))
         if len(unavailable_elements) > 0:
             raise ValueError(f"The covalent radius for element {unavailable_elements} is not available")
         bond_13 = self.get_13_bonds(self.priority_bonds)
@@ -291,7 +289,7 @@ class MoleculeStructureComparator(MSONable):
             MoleculeStructureComparator
         """
 
-        return MoleculeStructureComparator(
+        return cls(
             bond_length_cap=d["bond_length_cap"],
             covalent_radius=d["covalent_radius"],
             priority_bonds=d["priority_bonds"],

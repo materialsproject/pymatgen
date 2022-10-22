@@ -14,7 +14,7 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 from monty.io import zopen
@@ -116,14 +116,14 @@ class Cohpcar:
         data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
         data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
         self.energies = data[0]
-        cohp_data = {
+        cohp_data: dict[str, dict[str, Any]] = {
             "average": {
                 "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
                 "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
             }
-        }  # type: Dict[Any, Any]
+        }
 
-        orb_cohp = {}  # type: Dict[str, Any]
+        orb_cohp: dict[str, Any] = {}
         # present for Lobster versions older than Lobster 2.2.0
         veryold = False
         # the labeling had to be changed: there are more than one COHP for each atom combination
@@ -188,7 +188,7 @@ class Cohpcar:
                     "sites": bond_data["sites"],
                 }
 
-        self.orb_res_cohp = orb_cohp if orb_cohp else None
+        self.orb_res_cohp = orb_cohp or None
         self.cohp_data = cohp_data
 
     @staticmethod
@@ -238,8 +238,8 @@ class Cohpcar:
 
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs]  # type: Any
-            orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: Any
+            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs]
+            orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
 
         else:
             orbitals = None
@@ -496,7 +496,7 @@ class Doscar:
             efermi = float([f.readline() for nn in range(4)][3].split()[17])
             dos = []
             orbitals = []
-            for atom in range(natoms + 1):
+            for _atom in range(natoms + 1):
                 line = f.readline()
                 ndos = int(line.split()[2])
                 orbitals.append(line.split(";")[-1].split())
@@ -642,10 +642,10 @@ class Charge:
             raise OSError("CHARGES file contains no data.")
 
         self.num_atoms = len(data)
-        self.atomlist = []  # type: List[str]
-        self.types = []  # type: List[str]
-        self.Mulliken = []  # type: List[float]
-        self.Loewdin = []  # type: List[float]
+        self.atomlist: list[str] = []
+        self.types: list[str] = []
+        self.Mulliken: list[float] = []
+        self.Loewdin: list[float] = []
         for atom in range(0, self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + line[0])
@@ -1119,7 +1119,7 @@ class Fatband:
             filenames = filenames_new
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
-        for ifilename, filename in enumerate(filenames):
+        for filename in filenames:
             with zopen(filename, "rt") as f:
                 contents = f.read().split("\n")
 
@@ -1136,13 +1136,13 @@ class Fatband:
             atom_orbital_dict[atom].append(orbital_names[iatom])
         # test if there are the same orbitals twice or if two different formats were used or if all necessary orbitals
         # are there
-        for key, items in atom_orbital_dict.items():
+        for items in atom_orbital_dict.values():
             if len(set(items)) != len(items):
                 raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
             split = []
             for item in items:
                 split.append(item.split("_")[0])
-            for orb, number in collections.Counter(split).items():
+            for number in collections.Counter(split).values():
                 if number not in (1, 3, 5, 7):
                     raise ValueError(
                         "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are "
@@ -1209,7 +1209,7 @@ class Fatband:
                     ]
 
             ikpoint = -1
-            for iline, line in enumerate(contents[1:-1]):
+            for line in contents[1:-1]:
                 if line.split()[0] == "#":
                     KPOINT = np.array(
                         [
@@ -1303,8 +1303,8 @@ class Bandoverlaps:
          contents: list of strings
          spin_numbers: list of spin numbers depending on `Lobster` version.
         """
-        self.bandoverlapsdict = {}  # type: Dict
-        self.max_deviation = []  # type: List
+        self.bandoverlapsdict: dict[Any, dict] = {}  # Any is spin number 1 or -1
+        self.max_deviation = []
         # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
             if f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[0]}" in line:
@@ -1417,7 +1417,7 @@ class Grosspop:
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
 
-        self.list_dict_grosspop = []  # type: List[Any]
+        self.list_dict_grosspop = []
         # transfers content of file to list of dict
         for line in contents[3:]:
             cleanline = [i for i in line.split(" ") if not i == ""]
@@ -1444,7 +1444,7 @@ class Grosspop:
         """
 
         struct = Structure.from_file(structure_filename)
-        site_properties = {}  # type: Dict[str, Any]
+        site_properties: dict[str, Any] = {}
         mullikengp = []
         loewdingp = []
         for grosspop in self.list_dict_grosspop:
@@ -1536,7 +1536,6 @@ class Wavefunction:
             structure: Structure object
 
         Returns:
-
         """
         Nx = grid[0] - 1
         Ny = grid[1] - 1
@@ -1616,7 +1615,6 @@ class Wavefunction:
         will return a VolumetricData object including the imaginary part of the wave function
 
         Returns: VolumetricData object
-
         """
         if not hasattr(self, "volumetricdata_density"):
             self.set_volumetric_data(self.grid, self.structure)
@@ -1635,7 +1633,6 @@ class Wavefunction:
             part: which part of the wavefunction will be saved ("real" or "imaginary")
 
         Returns:
-
         """
         if not (
             hasattr(self, "volumetricdata_real")
@@ -1722,10 +1719,10 @@ class SitePotential:
 
         data = data[5:-1]
         self.num_atoms = len(data) - 2
-        self.atomlist = []  # type: List[str]
-        self.types = []  # type: List[str]
-        self.sitepotentials_Mulliken = []  # type: List[float]
-        self.sitepotentials_Loewdin = []  # type: List[float]
+        self.atomlist: list[str] = []
+        self.types: list[str] = []
+        self.sitepotentials_Mulliken: list[float] = []
+        self.sitepotentials_Loewdin: list[float] = []
         for atom in range(0, self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + str(line[0]))
@@ -1748,6 +1745,9 @@ class SitePotential:
         struct = Structure.from_file(structure_filename)
         Mulliken = self.sitepotentials_Mulliken
         Loewdin = self.sitepotentials_Loewdin
-        site_properties = {"Mulliken Site Potentials (eV)": Mulliken, "Loewdin Site Potentials (eV)": Loewdin}
+        site_properties = {
+            "Mulliken Site Potentials (eV)": Mulliken,
+            "Loewdin Site Potentials (eV)": Loewdin,
+        }
         new_struct = struct.copy(site_properties=site_properties)
         return new_struct

@@ -208,7 +208,7 @@ class ChargemolAnalysis:
                 rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    f"Chargemol exited with return code {int(rs.returncode)}. Please check your Chargemol installation."
+                    f"Chargemol exited with return code {rs.returncode}. Please check your Chargemol installation."
                 )
 
             self._from_data_dir()
@@ -362,7 +362,7 @@ class ChargemolAnalysis:
     def _write_jobscript_for_chargemol(
         self,
         net_charge=0.0,
-        periodicity=[True, True, True],
+        periodicity=(True, True, True),
         method="ddec6",
         compute_bond_orders=True,
     ):
@@ -372,8 +372,8 @@ class ChargemolAnalysis:
         Args:
             net_charge (float): Net charge of the system.
                 Defaults to 0.0.
-            periodicity (list[bool]): Periodicity of the system.
-                Default: [True, True, True].
+            periodicity (tuple[bool]): Periodicity of the system.
+                Default: (True, True, True).
             method (str): Method to use for the analysis. Options include "ddec6"
             and "ddec3".
                 Default: "ddec6"
@@ -504,17 +504,17 @@ class ChargemolAnalysis:
         Returns
             Pymatgen structure with site properties added
         """
-        struc = self.structure.copy()
-        struc.add_site_property("partial_charge_ddec6", self.ddec_charges)
+        struct = self.structure.copy()
+        struct.add_site_property("partial_charge_ddec6", self.ddec_charges)
         if self.dipoles:
-            struc.add_site_property("dipole_ddec6", self.dipoles)
+            struct.add_site_property("dipole_ddec6", self.dipoles)
         if self.bond_order_sums:
-            struc.add_site_property("bond_order_sum_ddec6", self.bond_order_sums)
+            struct.add_site_property("bond_order_sum_ddec6", self.bond_order_sums)
         if self.ddec_spin_moments:
-            struc.add_site_property("spin_moment_ddec6", self.ddec_spin_moments)
+            struct.add_site_property("spin_moment_ddec6", self.ddec_spin_moments)
         if self.cm5_charges:
-            struc.add_site_property("partial_charge_cm5", self.cm5_charges)
-        return struc
+            struct.add_site_property("partial_charge_cm5", self.cm5_charges)
+        return struct
 
     @property
     def summary(self):

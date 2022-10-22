@@ -33,7 +33,7 @@ class LMTOCtrl:
     Currently, only HEADER, VERS and the structure can be used.
     """
 
-    def __init__(self, structure, header=None, version="LMASA-47"):
+    def __init__(self, structure: Structure, header=None, version="LMASA-47"):
         """
         Args:
             structure: The structure as a pymatgen Structure object.
@@ -48,7 +48,9 @@ class LMTOCtrl:
         self.header = header
         self.version = version
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self.get_string() == other.get_string()
 
     def __repr__(self):
@@ -118,7 +120,6 @@ class LMTOCtrl:
         sga = SpacegroupAnalyzer(self.structure)
         alat = sga.get_conventional_standard_structure().lattice.a
         plat = self.structure.lattice.matrix / alat
-
         """
         The following is to find the classes (atoms that are not symmetry
         equivalent, and create labels. Note that LMTO only attaches

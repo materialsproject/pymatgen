@@ -31,14 +31,14 @@ def get_dos_plot(args):
 
     if args.site:
         for i, site in enumerate(structure):
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
+            all_dos[f"Site {i} {site.specie.symbol}"] = dos.get_site_dos(site)
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]
         all_dos = {}
-        for el, dos in dos.get_element_dos().items():
+        for el, el_dos in dos.get_element_dos().items():
             if el.symbol in syms:
-                all_dos[el] = dos
+                all_dos[el] = el_dos
     if args.orbital:
         all_dos = dos.get_spd_dos()
 

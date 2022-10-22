@@ -144,7 +144,7 @@ class CoherentInterfaceBuilder:
                 zip(film_terminations, film_shits), zip(sub_terminations, sub_shifts)
             )
         }
-        self.terminations = list(self._terminations.keys())
+        self.terminations = list(self._terminations)
 
     def get_interfaces(
         self,
@@ -224,7 +224,7 @@ class CoherentInterfaceBuilder:
 
             # Add extra info
             match_dict = match.as_dict()
-            interface_properties = {k: match_dict[k] for k in match_dict.keys() if not k.startswith("@")}
+            interface_properties = {k: match_dict[k] for k in match_dict if not k.startswith("@")}
 
             dfm = Deformation(match.match_transformation)
 
@@ -248,7 +248,7 @@ class CoherentInterfaceBuilder:
 
 def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     """
-    Finds a trasnformation matrix that will rotate and strain the film to the subtrate while preserving the c-axis
+    Finds a transformation matrix that will rotate and strain the film to the substrate while preserving the c-axis
     """
     film_matrix = np.array(film_matrix)
     film_matrix = film_matrix.tolist()[:2]
