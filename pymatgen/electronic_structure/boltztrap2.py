@@ -21,7 +21,7 @@ References are:
     BoltzTraP. A code for calculating band-structure dependent quantities.
     Computer Physics Communications, 175, 67-71
 
-TODO:
+Todo:
 - DONE: spin polarized bands
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
@@ -69,6 +69,7 @@ class VasprunBSLoader:
             obj: Either a pmg Vasprun or a BandStructure object.
             structure: Structure object in case is not included in the BandStructure object.
             nelect: number of electrons in case a BandStructure obj is provided.
+
         Example:
             vrun = Vasprun('vasprun.xml')
             data = VasprunBSLoader(vrun)
@@ -703,7 +704,8 @@ class BztTransportProperties:
         Example:
             bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
         """
-        temp_r = temp_r or np.arange(100, 1400, 100)
+        if temp_r is None:
+            temp_r = np.arange(100, 1400, 100)
 
         self.dosweight = BztInterpolator.data.dosweight
         self.volume = BztInterpolator.data.get_volume()
