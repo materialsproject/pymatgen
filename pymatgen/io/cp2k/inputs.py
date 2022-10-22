@@ -1062,7 +1062,9 @@ class QS(Section):
         _keywords = {
             "METHOD": Keyword("METHOD", self.method),
             "EPS_DEFAULT": Keyword("EPS_DEFAULT", self.eps_default, description="Base precision level (in Ha)"),
-            "EXTRAPOLATION": Keyword("EXTRAPOLATION", self.extrapolation, description="WFN extrapolation between steps"),
+            "EXTRAPOLATION": Keyword(
+                "EXTRAPOLATION", self.extrapolation, description="WFN extrapolation between steps"
+            ),
         }
         if eps_pgf_orb:
             _keywords["EPS_PGF_ORB"] = Keyword("EPS_PGF_ORB", self.eps_pgf_orb, description="Overlap matrix precision")
