@@ -1,6 +1,8 @@
 """
 Pyinvoke tasks.py file for automating releases and admin stuff.
 
+To cut a new pymatgen release, use `invoke update-changelog` followed by `invoke release`.
+
 Author: Shyue Ping Ong
 """
 import datetime
