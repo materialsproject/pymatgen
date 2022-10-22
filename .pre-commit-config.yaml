@@ -5,7 +5,6 @@ ci:
   skip: [mypy, pylint, codespell, pydocstyle]
 
 repos:
-
   - repo: https://github.com/PyCQA/autoflake
     rev: v1.6.1
     hooks:
