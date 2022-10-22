@@ -1028,6 +1028,7 @@ class QS(Section):
         self,
         method: str = "GPW",
         eps_default: float = 1e-10,
+        eps_pgf_orb: float | None = None,
         extrapolation: str = "ASPC",
         keywords: dict = None,
         subsections: dict = None,
@@ -1052,16 +1053,19 @@ class QS(Section):
 
         self.method = method
         self.eps_default = eps_default
+        self.eps_pgf_orb = eps_pgf_orb
         self.extrapolation = extrapolation
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = "Parameters needed to set up the Quickstep framework"
 
         _keywords = {
-            "METHOD": Keyword("METHOD", method),
-            "EPS_DEFAULT": Keyword("EPS_DEFAULT", eps_default, description="Base precision level (in Ha)"),
-            "EXTRAPOLATION": Keyword("EXTRAPOLATION", extrapolation, description="WFN extrapolation between steps"),
+            "METHOD": Keyword("METHOD", self.method),
+            "EPS_DEFAULT": Keyword("EPS_DEFAULT", self.eps_default, description="Base precision level (in Ha)"),
+            "EXTRAPOLATION": Keyword("EXTRAPOLATION", self.extrapolation, description="WFN extrapolation between steps"),
         }
+        if eps_pgf_orb:
+            _keywords["EPS_PGF_ORB"] = Keyword("EPS_PGF_ORB", self.eps_pgf_orb, description="Overlap matrix precision")
         keywords.update(_keywords)
         super().__init__(
             "QS",

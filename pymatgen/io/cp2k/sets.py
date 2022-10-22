@@ -364,7 +364,7 @@ class DftSet(Cp2kInputSet):
         self.insert(g)
 
         # Build the QS Section
-        qs = QS(eps_default=eps_default)
+        qs = QS(eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb", None))
         max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
