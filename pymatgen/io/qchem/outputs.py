@@ -33,11 +33,9 @@ from pymatgen.io.qchem.utils import (
 )
 
 try:
-
-    have_babel = True
+    from openbabel import openbabel
 except ImportError:
     openbabel = None
-    have_babel = False
 
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
@@ -1030,7 +1028,7 @@ class QCOutput(MSONable):
                 real_energy_trajectory[ii] = float(entry[0])
             self.data["energy_trajectory"] = real_energy_trajectory
             self._read_geometries()
-            if have_babel:
+            if openbabel is not None:
                 self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"],
@@ -1281,7 +1279,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
 
         self._read_geometries()
-        if have_babel:
+        if openbabel is not None:
             self.data["structure_change"] = check_for_structure_changes(
                 self.data["initial_molecule"],
                 self.data["molecule_from_last_geometry"],
