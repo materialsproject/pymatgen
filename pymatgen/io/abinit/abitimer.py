@@ -71,7 +71,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             (okfiles == paths) if all files have been parsed.
         """
         paths = []
-        for root, dirs, files in os.walk(top):
+        for root, _dirs, files in os.walk(top):
             for f in files:
                 if f.endswith(ext):
                     paths.append(os.path.join(root, f))
@@ -315,7 +315,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ]
 
         frame = pd.DataFrame(columns=colnames)
-        for i, timer in enumerate(self.timers()):
+        for timer in self.timers():
             frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
 

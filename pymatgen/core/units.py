@@ -131,14 +131,14 @@ DERIVED_UNITS = {
     "cross_section": {"barn": {"m": 2, 1e-28: 1}, "mbarn": {"m": 2, 1e-31: 1}},
 }
 
-ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))  # type: ignore
+ALL_UNITS = {**BASE_UNITS, **DERIVED_UNITS}  # type: ignore
 SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}  # type: ignore
 for utype, d in ALL_UNITS.items():
-    assert not set(d).intersection(_UNAME2UTYPE)
-    _UNAME2UTYPE.update({uname: utype for uname in d})
+    assert not set(d).intersection(_UNAME2UTYPE)  # type: ignore
+    _UNAME2UTYPE.update({uname: utype for uname in d})  # type: ignore
 del utype, d
 
 
@@ -232,7 +232,7 @@ class Unit(collections.abc.Mapping):
         return len(self._unit)
 
     def __repr__(self):
-        sorted_keys = sorted(self._unit.keys(), key=lambda k: (-self._unit[k], k))
+        sorted_keys = sorted(self._unit, key=lambda k: (-self._unit[k], k))
         return " ".join(
             [f"{k}^{self._unit[k]}" if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
         )

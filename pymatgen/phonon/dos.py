@@ -294,7 +294,7 @@ class PhononDos(MSONable):
 
     def zero_point_energy(self, structure=None):
         """
-        Zero point energy energy of the system. Only positive frequencies will be used.
+        Zero point energy of the system. Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided

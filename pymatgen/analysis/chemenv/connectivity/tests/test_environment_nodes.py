@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import os
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
@@ -12,6 +7,8 @@ try:
     import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
     bson = None
+
+__author__ = "waroquiers"
 
 json_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,

@@ -161,7 +161,13 @@ class StructureGraph(MSONable):
                 d["from_jimage"] = tuple(d["from_jimage"])
 
     @classmethod
-    def with_empty_graph(cls, structure: Structure, name="bonds", edge_weight_name=None, edge_weight_units=None):
+    def with_empty_graph(
+        cls,
+        structure: Structure,
+        name="bonds",
+        edge_weight_name=None,
+        edge_weight_units=None,
+    ):
         """
         Constructor for StructureGraph, returns a StructureGraph
         object with an empty graph (no edges, only nodes defined
@@ -256,16 +262,17 @@ class StructureGraph(MSONable):
         return sg
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy, weights=False):
+    def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False):
         """
         Constructor for StructureGraph, using a strategy
-        from :Class: `pymatgen.analysis.local_env`.
+        from :class:`pymatgen.analysis.local_env`.
 
         :param structure: Structure object
         :param strategy: an instance of a
-            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+            :class:`pymatgen.analysis.local_env.NearNeighbors` object
         :param weights: if True, use weights from local_env class
             (consult relevant class for their meaning)
+        :param edge_properties: if True, edge_properties from neighbors will be used
         :return:
         """
 
@@ -280,14 +287,26 @@ class StructureGraph(MSONable):
                 # for any one bond, one from site u to site v
                 # and another form site v to site u: this is
                 # harmless, so warn_duplicates=False
-                sg.add_edge(
-                    from_index=n,
-                    from_jimage=(0, 0, 0),
-                    to_index=neighbor["site_index"],
-                    to_jimage=neighbor["image"],
-                    weight=neighbor["weight"] if weights else None,
-                    warn_duplicates=False,
-                )
+                if edge_properties:
+                    sg.add_edge(
+                        from_index=n,
+                        from_jimage=(0, 0, 0),
+                        to_index=neighbor["site_index"],
+                        to_jimage=neighbor["image"],
+                        weight=neighbor["weight"] if weights else None,
+                        edge_properties=neighbor["edge_properties"],
+                        warn_duplicates=False,
+                    )
+                else:
+                    sg.add_edge(
+                        from_index=n,
+                        from_jimage=(0, 0, 0),
+                        to_index=neighbor["site_index"],
+                        to_jimage=neighbor["image"],
+                        weight=neighbor["weight"] if weights else None,
+                        edge_properties=None,
+                        warn_duplicates=False,
+                    )
 
         return sg
 
@@ -329,7 +348,7 @@ class StructureGraph(MSONable):
         between sites) doesn't have a direction, from_index,
         from_jimage can be swapped with to_index, to_jimage.
 
-        However, images will always always be shifted so that
+        However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
         :param from_index: index of site connecting from
@@ -435,7 +454,13 @@ class StructureGraph(MSONable):
         edge_properties = edge_properties or {}
 
         if weight:
-            self.graph.add_edge(from_index, to_index, to_jimage=to_jimage, weight=weight, **edge_properties)
+            self.graph.add_edge(
+                from_index,
+                to_index,
+                to_jimage=to_jimage,
+                weight=weight,
+                **edge_properties,
+            )
         else:
             self.graph.add_edge(from_index, to_index, to_jimage=to_jimage, **edge_properties)
 
@@ -1072,7 +1097,7 @@ class StructureGraph(MSONable):
 
     def as_dict(self):
         """
-        As in :Class: `pymatgen.core.Structure` except
+        As in :class:`pymatgen.core.Structure` except
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
@@ -1089,7 +1114,7 @@ class StructureGraph(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        As in :Class: `pymatgen.core.Structure` except
+        As in :class:`pymatgen.core.Structure` except
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
@@ -1399,7 +1424,7 @@ class StructureGraph(MSONable):
     def __copy__(self):
         return StructureGraph.from_dict(self.as_dict())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Two StructureGraphs are equal if they have equal Structures,
         and have the same edges between Sites. Edge weights can be
@@ -1408,7 +1433,8 @@ class StructureGraph(MSONable):
         :param other: StructureGraph
         :return (bool):
         """
-
+        if not isinstance(other, StructureGraph):
+            return NotImplemented
         # sort for consistent node indices
         # PeriodicSite should have a proper __hash__() value,
         # using its frac_coords as a convenient key
@@ -1722,11 +1748,11 @@ class MoleculeGraph(MSONable):
     def with_local_env_strategy(molecule, strategy):
         """
         Constructor for MoleculeGraph, using a strategy
-        from :Class: `pymatgen.analysis.local_env`.
+        from :class:`pymatgen.analysis.local_env`.
 
         :param molecule: Molecule object
         :param strategy: an instance of a
-            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+            :class:`pymatgen.analysis.local_env.NearNeighbors` object
         :return: mg, a MoleculeGraph
         """
 
@@ -1823,7 +1849,7 @@ class MoleculeGraph(MSONable):
         between sites) doesn't have a direction, from_index,
         from_jimage can be swapped with to_index, to_jimage.
 
-        However, images will always always be shifted so that
+        However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
         :param from_index: index of site connecting from
@@ -2723,7 +2749,7 @@ class MoleculeGraph(MSONable):
 
     def as_dict(self):
         """
-        As in :Class: `pymatgen.core.Molecule` except
+        As in :class:`pymatgen.core.Molecule` except
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
@@ -2740,7 +2766,7 @@ class MoleculeGraph(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        As in :Class: `pymatgen.core.Molecule` except
+        As in :class:`pymatgen.core.Molecule` except
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
@@ -2835,7 +2861,7 @@ class MoleculeGraph(MSONable):
     def __copy__(self):
         return MoleculeGraph.from_dict(self.as_dict())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Two MoleculeGraphs are equal if they have equal Molecules,
         and have the same edges between Sites. Edge weights can be
@@ -2844,6 +2870,8 @@ class MoleculeGraph(MSONable):
         :param other: MoleculeGraph
         :return (bool):
         """
+        if not isinstance(other, type(self)):
+            return NotImplemented
 
         # sort for consistent node indices
         # PeriodicSite should have a proper __hash__() value,

@@ -6,11 +6,12 @@ This module provides classes to perform fitting of structures.
 """
 import abc
 import itertools
+from typing import Literal, Sequence
 
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core.composition import Composition
+from pymatgen.core.composition import Composition, SpeciesLike
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
@@ -154,10 +155,10 @@ class SpinComparator(AbstractComparator):
         Returns:
             Boolean indicating whether species are equal.
         """
-        for s1 in sp1.keys():
+        for s1 in sp1:
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
-            for s2 in sp2.keys():
+            for s2 in sp2:
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if s1.symbol == s2.symbol and oxi1 == oxi2 and spin2 == -spin1:
@@ -336,16 +337,16 @@ class StructureMatcher(MSONable):
 
     def __init__(
         self,
-        ltol=0.2,
-        stol=0.3,
-        angle_tol=5,
-        primitive_cell=True,
-        scale=True,
-        attempt_supercell=False,
-        allow_subset=False,
-        comparator=None,
-        supercell_size="num_sites",
-        ignored_species=None,
+        ltol: float = 0.2,
+        stol: float = 0.3,
+        angle_tol: float = 5,
+        primitive_cell: bool = True,
+        scale: bool = True,
+        attempt_supercell: bool = False,
+        allow_subset: bool = False,
+        comparator: AbstractComparator = None,
+        supercell_size: Literal["num_sites", "num_atoms", "volume"] = "num_sites",
+        ignored_species: Sequence[SpeciesLike] = (),
     ):
         """
         Args:
@@ -368,7 +369,7 @@ class StructureMatcher(MSONable):
                 structure. This option cannot be combined with
                 attempt_supercell, or with structure grouping.
             comparator (Comparator): A comparator object implementing an equals
-                method that declares declaring equivalency of sites. Default is
+                method that declares equivalency of sites. Default is
                 SpeciesComparator, which implies rigid species
                 mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
 
@@ -381,7 +382,7 @@ class StructureMatcher(MSONable):
                 StructureMatcher with Python's multiprocessing.
             supercell_size (str or list): Method to use for determining the
                 size of a supercell (if applicable). Possible values are
-                num_sites, num_atoms, volume, or an element or list of elements
+                'num_sites', 'num_atoms', 'volume', or an element or list of elements
                 present in both structures.
             ignored_species (list): A list of ions to be ignored in matching.
                 Useful for matching structures that have similar frameworks
@@ -389,7 +390,6 @@ class StructureMatcher(MSONable):
                 This is more useful than allow_subset because it allows better
                 control over what species are ignored in the matching.
         """
-
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
@@ -399,7 +399,7 @@ class StructureMatcher(MSONable):
         self._supercell = attempt_supercell
         self._supercell_size = supercell_size
         self._subset = allow_subset
-        self._ignored_species = [] if ignored_species is None else ignored_species[:]
+        self._ignored_species = ignored_species
 
     def _get_supercell_size(self, s1, s2):
         """
@@ -434,13 +434,14 @@ class StructureMatcher(MSONable):
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
-        Yields lattices for s with lengths and angles close to the
-        lattice of target_s. If supercell_size is specified, the
-        returned lattice will have that number of primitive cells
-        in it
+        Yields lattices for s with lengths and angles close to the lattice of target_s. If
+        supercell_size is specified, the returned lattice will have that number of primitive
+        cells in it
 
         Args:
-            s, target_s: Structure objects
+            target_lattice (Lattice):
+            s (Structure): input structure.
+            supercell_size (int): Number of primitive cells in returned lattice
         """
         lattices = s.lattice.find_all_mappings(
             target_lattice,
@@ -456,7 +457,7 @@ class StructureMatcher(MSONable):
         """
         Computes all supercells of one structure close to the lattice of the
         other
-        if s1_supercell == True, it makes the supercells of struct1, otherwise
+        if s1_supercell is True, it makes the supercells of struct1, otherwise
         it makes them of s2
 
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
@@ -877,7 +878,7 @@ class StructureMatcher(MSONable):
         :param d: Dict representation
         :return: StructureMatcher
         """
-        return StructureMatcher(
+        return cls(
             ltol=d["ltol"],
             stol=d["stol"],
             angle_tol=d["angle_tol"],

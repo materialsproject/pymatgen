@@ -29,9 +29,7 @@ class StructureNLCase(unittest.TestCase):
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
         self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
-        self.matproj = (
-            "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {http://www.materialsproject.org}\n}"
-        )
+        self.matproj = "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {http://materialsproject.org}\n}"
         self.pmg = (
             "@article{Ong2013,\n author = {Ong, "
             "Shyue Ping and Richards, William Davidson and Jain, "

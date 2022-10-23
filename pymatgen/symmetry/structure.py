@@ -151,7 +151,7 @@ class SymmetrizedStructure(Structure):
         :param d: Dict representation
         :return: SymmetrizedStructure
         """
-        return SymmetrizedStructure(
+        return cls(
             Structure.from_dict(d["structure"]),
             spacegroup=d["spacegroup"],
             equivalent_positions=d["equivalent_positions"],

@@ -19,7 +19,7 @@ from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
 
-from pymatgen.core import SETTINGS_FILE
+from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE
 
 
 def setup_potcars(potcar_dirs: list[str]):
@@ -51,7 +51,7 @@ def setup_potcars(potcar_dirs: list[str]):
         "potUSPP_GGA": "POT_GGA_US_PW91",
     }
 
-    for (parent, subdirs, files) in os.walk(pspdir):
+    for parent, subdirs, _files in os.walk(pspdir):
         basename = os.path.basename(parent)
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
@@ -122,7 +122,7 @@ def build_bader(fortran_command="gfortran"):
     :param fortran_command:
     """
     bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
-    currdir = os.getcwd()
+    cwd = os.getcwd()
     state = True
     try:
         urlretrieve(bader_url, "bader.tar.gz")
@@ -135,11 +135,11 @@ def build_bader(fortran_command="gfortran"):
         shutil.rmtree("bader")
         os.remove("bader.tar.gz")
         shutil.move("bader_exe", "bader")
-    except Exception as ex:
-        print(str(ex))
+    except Exception as exc:
+        print(str(exc))
         state = False
     finally:
-        os.chdir(currdir)
+        os.chdir(cwd)
     return state
 
 
@@ -178,18 +178,27 @@ def install_software(install: Literal["enumlib", "bader"]):
 
 def add_config_var(tokens: list[str], backup_suffix: str) -> None:
     """Add/update keys in .pmgrc.yaml config file."""
-    d = {}
     if os.path.exists(SETTINGS_FILE):
+        # read and write new config file if exists
+        fpath = SETTINGS_FILE
+    elif os.path.exists(OLD_SETTINGS_FILE):
+        # else use old config file if exists
+        fpath = OLD_SETTINGS_FILE
+    else:
+        # if neither exists, create new config file
+        fpath = SETTINGS_FILE
+    d = {}
+    if os.path.exists(fpath):
         if backup_suffix:
-            shutil.copy(SETTINGS_FILE, SETTINGS_FILE + backup_suffix)
-            print(f"Existing {SETTINGS_FILE} backed up to {SETTINGS_FILE}{backup_suffix}")
-        d = loadfn(SETTINGS_FILE)
+            shutil.copy(fpath, fpath + backup_suffix)
+            print(f"Existing {fpath} backed up to {fpath}{backup_suffix}")
+        d = loadfn(fpath)
     if len(tokens) % 2 != 0:
         raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
     for key, val in zip(tokens[0::2], tokens[1::2]):
         d[key] = val
-    dumpfn(d, SETTINGS_FILE)
-    print(f"New {SETTINGS_FILE} written!")
+    dumpfn(d, fpath)
+    print(f"New {fpath} written!")
 
 
 def configure_pmg(args: Namespace):

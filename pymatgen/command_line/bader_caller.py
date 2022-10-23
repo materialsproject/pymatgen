@@ -327,12 +327,11 @@ class BaderAnalysis:
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
-
         """
         charges = [-self.get_charge(i) for i in range(len(self.structure))]
-        struc = self.structure.copy()
-        struc.add_site_property("charge", charges)
-        return struc
+        struct = self.structure.copy()
+        struct.add_site_property("charge", charges)
+        return struct
 
     def get_oxidation_state_decorated_structure(self, nelects=None):
         """
@@ -343,9 +342,9 @@ class BaderAnalysis:
         with electron densities
         """
         charges = [self.get_partial_charge(i, None if not nelects else nelects[i]) for i in range(len(self.structure))]
-        struc = self.structure.copy()
-        struc.add_oxidation_state_by_site(charges)
-        return struc
+        struct = self.structure.copy()
+        struct.add_oxidation_state_by_site(charges)
+        return struct
 
     def get_decorated_structure(self, property_name, average=False):
         """
@@ -375,13 +374,13 @@ class BaderAnalysis:
             structure with site properties assigned via Bader Analysis
         """
         vals = [self.get_charge(i) for i in range(len(self.structure))]
-        struc = self.structure.copy()
+        struct = self.structure.copy()
         if average:
             vals = np.divide(vals, [d["atomic_vol"] for d in self.data])
-        struc.add_site_property(property_name, vals)
+        struct.add_site_property(property_name, vals)
         if property_name == "spin":
-            struc.add_spin_by_site(vals)
-        return struc
+            struct.add_spin_by_site(vals)
+        return struct
 
     @property
     def summary(self):
@@ -419,7 +418,6 @@ class BaderAnalysis:
                 stored.
             suffix (str): specific suffix to look for (e.g. '.relax1'
                 for 'CHGCAR.relax1.gz').
-
         """
 
         def _get_filepath(filename):

@@ -54,7 +54,6 @@ class LammpsRun(MSONable):
                 None, i.e., no data file supplied. Useful only when
                 read_data cmd is in the script.
             script_filename (str): Filename for the input script.
-
         """
         self.script_template = script_template
         self.settings = settings
@@ -69,7 +68,6 @@ class LammpsRun(MSONable):
         Args:
             output_dir (str): Directory to output the input files.
             **kwargs: kwargs supported by LammpsData.write_file.
-
         """
         write_lammps_inputs(
             output_dir=output_dir,

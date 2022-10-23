@@ -14,7 +14,7 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Any, Callable, Literal, cast
+from typing import Any, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -527,7 +527,6 @@ class ElementBase(Enum):
         """
         Ground state term symbol
         Selected based on Hund's Rule
-
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
@@ -637,7 +636,7 @@ class ElementBase(Enum):
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
-        for sym in _pt_data.keys():
+        for sym in _pt_data:
             el = Element(sym)
             if 57 <= el.Z <= 71:
                 el_pseudorow = 8
@@ -1076,7 +1075,7 @@ class Species(MSONable, Stringify):
         """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        self._properties = properties or {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
                 raise ValueError(f"{k} is not a supported property")
@@ -1111,9 +1110,9 @@ class Species(MSONable, Stringify):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state, followed by spin.
         """
-        if not hasattr(other, "X") or not hasattr(other, "symbol"):
+        if not isinstance(other, type(self)):
             return NotImplemented
-        other = cast(Species, other)
+
         x1 = float("inf") if self.X != self.X else self.X
         x2 = float("inf") if other.X != other.X else other.X
         if x1 != x2:
@@ -1426,7 +1425,7 @@ class DummySpecies(Species):
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        self._properties = properties or {}
         for k, _ in self._properties.items():
             if k not in Species.supported_properties:
                 raise ValueError(f"{k} is not a supported property")

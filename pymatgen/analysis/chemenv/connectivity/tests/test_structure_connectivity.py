@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import json
 import os
 
@@ -25,6 +20,8 @@ try:
     import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
     bson = None
+
+__author__ = "waroquiers"
 
 
 class StructureConnectivityTest(PymatgenTest):

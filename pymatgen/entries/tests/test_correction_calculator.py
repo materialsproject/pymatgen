@@ -1,6 +1,8 @@
 import os
 import unittest
 
+import pytest
+
 from pymatgen.entries.correction_calculator import CorrectionCalculator
 from pymatgen.util.testing import PymatgenTest
 
@@ -113,7 +115,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
-        self.assertDictEqual(corrs, self.normal_corrections)
+        assert corrs == self.normal_corrections
 
     def test_warnings_options(self):
         """
@@ -126,7 +128,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         calculator = CorrectionCalculator(max_error=1, exclude_polyanions=[], allow_unstable=True)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
-        self.assertDictEqual(corrs, self.warnings_allowed_corrections)
+        assert corrs == self.warnings_allowed_corrections
 
     def test_no_uncertainties(self):
         """
@@ -139,7 +141,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
-        self.assertDictEqual(corrs, self.no_uncertainties_corrections)
+        assert corrs == self.no_uncertainties_corrections
 
     def test_missing_entry_response(self):
         """
@@ -150,7 +152,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         calc_path = os.path.join(self.test_dir, "calc_missing_compounds.json.gz")
 
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             calculator.compute_from_files(exp_path, calc_path)
 
 

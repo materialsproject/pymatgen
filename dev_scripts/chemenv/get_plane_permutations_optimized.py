@@ -6,13 +6,6 @@ Development script of the ChemEnv utility to get the optimized explicit permutat
 identified with the separation plane algorithms (typically with coordination numbers >= 6)
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
 import itertools
 import json
 import os
@@ -33,6 +26,13 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 )
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 # Printing functions depending on the printing volume option
 def prt1(string, printing_volume):
@@ -47,7 +47,7 @@ def prt2(string, printing_volume):
 
 # Iterator function for the random permutations
 def random_permutations_iterator(initial_permutation, npermutations):
-    for ii in range(npermutations):
+    for _ in range(npermutations):
         shuffle(initial_permutation)
         yield initial_permutation
 
@@ -113,34 +113,34 @@ if __name__ == "__main__":
             raise ValueError("Wrong command line option for permutations_setup")
 
     # Class containing all the coordination geometries
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
 
-    sepplane_cgs = []
+    sep_plane_cgs = []
     for coordination in range(1, 21):
-        symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
-        for symbol, name in symbol_name_mapping.items():
-            cg = allcg[symbol]
+        symbol_name_mapping = all_cg.get_symbol_name_mapping(coordination=coordination)
+        for symbol in symbol_name_mapping:
+            cg = all_cg[symbol]
             if cg.points is None:
                 continue
             if cg.algorithms[0].algorithm_type != "EXPLICIT_PERMUTATIONS":
-                sepplane_cgs.append(symbol)
+                sep_plane_cgs.append(symbol)
                 continue
     ncols = 5
-    nlines = int(np.ceil(float(len(sepplane_cgs)) / ncols))
-    sepplane_cgs_grid = []
-    for iline in range(nlines):
-        sepplane_cgs_grid.append([""] * ncols)
+    nlines = int(np.ceil(float(len(sep_plane_cgs)) / ncols))
+    sep_plane_cgs_grid = []
+    for _ in range(nlines):
+        sep_plane_cgs_grid.append([""] * ncols)
     for iline in range(nlines):
         for icol in range(ncols):
             ii = iline * ncols + icol
-            if ii >= len(sepplane_cgs):
+            if ii >= len(sep_plane_cgs):
                 break
-            sepplane_cgs_grid[iline][icol] = sepplane_cgs[ii]
+            sep_plane_cgs_grid[iline][icol] = sep_plane_cgs[ii]
 
     while True:
         # Printing all symbols
         print("Coordination geometries using a separation plane algorithm :")
-        print(tabulate.tabulate(sepplane_cgs_grid, tablefmt="grid"))
+        print(tabulate.tabulate(sep_plane_cgs_grid, tablefmt="grid"))
         print()
 
         # Define the coordination geometry
@@ -149,11 +149,11 @@ if __name__ == "__main__":
         )
         if cg_symbol == "q":
             break
-        if cg_symbol not in sepplane_cgs:
+        if cg_symbol not in sep_plane_cgs:
             print("Wrong geometry, try again ...")
             continue
 
-        cg = allcg[cg_symbol]
+        cg = all_cg[cg_symbol]
 
         print(f'Getting explicit permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
 
@@ -220,7 +220,7 @@ if __name__ == "__main__":
                 # Actual test of the permutations
                 csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(
                     coordination_geometry=cg,
-                    sepplane=algo,
+                    sep_plane=algo,
                     local_plane=local_plane,
                     plane_separations=[],
                     dist_tolerances=[0.05, 0.1, 0.2, 0.3, 0.5],
@@ -365,7 +365,7 @@ if __name__ == "__main__":
                     # Get the results for this algorithm and plane
                     csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(
                         coordination_geometry=cg,
-                        sepplane=algo,
+                        sep_plane=algo,
                         local_plane=local_plane,
                         plane_separations=[],
                         dist_tolerances=[0.05, 0.1, 0.2, 0.3, 0.5],
@@ -429,7 +429,7 @@ if __name__ == "__main__":
                 )
             )
             # print('Optimized permutations ({:d}/{:d}) : '.format(len(perms_used), len(algo.permutations)))
-            explicit_optimized_permutations = [list(perm) for perm in perms_used.keys()]
+            explicit_optimized_permutations = [list(perm) for perm in perms_used]
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
             print()

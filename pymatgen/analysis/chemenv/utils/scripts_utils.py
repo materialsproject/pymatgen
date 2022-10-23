@@ -25,7 +25,6 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import (
     NeighborsNotComputedChemenvError,
 )
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
 from pymatgen.ext.matproj import MPRester
@@ -203,26 +202,6 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     if zoom is not None:
         vis.zoom(zoom)
     return vis
-
-
-def welcome(chemenv_config):
-    """
-    Show welcome message.
-    :param chemenv_config:
-    :return:
-    """
-    print("Chemical Environment package (ChemEnv)")
-    print(chemenv_citations())
-    print(chemenv_config.package_options_description())
-
-
-def thankyou():
-    """
-    Show thank you message.
-    :return:
-    """
-    print("Thank you for using the ChemEnv package")
-    print(chemenv_citations())
 
 
 def compute_environments(chemenv_configuration):

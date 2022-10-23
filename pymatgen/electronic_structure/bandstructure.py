@@ -556,7 +556,7 @@ class BandStructure:
         dg = self.get_direct_band_gap_dict()
         return min(v["value"] for v in dg.values())
 
-    def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol=1e-2):
+    def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol: float = 1e-2):
         """
         Returns a list of unique symmetrically equivalent k-points.
 
@@ -582,7 +582,7 @@ class BandStructure:
                     break
         return np.delete(points, rm_list, axis=0)
 
-    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol=1e-2):
+    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol: float = 1e-2):
         """
         Returns degeneracy of a given k-point based on structure symmetry
         Args:

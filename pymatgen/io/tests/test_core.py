@@ -161,10 +161,10 @@ class TestInputSet:
             kwarg3="goodbye",
         )
 
-        assert inp_set == inp_set2
-        assert inp_set != inp_set3
-        assert inp_set != inp_set4
-        assert inp_set != inp_set5
+        assert inp_set.as_dict() == inp_set2.as_dict()
+        assert inp_set.as_dict() != inp_set3.as_dict()
+        assert inp_set.as_dict() != inp_set4.as_dict()
+        assert inp_set.as_dict() != inp_set5.as_dict()
 
     def test_msonable(self):
         sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))

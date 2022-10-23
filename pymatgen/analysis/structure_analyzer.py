@@ -39,7 +39,7 @@ def average_coordination_number(structures, freq=10):
         Dictionary of elements as keys and average coordination numbers as values.
     """
     coordination_numbers = {}
-    for spec in structures[0].composition.as_dict().keys():
+    for spec in structures[0].composition.as_dict():
         coordination_numbers[spec] = 0.0
     count = 0
     for i, s in enumerate(structures):
@@ -314,9 +314,8 @@ class VoronoiConnectivity:
     @property
     def max_connectivity(self):
         """
-        returns the 2d array [sitei, sitej] that represents
-        the maximum connectivity of site i to any periodic
-        image of site j
+        Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
+        site i to any periodic image of site j
         """
         return np.max(self.connectivity_array, axis=2)
 
@@ -453,16 +452,16 @@ class OxideType:
         if isinstance(structure.composition.elements[0], Element):
             comp = structure.composition
         elif isinstance(structure.composition.elements[0], Species):
-            elmap = collections.defaultdict(float)
+            elem_map = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
-                    elmap[species.element] += occu
-            comp = Composition(elmap)
+                    elem_map[species.element] += occu
+            comp = Composition(elem_map)
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species.keys()]
+            syms = [sp.symbol for sp in site.species]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
@@ -517,7 +516,6 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
             max distance two O atoms must be from each other.
         return_nbonds (bool): Should number of bonds be requested?
     """
-
     ox_obj = OxideType(structure, relative_cutoff)
     if return_nbonds:
         return ox_obj.oxide_type, ox_obj.nbonds

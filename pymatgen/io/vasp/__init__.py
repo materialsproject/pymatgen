@@ -22,6 +22,5 @@ from .outputs import (
     VolumetricData,
     Wavecar,
     Waveder,
-    Wavederf,
     Xdatcar,
 )

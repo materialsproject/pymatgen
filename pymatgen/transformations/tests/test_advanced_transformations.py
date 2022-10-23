@@ -52,6 +52,12 @@ except ImportError:
     hiphive = None
 
 
+try:
+    import m3gnet
+except ImportError:
+    m3gnet = None
+
+
 def get_table():
     """
     Loads a lightweight lambda table for use in unit tests to reduce
@@ -220,6 +226,22 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         self.assertIsInstance(trans.apply_transformation(s), Structure)
         for s in alls:
             self.assertNotIn("energy", s)
+
+    @unittest.skipIf(m3gnet is None, "m3gnet package not available.")
+    def test_m3gnet(self):
+        enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet")
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        struct = p.structure
+        trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
+        s = trans.apply_transformation(struct)
+        alls = enum_trans.apply_transformation(s, 100)
+        self.assertEqual(len(alls), 3)
+        self.assertIsInstance(trans.apply_transformation(s), Structure)
+        for ss in alls:
+            self.assertIn("energy", ss)
+
+        # Check ordering of energy/atom
+        self.assertLessEqual(alls[0]["energy"] / alls[0]["num_sites"], alls[-1]["energy"] / alls[-1]["num_sites"])
 
     def test_max_disordered_sites(self):
         l = Lattice.cubic(4)
@@ -648,9 +670,9 @@ class SQSTransformationTest(PymatgenTest):
         pztstructs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs.json"))
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
-        struc = self.get_structure("Pb2TiZrO6").copy()
-        struc.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        struc_out = trans.apply_transformation(struc)
+        struct = self.get_structure("Pb2TiZrO6").copy()
+        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+        struc_out = trans.apply_transformation(struct)
         matches = [struc_out.matches(s) for s in pztstructs]
         self.assertIn(True, matches)
 
@@ -658,9 +680,9 @@ class SQSTransformationTest(PymatgenTest):
         # list of structures
         pztstructs2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs2.json"))
         trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
-        struc = self.get_structure("Pb2TiZrO6").copy()
-        struc.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        ranked_list_out = trans.apply_transformation(struc, return_ranked_list=True)
+        struct = self.get_structure("Pb2TiZrO6").copy()
+        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+        ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
         matches = [ranked_list_out[0]["structure"].matches(s) for s in pztstructs2]
         self.assertIn(True, matches)
 
@@ -669,10 +691,10 @@ class SQSTransformationTest(PymatgenTest):
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
 
         # nonsensical example just for testing purposes
-        struc = self.get_structure("Pb2TiZrO6").copy()
-        struc.replace_species({"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}})
+        struct = self.get_structure("Pb2TiZrO6").copy()
+        struct.replace_species({"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}})
 
-        struc_out = trans.apply_transformation(struc)
+        struc_out = trans.apply_transformation(struct)
         struc_out_specie_strings = [site.species_string for site in struc_out]
         self.assertIn("Ti,spin=-5", struc_out_specie_strings)
         self.assertIn("Ti,spin=5", struc_out_specie_strings)
@@ -718,6 +740,30 @@ class CubicSupercellTransformationTest(PymatgenTest):
         )
         _ = diagonal_supercell_generator.apply_transformation(structure2)
         self.assertArrayEqual(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
+
+        # test force_90_degrees
+        structure2 = self.get_structure("Si")
+        sga = SpacegroupAnalyzer(structure2)
+        structure2 = sga.get_primitive_standard_structure()
+        diagonal_supercell_generator = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=13.0,
+            force_90_degrees=True,
+        )
+        transformed_structure = diagonal_supercell_generator.apply_transformation(structure2)
+        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+
+        structure = self.get_structure("BaNiO3")
+        min_atoms = 100
+        max_atoms = 1000
+
+        # Test the transformation without constraining trans_mat to be diagonal
+        supercell_generator = CubicSupercellTransformation(
+            min_atoms=min_atoms, max_atoms=max_atoms, min_length=10.0, force_90_degrees=True
+        )
+        transformed_structure = supercell_generator.apply_transformation(structure)
+        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
 
 class AddAdsorbateTransformationTest(PymatgenTest):

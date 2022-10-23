@@ -602,7 +602,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """
 
         Returns: MSONable dict
-
         """
         d = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
@@ -620,7 +619,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             d: Dict representation
 
         Returns: PhononBandStructureSummLine
-
         """
         lattice_rec = Lattice(d["lattice_rec"]["matrix"])
         eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
