@@ -68,6 +68,7 @@ class DOS(Spectrum):
             spin: Possible values are None - finds the gap in the summed
                 densities, Up - finds the gap in the up spin channel,
                 Down - finds the gap in the down spin channel.
+
         Returns:
             (gap, cbm, vbm):
                 Tuple of floats in eV corresponding to the gap, cbm and vbm.
@@ -287,7 +288,6 @@ class Dos(MSONable):
             (gap, cbm, vbm):
                 Tuple of floats in eV corresponding to the gap, cbm and vbm.
         """
-
         tdos = self.get_densities(spin)
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
@@ -484,7 +484,7 @@ class FermiDos(Dos, MSONable):
         Returns:
             The doping concentration in units of 1/cm^3. Negative values
             indicate that the majority carriers are electrons (n-type doping)
-            whereas positivie values indicates the majority carriers are holes
+            whereas positive values indicates the majority carriers are holes
             (p-type doping).
         """
         cb_integral = np.sum(
@@ -751,7 +751,6 @@ class CompleteDos(Dos):
         Returns:
             dict of {Element: Dos}
         """
-
         el_dos = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie
@@ -807,7 +806,7 @@ class CompleteDos(Dos):
         n_F_down = n_F[Spin.down]
 
         if (n_F_up + n_F_down) == 0:
-            # only well defined for metals or half-mteals
+            # only well defined for metals or half-metals
             return float("NaN")
 
         spin_polarization = (n_F_up - n_F_down) / (n_F_up + n_F_down)
@@ -958,7 +957,6 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected skewness in eV
         """
-
         skewness = self.get_n_moment(
             3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
         ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
@@ -993,7 +991,6 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected kurtosis in eV
         """
-
         kurtosis = (
             self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
             / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
@@ -1258,7 +1255,6 @@ class LobsterCompleteDos(CompleteDos):
             A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS
             for the site.
         """
-
         warnings.warn("Are the orbitals correctly oriented? Are you sure?")
         t2g_dos = []
         eg_dos = []
@@ -1361,6 +1357,7 @@ def _get_orb_type(orb):
 def f0(E, fermi, T):
     """
     Returns the equilibrium fermi-dirac.
+
     Args:
         E (float): energy in eV
         fermi (float): the fermi level in eV
@@ -1372,9 +1369,9 @@ def f0(E, fermi, T):
 def _get_orb_type_lobster(orb):
     """
     Args:
-     orb: string representation of orbital
+        orb: string representation of orbital
     Returns:
-     OrbitalType
+        OrbitalType
     """
     orb_labs = [
         "s",
