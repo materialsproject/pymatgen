@@ -38,19 +38,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
-            setup.py
+          cache-dependency-path: setup.py
       - name: Install dependencies
         run: |
           # Note that this is the way to update env variables in a way that persist for the entire job.
           for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Linux_64bit" >> $GITHUB_PATH; done
           pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install m3gnet
-          pip install -e .
+          pip install -e '.[dev,optional]'
       - name: pytest split ${{ matrix.split }}
         # to update the test durations, run pytest --store-durations --durations-path test_files/.pytest-split-durations
         # and commit the results

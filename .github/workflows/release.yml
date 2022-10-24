@@ -45,9 +45,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -r requirements-optional.txt -r requirements-dev.txt
-          pip install -e .
+          pip install -e '.[dev,optional]'
       - name: pytest ${{ matrix.pkg }}
         run: |
           pytest ${{ matrix.pkg }}
@@ -68,9 +66,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            setup.py
+          cache-dependency-path: setup.py
       - name: Release
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
