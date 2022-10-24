@@ -58,7 +58,7 @@ MODULE_DIR = Path(__file__).resolve().parent
 dec = MontyDecoder()
 
 if SETTINGS.get("PMG_VASP_PSP_DIR") is None:
-    raise unittest.SkipTest("PMG_VASP_PSP_DIR is not set. Skipping tests in pymatgen/io/vasp/tests/test_sets.py.")
+    raise unittest.SkipTest(f"PMG_VASP_PSP_DIR is not set. Skipping tests in {__file__}.")
 
 
 class SetChangeCheckTest(PymatgenTest):
