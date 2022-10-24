@@ -1,6 +1,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Classes for parsing and manipulating VASP optical properties calculations."""
+
 from __future__ import annotations
 
 import itertools
@@ -147,7 +148,7 @@ class DielectricFunctionCalculator(MSONable):
         sigma: float = None,
         cshift: float = None,
         mask: npt.NDArray | None = None,
-    ) -> npt.NDArray:
+    ) -> tuple[npt.NDArray, npt.NDArray]:
         """Compute the frequency dependent dielectric function.
 
         Args:
@@ -427,7 +428,7 @@ def epsilon_imag(
 
 
 def kramers_kronig(
-    eps: npt.ArrayLike,
+    eps: np.ndarray,
     nedos: int,
     deltae: float,
     cshift: float = 0.1,
