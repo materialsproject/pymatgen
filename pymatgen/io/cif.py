@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.string import remove_non_ascii
 
 from pymatgen.core.composition import Composition
@@ -46,13 +47,9 @@ _COD_DATA = None
 
 def _get_cod_data():
     global _COD_DATA
+
     if _COD_DATA is None:
-        import pymatgen
-
-        with open(os.path.join(pymatgen.symmetry.__path__[0], "symm_ops.json")) as f:
-            import json
-
-            _COD_DATA = json.load(f)
+        _COD_DATA = loadfn(os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json"))
 
     return _COD_DATA
 

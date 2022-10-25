@@ -107,7 +107,6 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `frac_coords` when `coords_are_displacement=False`.
         """
-
         if isinstance(lattice, Lattice):
             lattice = lattice.matrix
         elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
@@ -133,7 +132,7 @@ class Trajectory(MSONable):
                 )
             self.base_positions = base_positions
         else:
-            self.base_positions = frac_coords[0]
+            self.base_positions = frac_coords[0]  # type: ignore[assignment]
         self.coords_are_displacement = coords_are_displacement
 
         self.species = species
@@ -279,7 +278,6 @@ class Trajectory(MSONable):
         Return:
             Subset of trajectory
         """
-
         # Convert to position mode if not ready
         self.to_positions()
 
@@ -355,7 +353,6 @@ class Trajectory(MSONable):
             system: Description of system (e.g. 2D MoS2).
             significant_figures: Significant figures in the output file.
         """
-
         # Ensure trajectory is in position form
         self.to_positions()
 
@@ -435,11 +432,10 @@ class Trajectory(MSONable):
         Returns:
             A trajectory from the structures.
         """
-
         if constant_lattice:
             lattice = structures[0].lattice.matrix
         else:
-            lattice = [structure.lattice.matrix for structure in structures]
+            lattice = np.array([structure.lattice.matrix for structure in structures])
 
         species = structures[0].species
         frac_coords = [structure.frac_coords for structure in structures]
@@ -472,7 +468,6 @@ class Trajectory(MSONable):
         Returns:
             A trajectory from the file.
         """
-
         fname = Path(filename).expanduser().resolve().name
 
         if fnmatch(fname, "*XDATCAR*"):
@@ -515,7 +510,6 @@ class Trajectory(MSONable):
         Either one of prop1 or prop2 can be None, dict, or a list of dict. All
         possibilities of combining them are considered.
         """
-
         # special cases
 
         if prop1 is None and prop2 is None:
@@ -594,7 +588,6 @@ class Trajectory(MSONable):
         """
         Slice site properties.
         """
-
         if self.site_properties is None:
             return None
         if isinstance(self.site_properties, dict):

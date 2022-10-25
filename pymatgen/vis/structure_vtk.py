@@ -10,6 +10,7 @@ import math
 import os
 import subprocess
 import time
+from typing import Sequence
 
 import numpy as np
 
@@ -137,12 +138,9 @@ class StructureVis:
         Save render window to an image.
 
         Arguments:
-            filename:
-                filename to save to. Defaults to image.png.
-            magnification:
-                magnification. Use it to render high res images.
-            image_format:
-                choose between jpeg, png. Png is the default.
+            filename: file to save to. Defaults to image.png.
+            magnification: Use it to render high res images.
+            image_format: choose between jpeg, png. Defaults to 'png'.
         """
         render_large = vtk.vtkRenderLargeImage()
         render_large.SetInput(self.ren)
@@ -288,7 +286,7 @@ class StructureVis:
                     if self.show_bonds:
                         self.add_bonds(nn_sites, site)
                     if self.show_polyhedron:
-                        color = [i / 255 for i in color]
+                        color = np.array([i / 255 for i in color])
                         self.add_polyhedron(nn_sites, site, color)
 
         if self.show_help:
@@ -534,7 +532,7 @@ class StructureVis:
         Adds a triangular surface between three atoms.
 
         Args:
-            atoms: Atoms between which a triangle will be drawn.
+            neighbors: Atoms between which a triangle will be drawn.
             color: Color for triangle as RGB.
             center: The "central atom" of the triangle
             opacity: opacity of the triangle
@@ -1001,12 +999,12 @@ class MultiStructuresVis(StructureVis):
         self.current_structure = None
         self.set_animated_movie_options(animated_movie_options=animated_movie_options)
 
-    def set_structures(self, structures, tags=None):
+    def set_structures(self, structures: Sequence[Structure], tags=None):
         """
         Add list of structures to the visualizer.
 
         Args:
-            structures (List of Structures):
+            structures (list[Structures]): structures to be visualized.
             tags (): List of tags.
         """
         self.structures = structures

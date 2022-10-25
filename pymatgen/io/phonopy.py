@@ -5,6 +5,7 @@
 Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
 """
 
+from __future__ import annotations
 
 import numpy as np
 from monty.dev import requires

@@ -315,7 +315,7 @@ class SpaceGroup(SymmetryGroup):
                     if not in_array_list(symm_ops, op):
                         gen_ops.append(op)
                         symm_ops = np.append(symm_ops, [op], axis=0)
-            new_ops = gen_ops
+            new_ops = gen_ops  # type: ignore[assignment]
         assert len(symm_ops) == self.order
         return symm_ops
 
@@ -605,7 +605,7 @@ def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:
     return syms.pop()
 
 
-def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, tol: float = 1e-5) -> np.bool_:
+def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, tol: float = 1e-5) -> bool:
     """
     Extremely efficient nd-array comparison using numpy's broadcasting. This
     function checks if a particular array a, is present in a list of arrays.
@@ -624,5 +624,5 @@ def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, to
         return False
     axes = tuple(range(1, arr.ndim + 1))
     if not tol:
-        return np.any(np.all(array_list == arr[None, :], axes))
-    return np.any(np.sum(np.abs(array_list - arr[None, :]), axes) < tol)
+        return any(np.all(array_list == arr[None, :], axes))
+    return any(np.sum(np.abs(array_list - arr[None, :]), axes) < tol)

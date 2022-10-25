@@ -29,13 +29,15 @@ appropriate (e.g. the two nucleus critical points linked to
 If you use this module, please cite the following:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
-Comput. Phys. Commun. 185, 1007-1018 (2014)
+Comput. Phys. Communications 185, 1007-1018 (2014)
 (https://doi.org/10.1016/j.cpc.2013.10.026)
 
 A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and
-V. Luaña, Comput. Phys. Commun. 180, 157-166 (2009)
+V. Luaña, Comput. Phys. Communications 180, 157-166 (2009)
 (https://doi.org/10.1016/j.cpc.2008.07.018)
 """
+
+from __future__ import annotations
 
 import glob
 import logging
