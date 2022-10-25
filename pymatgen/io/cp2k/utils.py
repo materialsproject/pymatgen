@@ -182,7 +182,7 @@ def get_aux_basis(els, basis_and_potential):
         settings = yaml.load(f)
         aux_basis = {}
         for el in els:
-            aux_basis[el] = basis_and_potential[el].get("aux_basis")
+            aux_basis[el] = basis_and_potential.get(el, {}).get("aux_basis")
             if not aux_basis[el]:
                 for basis_file in settings[el]["basis_sets"]:
                     if "ADMM" in basis_file:
