@@ -148,7 +148,7 @@ def get_basis_and_potential(species, basis_and_potential_map):
 
     for s in species:
         basis_and_potential[s] = {
-            "basis": "TZVP-MOLOPT",
+            "basis": "TZVP-MOLOPT-PBE",
             "potential": settings[s]["potentials"]["GTH_POTENTIALS"].get(functional),
             "cutoff": None,
         }
@@ -290,7 +290,13 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
         exponents = []
         for el in els:
             for basis_names in settings[el]["basis_sets"].values():
-                exponents.extend([v["largest_exponent"] for k, v in basis_names.items() if k in bases])
+                exponents.extend(
+                    [
+                        v["largest_exponent"] 
+                        for k, v in basis_names.items() 
+                        if any(k.startswith(b) for b in bases)
+                    ]
+                )
 
         return np.ceil(max(exponents)) * rel_cutoff
 
