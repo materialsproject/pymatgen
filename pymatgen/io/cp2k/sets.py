@@ -135,7 +135,7 @@ class Cp2kInputSet(Cp2kInput):
         # Important CP2K set parameters
         self.structure = structure
         self.charge = int(structure.charge)
-        self.basis_and_potential = basis_and_potential
+        self.basis_and_potential = basis_and_potential if basis_and_potential else {}
         self.multiplicity = multiplicity  # spin multiplicity = 2s+1
         self.override_default_params = override_default_params if override_default_params else {}
         self.project_name = project_name
