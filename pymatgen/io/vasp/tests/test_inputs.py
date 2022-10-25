@@ -884,7 +884,7 @@ class PotcarSingleTest(PymatgenTest):
     def test_psctr(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns(None):
+        with pytest.warns():
             psingle = PotcarSingle.from_file(filename)
 
         data = {
@@ -969,7 +969,7 @@ class PotcarSingleTest(PymatgenTest):
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns(None):
+        with pytest.warns():
             psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
