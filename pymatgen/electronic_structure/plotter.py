@@ -2368,7 +2368,7 @@ class BSDOSPlotter:
             left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
             right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
-            xlabel_distances.append(xlabel_distances[-1] + distance)
+            xlabel_distances.append(xlabel_distances[-1] + distance)  # type: ignore
 
             # add x-coordinates for kpoint data
             npts = branch["end_index"] - branch["start_index"]

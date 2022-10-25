@@ -37,16 +37,8 @@ pymatgen::
 
 	conda activate py37
 	conda install --yes numpy scipy sympy matplotlib cython
-	pip install -r requirements.txt
-	pip install -r requirements-optional.txt
+	pip install '.[optional]'
 	pip install invoke sphinx doc2dash
-	python setup.py develop
-	conda activate py27
-	conda install --yes numpy scipy sympy matplotlib cython
-	pip install -r requirements.txt
-	pip install -r requirements-optional.txt
-	pip install invoke sphinx doc2dash
-	python setup.py develop
 
 Add your PyPI username and password and GITHUB_RELEASE_TOKEN into your
 environment::

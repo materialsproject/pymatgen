@@ -33,7 +33,6 @@ from pymatgen.core.composition import SpeciesLike
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
-from pymatgen.util.typing import ArrayLike
 
 try:
     from openbabel import openbabel
@@ -2951,10 +2950,10 @@ class LocalStructOrderParams:
         self._last_nneigh = nneigh
 
         # Prepare angle calculations, if applicable.
-        rij: list[ArrayLike] = []
-        rjk: list[list[ArrayLike]] = []
+        rij: list[np.ndarray] = []
+        rjk: list[list[np.ndarray]] = []
         rijnorm: list[list[float]] = []
-        rjknorm: list[list[float]] = []
+        rjknorm: list[list[np.ndarray]] = []
         dist: list[float] = []
         distjk_unique: list[float] = []
         distjk: list[list[float]] = []
@@ -2962,7 +2961,7 @@ class LocalStructOrderParams:
         if self._computerijs:
             for j, neigh in enumerate(neighsites):
                 rij.append(neigh.coords - centvec)
-                dist.append(np.linalg.norm(rij[j]))
+                dist.append(float(np.linalg.norm(rij[j])))
                 rijnorm.append(rij[j] / dist[j])  # type: ignore
         if self._computerjks:
             for j, neigh in enumerate(neighsites):
@@ -2973,7 +2972,7 @@ class LocalStructOrderParams:
                 for k, neigh_2 in enumerate(neighsites):
                     if j != k:
                         rjk[j].append(neigh_2.coords - neigh.coords)
-                        distjk[j].append(np.linalg.norm(rjk[j][kk]))
+                        distjk[j].append(float(np.linalg.norm(rjk[j][kk])))
                         if k > j:
                             distjk_unique.append(distjk[j][kk])
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])

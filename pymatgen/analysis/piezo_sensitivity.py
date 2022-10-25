@@ -7,7 +7,6 @@ import warnings
 import numpy as np
 from monty.dev import requires
 
-import pymatgen.io.phonopy
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
@@ -655,9 +654,10 @@ class ForceConstantMatrix:
         Return:
             NxNx3x3 np.array representing the force constant matrix
         """
+        from pymatgen.io.phonopy import get_phonopy_structure
 
         numsites = len(self.structure.sites)
-        structure = pymatgen.io.phonopy.get_phonopy_structure(self.structure)
+        structure = get_phonopy_structure(self.structure)
         pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
 
         dyn = self.get_unstable_FCM(force)

@@ -11,7 +11,6 @@ jobs:
     if: github.repository == 'materialsproject/pymatgen'
 
     strategy:
-      max-parallel: 20
       matrix:
         python-version: ['3.8']
         # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
@@ -36,16 +35,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
-            setup.py
+          cache-dependency-path: setup.py
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-          pip install -e .
+          pip install -e '.[dev]'
       - name: pytest ${{ matrix.pkg }}
         run: |
           pytest ${{ matrix.pkg }}
