@@ -15,9 +15,8 @@ jobs:
     if: github.repository == 'materialsproject/pymatgen'
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 1
       matrix:
-        python-version: [3.9]
+        python-version: ['3.8']
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -30,11 +29,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -e '.[dev]'
-      - name: mypy
-        run: |
-          mypy --version
-          rm -rf .mypy_cache
-          mypy pymatgen
       - name: pylint
         run: |
           pylint pymatgen
@@ -48,3 +42,8 @@ jobs:
           flake8 --count --show-source --statistics pymatgen
           # exit-zero treats all errors as warnings.
           flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+      - name: mypy
+        run: |
+          mypy --version
+          rm -rf .mypy_cache
+          mypy pymatgen
