@@ -540,7 +540,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError
 
-    def process_entry(self, entry: ComputedEntry) -> ComputedEntry | None:
+    def process_entry(self, entry: ComputedEntry, **kwargs) -> ComputedEntry | None:
         """
         Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
@@ -552,7 +552,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             An adjusted entry if entry is compatible, else None.
         """
         try:
-            return self.process_entries(entry)[0]
+            return self.process_entries(entry, **kwargs)[0]
         except IndexError:
             return None
 
