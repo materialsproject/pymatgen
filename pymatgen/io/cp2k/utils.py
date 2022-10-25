@@ -13,6 +13,9 @@ from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
 
+from pymatgen.core.periodic_table import Element
+import yaml
+
 MODULE_DIR = Path(__file__).resolve().parent
 
 
@@ -104,7 +107,7 @@ def natural_keys(text):
     return [atoi(c) for c in re.split(r"_(\d+)", text)]
 
 
-def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
+def get_basis_and_potential(species, basis_and_potential_map):
     """
     Retrieve basis/potential dictionary
 
@@ -118,47 +121,43 @@ def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
     """
 
-    potential_filename = SETTINGS.get("PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS")
-    basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
+    if "potential_filename" in basis_and_potential_map:
+        potential_filename = basis_and_potential_map["potential_filename"]
+    else:
+        potential_filename = SETTINGS.get("PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS")
 
-    functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+    if "basis_filenames" in basis_and_potential_map:
+        basis_filenames = basis_and_potential_map["basis_filenames"]
+    else:
+        basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
+
+    if "functional" in basis_and_potential_map:
+        functional = basis_and_potential_map["functional"]
+    else:
+        functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
 
     basis_and_potential = {
         "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
+        "functional": functional,
     }
 
     with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
         yaml = YAML(typ="unsafe", pure=True)
         settings = yaml.load(f)
 
-    if basis_and_potential_map == "best":
-        basis_and_potential.update(
-            {
-                s: {
-                    "basis": settings[s]["basis_sets"]["best_basis"],
-                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
-                }
-                for s in species
-            }
-        )
-    elif basis_and_potential_map == "preferred":
-        basis_and_potential.update(
-            {
-                s: {
-                    "basis": settings[s]["basis_sets"]["preferred_basis"],
-                    "potential": [p for p in settings[s]["potentials"]["gth_potentials"] if functional in p][0],
-                }
-                for s in species
-            }
-        )
-    else:
-        basis_and_potential.update(basis_and_potential_map)
+    for s in species:
+        basis_and_potential[s] = {
+            "basis": "TZVP-MOLOPT",
+            "potential": settings[s]["potentials"]["GTH_POTENTIALS"].get(functional),
+            "cutoff": None,
+        }
+        basis_and_potential[s].update(basis_and_potential_map.get(s, {}))
 
     return basis_and_potential
 
 
-def get_aux_basis(basis_type, default_basis_type="cpFIT"):
+def get_aux_basis(els, basis_and_potential):
     """
     Get auxiliary basis info for a list of species.
 
@@ -181,31 +180,36 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
     with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
         yaml = YAML(typ="unsafe", pure=True)
         settings = yaml.load(f)
-        aux_bases = {
-            s: [settings[s]["basis_sets"]["preferred_aux_basis"]]
-            if "preferred_aux_basis" in settings[s]["basis_sets"]
-            else settings[s]["basis_sets"]["aux_basis"]
-            for s in settings
-        }
+        aux_basis = {}
+        for el in els:
+            aux_basis[el] = basis_and_potential[el].get("aux_basis")
+            if not aux_basis[el]:
+                for basis_file in settings[el]["basis_sets"]:
+                    if "ADMM" in basis_file:
+                        possible_bases = [
+                            basis_name
+                            for basis_name in settings[el]["basis_sets"][basis_file].keys()
+                            if "FIT" in basis_name
+                        ]
+                        for prefix in ["cpFIT", "cFIT", "FIT"]:
+                            tmp = [b for b in possible_bases if prefix in b]
 
-    default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
-    basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
-    basis = {k: {} for k in basis_type}
-    for k in basis_type:
-        if aux_bases.get(k) is None:
-            basis[k] = None
-            continue
-        for i in aux_bases[k]:
-            if i.startswith(basis_type[k]):
-                basis[k] = i
-                break
-    for k in basis:
-        if not basis[k]:
-            if aux_bases[k]:
-                basis[k] = aux_bases[k][0]
-            else:
-                raise LookupError(f"No basis of that type found for: {k}")
-    return basis
+                            def foo(x):
+                                y = x.replace(prefix, "")
+                                if y.isnumeric():
+                                    return int(y)
+                                return 100
+
+                            tmp.sort(key=foo)
+                            if tmp:
+                                aux_basis[el] = tmp[0]
+                                break
+
+    if not any(aux_basis.values()):
+        raise ValueError(
+            "No appropriate default basis detected in settings file. Either re-initialize settings file or specialize manually"
+        )
+    return aux_basis
 
 
 def get_unique_site_indices(structure):
@@ -281,14 +285,14 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
     """
     with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
         yaml = YAML(typ="unsafe", pure=True)
-        _exponents = yaml.load(f)
-        _exponents = {
-            k: v["basis_sets"].get("basis_set_largest_exponents")
-            for k, v in _exponents.items()
-            if v["basis_sets"].get("basis_set_largest_exponents")
-        }
-        exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
-        return max(np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases))
+        settings = yaml.load(f)
+
+        exponents = []
+        for el in els:
+            for basis_names in settings[el]["basis_sets"].values():
+                exponents.extend([v["largest_exponent"] for k, v in basis_names.items() if k in bases])
+
+        return np.ceil(max(exponents)) * rel_cutoff
 
 
 # TODO this is not comprehensive. There are so many libxc functionals (e.g. see r2scan)
@@ -339,3 +343,35 @@ def get_truncated_coulomb_cutoff(inp_struct):
     y = abs(np.dot(b, np.cross(a, c)) / np.linalg.norm(np.cross(a, c)))
     z = abs(np.dot(c, np.cross(a, b)) / np.linalg.norm(np.cross(a, b)))
     return np.floor(100 * min([x, y, z]) / 2) / 100
+
+
+def build_settings_file(cp2k_data_dir, basis_files, potential_files=["GTH_POTENTIALS"]):
+    settings = {
+        str(el): {
+            "potentials": {f: {} for f in potential_files},
+            "basis_sets": {f: {} for f in basis_files},
+        }
+        for el in Element
+    }
+    for potential_file in potential_files:
+        with open(Path(cp2k_data_dir) / potential_file, "rt") as f:
+            lines = [l for l in f.readlines() if not l.startswith("#")]
+            for line in lines:
+                splt = line.split()
+                if splt[0].isalpha():
+                    functional = splt[1].split("-")[1]
+                    settings[splt[0]]["potentials"][potential_file][functional] = splt[1]
+
+    for basis_file in basis_files:
+        with open(Path(cp2k_data_dir) / basis_file, "rt") as f:
+            lines = list(line for line in (l.strip() for l in f) if line and not line.startswith("#"))
+            for i, line in enumerate(lines):
+                splt = line.split()
+                if splt[0].isalpha():
+                    basis = splt[1]
+                    settings[splt[0]]["basis_sets"][basis_file][basis] = {
+                        "largest_exponent": float(lines[i + 3].split()[0])
+                    }
+
+    with open(Path(MODULE_DIR) / "settings.yaml", "wt") as f:
+        yaml.dump(settings, f, default_flow_style=False)

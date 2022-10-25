@@ -636,9 +636,9 @@ class DftSet(Cp2kInputSet):
             screen_p_forces (bool): Same as screen_on_initial_p, but for screening of forces.
         """
         if admm:
+            basis = get_aux_basis(self.structure.symbol_set, basis_and_potential=self.basis_and_potential)
             aux_basis = aux_basis if aux_basis else {}
-            aux_basis = {s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set}
-            basis = get_aux_basis(basis_type=aux_basis)
+            basis.update(aux_basis)
             if isinstance(self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"], KeywordList):
                 self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"].extend(
                     [Keyword("BASIS_SET_FILE_NAME", k) for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]],
