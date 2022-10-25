@@ -126,7 +126,7 @@ setup(
             # "hiphive>=0.6",
             # "m3gnet>=0.0.8",
             "ase>=3.22.1",
-            "BoltzTraP2>=22.3.2",
+            "BoltzTraP2>=22.3.2,<=22.4.1",
             "chemview>=0.6",
             "f90nml>=1.1.2",
             "fdint>=2.0.2",

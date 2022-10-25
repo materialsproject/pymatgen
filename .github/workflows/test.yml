@@ -1,7 +1,7 @@
 # This workflow runs only on Ubuntu and aims to be more complete than the Mac and Windows workflows.
 # In particular, Openbabel and many of the external command line dependencies are included for testing.defaults:
 # The ext package is also only tested in this workflow. Coverage is computed based on this workflow.
-name: Testing Linux
+name: Tests
 
 on:
   push:
@@ -13,16 +13,17 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  pytest:
     # prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ['3.8']
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
@@ -41,7 +42,10 @@ jobs:
       - name: Install dependencies
         run: |
           # Note that this is the way to update env variables in a way that persist for the entire job.
-          for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Linux_64bit" >> $GITHUB_PATH; done
+          # for pkg in cmd_line/*;
+          #   do echo "$(pwd)/cmd_line/$pkg/Linux_64bit" >> "$GITHUB_PATH";
+          # done
+
           pip install --upgrade pip wheel
           pip install m3gnet
           pip install -e '.[dev,optional]'
@@ -58,7 +62,7 @@ jobs:
           path: .coverage
 
   coverage:
-    needs: test
+    needs: pytest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
