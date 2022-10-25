@@ -1,6 +1,6 @@
 # This workflow runs only on Ubuntu and aims to be more complete than the Mac and Windows workflows.
 # In particular, Openbabel and many of the external command line dependencies are included for testing.defaults:
-# The ext package is also only tested in this workflow. Coverage is also computed based on this platform.
+# The ext package is also only tested in this workflow. Coverage is computed based on this workflow.
 name: Testing Linux
 
 on:
@@ -20,16 +20,8 @@ jobs:
       max-parallel: 20
       matrix:
         python-version: ['3.8']
-        # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
-        include:
-          - pkg: pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
-            pkg_id: 1
-          - pkg: pymatgen/analysis --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
-            pkg_id: 2
-          - pkg: pymatgen/electronic_structure pymatgen/symmetry pymatgen/command_line pymatgen/ext
-            pkg_id: 3
-          - pkg: pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
-            pkg_id: 4
+        # pytest-split automatically distributes work load so parallel jobs finish in similar time
+        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     runs-on: ubuntu-latest
 
@@ -50,18 +42,7 @@ jobs:
             requirements.txt
             requirements-dev.txt
             setup.py
-#      - uses: conda-incubator/setup-miniconda@v2
-#        with:
-#          python-version: 3.9
-#      - name: Install OpenBabel and Libs
-#        shell: bash -l {0}
-#        run: |
-#          # Required for gulp.
-#          sudo apt-get install csh gfortran
-#          conda install -c conda-forge openbabel
-#          conda install -c conda-forge packmol
       - name: Install dependencies
-        # shell: bash -l {0}
         run: |
           # Note that this is the way to update env variables in a way that persist for the entire job.
           for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Linux_64bit" >> $GITHUB_PATH; done
@@ -69,16 +50,17 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install m3gnet
-          pip install scikit-image==0.18.1
           pip install -e .
-      - name: pytest ${{ matrix.pkg }}
-        # shell: bash -l {0}
+      - name: pytest split ${{ matrix.split }}
+        # to update the test durations, run pytest --store-durations --durations-path test_files/.pytest-split-durations
+        # and commit the results
         run: |
-          pytest ${{ matrix.pkg }} --cov=pymatgen
+          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} \
+            --durations-path test_files/.pytest-split-durations
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ matrix.pkg_id }}
+          name: coverage-${{ matrix.split }}
           path: .coverage
 
   coverage:
@@ -86,32 +68,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.9
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: '3.10'
       - name: Install Coverage
         run: pip install coverage
-      - name: Download coverage-1
+      - name: Download coverage artifacts
         continue-on-error: true
         uses: actions/download-artifact@v3
-        with:
-          name: coverage-1
-      - name: Download coverage-2
-        continue-on-error: true
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage-2
-      - name: Download coverage-3
-        continue-on-error: true
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage-3
-      - name: Download coverage-4
-        continue-on-error: true
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage-4
       - name: Run coverage
         continue-on-error: true
         run: |

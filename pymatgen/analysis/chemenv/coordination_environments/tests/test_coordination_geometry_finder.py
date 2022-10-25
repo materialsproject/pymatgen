@@ -248,7 +248,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         with pytest.raises(KeyError):
             abc = se_nohints.ce_list[0][12]
             abc.minimum_geometries()
-        self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
+        assert se_hints.ce_list[0][13][0] == se_nohints.ce_list[0][13][0]
         assert set(se_nohints.ce_list[0]).issubset(set(se_hints.ce_list[0]))
 
 
