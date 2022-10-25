@@ -881,6 +881,37 @@ class PotcarSingleTest(PymatgenTest):
         }
         self.assertEqual(self.psingle.keywords, data)
 
+    def test_psctr(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
+
+        with pytest.warns():
+            psingle = PotcarSingle.from_file(filename)
+
+        data = {
+            "nentries": 9,
+            "Orbitals": (
+                (1, 0, 0.50, -6993.8440, 2.0000),
+                (2, 0, 0.50, -0814.6047, 2.0000),
+                (2, 1, 1.50, -0693.3689, 6.0000),
+                (3, 0, 0.50, -0089.4732, 2.0000),
+                (3, 1, 1.50, -0055.6373, 6.0000),
+                (3, 2, 2.50, -0003.8151, 7.0000),
+                (4, 0, 0.50, -0004.2551, 1.0000),
+                (4, 1, 1.50, -0003.4015, 0.0000),
+                (4, 3, 2.50, -0001.3606, 0.0000),
+            ),
+            "OrbitalDescriptions": (
+                (2, -3.8151135, 23, 2.300, None, None),
+                (2, -5.1756961, 23, 2.300, None, None),
+                (0, -4.2550963, 23, 2.300, None, None),
+                (0, 07.2035603, 23, 2.300, None, None),
+                (1, -2.7211652, 23, 2.300, None, None),
+                (1, 18.4316424, 23, 2.300, None, None),
+            ),
+        }
+        for k, v in data.items():
+            self.assertEqual(psingle.PSCTR[k], v)
+
     def test_nelectrons(self):
         self.assertEqual(self.psingle.nelectrons, 13)
 
@@ -938,7 +969,7 @@ class PotcarSingleTest(PymatgenTest):
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns(None):
+        with pytest.warns():
             psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
