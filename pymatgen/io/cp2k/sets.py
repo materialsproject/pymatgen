@@ -105,7 +105,7 @@ class Cp2kInputSet(Cp2kInput):
     def __init__(
         self,
         structure: Structure | Molecule,
-        basis_and_potential: dict | str = "preferred",
+        basis_and_potential: dict | None = None,
         multiplicity: int = 0,
         project_name: str = "CP2K",
         override_default_params: dict | None = None,
