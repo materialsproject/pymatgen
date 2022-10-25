@@ -345,9 +345,12 @@ class DftSet(Cp2kInputSet):
         self.kwargs = kwargs
 
         if self.kpoints:
-            if self.kpoints.num_kpts == 0  or \
-                self.kpoints.num_kpts == 1 and np.array_equal(self.kpoints.kpts[0], (0, 0, 0)) \
-                or np.array_equal(self.kpoints.kpts[0], (0, 0, 0)):
+            if (
+                self.kpoints.num_kpts == 0
+                or self.kpoints.num_kpts == 1
+                and np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
+                or np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
+            ):
                 # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
                 # 0,0,0 will disable certain features. So, you have to drop it all together to
                 # get full support

@@ -8,13 +8,12 @@ import warnings
 from pathlib import Path
 
 import numpy as np
+import yaml
 from monty.io import zopen
 from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
-
 from pymatgen.core.periodic_table import Element
-import yaml
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -291,11 +290,7 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
         for el in els:
             for basis_names in settings[el]["basis_sets"].values():
                 exponents.extend(
-                    [
-                        v["largest_exponent"] 
-                        for k, v in basis_names.items() 
-                        if any(k.startswith(b) for b in bases)
-                    ]
+                    [v["largest_exponent"] for k, v in basis_names.items() if any(k.startswith(b) for b in bases)]
                 )
 
         return np.ceil(max(exponents)) * rel_cutoff
@@ -360,7 +355,7 @@ def build_settings_file(cp2k_data_dir, basis_files, potential_files=["GTH_POTENT
         for el in Element
     }
     for potential_file in potential_files:
-        with open(Path(cp2k_data_dir) / potential_file, "rt") as f:
+        with open(Path(cp2k_data_dir) / potential_file) as f:
             lines = [l for l in f.readlines() if not l.startswith("#")]
             for line in lines:
                 splt = line.split()
@@ -369,7 +364,7 @@ def build_settings_file(cp2k_data_dir, basis_files, potential_files=["GTH_POTENT
                     settings[splt[0]]["potentials"][potential_file][functional] = splt[1]
 
     for basis_file in basis_files:
-        with open(Path(cp2k_data_dir) / basis_file, "rt") as f:
+        with open(Path(cp2k_data_dir) / basis_file) as f:
             lines = list(line for line in (l.strip() for l in f) if line and not line.startswith("#"))
             for i, line in enumerate(lines):
                 splt = line.split()
