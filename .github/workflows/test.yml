@@ -40,22 +40,24 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: setup.py
+      - name: Add CLIs to GITHUB_PATH
+        if: runner.os != 'Windows'
+        # This is the way to update env variables in a way that persist for the entire job.
+        run: |
+          for pkg in cmd_line/*;
+            do echo "$(pwd)/cmd_line/$pkg/Linux_64bit" >> "$GITHUB_PATH";
+          done
       - name: Install dependencies
         run: |
-          # Note that this is the way to update env variables in a way that persist for the entire job.
-          # for pkg in cmd_line/*;
-          #   do echo "$(pwd)/cmd_line/$pkg/Linux_64bit" >> "$GITHUB_PATH";
-          # done
-
           pip install --upgrade pip wheel
           pip install m3gnet
           pip install -e '.[dev,optional]'
       - name: pytest split ${{ matrix.split }}
-        # to update the test durations, run pytest --store-durations --durations-path test_files/.pytest-split-durations
+        # to update the test durations, run
+        # pytest --store-durations --durations-path test_files/.pytest-split-durations
         # and commit the results
         run: |
-          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} \
-            --durations-path test_files/.pytest-split-durations
+          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path test_files/.pytest-split-durations
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
