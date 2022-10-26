@@ -345,9 +345,8 @@ class DftSet(Cp2kInputSet):
         self.kwargs = kwargs
 
         if self.kpoints:
-            if self.kpoints.num_kpts == 0  or \
-                self.kpoints.num_kpts == 1 and np.array_equal(self.kpoints.kpts[0], (0, 0, 0)) \
-                or np.array_equal(self.kpoints.kpts[0], (0, 0, 0)):
+            if (self.kpoints.num_kpts == 0  or self.kpoints.num_kpts == 1) and \
+                np.array_equal(self.kpoints.kpts[0], (0, 0, 0)):
                 # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
                 # 0,0,0 will disable certain features. So, you have to drop it all together to
                 # get full support
@@ -717,21 +716,22 @@ class DftSet(Cp2kInputSet):
         elif hybrid_functional == "PBE0":
             pbe = PBE("ORIG", scale_c=1, scale_x=1 - hf_fraction)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
-            xc_functional.insert(
-                Section(
-                    "PBE_HOLE_T_C_LR",
-                    subsections={},
-                    keywords={
-                        "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                        "SCALE_X": Keyword("SCALE_X", hf_fraction),
-                    },
-                )
-            )
 
             if isinstance(self.structure, Molecule):
                 potential_type = "COULOMB"
             else:
+                xc_functional.insert(
+                    Section(
+                        "PBE_HOLE_T_C_LR",
+                        subsections={},
+                        keywords={
+                            "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                            "SCALE_X": Keyword("SCALE_X", hf_fraction),
+                        },
+                    )
+                )  
                 potential_type = "TRUNCATED"
+
             ip_keywords.update(
                 {
                     "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
