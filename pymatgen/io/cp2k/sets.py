@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import itertools
 import os
+from typing import Literal
 import warnings
 from pathlib import Path
 
@@ -577,6 +578,9 @@ class DftSet(Cp2kInputSet):
         omega: float = 0.11,
         aux_basis: dict | None = None,
         admm: bool = True,
+        admm_method: str = "BASIS_PROJECTION",
+        admm_purification_method: str = "NONE",
+        admm_exch_correction_func: str = "NONE",
         eps_schwarz: float = 1e-7,
         eps_schwarz_forces: float = 1e-6,
         screen_on_initial_p: bool = True,
@@ -662,8 +666,9 @@ class DftSet(Cp2kInputSet):
             # Don't change unless you know what you're doing
             # Use NONE for accurate eigenvalues (static calcs)
             aux_matrix_params = {
-                "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", "NONE"),
-                "METHOD": Keyword("METHOD", "BASIS_PROJECTION"),
+                "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", admm_purification_method),
+                "METHOD": Keyword("METHOD", admm_method),
+                "EXCH_CORRECTION_FUNC": Keyword("EXCH_CORRECTION_FUNC", admm_exch_correction_func),
             }
             aux_matrix = Section(
                 "AUXILIARY_DENSITY_MATRIX_METHOD",
