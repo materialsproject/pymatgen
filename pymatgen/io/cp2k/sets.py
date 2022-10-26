@@ -720,7 +720,7 @@ class DftSet(Cp2kInputSet):
         elif hybrid_functional == "PBE0":
             pbe = PBE("ORIG", scale_c=1, scale_x=1 - hf_fraction)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
-            
+
             if isinstance(self.structure, Molecule):
                 potential_type = "COULOMB"
             else:
@@ -739,7 +739,7 @@ class DftSet(Cp2kInputSet):
                 ip_keywords["T_C_G_DATA"] = Keyword("T_C_G_DATA", "t_c_g.dat")
 
             ip_keywords["POTENTIAL_TYPE"] = Keyword("POTENTIAL_TYPE", potential_type)
-                    
+
         elif hybrid_functional == "RSH":
             """
             Activates range separated functional using mixing of the truncated
