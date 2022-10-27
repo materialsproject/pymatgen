@@ -346,7 +346,7 @@ def check_egg_sources_txt_for_completeness():
         if not os.path.exists(src_file):
             raise ValueError(f"{src_file} does not exist!")
 
-    for ext in ("py", "json", "yaml"):
+    for ext in ("py", "json", "json.gz", "yaml", "csv"):
         for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
             if "/tests/" in filepath:
                 continue
