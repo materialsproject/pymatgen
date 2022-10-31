@@ -841,7 +841,7 @@ class DftSet(Cp2kInputSet):
         self.subsections["FORCE_EVAL"]["DFT"].insert(xc)
 
     def activate_motion(
-        self,         
+        self,
         max_drift: float = 3e-3,
         rms_drift: float = 1.5e-3,
         max_force: float = 4.5e-4,
@@ -855,7 +855,7 @@ class DftSet(Cp2kInputSet):
         timestep: float | int = 0.5,
         nsteps: int = 3,
         thermostat: str = "NOSE",
-        ):
+    ):
         """
         Turns on the motion section for GEO_OPT, CELL_OPT, etc. calculations.
         Will turn on the printing subsections and also bind any constraints
@@ -863,17 +863,15 @@ class DftSet(Cp2kInputSet):
         """
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
-        
+
         run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
-        if run_type == 'GEOMETRY_OPTIMIZATION':
+        if run_type == "GEOMETRY_OPTIMIZATION":
             run_type = "GEO_OPT"
         if run_type == "MOLECULAR_DYNAMICS":
             run_type = "MD"
 
         self["MOTION"].insert(Section("PRINT", subsections={}))
-        self["MOTION"]["PRINT"].insert(
-            Section("TRAJECTORY", section_parameters=["ON"], subsections={})
-        )
+        self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
         self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
@@ -897,20 +895,20 @@ class DftSet(Cp2kInputSet):
             elif optimizer.upper() == "BFGS":
                 bfgs = Section("BFGS", subsections={}, keywords={"TRUST_RADIUS": Keyword("TRUST_RADIUS", trust_radius)})
                 opt.insert(bfgs)
-            
+
             self["MOTION"].insert(opt)
-        
+
         # ACTIVATE MD IF REQUESTED
         elif run_type == "MD":
             md_keywords = {
                 "ENSEMBLE": Keyword("ENSEMBLE", ensemble),
                 "TEMPERATURE": Keyword("TEMPERATURE", temperature),
                 "TIMESTEP": Keyword("TIMESTEP", timestep),
-                "STEPS": Keyword("STEPS", nsteps)
+                "STEPS": Keyword("STEPS", nsteps),
             }
             thermostat = Section("THERMOSTAT", keywords={"TYPE": thermostat})
-            md = Section("MD", subsections={'THERMOSTAT': thermostat}, keywords=md_keywords)
-            self['MOTION'].insert(md)
+            md = Section("MD", subsections={"THERMOSTAT": thermostat}, keywords=md_keywords)
+            self["MOTION"].insert(md)
 
         self.modify_dft_print_iters(0, add_last="numeric")
 
