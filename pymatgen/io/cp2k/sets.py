@@ -879,7 +879,6 @@ class DftSet(Cp2kInputSet):
         # ACTIVATE RELAX IF REQUESTED
         if run_type in ["GEO_OPT", "CELL_OPT"]:
             opt_params = {
-                "TYPE": Keyword("TYPE", "MINIMIZATION"),
                 "MAX_DR": Keyword("MAX_DR", max_drift),
                 "MAX_FORCE": Keyword("MAX_FORCE", max_force),
                 "RMS_DR": Keyword("RMS_DR", rms_drift),
