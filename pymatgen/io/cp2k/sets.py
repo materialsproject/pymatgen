@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import itertools
 import os
-from typing import Literal
 import warnings
 from pathlib import Path
 
