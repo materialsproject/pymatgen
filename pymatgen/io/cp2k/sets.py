@@ -841,7 +841,22 @@ class DftSet(Cp2kInputSet):
 
         self.subsections["FORCE_EVAL"]["DFT"].insert(xc)
 
-    def activate_motion(self):
+    def activate_motion(
+        self,         
+        max_drift: float = 3e-3,
+        rms_drift: float = 1.5e-3,
+        max_force: float = 4.5e-4,
+        rms_force: float = 3e-4,
+        max_iter: int = 200,
+        optimizer: str = "BFGS",
+        trust_radius: float = 0.25,
+        line_search: str = "2PNT",
+        ensemble: str = "NVE",
+        temperature: float | int = 300,
+        timestep: float | int = 0.5,
+        nsteps: int = 3,
+        thermostat: str = "NOSE",
+        ):
         """
         Turns on the motion section for GEO_OPT, CELL_OPT, etc. calculations.
         Will turn on the printing subsections and also bind any constraints
@@ -849,12 +864,56 @@ class DftSet(Cp2kInputSet):
         """
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
+        
+        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
+        if run_type == 'GEOMETRY_OPTIMIZATION':
+            run_type = "GEO_OPT"
+        if run_type == "MOLECULAR_DYNAMICS":
+            run_type = "MD"
 
         self["MOTION"].insert(Section("PRINT", subsections={}))
-        self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
+        self["MOTION"]["PRINT"].insert(
+            Section("TRAJECTORY", section_parameters=["ON"], subsections={})
+        )
         self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
+
+        # ACTIVATE RELAX IF REQUESTED
+        if run_type in ["GEO_OPT", "CELL_OPT"]:
+            opt_params = {
+                "TYPE": Keyword("TYPE", "MINIMIZATION"),
+                "MAX_DR": Keyword("MAX_DR", max_drift),
+                "MAX_FORCE": Keyword("MAX_FORCE", max_force),
+                "RMS_DR": Keyword("RMS_DR", rms_drift),
+                "RMS_FORCE": Keyword("RMS_FORCE", rms_force),
+                "MAX_ITER": Keyword("MAX_ITER", max_iter),
+                "OPTIMIZER": Keyword("OPTIMIZER", optimizer),
+            }
+            opt = Section(run_type, subsections={}, keywords=opt_params)
+            if optimizer.upper() == "CG":
+                ls = Section("LINE_SEARCH", subsections={}, keywords={"TYPE": Keyword("TYPE", line_search)})
+                cg = Section("CG", subsections={"LINE_SEARCH": ls}, keywords={})
+                opt.insert(cg)
+            elif optimizer.upper() == "BFGS":
+                bfgs = Section("BFGS", subsections={}, keywords={"TRUST_RADIUS": Keyword("TRUST_RADIUS", trust_radius)})
+                opt.insert(bfgs)
+            
+            self["MOTION"].insert(opt)
+        
+        # ACTIVATE MD IF REQUESTED
+        elif run_type == "MD":
+            md_keywords = {
+                "ENSEMBLE": Keyword("ENSEMBLE", ensemble),
+                "TEMPERATURE": Keyword("TEMPERATURE", temperature),
+                "TIMESTEP": Keyword("TIMESTEP", timestep),
+                "STEPS": Keyword("STEPS", nsteps)
+            }
+            thermostat = Section("THERMOSTAT", keywords={"TYPE": thermostat})
+            md = Section("MD", subsections={'THERMOSTAT': thermostat}, keywords=md_keywords)
+            self['MOTION'].insert(md)
+
+        self.modify_dft_print_iters(0, add_last="numeric")
 
         if "fix" in self.structure.site_properties:
             self["motion"].insert(Section("CONSTRAINT"))
