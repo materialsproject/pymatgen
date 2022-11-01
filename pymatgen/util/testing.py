@@ -20,7 +20,7 @@ from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 
 from pymatgen.core import SETTINGS
-from pymatgen.ext.matproj import MPRester
+from pymatgen.ext.matproj import _MPResterLegacy as MPRester
 
 
 class PymatgenTest(unittest.TestCase):
@@ -42,10 +42,8 @@ class PymatgenTest(unittest.TestCase):
             "Now using a fallback location based on relative path from this module."
         )
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
-    """
-    Dict for test structures to aid testing.
-    """
-    TEST_STRUCTURES = {}
+
+    TEST_STRUCTURES = {}  # Dict for test structures to aid testing.
     for fn in STRUCTURES_DIR.iterdir():
         TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 
@@ -116,8 +114,7 @@ class PymatgenTest(unittest.TestCase):
     @staticmethod
     def assertStrContentEqual(actual, desired, err_msg="", verbose=True):
         """
-        Tests if two strings are equal, ignoring things like trailing spaces,
-        etc.
+        Tests if two strings are equal, ignoring things like trailing spaces, etc.
         """
         lines1 = actual.split("\n")
         lines2 = desired.split("\n")
