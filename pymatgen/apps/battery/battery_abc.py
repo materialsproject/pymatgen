@@ -402,7 +402,6 @@ class AbstractElectrode(Sequence, MSONable):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-
         d = {
             "average_voltage": self.get_average_voltage(),
             "max_voltage": self.max_voltage,

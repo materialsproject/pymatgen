@@ -484,6 +484,32 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(test_SPSet.solvent, {})
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
+    def test_scf_extra_print(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(molecule=test_molecule, extra_scf_print=True)
+        self.assertEqual(
+            test_SPSet.rem,
+            {
+                "job_type": "sp",
+                "gen_scfman": "true",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": "100",
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+                "scf_convergence": "8",
+                "scf_final_print": "3",
+            },
+        )
+        self.assertEqual(test_SPSet.pcm, {})
+        self.assertEqual(test_SPSet.solvent, {})
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
     def test_pcm_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, pcm_dielectric=10.0)

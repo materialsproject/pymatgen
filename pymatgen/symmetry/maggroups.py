@@ -5,6 +5,8 @@
 Magnetic space groups.
 """
 
+from __future__ import annotations
+
 import os
 import sqlite3
 import textwrap
@@ -93,8 +95,8 @@ class MagneticSpaceGroup(SymmetryGroup):
         information on magnetic symmetry.
 
         :param id: BNS number supplied as list of 2 ints or BNS label as
-            str or index as int (1-1651) to iterate over all space groups"""
-
+            str or index as int (1-1651) to iterate over all space groups
+        """
         self._data = {}
 
         # Datafile is stored as sqlite3 database since (a) it can be easily
@@ -291,7 +293,6 @@ class MagneticSpaceGroup(SymmetryGroup):
             or OG label as str
         :return:
         """
-
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
         if isinstance(id, str):
@@ -306,7 +307,9 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         return cls(bns_label)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self._data == other._data
 
     @property
@@ -438,7 +441,6 @@ class MagneticSpaceGroup(SymmetryGroup):
         Get description of all data, including information for OG setting.
         :return: str
         """
-
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
         # all stored data including OG setting

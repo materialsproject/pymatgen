@@ -1,18 +1,17 @@
-exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
+exclude: ^(docs|.*test_files|cmd_line|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [mypy, pylint]
+  skip: [mypy, pylint, codespell, pydocstyle]
 
 repos:
-
   - repo: https://github.com/PyCQA/autoflake
-    rev: v1.4
+    rev: v1.6.1
     hooks:
       - id: autoflake
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.3
+    rev: v2.38.2
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
@@ -32,18 +31,18 @@ repos:
         args: [--profile, black]
 
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
       - id: black
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.2
+    rev: 5.0.4
     hooks:
       - id: flake8
         additional_dependencies: [flake8-bugbear]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.971
+    rev: v0.981
     hooks:
       - id: mypy
 
@@ -56,3 +55,17 @@ repos:
         types: [python]
         args: [-sn, --rcfile=pylintrc]
         additional_dependencies: [pylint]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.1
+    hooks:
+      - id: codespell
+        stages: [commit, commit-msg]
+        exclude_types: [html]
+        args: [--ignore-words-list, 'titel,titels,reson,rute,pres,kno']
+
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        exclude: tests

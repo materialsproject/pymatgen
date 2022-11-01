@@ -64,7 +64,6 @@ class LobsterNeighbors(NearNeighbors):
         id_blist_sg2="ICOBI",
     ):
         """
-
         Args:
             are_coops: (Bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
             ICOHPLIST.lobster so far
@@ -99,7 +98,6 @@ class LobsterNeighbors(NearNeighbors):
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
                 e.g., "icoop" or "icobi"
         """
-
         self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
         self.Icohpcollection = self.ICOHP.icohpcollection
         self.structure = structure
@@ -260,7 +258,6 @@ class LobsterNeighbors(NearNeighbors):
             only_indices: will only evaluate the list of isites in this list
         Returns: LobsterLightStructureEnvironments Object
         """
-
         lgf = LocalGeometryFinder()
         lgf.setup_structure(structure=self.structure)
         list_ce_symbols = []
@@ -375,7 +372,6 @@ class LobsterNeighbors(NearNeighbors):
             [the latter is useful for plotting summed COHP plots],
             list of the central isite for each label
         """
-
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
         if isites is None:
@@ -434,7 +430,6 @@ class LobsterNeighbors(NearNeighbors):
         Returns:
             plt of the cohps
         """
-
         # include COHPPlotter and plot a sum of these COHPs
         # might include option to add Spin channels
         # implement only_bonds_to
@@ -600,7 +595,6 @@ class LobsterNeighbors(NearNeighbors):
 
         Returns:
         """
-
         lowerlimit = self.lowerlimit
         upperlimit = self.upperlimit
 
@@ -705,7 +699,6 @@ class LobsterNeighbors(NearNeighbors):
         adapt_extremum_to_add_cond=False,
     ):
         """
-
         Args:
             lowerlimit: lower limit which determines the ICOHPs that are considered for the determination of the
             neighbors
@@ -776,7 +769,7 @@ class LobsterNeighbors(NearNeighbors):
                         "weight": 1,
                         # Here, the ICOBIs and ICOOPs are added based on the bond
                         # strength cutoff of the ICOHP
-                        # more changes are neccessary here if we use icobis for cutoffs
+                        # more changes are necessary here if we use icobis for cutoffs
                         "edge_properties": {
                             "ICOHP": self.list_icohps[ineighbors][ineighbor],
                             "bond_length": self.list_lengths[ineighbors][ineighbor],

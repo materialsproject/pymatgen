@@ -136,7 +136,6 @@ class JonesFaithfulTransformation:
     @property
     def p(self) -> list[float]:
         """
-
         :return: translation vector
         """
         return self._p
@@ -144,7 +143,6 @@ class JonesFaithfulTransformation:
     @property
     def inverse(self) -> JonesFaithfulTransformation:
         """
-
         :return: JonesFaithfulTransformation
         """
         Q = np.linalg.inv(self.P)
@@ -210,7 +208,9 @@ class JonesFaithfulTransformation:
         """
         return Lattice(np.matmul(lattice.matrix, self.P))
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return np.allclose(self.P, other.P) and np.allclose(self.p, other.p)
 
     def __str__(self):

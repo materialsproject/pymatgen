@@ -81,7 +81,6 @@ class HighSymmKpath(KPathBase):
             atol (float): Absolute tolerance used to determine symmetric
                 equivalence of points and lines on the BZ.
         """
-
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         self._path_type = path_type
@@ -190,7 +189,6 @@ class HighSymmKpath(KPathBase):
         Returns:
         Latimer and Munro k-path with labels.
         """
-
         return KPathLatimerMunro(self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
 
     def _get_sc_kpath(self, symprec, angle_tolerance, atol):
@@ -238,7 +236,6 @@ class HighSymmKpath(KPathBase):
             If an equivalent label can still not be found, or the point is not in
             the explicit kpath, its equivalent label will be set to itself in the output.
         """
-
         lm_path = lm_bs.kpath
         sc_path = sc_bs.kpath
         hin_path = hin_bs.kpath
@@ -320,7 +317,6 @@ class HighSymmKpath(KPathBase):
         Returns:
         bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.
         """
-
         G = nx.Graph()
 
         labels = []

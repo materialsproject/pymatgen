@@ -57,7 +57,6 @@ class KPathBase(metaclass=abc.ABCMeta):
             and determine symmetric equivalence of points and lines
             in the BZ.
         """
-
         self._structure = structure
         self._latt = self._structure.lattice
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
@@ -963,7 +962,6 @@ class KPathSeek(KPathBase):
             system_is_tri (boolean): Indicates if the system is time-reversal
                 invariant.
         """
-
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         positions = structure.frac_coords
@@ -2288,7 +2286,6 @@ class KPathLatimerMunro(KPathBase):
         """
         Axes used in generating labels for Latimer-Munro convention
         """
-
         points = [
             [1, 0, 0],
             [0, 1, 0],
@@ -2325,7 +2322,6 @@ class KPathLatimerMunro(KPathBase):
         """
         Letters used in generating labels for the Latimer-Munro convention
         """
-
         symbols = [
             "a",
             "b",

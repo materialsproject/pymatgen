@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.9.21 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.11.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -18,6 +18,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +41,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.9.21
+                2022.11.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -54,6 +55,8 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-11-1">v2022.11.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-10-22">v2022.10.22</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-9-21">v2022.9.21</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-9-8">v2022.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-8-23">v2022.8.23</a></li>
@@ -406,10 +409,33 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2022-11-1">
+<h2>v2022.11.1<a class="headerlink" href="#v2022-11-1" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Order of kwargs <cite>fmt</cite> and <cite>filename</cite> in <cite>Structure.to()</cite> swapped for ease of use (note: this can break codes that do not use these options as kwargs).</p></li>
+<li><p>&#64;yuzie007 Parse “Atomic configuration” in POTCAR (52 and 54). Useful for estimating a reasonable NBANDS value.</p></li>
+<li><p>EnumerateStructureTransformation now supports <cite>m3gnet_relax</cite> or <cite>m3gnet_static</cite> options.</p></li>
+</ul>
+</section>
+<section id="v2022-10-22">
+<h2>v2022.10.22<a class="headerlink" href="#v2022-10-22" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Allow env settings to override .pmgrc.yaml (&#64;janosh)</p></li>
+<li><p>Add EntryLike type (&#64;janosh)</p></li>
+<li><p>Update spglib to 2.0+.</p></li>
+<li><p>&#64;cnncnnzh Method to plot the atom-resolved phonon band structures.</p></li>
+<li><p>&#64;jmmshn More Flexible reproduction of VASP’s optical code</p></li>
+<li><p>&#64;Ameyanagi Fix the sorting of the FEFF IO module to create ATOMS input.</p></li>
+<li><p>&#64;JaGeo Extend the ThermalDisplacementMatrices class to read cif files in P1 format.</p></li>
+<li><p>&#64;rkingsbury Changes to FEFF I/O to support the use of non-periodic input structures.</p></li>
+<li><p>&#64;jmmshn Merge Waverder and Wavederf</p></li>
+<li><p>&#64;jmmshn  Set the structure_charge while parsing Potcar</p></li>
+</ul>
+</section>
 <section id="v2022-9-21">
 <h2>v2022.9.21<a class="headerlink" href="#v2022-9-21" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>&#64;chunweizhu fix the bugs when runing <cite>TEMCalculator</cite></p></li>
+<li><p>&#64;chunweizhu fix the bugs when running <cite>TEMCalculator</cite></p></li>
 <li><p>&#64;munrojm Support for new MPRester.</p></li>
 </ul>
 </section>
@@ -511,7 +537,7 @@ see deprecation notice.</p>
 <section id="v2022-5-19">
 <h2>v2022.5.19<a class="headerlink" href="#v2022-5-19" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (&#64;shyuep).</p></li>
+<li><p>Added option for additional criteria to be passed to MPRester.get_entries_in_chemsys (&#64;shyuep).</p></li>
 </ul>
 </section>
 <section id="v2022-5-18-1">
@@ -708,7 +734,7 @@ you are acknowledged appropriately by filling out the linked form.</p>
 <li><p>General improvements to Phase Diagram code (&#64;CompyRhys, #2263, #2264, #2268)</p></li>
 <li><p>Improve appearance of periodic table heatmap (&#64;penicillin0, #2272)</p></li>
 <li><p>Small improvements to battery classes (&#64;jmmshn, #2262)</p></li>
-<li><p>Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (&#64;CompRhys, #2249)</p></li>
+<li><p>Fix for Composition.chemical_system to match expected behavior for compositions with oxidation states (&#64;CompRhys, #2249)</p></li>
 <li><p>Fix for bad param in OPTIMADE response fields (&#64;ml-evs, #2244)</p></li>
 <li><p>Fix for issue in parsing <cite>bandOverlaps.lobster</cite> file (&#64;pzarabadip, #2237)</p></li>
 <li><p>Fix for Moladaptor (&#64;orioncohen, #2269)</p></li>
@@ -932,7 +958,7 @@ since most of these settings are used within pymatgen itself.</p></li>
 <li><p><strong>Backwards incompatible</strong>: pymatgen.loadfn and get_structure_from_mp have been
 removed since no one was using them.</p></li>
 <li><p>critic2_caller has been refactored. (&#64;samblau)</p></li>
-<li><p>Improved hash for Compositon (&#64;CompRhys)</p></li>
+<li><p>Improved hash for Composition (&#64;CompRhys)</p></li>
 <li><p>Fixes Outcar parsing for VASP 6.2.0. (&#64;MichaelWolloch)</p></li>
 <li><p>Allow None for Gaussian functional, bset, charge and multiplicity (&#64;eimrek)</p></li>
 </ul>
@@ -1246,7 +1272,7 @@ allow setting of arbitrary precision.</p></li>
 <h2>v2019.10.3<a class="headerlink" href="#v2019-10-3" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Faster get_all_neighbors based on &#64;chc273’s improvements. get_all_neighbors
-now returns a Site-like object with nn_distance, image and index attrbutes.
+now returns a Site-like object with nn_distance, image and index attributes.
 Much easier to use.</p></li>
 <li><p>Bug fix for XCrySDen parser (&#64;stevetorr)</p></li>
 <li><p>Added optional mid_struct to direct interpolation (&#64;jmmshn)</p></li>
@@ -1448,12 +1474,12 @@ kpoint convergence script that can be submitted in a queue</p></li>
 <span class="go">            user_kpoints_settings={&quot;reciprocal_density&quot;: k_dens})</span>
 <span class="go">        vi = vis.get_vasp_input()</span>
 <span class="go">        kpoints = vi[&quot;KPOINTS&quot;].kpts[0][0]</span>
-<span class="go">        d = &quot;Li2O_kpoints_%d&quot; % kpoints</span>
+<span class="go">        d = f&quot;Li2O_kpoints_{kpoints}&quot;</span>
 
 <span class="go">        # Directly run vasp.</span>
 <span class="go">        vi.run_vasp(d, vasp_cmd=VASP_CMD)</span>
 <span class="go">        # Use the final structure as the new initial structure to speed up calculations.</span>
-<span class="go">        structure = Vasprun(&quot;%s/vasprun.xml&quot; % d).final_structure</span>
+<span class="go">        structure = Vasprun(f&quot;{d}/vasprun.xml&quot;).final_structure</span>
 
 
 <span class="go">if __name__ == &quot;__main__&quot;:</span>
@@ -2765,7 +2791,7 @@ intercalation electrodes.</p></li>
 <li><p>Lots of improvements to Gaussian support (Nicolas Dardenne) and Abinit IO
 (Matteo).</p></li>
 <li><p>Lots of Py3k minor updates.</p></li>
-<li><p>Updated doc for Diffusion anaylzer. Invert sq_disp_ions for more intuitive handling.</p></li>
+<li><p>Updated doc for Diffusion analyzer. Invert sq_disp_ions for more intuitive handling.</p></li>
 </ul>
 </section>
 <section id="v3-0-2">

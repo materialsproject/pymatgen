@@ -96,7 +96,9 @@ class Keyword(MSONable):
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Keyword):
+            return NotImplemented
         if self.name.upper() == other.name.upper():
             v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]
             v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]
@@ -199,7 +201,9 @@ class KeywordList(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return all(k == o for k, o in zip(self.keywords, other.keywords))
 
     def __add__(self, other):
@@ -293,7 +297,6 @@ class Section(MSONable):
             kwargs are interpreted as keyword, value pairs and added to the keywords array as
             Keyword objects
         """
-
         self.name = name
         self.subsections = subsections if subsections is not None else {}
         self.repeats = repeats
@@ -647,7 +650,9 @@ class SectionList(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SectionList):
+            return NotImplemented
         return all(k == o for k, o in zip(self.sections, other.sections))
 
     def __add__(self, other):
@@ -739,7 +744,6 @@ class Cp2kInput(Section):
         """
         Initialize from a dictionary
         """
-
         return Cp2kInput(
             "CP2K_INPUT",
             subsections=getattr(
@@ -870,7 +874,6 @@ class Global(Section):
             project_name (str, optional): Defaults to "CP2K".
             run_type (str, optional) what type of calculation to run
         """
-
         self.project_name = project_name
         self.run_type = run_type
         self.kwargs = kwargs
@@ -906,7 +909,6 @@ class ForceEval(Section):
         Args:
             subsections (dict, optional): Defaults to None.
         """
-
         self.subsections = subsections or {}
         self.kwargs = kwargs
 
@@ -956,7 +958,6 @@ class Dft(Section):
             wfn_restart_file_name (str, optional): Defaults to None.
             subsections (dict, optional): Any subsections to initialize with. Defaults to None.
         """
-
         self.basis_set_filenames = basis_set_filenames
         self.potential_filename = potential_filename
         self.uks = uks
@@ -1034,7 +1035,6 @@ class QS(Section):
                 or ASPC (ASPC especially for MD runs). See the manual for other options.
             subsections (dict): Subsections to initialize with.
         """
-
         self.method = method
         self.eps_default = eps_default
         self.extrapolation = extrapolation
@@ -1090,7 +1090,6 @@ class Scf(Section):
                 "SPARSE": Generate a sparse wavefunction using the atomic code (for OT based
                     methods).
         """
-
         self.max_scf = max_scf
         self.eps_scf = eps_scf
         self.scf_guess = scf_guess
@@ -1147,7 +1146,6 @@ class Mgrid(Section):
             progression_factor: divisor that decides how to map Gaussians the multigrid after
                 the highest mapping is decided by rel_cutoff
         """
-
         self.cutoff = cutoff
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
@@ -1199,7 +1197,6 @@ class Diagonalization(Section):
         """
         Initialize the diagronalization section
         """
-
         self.eps_adapt = eps_adapt
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
@@ -1324,7 +1321,6 @@ class OrbitalTransformation(Section):
                 GOLD should always find an electronic minimum. Whereas the 2PNT minimizer is almost always OK,
                 3PNT might be needed for systems in which successive OT CG steps do not decrease the total energy.
         """
-
         self.minimizer = minimizer
         self.preconditioner = preconditioner
         self.algorithm = algorithm
@@ -1379,7 +1375,6 @@ class Cell(Section):
         Args:
             lattice: pymatgen lattice object
         """
-
         self.lattice = lattice
         self.kwargs = kwargs
 
@@ -1429,7 +1424,6 @@ class Kind(Section):
                 potential file
             kwargs: Additional kwargs to pass to Section()
         """
-
         self.name = "KIND"
         self.specie = specie
         self.alias = alias
@@ -1522,7 +1516,6 @@ class DftPlusU(Section):
             u_minus_j: (float) the effective U parameter, Ueff = U-J
             u_ramping: (float) stepwise amount to increase during ramping until u_minus_j is reached
         """
-
         self.name = "DFT_PLUS_U"
         self.eps_u_ramping = 1e-5
         self.init_u_ramping_each_scf = False
@@ -1569,7 +1562,6 @@ class Coord(Section):
             alias (bool): whether or not to identify the sites by Element + number so you can do things like
                 assign unique magnetization do different elements.
         """
-
         self.structure = structure
         self.aliases = aliases
         self.subsections = subsections or {}
@@ -1614,7 +1606,6 @@ class PDOS(Section):
         Args:
             nlumo: how many unoccupied orbitals to include (-1==ALL)
         """
-
         self.nlumo = nlumo
         self.kwargs = kwargs
 
@@ -1641,7 +1632,6 @@ class LDOS(Section):
         Args:
             index: Index of the atom to project onto
         """
-
         self.index = index
         self.alias = alias
         self.kwargs = kwargs
@@ -1670,7 +1660,6 @@ class V_Hartree_Cube(Section):
         """
         Initialize the V_HARTREE_CUBE section
         """
-
         self.keywords = keywords or {}
         self.kwargs = kwargs
 
@@ -1699,7 +1688,6 @@ class MO_Cubes(Section):
         """
         Initialize the MO_CUBES section
         """
-
         self.write_cube = write_cube
         self.nhomo = nhomo
         self.nlumo = nlumo
@@ -1736,7 +1724,6 @@ class E_Density_Cube(Section):
         """
         Initialize the E_DENSITY_CUBE Section
         """
-
         self.keywords = keywords or {}
         self.kwargs = kwargs
 
@@ -1770,7 +1757,6 @@ class Smear(Section):
         """
         Initialize the SMEAR section
         """
-
         self.elec_temp = elec_temp
         self.method = method
         self.fixed_magnetic_moment = fixed_magnetic_moment
@@ -1823,7 +1809,6 @@ class BrokenSymmetry(Section):
             n_beta: Same as N_alpha for beta channel
             nel_beta: Same as NEL_alpha for beta channel
         """
-
         self.l_alpha = l_alpha
         self.n_alpha = n_alpha
         self.nel_alpha = nel_alpha
@@ -1940,7 +1925,6 @@ class Xc_Functional(Section):
         """
         Initialize the XC_FUNCTIONAL class
         """
-
         self.functionals = functionals or []
         self.subsections = subsections or {}
         self.kwargs = kwargs
@@ -1980,7 +1964,6 @@ class PBE(Section):
             scale_c (float): scales the correlation part of the functional.
             scale_x (float): scales the exchange part of the functional.
         """
-
         self.parameterization = parameterization
         self.scale_c = scale_c
         self.scale_x = scale_x

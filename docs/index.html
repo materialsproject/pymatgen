@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2022.9.21 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.11.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -18,6 +18,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +40,7 @@
             <a href="#" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.9.21
+                2022.11.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -208,11 +209,12 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h2>
-<section id="v2022-9-21">
-<h3>v2022.9.21<a class="headerlink" href="#v2022-9-21" title="Permalink to this heading"></a></h3>
+<section id="v2022-11-1">
+<h3>v2022.11.1<a class="headerlink" href="#v2022-11-1" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p>&#64;chunweizhu fix the bugs when runing <cite>TEMCalculator</cite></p></li>
-<li><p>&#64;munrojm Support for new MPRester.</p></li>
+<li><p>Order of kwargs <cite>fmt</cite> and <cite>filename</cite> in <cite>Structure.to()</cite> swapped for ease of use (note: this can break codes that do not use these options as kwargs).</p></li>
+<li><p>&#64;yuzie007 Parse “Atomic configuration” in POTCAR (52 and 54). Useful for estimating a reasonable NBANDS value.</p></li>
+<li><p>EnumerateStructureTransformation now supports <cite>m3gnet_relax</cite> or <cite>m3gnet_static</cite> options.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>

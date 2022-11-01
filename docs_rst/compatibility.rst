@@ -65,6 +65,12 @@ Windows and Linux.
 Recent Breaking Changes
 -----------------------
 
+v2022.9.28
+
+Merge `Waverder` and `Wavederf` objects into a single `Waverder` object.
+`#2666 <https://github.com/materialsproject/pymatgen/pull/2666>`_
+#. :code:`pymatgen.io.vasp.outputs` 
+
 v2022.2.1
 ~~~~~~~~~
 

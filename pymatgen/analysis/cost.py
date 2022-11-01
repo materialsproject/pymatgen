@@ -156,7 +156,6 @@ class CostAnalyzer:
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
-
         entries_list = []
         elements = [e.symbol for e in composition.elements]
         for i in range(len(elements)):
@@ -180,7 +179,6 @@ class CostAnalyzer:
         Returns:
             float of cost/mol
         """
-
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         decomp = self.get_lowest_decomposition(comp)
         return sum(k.energy_per_atom * v * comp.num_atoms for k, v in decomp.items())

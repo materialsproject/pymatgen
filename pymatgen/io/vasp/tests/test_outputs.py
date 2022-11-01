@@ -2197,10 +2197,9 @@ class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        wder = Waveder(self.TEST_FILES_DIR / "WAVEDER", gamma_only=True)
+        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER", "float64")
         self.assertEqual(wder.nbands, 36)
         self.assertEqual(wder.nkpoints, 56)
-        self.assertEqual(wder.nelect, 8)
         band_i = 0
         band_j = 0
         kp_index = 0
@@ -2210,24 +2209,30 @@ class WavederTest(PymatgenTest):
         self.assertAlmostEqual(cder, -1.33639226092e-103, places=114)
 
     def test_consistency(self):
-        wder = Waveder(self.TEST_FILES_DIR / "WAVEDER.Si")
-        wderf = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
-        with open(self.TEST_FILES_DIR / "WAVEDERF.Si") as f:
-            first_line = [int(a) for a in f.readline().split()]
-        self.assertEqual(wder.nkpoints, first_line[1])
-        self.assertEqual(wder.nbands, first_line[2])
-        for i in range(10):
-            self.assertAlmostEqual(
-                first=wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real,
-                second=wderf[i, 6],
-                places=10,
-            )
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].real, wderf[i, 6], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].imag, wderf[i, 7], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].real, wderf[i, 8], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].imag, wderf[i, 9], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].real, wderf[i, 10], places=10)
-            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].imag, wderf[i, 11], places=10)
+        wder_ref = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
+
+        def _check(wder):
+            with open(self.TEST_FILES_DIR / "WAVEDERF.Si") as f:
+                first_line = [int(a) for a in f.readline().split()]
+            self.assertEqual(wder.nkpoints, first_line[1])
+            self.assertEqual(wder.nbands, first_line[2])
+            for i in range(10):
+                self.assertAlmostEqual(
+                    first=wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real,
+                    second=wder_ref[i, 6],
+                    places=10,
+                )
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 0].real, wder_ref[i, 6], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 0].imag, wder_ref[i, 7], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 1].real, wder_ref[i, 8], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 1].imag, wder_ref[i, 9], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].real, wder_ref[i, 10], places=10)
+                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].imag, wder_ref[i, 11], places=10)
+
+        wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER.Si")
+        _check(wder)
+        wderf = Waveder.from_formatted(self.TEST_FILES_DIR / "WAVEDERF.Si")
+        _check(wderf)
 
 
 class WSWQTest(PymatgenTest):

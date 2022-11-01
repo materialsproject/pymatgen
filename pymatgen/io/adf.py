@@ -195,7 +195,7 @@ class AdfKey(MSONable):
             s += "END\n"
         return s
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, AdfKey):
             return False
         return str(self) == str(other)
@@ -654,7 +654,6 @@ class AdfInput:
         inpfile : str
             The name where the input file will be saved.
         """
-
         mol_blocks = []
         atom_block = AdfKey("Atoms", options=["cartesian"])
         for site in molecule:
@@ -771,7 +770,6 @@ class AdfOutput:
         """
         Parse the formatted logfile.
         """
-
         cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
         coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)" + 3 * r"\s+([-\.0-9]+)")
         energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\sHartree")

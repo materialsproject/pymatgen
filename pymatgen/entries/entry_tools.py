@@ -316,7 +316,6 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             latexify_names: Format entry names to be LaTex compatible,
                 e.g., Li_{2}O
         """
-
         els: set[Element] = set()
         for entry in self.entries:
             els.update(entry.composition.elements)

@@ -105,7 +105,6 @@ class Poscar(MSONable):
         sort_structure: bool = False,
     ):
         """
-
         :param structure: Structure object.
         :param comment: Optional comment line for POSCAR. Defaults to unit
             cell formula of structure. Defaults to None.
@@ -470,7 +469,6 @@ class Poscar(MSONable):
         Returns:
             String representation of POSCAR.
         """
-
         # This corrects for VASP really annoying bug of crashing on lattices
         # which have triple product < 0. We will just invert the lattice
         # vectors.
@@ -1244,12 +1242,9 @@ class Kpoints(MSONable):
             reciprocal lattice vector proportional to its length.
 
         Args:
-            structure:
-                Input structure
-            kppa:
-                Grid density
+            structure: Input structure
+            kppa: Grid density
         """
-
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
@@ -1741,17 +1736,20 @@ class PotcarSingle:
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
-        atomic_configuration = re.search(r"Atomic configuration\s*\n?" r"(.*?)Description", search_lines)
+        atomic_configuration = re.search(
+            r"(?s)Atomic configuration(.*?)Description",
+            search_lines,
+        )
         if atomic_configuration:
             lines = atomic_configuration.group(1).splitlines()
-            num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
+            num_entries = re.search(r"([0-9]+)", lines[1]).group(1)
             num_entries = int(num_entries)
             PSCTR["nentries"] = num_entries
-            for line in lines[1:]:
+            for line in lines[3:]:
                 orbit = array_search.findall(line)
                 if orbit:
                     orbitals.append(
-                        self.Orbital(
+                        Orbital(
                             int(orbit[0]),
                             int(orbit[1]),
                             float(orbit[2]),
@@ -1889,8 +1887,8 @@ class PotcarSingle:
         :param functional: E.g., PBE
         :return: PotcarSingle
         """
-        if functional is None:
-            functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+        functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+        assert isinstance(functional, str)  # type narrowing
         funcdir = PotcarSingle.functional_dir[functional]
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
@@ -2125,6 +2123,8 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
+            if k in ("nentries", "Orbitals"):
+                continue
             hash_str += f"{k}"
             if isinstance(v, int):
                 hash_str += f"{v}"
@@ -2158,7 +2158,6 @@ class PotcarSingle:
         For float type properties, they are converted to the correct float. By
         default, all energies in eV and all length scales are in Angstroms.
         """
-
         try:
             return self.keywords[a.upper()]
         except Exception:
@@ -2420,7 +2419,9 @@ class VaspInput(dict, MSONable):
         :param err_file: File to write err.
         """
         self.write_input(output_dir=run_dir)
-        vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
+        vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")  # type: ignore[assignment]
+        if not vasp_cmd:
+            raise ValueError("No VASP executable specified!")
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")

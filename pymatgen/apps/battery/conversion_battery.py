@@ -146,7 +146,6 @@ class ConversionElectrode(AbstractElectrode):
         Returns:
             A list of ConversionElectrode objects
         """
-
         # voltage_pairs = vpairs, working_ion_entry = working_ion_entry,
         # _initial_comp_formula = comp.reduced_formula, framework_formula = framework.reduced_formula
         if adjacent_only:
@@ -250,7 +249,6 @@ class ConversionElectrode(AbstractElectrode):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
         d["reactions"] = []
         d["reactant_compositions"] = []

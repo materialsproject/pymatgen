@@ -60,7 +60,6 @@ class InsertionElectrode(AbstractElectrode):
                 ComputedEntry.data['volume']. If entries provided are ComputedEntries,
                 must set strip_structures=False.
         """
-
         if strip_structures:
             ents = []
             for ient in entries:
@@ -330,7 +329,6 @@ class InsertionElectrode(AbstractElectrode):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
 
         chg_comp = self.fully_charged_entry.composition

@@ -21,14 +21,14 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "site_symmetries")
 
 class SiteSymmetriesTest(PymatgenTest):
     def setUp(self):
-        self.pointops = np.load(os.path.join(test_dir, "pointops.npy"), allow_pickle=True)
-        self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"), allow_pickle=True)
+        self.point_ops = np.load(os.path.join(test_dir, "point_ops.npy"), allow_pickle=True)
+        self.shared_ops = np.load(os.path.join(test_dir, "shared_ops.npy"), allow_pickle=True)
         self.piezo_struc = self.get_structure("Pb2TiZrO6")
 
     def test_get_site_symmetries(self):
-        pointops = ss.get_site_symmetries(self.piezo_struc)
-        self.assertTrue(np.all(pointops == self.pointops))
+        point_ops = ss.get_site_symmetries(self.piezo_struc)
+        assert np.all(point_ops == self.point_ops)
 
     def test_get_shared_symmetries_operations(self):
-        sharedops = ss.get_shared_symmetry_operations(self.piezo_struc, self.pointops)
-        self.assertTrue(np.all(sharedops == self.sharedops))
+        shared_ops = ss.get_shared_symmetry_operations(self.piezo_struc, self.point_ops)
+        assert np.all(shared_ops == self.shared_ops)

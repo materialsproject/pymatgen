@@ -56,7 +56,6 @@ class PhononDos(MSONable):
         Returns:
             Gaussian-smeared densities.
         """
-
         from scipy.ndimage.filters import gaussian_filter1d
 
         diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
@@ -91,7 +90,6 @@ class PhononDos(MSONable):
         Returns:
             Sum of the two DOSs.
         """
-
         return self.__add__(other)
 
     def get_interpolated_value(self, frequency):
@@ -170,7 +168,6 @@ class PhononDos(MSONable):
         Returns:
             Constant volume specific heat C_v
         """
-
         if t == 0:
             return 0
 
@@ -206,7 +203,6 @@ class PhononDos(MSONable):
         Returns:
             Vibrational entropy
         """
-
         if t == 0:
             return 0
 
@@ -240,7 +236,6 @@ class PhononDos(MSONable):
         Returns:
             Phonon contribution to the internal energy
         """
-
         if t == 0:
             return self.zero_point_energy(structure=structure)
 
@@ -274,7 +269,6 @@ class PhononDos(MSONable):
         Returns:
             Phonon contribution to the Helmholtz free energy
         """
-
         if t == 0:
             return self.zero_point_energy(structure=structure)
 
@@ -306,7 +300,6 @@ class PhononDos(MSONable):
         Returns:
             Phonon contribution to the internal energy
         """
-
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
@@ -359,7 +352,6 @@ class CompletePhononDos(PhononDos):
         Returns:
             dict of {Element: Dos}
         """
-
         el_dos = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie

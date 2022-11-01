@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; pymatgen 2022.9.21 documentation</title>
+  <title>Index &mdash; pymatgen 2022.11.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.9.21
+                2022.11.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -1612,8 +1613,24 @@
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Cd">Cd (Element attribute)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.cder_data">cder_data (Waveder property)</a>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.cder">cder (DielectricFunctionCalculator property)</a>
+
+      <ul>
+        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.cder">(Waveder property)</a>
 </li>
+      </ul></li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.cder_imag">cder_imag (DielectricFunctionCalculator attribute)</a>
+
+      <ul>
+        <li><a href="pymatgen.io.vasp.outputs.html#id5">(Waveder attribute)</a>, <a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.cder_imag">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.cder_real">cder_real (DielectricFunctionCalculator attribute)</a>
+
+      <ul>
+        <li><a href="pymatgen.io.vasp.outputs.html#id6">(Waveder attribute)</a>, <a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.cder_real">[1]</a>
+</li>
+      </ul></li>
       <li><a href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce">ce (AbstractEnvironmentNode property)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Ce">Ce (Element attribute)</a>
@@ -1890,12 +1907,12 @@
         <li><a href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.TransformedPDEntry.composition">(TransformedPDEntry property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.structure_prediction.substitution_probability.html#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction">composition_prediction() (SubstitutionPredictor method)</a>
 </li>
       <li><a href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.CompositionEnergyAdjustment">CompositionEnergyAdjustment (class in pymatgen.entries.computed_entries)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.core.composition.html#pymatgen.core.composition.CompositionError">CompositionError</a>
 </li>
       <li><a href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram">CompoundPhaseDiagram (class in pymatgen.analysis.phase_diagram)</a>
@@ -2210,6 +2227,8 @@
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.cs_g0_contribution">cs_g0_contribution (Outcar attribute)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.cshift">cshift (DielectricFunctionCalculator attribute)</a>
+</li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.CSM_SKIP_SEPARATION_PLANE_ALGO">CSM_SKIP_SEPARATION_PLANE_ALGO (CoordinationGeometry attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction">CSMFiniteRatioFunction (class in pymatgen.analysis.chemenv.utils.func_utils)</a>
@@ -2262,8 +2281,6 @@
         <li><a href="pymatgen.io.wannier90.html#pymatgen.io.wannier90.Unk.data">(Unk attribute)</a>
 </li>
         <li><a href="pymatgen.io.wannier90.html#id0">(Unk property)</a>
-</li>
-        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf.data">(Wavederf attribute)</a>
 </li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.WSWQ.data">(WSWQ property)</a>
 </li>
@@ -2370,7 +2387,11 @@
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.delta_cn_specifics">delta_cn_specifics() (DeltaCSMNbSetWeight class method)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.delta_func">delta_func() (in module pymatgen.io.vasp.optics)</a>
+</li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DELTA_MAX_OXIDATION_STATE">DELTA_MAX_OXIDATION_STATE (LightStructureEnvironments attribute)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.delta_methfessel_paxton">delta_methfessel_paxton() (in module pymatgen.io.vasp.optics)</a>
 </li>
       <li><a href="pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.ChemicalShielding.HaeberlenNotation.delta_sigma_iso">delta_sigma_iso (ChemicalShielding.HaeberlenNotation attribute)</a>
 </li>
@@ -2379,6 +2400,8 @@
       <li><a href="pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction">DeltaCSMRatioFunction (class in pymatgen.analysis.chemenv.utils.func_utils)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight">DeltaDistanceNbSetWeight (class in pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.deltae">deltae (DielectricFunctionCalculator attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.eos.html#pymatgen.analysis.eos.DeltaFactor">DeltaFactor (class in pymatgen.analysis.eos)</a>
 </li>
@@ -2426,11 +2449,13 @@
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions">diamond_functions() (in module pymatgen.analysis.chemenv.utils.coordination_geometry_utils)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.DictSet">DictSet (class in pymatgen.io.vasp.sets)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.DictSet">DictSet (class in pymatgen.io.vasp.sets)</a>
+</li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.dielectric">dielectric (Vasprun property)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator">DielectricFunctionCalculator (class in pymatgen.io.vasp.optics)</a>
 </li>
       <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.dieze_tag">dieze_tag (GaussianOutput attribute)</a>
 </li>
@@ -2653,6 +2678,8 @@
       <li><a href="pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.efermi">efermi (BandStructure attribute)</a>
 
       <ul>
+        <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.efermi">(DielectricFunctionCalculator attribute)</a>
+</li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.efermi">(Outcar attribute)</a>
 </li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.efermi">(Vasprun attribute)</a>
@@ -2685,6 +2712,8 @@
       <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.eigenvectors">eigenvectors (GaussianOutput attribute)</a>
 </li>
       <li><a href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.eigenvectors_from_displacements">eigenvectors_from_displacements() (in module pymatgen.phonon.bandstructure)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.eigs">eigs (DielectricFunctionCalculator attribute)</a>
 </li>
       <li><a href="pymatgen.io.phonopy.html#pymatgen.io.phonopy.eigvec_to_eigdispl">eigvec_to_eigdispl() (in module pymatgen.io.phonopy)</a>
 </li>
@@ -2893,6 +2922,8 @@
       <li><a href="pymatgen.analysis.eos.html#pymatgen.analysis.eos.EOSBase">EOSBase (class in pymatgen.analysis.eos)</a>
 </li>
       <li><a href="pymatgen.analysis.eos.html#pymatgen.analysis.eos.EOSError">EOSError</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.epsilon_imag">epsilon_imag() (in module pymatgen.io.vasp.optics)</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.epsilon_ionic">epsilon_ionic (Vasprun property)</a>
 </li>
@@ -3378,6 +3409,8 @@
 </li>
       <li><a href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp.from_axis_angle_and_translation">from_axis_angle_and_translation() (SymmOp static method)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.from_binary">from_binary() (Waveder class method)</a>
+</li>
       <li><a href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.Topology.from_bonding">from_bonding() (Topology class method)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2">from_bson_voronoi_list2() (in module pymatgen.analysis.chemenv.coordination_environments.voronoi)</a>
@@ -3389,6 +3422,8 @@
       <li><a href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller.from_chgcar">from_chgcar() (Critic2Caller class method)</a>
 </li>
       <li><a href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_cif_file">from_cif_file() (Header static method)</a>
+</li>
+      <li><a href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_cif_P1">from_cif_P1() (ThermalDisplacementMatrices static method)</a>
 </li>
       <li><a href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.from_cif_string">from_cif_string() (TransformedStructure static method)</a>
 </li>
@@ -3712,9 +3747,11 @@
         <li><a href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dir">(PseudoTable class method)</a>
 </li>
       </ul></li>
-      <li><a href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet.from_directory">from_directory() (FEFFDictSet static method)</a>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.from_directory">from_directory() (DielectricFunctionCalculator class method)</a>
 
       <ul>
+        <li><a href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet.from_directory">(FEFFDictSet static method)</a>
+</li>
         <li><a href="pymatgen.io.core.html#pymatgen.io.core.InputSet.from_directory">(InputSet class method)</a>
 </li>
         <li><a href="pymatgen.io.packmol.html#pymatgen.io.packmol.PackmolSet.from_directory">(PackmolSet class method)</a>
@@ -3848,6 +3885,8 @@
         <li><a href="pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files">(WorkFunctionAnalyzer static method)</a>
 </li>
       </ul></li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.from_formatted">from_formatted() (Waveder class method)</a>
+</li>
       <li><a href="pymatgen.core.ion.html#pymatgen.core.ion.Ion.from_formula">from_formula() (Ion class method)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.from_global_moment_and_saxis">from_global_moment_and_saxis() (Magmom class method)</a>
@@ -4056,6 +4095,8 @@
       </ul></li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_structure_environments">from_structure_environments() (LightStructureEnvironments class method)</a>
 </li>
+      <li><a href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif">from_structure_with_site_properties_Ucif() (ThermalDisplacementMatrices static method)</a>
+</li>
       <li><a href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures">from_structures() (StandardTransmuter static method)</a>
 
       <ul>
@@ -4075,6 +4116,8 @@
       <li><a href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_Ucif">from_Ucif() (ThermalDisplacementMatrices static method)</a>
 </li>
       <li><a href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor.from_values_indices">from_values_indices() (Tensor class method)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.from_vasp_objects">from_vasp_objects() (DielectricFunctionCalculator class method)</a>
 </li>
       <li><a href="pymatgen.analysis.piezo.html#pymatgen.analysis.piezo.PiezoTensor.from_vasp_voigt">from_vasp_voigt() (PiezoTensor class method)</a>
 </li>
@@ -4607,7 +4650,11 @@
       <li><a href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix">get_deformation_matrix() (Strain method)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.get_delta">get_delta() (in module pymatgen.analysis.chemenv.utils.graph_utils)</a>
+
+      <ul>
+        <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.get_delta">(in module pymatgen.io.vasp.optics)</a>
 </li>
+      </ul></li>
       <li><a href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image">get_delta_image() (in module pymatgen.analysis.chemenv.connectivity.structure_connectivity)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.Dos.get_densities">get_densities() (Dos method)</a>
@@ -4694,8 +4741,6 @@
         <li><a href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_element_spd_dos">(LobsterCompleteDos method)</a>
 </li>
       </ul></li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf.get_elements_between_bands">get_elements_between_bands() (Wavederf method)</a>
-</li>
       <li><a href="pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots">get_elt_projected_plots() (BSPlotterProjected method)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots_color">get_elt_projected_plots_color() (BSPlotterProjected method)</a>
@@ -4739,6 +4784,8 @@
       <li><a href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node">get_environment_node() (in module pymatgen.analysis.chemenv.connectivity.environment_nodes)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_environments_figure">get_environments_figure() (StructureEnvironments method)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.get_epsilon">get_epsilon() (DielectricFunctionCalculator method)</a>
 </li>
       <li><a href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_equilibrium_reaction_energy">get_equilibrium_reaction_energy() (PatchedPhaseDiagram method)</a>
 
@@ -4949,6 +4996,8 @@
       <li><a href="pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_labels">get_labels() (WorkFunctionAnalyzer method)</a>
 </li>
       <li><a href="pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_lattice">get_lattice() (CifParser method)</a>
+</li>
+      <li><a href="pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_lattice_no_exception">get_lattice_no_exception() (CifParser static method)</a>
 </li>
       <li><a href="pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta">get_lattice_quanta() (Polarization method)</a>
 </li>
@@ -5310,6 +5359,8 @@
 </li>
       <li><a href="pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.get_principal_axis">get_principal_axis() (HungarianOrderMatcher static method)</a>
 </li>
+      <li><a href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.get_proj_plot">get_proj_plot() (PhononBSPlotter method)</a>
+</li>
       <li><a href="pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots">get_projected_plots_dots() (BSPlotterProjected method)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb">get_projected_plots_dots_patom_pmorb() (BSPlotterProjected method)</a>
@@ -5561,6 +5612,8 @@
       <li><a href="pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_stable_FCM">get_stable_FCM() (ForceConstantMatrix method)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_statistics">get_statistics() (LightStructureEnvironments method)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.get_step">get_step() (in module pymatgen.io.vasp.optics)</a>
 </li>
       <li><a href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_strain_from_stress">get_strain_from_stress() (ElasticTensorExpansion method)</a>
 </li>
@@ -6940,10 +6993,10 @@
 </li>
       <li><a href="pymatgen.core.surface.html#pymatgen.core.surface.is_already_analyzed">is_already_analyzed() (in module pymatgen.core.surface)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond">is_anion_cation_bond() (in module pymatgen.analysis.chemenv.utils.coordination_geometry_utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.is_block_key">is_block_key() (AdfKey method)</a>
 </li>
       <li><a href="pymatgen.core.bonds.html#pymatgen.core.bonds.CovalentBond.is_bonded">is_bonded() (CovalentBond static method)</a>
@@ -7222,6 +7275,8 @@
 </li>
       <li><a href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite">isite (AbstractEnvironmentNode property)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.ismear">ismear (DielectricFunctionCalculator attribute)</a>
+</li>
       <li><a href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.isnc">isnc (BasicAbinitInput property)</a>
 
       <ul>
@@ -7242,8 +7297,12 @@
         <li><a href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.ispaw">(Pseudo property)</a>
 </li>
       </ul></li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.ispin">ispin (Eigenval attribute)</a>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.ispin">ispin (DielectricFunctionCalculator attribute)</a>
+
+      <ul>
+        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.ispin">(Eigenval attribute)</a>
 </li>
+      </ul></li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.IStructure">IStructure (class in pymatgen.core.structure)</a>
 </li>
       <li><a href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.itdensities">itdensities (Doscar property)</a>
@@ -7340,10 +7399,10 @@
 </li>
       <li><a href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo">KPathSetyawanCurtarolo (class in pymatgen.symmetry.kpath)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.Kpoint">Kpoint (class in pymatgen.electronic_structure.bandstructure)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kpoints">Kpoints (class in pymatgen.io.cp2k.inputs)</a>
 
       <ul>
@@ -7386,9 +7445,13 @@
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Kr">Kr (Element attribute)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.kramers_kronig">kramers_kronig() (in module pymatgen.io.vasp.optics)</a>
+</li>
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling">KSampling (class in pymatgen.io.abinit.abiobjects)</a>
 </li>
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSamplingModes">KSamplingModes (class in pymatgen.io.abinit.abiobjects)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.kweights">kweights (DielectricFunctionCalculator attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -8572,6 +8635,8 @@
 </li>
         <li><a href="pymatgen.io.vasp.inputs.html#module-pymatgen.io.vasp.inputs">pymatgen.io.vasp.inputs</a>
 </li>
+        <li><a href="pymatgen.io.vasp.optics.html#module-pymatgen.io.vasp.optics">pymatgen.io.vasp.optics</a>
+</li>
         <li><a href="pymatgen.io.vasp.outputs.html#module-pymatgen.io.vasp.outputs">pymatgen.io.vasp.outputs</a>
 </li>
         <li><a href="pymatgen.io.vasp.sets.html#module-pymatgen.io.vasp.sets">pymatgen.io.vasp.sets</a>
@@ -8924,12 +8989,6 @@
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.nb">nb (Wavecar attribute)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.nb_bands">nb_bands (BandStructure attribute)</a>
-
-      <ul>
-        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf.nb_bands">(Wavederf property)</a>
-</li>
-      </ul></li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf.nb_kpoints">nb_kpoints (Wavederf property)</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.nbands">nbands (Eigenval attribute)</a>
 
@@ -8966,6 +9025,8 @@
       <li><a href="pymatgen.analysis.transition_state.html#pymatgen.analysis.transition_state.NEBAnalysis">NEBAnalysis (class in pymatgen.analysis.transition_state)</a>
 </li>
       <li><a href="pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.NEBPathfinder">NEBPathfinder (class in pymatgen.analysis.path_finder)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.nedos">nedos (DielectricFunctionCalculator attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_coords">neighb_coords (LightStructureEnvironments.NeighborsSet property)</a>
 
@@ -9014,8 +9075,6 @@
 </li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.nelect">(Outcar attribute)</a>
 </li>
-        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.nelect">(Waveder property)</a>
-</li>
       </ul></li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.nelectrons">nelectrons (IMolecule property)</a>
 
@@ -9059,10 +9118,10 @@
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.ElementBase.nmr_quadrupole_moment">nmr_quadrupole_moment (ElementBase property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType.nnattr">nnattr (CriticalPointType attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.No">No (Element attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.defs_utils.html#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_AC">NO_AC (AdditionalConditions attribute)</a>
@@ -9163,8 +9222,12 @@
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Dynmat.nspecs">nspecs (Dynmat property)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.outputs.html#id4">nspin (WSWQ attribute)</a>, <a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.WSWQ.nspin">[1]</a>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.nspin">nspin (Waveder property)</a>
+
+      <ul>
+        <li><a href="pymatgen.io.vasp.outputs.html#id4">(WSWQ attribute)</a>, <a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.WSWQ.nspin">[1]</a>
 </li>
+      </ul></li>
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.nspinor">nspinor (Electrons property)</a>
 </li>
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.nsppol">nsppol (Electrons property)</a>
@@ -9862,6 +9925,8 @@
       <li><a href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties">plot_thermodynamic_properties() (ThermoPlotter method)</a>
 </li>
       <li><a href="pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis">plot_vor_analysis() (VoronoiAnalyzer static method)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.plot_weighted_transition_data">plot_weighted_transition_data() (DielectricFunctionCalculator method)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_wigner_seitz">plot_wigner_seitz() (in module pymatgen.electronic_structure.plotter)</a>
 </li>
@@ -11753,6 +11818,13 @@
 </li>
       </ul></li>
       <li>
+    pymatgen.io.vasp.optics
+
+      <ul>
+        <li><a href="pymatgen.io.vasp.optics.html#module-pymatgen.io.vasp.optics">module</a>
+</li>
+      </ul></li>
+      <li>
     pymatgen.io.vasp.outputs
 
       <ul>
@@ -12915,10 +12987,16 @@
 </li>
       <li><a href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot">show_plot() (AbstractDiffractionPatternCalculator method)</a>
 </li>
+      <li><a href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.show_proj">show_proj() (PhononBSPlotter method)</a>
+</li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Si">Si (Element attribute)</a>
 </li>
-      <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.sigma">sigma (GrainBoundary property)</a>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.sigma">sigma (DielectricFunctionCalculator attribute)</a>
+
+      <ul>
+        <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.sigma">(GrainBoundary property)</a>
 </li>
+      </ul></li>
       <li><a href="pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_11">sigma_11 (ChemicalShielding.MehringNotation attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_22">sigma_22 (ChemicalShielding.MehringNotation attribute)</a>
@@ -13208,6 +13286,10 @@
       <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.stationary_type">stationary_type (GaussianOutput attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.stats_article_weights_parameters">stats_article_weights_parameters() (MultiWeightsChemenvStrategy class method)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.step_func">step_func() (in module pymatgen.io.vasp.optics)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.step_methfessel_paxton">step_methfessel_paxton() (in module pymatgen.io.vasp.optics)</a>
 </li>
       <li><a href="pymatgen.analysis.xas.spectrum.html#pymatgen.analysis.xas.spectrum.XAS.stitch">stitch() (XAS method)</a>
 </li>
@@ -13693,8 +13775,6 @@
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Th">Th (Element attribute)</a>
 </li>
-      <li><a href="pymatgen.analysis.chemenv.utils.scripts_utils.html#pymatgen.analysis.chemenv.utils.scripts_utils.thankyou">thankyou() (in module pymatgen.analysis.chemenv.utils.scripts_utils)</a>
-</li>
       <li><a href="pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwTask.theories">theories (NwTask attribute)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.thermal_conductivity">thermal_conductivity (Element attribute)</a>
@@ -13789,14 +13869,14 @@
 </li>
       <li><a href="pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.to_displacements">to_displacements() (Trajectory method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.to_file">to_file() (Control method)</a>
 
       <ul>
         <li><a href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField.to_file">(ForceField method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.to_hdf5">to_hdf5() (VolumetricData method)</a>
 </li>
       <li><a href="pymatgen.util.string.html#pymatgen.util.string.Stringify.to_html_string">to_html_string() (Stringify method)</a>
@@ -13855,6 +13935,8 @@
         <li><a href="pymatgen.io.xcrysden.html#pymatgen.io.xcrysden.XSF.to_string">(XSF method)</a>
 </li>
       </ul></li>
+      <li><a href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif">to_structure_with_site_properties_Ucif() (ThermalDisplacementMatrices method)</a>
+</li>
       <li><a href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.to_table">to_table() (AbinitTimer method)</a>
 
       <ul>
@@ -14269,6 +14351,8 @@
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.scripts_utils.html#pymatgen.analysis.chemenv.utils.scripts_utils.visualize">visualize() (in module pymatgen.analysis.chemenv.utils.scripts_utils)</a>
 </li>
+      <li><a href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.visualize_directionality_quality_criterion">visualize_directionality_quality_criterion() (ThermalDisplacementMatrices method)</a>
+</li>
       <li><a href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor.voigt">voigt (Tensor property)</a>
 
       <ul>
@@ -14310,6 +14394,8 @@
       <li><a href="pymatgen.io.res.html#pymatgen.io.res.AirssProvider.volume">volume (AirssProvider property)</a>
 
       <ul>
+        <li><a href="pymatgen.io.vasp.optics.html#pymatgen.io.vasp.optics.DielectricFunctionCalculator.volume">(DielectricFunctionCalculator attribute)</a>
+</li>
         <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.IStructure.volume">(IStructure property)</a>
 </li>
         <li><a href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsBox.volume">(LammpsBox property)</a>
@@ -14367,8 +14453,6 @@
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder">Waveder (class in pymatgen.io.vasp.outputs)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf">Wavederf (class in pymatgen.io.vasp.outputs)</a>
-</li>
       <li><a href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Wavefunction">Wavefunction (class in pymatgen.io.lobster.outputs)</a>
 </li>
       <li><a href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.wavelength_rel">wavelength_rel() (TEMCalculator method)</a>
@@ -14412,8 +14496,6 @@
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy">WeightedNbSetChemenvStrategy (class in pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies)</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar.weights">weights (Procar attribute)</a>
-</li>
-      <li><a href="pymatgen.analysis.chemenv.utils.scripts_utils.html#pymatgen.analysis.chemenv.utils.scripts_utils.welcome">welcome() (in module pymatgen.analysis.chemenv.utils.scripts_utils)</a>
 </li>
       <li><a href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.with_dojo_report">with_dojo_report() (PseudoTable method)</a>
 </li>

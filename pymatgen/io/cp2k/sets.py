@@ -304,7 +304,6 @@ class DftSet(Cp2kInputSet):
             smearing (bool): whether or not to activate smearing (should be done for systems containing no (or a very
                 small) band gap.
         """
-
         super().__init__(structure, **kwargs)
 
         self.structure = structure
@@ -714,7 +713,7 @@ class DftSet(Cp2kInputSet):
             )
         else:
             warnings.warn(
-                "Uknown hybrid functional. Using PBE base functional"
+                "Unknown hybrid functional. Using PBE base functional"
                 " and overriding all settings manually. Proceed with"
                 " caution."
             )

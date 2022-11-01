@@ -42,6 +42,25 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
     return matches
 
 
+def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, postprocess=str):
+    """Parse a matrix to get the quantities in a numpy array."""
+
+    # Get the piece of text between the header and the footer
+    header_regex = re.compile(header_pattern)
+    footer_regex = re.compile(footer_pattern)
+
+    # Find the text between the header and footer
+    text_between_header_and_footer = text[header_regex.search(text).end() : footer_regex.search(text).start()]
+
+    # Get the elements
+    elements = re.findall(elements_pattern, text_between_header_and_footer)
+
+    # Apply postprocessing to all the elements
+    elements = [postprocess(e) for e in elements]
+
+    return elements
+
+
 def read_table_pattern(
     text_str,
     header_pattern,
@@ -163,3 +182,32 @@ def process_parsed_coords(coords):
         for jj in range(3):
             geometry[ii, jj] = float(entry[jj])
     return geometry
+
+
+def process_parsed_fock_matrix(fock_matrix):
+    """The Fock matrix is parsed as a list, while it should actually be
+    a square matrix, this function takes the list of finds the right dimensions
+    in order to reshape the matrix."""
+    total_elements = len(fock_matrix)
+    n_rows = int(np.sqrt(total_elements))
+    n_cols = n_rows
+
+    # Q-Chem splits the printing of the matrix into chunks of 6 elements
+    # per line. TODO: Is there a better way than to hard-code this?
+    chunks = 6 * n_rows
+    # Decide the indices of the chunks
+    chunk_indices = np.arange(chunks, total_elements, chunks)
+    # Split the arrays into the chunks
+    fock_matrix_chunks = np.split(fock_matrix, chunk_indices)
+
+    # Reshape the chunks into the matrix and populate the matrix
+    fock_matrix_reshaped = np.zeros(shape=(n_rows, n_cols), dtype=float)
+    index_cols = 0
+    for fock_matrix_chunk in fock_matrix_chunks:
+        n_cols_chunks = len(fock_matrix_chunk) / n_rows
+        n_cols_chunks = int(n_cols_chunks)
+        fock_matrix_chunk_reshaped = np.reshape(fock_matrix_chunk, (n_rows, n_cols_chunks))
+        fock_matrix_reshaped[:, index_cols : index_cols + n_cols_chunks] = fock_matrix_chunk_reshaped
+        index_cols += n_cols_chunks
+
+    return fock_matrix_reshaped
