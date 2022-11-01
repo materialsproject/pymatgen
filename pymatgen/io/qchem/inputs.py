@@ -933,7 +933,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) nbo parameters.
+            (dict) geom_opt parameters.
         """
         header = r"^\s*\$geom_opt"
         row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
