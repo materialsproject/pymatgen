@@ -113,7 +113,6 @@ class LammpsBox(MSONable):
 
     def __init__(self, bounds, tilt=None):
         """
-
         Args:
             bounds: A (3, 2) array/list of floats setting the
                 boundaries of simulation box.
@@ -875,7 +874,6 @@ class Topology(MSONable):
 
     def __init__(self, sites, ff_label=None, charges=None, velocities=None, topologies=None):
         """
-
         Args:
             sites ([Site] or SiteCollection): A group of sites in a
                 list or as a Molecule/Structure.
@@ -1009,7 +1007,6 @@ class ForceField(MSONable):
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """
-
         Args:
             mass_info (list): List of atomic mass info. Elements,
                 strings (symbols) and floats are all acceptable for the

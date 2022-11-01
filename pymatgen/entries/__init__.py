@@ -100,7 +100,6 @@ class Entry(MSONable, metaclass=ABCMeta):
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
         """
-
         factor = self._normalization_factor(mode)
         new_composition = self._composition / factor
         new_energy = self._energy / factor

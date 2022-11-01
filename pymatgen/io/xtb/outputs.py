@@ -35,7 +35,6 @@ class CRESTOutput(MSONable):
             path (str): Path to directory including output_filename and all
                 other xtb output files (crest_best.xyz, etc.)
         """
-
         self.path = path
         self.filename = output_filename
 

@@ -73,7 +73,6 @@ class HHIModel:
         Returns:
             A tuple representing the (HHI_production, HHI_reserve)
         """
-
         try:
             if not isinstance(comp_or_form, Composition):
                 comp_or_form = Composition(comp_or_form)
@@ -128,7 +127,6 @@ class HHIModel:
         Returns:
             The designation as String
         """
-
         if hhi is None:
             return None
 

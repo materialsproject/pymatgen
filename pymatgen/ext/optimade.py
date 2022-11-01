@@ -100,7 +100,6 @@ class OptimadeRester:
             timeout: number of seconds before an attempted request is abandoned, a good
             timeout is useful when querying many providers, some of which may be offline
         """
-
         # TODO: maybe we should use the nice pydantic models from optimade-python-tools
         #  for response validation, and use the Lark parser for filter validation
         self.session = requests.Session()
@@ -170,7 +169,6 @@ class OptimadeRester:
         """
         Convenience method to build an OPTIMADE filter.
         """
-
         filters = []
 
         if elements:
@@ -222,7 +220,6 @@ class OptimadeRester:
 
         Returns: Dict of (Dict Structures keyed by that database's id system) keyed by provider
         """
-
         optimade_filter = self._build_filter(
             elements=elements,
             nelements=nelements,
@@ -263,7 +260,6 @@ class OptimadeRester:
 
         Returns: Dict of (Dict of StructureNLs keyed by that database's id system) keyed by provider
         """
-
         optimade_filter = self._build_filter(
             elements=elements,
             nelements=nelements,
@@ -283,7 +279,6 @@ class OptimadeRester:
 
         Returns: Dict of Structures keyed by that database's id system
         """
-
         all_snls = self.get_snls_with_filter(optimade_filter)
         all_structures = {}
 
@@ -305,7 +300,6 @@ class OptimadeRester:
 
         Returns: Dict of Structures keyed by that database's id system
         """
-
         all_snls = {}
 
         fields = self._handle_response_fields(additional_response_fields)
@@ -496,7 +490,6 @@ class OptimadeRester:
             A dictionary of keys (in format of "provider.database") to
             Provider objects.
         """
-
         try:
             url = join(provider_url, "v1/links")
             provider_link_json = self._get_json(url)

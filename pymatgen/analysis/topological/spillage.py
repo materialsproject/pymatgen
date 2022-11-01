@@ -24,7 +24,6 @@ class SOCSpillage:
             wf_noso : WAVECAR without spin-orbit coupling
             wf_so : WAVECAR with spin-orbit coupling
         """
-
         self.wf_noso = wf_noso
         self.wf_so = wf_so
 

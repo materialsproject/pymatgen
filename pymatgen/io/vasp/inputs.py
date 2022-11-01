@@ -105,7 +105,6 @@ class Poscar(MSONable):
         sort_structure: bool = False,
     ):
         """
-
         :param structure: Structure object.
         :param comment: Optional comment line for POSCAR. Defaults to unit
             cell formula of structure. Defaults to None.

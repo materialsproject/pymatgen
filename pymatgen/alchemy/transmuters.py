@@ -60,7 +60,6 @@ class StandardTransmuter:
                 Uses multiprocessing.Pool. Default is None, which implies
                 serial.
         """
-
         self.transformed_structures = transformed_structures
         self.ncores = ncores
         if transformations is not None:
@@ -288,7 +287,6 @@ class CifTransmuter(StandardTransmuter):
             primitive: Same meaning as in __init__.
             extend_collection: Same meaning as in __init__.
         """
-
         allcifs = []
         for fname in filenames:
             with open(fname) as f:

@@ -480,7 +480,6 @@ class ComputedReaction(Reaction):
         Calculates the uncertainty in the reaction energy based on the uncertainty in the
         energies of the products and reactants
         """
-
         calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:

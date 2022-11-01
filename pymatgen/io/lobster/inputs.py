@@ -243,7 +243,6 @@ class Lobsterin(dict, MSONable):
             path (str): filename of the lobsterin file that will be written
             overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
         """
-
         # will overwrite previous entries
         # has to search first if entry is already in Lobsterindict (due to case insensitivity)
         if overwritedict is not None:
@@ -379,7 +378,6 @@ class Lobsterin(dict, MSONable):
         address_basis_file_max: str = None,
     ):
         """
-
         Args:
             structure: Structure object
             potcar_symbols: list of the potcar symbols

@@ -169,7 +169,6 @@ class EnumlibAdaptor:
         different equivalent sites is dealt with by having determined the
         spacegroup earlier and labelling the species differently.
         """
-
         # index_species and index_amounts store mappings between the indices
         # used in the enum input file, and the actual species and amounts.
         index_species = []

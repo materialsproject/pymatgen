@@ -125,7 +125,6 @@ class SuperTransformation(AbstractTransformation):
                 nstructures_per_trans structures from each transformation are
                 added to the full list. Defaults to 1, i.e., only best structure.
         """
-
         self._transformations = transformations
         self.nstructures_per_trans = nstructures_per_trans
 
@@ -598,7 +597,6 @@ class MagOrderParameterConstraint(MSONable):
         :param site_constraints (list): list of values of the site
             property that the constraints should apply to
         """
-
         # validation
         if site_constraints and site_constraints != [None] and not site_constraint_name:
             raise ValueError("Specify the name of the site constraint.")
@@ -665,7 +663,6 @@ class MagOrderingTransformation(AbstractTransformation):
         :param kwargs: Additional kwargs that are passed to
         :class:`EnumerateStructureTransformation` such as min_cell_size etc.
         """
-
         # checking for sensible order_parameter values
         if isinstance(order_parameter, float):
             # convert to constraint format
@@ -744,7 +741,6 @@ class MagOrderingTransformation(AbstractTransformation):
             This approach can also preserve site properties even after
             enumeration.
         """
-
         dummy_struct = structure.copy()
 
         def generate_dummy_specie():
@@ -1282,7 +1278,6 @@ class DisorderOrderedTransformation(AbstractTransformation):
         Returns:
             Transformed disordered structure(s)
         """
-
         if not structure.is_ordered:
             raise ValueError("This transformation is for disordered structures only.")
 
@@ -1575,7 +1570,6 @@ class CubicSupercellTransformation(AbstractTransformation):
         Returns:
             supercell: Transformed supercell.
         """
-
         lat_vecs = structure.lattice.matrix
 
         # boolean for if a sufficiently large supercell has been created
@@ -1717,7 +1711,6 @@ class AddAdsorbateTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
-
         Args:
             structure: Must be a Slab structure
             return_ranked_list:  Whether or not multiple structures are
@@ -1726,7 +1719,6 @@ class AddAdsorbateTransformation(AbstractTransformation):
 
         Returns: Slab with adsorbate
         """
-
         sitefinder = AdsorbateSiteFinder(
             structure,
             selective_dynamics=self.selective_dynamics,
@@ -1880,7 +1872,6 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure: Structure, return_ranked_list=False):
         """
-
         Args:
             structure: Must be a Slab structure
             return_ranked_list:  Whether or not multiple structures are
@@ -1889,7 +1880,6 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
         Returns: Slab with sites substituted
         """
-
         sitefinder = AdsorbateSiteFinder(
             structure,
             selective_dynamics=self.selective_dynamics,
@@ -2003,7 +1993,6 @@ class SQSTransformation(AbstractTransformation):
         Returns:
             maximum nearest neighbor distance, in angstroms
         """
-
         mdnn = MinimumDistanceNN()
         distances = []
 
@@ -2025,7 +2014,6 @@ class SQSTransformation(AbstractTransformation):
         Returns:
             pymatgen Structure object representing a substructure of disordered sites
         """
-
         disordered_substructure = struc_disordered.copy()
 
         idx_to_remove = []
@@ -2046,7 +2034,6 @@ class SQSTransformation(AbstractTransformation):
         Returns:
             dict of {cluster size: distance in angstroms} for mcsqs calculation
         """
-
         cluster_size_and_shell = cluster_size_and_shell or {2: 3, 3: 2, 4: 1}
 
         disordered_substructure = SQSTransformation._get_disordered_substructure(struc_disordered)
@@ -2067,7 +2054,6 @@ class SQSTransformation(AbstractTransformation):
         Returns:
             pymatgen Structure which is an SQS of the input structure
         """
-
         if return_ranked_list and self.instances is None:
             raise ValueError("mcsqs has no instances, so cannot return a ranked list")
         if (
@@ -2121,7 +2107,6 @@ class SQSTransformation(AbstractTransformation):
             list of dicts of the form {'structure': Structure, 'objective_function': ...}, unless run in serial
                 (returns a single structure Sqs.bestsqs)
         """
-
         if not return_ranked_list:
             return_struc = sqs.bestsqs
 

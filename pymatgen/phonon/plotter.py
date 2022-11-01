@@ -79,7 +79,6 @@ class PhononDosPlotter:
 
     def __init__(self, stack=False, sigma=None):
         """
-
         Args:
             stack: Whether to plot the DOS as a stacked area graph
             sigma: A float specifying a standard deviation for Gaussian smearing
@@ -100,7 +99,6 @@ class PhononDosPlotter:
             dos:
                 PhononDos object
         """
-
         densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
         self._doses[label] = {"frequencies": dos.frequencies, "densities": densities}
 
@@ -142,7 +140,6 @@ class PhononDosPlotter:
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-
         u = freq_units(units)
 
         ncolors = max(3, len(self._doses))
@@ -343,7 +340,6 @@ class PhononBSPlotter:
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-
         u = freq_units(units)
 
         plt = pretty_plot(12, 8)
@@ -444,7 +440,6 @@ class PhononBSPlotter:
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-
         from matplotlib.collections import LineCollection
 
         from pymatgen.electronic_structure.plotter import BSDOSPlotter
@@ -618,7 +613,6 @@ class PhononBSPlotter:
         Returns:
             a matplotlib object with both band structures
         """
-
         u = freq_units(units)
 
         data_orig = self.bs_plot_data()
@@ -644,7 +638,6 @@ class PhononBSPlotter:
         """
         plot the Brillouin zone
         """
-
         # get labels and lines
         labels = {}
         for q in self._bs.qpoints:
@@ -696,7 +689,6 @@ class ThermoPlotter:
         Returns:
             matplotlib figure
         """
-
         ax, fig, plt = get_ax_fig_plt(ax)
 
         values = []
@@ -886,7 +878,6 @@ class GruneisenPlotter:
         Args:
             gruneisen: GruneisenParameter Object
         """
-
         self._gruneisen = gruneisen
 
     def get_plot(self, marker="o", markersize=None, units="thz"):
@@ -899,7 +890,6 @@ class GruneisenPlotter:
 
         Returns: plot
         """
-
         u = freq_units(units)
 
         xs = self._gruneisen.frequencies.flatten() * u.factor
@@ -931,7 +921,6 @@ class GruneisenPlotter:
 
         Returns: plot
         """
-
         plt = self.get_plot(units=units)
         plt.show()
 
@@ -945,7 +934,6 @@ class GruneisenPlotter:
 
         Returns:
         """
-
         plt = self.get_plot(units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
@@ -1013,7 +1001,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             ylim: Specify the y-axis (gruneisen) limits; by default None let
                 the code choose.
         """
-
         plt = pretty_plot(12, 8)
 
         # band_linewidth = 1
@@ -1088,7 +1075,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         Returns:
             a matplotlib object with both band structures
         """
-
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
 

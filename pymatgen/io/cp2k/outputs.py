@@ -50,7 +50,6 @@ class Cp2kOutput:
             verbose: (bool) Whether or not to parse with verbosity (will parse lots of data that may not be useful)
             auto_load (bool): Whether or not to automatically load basic info like energies and structures.
         """
-
         # IO Info
         self.filename = filename
         self.dir = os.path.dirname(filename)
@@ -501,7 +500,6 @@ class Cp2kOutput:
         """
         Get the forces from the output file
         """
-
         if len(self.filenames["forces"]) == 1:
             self.data["forces"] = [
                 [list(atom.coords) for atom in step]
@@ -525,7 +523,6 @@ class Cp2kOutput:
         """
         Get the stresses from the output file.
         """
-
         if len(self.filenames["stress"]) == 1:
             dat = np.genfromtxt(self.filenames["stress"][0], skip_header=1)
             dat = [dat] if len(np.shape(dat)) == 1 else dat

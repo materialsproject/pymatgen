@@ -150,7 +150,6 @@ class RemoveSitesTransformation(AbstractTransformation):
         Args:
             indices_to_remove: List of indices to remove. E.g., [0, 1, 2]
         """
-
         self.indices_to_remove = indices_to_remove
 
     def apply_transformation(self, structure):

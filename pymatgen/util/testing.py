@@ -85,7 +85,6 @@ class PymatgenTest(unittest.TestCase):
         Tests if two arrays are almost equal to a tolerance. The CamelCase
         naming is so that it is consistent with standard unittest methods.
         """
-
         for k, v in actual.items():
             if k not in desired:
                 return False

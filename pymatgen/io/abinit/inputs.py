@@ -931,7 +931,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
             kptbounds: k-points defining the path in k-space.
                 If None, we use the default high-symmetry k-path defined in the pymatgen database.
         """
-
         if kptbounds is None:
             from pymatgen.symmetry.bandstructure import HighSymmKpath
 

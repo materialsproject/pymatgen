@@ -439,7 +439,6 @@ class ComputedEntry(Entry):
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
         """
-
         factor = self._normalization_factor(mode)
         new_composition = self._composition / factor
         new_energy = self._energy / factor
@@ -604,7 +603,6 @@ class ComputedStructureEntry(ComputedEntry):
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
         """
-
         if composition:
             composition = Composition(composition)
             if (
@@ -893,7 +891,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
             float: G^delta [eV/atom]
         """
-
         return (
             (-2.48e-4 * np.log(vol_per_atom) - 8.94e-5 * reduced_mass / vol_per_atom) * temp
             + 0.181 * np.log(temp)

@@ -1357,7 +1357,6 @@ class GaussianOutput:
             A list: A list of tuple for each transition such as
                     [(energie (eV), lambda (nm), oscillatory strength), ... ]
         """
-
         transitions = []
 
         # read in file

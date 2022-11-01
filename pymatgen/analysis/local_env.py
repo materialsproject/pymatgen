@@ -337,7 +337,6 @@ class NearNeighbors:
         Returns:
             cn (dict): dictionary of CN of each element bonded to site
         """
-
         siw = self.get_nn_info(structure, n)
 
         cn_dict = {}
@@ -366,7 +365,6 @@ class NearNeighbors:
         Returns:
             sites (list of Site objects): near neighbors.
         """
-
         return [e["site"] for e in self.get_nn_info(structure, n)]
 
     def get_weights_of_nn_sites(self, structure: Structure, n: int):
@@ -380,7 +378,6 @@ class NearNeighbors:
         Returns:
             weights (list of floats): near-neighbor weights.
         """
-
         return [e["weight"] for e in self.get_nn_info(structure, n)]
 
     def get_nn_images(self, structure: Structure, n: int):
@@ -396,7 +393,6 @@ class NearNeighbors:
             images (list of 3D integer array): image locations of
                 near neighbors.
         """
-
         return [e["image"] for e in self.get_nn_info(structure, n)]
 
     def get_nn_info(self, structure: Structure, n: int) -> list[dict]:
@@ -456,7 +452,6 @@ class NearNeighbors:
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`.
         """
-
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
@@ -499,7 +494,6 @@ class NearNeighbors:
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`. Does not update the site positions
         """
-
         if shell <= 0:
             raise ValueError("Shell must be positive")
 
@@ -758,7 +752,6 @@ class VoronoiNN(NearNeighbors):
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
         """
-
         # Assemble the list of neighbors used in the tessellation
         #   Gets all atoms within a certain radius
         if self.targets is None:
@@ -813,7 +806,6 @@ class VoronoiNN(NearNeighbors):
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
         """
-
         # Special case: For atoms with 1 site, the atom in the root image is not
         # included in the get_all_neighbors output. Rather than creating logic to add
         # that atom to the neighbor list, which requires detecting whether it will be
@@ -1009,7 +1001,6 @@ class VoronoiNN(NearNeighbors):
                 of which represents a coordinated site, its image location,
                 and its weight.
         """
-
         # Run the tessellation
         nns = self.get_voronoi_polyhedra(structure, n)
 
@@ -1036,7 +1027,6 @@ class VoronoiNN(NearNeighbors):
         Returns:
             (list of tuples (Site, array, float)): See nn_info
         """
-
         # Get the target information
         if self.targets is None:
             targets = structure.composition.elements
@@ -1148,7 +1138,6 @@ class IsayevNN(VoronoiNN):
         Returns:
             See get_nn_info for the format of the returned data.
         """
-
         # Get the target information
         if self.targets is None:
             targets = structure.composition.elements
@@ -1302,7 +1291,6 @@ class JmolNN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
         site = structure[n]
 
         # Determine relevant bond lengths based on atomic radii table
@@ -1394,7 +1382,6 @@ class MinimumDistanceNN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
         is_periodic = isinstance(structure, (Structure, IStructure))
@@ -1487,7 +1474,6 @@ class OpenBabelNN(NearNeighbors):
             (dict): representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
-
         from pymatgen.io.babel import BabelMolAdaptor
 
         obmol = BabelMolAdaptor(structure).openbabel_mol
@@ -1577,7 +1563,6 @@ class OpenBabelNN(NearNeighbors):
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`.
         """
-
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
@@ -1647,7 +1632,6 @@ class CovalentBondNN(NearNeighbors):
         :return: [dict] representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
-
         # This is unfortunately inefficient, but is the best way to fit the
         # current NearNeighbors scheme
         self.bonds = bonds = structure.get_covalent_bonds(tol=self.tol)
@@ -1687,7 +1671,6 @@ class CovalentBondNN(NearNeighbors):
 
         Returns: a pymatgen.analysis.graphs.MoleculeGraph object
         """
-
         # requires optional dependency which is why it's not a top-level import
         from pymatgen.analysis.graphs import MoleculeGraph
 
@@ -1729,7 +1712,6 @@ class CovalentBondNN(NearNeighbors):
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`.
         """
-
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
@@ -1804,7 +1786,6 @@ class MinimumOKeeffeNN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
         try:
@@ -2425,7 +2406,6 @@ class LocalStructOrderParams:
             int: the number of different order parameters that are targeted
                 to be calculated.
         """
-
         return len(self._types)
 
     @property
@@ -2437,7 +2417,6 @@ class LocalStructOrderParams:
                 that no such calculation has yet been performed for this
                 instance.
         """
-
         return len(self._last_nneigh)
 
     def compute_trigonometric_terms(self, thetas, phis):
@@ -2459,7 +2438,6 @@ class LocalStructOrderParams:
                 neighbors. And, this sequence has to equal the sequence
                 of neighbors in the list of polar angles.
         """
-
         if len(thetas) != len(phis):
             raise ValueError("List of polar and azimuthal angles have to be equal!")
 
@@ -2495,7 +2473,6 @@ class LocalStructOrderParams:
             float: bond orientational order parameter of weight l=2
                 corresponding to the input angles thetas and phis.
         """
-
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
@@ -2562,7 +2539,6 @@ class LocalStructOrderParams:
             float: bond orientational order parameter of weight l=4
                 corresponding to the input angles thetas and phis.
         """
-
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
@@ -2670,7 +2646,6 @@ class LocalStructOrderParams:
             float: bond orientational order parameter of weight l=6
                 corresponding to the input angles thetas and phis.
         """
-
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
@@ -2907,7 +2882,6 @@ class LocalStructOrderParams:
             does not permit calculation of angles between multiple
             neighbors.
         """
-
         # Do error-checking and initialization.
         if n < 0:
             raise ValueError("Site index smaller zero!")
@@ -3929,7 +3903,6 @@ class CrystalNN(NearNeighbors):
                 - a dict of CN -> weight
                 - a dict of CN -> associated near neighbor sites
         """
-
         length = length or self.fingerprint_length
 
         # determine possible bond targets
@@ -4127,7 +4100,6 @@ class CrystalNN(NearNeighbors):
             nndata: (NNData)
             length: (int) desired length of NNData
         """
-
         if length is None:
             return nndata
 
@@ -4219,7 +4191,6 @@ class CutOffDictNN(NearNeighbors):
             the cut-off distances will have to explicitly include
             the oxidation state, e.g. {('Fe2+', 'O2-'): 2.0}
         """
-
         self.cut_off_dict = cut_off_dict or {}
 
         # for convenience
