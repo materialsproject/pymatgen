@@ -307,10 +307,11 @@ def release(ctx, version=None, nodoc=False):
         ctx.run("git add .")
         ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
-    release_github(ctx, version)
-    check_egg_sources_txt_for_completeness()
+    # release_github(ctx, version)
+
     ctx.run("rm -f dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel", warn=True)
+    check_egg_sources_txt_for_completeness()
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
     ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
     # post_discourse(ctx, warn=True)
