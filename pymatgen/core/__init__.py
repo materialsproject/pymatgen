@@ -14,13 +14,21 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
-from .composition import Composition
-from .lattice import Lattice
-from .operations import SymmOp
-from .periodic_table import DummySpecies, Element, Species
-from .sites import PeriodicSite, Site
-from .structure import IMolecule, IStructure, Molecule, Structure
-from .units import ArrayWithUnit, FloatWithUnit, Unit
+from .composition import Composition as Composition
+from .lattice import Lattice as Lattice
+from .operations import SymmOp as SymmOp
+from .periodic_table import DummySpecies as DummySpecies
+from .periodic_table import Element as Element
+from .periodic_table import Species as Species
+from .sites import PeriodicSite as PeriodicSite
+from .sites import Site as Site
+from .structure import IMolecule as IMolecule
+from .structure import IStructure as IStructure
+from .structure import Molecule as Molecule
+from .structure import Structure as Structure
+from .units import ArrayWithUnit as ArrayWithUnit
+from .units import FloatWithUnit as FloatWithUnit
+from .units import Unit as Unit
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
@@ -38,21 +46,19 @@ def _load_pmg_settings() -> dict[str, Any]:
 
     # Load .pmgrc.yaml file
     yaml = YAML()
-    try:
-        with open(SETTINGS_FILE) as yml_file:
-            settings = yaml.load(yml_file) or {}
-    except FileNotFoundError:
+    for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
         try:
-            with open(OLD_SETTINGS_FILE) as yml_file:
-                settings = yaml.load(yml_file)
+            with open(file_path) as yml_file:
+                settings = yaml.load(yml_file) or {}
+            break
         except FileNotFoundError:
-            pass
-    except Exception as ex:
-        # If there are any errors, default to using environment variables
-        # if present.
-        warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
+            continue
+        except Exception as exc:
+            # If there are any errors, default to using environment variables
+            # if present.
+            warnings.warn(f"Error loading {file_path}: {exc}.\nYou may need to reconfigure your yaml file.")
 
-    # Override .pmgrc.yaml with env vars if present
+    # Override .pmgrc.yaml with env vars (if present)
     for key, val in os.environ.items():
         if key.startswith("PMG_"):
             settings[key] = val

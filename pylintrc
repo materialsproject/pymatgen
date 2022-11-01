@@ -169,6 +169,7 @@ disable=raw-checker-failed,
         C0114,
         C0115,
         C0116,
+        C0414,
         C0302,
        # C0209
 

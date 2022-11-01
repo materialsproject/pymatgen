@@ -61,7 +61,7 @@ class Correction(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_correction(self, entry):
+    def get_correction(self, entry: AnyComputedEntry) -> EnergyAdjustment:
         """
         Returns correction and uncertainty for a single entry.
 
@@ -74,7 +74,7 @@ class Correction(metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if entry is not compatible.
         """
-        return
+        raise NotImplementedError
 
     def correct_entry(self, entry):
         """
@@ -133,7 +133,7 @@ class PotcarCorrection(Correction):
 
         Raises:
             ValueError if entry do not contain "potcar_symbols" key.
-            CombatibilityError if wrong potcar symbols
+            CompatibilityError if wrong potcar symbols
         """
         potcar_settings = input_set.CONFIG["POTCAR"]
         if isinstance(list(potcar_settings.values())[-1], dict):
