@@ -406,11 +406,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, fmt: str = None, filename: str = None) -> str | None:
+    def to(self, filename: str = "", fmt: str = "") -> str | None:
         """
-        Generates well-known string representations of SiteCollections (e.g.,
-        molecules / structures). Should return a string type or write to a file.
+        Generates string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
+        molecules / structures). Should return str or None if written to a file.
         """
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
@@ -418,6 +419,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         Reads in SiteCollection from a string.
         """
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
@@ -425,6 +427,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         Reads in SiteCollection from a filename.
         """
+        raise NotImplementedError
 
     def add_site_property(self, property_name: str, values: list):
         """
@@ -2419,19 +2422,19 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge", None)
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, fmt: str = "", filename: str = "", **kwargs) -> str | None:  # type: ignore
+    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str | None:
         """
         Outputs the structure to a file or string.
 
         Args:
+            filename (str): If provided, output will be written to a file. If
+                fmt is not specified, the format is determined from the
+                filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
                 is provided. If fmt is specifies, it overrides whatever the
                 filename is. Options include "cif", "poscar", "cssr", "json",
                 "xsf", "mcsqs", "prismatic", "yaml", "fleur-inpgen".
                 Non-case sensitive.
-            filename (str): If provided, output will be written to a file. If
-                fmt is not specified, the format is determined from the
-                filename. Defaults is None, i.e. string output.
             **kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric cifs.
@@ -3203,19 +3206,19 @@ class IMolecule(SiteCollection, MSONable):
             charge_spin_check=self._charge_spin_check,
         )
 
-    def to(self, fmt: str = None, filename: str = None) -> str | None:
+    def to(self, filename: str = "", fmt: str = "") -> str | None:
         """
         Outputs the molecule to a file or string.
 
         Args:
+            filename (str): If provided, output will be written to a file. If
+                fmt is not specified, the format is determined from the
+                filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
                 is provided. If fmt is specifies, it overrides whatever the
                 filename is. Options include "xyz", "gjf", "g03", "json". If
                 you have OpenBabel installed, any of the formats supported by
                 OpenBabel. Non-case sensitive.
-            filename (str): If provided, output will be written to a file. If
-                fmt is not specified, the format is determined from the
-                filename. Defaults is None, i.e. string output.
 
         Returns:
             (str) if filename is None. None otherwise.
@@ -3224,31 +3227,30 @@ class IMolecule(SiteCollection, MSONable):
         from pymatgen.io.gaussian import GaussianInput
         from pymatgen.io.xyz import XYZ
 
-        fmt = "" if fmt is None else fmt.lower()
-        fname = os.path.basename(filename or "")
+        fmt = fmt.lower()
         writer: Any
-        if fmt == "xyz" or fnmatch(fname.lower(), "*.xyz*"):
+        if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             writer = XYZ(self)
-        elif any(fmt == r or fnmatch(fname.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
+        elif any(fmt == r or fnmatch(filename.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)
-        elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
+        elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as f:
                     json.dump(self.as_dict(), f)
                     return None
             else:
                 return json.dumps(self.as_dict())
-        elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
+        elif fmt == "yaml" or fnmatch(filename, "*.yaml*"):
             yaml = YAML()
             if filename:
-                with zopen(fname, "wt", encoding="utf8") as f:
+                with zopen(filename, "wt", encoding="utf8") as f:
                     return yaml.dump(self.as_dict(), f)
             else:
                 sio = StringIO()
                 yaml.dump(self.as_dict(), sio)
                 return sio.getvalue()
         else:
-            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", fname.lower())
+            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
             if (not fmt) and m:
                 fmt = m.group(1)
             writer = BabelMolAdaptor(self)
