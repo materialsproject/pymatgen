@@ -17,6 +17,7 @@ from string import ascii_lowercase
 from typing import Iterable
 
 import numpy as np
+import tqdm
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
@@ -211,6 +212,7 @@ class MultipleSubstitutionTransformation:
                 (an element can be present in multiple lists)
             charge_balance_species: If specified, will balance the charge on
                 the structure using that specie.
+            order: Whether to order the structures.
         """
         self.sp_to_replace = sp_to_replace
         self.r_fraction = r_fraction
@@ -442,7 +444,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         ewald_matrices = {}
         all_structures = []
         m3gnet_relaxer = None
-        for s in structures:
+        for s in tqdm.tqdm(structures):
             new_latt = s.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
             transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
@@ -1336,7 +1338,6 @@ class DisorderOrderedTransformation(AbstractTransformation):
             (typically, merging two sites into one is the
             one to try first).
             """
-
             partition_indices = [(idx, [len(p) for p in partition]) for idx, partition in enumerate(partitions_to_sort)]
 
             # sort by maximum length of partition first (try smallest maximums first)
@@ -1454,6 +1455,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 will be removed. Default to 0.7.
             quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
                 find the smallest cell.
+
         Returns:
            Grain boundary structure (gb (Structure) object).
         """
@@ -2031,6 +2033,7 @@ class SQSTransformation(AbstractTransformation):
         Args:
             struc_disordered: disordered pymatgen Structure object
             cluster_size_and_shell: dict of integers {cluster: shell}
+
         Returns:
             dict of {cluster size: distance in angstroms} for mcsqs calculation
         """
@@ -2103,6 +2106,7 @@ class SQSTransformation(AbstractTransformation):
             reduction_algo (str): The lattice reduction algorithm to use.
                 Currently supported options are "niggli" or "LLL".
                 "False" does not reduce structure.
+
         Returns:
             list of dicts of the form {'structure': Structure, 'objective_function': ...}, unless run in serial
                 (returns a single structure Sqs.bestsqs)
