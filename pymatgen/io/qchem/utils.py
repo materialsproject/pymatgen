@@ -7,7 +7,7 @@ from collections import defaultdict
 
 import numpy as np
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Evan Spotte-Smith, Xiaohui Qu, Ryan Kingsbury"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 
