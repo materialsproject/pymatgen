@@ -1,6 +1,6 @@
-.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml/badge.svg
+.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
    :alt: CI Status
-   :target: https://github.com/materialsproject/pymatgen/actions/workflows/test-linux.yml
+   :target: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml
 .. image:: https://img.shields.io/pypi/dm/pymatgen?style=flat&color=blue&label=PyPI%20Downloads
    :alt: PyPI Downloads
    :target: https://pypi.org/project/pymatgen
