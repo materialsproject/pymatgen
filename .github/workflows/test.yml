@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8']
+        python-version: ['3.8', '3.11']
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
