@@ -103,6 +103,16 @@ property_list = {
     "beta_eigenvalues",
     "alpha_coeff_matrix",
     "beta_coeff_matrix",
+    "final_soln_phase_e",
+    "solute_internal_e",
+    "total_solvation_free_e",
+    "change_solute_internal_e",
+    "reaction_field_free_e",
+    "isosvp_dielectric",
+    "dispersion_e",
+    "exchange_e",
+    "min_neg_field_e",
+    "max_pos_field_e",
 }
 
 if have_babel:
@@ -184,10 +194,10 @@ multi_job_out_names = {
     "killed.qcout",
     "aux_mpi_time_mol.qcout",
     "new_qchem_files/VCLi_solv_eps10.qcout",
-    # "new_qchem_files/cmirs_benzene.qcout",
-    # "new_qchem_files/cmirs_dielst10.qcout",
-    # "new_qchem_files/isosvp_water.qcout",
-    # "new_qchem_files/isosvp_dielst10.qcout",
+    "new_qchem_files/cmirs_benzene.qcout",
+    "new_qchem_files/cmirs_dielst10.qcout",
+    "new_qchem_files/isosvp_water.qcout",
+    "new_qchem_files/isosvp_dielst10.qcout",
 }
 
 
