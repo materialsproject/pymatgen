@@ -168,9 +168,6 @@ class QCOutput(MSONable):
             self.data["solvent_data"]["PCM_dielectric"] = float(temp_dielectric[0][0])
             self._read_pcm_information()
         elif self.data["solvent_method"] == "SMD":
-            # TODO - is this a bug? It appears that the code block below if the string
-            # 'Unrecognized solvent' is NOT found in the output, but it seems like it
-            # should be the reverse
             if read_pattern(self.text, {"key": r"Unrecognized solvent"}, terminate_on_match=True).get("key") == [[]]:
                 if not self.data.get("completion", []):
                     self.data["errors"] += ["unrecognized_solvent"]
