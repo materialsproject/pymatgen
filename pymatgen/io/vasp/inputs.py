@@ -1737,17 +1737,20 @@ class PotcarSingle:
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
-        atomic_configuration = re.search(r"Atomic configuration\s*\n?" r"(.*?)Description", search_lines)
+        atomic_configuration = re.search(
+            r"(?s)Atomic configuration(.*?)Description",
+            search_lines,
+        )
         if atomic_configuration:
             lines = atomic_configuration.group(1).splitlines()
-            num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
+            num_entries = re.search(r"([0-9]+)", lines[1]).group(1)
             num_entries = int(num_entries)
             PSCTR["nentries"] = num_entries
-            for line in lines[1:]:
+            for line in lines[3:]:
                 orbit = array_search.findall(line)
                 if orbit:
                     orbitals.append(
-                        self.Orbital(
+                        Orbital(
                             int(orbit[0]),
                             int(orbit[1]),
                             float(orbit[2]),
@@ -2121,6 +2124,8 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
+            if k in ("nentries", "Orbitals"):
+                continue
             hash_str += f"{k}"
             if isinstance(v, int):
                 hash_str += f"{v}"

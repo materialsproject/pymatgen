@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import functools
 import warnings
+from typing import Mapping
 
 import numpy as np
 from monty.json import MSONable
@@ -68,6 +69,7 @@ class DOS(Spectrum):
             spin: Possible values are None - finds the gap in the summed
                 densities, Up - finds the gap in the up spin channel,
                 Down - finds the gap in the down spin channel.
+
         Returns:
             (gap, cbm, vbm):
                 Tuple of floats in eV corresponding to the gap, cbm and vbm.
@@ -189,13 +191,12 @@ class Dos(MSONable):
         Fermi level
     """
 
-    def __init__(self, efermi: float, energies: ArrayLike, densities: dict[Spin, ArrayLike]):
+    def __init__(self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike]):
         """
         Args:
             efermi: Fermi level energy
             energies: A sequences of energies
-            densities ({Spin: np.array}): representing the density of states
-                for each Spin.
+            densities (dict[Spin: np.array]): representing the density of states for each Spin.
         """
         self.efermi = efermi
         self.energies = np.array(energies)
@@ -287,7 +288,6 @@ class Dos(MSONable):
             (gap, cbm, vbm):
                 Tuple of floats in eV corresponding to the gap, cbm and vbm.
         """
-
         tdos = self.get_densities(spin)
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
@@ -484,7 +484,7 @@ class FermiDos(Dos, MSONable):
         Returns:
             The doping concentration in units of 1/cm^3. Negative values
             indicate that the majority carriers are electrons (n-type doping)
-            whereas positivie values indicates the majority carriers are holes
+            whereas positive values indicates the majority carriers are holes
             (p-type doping).
         """
         cb_integral = np.sum(
@@ -562,7 +562,7 @@ class FermiDos(Dos, MSONable):
         nstep: int = 50,
         step: float = 0.1,
         precision: int = 8,
-    ):
+    ) -> float:
         """
         Finds the fermi level at which the doping concentration at the given
         temperature (T) is equal to concentration. A greedy algorithm is used
@@ -579,6 +579,9 @@ class FermiDos(Dos, MSONable):
             step: Initial step in energy when searching for the Fermi level.
             precision: Essentially the decimal places of calculated Fermi level.
 
+        Raises:
+            ValueError: If the Fermi level cannot be found.
+
         Returns:
             The fermi level in eV. Note that this is different from the default
             dos.efermi.
@@ -593,7 +596,7 @@ class FermiDos(Dos, MSONable):
             step /= 10.0
 
         if min(relative_error) > rtol:
-            raise ValueError(f"Could not find fermi within {rtol * 100}% of concentration={concentration}")
+            raise ValueError(f"Could not find fermi within {rtol:.1%} of concentration={concentration}")
         return fermi
 
     @classmethod
@@ -640,14 +643,16 @@ class CompleteDos(Dos):
     """
 
     def __init__(
-        self, structure: Structure, total_dos: Dos, pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, ArrayLike]]]
+        self,
+        structure: Structure,
+        total_dos: Dos,
+        pdoss: Mapping[PeriodicSite, Mapping[Orbital, Mapping[Spin, ArrayLike]]],
     ):
         """
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoss: The pdoss are supplied as an {Site:{Orbital:{
-                Spin:Densities}}}
+            pdoss: The pdoss are supplied as an {Site: {Orbital: {Spin:Densities}}}
         """
         super().__init__(
             total_dos.efermi,
@@ -693,13 +698,13 @@ class CompleteDos(Dos):
         Returns:
             dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
         """
-        spd_dos: dict[OrbitalType, dict[Spin, ArrayLike]] = {}
+        spd_dos: dict[OrbitalType, dict[Spin, np.ndarray]] = {}
         for orb, pdos in self.pdos[site].items():
             orbital_type = _get_orb_type(orb)
             if orbital_type in spd_dos:
                 spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
             else:
-                spd_dos[orbital_type] = pdos
+                spd_dos[orbital_type] = pdos  # type: ignore[assignment]
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
     def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> dict[str, Dos]:
@@ -710,8 +715,7 @@ class CompleteDos(Dos):
             site: Site in Structure associated with CompleteDos.
 
         Returns:
-            A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS
-            for the site.
+            dict[str, Dos]: A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS for the site.
         """
         t2g_dos = []
         eg_dos = []
@@ -751,7 +755,6 @@ class CompleteDos(Dos):
         Returns:
             dict of {Element: Dos}
         """
-
         el_dos = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie
@@ -807,7 +810,7 @@ class CompleteDos(Dos):
         n_F_down = n_F[Spin.down]
 
         if (n_F_up + n_F_down) == 0:
-            # only well defined for metals or half-mteals
+            # only well defined for metals or half-metals
             return float("NaN")
 
         spin_polarization = (n_F_up - n_F_down) / (n_F_up + n_F_down)
@@ -858,11 +861,13 @@ class CompleteDos(Dos):
             dos = self.get_spd_dos()[band]
 
         energies = dos.energies - dos.efermi
-        densities = dos.get_densities(spin=spin)
+        dos_densities = dos.get_densities(spin=spin)
 
         # Only consider up to Fermi level in numerator
         energies = dos.energies - dos.efermi
-        band_filling = np.trapz(densities[energies < 0], x=energies[energies < 0]) / np.trapz(densities, x=energies)
+        band_filling = np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(
+            dos_densities, x=energies
+        )
 
         return band_filling
 
@@ -958,7 +963,6 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected skewness in eV
         """
-
         skewness = self.get_n_moment(
             3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
         ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
@@ -993,7 +997,6 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected kurtosis in eV
         """
-
         kurtosis = (
             self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
             / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
@@ -1055,11 +1058,11 @@ class CompleteDos(Dos):
             dos = self.get_spd_dos()[band]
 
         energies = dos.energies - dos.efermi
-        densities = dos.get_densities(spin=spin)
+        dos_densities = dos.get_densities(spin=spin)
 
         # Only consider a given erange, if desired
         if erange:
-            densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
+            dos_densities = dos_densities[(energies >= erange[0]) & (energies <= erange[1])]
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
         # Center the energies about the band center if requested
@@ -1070,7 +1073,7 @@ class CompleteDos(Dos):
             p = energies
 
         # Take the nth moment
-        nth_moment = np.trapz(p**n * densities, x=energies) / np.trapz(densities, x=energies)
+        nth_moment = np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
 
         return nth_moment
 
@@ -1097,6 +1100,7 @@ class CompleteDos(Dos):
             raise ValueError("Both element and site cannot be specified.")
 
         if elements:
+            densities: Mapping[Spin, ArrayLike]
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
                 if i == 0:
@@ -1258,7 +1262,6 @@ class LobsterCompleteDos(CompleteDos):
             A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS
             for the site.
         """
-
         warnings.warn("Are the orbitals correctly oriented? Are you sure?")
         t2g_dos = []
         eg_dos = []
@@ -1337,7 +1340,7 @@ class LobsterCompleteDos(CompleteDos):
         return LobsterCompleteDos(struct, tdos, pdoss)
 
 
-def add_densities(density1: dict[Spin, ArrayLike], density2: dict[Spin, ArrayLike]) -> dict[Spin, ArrayLike]:
+def add_densities(density1: Mapping[Spin, ArrayLike], density2: Mapping[Spin, ArrayLike]) -> dict[Spin, np.ndarray]:
     """
     Method to sum two densities.
 
@@ -1346,7 +1349,7 @@ def add_densities(density1: dict[Spin, ArrayLike], density2: dict[Spin, ArrayLik
         density2: Second density.
 
     Returns:
-        Dict of {spin: density}.
+        dict[Spin, np.ndarray]
     """
     return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1}
 
@@ -1358,13 +1361,16 @@ def _get_orb_type(orb):
         return orb
 
 
-def f0(E, fermi, T):
-    """
-    Returns the equilibrium fermi-dirac.
+def f0(E, fermi, T) -> float:
+    """Returns the equilibrium fermi-dirac.
+
     Args:
         E (float): energy in eV
         fermi (float): the fermi level in eV
         T (float): the temperature in kelvin
+
+    Returns:
+        float
     """
     return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
 
@@ -1372,9 +1378,9 @@ def f0(E, fermi, T):
 def _get_orb_type_lobster(orb):
     """
     Args:
-     orb: string representation of orbital
+        orb: string representation of orbital
     Returns:
-     OrbitalType
+        OrbitalType
     """
     orb_labs = [
         "s",

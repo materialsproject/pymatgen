@@ -304,7 +304,7 @@ def compute_environments(chemenv_configuration):
                         for ce in ces:
                             cg = allcg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += f" - {cg.name} ({cg.mp_symbol}): {100.0 * ce[2]:.2f} % (csm : {csm:2f})\n"
+                            mystring += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
                     if test in ["d", "g"] and strategy.uniquely_determines_coordination_environments:
                         if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
                             mystring += "  <Continuous symmetry measures>  "

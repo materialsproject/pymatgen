@@ -5,6 +5,7 @@
 Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
 """
 
+from __future__ import annotations
 
 import numpy as np
 from monty.dev import requires
@@ -35,21 +36,18 @@ except ImportError:
 
 
 @requires(Phonopy, "phonopy not installed!")
-def get_pmg_structure(phonopy_structure):
+def get_pmg_structure(phonopy_structure: PhonopyAtoms) -> Structure:
     """
     Convert a PhonopyAtoms object to pymatgen Structure object.
 
     Args:
         phonopy_structure (PhonopyAtoms): A phonopy structure object.
-
     """
-
     lattice = phonopy_structure.cell
     frac_coords = phonopy_structure.scaled_positions
     symbols = phonopy_structure.symbols
     masses = phonopy_structure.masses
-    mms = phonopy_structure.magnetic_moments
-    mms = mms or [0] * len(symbols)
+    mms = getattr(phonopy_structure, "magnetic_moments", None) or [0] * len(symbols)
 
     return Structure(
         lattice,
@@ -60,15 +58,13 @@ def get_pmg_structure(phonopy_structure):
 
 
 @requires(Phonopy, "phonopy not installed!")
-def get_phonopy_structure(pmg_structure):
+def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
     """
     Convert a pymatgen Structure object to a PhonopyAtoms object.
 
     Args:
         pmg_structure (pymatgen Structure): A Pymatgen structure object.
-
     """
-
     symbols = [site.specie.symbol for site in pmg_structure]
 
     return PhonopyAtoms(

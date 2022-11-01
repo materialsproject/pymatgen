@@ -115,10 +115,10 @@ class TransformedPDEntryTest(unittest.TestCase):
 
     def test_get_energy(self):
         assert self.transformed_entry.energy == 53, "Wrong energy!"
-        assert round(abs(self.transformed_entry.original_entry.energy - 53.0), 11) == 0
+        assert self.transformed_entry.original_entry.energy == pytest.approx(53.0)
 
     def test_get_energy_per_atom(self):
-        assert round(abs(self.transformed_entry.energy_per_atom - 53.0 / (23 / 15)), 11) == 0
+        assert self.transformed_entry.energy_per_atom == pytest.approx(53.0 / (23 / 15))
 
     def test_get_name(self):
         assert self.transformed_entry.name == "LiFeO2", "Wrong name!"
@@ -135,7 +135,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         d = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(d)
         assert entry.name == "LiFeO2", "Wrong name!"
-        assert round(abs(entry.energy_per_atom - 53.0 / (23 / 15)), 11) == 0
+        assert entry.energy_per_atom == pytest.approx(53.0 / (23 / 15))
 
     def test_str(self):
         assert str(self.transformed_entry) is not None
@@ -238,7 +238,7 @@ class PhaseDiagramTest(unittest.TestCase):
             "O2": 0.0,
         }
         for formula, energy in expected_formation_energies.items():
-            assert round(abs(energy - stable_formation_energies[formula]), 7) == 0
+            assert energy == pytest.approx(stable_formation_energies[formula])
 
     def test_all_entries_hulldata(self):
         assert len(self.pd.all_entries_hulldata) == 490
@@ -332,7 +332,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 if entry.is_element:
                     el_ref = self.pd.el_refs[entry.composition.elements[0]]
                     e_d = entry.energy_per_atom - el_ref.energy_per_atom
-                    assert round(abs(self.pd.get_phase_separation_energy(entry) - e_d), 7) == 0
+                    assert self.pd.get_phase_separation_energy(entry) == pytest.approx(e_d)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
 
@@ -345,15 +345,8 @@ class PhaseDiagramTest(unittest.TestCase):
                 assert (
                     self.pd.get_phase_separation_energy(entry) <= 0
                 ), "Stable entries should have negative decomposition energy!"
-                assert (
-                    round(
-                        abs(
-                            self.pd.get_phase_separation_energy(entry, stable_only=True)
-                            - self.pd.get_equilibrium_reaction_energy(entry)
-                        ),
-                        7,
-                    )
-                    == 0
+                assert self.pd.get_phase_separation_energy(entry, stable_only=True) == pytest.approx(
+                    self.pd.get_equilibrium_reaction_energy(entry)
                 ), (
                     "Using `stable_only=True` should give decomposition energy equal to " "equilibrium reaction energy!"
                 )
@@ -369,9 +362,9 @@ class PhaseDiagramTest(unittest.TestCase):
         toy_pd = PhaseDiagram([PDEntry(c, e) for c, e in toy_entries.items()])
 
         # stable entry
-        assert round(abs(toy_pd.get_phase_separation_energy(PDEntry("Li2O", -5)) - -1.0), 7) == 0
+        assert toy_pd.get_phase_separation_energy(PDEntry("Li2O", -5)) == pytest.approx(-1.0)
         # polymorph
-        assert round(abs(toy_pd.get_phase_separation_energy(PDEntry("Li2O", -4)) - -2.0 / 3.0), 7) == 0
+        assert toy_pd.get_phase_separation_energy(PDEntry("Li2O", -4)) == pytest.approx(-2.0 / 3.0)
 
         # Test that the method works for novel entries
         novel_stable_entry = PDEntry("Li5FeO4", -999)
@@ -418,7 +411,7 @@ class PhaseDiagramTest(unittest.TestCase):
             "Fe6 O8": 0.33333333333333393,
         }
         for k, v in expected_ans.items():
-            assert round(abs(ansdict[k] - v), 7) == 0
+            assert ansdict[k] == pytest.approx(v)
 
     def test_get_transition_chempots(self):
         for el in self.pd.elements:
@@ -449,8 +442,8 @@ class PhaseDiagramTest(unittest.TestCase):
         ]
         result = self.pd.get_element_profile(Element("O"), Composition("Li2O"))
         for d1, d2 in zip(expected, result):
-            assert round(abs(d1["evolution"] - d2["evolution"]), 7) == 0
-            assert round(abs(d1["chempot"] - d2["chempot"]), 7) == 0
+            assert d1["evolution"] == pytest.approx(d2["evolution"])
+            assert d1["chempot"] == pytest.approx(d2["chempot"])
             assert d1["reaction"] == str(d2["reaction"])
 
     def test_get_get_chempot_range_map(self):
@@ -459,7 +452,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_getmu_vertices_stability_phase(self):
         results = self.pd.getmu_vertices_stability_phase(Composition("LiFeO2"), Element("O"))
-        assert round(abs(len(results) - 6), 7) == 0
+        assert len(results) == pytest.approx(6)
         test_equality = False
         for c in results:
             if (
@@ -472,28 +465,28 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_getmu_range_stability_phase(self):
         results = self.pd.get_chempot_range_stability_phase(Composition("LiFeO2"), Element("O"))
-        assert round(abs(results[Element("O")][1] - -4.4501812249999997), 7) == 0
-        assert round(abs(results[Element("Fe")][0] - -6.5961470999999996), 7) == 0
-        assert round(abs(results[Element("Li")][0] - -3.6250022625000007), 7) == 0
+        assert results[Element("O")][1] == pytest.approx(-4.4501812249999997)
+        assert results[Element("Fe")][0] == pytest.approx(-6.5961470999999996)
+        assert results[Element("Li")][0] == pytest.approx(-3.6250022625000007)
 
     def test_get_hull_energy(self):
         for entry in self.pd.stable_entries:
             h_e = self.pd.get_hull_energy(entry.composition)
-            assert round(abs(h_e - entry.energy), 7) == 0
+            assert h_e == pytest.approx(entry.energy)
             n_h_e = self.pd.get_hull_energy(entry.composition.fractional_composition)
-            assert round(abs(n_h_e - entry.energy_per_atom), 7) == 0
+            assert n_h_e == pytest.approx(entry.energy_per_atom)
 
     def test_get_hull_energy_per_atom(self):
         for entry in self.pd.stable_entries:
             h_e = self.pd.get_hull_energy_per_atom(entry.composition)
-            assert round(abs(h_e - entry.energy_per_atom), 7) == 0
+            assert h_e == pytest.approx(entry.energy_per_atom)
 
     def test_1d_pd(self):
         entry = PDEntry("H", 0)
         pd = PhaseDiagram([entry])
         decomp, e = pd.get_decomp_and_e_above_hull(PDEntry("H", 1))
-        assert round(abs(e - 1), 7) == 0
-        assert round(abs(decomp[entry] - 1.0), 7) == 0
+        assert e == 1
+        assert decomp[entry] == pytest.approx(1.0)
 
     def test_get_critical_compositions_fractional(self):
         c1 = Composition("Fe2O3").fractional_composition
@@ -582,7 +575,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
         cp = self.pd.get_composition_chempots(c1)
         calc_e2 = e1 + sum(cp[k] * v for k, v in (c2 - c1).items())
-        assert round(abs(e2 - calc_e2), 7) == 0
+        assert e2 == pytest.approx(calc_e2)
 
     def test_get_all_chempots(self):
         c1 = Composition("Fe3.1O4")
@@ -596,7 +589,7 @@ class PhaseDiagramTest(unittest.TestCase):
         }
 
         for elem, energy in cpresult.items():
-            assert round(abs(cp1["Fe3O4-FeO-LiFeO2"][elem] - energy), 7) == 0
+            assert cp1["Fe3O4-FeO-LiFeO2"][elem] == pytest.approx(energy)
 
         cp2 = self.pd.get_all_chempots(c2)
         cpresult = {
@@ -606,7 +599,7 @@ class PhaseDiagramTest(unittest.TestCase):
         }
 
         for elem, energy in cpresult.items():
-            assert round(abs(cp2["FeO-LiFeO2-Fe"][elem] - energy), 7) == 0
+            assert cp2["FeO-LiFeO2-Fe"][elem] == pytest.approx(energy)
 
     def test_to_from_dict(self):
         # test round-trip for other entry types such as ComputedEntry
@@ -653,8 +646,8 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
             "Li2O2": 0.0,
         }
         for formula, energy in expected_formation_energies.items():
-            assert (
-                round(abs(energy - stable_formation_energies[formula]), 7) == 0
+            assert energy == pytest.approx(
+                stable_formation_energies[formula]
             ), f"Calculated formation for {formula} is not correct!"
 
     def test_str(self):
@@ -681,7 +674,7 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
             "Li2O": 0,
         }
         for formula, energy in expected_formation_energies.items():
-            assert round(abs(energy - stable_formation_energies[formula]), 7) == 0
+            assert energy == pytest.approx(stable_formation_energies[formula])
 
     def test_str(self):
         assert str(self.pd) is not None

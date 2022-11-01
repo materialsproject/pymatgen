@@ -5,6 +5,8 @@
 Module containing classes to generate grain boundaries.
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 import warnings
