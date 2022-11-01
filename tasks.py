@@ -307,7 +307,7 @@ def release(ctx, version=None, nodoc=False):
         ctx.run("git add .")
         ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
-    # release_github(ctx, version)
+    release_github(ctx, version)
 
     ctx.run("rm -f dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel", warn=True)
