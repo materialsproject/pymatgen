@@ -341,14 +341,12 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 the number of disordered sites in the cell exceeds
                 max_disordered_sites. Must set max_cell_size to None when using
                 this parameter.
-            sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
-                states and slow) or by M3GNet energy ("m3gnet", which is the most
-                accurate but most expensive - needs m3gnet package installed.), or
-                by number of sites ("nsites", much faster, the default). If m3gnet
-                is selected, the structures are also relaxed. The expense of m3gnet
-                can be worth it if it significantly reduces the number of structures
-                to be considered and the pre-relaxation speeds up the subsequent DFT
-                calculations.
+            sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation states and slow) or M3GNet relaxed
+                energy ("m3gnet_relax", which is the most accurate but most expensive and provides pre-relaxed
+                structures - needs m3gnet package installed) or by M3GNet static energy ("m3gnet_static"), or
+                by number of sites ("nsites", the fastest, the default). The expense of m3gnet_relax or m3gnet_static
+                can be worth it if it significantly reduces the number of structures to be considered. m3gnet_relax
+                speeds up the subsequent DFT calculations.
             timeout (float): timeout in minutes to pass to EnumlibAdaptor
         """
         self.symm_prec = symm_prec
@@ -443,7 +441,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
         all_structures = []
-        m3gnet_relaxer = None
+        m3gnet_model = None
         for s in tqdm.tqdm(structures):
             new_latt = s.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
@@ -457,18 +455,32 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     ewald = ewald_matrices[transformation]
                 energy = ewald.compute_sub_structure(s)
                 all_structures.append({"num_sites": len(s), "energy": energy, "structure": s})
-            elif self.sort_criteria == "m3gnet":
-                if m3gnet_relaxer is None:
-                    from m3gnet.models import Relaxer
+            elif self.sort_criteria.startswith("m3gnet"):
+                if self.sort_criteria == "m3gnet_relax":
+                    if m3gnet_model is None:
+                        from m3gnet.models import Relaxer
 
-                    m3gnet_relaxer = Relaxer()
-                relax_results = m3gnet_relaxer.relax(s)
+                        m3gnet_model = Relaxer()
+                    relax_results = m3gnet_model.relax(s)
+                    energy = float(relax_results["trajectory"].energies[-1])
+                    s = relax_results["final_structure"]
+                else:
+                    if m3gnet_model is None:
+                        from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+
+                        potential = Potential(M3GNet.load())
+                        m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
+                    from pymatgen.io.ase import AseAtomsAdaptor
+
+                    atoms = AseAtomsAdaptor().get_atoms(s)
+                    m3gnet_model.calculate(atoms)
+                    energy = float(m3gnet_model.results["energy"])
 
                 all_structures.append(
                     {
                         "num_sites": len(s),
-                        "energy": float(relax_results["trajectory"].energies[-1]),
-                        "structure": relax_results["final_structure"],
+                        "energy": energy,
+                        "structure": s,
                     }
                 )
             else:
