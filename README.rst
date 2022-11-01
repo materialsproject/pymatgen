@@ -178,7 +178,7 @@ About the Pymatgen Development Team
 Shyue Ping Ong of the `Materials Virtual Lab`_ started Pymatgen in 2011, and is
 still the project lead.
 
-The Pymatgen Development Team is the set of all contributors to the
+The `Pymatgen Development Team`_ is the set of all contributors to the
 pymatgen project, including all subprojects.
 
 Our Copyright Policy
@@ -203,3 +203,4 @@ to indicate the copyright and license terms::
 .. _`pymatgen page` : http://www.pymatgen.org
 .. _`Materials Project` : https://www.materialsproject.org
 .. _`Materials Virtual Lab`: http://www.materialsvirtuallab.org
+.. _`Pymatgen Development Team`: https://pymatgen.org/team
