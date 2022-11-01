@@ -364,7 +364,6 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             corrected inchi labels of heavy atoms of the second molecule
         """
-
         nvirtual = vmol1.NumAtoms()
         nheavy = len(ilabel1)
 
@@ -836,7 +835,6 @@ class KabschMatcher(MSONable):
         Returns:
             U: 3x3 rotation matrix
         """
-
         # Computation of the cross-covariance matrix
         C = np.dot(P.T, Q)
 
@@ -880,7 +878,6 @@ class BruteForceOrderMatcher(KabschMatcher):
             V: Translation vector
             rmsd: Root mean squared deviation between P and Q
         """
-
         q = self.target
 
         if sorted(p.atomic_numbers) != sorted(q.atomic_numbers):
@@ -946,7 +943,6 @@ class BruteForceOrderMatcher(KabschMatcher):
             p_prime: Rotated and translated of the `p` `Molecule` object
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-
         inds, U, V, rmsd = self.match(p, ignore_warning=ignore_warning)
 
         p_prime = Molecule.from_sites([p[i] for i in inds])
@@ -990,7 +986,6 @@ class HungarianOrderMatcher(KabschMatcher):
             V: Translation vector
             rmsd: Root mean squared deviation between P and Q
         """
-
         if sorted(p.atomic_numbers) != sorted(self.target.atomic_numbers):
             raise ValueError("The number of the same species aren't matching!")
 
@@ -1039,7 +1034,6 @@ class HungarianOrderMatcher(KabschMatcher):
             p_prime: Rotated and translated of the `p` `Molecule` object
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-
         inds, U, V, rmsd = self.match(p)
 
         # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
@@ -1131,7 +1125,6 @@ class HungarianOrderMatcher(KabschMatcher):
         Returns:
             Array of dim 3 containing the principal axis
         """
-
         Ixx = Iyy = Izz = Ixy = Ixz = Iyz = 0.0
 
         for (x, y, z), wt in zip(coords, weights):
@@ -1165,7 +1158,6 @@ class HungarianOrderMatcher(KabschMatcher):
         Returns:
             3x3 rotation matrix
         """
-
         if np.allclose(v1, v2):
             # same direction
             return np.eye(3)
@@ -1280,7 +1272,6 @@ class GeneticOrderMatcher(KabschMatcher):
         Returns:
             Array of index arrays
         """
-
         # caching atomic numbers and coordinates
         p_atoms, q_atoms = p.atomic_numbers, self.target.atomic_numbers
         p_coords, q_coords = p.cart_coords, self.target.cart_coords

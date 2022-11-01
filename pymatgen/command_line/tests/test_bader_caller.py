@@ -101,7 +101,6 @@ class BaderAnalysisTest(unittest.TestCase):
             'reference_used': True
         }
         """
-
         self.assertEqual(
             set(summary),
             {

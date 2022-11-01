@@ -282,7 +282,6 @@ class Ion(Composition, MSONable, Stringify):
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-
         return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]
 
     def __eq__(self, other: object) -> bool:

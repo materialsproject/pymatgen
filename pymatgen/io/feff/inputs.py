@@ -758,7 +758,6 @@ class Tags(dict):
             key: Feff parameter key
             val: Actual value of Feff parameter.
         """
-
         list_type_keys = list(VALID_FEFF_TAGS)
         del list_type_keys[list_type_keys.index("ELNES")]
         del list_type_keys[list_type_keys.index("EXELFS")]
@@ -920,7 +919,6 @@ class Potential(MSONable):
         Returns:
             forward and reverse atom symbol and potential number dictionaries.
         """
-
         pot_dict = {}
         pot_dict_reverse = {}
         begin = 0

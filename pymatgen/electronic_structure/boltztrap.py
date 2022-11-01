@@ -557,7 +557,6 @@ class BoltztrapRunner(MSONable):
 
         Returns:
         """
-
         # TODO: consider making this a part of custodian rather than pymatgen
         # A lot of this functionality (scratch dirs, handlers, monitors)
         # is built into custodian framework
@@ -1366,7 +1365,6 @@ class BoltztrapAnalyzer:
             if 'tensor' is selected, each element of the lists is a list containing
             the three components of the seebeck effective mass.
         """
-
         if doping_levels:
             sbk_mass = {}
             for dt in ("n", "p"):
@@ -1423,7 +1421,6 @@ class BoltztrapAnalyzer:
             if 'tensor' is selected, each element of the lists is a list containing
             the three components of the complexity factor.
         """
-
         if doping_levels:
             cmplx_fact = {}
             for dt in ("n", "p"):
@@ -1688,7 +1685,6 @@ class BoltztrapAnalyzer:
             (in cm^-3) at each temperature
             The array relates to each step of electron chemical potential
         """
-
         return {temp: [1e24 * i / self.vol for i in self._carrier_conc[temp]] for temp in self._carrier_conc}
 
     def get_hall_carrier_concentration(self):
@@ -1757,7 +1753,6 @@ class BoltztrapAnalyzer:
         Returns:
             tuple - (DOS, dict of partial DOS)
         """
-
         data_dos = {"total": [], "partial": {}}
         # parse the total DOS data
         # format is energy, DOS, integrated DOS
@@ -1871,7 +1866,6 @@ class BoltztrapAnalyzer:
             mu_doping, seebeck_doping, cond_doping, kappa_doping,
             hall_doping, carrier_conc
         """
-
         # Step 1: parse raw data but do not convert to final format
         t_steps = set()
         mu_steps = set()

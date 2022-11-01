@@ -453,7 +453,6 @@ class EwaldSummation(MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details.
         """
-
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

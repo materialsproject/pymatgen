@@ -813,7 +813,6 @@ class QCOutput(MSONable):
         """
         Parses all gradients obtained during an optimization trajectory
         """
-
         grad_header_pattern = r"Gradient of (?:SCF)?(?:MP2)? Energy(?: \(in au\.\))?"
         footer_pattern = r"(?:Max gradient component|Gradient time)"
 
@@ -1249,7 +1248,6 @@ class QCOutput(MSONable):
         """
         Parses information from PCM solvent calculations.
         """
-
         temp_dict = read_pattern(
             self.text,
             {
@@ -1281,7 +1279,6 @@ class QCOutput(MSONable):
         """
         Parses information from SMD solvent calculations.
         """
-
         temp_dict = read_pattern(
             self.text,
             {

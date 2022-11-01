@@ -42,7 +42,6 @@ class BornEffectiveCharge:
             input_matrix (Nx3x3 array-like): the Nx3x3 array-like
                 representing the born effective charge tensor
         """
-
         self.structure = structure
         self.bec = bec
         self.pointops = pointops
@@ -121,7 +120,6 @@ class BornEffectiveCharge:
         Return:
             np.array Born effective charge tensor
         """
-
         struct = self.structure
         symstruc = sga(struct)
         symstruc = symstruc.get_symmetrized_structure()
@@ -186,7 +184,6 @@ class InternalStrainTensor:
             input_matrix (Nx3x3x3 array-like): the Nx3x3x3 array-like
                 representing the internal strain tensor
         """
-
         self.structure = structure
         self.ist = ist
         self.pointops = pointops
@@ -212,7 +209,6 @@ class InternalStrainTensor:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
-
         struct = self.structure
         ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
@@ -248,7 +244,6 @@ class InternalStrainTensor:
         Return:
             InternalStrainTensor object
         """
-
         l = len(self.structure)
         IST = np.zeros((l, 3, 3, 3))
         for atom, ops in enumerate(self.IST_operations):
@@ -285,7 +280,6 @@ class ForceConstantMatrix:
             input_matrix (NxNx3x3 array-like): the NxNx3x3 array-like
                 representing the force constant matrix
         """
-
         self.structure = structure
         self.fcm = fcm
         self.pointops = pointops
@@ -384,7 +378,6 @@ class ForceConstantMatrix:
         Return:
             numpy array representing the force constant matrix
         """
-
         struct = self.structure
         operations = self.FCM_operations
         # set max force in reciprocal space
@@ -447,7 +440,6 @@ class ForceConstantMatrix:
         Return:
             3Nx3N numpy array representing the force constant matrix
         """
-
         operations = self.FCM_operations
         D = unsymmetrized_fcm
         for op in operations:
@@ -512,7 +504,6 @@ class ForceConstantMatrix:
         Return:
             3Nx3N numpy array representing the force constant matrix
         """
-
         check = 0
         count = 0
         while check == 0:

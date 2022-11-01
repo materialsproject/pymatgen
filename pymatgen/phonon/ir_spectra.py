@@ -173,7 +173,6 @@ class IRDielectricTensor(MSONable):
             emin, emax: minimum and maximum energy in which to obtain the spectra
             divs: number of frequency samples between emin and emax
         """
-
         directions_map = {"x": 0, "y": 1, "z": 2, 0: 0, 1: 1, 2: 2}
         reim_label = {"re": "Re", "im": "Im"}
 

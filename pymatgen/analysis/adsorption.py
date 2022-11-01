@@ -164,7 +164,6 @@ class AdsorbateSiteFinder:
         Returns:
             list of sites selected to be within a threshold of the highest
         """
-
         # Get projection of coordinates along the miller index
         m_projs = np.array([np.dot(site.coords, self.mvec) for site in slab.sites])
 
@@ -482,7 +481,6 @@ class AdsorbateSiteFinder:
             find_args (dict): dictionary of arguments to be passed to the
                 call to self.find_adsorption_sites, e.g. {"distance":2.0}
         """
-
         # Get the adsorbed surfaces first
         find_args = find_args or {}
         ad_slabss = self.generate_adsorption_structures(
@@ -545,7 +543,6 @@ class AdsorbateSiteFinder:
             dist_from_surf (float): Distance from the surface to find viable
                 substitution sites, defaults to 0 to substitute at the surface
         """
-
         target_species = target_species or []
 
         # Get symmetrized structure in case we want to substitute both sides

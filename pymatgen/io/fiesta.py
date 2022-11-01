@@ -45,7 +45,6 @@ class Nwchem2Fiesta(MSONable):
 
         the run method launches NWCHEM2FIESTA
         """
-
         self.folder = folder
         self.filename = filename
         self.log_file = log_file
@@ -59,7 +58,6 @@ class Nwchem2Fiesta(MSONable):
         """
         Performs actual NWCHEM2FIESTA run
         """
-
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
@@ -132,7 +130,6 @@ class FiestaRun(MSONable):
         """
         Performs FIESTA (gw) run
         """
-
         if self.folder != os.getcwd():
             init_folder = os.getcwd()
             os.chdir(self.folder)
@@ -158,7 +155,6 @@ class FiestaRun(MSONable):
         """
         Performs BSE run
         """
-
         if self.folder != os.getcwd():
             init_folder = os.getcwd()
             os.chdir(self.folder)
@@ -274,7 +270,6 @@ class BasisSetReader:
         """
         :return: the number of nlm orbitals for the basis set
         """
-
         nnlmo = 0
 
         data_tmp = self.data
@@ -327,7 +322,6 @@ class FiestaInput(MSONable):
         :param GW_options: dict
         :param BSE_TDDFT_options: dict
         """
-
         self._mol = mol
         self.correlation_grid = correlation_grid or {"dE_grid": "0.500", "n_grid": "14"}
         self.Exc_DFT_option = Exc_DFT_option or {"rdVxcpsi": "1"}
@@ -357,7 +351,6 @@ class FiestaInput(MSONable):
         :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must
             be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find "aug_cc_pvtz"
         """
-
         list_files = os.listdir(auxiliary_folder)
 
         for specie in self._mol.symbol_set:
@@ -373,7 +366,6 @@ class FiestaInput(MSONable):
         :param n_iteration: number of iteration
         :param n_grid and dE_grid:: number of points and spacing in eV for correlation grid
         """
-
         self.GW_options.update(nv_corr=nv_band, nc_corr=nc_band, nit_gw=n_iteration)
         self.correlation_grid.update(dE_grid=dE_grid, n_grid=n_grid)
 
@@ -382,7 +374,6 @@ class FiestaInput(MSONable):
         """
         mkdir "FULL_BSE_Densities" folder (needed for bse run) in the desired folder
         """
-
         if os.path.exists(folder + "/FULL_BSE_Densities"):
             return "FULL_BSE_Densities folder already exists"
 
@@ -404,7 +395,6 @@ class FiestaInput(MSONable):
         :param BSE_dump: boolean
         :return: set the "do_bse" variable to one in cell.in
         """
-
         if BSE_dump:
             self.BSE_TDDFT_options.update(do_bse=1, do_tddft=0)
         else:
@@ -425,7 +415,6 @@ class FiestaInput(MSONable):
         """
         Returns infos on initial parameters as in the log file of Fiesta
         """
-
         o = []
         o.append("=========================================")
         o.append("Reading infos on system:")
@@ -604,7 +593,6 @@ $geometry
         Returns:
             FiestaInput object
         """
-
         correlation_grid = {}
         Exc_DFT_option = {}
         COHSEX_options = {}

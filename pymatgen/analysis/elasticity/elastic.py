@@ -97,7 +97,6 @@ class NthOrderElasticTensor(Tensor):
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
         """
-
         Args:
             strains ():
             stresses ():
@@ -155,7 +154,6 @@ class ElasticTensor(NthOrderElasticTensor):
 
             tol (float): tolerance for initial symmetry test of tensor
         """
-
         obj = super().__new__(cls, input_array, check_rank=4, tol=tol)
         return obj.view(cls)
 

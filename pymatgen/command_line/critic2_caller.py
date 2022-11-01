@@ -80,7 +80,6 @@ class Critic2Caller:
 
         :param input_script: string defining the critic2 input
         """
-
         # store if examining the input script is useful,
         # not otherwise used
         self._input_script = input_script
@@ -179,7 +178,6 @@ class Critic2Caller:
         (ZVAL in VASP pseudopotential), with which to properly augment core regions
         and calculate charge transfer. Optional.
         """
-
         settings = {"CPEPS": 0.1, "SEED": ["WS", "PAIR DIST 10"]}
         if user_input_settings:
             settings.update(user_input_settings)
@@ -272,7 +270,6 @@ class Critic2Caller:
         :param zpsp: manually specify ZPSP if POTCAR not present
         :return:
         """
-
         chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
         chgcar_ref = None
@@ -465,7 +462,6 @@ class Critic2Analysis(MSONable):
         (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
         Optional.
         """
-
         self.structure = structure
 
         self._stdout = stdout
@@ -501,7 +497,6 @@ class Critic2Analysis(MSONable):
 
         Returns: a StructureGraph
         """
-
         structure = self.structure.copy()
 
         point_idx_to_struct_idx = {}
@@ -684,7 +679,6 @@ class Critic2Analysis(MSONable):
         Re-maps indices on self.nodes and self.edges such that node indices match
         that of structure, and then sorts self.nodes by index.
         """
-
         # Order of nuclei provided by critic2 doesn't
         # necessarily match order of sites in Structure.
         # This is because critic2 performs a symmetrization step.

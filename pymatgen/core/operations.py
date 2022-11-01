@@ -205,7 +205,6 @@ class SymmOp(MSONable):
         Returns:
             (are_related, is_reversed)
         """
-
         from_c = self.operate(from_a)
         to_c = self.operate(to_a)
 
@@ -567,7 +566,6 @@ class MagSymmOp(SymmOp):
         Returns:
             Magnetic moment after operator applied as Magmom class
         """
-
         magmom = Magmom(magmom)  # type casting to handle lists as input
 
         transformed_moment = (

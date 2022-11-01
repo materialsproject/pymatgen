@@ -213,7 +213,6 @@ class Lattice(MSONable):
         Returns:
             d_hkl (float)
         """
-
         gstar = self.reciprocal_lattice_crystallographic.metric_tensor
         hkl = np.array(miller_index)
         return 1 / ((dot(dot(hkl, gstar), hkl.T)) ** (1 / 2))
@@ -349,7 +348,6 @@ class Lattice(MSONable):
         Returns:
             Lattice with the specified lattice parameters.
         """
-
         angles_r = np.radians([alpha, beta, gamma])
         cos_alpha, cos_beta, cos_gamma = np.cos(angles_r)
         sin_alpha, sin_beta, sin_gamma = np.sin(angles_r)
@@ -971,7 +969,6 @@ class Lattice(MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details.
         """
-
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

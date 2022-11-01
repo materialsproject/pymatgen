@@ -1131,7 +1131,6 @@ class IcohpCollection(MSONable):
         Returns:
             float describing ICOHP/ICOOP value
         """
-
         icohp_here = self._icohplist[label]
         if icohp_here._is_spin_polarized:
             if summed_spin_channels:
@@ -1206,7 +1205,6 @@ class IcohpCollection(MSONable):
         Returns:
              dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
-
         newicohp_dict = {}
         for key, value in self._icohplist.items():
             atomnumber1 = int(re.split(r"(\d+)", value._atom1)[1]) - 1

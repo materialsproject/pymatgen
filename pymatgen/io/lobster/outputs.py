@@ -210,7 +210,6 @@ class Cohpcar:
             indices, a tuple containing the orbitals (if orbital-resolved),
             and a label for the orbitals (if orbital-resolved).
         """
-
         orb_labs = [
             "s",
             "p_y",
@@ -661,7 +660,6 @@ class Charge:
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties
         """
-
         struct = Structure.from_file(structure_filename)
         Mulliken = self.Mulliken
         Loewdin = self.Loewdin
@@ -829,7 +827,6 @@ class Lobsterout:
 
     def get_doc(self):
         """
-
         Returns: LobsterDict with all the information stored in lobsterout
         """
         LobsterDict = {}
@@ -1261,7 +1258,6 @@ class Fatband:
         """
         returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter
         """
-
         return LobsterBandStructureSymmLine(
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,
@@ -1343,7 +1339,6 @@ class Bandoverlaps:
         Returns:
              Boolean that will give you information about the quality of the projection
         """
-
         for deviation in self.max_deviation:
             if deviation > limit_maxDeviation:
                 return False
@@ -1368,7 +1363,6 @@ class Bandoverlaps:
         Returns:
              Boolean that will give you information about the quality of the projection
         """
-
         for matrix in self.bandoverlapsdict[Spin.up].values():
             for iband1, band1 in enumerate(matrix["matrix"]):
                 for iband2, band2 in enumerate(band1):
@@ -1442,7 +1436,6 @@ class Grosspop:
         Returns:
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties
         """
-
         struct = Structure.from_file(structure_filename)
         site_properties: dict[str, Any] = {}
         mullikengp = []
@@ -1486,12 +1479,10 @@ class Wavefunction:
 
     def __init__(self, filename, structure):
         """
-
         Args:
             filename: filename of wavecar file from Lobster
             structure: Structure object (e.g., created by Structure.from_file(""))
         """
-
         self.filename = filename
         self.structure = structure
 
@@ -1595,7 +1586,6 @@ class Wavefunction:
 
         Returns: VolumetricData object
         """
-
         if not hasattr(self, "volumetricdata_real"):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_real
@@ -1666,11 +1656,9 @@ class MadelungEnergies:
 
     def __init__(self, filename: str = "MadelungEnergies.lobster"):
         """
-
         Args:
             filename: filename of the "MadelungEnergies.lobster" file
         """
-
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[5]
         if len(data) == 0:
@@ -1708,7 +1696,6 @@ class SitePotential:
         Args:
             filename: filename for the SitePotentials file, typically "SitePotentials.lobster"
         """
-
         # site_potentials
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")
@@ -1741,7 +1728,6 @@ class SitePotential:
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties
         """
-
         struct = Structure.from_file(structure_filename)
         Mulliken = self.sitepotentials_Mulliken
         Loewdin = self.sitepotentials_Loewdin

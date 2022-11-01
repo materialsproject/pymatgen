@@ -304,7 +304,6 @@ class DftSet(Cp2kInputSet):
             smearing (bool): whether or not to activate smearing (should be done for systems containing no (or a very
                 small) band gap.
         """
-
         super().__init__(structure, **kwargs)
 
         self.structure = structure

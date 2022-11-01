@@ -180,7 +180,6 @@ class ChargemolAnalysis:
                 Default: None.
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-
         with ScratchDir("."):
             with zopen(self._chgcarpath, "rt") as f_in:
                 with open("CHGCAR", "wt") as f_out:
@@ -439,7 +438,6 @@ class ChargemolAnalysis:
         Args:
             filepath (str): The path to the DDEC6_even_tempered_net_atomic_charges.xyz file
         """
-
         i = 0
         start = False
         dipoles = []
@@ -535,7 +533,6 @@ class ChargemolAnalysis:
                         }
             }
         """
-
         summary = {}
         ddec_summary = {
             "partial_charges": self.ddec_charges,
@@ -576,7 +573,6 @@ class ChargemolAnalysis:
         Returns:
             list[float]: site-specific properties
         """
-
         props = []
         if os.path.exists(xyz_path):
             with open(xyz_path) as r:
