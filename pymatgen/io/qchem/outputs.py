@@ -194,10 +194,12 @@ class QCOutput(MSONable):
                 self.text,
                 {"cmirs": r"DEFESR calculation with single-center isodensity surface"},
                 terminate_on_match=True,
-            ).get("cmirs") != [[]]:
+            ).get("cmirs") == [[]]:
                 # this is a CMIRS calc
                 # note that all other outputs follow the same format as ISOSVP
                 self._read_cmirs_information()
+                # TODO - would it make more sense to set solvent_method = 'cmirs'?
+                # but in the QChem input file, solvent_method is still 'isosvp'
                 self.data["solvent_data"]["CMIRS_enabled"] = True
 
                 # TODO - parsing to identify the CMIRS solvent?
