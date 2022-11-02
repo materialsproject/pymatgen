@@ -181,6 +181,11 @@ single_job_out_names = {
     "new_qchem_files/ccsd.qout",
     "new_qchem_files/ccsdt.qout",
     "extra_scf_print.qcout",
+    "new_qchem_files/cmirs_benzene_single.qcout",
+    "new_qchem_files/cmirs_dielst10_single.qcout",
+    "new_qchem_files/cmirs_water_single.qcout",
+    "new_qchem_files/isosvp_water_single.qcout",
+    "new_qchem_files/isosvp_dielst10_single.qcout",
 }
 
 multi_job_out_names = {

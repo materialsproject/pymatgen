@@ -150,6 +150,7 @@ class QCOutput(MSONable):
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
         self.data["solvent_data"] = None
+
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "PCM"
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*smd"}, terminate_on_match=True).get("key") == [[]]:
@@ -158,6 +159,39 @@ class QCOutput(MSONable):
             []
         ]:
             self.data["solvent_method"] = "ISOSVP"
+
+        # if solvent_method is not None,
+        # populate solvent_data with None values for all possible keys
+        pcm_keys = [
+            "PCM_dielectric",
+            "g_electrostatic",
+            "g_cavitation",
+            "g_dispersion",
+            "g_repulsion",
+            "total_contribution_pcm",
+            "solute_internal_energy",
+        ]
+        smd_keys = ["smd0", "smd3", "smd4", "smd6", "smd9", "SMD_solvent"]
+        isosvp_keys = [
+            "isosvp_dielectric",
+            "final_soln_phase_e",
+            "solute_internal_e",
+            "total_solvation_free_e",
+            "change_solute_internal_e",
+            "reaction_field_free_e",
+        ]
+        cmirs_keys = [
+            "CMIRS_enabled",
+            "dispersion_e",
+            "exchange_e",
+            "min_neg_field_e",
+            "max_pos_field_e",
+        ]
+
+        if self.data["solvent_method"] is not None:
+            self.data["solvent_data"] = {}
+            for key in pcm_keys + smd_keys + isosvp_keys + cmirs_keys:
+                self.data["solvent_data"][key] = None
 
         # Parse information specific to a solvent model
         if self.data["solvent_method"] == "PCM":
@@ -1426,10 +1460,6 @@ class QCOutput(MSONable):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
 
-        smd_keys = ["smd0", "smd3", "smd4", "smd6", "smd9"]
-        for key in smd_keys:
-            self.data["solvent_data"][key] = None
-
     def _read_smd_information(self):
         """
         Parses information from SMD solvent calculations.
@@ -1455,17 +1485,6 @@ class QCOutput(MSONable):
                 for ii, entry in enumerate(temp_dict.get(key)):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
-
-        pcm_keys = [
-            "g_electrostatic",
-            "g_cavitation",
-            "g_dispersion",
-            "g_repulsion",
-            "total_contribution_pcm",
-            "solute_internal_energy",
-        ]
-        for key in pcm_keys:
-            self.data["solvent_data"][key] = None
 
     def _read_isosvp_information(self):
         """
@@ -1510,21 +1529,6 @@ class QCOutput(MSONable):
                 for ii, entry in enumerate(temp_dict.get(key)):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
-
-        pcm_keys = [
-            "g_electrostatic",
-            "g_cavitation",
-            "g_dispersion",
-            "g_repulsion",
-            "total_contribution_pcm",
-            "solute_internal_energy",
-        ]
-        for key in pcm_keys:
-            self.data["solvent_data"][key] = None
-
-        smd_keys = ["smd0", "smd3", "smd4", "smd6", "smd9"]
-        for key in smd_keys:
-            self.data["solvent_data"][key] = None
 
     def _read_cmirs_information(self):
         """
