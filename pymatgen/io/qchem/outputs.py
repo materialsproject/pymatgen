@@ -160,8 +160,9 @@ class QCOutput(MSONable):
         ]:
             self.data["solvent_method"] = "ISOSVP"
 
-        # if solvent_method is not None,
-        # populate solvent_data with None values for all possible keys
+        # if solvent_method is not None, populate solvent_data with None values for all possible keys
+        # ISOSVP and CMIRS data are nested under respective keys
+        # TODO - nest PCM and SMD data under respective keys in a future PR
         pcm_keys = [
             "PCM_dielectric",
             "g_electrostatic",
@@ -171,7 +172,7 @@ class QCOutput(MSONable):
             "total_contribution_pcm",
             "solute_internal_energy",
         ]
-        smd_keys = ["smd0", "smd3", "smd4", "smd6", "smd9", "SMD_solvent"]
+        smd_keys = ["SMD_solvent", "smd0", "smd3", "smd4", "smd6", "smd9"]
         isosvp_keys = [
             "isosvp_dielectric",
             "final_soln_phase_e",
@@ -190,8 +191,14 @@ class QCOutput(MSONable):
 
         if self.data["solvent_method"] is not None:
             self.data["solvent_data"] = {}
-            for key in pcm_keys + smd_keys + isosvp_keys + cmirs_keys:
+            for key in pcm_keys + smd_keys:
                 self.data["solvent_data"][key] = None
+            self.data["solvent_data"]["isosvp"] = {}
+            for key in isosvp_keys:
+                self.data["solvent_data"]["isosvp"][key] = None
+            self.data["solvent_data"]["cmirs"] = {}
+            for key in cmirs_keys:
+                self.data["solvent_data"]["cmirs"][key] = None
 
         # Parse information specific to a solvent model
         if self.data["solvent_method"] == "PCM":
@@ -222,7 +229,7 @@ class QCOutput(MSONable):
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
         elif self.data["solvent_method"] == "ISOSVP":
-            self.data["solvent_data"] = {"CMIRS_enabled": False}
+            self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = False
             self._read_isosvp_information()
             if read_pattern(
                 self.text,
@@ -234,7 +241,7 @@ class QCOutput(MSONable):
                 self._read_cmirs_information()
                 # TODO - would it make more sense to set solvent_method = 'cmirs'?
                 # but in the QChem input file, solvent_method is still 'isosvp'
-                self.data["solvent_data"]["CMIRS_enabled"] = True
+                self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = True
 
                 # TODO - parsing to identify the CMIRS solvent?
                 # this would require parsing the $pcm_nonels section of input and comparing
@@ -1521,14 +1528,14 @@ class QCOutput(MSONable):
 
         for key, _v in temp_dict.items():
             if temp_dict.get(key) is None:
-                self.data["solvent_data"][key] = None
+                self.data["solvent_data"]["isosvp"][key] = None
             elif len(temp_dict.get(key)) == 1:
-                self.data["solvent_data"][key] = float(temp_dict.get(key)[0][0])
+                self.data["solvent_data"]["isosvp"][key] = float(temp_dict.get(key)[0][0])
             else:
                 temp_result = np.zeros(len(temp_dict.get(key)))
                 for ii, entry in enumerate(temp_dict.get(key)):
                     temp_result[ii] = float(entry[0])
-                self.data["solvent_data"][key] = temp_result
+                self.data["solvent_data"]["isosvp"][key] = temp_result
 
     def _read_cmirs_information(self):
         """
@@ -1566,14 +1573,14 @@ class QCOutput(MSONable):
 
         for key, _v in temp_dict.items():
             if temp_dict.get(key) is None:
-                self.data["solvent_data"][key] = None
+                self.data["solvent_data"]["cmirs"][key] = None
             elif len(temp_dict.get(key)) == 1:
-                self.data["solvent_data"][key] = float(temp_dict.get(key)[0][0])
+                self.data["solvent_data"]["cmirs"][key] = float(temp_dict.get(key)[0][0])
             else:
                 temp_result = np.zeros(len(temp_dict.get(key)))
                 for ii, entry in enumerate(temp_dict.get(key)):
                     temp_result[ii] = float(entry[0])
-                self.data["solvent_data"][key] = temp_result
+                self.data["solvent_data"]["cmirs"][key] = temp_result
 
     def _read_nbo_data(self):
         """

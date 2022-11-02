@@ -355,15 +355,15 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(data["solvent_method"], "ISOSVP")
 
         # ISOSVP parameters
-        self.assertEqual(data["solvent_data"]["isosvp_dielectric"], 78.39)
-        self.assertEqual(data["solvent_data"]["final_soln_phase_e"], -40.4850599393)
-        self.assertEqual(data["solvent_data"]["solute_internal_e"], -40.4846329762)
-        self.assertEqual(data["solvent_data"]["change_solute_internal_e"], 0.0000121967)
-        self.assertEqual(data["solvent_data"]["reaction_field_free_e"], -0.0004269631)
-        self.assertEqual(data["solvent_data"]["total_solvation_free_e"], -0.0004147664)
+        self.assertEqual(data["solvent_data"]["isosvp"]["isosvp_dielectric"], 78.39)
+        self.assertEqual(data["solvent_data"]["isosvp"]["final_soln_phase_e"], -40.4850599393)
+        self.assertEqual(data["solvent_data"]["isosvp"]["solute_internal_e"], -40.4846329762)
+        self.assertEqual(data["solvent_data"]["isosvp"]["change_solute_internal_e"], 0.0000121967)
+        self.assertEqual(data["solvent_data"]["isosvp"]["reaction_field_free_e"], -0.0004269631)
+        self.assertEqual(data["solvent_data"]["isosvp"]["total_solvation_free_e"], -0.0004147664)
 
         # CMIRS parameters
-        self.assertEqual(data["solvent_data"]["CMIRS_enabled"], False)
+        self.assertEqual(data["solvent_data"]["cmirs"]["CMIRS_enabled"], False)
 
     def test_isosvp_dielst10(self):
         data = QCOutput(
@@ -372,39 +372,39 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(data["solvent_method"], "ISOSVP")
 
         # ISOSVP parameters
-        self.assertEqual(data["solvent_data"]["isosvp_dielectric"], 10)
-        self.assertEqual(data["solvent_data"]["final_soln_phase_e"], -40.4850012952)
-        self.assertEqual(data["solvent_data"]["solute_internal_e"], -40.4846362547)
-        self.assertEqual(data["solvent_data"]["change_solute_internal_e"], 0.0000089182)
-        self.assertEqual(data["solvent_data"]["reaction_field_free_e"], -0.0003650405)
-        self.assertEqual(data["solvent_data"]["total_solvation_free_e"], -0.0003561223)
+        self.assertEqual(data["solvent_data"]["isosvp"]["isosvp_dielectric"], 10)
+        self.assertEqual(data["solvent_data"]["isosvp"]["final_soln_phase_e"], -40.4850012952)
+        self.assertEqual(data["solvent_data"]["isosvp"]["solute_internal_e"], -40.4846362547)
+        self.assertEqual(data["solvent_data"]["isosvp"]["change_solute_internal_e"], 0.0000089182)
+        self.assertEqual(data["solvent_data"]["isosvp"]["reaction_field_free_e"], -0.0003650405)
+        self.assertEqual(data["solvent_data"]["isosvp"]["total_solvation_free_e"], -0.0003561223)
 
         # CMIRS parameters
-        self.assertEqual(data["solvent_data"]["CMIRS_enabled"], False)
+        self.assertEqual(data["solvent_data"]["cmirs"]["CMIRS_enabled"], False)
 
     def test_cmirs_benzene(self):
         data = QCOutput(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_benzene_single.qcout")
         ).data
         self.assertEqual(data["solvent_method"], "ISOSVP")
-        self.assertEqual(data["solvent_data"]["CMIRS_enabled"], True)
-        self.assertEqual(data["solvent_data"]["isosvp_dielectric"], 2.28)
-        self.assertEqual(data["solvent_data"]["dispersion_e"], 0.6955542829)
-        self.assertEqual(data["solvent_data"]["exchange_e"], 0.2654553686)
-        self.assertEqual(data["solvent_data"]["min_neg_field_e"], 0.0006019665)
-        self.assertEqual(data["solvent_data"]["max_pos_field_e"], 0.0178177740)
+        self.assertEqual(data["solvent_data"]["isosvp"]["isosvp_dielectric"], 2.28)
+        self.assertEqual(data["solvent_data"]["cmirs"]["CMIRS_enabled"], True)
+        self.assertEqual(data["solvent_data"]["cmirs"]["dispersion_e"], 0.6955542829)
+        self.assertEqual(data["solvent_data"]["cmirs"]["exchange_e"], 0.2654553686)
+        self.assertEqual(data["solvent_data"]["cmirs"]["min_neg_field_e"], 0.0006019665)
+        self.assertEqual(data["solvent_data"]["cmirs"]["max_pos_field_e"], 0.0178177740)
 
     def test_cmirs_dielst10(self):
         data = QCOutput(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_dielst10_single.qcout")
         ).data
         self.assertEqual(data["solvent_method"], "ISOSVP")
-        self.assertEqual(data["solvent_data"]["CMIRS_enabled"], True)
-        self.assertEqual(data["solvent_data"]["isosvp_dielectric"], 10)
-        self.assertEqual(data["solvent_data"]["dispersion_e"], 0.6955550107)
-        self.assertEqual(data["solvent_data"]["exchange_e"], 0.2652679507)
-        self.assertEqual(data["solvent_data"]["min_neg_field_e"], 0.0005235850)
-        self.assertEqual(data["solvent_data"]["max_pos_field_e"], 0.0179866718)
+        self.assertEqual(data["solvent_data"]["isosvp"]["isosvp_dielectric"], 10)
+        self.assertEqual(data["solvent_data"]["cmirs"]["CMIRS_enabled"], True)
+        self.assertEqual(data["solvent_data"]["cmirs"]["dispersion_e"], 0.6955550107)
+        self.assertEqual(data["solvent_data"]["cmirs"]["exchange_e"], 0.2652679507)
+        self.assertEqual(data["solvent_data"]["cmirs"]["min_neg_field_e"], 0.0005235850)
+        self.assertEqual(data["solvent_data"]["cmirs"]["max_pos_field_e"], 0.0179866718)
 
     def test_cmirs_water(self):
         data = QCOutput(
@@ -413,19 +413,19 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(data["solvent_method"], "ISOSVP")
 
         # ISOSVP parameters
-        self.assertEqual(data["solvent_data"]["isosvp_dielectric"], 78.39)
-        self.assertEqual(data["solvent_data"]["final_soln_phase_e"], -40.4752415075)
-        self.assertEqual(data["solvent_data"]["solute_internal_e"], -40.4748535587)
-        self.assertEqual(data["solvent_data"]["change_solute_internal_e"], 0.0000122982)
-        self.assertEqual(data["solvent_data"]["reaction_field_free_e"], -0.0003879488)
-        self.assertEqual(data["solvent_data"]["total_solvation_free_e"], 0.0037602703)
+        self.assertEqual(data["solvent_data"]["isosvp"]["isosvp_dielectric"], 78.39)
+        self.assertEqual(data["solvent_data"]["isosvp"]["final_soln_phase_e"], -40.4752415075)
+        self.assertEqual(data["solvent_data"]["isosvp"]["solute_internal_e"], -40.4748535587)
+        self.assertEqual(data["solvent_data"]["isosvp"]["change_solute_internal_e"], 0.0000122982)
+        self.assertEqual(data["solvent_data"]["isosvp"]["reaction_field_free_e"], -0.0003879488)
+        self.assertEqual(data["solvent_data"]["isosvp"]["total_solvation_free_e"], 0.0037602703)
 
         # CMIRS parameters
-        self.assertEqual(data["solvent_data"]["CMIRS_enabled"], True)
-        self.assertEqual(data["solvent_data"]["dispersion_e"], 0.6722278965)
-        self.assertEqual(data["solvent_data"]["exchange_e"], 0.2652032616)
-        self.assertEqual(data["solvent_data"]["min_neg_field_e"], 0.0004967767)
-        self.assertEqual(data["solvent_data"]["max_pos_field_e"], 0.0180445935)
+        self.assertEqual(data["solvent_data"]["cmirs"]["CMIRS_enabled"], True)
+        self.assertEqual(data["solvent_data"]["cmirs"]["dispersion_e"], 0.6722278965)
+        self.assertEqual(data["solvent_data"]["cmirs"]["exchange_e"], 0.2652032616)
+        self.assertEqual(data["solvent_data"]["cmirs"]["min_neg_field_e"], 0.0004967767)
+        self.assertEqual(data["solvent_data"]["cmirs"]["max_pos_field_e"], 0.0180445935)
 
 
 if __name__ == "__main__":
