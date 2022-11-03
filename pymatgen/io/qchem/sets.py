@@ -48,6 +48,7 @@ class QChemDictSet(QCInput):
         new_geom_opt: dict | None = None,
         overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        extra_scf_print: bool = False,
     ):
         """
         Args:
@@ -124,6 +125,9 @@ class QChemDictSet(QCInput):
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
                 radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
+            extra_scf_print (bool): Whether to store extra information generated from the SCF
+                cycle. If switched on, the Fock Matrix, coefficients of MO and the density matrix
+                will be stored.
         """
         self.molecule = molecule
         self.job_type = job_type
@@ -142,6 +146,7 @@ class QChemDictSet(QCInput):
         self.new_geom_opt = new_geom_opt
         self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
+        self.extra_scf_print = extra_scf_print
 
         pcm_defaults = {
             "heavypoints": "194",
@@ -303,6 +308,17 @@ class QChemDictSet(QCInput):
                     for k, v in temp_opts.items():
                         myopt[k] = v
 
+        if extra_scf_print:
+            # Allow for the printing of the Fock matrix and the eigenvales
+            myrem["scf_final_print"] = "3"
+            # If extra_scf_print is specified, make sure that the convergence of the
+            # SCF cycle is at least 1e-8. Anything less than that might not be appropriate
+            # for printing out the Fock Matrix and coefficients of the MO.
+            if "scf_convergence" not in myrem:
+                myrem["scf_convergence"] = "8"
+            elif int(myrem["scf_convergence"]) < 8:
+                myrem["scf_convergence"] = "8"
+
         super().__init__(
             self.molecule,
             rem=myrem,
@@ -348,6 +364,7 @@ class SinglePointSet(QChemDictSet):
         nbo_params: dict | None = None,
         overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        extra_scf_print: bool = False,
     ):
         """
         Args:
@@ -403,6 +420,9 @@ class SinglePointSet(QChemDictSet):
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
                 radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
+            extra_scf_print (bool): Whether to store extra information generated from the SCF
+                cycle. If switched on, the Fock Matrix, coefficients of MO and the density matrix
+                will be stored.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -421,6 +441,7 @@ class SinglePointSet(QChemDictSet):
             nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
+            extra_scf_print=extra_scf_print,
         )
 
 
