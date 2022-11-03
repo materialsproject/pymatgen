@@ -304,6 +304,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         max_disordered_sites=None,
         sort_criteria="ewald",
         timeout=None,
+        m3gnet_relax_params=None,
     ):
         """
         Args:
@@ -341,13 +342,14 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 the number of disordered sites in the cell exceeds
                 max_disordered_sites. Must set max_cell_size to None when using
                 this parameter.
-            sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation states and slow) or M3GNet relaxed
-                energy ("m3gnet_relax", which is the most accurate but most expensive and provides pre-relaxed
-                structures - needs m3gnet package installed) or by M3GNet static energy ("m3gnet_static"), or
-                by number of sites ("nsites", the fastest, the default). The expense of m3gnet_relax or m3gnet_static
+            sort_criteria (str or callable): Sort by Ewald energy ("ewald", must have oxidation states and slow) or
+                M3GNet relaxed energy ("m3gnet_relax", which is the most accurate but most expensive and provides
+                pre-relaxed structures - needs m3gnet package installed) or by M3GNet static energy ("m3gnet_static")
+                or by number of sites ("nsites", the fastest, the default). The expense of m3gnet_relax or m3gnet_static
                 can be worth it if it significantly reduces the number of structures to be considered. m3gnet_relax
                 speeds up the subsequent DFT calculations.
             timeout (float): timeout in minutes to pass to EnumlibAdaptor
+            m3gnet_relax_params (dict): Parameters passed to Relaxer.__init__.
         """
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
@@ -358,6 +360,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.max_disordered_sites = max_disordered_sites
         self.sort_criteria = sort_criteria
         self.timeout = timeout
+        self.m3gnet_relax_params = m3gnet_relax_params or {}
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
@@ -460,7 +463,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     if m3gnet_model is None:
                         from m3gnet.models import Relaxer
 
-                        m3gnet_model = Relaxer()
+                        m3gnet_model = Relaxer(**self.m3gnet_relax_params)
                     relax_results = m3gnet_model.relax(s)
                     energy = float(relax_results["trajectory"].energies[-1])
                     s = relax_results["final_structure"]

@@ -229,7 +229,9 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
 
     @unittest.skipIf(m3gnet is None, "m3gnet package not available.")
     def test_m3gnet(self):
-        enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet")
+        enum_trans = EnumerateStructureTransformation(
+            refine_structure=True, sort_criteria="m3gnet_relax", m3gnet_relax_params={"optimizer": "BFGS"}
+        )
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
