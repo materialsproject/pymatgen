@@ -347,7 +347,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 pre-relaxed structures - needs m3gnet package installed) or by M3GNet static energy ("m3gnet_static")
                 or by number of sites ("nsites", the fastest, the default). The expense of m3gnet_relax or m3gnet_static
                 can be worth it if it significantly reduces the number of structures to be considered. m3gnet_relax
-                speeds up the subsequent DFT calculations.
+                speeds up the subsequent DFT calculations. Alternatively, a callable can be supplied that returns a
+                (Structure, energy) tuple.
             timeout (float): timeout in minutes to pass to EnumlibAdaptor
             m3gnet_relax_params (dict): Parameters passed to Relaxer.__init__.
         """
@@ -479,6 +480,15 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     m3gnet_model.calculate(atoms)
                     energy = float(m3gnet_model.results["energy"])
 
+                all_structures.append(
+                    {
+                        "num_sites": len(s),
+                        "energy": energy,
+                        "structure": s,
+                    }
+                )
+            elif callable(self.sort_criteria):
+                s, energy = self.sort_criteria(s)
                 all_structures.append(
                     {
                         "num_sites": len(s),

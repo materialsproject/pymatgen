@@ -245,6 +245,30 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         # Check ordering of energy/atom
         self.assertLessEqual(alls[0]["energy"] / alls[0]["num_sites"], alls[-1]["energy"] / alls[-1]["num_sites"])
 
+    def test_callable_sort_criteria(self):
+        from m3gnet.models import Relaxer
+
+        m3gnet_model = Relaxer(optimizer="BFGS")
+
+        def sort_criteria(s):
+            relax_results = m3gnet_model.relax(s)
+            energy = float(relax_results["trajectory"].energies[-1])
+            return relax_results["final_structure"], energy
+
+        enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        struct = p.structure
+        trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
+        s = trans.apply_transformation(struct)
+        alls = enum_trans.apply_transformation(s, 100)
+        self.assertEqual(len(alls), 3)
+        self.assertIsInstance(trans.apply_transformation(s), Structure)
+        for ss in alls:
+            self.assertIn("energy", ss)
+
+        # Check ordering of energy/atom
+        self.assertLessEqual(alls[0]["energy"] / alls[0]["num_sites"], alls[-1]["energy"] / alls[-1]["num_sites"])
+
     def test_max_disordered_sites(self):
         l = Lattice.cubic(4)
         s_orig = Structure(
