@@ -14,7 +14,7 @@ from fractions import Fraction
 from itertools import groupby, product
 from math import gcd
 from string import ascii_lowercase
-from typing import Iterable
+from typing import Callable, Iterable
 
 import numpy as np
 import tqdm
@@ -295,16 +295,15 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     def __init__(
         self,
-        min_cell_size=1,
-        max_cell_size=1,
-        symm_prec=0.1,
-        refine_structure=False,
-        enum_precision_parameter=0.001,
-        check_ordered_symmetry=True,
+        min_cell_size: int = 1,
+        max_cell_size: int = 1,
+        symm_prec: float = 0.1,
+        refine_structure: bool = False,
+        enum_precision_parameter: float = 0.001,
+        check_ordered_symmetry: bool = True,
         max_disordered_sites=None,
-        sort_criteria="ewald",
+        sort_criteria: str | Callable = "ewald",
         timeout=None,
-        m3gnet_relax_params=None,
     ):
         """
         Args:
@@ -350,7 +349,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 speeds up the subsequent DFT calculations. Alternatively, a callable can be supplied that returns a
                 (Structure, energy) tuple.
             timeout (float): timeout in minutes to pass to EnumlibAdaptor
-            m3gnet_relax_params (dict): Parameters passed to Relaxer.__init__.
         """
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
@@ -361,7 +359,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.max_disordered_sites = max_disordered_sites
         self.sort_criteria = sort_criteria
         self.timeout = timeout
-        self.m3gnet_relax_params = m3gnet_relax_params or {}
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
@@ -450,7 +447,16 @@ class EnumerateStructureTransformation(AbstractTransformation):
             new_latt = s.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
             transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
-            if contains_oxidation_state and self.sort_criteria == "ewald":
+            if callable(self.sort_criteria):
+                s, energy = self.sort_criteria(s)
+                all_structures.append(
+                    {
+                        "num_sites": len(s),
+                        "energy": energy,
+                        "structure": s,
+                    }
+                )
+            elif contains_oxidation_state and self.sort_criteria == "ewald":
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
@@ -464,7 +470,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     if m3gnet_model is None:
                         from m3gnet.models import Relaxer
 
-                        m3gnet_model = Relaxer(**self.m3gnet_relax_params)
+                        m3gnet_model = Relaxer()
                     relax_results = m3gnet_model.relax(s)
                     energy = float(relax_results["trajectory"].energies[-1])
                     s = relax_results["final_structure"]
@@ -480,15 +486,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     m3gnet_model.calculate(atoms)
                     energy = float(m3gnet_model.results["energy"])
 
-                all_structures.append(
-                    {
-                        "num_sites": len(s),
-                        "energy": energy,
-                        "structure": s,
-                    }
-                )
-            elif callable(self.sort_criteria):
-                s, energy = self.sort_criteria(s)
                 all_structures.append(
                     {
                         "num_sites": len(s),
