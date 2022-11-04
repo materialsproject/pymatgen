@@ -202,7 +202,6 @@ class QCOutput(MSONable):
 
         # Parse information specific to a solvent model
         if self.data["solvent_method"] == "PCM":
-            self.data["solvent_data"] = {}
             temp_dielectric = read_pattern(
                 self.text, {"key": r"dielectric\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
@@ -214,7 +213,6 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["unrecognized_solvent"]
                 else:
                     self.data["warnings"]["unrecognized_solvent"] = True
-            self.data["solvent_data"] = {}
             temp_solvent = read_pattern(self.text, {"key": r"\s[Ss]olvent:? ([a-zA-Z]+)"}).get("key")
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
