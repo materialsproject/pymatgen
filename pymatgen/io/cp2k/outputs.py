@@ -27,6 +27,7 @@ from pymatgen.electronic_structure.bandstructure import (
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
+from pymatgen.io.cp2k.inputs import Keyword
 from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
 from pymatgen.io.xyz import XYZ
@@ -204,6 +205,14 @@ class Cp2kOutput:
         if ("UKS" or "UNRESTRICTED_KOHN_SHAM" or "LSD" or "SPIN_POLARIZED") in self.data["dft"].values():
             return True
         return False
+    
+    @property
+    def charge(self):
+        return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]
+
+    @property
+    def multiplicity(self):
+        return self.input['FORCE_EVAL']['DFT'].get("Multiplicity", Keyword("", None)).values[0]
 
     @property
     def is_molecule(self):
@@ -211,7 +220,7 @@ class Cp2kOutput:
         Returns True if the cp2k output was generated for a molecule (i.e.
         no periodicity in the cell). Returns false otherwise.
         """
-        if self.data.get("poisson_periodicity", [[""]]) is None:
+        if self.data.get("poisson_periodicity", [[""]])[0][0].upper() == "NONE":
             return True
         return False
 
@@ -290,6 +299,12 @@ class Cp2kOutput:
         default, so non static calculations have to reference the trajectory file.
         """
         self.parse_initial_structure()
+        trajectory_file = trajectory_file if trajectory_file else self.filenames.get("trajectory")
+        if isinstance(trajectory_file, list):
+            if len(trajectory_file) == 1:
+                trajectory_file = trajectory_file[0]
+            elif len(trajectory_file) > 1:
+                raise FileNotFoundError("Unable to automatically determine trajectory file. More than one exist.")
 
         if lattice_file is None:
             if len(self.filenames["cell"]) == 0:
@@ -307,31 +322,16 @@ class Cp2kOutput:
             latfile = np.loadtxt(lattice_file)
             lattice = [l[2:].reshape(3, 3) for l in latfile]
 
-        if trajectory_file is None:
-            if len(self.filenames["trajectory"]) == 0:
-                self.structures = []
-                self.structures.append(self.initial_structure)
-                self.final_structure = self.structures[-1]
-            elif len(self.filenames["trajectory"]) == 1:
-                mols = XYZ.from_file(self.filenames["trajectory"][0]).all_molecules
-                self.structures = []
-                gs = self.initial_structure.site_properties.get("ghost")
-                for m, l in zip(mols, lattice):
-                    self.structures.append(
-                        Structure(
-                            lattice=l,
-                            coords=[s.coords for s in m.sites],
-                            species=[s.specie for s in m.sites],
-                            coords_are_cartesian=True,
-                            site_properties={"ghost": gs} if gs else {},
-                        )
-                    )
-                self.final_structure = self.structures[-1]
-            else:
-                raise FileNotFoundError("Unable to automatically determine trajectory file. More than one exist.")
+        if not trajectory_file:
+            self.structures = []
+            self.structures.append(self.initial_structure)
+            self.final_structure = self.structures[-1]
         else:
             mols = XYZ.from_file(trajectory_file).all_molecules
+            for m in mols:
+                m.set_charge_and_spin(charge=self.charge, spin_multiplicity=self.multiplicity)
             self.structures = []
+            gs = self.initial_structure.site_properties.get("ghost")
             if not self.is_molecule:
                 for m, l in zip(mols, lattice):
                     self.structures.append(
@@ -340,12 +340,13 @@ class Cp2kOutput:
                             coords=[s.coords for s in m.sites],
                             species=[s.specie for s in m.sites],
                             coords_are_cartesian=True,
+                            site_properties={"ghost": gs} if gs else {},
+                            charge=self.charge,
                         )
                     )
             else:
                 self.structures = mols
             self.final_structure = self.structures[-1]
-            self.final_structure.set_charge(self.initial_structure.charge)
 
     def parse_initial_structure(self):
         """
@@ -393,6 +394,7 @@ class Cp2kOutput:
                 species=[i[2] for i in coord_table],
                 coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
                 site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
+                charge=self.charge, spin_multiplicity=self.multiplicity
             )
         else:
             self.initial_structure = Structure(
@@ -401,9 +403,9 @@ class Cp2kOutput:
                 coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
                 coords_are_cartesian=True,
                 site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
+                charge=self.charge,
             )
 
-        self.initial_structure.set_charge(self.input["FORCE_EVAL"]["DFT"].get("CHARGE", [0])[0])
         self.composition = self.initial_structure.composition
         return self.initial_structure
 
