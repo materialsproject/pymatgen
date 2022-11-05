@@ -81,150 +81,7 @@ with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
     SETTINGS = yaml.load(f)
 
 
-class Cp2kInputSet(Cp2kInput):
-
-    """
-    The basic representation of a CP2K input set as a collection of "sections" defining the
-    simulation connected to a structure object. At the most basis level, CP2K requires a &GLOBAL
-    section and &FORCE_EVAL section. Global sets parameters like "RUN_TYPE" or the overall
-    verbosity. FORCE_EVAL is the largest section usually, containing the cell and coordinates of
-    atoms, the DFT settings, and more. This top level input set is meant to initialize GLOBAL and
-    FORCE_EVAL based on a structure object and and sections that the user provides.
-
-    Like everything that goes into a cp2k input file, this base input set is essentially a section
-    object. These sets are distinguished by saving default settings for easy implementation of
-    calculations such as relaxation and static calculations. This base set is here to transfer a
-    pymatgen structure object into the input format for cp2k and associate the basis set and
-    pseudopotential to use with each element in the structure.
-
-    Generally, this class will not be used directly, and instead one of its child-classes will be
-    used, which contain more predefined initializations of various sections, and, if
-    modifications are required, the user can specify override_default_settings.
-    """
-
-    def __init__(
-        self,
-        structure: Structure | Molecule,
-        basis_and_potential: dict | None = None,
-        multiplicity: int = 0,
-        project_name: str = "CP2K",
-        override_default_params: dict | None = None,
-        **kwargs,
-    ):
-        """
-        Args:
-            structure: (Structure or Molecule) pymatgen structure or molecule object used to define
-                the lattice, coordinates, and elements. This structure object cannot contain "special"
-                species like the Dummy species, e.g. X, or fractional occupations, e.g. Fe0.2, etc.
-            potential_and_basis: (dict) Specifies what basis set and potential to use. Specify these
-                as a dict of the form:
-                    { element: {'cardinality': __, 'sr': __, 'q': __},
-                     'cardinality': __, 'functional': __}
-                Where cardinality and functional are overall specifications (for all elements), while
-                <key='element'> specifies the overrides for a specific element. Currently the following
-                conventions must be followed:
-                    (a) All species of a particular element must have the same potential/basis
-            multiplicity: (int) Specify the system's multiplicity if appropriate
-            project_name: (str) Specify the project name. This will be used to name the output files
-                from a CP2K calculation
-            override_default_params: (dict) Specifies user-defined settings to override the settings of any
-                input set (See Section.update())
-        """
-        super().__init__(name="CP2K_INPUT", subsections={})
-
-        # Important CP2K set parameters
-        self.structure = structure
-        self.charge = int(structure.charge)
-        self.basis_and_potential = basis_and_potential if basis_and_potential else {}
-        self.multiplicity = multiplicity  # spin multiplicity = 2s+1
-        self.override_default_params = override_default_params if override_default_params else {}
-        self.project_name = project_name
-        self.kwargs = kwargs
-
-        self.insert(ForceEval())  # always present in cp2k
-        self.basis_set_file_names = None  # need for dft
-        self.potential_file_name = None  # need for dft
-        self.create_subsys(self.structure)  # assemble structure with atom types and pseudopotentials assigned
-
-        if self.kwargs.get("print_forces", True):
-            self.print_forces()
-
-        self.update(self.override_default_params)
-
-    def create_subsys(self, structure: Structure | Molecule):
-        """
-        Create the structure for the input
-        """
-        subsys = Subsys()
-        if isinstance(structure, Structure):
-            subsys.insert(Cell(structure.lattice))
-
-        # Decide what basis sets/pseudopotentials to use
-        basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
-
-        # Insert atom kinds by identifying the unique sites (unique element and site properties)
-        unique_kinds = get_unique_site_indices(structure)
-        for k, v in unique_kinds.items():
-            kind = k.split("_")[0]
-            kwargs = {}
-
-            _ox = (
-                self.structure.site_properties["oxi_state"][v[0]]
-                if "oxi_state" in self.structure.site_properties
-                else 0
-            )
-            _sp = self.structure.site_properties["spin"][v[0]] if "spin" in self.structure.site_properties else 0
-
-            bs = BrokenSymmetry.from_el(kind, _ox, _sp) if _ox else None
-
-            if "magmom" in self.structure.site_properties and not bs:
-                kwargs["magnetization"] = self.structure.site_properties["magmom"][v[0]]
-
-            if "ghost" in self.structure.site_properties:
-                kwargs["ghost"] = self.structure.site_properties["ghost"][v[0]]
-
-            if "basis_set" in self.structure.site_properties:
-                basis_set = self.structure.site_properties["basis_set"][v[0]]
-            else:
-                basis_set = basis_and_potential[kind]["basis"]
-
-            if "potential" in self.structure.site_properties:
-                potential = self.structure.site_properties["potential"][v[0]]
-            else:
-                potential = basis_and_potential[kind]["potential"]
-
-            if "aux_basis" in self.structure.site_properties:
-                kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][v[0]]
-                if kwargs["aux_basis"] == "match":
-                    kwargs["aux_basis"] = basis_set
-
-            _kind = Kind(
-                kind,
-                alias=k,
-                basis_set=basis_set,
-                potential=potential,
-                subsections={"BS": bs} if bs else {},
-                **kwargs,
-            )
-
-            subsys.insert(_kind)
-
-        coord = Coord(structure, aliases=unique_kinds)
-        subsys.insert(coord)
-        self["FORCE_EVAL"].insert(subsys)
-        self.basis_set_file_names = basis_and_potential["basis_filenames"]
-        self.potential_file_name = basis_and_potential["potential_filename"]
-
-    def print_forces(self):
-        """
-        Print out the forces and stress during calculation
-        """
-        self["FORCE_EVAL"].insert(Section("PRINT", subsections={}))
-        self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
-        self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
-
-
-class DftSet(Cp2kInputSet):
+class DftSet(Cp2kInput):
     """
     Base for an input set using the Quickstep module (i.e. a DFT calculation). The DFT section is
     pretty vast in CP2K, so this set hopes to make the DFT setup fairly simple. The provided
@@ -234,6 +91,9 @@ class DftSet(Cp2kInputSet):
     def __init__(
         self,
         structure: Structure | Molecule,
+        project_name: str = "CP2K",
+        basis_and_potential: dict | None = None,
+        multiplicity: int = 0,
         ot: bool = True,
         energy_gap: float = -1,
         eps_default: float = 1e-12,
@@ -320,9 +180,13 @@ class DftSet(Cp2kInputSet):
                 containing no (or a very small) band gap.
         """
 
-        super().__init__(structure, **kwargs)
+        super().__init__(name="CP2K_INPUT", subsections={})
 
         self.structure = structure
+        self.basis_and_potential = basis_and_potential
+        self.project_name = project_name
+        self.charge = int(structure.charge)
+        self.multiplicity = multiplicity
         self.ot = ot
         self.energy_gap = energy_gap
         self.eps_default = eps_default
@@ -343,6 +207,9 @@ class DftSet(Cp2kInputSet):
         self.kpoints = kpoints
         self.smearing = smearing
         self.kwargs = kwargs
+
+        # Enable force and energy evaluations (most calculations)
+        self.insert(ForceEval())
 
         if self.kpoints:
             if (
@@ -406,12 +273,21 @@ class DftSet(Cp2kInputSet):
             scf.insert(mixing)
             scf["MAX_DIIS"] = Keyword("MAX_DIIS", 15)
 
+        # Get basis, potential, and xc info
+        self.basis_and_potential = get_basis_and_potential(structure.symbol_set, basis_and_potential)
+        self.basis_set_file_names = self.basis_and_potential["basis_filenames"]
+        self.potential_file_name = self.basis_and_potential["potential_filename"]
+        self.xc_functionals = get_xc_functionals(kwargs.get("xc_functional", "PBE"))
+
+        # create the subsys (structure)
+        self.insert(ForceEval())
+        self.create_subsys(self.structure)
+
         # Create the multigrid for FFTs
         if not cutoff:
-            basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
             cutoff = get_cutoff_from_basis(
                 els=self.structure.symbol_set,
-                bases=[basis_and_potential[s]["basis"] for s in self.structure.symbol_set],
+                bases=[self.basis_and_potential[s]["basis"] for s in self.structure.symbol_set],
                 rel_cutoff=rel_cutoff,
             )
         mgrid = Mgrid(
@@ -443,8 +319,7 @@ class DftSet(Cp2kInputSet):
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
 
-        xc_functionals = get_xc_functionals(kwargs.get("xc_functional", "PBE"))
-        xc_functional = Xc_Functional(functionals=xc_functionals)
+        xc_functional = Xc_Functional(functionals=self.xc_functionals)
         xc = Section("XC", subsections={"XC_FUNCTIONAL": xc_functional})
         self["FORCE_EVAL"]["DFT"].insert(xc)
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
@@ -452,6 +327,8 @@ class DftSet(Cp2kInputSet):
         if isinstance(structure, Molecule):
             self.activate_nonperiodic()
 
+        if kwargs.get("print_forces", True):
+            self.print_forces()
         if kwargs.get("print_dos", False):
             self.print_dos()
         if kwargs.get("print_pdos", True):
@@ -469,6 +346,14 @@ class DftSet(Cp2kInputSet):
 
         self.update(self.override_default_params)
 
+    def print_forces(self):
+        """
+        Print out the forces and stress during calculation
+        """
+        self["FORCE_EVAL"].insert(Section("PRINT", subsections={}))
+        self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
+        self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
+    
     def print_dos(self, ndigits=6):
         """
         Activate printing of the overall DOS file.
@@ -999,6 +884,68 @@ class DftSet(Cp2kInputSet):
         }
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
 
+    def create_subsys(self, structure: Structure | Molecule):
+        """
+        Create the structure for the input
+        """
+        subsys = Subsys()
+        if isinstance(structure, Structure):
+            subsys.insert(Cell(structure.lattice))
+
+        # Decide what basis sets/pseudopotentials to use
+        basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
+
+        # Insert atom kinds by identifying the unique sites (unique element and site properties)
+        unique_kinds = get_unique_site_indices(structure)
+        for k, v in unique_kinds.items():
+            kind = k.split("_")[0]
+            kwargs = {}
+
+            _ox = (
+                self.structure.site_properties["oxi_state"][v[0]]
+                if "oxi_state" in self.structure.site_properties
+                else 0
+            )
+            _sp = self.structure.site_properties["spin"][v[0]] if "spin" in self.structure.site_properties else 0
+
+            bs = BrokenSymmetry.from_el(kind, _ox, _sp) if _ox else None
+
+            if "magmom" in self.structure.site_properties and not bs:
+                kwargs["magnetization"] = self.structure.site_properties["magmom"][v[0]]
+
+            if "ghost" in self.structure.site_properties:
+                kwargs["ghost"] = self.structure.site_properties["ghost"][v[0]]
+
+            if "basis_set" in self.structure.site_properties:
+                basis_set = self.structure.site_properties["basis_set"][v[0]]
+            else:
+                basis_set = self.basis_and_potential[kind]["basis"]
+
+            if "potential" in self.structure.site_properties:
+                potential = self.structure.site_properties["potential"][v[0]]
+            else:
+                potential = self.basis_and_potential[kind]["potential"]
+
+            if "aux_basis" in self.structure.site_properties:
+                kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][v[0]]
+                if kwargs["aux_basis"] == "match":
+                    kwargs["aux_basis"] = basis_set
+
+            _kind = Kind(
+                kind,
+                alias=k,
+                basis_set=basis_set,
+                potential=potential,
+                subsections={"BS": bs} if bs else {},
+                **kwargs,
+            )
+
+            subsys.insert(_kind)
+
+        coord = Coord(structure, aliases=unique_kinds)
+        subsys.insert(coord)
+        self["FORCE_EVAL"].insert(subsys)
+    
     def modify_dft_print_iters(self, iters, add_last="no"):
         """
         Modify all DFT print iterations at once. Common use is to set iters to the max
