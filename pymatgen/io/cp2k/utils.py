@@ -26,11 +26,11 @@ def _postprocessor(s):
     s = s.rstrip()  # Remove leading/trailing whitespace
     s = s.replace(" ", "_")  # Remove whitespaces
 
-    if s.lower() == "no":
+    if s.lower() == "no" or s.lower() == "false" or s.lower() == 'f':
         return False
     if s.lower() == "none":
         return None
-    if s.lower() == "yes" or s.lower() == "true":
+    if s.lower() == "yes" or s.lower() == "true" or s.lower() == 't':
         return True
     if re.match(r"^-?\d+$", s):
         try:
