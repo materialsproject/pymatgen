@@ -963,8 +963,9 @@ class DftSet(Cp2kInput):
         """
         assert add_last.lower() in ["no", "numeric", "symbolic"]
         run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
-        if run_type not in ['ENERGY_FORCE', "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and \
-            self.check("FORCE_EVAL/DFT/PRINT"):
+        if run_type not in ["ENERGY_FORCE", "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and self.check(
+            "FORCE_EVAL/DFT/PRINT"
+        ):
             for v in self["force_eval"]["dft"]["print"].subsections.values():
                 if v.name.upper() in [
                     "ACTIVE_SPACE",
