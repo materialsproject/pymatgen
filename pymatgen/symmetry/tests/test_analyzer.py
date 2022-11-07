@@ -125,9 +125,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert ds["international"] == "Pnma"
 
     def test_get_symmetry(self):
+        # see discussion in https://github.com/materialsproject/pymatgen/pull/2724
         Co8 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Co8.cif"))
-
         symprec = 1e-1
+
         with pytest.raises(
             ValueError,
             match=f"Symmetry detection failed for structure with formula {Co8.formula}. "
