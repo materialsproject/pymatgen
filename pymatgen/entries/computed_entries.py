@@ -16,7 +16,7 @@ import json
 import os
 import warnings
 from itertools import combinations
-from typing import Literal, cast
+from typing import Literal
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -491,7 +491,7 @@ class ComputedEntry(Entry):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(ComputedEntry, other)
+        assert isinstance(other, ComputedEntry)  # mypy type narrowing
 
         # Equality is defined based on composition and energy
         # If structures are involved, it is assumed that a {composition, energy} is
@@ -565,6 +565,19 @@ class ComputedEntry(Entry):
 
         return super().__hash__()
 
+    def copy(self) -> ComputedEntry:
+        """
+        Returns a copy of the ComputedEntry.
+        """
+        return ComputedEntry(
+            composition=self.composition,
+            energy=self.uncorrected_energy,
+            energy_adjustments=self.energy_adjustments,
+            parameters=self.parameters,
+            data=self.data,
+            entry_id=self.entry_id,
+        )
+
 
 class ComputedStructureEntry(ComputedEntry):
     """
@@ -582,7 +595,7 @@ class ComputedStructureEntry(ComputedEntry):
         parameters: dict = None,
         data: dict = None,
         entry_id: object = None,
-    ):
+    ) -> None:
         """
         Initializes a ComputedStructureEntry.
 
@@ -590,13 +603,15 @@ class ComputedStructureEntry(ComputedEntry):
             structure (Structure): The actual structure of an entry.
             energy (float): Energy of the entry. Usually the final calculated
                 energy from VASP or other electronic structure codes.
-            energy_adjustments: An optional list of EnergyAdjustment to
-                be applied to the energy. This is used to modify the energy for
-                certain analyses. Defaults to None.
+            correction (float, optional): A correction to the energy. This is mutually exclusive with
+                energy_adjustments, i.e. pass either or neither but not both. Defaults to 0.
             composition (Composition): Composition of the entry. For
                 flexibility, this can take the form of all the typical input
                 taken by a Composition, including a {symbol: amt} dict,
                 a string formula, and others.
+            energy_adjustments: An optional list of EnergyAdjustment to
+                be applied to the energy. This is used to modify the energy for
+                certain analyses. Defaults to None.
             parameters: An optional dict of parameters associated with
                 the entry. Defaults to None.
             data: An optional dict of any additional data associated
@@ -674,8 +689,8 @@ class ComputedStructureEntry(ComputedEntry):
 
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedStructureEntry:
         """
-        Normalize the entry's composition and energy. The structure remains
-        unchanged.
+        Normalize the entry's composition and energy. The structure remains unchanged.
+
         Args:
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
@@ -694,6 +709,20 @@ class ComputedStructureEntry(ComputedEntry):
         entry = self.from_dict(d)
         entry._composition /= factor  # pylint: disable=E1101
         return entry
+
+    def copy(self) -> ComputedStructureEntry:
+        """
+        Returns a copy of the ComputedStructureEntry.
+        """
+        return ComputedStructureEntry(
+            structure=self.structure.copy(),
+            energy=self.uncorrected_energy,
+            composition=self.composition,
+            energy_adjustments=self.energy_adjustments,
+            parameters=self.parameters,
+            data=self.data,
+            entry_id=self.entry_id,
+        )
 
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
