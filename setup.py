@@ -112,7 +112,7 @@ setup(
             "coveralls",
             "doc2dash",
             "flake8",
-            "mypy",
+            "mypy==0.982",
             "pre-commit",
             "pydocstyle",
             "pylint",
