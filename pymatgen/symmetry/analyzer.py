@@ -217,6 +217,11 @@ class SpacegroupAnalyzer:
             vectors in scaled positions.
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        if d is None:
+            raise ValueError(
+                f"Symmetry detection failed for structure with formula {self._structure.formula}. "
+                f"Try setting symprec={self._symprec} to a different value."
+            )
         # Sometimes spglib returns small translation vectors, e.g.
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator
