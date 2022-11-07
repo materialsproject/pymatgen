@@ -192,7 +192,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         cifname = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            cifname = Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif")
+            cifname = str(Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif"))
             s.to(filename=cifname)
 
         if zip_output:
