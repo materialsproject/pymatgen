@@ -220,6 +220,12 @@ class ComputedEntryTest(unittest.TestCase):
         entry = ComputedEntry("Fe3", 2.3)
         assert entry.is_element
 
+    def test_copy(self):
+        for entry in (self.entry, self.entry2, self.entry3, self.entry4):
+            copy = entry.copy()
+            assert entry == copy
+            assert str(entry) == str(copy)
+
 
 class ComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
@@ -384,6 +390,13 @@ class ComputedStructureEntryTest(unittest.TestCase):
         assert e.energy == pytest.approx(-38.42116819)
         assert e.correction == pytest.approx(1)
         assert len(e.energy_adjustments) == 1
+
+    def test_copy(self):
+        copy = self.entry.copy()
+        assert copy == self.entry
+        assert copy is not self.entry
+        assert copy.structure is not self.entry.structure
+        assert str(copy) == str(self.entry)
 
 
 class GibbsComputedStructureEntryTest(unittest.TestCase):

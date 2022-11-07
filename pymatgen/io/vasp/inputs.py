@@ -1888,7 +1888,7 @@ class PotcarSingle:
         :return: PotcarSingle
         """
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-        assert isinstance(functional, str)  # type narrowing
+        assert isinstance(functional, str)  # mypy type narrowing
         funcdir = PotcarSingle.functional_dir[functional]
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:

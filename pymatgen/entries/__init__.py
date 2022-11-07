@@ -78,6 +78,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         :return: the energy of the entry.
         """
+        raise NotImplementedError
 
     @property
     def energy_per_atom(self) -> float:

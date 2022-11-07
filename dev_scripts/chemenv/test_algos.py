@@ -46,7 +46,8 @@ if __name__ == "__main__":
     myindices = range(cg.coordination_number)
 
     test = input(
-        'Enter if you want to test all possible permutations ("all" or "a") or a given number of random permutations (i.e. "25")'
+        'Enter if you want to test all possible permutations ("all" or "a") or a given number of '
+        'random permutations (i.e. "25")'
     )
 
     if test == "all" or test == "a":
@@ -94,8 +95,4 @@ if __name__ == "__main__":
         print("   => ", algos_results)
         iperm += 1
     t2 = time.clock()
-    print(
-        'Time to test {:d} permutations for geometry "{}" (symbol "{}") : {:.2f} seconds'.format(
-            nperms, cg.name, cg_symbol, t2 - t1
-        )
-    )
+    print(f'Time to test {nperms} permutations for geometry "{cg.name}" (symbol "{cg_symbol}") : {t2 - t1:.2f} seconds')

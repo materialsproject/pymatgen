@@ -366,7 +366,7 @@ class PhaseDiagram(MSONable):
             computed_data = self._compute()
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
-        assert isinstance(computed_data, dict)  # type narrowing to appease mypy
+        assert isinstance(computed_data, dict)  # mypy type narrowing
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
