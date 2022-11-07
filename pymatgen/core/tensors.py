@@ -1050,8 +1050,8 @@ class TensorMapping(collections.abc.MutableMapping):
         """
         if len(values) != len(tensors):
             raise ValueError("TensorMapping must be initialized with tensors and values of equivalent length")
-        self._tensor_list = tensors
-        self._value_list = values
+        self._tensor_list = list(tensors)  # needs to be a list
+        self._value_list = list(values)  # needs to be a list
         self.tol = tol
 
     def __getitem__(self, item):
