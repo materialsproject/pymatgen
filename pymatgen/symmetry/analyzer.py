@@ -219,7 +219,7 @@ class SpacegroupAnalyzer:
         d = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
         if d is None:
             raise ValueError(
-                f"Symmetry detection for structure with formula {self._structure.formula} failed. "
+                f"Symmetry detection failed for structure with formula {self._structure.formula}. "
                 f"Try setting symprec={self._symprec} to a different value."
             )
         # Sometimes spglib returns small translation vectors, e.g.
