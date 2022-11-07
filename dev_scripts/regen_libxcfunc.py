@@ -63,7 +63,7 @@ def write_libxc_docs_json(xcfuncs, jpath):
             if desc is not None:
                 xcfuncs[num][opt] = desc
 
-    with open(jpath, "wt") as fh:
+    with open(jpath, "w") as fh:
         json.dump(xcfuncs, fh)
 
     return xcfuncs
@@ -111,7 +111,7 @@ def main():
     del lines[start + 1 : stop]
 
     # [2] write new py module
-    with open(xcfuncpy_path, "wt") as fh:
+    with open(xcfuncpy_path, "w") as fh:
         fh.writelines(lines)
 
     print("Files have been regenerated")

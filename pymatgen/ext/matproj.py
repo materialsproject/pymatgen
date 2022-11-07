@@ -248,7 +248,7 @@ class _MPResterLegacy:
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(MP_LOG_FILE, "wt") as f:
+                with open(MP_LOG_FILE, "w") as f:
                     yaml.dump(d, f)
             except Exception:
                 pass

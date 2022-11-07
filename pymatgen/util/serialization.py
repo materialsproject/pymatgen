@@ -36,7 +36,7 @@ def json_pretty_dump(obj, filename):
     Serialize obj as a JSON formatted stream to the given filename (
     pretty printing version)
     """
-    with open(filename, "wt") as fh:
+    with open(filename, "w") as fh:
         json.dump(obj, fh, indent=4, sort_keys=4)
 
 
