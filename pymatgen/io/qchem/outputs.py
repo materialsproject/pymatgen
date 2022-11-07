@@ -776,6 +776,17 @@ class QCOutput(MSONable):
             header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
             table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
+        elif read_pattern(
+            self.text,
+            {"key": r"Geometry Optimiation Coordinates :\s+Cartesian"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            header_pattern = (
+                r"RMS\s+of Stepsize\s+[\d\-\.]+\s+-+\s+Standard Nuclear Orientation "
+                r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            )
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         else:  # pylint: disable=line-too-long
             header_pattern = (
                 r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation "
