@@ -778,7 +778,7 @@ class QCOutput(MSONable):
             footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
         elif read_pattern(
             self.text,
-            {"key": r"Geometry Optimiation Coordinates :\s+Cartesian"},
+            {"key": r"Geometry Optimization Coordinates :\s+Cartesian"},
             terminate_on_match=True,
         ).get("key") == [[]]:
             header_pattern = (
