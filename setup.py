@@ -90,7 +90,7 @@ setup(
         "requests",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.5.0",
-        "spglib>=2.0",
+        "spglib>=2.0.2",
         "sympy",
         "tabulate",
         "tqdm",
