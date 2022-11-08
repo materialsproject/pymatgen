@@ -7,6 +7,7 @@ import json
 import warnings
 
 import numpy as np
+from numpy import typing as npt
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
@@ -270,69 +271,55 @@ class VolumetricData(MSONable):
             total = np.sum(np.sum(m, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
-    def mask_sphere(self, radius, cx, cy, cz):
+    def mask_sphere(self, radius: float, fcoord: npt.ArrayLike):
         """
-        Create a mask for a sphere with radius=radius, centered at cx, cy, cz.
+        Create a mask for a sphere in the data
 
         Args:
-            radius: (float) of the mask (in Angstroms)
-            cx, cy, cz: (float) the fractional coordinates of the center of the sphere
+            radius: Radius of the mask in Angstroms
+            fcoord: The fractional coordinates of the center of the sphere
         """
-        dx, dy, dz = (
-            np.floor(radius / np.linalg.norm(self.structure.lattice[0])).astype(int),
-            np.floor(radius / np.linalg.norm(self.structure.lattice[1])).astype(int),
-            np.floor(radius / np.linalg.norm(self.structure.lattice[2])).astype(int),
-        )
-        r = min(dx, dy, dz)
-        x0, y0, z0 = (
-            int(np.round(self.dim[0] * cx)),
-            int(np.round(self.dim[1] * cy)),
-            int(np.round(self.dim[2] * cz)),
-        )
-        i, j, k = np.indices(self.dim)
-        dist_from_center = np.sqrt((i - x0) ** 2 + (j - y0) ** 2 + (k - z0) ** 2)
-        return dist_from_center <= r
+        # makesure fcoord is an array
+        fcoord = np.array(fcoord)
 
-    def _get_atomic_site_average(self, site, radius):
+        def _dist_mat(pos_frac):
+            # return a matrix that contains the distances
+            aa = np.linspace(0, 1, len(self.get_axis_grid(0)), endpoint=False)
+            bb = np.linspace(0, 1, len(self.get_axis_grid(1)), endpoint=False)
+            cc = np.linspace(0, 1, len(self.get_axis_grid(2)), endpoint=False)
+            AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
+            dist_from_pos = self.structure.lattice.get_all_distances(
+                fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
+                fcoords2=pos_frac,
+            )
+            return dist_from_pos.reshape(AA.shape)
+
+        if np.any(fcoord < 0) or np.any(fcoord > 1):
+            raise ValueError("f_coords must be in [0,1)")
+        return _dist_mat(fcoord) < radius
+
+    def average_in_sphere(self, radius: float, fcoord: npt.ArrayLike):
         """
-        Helper function for get_atomic_site_averages.
-
+        Return an average of the total data within a sphere.
+        
         Args:
-            site: Site in the structure around which to get the average
-            radius: (float) the atomic_site_radius (in Angstroms) for given atomic species
-
-        returns:
-            Average around the atomic site
+            radius: Radius of the mask in Angstroms
+            fcoord: The fractional coordinates of the center of the sphere 
         """
-        mask = self.mask_sphere(radius, *site.frac_coords)
-        return np.sum(self.data["total"] * mask) / np.count_nonzero(mask)
+        mask = self.mask_sphere(radius, fcoord)
+        vol_sphere = self.structure.volume * (mask.sum() / self.ngridpts)
+        return np.sum(self.data["total"] * mask) / mask.size / vol_sphere
 
-    def get_atomic_site_totals(self, atomic_site_radii):
+    def sum_in_sphere(self, radius: float, fcoord: npt.ArrayLike):
         """
-        Get the integrated total in a sphere around each atomic site.
-
+        Return the sum of the total data within a sphere.
+        
         Args:
-            atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
-                for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
-                not provided, then the
-        returns:
-            Array of site averages, [Average around site 1, Average around site 2, ...]
+            radius: Radius of the mask in Angstroms
+            fcoord: The fractional coordinates of the center of the sphere 
         """
-        return [self._get_atomic_site_total(s, atomic_site_radii[s.species_string]) for s in self.structure.sites]
-
-    def _get_atomic_site_total(self, site, radius):
-        """
-        Helper function for get_atomic_site_averages.
-
-        Args:
-            site: Site in the structure around which to get the total
-            radius: (float) the atomic_site_radius (in Angstroms) for given atomic species
-
-        returns:
-            Average around the atomic site
-        """
-        mask = self.mask_sphere(radius, *site.frac_coords)
-        return np.sum(self.data["total"] * mask)
+        mask = self.mask_sphere(radius, fcoord)
+        return np.sum(self.data["total"] * mask) 
 
     def to_hdf5(self, filename):
         """
