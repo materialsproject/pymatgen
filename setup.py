@@ -1,8 +1,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-"""Setup.py for pymatgen."""
-
 from __future__ import annotations
 
 import platform
@@ -13,7 +11,7 @@ from setuptools import Extension, find_namespace_packages, setup
 
 extra_link_args: list[str] = []
 if sys.platform.startswith("win") and platform.machine().endswith("64"):
-    extra_link_args.append("-Wl,--allow-multiple-definition")
+    extra_link_args = ["-Wl,--allow-multiple-definition"]
 
 
 long_desc = """
@@ -79,9 +77,6 @@ setup(
     ),
     version="2022.11.7",
     python_requires=">=3.8",
-    setup_requires=[
-        "Cython>=0.29.23",
-    ],
     install_requires=[
         "matplotlib>=1.5",
         "monty>=3.0.2",
@@ -95,7 +90,7 @@ setup(
         "requests",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.5.0",
-        "spglib>=2.0",
+        "spglib>=2.0.2",
         "sympy",
         "tabulate",
         "tqdm",

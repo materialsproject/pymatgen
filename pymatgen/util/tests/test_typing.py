@@ -24,10 +24,20 @@ def _type_str(some_type: Any) -> str:
 
 
 def test_entry_like():
-    assert (
-        _type_str(EntryLike) == "Union[Dict[str, Any], ForwardRef('Entry'), "
-        "ForwardRef('PDEntry'), ForwardRef('ComputedEntry'), ForwardRef('ComputedStructureEntry')]"
+    entries = (
+        "Entry",
+        "ComputedEntry",
+        "ComputedStructureEntry",
+        "PDEntry",
+        "ExpEntry",
+        "TransformedPDEntry",
+        "GrandPotPDEntry",
+        "CostEntry",
+        "GibbsComputedStructureEntry",
     )
+    type_str = _type_str(EntryLike)
+    for entry in entries:
+        assert entry in type_str
     assert Entry.__name__ in str(EntryLike)
 
 
