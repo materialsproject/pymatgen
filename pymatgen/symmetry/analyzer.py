@@ -76,12 +76,14 @@ class SpacegroupAnalyzer:
                 magmoms.append(site.magmom)
             elif site.is_ordered and hasattr(site.specie, "spin"):
                 magmoms.append(site.specie.spin)
-            else:
-                magmoms.append(0)  # needed for spglib
 
         self._unique_species = unique_species
         self._numbers = zs
-        self._cell = structure.lattice.matrix, structure.frac_coords, zs, magmoms
+
+        if len(magmoms) > 0:
+            self._cell = structure.lattice.matrix, structure.frac_coords, zs, magmoms
+        else:  # if no magmoms given do not add to cell
+            self._cell = structure.lattice.matrix, structure.frac_coords, zs
 
         self._space_group_data = spglib.get_symmetry_dataset(
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance
