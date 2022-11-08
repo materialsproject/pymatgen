@@ -183,10 +183,13 @@ class DftSet(Cp2kInput):
         super().__init__(name="CP2K_INPUT", subsections={})
 
         self.structure = structure
-        self.basis_and_potential = basis_and_potential
+        self.basis_and_potential = basis_and_potential if basis_and_potential else {}
         self.project_name = project_name
         self.charge = int(structure.charge)
-        self.multiplicity = multiplicity
+        if not multiplicity and isinstance(self.structure, Molecule):
+            self.multiplicity = self.structure.spin_multiplicity
+        else:
+            self.multiplicity = multiplicity
         self.ot = ot
         self.energy_gap = energy_gap
         self.eps_default = eps_default
