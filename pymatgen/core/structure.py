@@ -1867,23 +1867,23 @@ class IStructure(SiteCollection, MSONable):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
-        site_props = self.site_properties
+        props = self.site_properties
         if site_properties:
-            site_props.update(site_properties)
+            props.update(site_properties)
         if not sanitize:
             return self.__class__(
                 self._lattice,
                 self.species_and_occu,
                 self.frac_coords,
                 charge=self._charge,
-                site_properties=site_props,
+                site_properties=props,
             )
         reduced_latt = self._lattice.get_lll_reduced_lattice()
         new_sites = []
         for idx, site in enumerate(self):
             frac_coords = reduced_latt.get_fractional_coords(site.coords)
             site_props = {}
-            for prop, val in site_props.items():
+            for prop, val in props.items():
                 site_props[prop] = val[idx]
             new_sites.append(
                 PeriodicSite(

@@ -16,7 +16,7 @@ import json
 import os
 import warnings
 from itertools import combinations
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -142,7 +142,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self.value:.3f} eV)"
+        return f"{self.description} ({self.value:.3f} eV)"
 
     def normalize(self, factor):
         """
@@ -222,7 +222,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
+        return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -289,7 +289,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
+        return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -491,7 +491,7 @@ class ComputedEntry(Entry):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        assert isinstance(other, ComputedEntry)  # mypy type narrowing
+        other = cast(ComputedEntry, other)
 
         # Equality is defined based on composition and energy
         # If structures are involved, it is assumed that a {composition, energy} is
