@@ -36,7 +36,7 @@ class BornEffectiveCharge:
         Create an BornEffectiveChargeTensor object defined by a
         structure, point operations of the structure's atomic sites.
         Note that the constructor uses __new__ rather than __init__
-        according to the standard method ofsubclassing numpy ndarrays.
+        according to the standard method of subclassing numpy ndarrays.
 
         Args:
             input_matrix (Nx3x3 array-like): the Nx3x3 array-like
