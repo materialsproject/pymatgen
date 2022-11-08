@@ -587,7 +587,9 @@ class SinglePointSet(QChemDictSet):
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
                 (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
-                of the input file with appropriate parameters.
+                of the input file with appropriate parameters. Note that due to limitations in Q-Chem, use of the ISOSVP
+                or CMIRS solvent models will disable the GEN_SCFMAN algorithm, which may limit compatible choices
+                for scf_algorithm.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
@@ -600,7 +602,9 @@ class SinglePointSet(QChemDictSet):
                 Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
                 "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
                 populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
-                to compute electrostatics.
+                to compute electrostatics. Note also that due to limitations in Q-Chem, use of the ISOSVP
+                or CMIRS solvent models will disable the GEN_SCFMAN algorithm, which may limit compatible choices
+                for scf_algorithm.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
