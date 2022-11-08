@@ -134,7 +134,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             match=f"Symmetry detection failed for structure with formula {Co8.formula}. "
             f"Try setting {symprec=} to a different value.",
         ):
-            SpacegroupAnalyzer(Co8, symprec=symprec)._get_symmetry()
+            sga = SpacegroupAnalyzer(Co8, symprec=symprec)
+            magmoms = [0] * len(Co8)  # bad magmoms, see https://github.com/materialsproject/pymatgen/pull/2727
+            sga._cell = (*sga._cell, magmoms)
+            sga._get_symmetry()
 
     def test_get_crystal_system(self):
         crystal_system = self.sg.get_crystal_system()
