@@ -30,7 +30,11 @@ if TYPE_CHECKING:  # needed to avoid circular imports
         TransformedPDEntry,
     )
     from pymatgen.entries import Entry
-    from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+    from pymatgen.entries.computed_entries import (
+        ComputedEntry,
+        ComputedStructureEntry,
+        GibbsComputedStructureEntry,
+    )
     from pymatgen.entries.exp_entries import ExpEntry
 
 VectorLike = Union[Sequence[float], np.ndarray]
@@ -55,4 +59,5 @@ EntryLike = Union[
     "TransformedPDEntry",
     "GrandPotPDEntry",
     "CostEntry",
+    "GibbsComputedStructureEntry",
 ]
