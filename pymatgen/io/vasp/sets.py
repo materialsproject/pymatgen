@@ -189,11 +189,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
-        cifname = ""
+        cif_name = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            cifname = Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif")
-            s.to(filename=cifname)
+            cif_name = f"{output_dir}/{s.formula.replace(' ', '')}.cif"
+            s.to(filename=cif_name)
 
         if zip_output:
             filename = type(self).__name__ + ".zip"
@@ -204,7 +204,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                     "KPOINTS",
                     "POTCAR",
                     "POTCAR.spec",
-                    cifname,
+                    cif_name,
                 ]:
                     try:
                         zip.write(os.path.join(output_dir, file), arcname=file)
@@ -734,6 +734,7 @@ class DictSet(VaspInputSet):
                 not have a license to specific Potcar files. Given a "POTCAR.spec",
                 the specific POTCAR file can be re-generated using pymatgen with the
                 "generate_potcar" function in the pymatgen CLI.
+            zip_output (bool): Whether to zip each VASP input file written to the output directory.
         """
         super().write_input(
             output_dir=output_dir,
@@ -755,6 +756,7 @@ class DictSet(VaspInputSet):
             max_prime_factor (int): the valid prime factors of the grid size in each direction
                 VASP has many different setting for this to handle many compiling options.
                 For typical MPI options all prime factors up to 7 are allowed
+            must_inc_2 (bool): Whether 2 must be a prime factor of the result. Defaults to True.
         """
         # TODO throw error for Ultrasoft potentials
 
@@ -3225,8 +3227,10 @@ class MPAbsorptionSet(MPRelaxSet):
     def override_from_prev_calc(self, prev_calc_dir=".", **kwargs):
         """
         Update the input set to include settings from a previous calculation.
+
         Args:
             prev_calc_dir (str): The path to the previous calculation directory.
+
         Returns:
             The input set with the settings (structure, k-points, incar, etc)
             updated using the previous VASP run.
