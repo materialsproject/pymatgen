@@ -21,7 +21,7 @@ import warnings
 from collections import defaultdict
 from fractions import Fraction
 from math import cos, sin
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import spglib
@@ -81,7 +81,7 @@ class SpacegroupAnalyzer:
         self._numbers = zs
 
         if len(magmoms) > 0:
-            self._cell = structure.lattice.matrix, structure.frac_coords, zs, magmoms
+            self._cell: tuple[Any, ...] = structure.lattice.matrix, structure.frac_coords, zs, magmoms
         else:  # if no magmoms given do not add to cell
             self._cell = structure.lattice.matrix, structure.frac_coords, zs
 
