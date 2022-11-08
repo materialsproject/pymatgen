@@ -1908,7 +1908,8 @@ class PotcarSingle:
                 psingle = PotcarSingle.from_file(p)
                 return psingle
         raise OSError(
-            f"You do not have the right POTCAR with functional {functional} and label {symbol} in your VASP_PSP_DIR"
+            f"You do not have the right POTCAR with functional {functional} and label {symbol} "
+            f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"
         )
 
     @property

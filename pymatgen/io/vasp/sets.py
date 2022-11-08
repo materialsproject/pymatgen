@@ -189,11 +189,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
-        cifname = ""
+        cif_name = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            cifname = str(Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif"))
-            s.to(filename=cifname)
+            cif_name = f"{output_dir}/{s.formula.replace(' ', '')}.cif"
+            s.to(filename=cif_name)
 
         if zip_output:
             filename = type(self).__name__ + ".zip"
@@ -204,7 +204,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                     "KPOINTS",
                     "POTCAR",
                     "POTCAR.spec",
-                    cifname,
+                    cif_name,
                 ]:
                     try:
                         zip.write(os.path.join(output_dir, file), arcname=file)
