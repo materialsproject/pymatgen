@@ -349,6 +349,7 @@ class QChemDictSet(QCInput):
             mysvp = svp_defaults
             mysvp["dielst"] = str(self.isosvp_dielectric)
             myrem["solvent_method"] = "isosvp"
+            myrem["gen_scfman"] = "false"
 
         if self.smd_solvent is not None:
             if self.smd_solvent == "custom":
@@ -370,6 +371,7 @@ class QChemDictSet(QCInput):
             # set up the ISOSVP calculation consistently with the CMIRS
             mysvp = svp_defaults
             myrem["solvent_method"] = "isosvp"
+            myrem["gen_scfman"] = "false"
             mysvp["dielst"] = CMIRS_SETTINGS[self.cmirs_solvent]["dielst"]  # type: ignore
             mysvp["idefesr"] = "1"  # this flag enables the CMIRS part
             mypcm_nonels = CMIRS_SETTINGS[self.cmirs_solvent][mysvp["rhoiso"]]  # type: ignore
