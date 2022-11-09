@@ -113,6 +113,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
           pip install --upgrade pip wheel setuptools twine
+          pip install numpy  # needed to get location of numpy header files in setup.py
           python setup.py sdist bdist_wheel
-          twine upload --skip-existing dist/*.whl dist/*.tar.gz
+          python -m twine upload --skip-existing dist/*.whl dist/*.tar.gz
         continue-on-error: true
