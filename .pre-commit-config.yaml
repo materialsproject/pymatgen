@@ -45,6 +45,7 @@ repos:
     rev: v0.982
     hooks:
       - id: mypy
+        additional_dependencies: [mypy==v0.982]
 
   - repo: local
     hooks:
