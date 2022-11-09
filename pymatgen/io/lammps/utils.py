@@ -269,7 +269,7 @@ class PackmolRunner:
         Args:
             input_dir (string): path to the input directory
         """
-        with open(os.path.join(input_dir, self.input_file), "wt", encoding="utf-8") as inp:
+        with open(os.path.join(input_dir, self.input_file), "w", encoding="utf-8") as inp:
             for k, v in self.control_params.items():
                 inp.write(f"{k} {self._format_param_val(v)}\n")
             # write the structures of the constituent molecules to file and set

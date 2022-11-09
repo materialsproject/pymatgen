@@ -6,12 +6,12 @@ ci:
 
 repos:
   - repo: https://github.com/PyCQA/autoflake
-    rev: v1.6.1
+    rev: v1.7.7
     hooks:
       - id: autoflake
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.38.2
+    rev: v3.2.0
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
@@ -31,7 +31,7 @@ repos:
         args: [--profile, black]
 
   - repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 22.10.0
     hooks:
       - id: black
 
@@ -45,6 +45,7 @@ repos:
     rev: v0.982
     hooks:
       - id: mypy
+        additional_dependencies: [mypy==v0.982]
 
   - repo: local
     hooks:
@@ -57,7 +58,7 @@ repos:
         additional_dependencies: [pylint]
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.1
+    rev: v2.2.2
     hooks:
       - id: codespell
         stages: [commit, commit-msg]

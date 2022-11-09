@@ -623,7 +623,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
             os.makedirs(dirname)
 
         # Write the input file.
-        with open(filepath, "wt") as fh:
+        with open(filepath, "w") as fh:
             fh.write(str(self))
 
     def deepcopy(self):
