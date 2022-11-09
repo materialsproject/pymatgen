@@ -8,6 +8,7 @@ import warnings
 
 import numpy as np
 from numpy import typing as npt
+from copy import deepcopy
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
@@ -149,7 +150,11 @@ class VolumetricData(MSONable):
         data = {}
         for k in self.data:
             data[k] = self.data[k] + scale_factor * other.data[k]
-        return VolumetricData(self.structure, data, self._distance_matrix)
+
+        new = deepcopy(self)
+        new.data = data
+        new.data_aug = {}
+        return new
 
     def scale(self, factor):
         """
