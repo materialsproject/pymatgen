@@ -374,6 +374,7 @@ class QChemDictSet(QCInput):
             myrem["gen_scfman"] = "false"
             mysvp["dielst"] = CMIRS_SETTINGS[self.cmirs_solvent]["dielst"]  # type: ignore
             mysvp["idefesr"] = "1"  # this flag enables the CMIRS part
+            mysvp["ipnrf"] = "1"  # this flag is also required for some undocumented reason
             mypcm_nonels = CMIRS_SETTINGS[self.cmirs_solvent][mysvp["rhoiso"]]  # type: ignore
             mypcm_nonels["delta"] = "7"  # as recommended by Q-Chem. See manual.
             mypcm_nonels["gaulag_n"] = "40"  # as recommended by Q-Chem. See manual.
