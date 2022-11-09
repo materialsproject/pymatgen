@@ -70,14 +70,14 @@ class BornEffectiveCharge:
         bec = self.bec
         struct = self.structure
         ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniquepointops = []
+        uniq_point_ops = []
         for op in ops:
-            uniquepointops.append(op)
+            uniq_point_ops.append(op)
 
         for ops in self.pointops:
             for op in ops:
-                if op not in uniquepointops:
-                    uniquepointops.append(op)
+                if op not in uniq_point_ops:
+                    uniq_point_ops.append(op)
 
         passed = []
         relations = []
@@ -85,22 +85,22 @@ class BornEffectiveCharge:
             unique = 1
             eig1, vecs1 = np.linalg.eig(val)
             index = np.argsort(eig1)
-            neweig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
+            new_eig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
             for index, p in enumerate(passed):
-                if np.allclose(neweig, p[1], atol=eigtol):
+                if np.allclose(new_eig, p[1], atol=eigtol):
                     relations.append([site, index])
                     unique = 0
-                    passed.append([site, p[0], neweig])
+                    passed.append([site, p[0], new_eig])
                     break
             if unique == 1:
                 relations.append([site, site])
-                passed.append([site, neweig])
+                passed.append([site, new_eig])
         BEC_operations = []
         for atom, r in enumerate(relations):
             BEC_operations.append(r)
             BEC_operations[atom].append([])
 
-            for op in uniquepointops:
+            for op in uniq_point_ops:
                 new = op.transform_tensor(self.bec[relations[atom][1]])
 
                 # Check the matrix it references
@@ -108,6 +108,7 @@ class BornEffectiveCharge:
                     BEC_operations[atom][2].append(op)
 
         self.BEC_operations = BEC_operations
+        return BEC_operations
 
     def get_rand_BEC(self, max_charge=1):
         """
@@ -349,12 +350,7 @@ class ForceConstantMatrix:
             if r[0] == r[2] and r[1] == r[3]:
                 good = 1
             if good == 0:
-                FCM_operations[entry] = [
-                    r[0],
-                    r[1],
-                    r[3],
-                    r[2],
-                ]
+                FCM_operations[entry] = [r[0], r[1], r[3], r[2]]
                 FCM_operations[entry].append([])
                 for op in uniquepointops:
                     new = op.transform_tensor(self.fcm[r[2]][r[3]])
