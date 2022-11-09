@@ -347,7 +347,7 @@ class AqueousCorrection(Correction):
 
         comp = entry.composition
         rform = comp.reduced_formula
-        cpdenergies = self.cpd_energies
+        cpd_energies = self.cpd_energies
 
         # only correct GGA or GGA+U entries
         if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
@@ -355,14 +355,14 @@ class AqueousCorrection(Correction):
 
         correction = ufloat(0.0, 0.0)
 
-        if rform in cpdenergies:
+        if rform in cpd_energies:
             if rform in ["H2", "H2O"]:
-                corr = cpdenergies[rform] * comp.num_atoms - entry.uncorrected_energy - entry.correction
+                corr = cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy - entry.correction
                 err = self.cpd_errors[rform] * comp.num_atoms
 
                 correction += ufloat(corr, err)
             else:
-                corr = cpdenergies[rform] * comp.num_atoms
+                corr = cpd_energies[rform] * comp.num_atoms
                 err = self.cpd_errors[rform] * comp.num_atoms
 
                 correction += ufloat(corr, err)
@@ -491,17 +491,17 @@ class UCorrection(Correction):
         if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
-        ucorr = self.u_corrections.get(most_electroneg, {})
-        usettings = self.u_settings.get(most_electroneg, {})
-        uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
+        u_corr = self.u_corrections.get(most_electroneg, {})
+        u_settings = self.u_settings.get(most_electroneg, {})
+        u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
 
         for el in comp.elements:
             sym = el.symbol
             # Check for bad U values
-            if calc_u.get(sym, 0) != usettings.get(sym, 0):
+            if calc_u.get(sym, 0) != u_settings.get(sym, 0):
                 raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0)} on {sym}")
-            if sym in ucorr:
-                correction += ufloat(ucorr[sym], uerrors[sym]) * comp[el]
+            if sym in u_corr:
+                correction += ufloat(u_corr[sym], u_errors[sym]) * comp[el]
 
         return correction
 
@@ -670,14 +670,7 @@ class CorrectionsList(Compatibility):
                 uncertainty = np.nan
             else:
                 uncertainty = uncertainties[k]
-            adjustment_list.append(
-                ConstantEnergyAdjustment(
-                    v,
-                    uncertainty=uncertainty,
-                    name=k,
-                    cls=self.as_dict(),
-                )
-            )
+            adjustment_list.append(ConstantEnergyAdjustment(v, uncertainty=uncertainty, name=k, cls=self.as_dict()))
 
         return adjustment_list
 
