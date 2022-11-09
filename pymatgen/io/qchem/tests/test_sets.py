@@ -351,7 +351,7 @@ class QChemDictSetTest(PymatgenTest):
             molecule=test_molecule,
             rem=rem,
             pcm_nonels=pcm_nonels,
-            svp={"RHOISO": 0.0005, "DIELST": 78.39, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2, "IDEFESR": 1},
+            svp={"RHOISO": 0.0005, "DIELST": 78.39, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2, "IPNRF": 1, "IDEFESR": 1},
         )
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
@@ -621,7 +621,15 @@ class SinglePointSetTest(PymatgenTest):
         )
         self.assertEqual(
             test_SPSet.svp,
-            {"dielst": "2.28", "rhoiso": "0.0005", "nptleb": "1202", "itrngr": "2", "irotgr": "2", "idefesr": "1"},
+            {
+                "dielst": "2.28",
+                "rhoiso": "0.0005",
+                "nptleb": "1202",
+                "itrngr": "2",
+                "irotgr": "2",
+                "ipnrf": "1",
+                "idefesr": "1",
+            },
         )
         self.assertEqual(
             test_SPSet.pcm_nonels,
