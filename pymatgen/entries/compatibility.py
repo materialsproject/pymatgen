@@ -281,17 +281,15 @@ class AnionCorrection(Correction):
                         correction += ox_corr * comp["O"]
 
                 elif hasattr(entry, "structure"):
-                    ox_type, nbonds = oxide_type(entry.structure, 1.05, return_nbonds=True)
+                    ox_type, n_bonds = oxide_type(entry.structure, 1.05, return_nbonds=True)  # type: ignore
                     if ox_type in self.oxide_correction:
-                        correction += self.oxide_correction[ox_type] * nbonds
+                        correction += self.oxide_correction[ox_type] * n_bonds
                     elif ox_type == "hydroxide":
                         correction += self.oxide_correction["oxide"] * comp["O"]
                 else:
                     warnings.warn(
-                        "No structure or oxide_type parameter present. Note "
-                        "that peroxide/superoxide corrections are not as "
-                        "reliable and relies only on detection of special"
-                        "formulas, e.g., Li2O2."
+                        "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
+                        "are not as reliable and relies only on detection of special formulas, e.g., Li2O2."
                     )
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
@@ -985,13 +983,11 @@ class MaterialsProject2020Compatibility(Compatibility):
                 if entry.data.get("oxide_type"):
                     ox_type = entry.data["oxide_type"]
                 elif hasattr(entry, "structure"):
-                    ox_type, _nbonds = oxide_type(entry.structure, 1.05, return_nbonds=True)
+                    ox_type = oxide_type(entry.structure, 1.05)
                 else:
                     warnings.warn(
-                        "No structure or oxide_type parameter present. Note "
-                        "that peroxide/superoxide corrections are not as "
-                        "reliable and relies only on detection of special"
-                        "formulas, e.g., Li2O2."
+                        "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
+                        "are not as reliable and relies only on detection of special formulas, e.g., Li2O2."
                     )
 
                     common_peroxides = "Li2O2 Na2O2 K2O2 Cs2O2 Rb2O2 BeO2 MgO2 CaO2 SrO2 BaO2".split()
@@ -1047,7 +1043,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 "only the most electronegative atom."
             )
 
-        for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
+        for anion in "Br I Se Si Sb Te H N F Cl".split():
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
                 # if the oxidation_states key is not populated, only apply the correction if the anion

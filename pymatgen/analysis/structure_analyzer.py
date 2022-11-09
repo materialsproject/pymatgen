@@ -5,8 +5,7 @@
 This module provides classes to perform topological analyses of structures.
 """
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
-__copyright__ = "Copyright 2011, The Materials Project"
+from __future__ import annotations
 
 import collections
 import itertools
@@ -23,6 +22,9 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
+
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
+__copyright__ = "Copyright 2011, The Materials Project"
 
 
 def average_coordination_number(structures, freq=10):
@@ -433,15 +435,14 @@ class OxideType:
         self.relative_cutoff = relative_cutoff
         self.oxide_type, self.nbonds = self.parse_oxide()
 
-    def parse_oxide(self):
+    def parse_oxide(self) -> tuple[str, int]:
         """
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
             oxide_type (str): Type of oxide
             ozonide/peroxide/superoxide/hydroxide/None.
-            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in
-            structure.
+            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in structure.
         """
         structure = self.structure
         relative_cutoff = self.relative_cutoff
@@ -452,7 +453,7 @@ class OxideType:
         if isinstance(structure.composition.elements[0], Element):
             comp = structure.composition
         elif isinstance(structure.composition.elements[0], Species):
-            elem_map = collections.defaultdict(float)
+            elem_map: dict[Element, float] = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
                     elem_map[species.element] += occu
@@ -470,10 +471,7 @@ class OxideType:
         if h_sites_frac_coords:
             dist_matrix = lattice.get_all_distances(o_sites_frac_coords, h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return (
-                    "hydroxide",
-                    len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0,
-                )
+                return "hydroxide", int(len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2)
         dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
@@ -492,7 +490,7 @@ class OxideType:
         try:
             nbonds = len(set(bond_atoms))
         except UnboundLocalError:
-            nbonds = 0.0
+            nbonds = 0
         if is_ozonide:
             str_oxide = "ozonide"
         elif is_superoxide:
@@ -502,11 +500,13 @@ class OxideType:
         else:
             str_oxide = "oxide"
         if str_oxide == "oxide":
-            nbonds = comp["O"]
+            nbonds = int(comp["O"])
         return str_oxide, nbonds
 
 
-def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
+def oxide_type(
+    structure: Structure, relative_cutoff: float = 1.1, return_nbonds: bool = False
+) -> str | tuple[str, int]:
     """
     Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
 
