@@ -364,7 +364,7 @@ class Trajectory(MSONable):
         syms = [site.specie.symbol for site in self[0]]
         site_symbols = [a[0] for a in itertools.groupby(syms)]
         syms = [site.specie.symbol for site in self[0]]
-        natoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
+        n_atoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
         for si, frac_coords in enumerate(self.frac_coords):
             # Only print out the info block if
@@ -377,10 +377,10 @@ class Trajectory(MSONable):
                     _lattice = self.lattice[si]
 
                 for latt_vec in _lattice:
-                    lines.append(f'{" ".join([str(el) for el in latt_vec])}')
+                    lines.append(f'{" ".join(map(str, latt_vec))}')
 
                 lines.append(" ".join(site_symbols))
-                lines.append(" ".join([str(x) for x in natoms]))
+                lines.append(" ".join(map(str, n_atoms)))
 
             lines.append(f"Direct configuration=     {si + 1}")
 

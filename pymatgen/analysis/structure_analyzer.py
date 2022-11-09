@@ -274,11 +274,11 @@ class VoronoiConnectivity:
         Provides connectivity array.
 
         Returns:
-            connectivity: An array of shape [atomi, atomj, imagej]. atomi is
+            connectivity: An array of shape [atom_i, atom_j, image_j]. atom_i is
             the index of the atom in the input structure. Since the second
             atom can be outside of the unit cell, it must be described
             by both an atom index and an image index. Array data is the
-            solid angle of polygon between atomi and imagej of atomj
+            solid angle of polygon between atom_i and image_j of atom_j
         """
         # shape = [site, axis]
         cart_coords = np.array(self.s.cart_coords)
@@ -290,24 +290,24 @@ class VoronoiConnectivity:
         connectivity = np.zeros(cs)
         vts = np.array(vt.vertices)
         for (ki, kj), v in vt.ridge_dict.items():
-            atomi = ki // n_images
-            atomj = kj // n_images
+            atom_i = ki // n_images
+            atom_j = kj // n_images
 
-            imagei = ki % n_images
-            imagej = kj % n_images
+            image_i = ki % n_images
+            image_j = kj % n_images
 
-            if imagei != n_images // 2 and imagej != n_images // 2:
+            if image_i != n_images // 2 and image_j != n_images // 2:
                 continue
 
-            if imagei == n_images // 2:
-                # atomi is in original cell
+            if image_i == n_images // 2:
+                # atom_i is in original cell
                 val = solid_angle(vt.points[ki], vts[v])
-                connectivity[atomi, atomj, imagej] = val
+                connectivity[atom_i, atom_j, image_j] = val
 
-            if imagej == n_images // 2:
-                # atomj is in original cell
+            if image_j == n_images // 2:
+                # atom_j is in original cell
                 val = solid_angle(vt.points[kj], vts[v])
-                connectivity[atomj, atomi, imagei] = val
+                connectivity[atom_j, atom_i, image_i] = val
 
             if -10.101 in vts[v]:
                 warn("Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect")
@@ -327,10 +327,10 @@ class VoronoiConnectivity:
         with their real-space distances.
         """
         con = []
-        maxconn = self.max_connectivity
-        for ii in range(0, maxconn.shape[0]):
-            for jj in range(0, maxconn.shape[1]):
-                if maxconn[ii][jj] != 0:
+        max_conn = self.max_connectivity
+        for ii in range(0, max_conn.shape[0]):
+            for jj in range(0, max_conn.shape[1]):
+                if max_conn[ii][jj] != 0:
                     dist = self.s.get_distance(ii, jj)
                     con.append([ii, jj, dist])
         return con
@@ -383,7 +383,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
 
     Args:
         structure: (structure)
-        el_radius_updates: (dict) symbol->float to update atomic radii
+        el_radius_updates: (dict) symbol->float to update atom_ic radii
 
     Returns: (dict) - (Element1, Element2) -> float. The two elements are
         ordered by Z.
@@ -488,9 +488,9 @@ class OxideType:
                 is_superoxide = False
                 is_ozonide = True
         try:
-            nbonds = len(set(bond_atoms))
+            n_bonds = len(set(bond_atoms))
         except UnboundLocalError:
-            nbonds = 0
+            n_bonds = 0
         if is_ozonide:
             str_oxide = "ozonide"
         elif is_superoxide:
@@ -500,8 +500,8 @@ class OxideType:
         else:
             str_oxide = "oxide"
         if str_oxide == "oxide":
-            nbonds = int(comp["O"])
-        return str_oxide, nbonds
+            n_bonds = int(comp["O"])
+        return str_oxide, n_bonds
 
 
 def oxide_type(
