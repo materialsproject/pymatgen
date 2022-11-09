@@ -818,14 +818,20 @@ having to create a list of separate correction classes.
 @cached_class
 class MaterialsProject2020Compatibility(Compatibility):
     """
-    This class implements the Materials Project 2020 energy correction scheme,
-    which incorporates uncertainty quantification and allows for mixing of GGA
-    and GGA+U entries (see References).
+    This class implements the Materials Project 2020 energy correction scheme, which
+    incorporates uncertainty quantification and allows for mixing of GGA and GGA+U entries
+    (see References).
 
     Note that this scheme should only be applied to VASP calculations that use the
-    Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet).
-    Using this compatibility scheme on calculations with different parameters is not
-    valid.
+    Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet). Using
+    this compatibility scheme on calculations with different parameters is not valid.
+
+    Note: While the correction scheme is largely composition-based, corrections applied to
+    ComputedEntry and ComputedStructureEntry differ in rare cases. This is because if
+    entry.data['oxidation_states'] is not set explicitly, the atomic distance information
+    in the structure will be used to classify O and S anions as superoxide/peroxide/oxide
+    and sulfide/polysulfide, resp. If you want the most accurate corrections possible,
+    always pass ComputedStructureEntries (unless you have pre-defined oxidation states).
     """
 
     def __init__(
