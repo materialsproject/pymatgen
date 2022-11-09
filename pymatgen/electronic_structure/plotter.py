@@ -70,7 +70,7 @@ class DosPlotter:
             stack (bool): Whether to plot the DOS as a stacked area graph
             sigma (float): Specify a standard deviation for Gaussian smearing
                 the DOS for nicer looking plots. Defaults to None for no
-                smearing..
+                smearing.
         """
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
