@@ -41,7 +41,7 @@ class ThermoData:
             data_type: The thermochemical data type. Should be one of the
                 following: fH - Formation enthalpy, S - Entropy,
                 A, B, C, D, E, F, G, H - variables for use in the various
-                quations for generating formation enthaplies or Cp at
+                equations for generating formation enthalpies or Cp at
                 various temperatures.
             cpdname (str): A name for the compound. For example, hematite for
                 Fe2O3.
@@ -109,19 +109,8 @@ class ThermoData:
         }
 
     def __repr__(self):
-        props = [
-            "formula",
-            "compound_name",
-            "phaseinfo",
-            "type",
-            "temp_range",
-            "value",
-            "method",
-            "ref",
-            "uncertainty",
-        ]
-        output = [f"{k} : {getattr(self, k)}" for k in props]
-        return "\n".join(output)
+        props = ["formula", "compound_name", "phaseinfo", "type", "temp_range", "value", "method", "ref", "uncertainty"]
+        return "\n".join(f"{k} : {getattr(self, k)}" for k in props)
 
     def __str__(self):
         return (

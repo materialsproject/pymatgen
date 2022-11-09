@@ -1316,5 +1316,5 @@ class BasicMultiDataset:
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):
-            p = root + f"DS{i}" + ext
+            p = f"{root}DS{i}" + ext
             inp.write(filepath=p)

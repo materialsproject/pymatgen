@@ -36,8 +36,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 class CostEntry(PDEntry):
     """
-    Extends PDEntry to include a BibTeX reference and include language about
-    cost
+    Extends PDEntry to include a BibTeX reference and include language about cost
     """
 
     def __init__(self, composition, cost, name, reference):

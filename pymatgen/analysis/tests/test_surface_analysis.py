@@ -89,11 +89,11 @@ class SlabEntryTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     label = clean.create_slab_label
                     comp = str(clean.composition.reduced_composition)
-                    self.assertEqual(str(hkl) + f" {comp}", label)
+                    self.assertEqual(f"{hkl} {comp}", label)
 
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         label = ads.create_slab_label
-                        self.assertEqual(label, str(hkl) + f" {comp}+O, 0.250 ML")
+                        self.assertEqual(label, f"{hkl} {comp}+O, 0.250 ML")
 
     def test_surface_energy(self):
         # For a non-stoichiometric case, the chemical potentials do not

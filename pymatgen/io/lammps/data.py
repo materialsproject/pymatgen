@@ -731,7 +731,7 @@ class LammpsData(MSONable):
             if (
                 name in ["Velocities"] + SECTION_KEYWORDS["topology"] and not seen_atoms
             ):  # Atoms must appear earlier than these
-                raise RuntimeError(err_msg + f"{name} section appears before Atoms section")
+                raise RuntimeError(f"{err_msg}{name} section appears before Atoms section")
             body.update({name: section})
 
         err_msg += "Nos. of {} do not match between header and {} section"

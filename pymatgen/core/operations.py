@@ -637,7 +637,7 @@ class MagSymmOp(SymmOp):
         '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices
         """
         xyzt_string = SymmOp.as_xyz_string(self)
-        return xyzt_string + f", {self.time_reversal:+}"
+        return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict:
         """

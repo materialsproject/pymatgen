@@ -207,9 +207,9 @@ def release_github(ctx, version):
     toks = desc.split("\n")
     desc = "\n".join(toks[:-1]).strip()
     payload = {
-        "tag_name": "v" + version,
+        "tag_name": f"v{version}",
         "target_commitish": "master",
-        "name": "v" + version,
+        "name": f"v{version}",
         "body": desc,
         "draft": False,
         "prerelease": False,
@@ -217,7 +217,7 @@ def release_github(ctx, version):
     response = requests.post(
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
-        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
+        headers={"Authorization": f"token {os.environ['GITHUB_RELEASES_TOKEN']}"},
     )
     print(response.text)
 
@@ -279,7 +279,7 @@ def update_changelog(ctx, version=None, sim=False):
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    head = f"\n\nv{version}\n" + "-" * (len(version) + 1) + "\n"
+    head = f"\n\nv{version}\n{'-' * (len(version) + 1)}\n"
     toks.insert(-1, head + "\n".join(lines))
     if not sim:
         with open("CHANGES.rst", "w") as f:
@@ -325,7 +325,7 @@ def open_doc(ctx):
     :param ctx:
     """
     pth = os.path.abspath("docs/_build/html/index.html")
-    webbrowser.open("file://" + pth)
+    webbrowser.open(f"file://{pth}")
 
 
 @task

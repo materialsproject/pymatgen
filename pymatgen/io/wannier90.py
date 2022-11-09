@@ -160,7 +160,7 @@ class Unk:
     def __repr__(self) -> str:
         return (
             f"<UNK ik={self.ik} nbnd={self.nbnd} ncl={self.is_noncollinear}"
-            + f" ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>"
+            f" ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>"
         )
 
     def __eq__(self, other: object) -> bool:

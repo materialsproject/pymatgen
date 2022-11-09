@@ -101,12 +101,10 @@ class CRESTInput(MSONable):
         )
         constrains_file_string = (
             "$constrain\n"
-            + f"  atoms: {','.join([str(i) for i in atoms_to_constrain])}\n"
-            + f"  force constant={force_constant}\n"
-            + f"  reference={reference_fnm}\n"
-            + "$metadyn\n"
-            + f"  atoms: {allowed_mtd_string}\n"
-            + "$end"
+            f"  atoms: {','.join(map(str, atoms_to_constrain))}\n"
+            f"  force constant={force_constant}\n"
+            f"  reference={reference_fnm}\n$metadyn\n"
+            f"  atoms: {allowed_mtd_string}\n$end"
         )
 
         return constrains_file_string

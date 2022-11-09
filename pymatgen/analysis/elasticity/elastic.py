@@ -1063,7 +1063,7 @@ def get_symbol_list(rank, dim=6):
     c_vec = np.zeros(len(indices), dtype=object)
     c_arr = np.zeros([dim] * rank, dtype=object)
     for n, idx in enumerate(indices):
-        c_vec[n] = sp.Symbol("c_" + "".join([str(i) for i in idx]))
+        c_vec[n] = sp.Symbol("c_" + "".join(map(str, idx)))
         for perm in itertools.permutations(idx):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr

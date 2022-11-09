@@ -677,7 +677,7 @@ class Tags(dict):
         Convert the given value to string.
         """
         if isinstance(val, list):
-            return " ".join([str(i) for i in val])
+            return " ".join(map(str, val))
 
         return str(val)
 
@@ -692,7 +692,7 @@ class Tags(dict):
             filename: filename and path to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+            f.write(f"{self}\n")
 
     @staticmethod
     def from_file(filename="feff.inp"):

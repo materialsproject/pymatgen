@@ -5350,7 +5350,7 @@ class Wavecar:
                 for ispin in range(self.spin):
                     for ib in range(self.nb):
                         data[ib, :, :, :] = np.fft.ifftn(self.fft_mesh(ik, ib, spin=ispin)) * N
-                    Unk(ik + 1, data).write_file(str(out_dir / (fname + f"{ispin+1}")))
+                    Unk(ik + 1, data).write_file(str(out_dir / f"{fname}{ispin+1}"))
 
 
 class Eigenval:
