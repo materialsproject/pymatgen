@@ -751,7 +751,7 @@ class ConnectedComponent(MSONable):
                     )
                     logging.debug(
                         f"            Delta image from node {str(node)} to neighbor {str(node_neighbor)} : "
-                        f"({', '.join([str(iii) for iii in myddelta])})"
+                        f"({', '.join(map(str, myddelta))})"
                     )
                     # Loop on the edges of this neighbor
                     for n1, n2, key, edata in node_neighbor_edges:
@@ -905,13 +905,14 @@ class ConnectedComponent(MSONable):
     def description(self, full=False):
         """
         Args:
-            full ():
+            full (bool): Whether to return a short or full description.
 
         Returns:
+            str: A description of the connected component.
         """
         out = ["Connected component with environment nodes :"]
         if not full:
-            out.extend([str(en) for en in sorted(self.graph.nodes())])
+            out.extend(map(str, sorted(self.graph.nodes())))
             return "\n".join(out)
         for en in sorted(self.graph.nodes()):
             out.append(f"{en}, connected to :")
