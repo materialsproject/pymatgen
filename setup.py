@@ -105,17 +105,19 @@ setup(
             "black",
             "coverage",
             "coveralls",
-            "doc2dash",
             "flake8",
-            "mypy==0.982",
+            "mypy==0.982",  # pinned due to long list of errors starting with mypy 0.990
             "pre-commit",
             "pydocstyle",
             "pylint",
             "pytest",
             "pytest-cov",
             "pytest-split",
+        ],
+        "docs": [
             "sphinx",
             "sphinx_rtd_theme",
+            "doc2dash",
         ],
         "optional": [
             # "hiphive>=0.6",
