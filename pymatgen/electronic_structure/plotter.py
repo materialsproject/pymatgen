@@ -126,15 +126,18 @@ class DosPlotter:
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None):
+    def get_plot(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
         """
-        Get a matplotlib plot showing the DOS.
+                Get a matplotlib plot showing the DOS.
 
-        Args:
-            xlim: Specifies the x-axis limits. Set to None for automatic
-                determination.
-            ylim: Specifies the y-axis limits.
-        """
+                Args:
+                    xlim: Specifies the energy axis limits. Set to None for automatic
+                        determination.
+                    ylim: Specifies the density axis limits.
+                    invert_axes: Enables chemist style DOS plotting. Defaults to False.
+                    beta_dashed: Plots the beta spin channel with a dashed line. Defaults to False.
+                """
+
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
 
@@ -174,35 +177,29 @@ class DosPlotter:
         alldensities.reverse()
         allenergies.reverse()
         allpts = []
+
         for idx, key in enumerate(keys):
-            xs = []
-            ys = []
             for spin in [Spin.up, Spin.down]:
                 if spin in alldensities[idx]:
+                    energy = allenergies[idx]
                     densities = list(int(spin) * alldensities[idx][spin])
-                    energies = list(allenergies[idx])
-                    if spin == Spin.down:
-                        energies.reverse()
-                        densities.reverse()
-                    xs.extend(energies)
-                    ys.extend(densities)
-            allpts.extend(list(zip(xs, ys)))
-            if self.stack:
-                plt.fill(xs, ys, color=colors[idx % ncolors], label=str(key))
-            else:
-                plt.plot(xs, ys, color=colors[idx % ncolors], label=str(key), linewidth=3)
-            if not self.zero_at_efermi:
-                ylim = plt.ylim()
-                plt.plot(
-                    [self._doses[key]["efermi"], self._doses[key]["efermi"]],
-                    ylim,
-                    color=colors[idx % ncolors],
-                    linestyle="--",
-                    linewidth=2,
-                )
+                    if invert_axes:
+                        x = densities
+                        y = energy
+                    else:
+                        x = energy
+                        y = densities
+                    allpts.extend(list(zip(x, y)))
+                    if self.stack:
+                        plt.fill(x, y, color=colors[idx % ncolors], label=str(key))
+                    elif spin == Spin.down and beta_dashed:
+                        plt.plot(x, y, color=colors[idx % ncolors], label=str(key), linestyle="--", linewidth=3)
+                    else:
+                        plt.plot(x, y, color=colors[idx % ncolors], label=str(key), linewidth=3)
 
         if xlim:
             plt.xlim(xlim)
+        # TODO: fix lim of invert_axes case
         if ylim:
             plt.ylim(ylim)
         else:
@@ -211,21 +208,30 @@ class DosPlotter:
             plt.ylim((min(relevanty), max(relevanty)))
 
         if self.zero_at_efermi:
+            xlim = plt.xlim()
             ylim = plt.ylim()
-            plt.plot([0, 0], ylim, "k--", linewidth=2)
+            plt.plot([0, 0], xlim, "k--", linewidth=2) if invert_axes else plt.plot([0, 0], ylim, "k--", linewidth=2)
 
-        plt.xlabel("Energies (eV)")
-        plt.ylabel("Density of states")
+        if invert_axes:
+            plt.ylabel("Energies (eV)")
+            plt.xlabel("Density of states")
+            plt.axvline(x=0, color="k", linestyle="--", linewidth=2)
+        else:
+            plt.xlabel("Energies (eV)")
+            plt.ylabel("Density of states")
+            plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
 
-        plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
-        plt.legend()
+        # Remove duplicate labels with a dictionary
+        handles, labels = plt.gca().get_legend_handles_labels()
+        label_dict = dict(zip(labels, handles))
+        plt.legend(label_dict.values(), label_dict.keys())
         leg = plt.gca().get_legend()
         ltext = leg.get_texts()  # all the text.Text instance in the legend
         plt.setp(ltext, fontsize=30)
         plt.tight_layout()
         return plt
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
         """
         Save matplotlib plot to a file.
 
@@ -236,10 +242,10 @@ class DosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot(xlim, ylim)
+        plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.savefig(filename, format=img_format)
 
-    def show(self, xlim=None, ylim=None):
+    def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
         """
         Show the plot using matplotlib.
 
@@ -248,7 +254,7 @@ class DosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot(xlim, ylim)
+        plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.show()
 
 
