@@ -14,61 +14,6 @@ if sys.platform.startswith("win") and platform.machine().endswith("64"):
     extra_link_args = ["-Wl,--allow-multiple-definition"]
 
 
-long_desc = """
-Official docs: [https://pymatgen.org](https://pymatgen.org/)
-
-Pymatgen (Python Materials Genomics) is a robust, open-source Python library
-for materials analysis. These are some of the main features:
-
-1. Highly flexible classes for the representation of Element, Site, Molecule,
-   Structure objects.
-2. Extensive input/output support, including support for
-   [VASP](https://www.vasp.at), [ABINIT](https://www.abinit.org/),
-   CIF, Gaussian, XYZ, and many other file formats.
-3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
-   diagrams, diffusion analyses, reactions, etc.
-4. Electronic structure analyses, such as density of states and band structure.
-5. Integration with the Materials Project REST API.
-
-Pymatgen is free to use. However, we also welcome your help to improve this
-library by making your own contributions. These contributions can be in the
-form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues to the [pymatgen repo]. For help with any
-pymatgen issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
-
-[pymatgen repo]: https://github.com/materialsproject/pymatgen
-
-Why use pymatgen?
-=================
-
-There are many materials analysis codes out there, both commercial and free,
-but pymatgen offer several advantages:
-
-1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,
-   and is the analysis code powering the [Materials Project](https://materialsproject.org).
-   The analysis it produces survives rigorous scrutiny every single day. Bugs
-   tend to be found and corrected quickly. Pymatgen also uses
-   [CircleCI](https://circleci.com) and [Appveyor](https://www.appveyor.com/)
-   for continuous integration on the Linux and Windows platforms,
-   respectively, which ensures that every commit passes a comprehensive suite
-   of unittests.
-2. **It is well documented.** A fairly comprehensive documentation has been
-   written to help you get to grips with it quickly.
-3. **It is open.** You are free to use and contribute to pymatgen. It also means
-   that pymatgen is continuously being improved. We will attribute any code you
-   contribute to any publication you specify. Contributing to pymatgen means
-   your research becomes more visible, which translates to greater impact.
-4. **It is fast.** Many of the core numerical methods in pymatgen have been
-   optimized by vectorizing in numpy/scipy. This means that coordinate
-   manipulations are extremely fast and are in fact comparable to codes
-   written in other languages. Pymatgen also comes with a complete system for
-   handling periodic boundary conditions.
-5. **It will be around.** Pymatgen is not a pet research project. It is used in
-   the well-established Materials Project. It is also actively being developed
-   and maintained by the [Materials Virtual Lab](https://materialsvirtuallab.org),
-   the ABINIT group and many other research groups.
-"""
-
 setup(
     name="pymatgen",
     packages=find_namespace_packages(
@@ -105,17 +50,19 @@ setup(
             "black",
             "coverage",
             "coveralls",
-            "doc2dash",
             "flake8",
-            "mypy==0.982",
+            "mypy==0.982",  # pinned due to long list of errors starting with mypy 0.990
             "pre-commit",
             "pydocstyle",
             "pylint",
             "pytest",
             "pytest-cov",
             "pytest-split",
+        ],
+        "docs": [
             "sphinx",
             "sphinx_rtd_theme",
+            "doc2dash",
         ],
         "optional": [
             # "hiphive>=0.6",
@@ -172,7 +119,7 @@ setup(
     "structure codes. It is currently the core analysis code "
     "powering the Materials Project "
     "(https://materialsproject.org).",
-    long_description=long_desc,
+    long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     keywords=[
         "ABINIT",
