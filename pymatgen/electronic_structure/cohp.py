@@ -1273,11 +1273,11 @@ class IcohpCollection(MSONable):
                 if not self._are_coops and not self._are_cobis:
                     if value.summed_icohp < extremum:
                         extremum = value.summed_icohp
-                        #print(extremum)
+                        # print(extremum)
                 else:
                     if value.summed_icohp > extremum:
                         extremum = value.summed_icohp
-                        #print(extremum)
+                        # print(extremum)
         return extremum
 
     @property
