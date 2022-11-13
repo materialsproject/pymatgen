@@ -912,7 +912,7 @@ class IcohpValue(MSONable):
                 + str(self._icohp[Spin.up])
                 + " eV (Spin up)"
             )
-        if self._are_coops:
+        if self._are_coops and not self._are_cobis:
             if self._is_spin_polarized:
                 return (
                     "ICOOP "
@@ -942,7 +942,23 @@ class IcohpValue(MSONable):
                 + str(self._icohp[Spin.up])
                 + " (Spin up)"
             )
-        if self._is_spin_polarized:
+        if self._are_cobis and not self._are_coops:
+            if self._is_spin_polarized:
+                return (
+                    "ICOBI "
+                    + str(self._label)
+                    + " between "
+                    + str(self._atom1)
+                    + " and "
+                    + str(self._atom2)
+                    + " ("
+                    + str(self._translation)
+                    + "): "
+                    + str(self._icohp[Spin.up])
+                    + " (Spin up) and "
+                    + str(self._icohp[Spin.down])
+                    + " (Spin down)"
+                )
             return (
                 "ICOBI "
                 + str(self._label)
@@ -954,23 +970,8 @@ class IcohpValue(MSONable):
                 + str(self._translation)
                 + "): "
                 + str(self._icohp[Spin.up])
-                + " (Spin up) and "
-                + str(self._icohp[Spin.down])
-                + " (Spin down)"
+                + " (Spin up)"
             )
-        return (
-            "ICOBI "
-            + str(self._label)
-            + " between "
-            + str(self._atom1)
-            + " and "
-            + str(self._atom2)
-            + " ("
-            + str(self._translation)
-            + "): "
-            + str(self._icohp[Spin.up])
-            + " (Spin up)"
-        )
 
     @property
     def num_bonds(self):
@@ -1249,6 +1250,7 @@ class IcohpCollection(MSONable):
         """
         if self._are_coops or self._are_cobis:
             extremum = -sys.float_info.max
+
         else:
             extremum = sys.float_info.max
 
@@ -1271,11 +1273,11 @@ class IcohpCollection(MSONable):
                 if not self._are_coops and not self._are_cobis:
                     if value.summed_icohp < extremum:
                         extremum = value.summed_icohp
-                        # print(extremum)
+                        #print(extremum)
                 else:
                     if value.summed_icohp > extremum:
                         extremum = value.summed_icohp
-                        # print(extremum)
+                        #print(extremum)
         return extremum
 
     @property
