@@ -392,6 +392,7 @@ class Icohplist:
 
         self._icohpcollection = IcohpCollection(
             are_coops=are_coops,
+            are_cobis=are_cobis,
             list_labels=list_labels,
             list_atom1=list_atom1,
             list_atom2=list_atom2,

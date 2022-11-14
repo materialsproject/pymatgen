@@ -483,7 +483,7 @@ class Poscar(MSONable):
 
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join([str(x) for x in self.natoms]))
+        lines.append(" ".join(map(str, self.natoms)))
         if self.selective_dynamics:
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
@@ -721,7 +721,7 @@ class Incar(dict, MSONable):
 
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
-                lines.append([k, " ".join([str(i) for i in self[k]])])
+                lines.append([k, " ".join(map(str, self[k]))])
             else:
                 lines.append([k, self[k]])
 
@@ -1512,17 +1512,17 @@ class Kpoints(MSONable):
         style = self.style.name.lower()[0]
         if style == "l":
             lines.append(self.coord_type)
-        for i in range(len(self.kpts)):
-            lines.append(" ".join([str(x) for x in self.kpts[i]]))
+        for idx, kpt in enumerate(self.kpts):
+            lines.append(" ".join(map(str, kpt)))
             if style == "l":
-                lines[-1] += " ! " + self.labels[i]
-                if i % 2 == 1:
+                lines[-1] += " ! " + self.labels[idx]
+                if idx % 2 == 1:
                     lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
-                    lines[-1] += f" {int(self.kpts_weights[i])} {self.labels[i]}"
+                    lines[-1] += f" {int(self.kpts_weights[idx])} {self.labels[idx]}"
                 else:
-                    lines[-1] += f" {int(self.kpts_weights[i])}"
+                    lines[-1] += f" {int(self.kpts_weights[idx])}"
 
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
@@ -1534,7 +1534,7 @@ class Kpoints(MSONable):
 
         # Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
-            lines.append(" ".join([str(x) for x in self.kpts_shift]))
+            lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
 
     def as_dict(self):

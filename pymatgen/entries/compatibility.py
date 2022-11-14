@@ -281,17 +281,15 @@ class AnionCorrection(Correction):
                         correction += ox_corr * comp["O"]
 
                 elif hasattr(entry, "structure"):
-                    ox_type, nbonds = oxide_type(entry.structure, 1.05, return_nbonds=True)
+                    ox_type, n_bonds = oxide_type(entry.structure, 1.05, return_nbonds=True)  # type: ignore
                     if ox_type in self.oxide_correction:
-                        correction += self.oxide_correction[ox_type] * nbonds
+                        correction += self.oxide_correction[ox_type] * n_bonds
                     elif ox_type == "hydroxide":
                         correction += self.oxide_correction["oxide"] * comp["O"]
                 else:
                     warnings.warn(
-                        "No structure or oxide_type parameter present. Note "
-                        "that peroxide/superoxide corrections are not as "
-                        "reliable and relies only on detection of special"
-                        "formulas, e.g., Li2O2."
+                        "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
+                        "are not as reliable and relies only on detection of special formulas, e.g., Li2O2."
                     )
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
@@ -349,7 +347,7 @@ class AqueousCorrection(Correction):
 
         comp = entry.composition
         rform = comp.reduced_formula
-        cpdenergies = self.cpd_energies
+        cpd_energies = self.cpd_energies
 
         # only correct GGA or GGA+U entries
         if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
@@ -357,14 +355,14 @@ class AqueousCorrection(Correction):
 
         correction = ufloat(0.0, 0.0)
 
-        if rform in cpdenergies:
+        if rform in cpd_energies:
             if rform in ["H2", "H2O"]:
-                corr = cpdenergies[rform] * comp.num_atoms - entry.uncorrected_energy - entry.correction
+                corr = cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy - entry.correction
                 err = self.cpd_errors[rform] * comp.num_atoms
 
                 correction += ufloat(corr, err)
             else:
-                corr = cpdenergies[rform] * comp.num_atoms
+                corr = cpd_energies[rform] * comp.num_atoms
                 err = self.cpd_errors[rform] * comp.num_atoms
 
                 correction += ufloat(corr, err)
@@ -493,17 +491,17 @@ class UCorrection(Correction):
         if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
-        ucorr = self.u_corrections.get(most_electroneg, {})
-        usettings = self.u_settings.get(most_electroneg, {})
-        uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
+        u_corr = self.u_corrections.get(most_electroneg, {})
+        u_settings = self.u_settings.get(most_electroneg, {})
+        u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
 
         for el in comp.elements:
             sym = el.symbol
             # Check for bad U values
-            if calc_u.get(sym, 0) != usettings.get(sym, 0):
+            if calc_u.get(sym, 0) != u_settings.get(sym, 0):
                 raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0)} on {sym}")
-            if sym in ucorr:
-                correction += ufloat(ucorr[sym], uerrors[sym]) * comp[el]
+            if sym in u_corr:
+                correction += ufloat(u_corr[sym], u_errors[sym]) * comp[el]
 
         return correction
 
@@ -672,14 +670,7 @@ class CorrectionsList(Compatibility):
                 uncertainty = np.nan
             else:
                 uncertainty = uncertainties[k]
-            adjustment_list.append(
-                ConstantEnergyAdjustment(
-                    v,
-                    uncertainty=uncertainty,
-                    name=k,
-                    cls=self.as_dict(),
-                )
-            )
+            adjustment_list.append(ConstantEnergyAdjustment(v, uncertainty=uncertainty, name=k, cls=self.as_dict()))
 
         return adjustment_list
 
@@ -827,14 +818,21 @@ having to create a list of separate correction classes.
 @cached_class
 class MaterialsProject2020Compatibility(Compatibility):
     """
-    This class implements the Materials Project 2020 energy correction scheme,
-    which incorporates uncertainty quantification and allows for mixing of GGA
-    and GGA+U entries (see References).
+    This class implements the Materials Project 2020 energy correction scheme, which
+    incorporates uncertainty quantification and allows for mixing of GGA and GGA+U entries
+    (see References).
 
     Note that this scheme should only be applied to VASP calculations that use the
-    Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet).
-    Using this compatibility scheme on calculations with different parameters is not
-    valid.
+    Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet). Using
+    this compatibility scheme on calculations with different parameters is not valid.
+
+    Note: While the correction scheme is largely composition-based, the energy corrections
+    applied to ComputedEntry and ComputedStructureEntry can differ for O and S-containing
+    structures if entry.data['oxidation_states'] is not populated or explicitly set. This
+    occurs because pymatgen will use atomic distances to classify O and S anions as
+    superoxide/peroxide/oxide and sulfide/polysulfide, resp. when oxidation states are not
+    provided. If you want the most accurate corrections possible, supply pre-defined
+    oxidation states to entry.data or pass ComputedStructureEntry.
     """
 
     def __init__(
@@ -985,13 +983,11 @@ class MaterialsProject2020Compatibility(Compatibility):
                 if entry.data.get("oxide_type"):
                     ox_type = entry.data["oxide_type"]
                 elif hasattr(entry, "structure"):
-                    ox_type, _nbonds = oxide_type(entry.structure, 1.05, return_nbonds=True)
+                    ox_type = oxide_type(entry.structure, 1.05)
                 else:
                     warnings.warn(
-                        "No structure or oxide_type parameter present. Note "
-                        "that peroxide/superoxide corrections are not as "
-                        "reliable and relies only on detection of special"
-                        "formulas, e.g., Li2O2."
+                        "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
+                        "are not as reliable and relies only on detection of special formulas, e.g., Li2O2."
                     )
 
                     common_peroxides = "Li2O2 Na2O2 K2O2 Cs2O2 Rb2O2 BeO2 MgO2 CaO2 SrO2 BaO2".split()
@@ -1047,7 +1043,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 "only the most electronegative atom."
             )
 
-        for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
+        for anion in "Br I Se Si Sb Te H N F Cl".split():
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
                 # if the oxidation_states key is not populated, only apply the correction if the anion
