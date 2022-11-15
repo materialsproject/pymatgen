@@ -467,7 +467,7 @@ class DftSet(Cp2kInput):
         admm: bool = True,
         admm_method: str = "BASIS_PROJECTION",
         admm_purification_method: str = "NONE",
-        admm_exch_correction_func: str = "NONE",
+        admm_exch_correction_func: str = "DEFAULT",
         eps_schwarz: float = 1e-7,
         eps_schwarz_forces: float = 1e-6,
         screen_on_initial_p: bool = True,
