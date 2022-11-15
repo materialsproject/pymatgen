@@ -112,7 +112,6 @@ jobs:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
-          python -m pip install --upgrade pip wheel setuptools twine
-          python -m pip install numpy Cython  # needed to get location of numpy header files in setup.py
-          python setup.py sdist bdist_wheel
+          python -m pip install --upgrade pip twine build
+          python -m build
           python -m twine upload --skip-existing dist/*.whl dist/*.tar.gz
