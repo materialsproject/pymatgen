@@ -224,6 +224,8 @@ class DosPlotter:
             plt.ylabel("Density of states")
             plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
 
+        # TODO: add different labels in legend f. different spin channels?
+
         # Remove duplicate labels with a dictionary
         handles, labels = plt.gca().get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
@@ -3812,15 +3814,19 @@ class CohpPlotter:
             plt.xlim(xlim)
         if ylim:
             plt.ylim(ylim)
-        else:
+        elif not invert_axes:
             xlim = plt.xlim()
             relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
             plt.ylim((min(relevanty), max(relevanty)))
+        if not xlim and invert_axes:
+            ylim = plt.ylim()
+            relevanty = [p[0] for p in allpts if ylim[0] < p[1] < ylim[1]]
+            plt.xlim((min(relevanty), max(relevanty)))
 
         xlim = plt.xlim()
         ylim = plt.ylim()
         if not invert_axes:
-            plt.plot(xlim, [0, 0], "k-", linewidth=2)
+            plt.axhline(y=0, color="k", linewidth=2)
             if self.zero_at_efermi:
                 plt.plot([0, 0], ylim, "k--", linewidth=2)
             else:
@@ -3832,7 +3838,7 @@ class CohpPlotter:
                     linewidth=2,
                 )
         else:
-            plt.plot([0, 0], ylim, "k-", linewidth=2)
+            plt.axvline(x=0, color="k", linewidth=2)
             if self.zero_at_efermi:
                 plt.plot(xlim, [0, 0], "k--", linewidth=2)
             else:
