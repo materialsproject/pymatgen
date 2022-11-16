@@ -146,8 +146,6 @@ class PymatgenTest(unittest.TestCase):
         # Use the python version so that we get the traceback in case of errors
         import pickle
 
-        from pymatgen.util.serialization import pmg_pickle_dump, pmg_pickle_load
-
         # Build a list even when we receive a single object.
         got_single_object = False
         if not isinstance(objects, (list, tuple)):
@@ -168,14 +166,14 @@ class PymatgenTest(unittest.TestCase):
 
             try:
                 with open(tmpfile, mode) as fh:
-                    pmg_pickle_dump(objects, fh, protocol=protocol)
+                    pickle.dump(objects, fh, protocol=protocol)
             except Exception as exc:
                 errors.append(f"pickle.dump with protocol {protocol} raised:\n{exc}")
                 continue
 
             try:
                 with open(tmpfile, "rb") as fh:
-                    new_objects = pmg_pickle_load(fh)
+                    new_objects = pickle.load(fh)
             except Exception as exc:
                 errors.append(f"pickle.load with protocol {protocol} raised:\n{exc}")
                 continue
