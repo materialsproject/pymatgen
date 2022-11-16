@@ -22,7 +22,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.io.abinit.variable import InputVariable
-from pymatgen.util.serialization import pmg_serialize
 
 logger = logging.getLogger(__file__)
 
@@ -769,7 +768,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
         if comment is not None:
             self.set_comment(comment)
 
-    @pmg_serialize
     def as_dict(self):
         """
         JSON interface used in pymatgen for easier serialization.
@@ -781,12 +779,14 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 value = value.tolist()
             abi_args.append((key, value))
 
-        return dict(
-            structure=self.structure.as_dict(),
-            pseudos=[p.as_dict() for p in self.pseudos],
-            comment=self.comment,
-            abi_args=abi_args,
-        )
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "structure": self.structure.as_dict(),
+            "pseudos": [p.as_dict() for p in self.pseudos],
+            "comment": self.comment,
+            "abi_args": abi_args,
+        }
 
     @property
     def vars(self):
