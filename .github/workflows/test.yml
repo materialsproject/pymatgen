@@ -13,6 +13,7 @@ on:
     inputs:
       task:
         options: [test, release]
+        type: choice
         required: true
         default: test
         description: Task
@@ -58,7 +59,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install m3gnet
+          python -m pip install numpy cython
+          python -m pip install m3gnet --no-deps
           python -m pip install -e '.[dev,optional]'
       - name: pytest split ${{ matrix.split }}
         # to update the test durations, run
