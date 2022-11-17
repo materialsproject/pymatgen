@@ -1455,7 +1455,7 @@ class LobsteroutTest(PymatgenTest):
             "hasProjection": False,
             "hasbandoverlaps": True,
             "hasfatband": False,
-            "hasGrossPopuliation": False,
+            "hasGrossPopulation": False,
             "hasDensityOfEnergies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():

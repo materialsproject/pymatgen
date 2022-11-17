@@ -861,7 +861,7 @@ class Lobsterout:
         LobsterDict["hasProjection"] = self.has_Projection
         LobsterDict["hasbandoverlaps"] = self.has_bandoverlaps
         LobsterDict["hasfatband"] = self.has_fatbands
-        LobsterDict["hasGrossPopuliation"] = self.has_grosspopulation
+        LobsterDict["hasGrossPopulation"] = self.has_grosspopulation
         LobsterDict["hasDensityOfEnergies"] = self.has_density_of_energies
 
         return LobsterDict
