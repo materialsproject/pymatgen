@@ -46,26 +46,26 @@ def make_doc(ctx):
         ctx.run("rm *.tests.*rst")
         for f in glob("*.rst"):
             if f.startswith("pymatgen") and f.endswith("rst"):
-                newoutput = []
-                suboutput = []
-                subpackage = False
+                new_output = []
+                sub_output = []
+                sub_package = False
                 with open(f) as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
-                            subpackage = True
-                        if not subpackage and not clean.endswith("tests"):
-                            newoutput.append(line)
+                            sub_package = True
+                        if not sub_package and not clean.endswith("tests"):
+                            new_output.append(line)
                         else:
                             if not clean.endswith("tests"):
-                                suboutput.append(line)
+                                sub_output.append(line)
                             if clean.startswith("pymatgen") and not clean.endswith("tests"):
-                                newoutput.extend(suboutput)
-                                subpackage = False
-                                suboutput = []
+                                new_output.extend(sub_output)
+                                sub_package = False
+                                sub_output = []
 
                 with open(f, "w") as fid:
-                    fid.write("".join(newoutput))
+                    fid.write("".join(new_output))
         ctx.run("make html")
 
         ctx.run("cp _static/* ../docs/html/_static", warn=True)
