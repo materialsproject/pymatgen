@@ -233,7 +233,7 @@ class NEBPathfinder:
                 h = h0
             # Calculate forces acting on string
             d = V.shape
-            s0 = s.copy()  # store copy for endpoint fixing below
+            s0 = s.copy()  # store copy for endpoint fixing below (fixes GH 2732)
             edV = np.array(
                 [
                     [
