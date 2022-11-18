@@ -17,7 +17,7 @@ if sys.platform.startswith("win") and platform.machine().endswith("64"):
 setup(
     name="pymatgen",
     packages=find_namespace_packages(
-        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
+        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
     version="2022.11.7",
@@ -101,11 +101,12 @@ setup(
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
-        "pymatgen.command_line": ["OxideTersoffPotentials"],
+        "pymatgen.command_line": ["*"],
         "pymatgen.util": ["structures/*.json", "*.json"],
         "pymatgen.vis": ["*.yaml"],
         "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/md.txt"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
+        "cmd_line": ["**/*"],
     },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
