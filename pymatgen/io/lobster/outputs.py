@@ -274,7 +274,7 @@ class Icohplist:
 
     """
 
-    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str | None = None):
         """
         Args:
             are_coops: Determines if the file is a list of ICOOPs.
@@ -655,7 +655,7 @@ class Charge:
 
     def get_structure_with_charges(self, structure_filename):
         """
-        get a Structure with Mulliken and Loewdin charges as site properties
+        Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
         Returns:
@@ -1257,7 +1257,7 @@ class Fatband:
 
     def get_bandstructure(self):
         """
-        returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter
+        Returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter
         """
         return LobsterBandStructureSymmLine(
             kpoints=self.kpoints_array,
@@ -1295,7 +1295,7 @@ class Bandoverlaps:
 
     def _read(self, contents: list, spin_numbers: list):
         """
-        will read in all contents of the file
+        Will read in all contents of the file
         Args:
          contents: list of strings
          spin_numbers: list of spin numbers depending on `Lobster` version.
@@ -1334,7 +1334,7 @@ class Bandoverlaps:
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
-        will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
+        Will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
         Args:
          limit_maxDeviation: limit of the maxDeviation
         Returns:
@@ -1353,7 +1353,7 @@ class Bandoverlaps:
         limit_deviation: float = 0.1,
     ) -> bool:
         """
-        will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
+        Will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
         limit_deviation
 
         Args:
@@ -1431,7 +1431,7 @@ class Grosspop:
 
     def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
         """
-        get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+        Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
         Args:
             structure_filename (str): filename of POSCAR
         Returns:
@@ -1526,8 +1526,6 @@ class Wavefunction:
         Args:
             grid: grid on which wavefunction was calculated, e.g. [1,2,2]
             structure: Structure object
-
-        Returns:
         """
         Nx = grid[0] - 1
         Ny = grid[1] - 1
@@ -1583,7 +1581,7 @@ class Wavefunction:
 
     def get_volumetricdata_real(self):
         """
-        will return a VolumetricData object including the real part of the wave function
+        Will return a VolumetricData object including the real part of the wave function
 
         Returns: VolumetricData object
         """
@@ -1593,7 +1591,7 @@ class Wavefunction:
 
     def get_volumetricdata_imaginary(self):
         """
-        will return a VolumetricData object including the imaginary part of the wave function
+        Will return a VolumetricData object including the imaginary part of the wave function
 
         Returns: VolumetricData object
         """
@@ -1603,7 +1601,7 @@ class Wavefunction:
 
     def get_volumetricdata_density(self):
         """
-        will return a VolumetricData object including the imaginary part of the wave function
+        Will return a VolumetricData object including the imaginary part of the wave function
 
         Returns: VolumetricData object
         """
@@ -1613,7 +1611,7 @@ class Wavefunction:
 
     def write_file(self, filename="WAVECAR.vasp", part="real"):
         """
-        will save the wavefunction in a file format that can be read by VESTA
+        Will save the wavefunction in a file format that can be read by VESTA
         This will only work if the wavefunction from lobster was constructed with:
         "printLCAORealSpaceWavefunction kpoint 1 coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 2 3 4
         5 6 "
@@ -1622,8 +1620,6 @@ class Wavefunction:
         Args:
             filename: Filename for the output, e.g., WAVECAR.vasp
             part: which part of the wavefunction will be saved ("real" or "imaginary")
-
-        Returns:
         """
         if not (
             hasattr(self, "volumetricdata_real")
@@ -1723,7 +1719,7 @@ class SitePotential:
 
     def get_structure_with_site_potentials(self, structure_filename):
         """
-        get a Structure with Mulliken and Loewdin charges as site properties
+        Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
         Returns:
