@@ -1311,7 +1311,7 @@ class IStructure(SiteCollection, MSONable):
     def get_neighbor_list(
         self,
         r: float,
-        sites: Sequence[PeriodicSite] = None,
+        sites: Sequence[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
     ) -> tuple[np.ndarray, ...]:
@@ -4325,7 +4325,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             self._sites[i] = new_site
 
     def rotate_sites(
-        self, indices: Sequence[int] = None, theta: float = 0.0, axis: ArrayLike = None, anchor: ArrayLike = None
+        self,
+        indices: Sequence[int] | None = None,
+        theta: float = 0.0,
+        axis: ArrayLike | None = None,
+        anchor: ArrayLike | None = None,
     ):
         """
         Rotate specific sites by some angle around vector at anchor.
