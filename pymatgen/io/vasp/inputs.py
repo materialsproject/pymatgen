@@ -96,12 +96,12 @@ class Poscar(MSONable):
     def __init__(
         self,
         structure: Structure,
-        comment: str = None,
+        comment: str | None = None,
         selective_dynamics=None,
         true_names: bool = True,
-        velocities: ArrayLike = None,
-        predictor_corrector: ArrayLike = None,
-        predictor_corrector_preamble: str = None,
+        velocities: ArrayLike | None = None,
+        predictor_corrector: ArrayLike | None = None,
+        predictor_corrector_preamble: str | None = None,
         sort_structure: bool = False,
     ):
         """
@@ -636,7 +636,7 @@ class Incar(dict, MSONable):
     a dictionary with some helper functions
     """
 
-    def __init__(self, params: dict[str, Any] = None):
+    def __init__(self, params: dict[str, Any] | None = None):
         """
         Creates an Incar object.
 
@@ -1879,7 +1879,7 @@ class PotcarSingle:
                 return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
-    def from_symbol_and_functional(symbol: str, functional: str = None):
+    def from_symbol_and_functional(symbol: str, functional: str | None = None):
         """
         Makes a PotcarSingle from a symbol and functional.
 
@@ -2406,7 +2406,7 @@ class VaspInput(dict, MSONable):
     def run_vasp(
         self,
         run_dir: PathLike = ".",
-        vasp_cmd: list = None,
+        vasp_cmd: list | None = None,
         output_file: PathLike = "vasp.out",
         err_file: PathLike = "vasp.err",
     ):

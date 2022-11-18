@@ -59,8 +59,8 @@ class Keyword(MSONable):
         self,
         name: str,
         *values,
-        description: str = None,
-        units: str = None,
+        description: str | None = None,
+        units: str | None = None,
         verbose: bool = True,
         repeats: bool = False,
     ):
@@ -254,14 +254,14 @@ class Section(MSONable):
     def __init__(
         self,
         name: str,
-        subsections: dict = None,
+        subsections: dict | None = None,
         repeats: bool = False,
         description: str | None = None,
-        keywords: dict = None,
-        section_parameters: Sequence[str] = None,
-        location: str = None,
+        keywords: dict | None = None,
+        section_parameters: Sequence[str] | None = None,
+        location: str | None = None,
         verbose: bool = True,
-        alias: str = None,
+        alias: str | None = None,
         **kwargs,
     ):
         """
@@ -712,7 +712,7 @@ class Cp2kInput(Section):
     title and by implementing the file i/o.
     """
 
-    def __init__(self, name: str = "CP2K_INPUT", subsections: dict = None, **kwargs):
+    def __init__(self, name: str = "CP2K_INPUT", subsections: dict | None = None, **kwargs):
         """
         Initialize Cp2kInput by calling the super
         """
@@ -903,7 +903,7 @@ class ForceEval(Section):
     Controls the calculation of energy and forces in Cp2k
     """
 
-    def __init__(self, subsections: dict = None, **kwargs):
+    def __init__(self, subsections: dict | None = None, **kwargs):
         """Initialize the ForceEval section
 
         Args:
@@ -942,8 +942,8 @@ class Dft(Section):
         basis_set_filenames="BASIS_MOLOPT",
         potential_filename="GTH_POTENTIALS",
         uks: bool = True,
-        wfn_restart_file_name: str = None,
-        subsections: dict = None,
+        wfn_restart_file_name: str | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """Initialize the DFT section.
@@ -995,7 +995,7 @@ class Subsys(Section):
     Controls the definition of the system to be simulated
     """
 
-    def __init__(self, subsections: dict = None, **kwargs):
+    def __init__(self, subsections: dict | None = None, **kwargs):
         """
         Initialize the subsys section
         """
@@ -1016,7 +1016,7 @@ class QS(Section):
         method: str = "GPW",
         eps_default: float = 1e-10,
         extrapolation: str = "ASPC",
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1069,7 +1069,7 @@ class Scf(Section):
         max_scf: int = 50,
         eps_scf: float = 1e-6,
         scf_guess: str = "RESTART",
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1130,7 +1130,7 @@ class Mgrid(Section):
         rel_cutoff: int | float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1191,7 +1191,7 @@ class Diagonalization(Section):
         eps_iter: float = 1e-8,
         eps_jacobi: float = 0,
         jacobi_threshold: float = 1e-7,
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1294,7 +1294,7 @@ class OrbitalTransformation(Section):
         occupation_preconditioner: bool = False,
         energy_gap: float = -1,
         linesearch: str = "2PNT",
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1400,7 +1400,7 @@ class Kind(Section):
         specie: str,
         alias: str | None = None,
         magnetization: float = 0.0,
-        subsections: dict = None,
+        subsections: dict | None = None,
         basis_set: str = "GTH_BASIS",
         potential: str = "GTH_POTENTIALS",
         ghost: bool = False,
@@ -1553,7 +1553,7 @@ class Coord(Section):
         self,
         structure: Structure | Molecule,
         aliases: dict | None = None,
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1921,7 +1921,7 @@ class Xc_Functional(Section):
     Defines the XC functional(s) to use.
     """
 
-    def __init__(self, functionals: Iterable = None, subsections: dict = None, **kwargs):
+    def __init__(self, functionals: Iterable | None = None, subsections: dict | None = None, **kwargs):
         """
         Initialize the XC_FUNCTIONAL class
         """

@@ -4,6 +4,7 @@
 """
 This module provides classes to handle thermal displacement matrices (anisotropic displacement parameters).
 """
+from __future__ import annotations
 
 import re
 from functools import partial
@@ -467,7 +468,7 @@ class ThermalDisplacementMatrices(MSONable):
         return self.structure.copy(site_properties=site_properties)
 
     @staticmethod
-    def from_structure_with_site_properties_Ucif(structure: Structure, temperature: float = None):
+    def from_structure_with_site_properties_Ucif(structure: Structure, temperature: float | None = None):
         """
         Will create this object with the help of a structure with site properties.
 

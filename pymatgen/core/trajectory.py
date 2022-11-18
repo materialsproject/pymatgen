@@ -337,7 +337,7 @@ class Trajectory(MSONable):
     def write_Xdatcar(
         self,
         filename: str | Path = "XDATCAR",
-        system: str = None,
+        system: str | None = None,
         significant_figures: int = 6,
     ):
         """

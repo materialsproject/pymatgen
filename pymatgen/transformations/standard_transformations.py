@@ -917,7 +917,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     transformations.
     """
 
-    def __init__(self, max_denominator=5, tol: float = None, fix_denominator=False):
+    def __init__(self, max_denominator=5, tol: float | None = None, fix_denominator=False):
         """
         Args:
             max_denominator:

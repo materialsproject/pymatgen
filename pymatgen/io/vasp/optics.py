@@ -142,12 +142,12 @@ class DielectricFunctionCalculator(MSONable):
         self,
         idir: int,
         jdir: int,
-        efermi: float = None,
-        nedos: int = None,
-        deltae: float = None,
-        ismear: int = None,
-        sigma: float = None,
-        cshift: float = None,
+        efermi: float | None = None,
+        nedos: int | None = None,
+        deltae: float | None = None,
+        ismear: int | None = None,
+        sigma: float | None = None,
+        cshift: float | None = None,
         mask: npt.NDArray | None = None,
     ) -> tuple[npt.NDArray, npt.NDArray]:
         """Compute the frequency dependent dielectric function.

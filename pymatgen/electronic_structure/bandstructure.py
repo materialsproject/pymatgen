@@ -208,8 +208,8 @@ class BandStructure:
         efermi: float,
         labels_dict=None,
         coords_are_cartesian: bool = False,
-        structure: Structure = None,
-        projections: dict[Spin, np.ndarray] = None,
+        structure: Structure | None = None,
+        projections: dict[Spin, np.ndarray] | None = None,
     ) -> None:
         """
         Args:

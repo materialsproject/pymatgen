@@ -39,9 +39,9 @@ class TransformedStructure(MSONable):
     def __init__(
         self,
         structure: Structure,
-        transformations: list[AbstractTransformation] = None,
-        history: list[AbstractTransformation | dict[str, Any]] = None,
-        other_parameters: dict[str, Any] = None,
+        transformations: list[AbstractTransformation] | None = None,
+        history: list[AbstractTransformation | dict[str, Any]] | None = None,
+        other_parameters: dict[str, Any] | None = None,
     ) -> None:
         """
         Initializes a transformed structure from a structure.
@@ -266,7 +266,7 @@ class TransformedStructure(MSONable):
     @staticmethod
     def from_cif_string(
         cif_string: str,
-        transformations: list[AbstractTransformation] = None,
+        transformations: list[AbstractTransformation] | None = None,
         primitive: bool = True,
         occupancy_tolerance: float = 1.0,
     ) -> TransformedStructure:
@@ -311,7 +311,7 @@ class TransformedStructure(MSONable):
 
     @staticmethod
     def from_poscar_string(
-        poscar_string: str, transformations: list[AbstractTransformation] = None
+        poscar_string: str, transformations: list[AbstractTransformation] | None = None
     ) -> TransformedStructure:
         """
         Generates TransformedStructure from a poscar string.

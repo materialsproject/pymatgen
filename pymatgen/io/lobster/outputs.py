@@ -73,7 +73,7 @@ class Cohpcar:
 
     """
 
-    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str | None = None):
         """
         Args:
             are_coops: Determines if the file is a list of COHPs or COOPs.

@@ -29,9 +29,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import bson
+    import bson  # type: ignore
 except ModuleNotFoundError:
-    bson = None
+    bson = None  # type: ignore
 
 __author__ = "waroquiers"
 
