@@ -51,7 +51,7 @@ setup(
             "coverage",
             "coveralls",
             "flake8",
-            "mypy==0.982",  # pinned due to long list of errors starting with mypy 0.990
+            "mypy==0.991",  # pinned due to long list of errors starting with mypy 0.990
             "pre-commit",
             "pydocstyle",
             "pylint",
