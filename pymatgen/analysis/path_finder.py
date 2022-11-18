@@ -165,8 +165,9 @@ class NEBPathfinder:
         they are kept fixed.
 
         Args:
-            start, end: Endpoints of the path calculation given in discrete
-                coordinates with respect to the grid in V
+            start: Starting point of the path calculation given in discrete
+                coordinates with respect to the grid in V.
+            end: Endpoints of the path calculation.
             V: potential field through which to calculate the path
             n_images: number of images used to define the path. In general
                 anywhere from 20 to 40 seems to be good.
@@ -176,8 +177,9 @@ class NEBPathfinder:
                 slow. h=10 diverges with large gradients but for the types of
                 gradients seen in CHGCARs, works pretty reliably
             k: Elastic constant for the band (in real units, not discrete)
-            min_iter, max_iter: Number of optimization steps the string will
-                take before exiting (even if unconverged)
+            min_iter: Minimum number of iterations to perform. Defaults to 100.
+            max_iter: Number of optimization steps the string will
+                take before exiting (even if unconverged). Defaults to 10000.
             max_tol: Convergence threshold such that if the string moves by
                 less than max_tol in a step, and at least min_iter steps have
                 passed, the algorithm will terminate. Depends strongly on the
@@ -231,7 +233,7 @@ class NEBPathfinder:
                 h = h0
             # Calculate forces acting on string
             d = V.shape
-            s0 = s
+            s0 = s.copy()  # store copy for endpoint fixing below
             edV = np.array(
                 [
                     [
