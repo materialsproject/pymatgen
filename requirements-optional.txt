@@ -8,6 +8,6 @@ BoltzTraP2==22.3.2
 f90nml==1.1.2
 # hiphive==0.6
 seekpath==1.9.4
-jarvis-tools==2020.7.14
+jarvis-tools==2022.9.16
 galore==0.6.1
 # m3gnet==0.0.8
