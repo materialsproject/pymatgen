@@ -26,7 +26,9 @@ from pathlib import Path
 
 import numpy as np
 from ruamel.yaml import YAML
+from typing import Sequence, Dict
 
+from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
@@ -58,27 +60,20 @@ from pymatgen.io.cp2k.inputs import (
     Subsys,
     V_Hartree_Cube,
     Xc_Functional,
+    GthPotential, 
+    GaussianTypeOrbitalBasisSet,
+    BasisFile,
+    PotentialFile,
+    BasisInfo, 
+    PotentialInfo
 )
-from pymatgen.io.cp2k.utils import (
-    get_aux_basis,
-    get_basis_and_potential,
-    get_cutoff_from_basis,
-    get_truncated_coulomb_cutoff,
-    get_unique_site_indices,
-    get_xc_functionals,
-)
+from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __email__ = "nwinner@berkeley.edu"
 __date__ = "September 2022"
-
-MODULE_DIR = Path(__file__).resolve().parent
-
-with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
-    yaml = YAML(typ="unsafe", pure=True)
-    SETTINGS = yaml.load(f)
 
 
 class DftSet(Cp2kInput):
@@ -93,6 +88,7 @@ class DftSet(Cp2kInput):
         structure: Structure | Molecule,
         project_name: str = "CP2K",
         basis_and_potential: dict | None = None,
+        xc_functionals: Sequence | str | None = None,
         multiplicity: int = 0,
         ot: bool = True,
         energy_gap: float = -1,
@@ -105,7 +101,7 @@ class DftSet(Cp2kInput):
         linesearch: str = "2PNT",
         rotation: bool = True,
         occupation_preconditioner: bool = False,
-        cutoff: int = 0,
+        cutoff: int | float | None = None,
         rel_cutoff: int = 50,
         ngrids: int = 5,
         progression_factor: int = 3,
@@ -184,6 +180,7 @@ class DftSet(Cp2kInput):
 
         self.structure = structure
         self.basis_and_potential = basis_and_potential if basis_and_potential else {}
+        self.xc_functionals = xc_functionals
         self.project_name = project_name
         self.charge = int(structure.charge)
         if not multiplicity and isinstance(self.structure, Molecule):
@@ -215,10 +212,10 @@ class DftSet(Cp2kInput):
         self.insert(ForceEval())
 
         if self.kpoints:
+            print(self.kpoints.num_kpts)
+            print(self.kpoints.kpts)
             if (
-                self.kpoints.num_kpts == 0
-                or self.kpoints.num_kpts == 1
-                and np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
+                ((self.kpoints.num_kpts == 0 or self.kpoints.num_kpts == 1) and np.array_equal(self.kpoints.kpts[0], (0, 0, 0)))
                 or np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
             ):
                 # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
@@ -277,24 +274,21 @@ class DftSet(Cp2kInput):
             scf["MAX_DIIS"] = Keyword("MAX_DIIS", 15)
 
         # Get basis, potential, and xc info
-        self.basis_and_potential = get_basis_and_potential(structure.symbol_set, basis_and_potential)
-        self.basis_set_file_names = self.basis_and_potential["basis_filenames"]
-        self.potential_file_name = self.basis_and_potential["potential_filename"]
-        self.xc_functionals = get_xc_functionals(kwargs.get("xc_functional", "PBE"))
+        self.basis_and_potential = DftSet.get_basis_and_potential(self.structure, self.basis_and_potential)
+        self.basis_set_file_names = self.basis_and_potential.get("basis_filenames")
+        self.potential_file_name = self.basis_and_potential.get("potential_filename")
+        self.xc_functionals = DftSet.get_xc_functionals(xc_functionals=xc_functionals) #kwargs.get("xc_functional", "PBE"))
 
         # create the subsys (structure)
-        self.insert(ForceEval())
         self.create_subsys(self.structure)
 
         # Create the multigrid for FFTs
-        if not cutoff:
-            cutoff = get_cutoff_from_basis(
-                els=self.structure.symbol_set,
-                bases=[self.basis_and_potential[s]["basis"] for s in self.structure.symbol_set],
-                rel_cutoff=rel_cutoff,
-            )
+        if not self.cutoff:
+            basis_sets = [self.basis_and_potential[el].get("basis") for el in self.structure.symbol_set]
+            self.cutoff = DftSet.get_cutoff_from_basis(basis_sets=basis_sets, rel_cutoff=rel_cutoff)
+
         mgrid = Mgrid(
-            cutoff=cutoff,
+            cutoff=self.cutoff,
             rel_cutoff=rel_cutoff,
             ngrids=ngrids,
             progression_factor=progression_factor,
@@ -348,6 +342,221 @@ class DftSet(Cp2kInput):
             self.print_bandstructure(kwargs.get("kpoints_line_density", 20))
 
         self.update(self.override_default_params)
+
+    @staticmethod
+    def get_basis_and_potential(structure, basis_and_potential):
+        """
+        Get a dictionary of basis and potential info for constructing the input file.
+
+        basis_and_potential and have the following content:
+
+        Strategy 1: Element-specific info (takes precedence)
+
+            1. Provide a basis and potential object:
+
+                el: {'basis': obj, 'potential': obj}
+
+            2. Provide a hash of the object:
+
+                el: {'basis': hash, 'potential': hash}
+
+            3. Provide the name of the basis and potential AND the basis_filenames and potential_filename keywords
+            specifying where to find these objects
+
+                el: {'basis': name, 'potential': name, 'basis_filenames': [filenames], 'potential_filename': filename}
+
+        Strategy 2: By functional and basis_quality.
+            ***BE WARNED*** CP2K data objects can have the same name, this will sort those and choose the first one 
+            that matches.
+
+        """
+        data = {"basis_filenames": []}
+        functional = basis_and_potential.get("functional", SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")) 
+        basis_type = basis_and_potential.get("basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_BASIS_TYPE")) 
+        aux_basis_type = basis_and_potential.get("aux_basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_AUX_BASIS_TYPE"))
+
+        for el in structure.symbol_set:
+            possible_basis_sets = []
+            possible_potentials = []
+            basis, aux_basis, potential = None, None, None
+            desired_basis, desired_aux_basis, desired_potential = None, None, None
+            have_element_file = os.path.exists(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el))
+
+            # Necessary if matching data to cp2k data files 
+            if have_element_file:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el), 'rt') as f:
+                    yaml = YAML(typ="unsafe", pure=True)
+                    DATA = yaml.load(f)
+                    if not DATA.get("basis_sets"):
+                        raise ValueError(f"No standard basis sets available in data directory for {el}")
+                    if not DATA.get("potentials"):
+                        raise ValueError(f"No standard potentials available in data directory for {el}")
+
+            # Give presidence to explicitly listing info for the element
+            if el in basis_and_potential and have_element_file:
+                _basis = basis_and_potential[el].get("basis")
+                if not isinstance(_basis, GaussianTypeOrbitalBasisSet):
+                    if _basis in DATA['basis_sets']:
+                        basis = GaussianTypeOrbitalBasisSet(**DATA['basis_sets'][_basis])
+                        possible_basis_sets.append(basis)
+                    elif _basis:
+                        desired_basis = GaussianTypeOrbitalBasisSet(name=_basis)
+
+                _aux_basis = basis_and_potential[el].get("aux_basis")
+                if not isinstance(_aux_basis, GaussianTypeOrbitalBasisSet):
+                    if _aux_basis in DATA['basis_sets']:
+                        aux_basis = GaussianTypeOrbitalBasisSet(**DATA['basis_sets'][_aux_basis])
+                    elif _aux_basis:
+                        desired_aux_basis = GaussianTypeOrbitalBasisSet(name=_aux_basis)
+
+                _potential = basis_and_potential[el].get("potential")
+                if not isinstance(_potential, GthPotential):
+                    if _potential in DATA['potentials']:
+                        potential = GthPotential(**DATA['potentials'][_potential])
+                        possible_potentials.append(potential)
+                    elif _potential:
+                        desired_potential = GthPotential(name=_potential)
+
+                if basis_and_potential[el].get("basis_filename"): 
+                    data['basis_filenames'].append(basis_and_potential[el].get("basis_filename"))
+                pfn1 = basis_and_potential[el].get("potential_filename")
+                pfn2 = data.get('potential_filename')
+                if pfn1 and pfn2 and pfn1 != pfn2:
+                    raise ValueError(
+                        f"Provided potentials have more than one corresponding file."
+                        "CP2K does not support multiple potential filenames"
+                    )
+                data['potential_filename'] = basis_and_potential[el].get("potential_filename")
+
+            # Else, if functional/basis settings are provided, create objects to search the data files with
+            else:
+                if functional and basis_type and have_element_file:
+                    desired_basis = GaussianTypeOrbitalBasisSet(info=BasisInfo.from_string(f"{basis_type}-{functional}"))
+                    desired_potential = GthPotential(potential="Pseudopotential", info=PotentialInfo(xc=functional))
+                if aux_basis_type and have_element_file:
+                    desired_aux_basis = GaussianTypeOrbitalBasisSet(info=BasisInfo.from_string(aux_basis_type))
+            
+            # If basis/potential are not explicit, match the desired ones to available ones in the element file
+            if desired_basis:
+                for _possible_basis in DATA.get("basis_sets").values():
+                    possible_basis = GaussianTypeOrbitalBasisSet(**_possible_basis)
+                    if desired_basis.softmatch(possible_basis):
+                        possible_basis_sets.append(possible_basis)
+            if desired_aux_basis:
+                for _possible_basis in DATA.get("basis_sets").values():
+                    possible_basis = GaussianTypeOrbitalBasisSet(**_possible_basis)
+                    if desired_aux_basis.softmatch(possible_basis):
+                        aux_basis = possible_basis
+                        data['basis_filenames'].append(aux_basis.filename)
+                        break
+            if desired_potential:
+                for _possible_potential in DATA.get("potentials").values():
+                    possible_potential = GthPotential(**_possible_potential)
+                    if desired_potential.softmatch(possible_potential):
+                        possible_potentials.append(possible_potential)
+
+            possible_basis_sets = sorted(filter(lambda x: x.info.electrons, possible_basis_sets), key=lambda x: x.info.electrons, reverse=True)
+            possible_potentials = sorted(filter(lambda x: x.info.electrons, possible_potentials), key=lambda x: x.info.electrons, reverse=True)
+
+            def foo(x):
+                for p in possible_potentials:
+                    if x.info.electrons == p.info.electrons:
+                        return p
+
+            for b in possible_basis_sets:
+                fb = foo(b)
+                if fb is not None:
+                    basis = b
+                    potential = fb
+                    break
+
+            if basis is None:
+                if desired_basis:
+                    warnings.warn(
+                        f"Unable to validate basis for {el}."
+                        "Exact name provided will be put in input file."
+                        )
+                    basis = desired_basis
+                else:
+                    raise ValueError("No explicit basis found and matching has failed.")
+            if aux_basis is None and desired_aux_basis:
+                warnings.warn(
+                    f"Unable to validate auxiliary basis for {el}."
+                    " Exact name provided will be put in input file."
+                    )
+                aux_basis = desired_aux_basis
+            if potential is None:
+                if desired_potential:
+                    warnings.warn(
+                        f"Unable to validate potential for {el}."
+                        " Exact name provided will be put in input file."
+                        )
+                    potential = desired_potential
+                else:
+                    raise ValueError("No explicit potential found and matching has failed.")
+                
+            if basis.filename: 
+                data['basis_filenames'].append(basis.filename)
+            pfn1 = data.get("potential_filename")
+            pfn2 = potential.filename
+            if pfn1 and pfn2 and pfn1 != pfn2:
+                raise ValueError(
+                    f"Provided potentials have more than one corresponding file."
+                    "CP2K does not support multiple potential filenames"
+                )
+            data['potential_filename'] = pfn2
+
+            data[el] = {
+                "basis": basis,
+                "aux_basis": aux_basis,
+                "potential": potential,
+            }
+        return data
+
+    @staticmethod
+    def get_cutoff_from_basis(basis_sets, rel_cutoff):
+        exponents = [b.exponents for b in basis_sets if b.exponents]
+        exponents = list(itertools.chain.from_iterable(exponents))
+        for b in basis_sets:
+            if not b.exponents:
+                raise ValueError(f"Basis set {b} contains missing exponent info. Please specify cutoff manually")
+        cutoff = np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
+        return cutoff
+
+    @staticmethod
+    def get_xc_functionals(xc_functionals: Sequence | str | None = None):
+        """
+        Get XC functionals. If simplified names are provided in kwargs, they 
+        will be expanded into their corresponding X and C names.
+        """
+        names = xc_functionals if xc_functionals else SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
+        if not names:
+            raise ValueError("No XC functional provided. Specify kwarg xc_functional or configure your pmgrc.yaml file")
+        if isinstance(names, str):
+            names = [names]
+        names = [n.upper() for n in names]
+        cp2k_names = []
+        for name in names:
+            if name in ["LDA", "LSDA"]:
+                cp2k_names.append("PADE")
+            elif name == "SCAN":
+                cp2k_names.extend(["MGGA_X_SCAN", "MGGA_C_SCAN"])
+            elif name == "SCANL":
+                cp2k_names.extend(["MGGA_X_SCANL", "MGGA_C_SCANL"])
+            elif name == "R2SCAN":
+                cp2k_names.extend(["MGGA_X_R2SCAN", "MGGA_C_R2SCAN"])
+            elif name == "R2SCANL":
+                cp2k_names.extend(["MGGA_X_R2SCANL", "MGGA_C_R2SCANL"])
+            else:
+                cp2k_names.append(name)
+
+        return cp2k_names
+
+    def write_basis_set_file(self, basis_sets, fn="BASIS"):
+        BasisFile(objects=basis_sets).write_file(fn)
+
+    def write_potential_file(self, potentials, fn="POTENTIAL"):
+        PotentialFile(objects=potentials).write_file(fn)
 
     def print_forces(self):
         """
@@ -463,7 +672,6 @@ class DftSet(Cp2kInput):
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
         omega: float = 0.11,
-        aux_basis: dict | None = None,
         admm: bool = True,
         admm_method: str = "BASIS_PROJECTION",
         admm_purification_method: str = "NONE",
@@ -514,42 +722,35 @@ class DftSet(Cp2kInput):
                 0.2, which is the default.
             aux_basis (dict): If you want to specify the aux basis to use, specify it as a dict of
                 the form {'specie_1': 'AUX_BASIS_1', 'specie_2': 'AUX_BASIS_2'}
-            admm (bool): Whether or not to use the auxiliary density matrix method for the exact
+            admm: Whether or not to use the auxiliary density matrix method for the exact
                 HF exchange contribution. Highly recommended. Speed ups between 10x and 1000x are
-                possible when compared to non ADMM hybrid calculations. Default: True
-            eps_schwarz (float): Screening threshold for HFX, in Ha. Contributions smaller than
+                possible when compared to non ADMM hybrid calculations.
+            admm_method: Method for constructing the auxiliary basis
+            admm_purification_method: Method for purifying the auxiliary density matrix so as to
+                preserve properties, such as idempotency. May lead to shifts in the
+                eigenvalues.
+            admm_exch_correction_func: Which functional to use to calculate the exchange correction
+                E_x(primary) - E_x(aux)
+            eps_schwarz: Screening threshold for HFX, in Ha. Contributions smaller than
                 this will be screened. The smaller the value, the more accurate, but also the more
                 costly. Default value is 1e-7. 1e-6 works in a large number of cases, but is
                 quite aggressive, which can lead to convergence issues.
-            eps_schwarz_forces (float): Same as for eps_schwarz, but for screening contributions to
+            eps_schwarz_forces: Same as for eps_schwarz, but for screening contributions to
                 forces. Convergence is not as sensitive with respect to eps_schwarz forces as
                 compared to eps_schwarz, and so 1e-6 should be good default.
-            screen_on_initial_p (bool): If an initial density matrix is provided, in the form of a
+            screen_on_initial_p: If an initial density matrix is provided, in the form of a
                 CP2K wfn restart file, then this initial density will be used for screening. This
                 is generally very computationally efficient, but, as with eps_schwarz, can lead to
                 instabilities if the initial density matrix is poor.
-            screen_p_forces (bool): Same as screen_on_initial_p, but for screening of forces.
+            screen_p_forces: Same as screen_on_initial_p, but for screening of forces.
         """
-        if admm:
-            basis = get_aux_basis(self.structure.symbol_set, basis_and_potential=self.basis_and_potential)
-            aux_basis = aux_basis if aux_basis else {}
-            basis.update(aux_basis)
-            if isinstance(self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"], KeywordList):
-                self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"].extend(
-                    [Keyword("BASIS_SET_FILE_NAME", k) for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]],
-                )
+        if not admm:
+            for k in self.basis_and_potential:
+                self.basis_and_potential[k].pop("aux_basis", None)
+            del self['force_eval']['subsys']
+            self.create_subsys(self.structure)
 
-            for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
-                if v.name.upper() == "KIND":
-                    if isinstance(v.keywords["BASIS_SET"], KeywordList) and any(
-                        "AUX_FIT" in k.values for k in v.keywords["BASIS_SET"]
-                    ):
-                        continue
-                    if any(k.upper() == "AUX_FIT" for k in v.keywords["BASIS_SET"].values):
-                        continue
-                    kind = v["ELEMENT"].values[0]
-                    v.keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
-
+        else:
             # Don't change unless you know what you're doing
             # Use NONE for accurate eigenvalues (static calcs)
             aux_matrix_params = {
@@ -631,7 +832,6 @@ class DftSet(Cp2kInput):
                 ip_keywords["T_C_G_DATA"] = Keyword("T_C_G_DATA", "t_c_g.dat")
 
             ip_keywords["POTENTIAL_TYPE"] = Keyword("POTENTIAL_TYPE", potential_type)
-
         elif hybrid_functional == "RSH":
             """
             Activates range separated functional using mixing of the truncated
@@ -895,9 +1095,6 @@ class DftSet(Cp2kInput):
         if isinstance(structure, Structure):
             subsys.insert(Cell(structure.lattice))
 
-        # Decide what basis sets/pseudopotentials to use
-        basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
-
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
         for k, v in unique_kinds.items():
@@ -922,17 +1119,17 @@ class DftSet(Cp2kInput):
             if "basis_set" in self.structure.site_properties:
                 basis_set = self.structure.site_properties["basis_set"][v[0]]
             else:
-                basis_set = self.basis_and_potential[kind]["basis"]
+                basis_set = self.basis_and_potential[kind].get("basis")
 
             if "potential" in self.structure.site_properties:
                 potential = self.structure.site_properties["potential"][v[0]]
             else:
-                potential = self.basis_and_potential[kind]["potential"]
+                potential = self.basis_and_potential[kind].get("potential")
 
             if "aux_basis" in self.structure.site_properties:
                 kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][v[0]]
-                if kwargs["aux_basis"] == "match":
-                    kwargs["aux_basis"] = basis_set
+            else:
+                kwargs["aux_basis"] = self.basis_and_potential[kind].get("aux_basis")
 
             _kind = Kind(
                 kind,

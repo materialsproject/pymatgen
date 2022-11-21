@@ -27,15 +27,18 @@ import itertools
 import os
 import re
 import textwrap
-from typing import Iterable, Sequence
+from typing import Dict, Iterable, Sequence, Literal
+from pydantic import BaseModel, Field, validator
+from hashlib import md5
+from pathlib import Path
 
 from monty.io import zopen
-from monty.json import MSONable
+from monty.json import MSONable 
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
+from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor, chunk
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import Kpoints_supported_modes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -45,6 +48,7 @@ __version__ = "2.0"
 __email__ = "nwinner@berkeley.edu"
 __date__ = "September 2022"
 
+MODULE_DIR = Path(__file__).resolve().parent
 
 class Keyword(MSONable):
 
@@ -1434,10 +1438,10 @@ class Kind(Section):
         specie: str,
         alias: str | None = None,
         magnetization: float = 0.0,
-        basis_set: str = "GTH_BASIS",
-        potential: str = "GTH_POTENTIALS",
+        basis_set: GaussianTypeOrbitalBasisSet | str | None = "GTH_BASIS",
+        potential: GthPotential | str | None = "GTH_POTENTIALS",
         ghost: bool = False,
-        aux_basis: str | None = None,
+        aux_basis: GaussianTypeOrbitalBasisSet | str | None = None,
         keywords: dict = None,
         subsections: dict = None,
         **kwargs,
@@ -1499,12 +1503,14 @@ class Kind(Section):
         _keywords = {
             "ELEMENT": Keyword("ELEMENT", specie.__str__()),
             "MAGNETIZATION": Keyword("MAGNETIZATION", magnetization),
-            "BASIS_SET": Keyword("BASIS_SET", basis_set),
-            "POTENTIAL": Keyword("POTENTIAL", potential),
             "GHOST": Keyword("GHOST", ghost),
         }
+        if basis_set:
+            _keywords["BASIS_SET"] = basis_set if isinstance(basis_set, str) else basis_set.get_keyword()
+        if potential:
+            _keywords["POTENTIAL"] = potential if isinstance(potential, str) else potential.get_keyword()
         if aux_basis:
-            _keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", aux_basis)
+            _keywords["BASIS_SET"] += f"AUX_FIT {aux_basis}" if isinstance(aux_basis, str) else aux_basis.get_keyword()
 
         kind_name = alias if alias else specie.__str__()
         alias = kind_name
@@ -2331,3 +2337,436 @@ class Band_Structure(Section):
                 "Unsupported k-point style. Must be line-mode or explicit k-points (reciprocal/cartesian)."
             )
         return Band_Structure(kpoint_sets=kpoint_sets, filename="BAND.bs")
+
+
+class BasisInfo(BaseModel):
+    """Summary info about a basis set"""
+
+    electrons: int = Field(None, description="Number of electrons")
+    core: int = Field(None, description="Number of basis functions per core electron")
+    valence: int = Field(None, description="Number of basis functions per valence electron OR number of exp. if it is a FIT formatted admm basis")
+    polarization: int = Field(None, description="Number of polarization functions")
+    diffuse: int = Field(None, description="Number of added, diffuse/augmentation functions")
+    cc: bool = Field(False, description="Correlation consistent")
+    pc: bool = Field(False, description="Polarization consistent")
+    sr: bool = Field(False, description="Short-range optimized")
+    molopt: bool = Field(False, description="Optimized for molecules/solids")
+    admm: bool = Field(False, description="Whether this is an auxiliary basis set for ADMM")
+    lri: bool = Field(False, description="Whether this is a local resolution of identity auxiliary basis")
+    contracted: bool = Field(None, description="Whether this basis set is contracted")
+    xc: str = Field(None, description="Exchange correlation functional used for creating this potential")
+
+    def softmatch(self, other):
+        """
+        Soft matching to see if two basis sets match.
+
+        Will only match those attributes which *are* defined for this basis info object (one way checking)
+        """
+        if not isinstance(other, BasisInfo):
+            return False
+        d1 = self.dict()
+        d2 = other.dict()
+        for k, v in d1.items():
+            if v is not None and v != d2[k]:
+                return False
+        return True
+
+    @classmethod
+    def from_string(cls, string: str) -> BasisInfo:
+        """Get summary info from a string"""
+        string = string.upper()
+        data = {}
+        data['cc'] = "CC" in string
+        string = string.replace("CC", "")
+        data['pc'] = "PC" in string
+        string = string.replace("PC", "")
+        data['sr'] = "SR" in string
+        string = string.replace("SR", "")
+        data['molopt'] = "MOLOPT" in string
+        string = string.replace("MOLOPT", "")
+        for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
+            if x in string:
+                data['xc'] = x
+                string.replace(x, "")
+                break
+
+        tmp = {"S": 1, "D": 2, "T": 3, "Q": 4}
+
+        if "ADMM" in string or "FIT" in string:
+            data['admm'] = True
+            bool_core = False
+            data['contracted'] = "C" in string
+            nums = "".join(s for s in string if s.isnumeric())
+            data['valence'] = int(nums) if nums else None
+        else:
+            if "LRI" in string:
+                data['LRI'] = True
+            bool_core = "V" not in string
+
+        data['polarization'] = string.count("P")
+        data['diffuse'] = string.count("X")
+        for i, s in enumerate(string):
+            if s == "Z":
+                z = int(tmp.get(string[i-1], string[i-1]))
+                data['core'] = z if bool_core else None
+                data['valence'] = z
+            elif s == "P" and string[i-1].isnumeric():
+                data['polarization'] = int(string[i-1])
+            elif s == "X" and string[i-1].isnumeric():
+                data['diffuse'] = int(string[i-1])
+            elif s == "Q" and string[i+1].isnumeric():
+                data['electrons'] = int("".join(_ for _ in string[i+1:] if _.isnumeric()))
+
+        if not data['diffuse']:
+            data['diffuse'] = string.count("AUG")
+
+        return cls(**data)
+
+
+class AtomicMetadata(BaseModel):
+    """Metadata for basis sets and potentials in cp2k"""
+
+    info: BaseModel = Field(None, description="Info about this object")
+    element: Element = Field(None, description="Element for this object")
+    potential: Literal["All Electron", "Pseudopotential"] = Field(None, description="The potential for this object")
+    name: str = Field(None, description="Name of the object")
+    alias_names: Sequence = Field(None, description="Optional aliases")
+    filename: str = Field(None, description="Name of the file containing this object")
+    version: str = Field(None, description="Version")
+
+    def softmatch(self, other):
+        """
+        Soft matching to see if a desired basis/potential matches requirements.
+
+        Does soft matching on the "info" attribute first. Then soft matches against the
+        element and name/aliases.
+        """
+        if not isinstance(other, type(self)):
+            return False
+        if self.info and not self.info.softmatch(other.info):
+            return False
+        if self.element is not None and self.element != other.element:
+            return False
+        this_names = [self.name]
+        if self.alias_names:
+            this_names.extend(self.alias_names) 
+        other_names = [other.name]
+        if other.alias_names:
+            other_names.extend(other.alias_names)
+        for nm in this_names:
+            if nm is not None and nm not in other_names:
+                return False
+        return True
+
+    def get_hash(self) -> int:
+        return md5(self.get_string().lower().encode("utf-8")).hexdigest()    
+
+    def get_string(self):
+        return str(self)
+
+
+class GaussianTypeOrbitalBasisSet(AtomicMetadata):
+    """Model definition of a GTO basis set"""
+
+    info: BasisInfo = Field(None, description="Cardinality of this basis") 
+    nset: int = Field(None, description="Number of exponent sets")
+    n: Sequence[int] = Field(None, description="Principle quantum number for each set")
+    lmax: Sequence[int] = Field(None, description="Maximum angular momentum quantum number for each set")
+    lmin: Sequence[int] = Field(None, description="Minimum angular momentum quantum number for each set")
+    nshell: Sequence[Dict[int, int]] = Field(None, description="Number of shells for angular momentum l for each set")
+    exponents: Sequence[Sequence] = Field(None, description="Exponents for each set")
+    coefficients: Sequence[Dict[int, Dict[int, Dict[int, float]]]] = Field(None, description="Contraction coefficients for each set. Dict[exp->l->shell]")
+
+    def get_keyword(self) -> Keyword:
+        vals = []
+        if self.info and self.info.admm:
+            vals.append("AUX_FIT")
+        vals.append(self.name)
+        return Keyword("BASIS_SET", *vals)
+
+    @property
+    def nexp(self):
+        return [len(e) for e in self.exponents]
+
+    def get_string(self) -> str:
+        """
+        Get standard cp2k GTO formatted string
+        """
+        s = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
+        s += f"{str(self.nset)}\n"
+        for set_index in range(self.nset):
+            s += f"{str(self.n[set_index])} {str(self.lmin[set_index])} {str(self.lmax[set_index])} {str(self.nexp[set_index])} {' '.join(map(str, self.nshell[set_index].values()))}\n"
+            for exp in self.coefficients[set_index]:
+                s += f"\t {self.exponents[set_index][exp]: .14f} "
+                for l in self.coefficients[set_index][exp]:
+                    for shell in self.coefficients[set_index][exp][l]:
+                        s += f"{self.coefficients[set_index][exp][l][shell]: .14f} "
+                s += "\n"
+        return s
+
+    @classmethod
+    def from_string(cls, string: str) -> GaussianTypeOrbitalBasisSet:
+        """
+        Read from standard cp2k GTO formatted string
+        """
+        lines = [line for line in string.split("\n") if line]
+        firstline = lines[0].split()
+        element = firstline[0]
+        element = Element(element)
+        names = firstline[1:]
+        name, aliases = names[0], names[1:] 
+        info = BasisInfo.from_string(name).dict()
+        for alias in aliases:
+            for k, v in BasisInfo.from_string(alias).dict().items():
+                if info[k] == None:
+                    info[k] = v
+        info = BasisInfo(**info)
+        nset = int(lines[1].split()[0])
+
+        n = []
+        lmin = []
+        lmax = []
+        nshell = []
+        exponents = []
+        coefficients = []
+
+        line_index = 2
+        for set_index in range(nset):
+
+            setinfo = lines[line_index].split()
+            _n, _lmin, _lmax, _nexp = map(int, setinfo[0:4])
+            n.append(_n)
+            lmin.append(_lmin)
+            lmax.append(_lmax)
+
+            _nshell = map(int, setinfo[4:])
+            nshell.append({l: int(next(_nshell)) for l in range(_lmin, _lmax+1)})
+            exponents.append([])
+            coefficients.append({i: {l: {} for l in range(_lmin, _lmax+1)} for i in range(_nexp)})
+            line_index += 1
+
+            for i in range(_nexp):
+                line = lines[line_index].split()
+                exponents[set_index].append(float(line[0]))
+                coeffs = list(map(float, line[1:]))
+
+                j = 0
+                for l in range(_lmin, _lmax+1):
+                    for shell in range(nshell[set_index][l]):
+                        coefficients[set_index][i][l][shell] = coeffs[j]
+                        j += 1
+                
+                line_index += 1
+
+        potential = "All Electron" if "ALL" in name else "Pseudopotential"
+        xc = None
+        for x in name.split("-")[1:]:
+            if x in ("LDA", "PADA", "GGA", "MGGA", "HF", "PBE", "BP", "BLYP", "B3LYP", "PBE0", "SCAN"): # Known xc names
+                xc = x
+                break
+
+        return cls(
+            element=element, potential=potential, xc=xc,
+            name=name, alias_names=aliases, info=info, nset=nset,
+            n=n, lmin=lmin, lmax=lmax, nshell=nshell, exponents=exponents, coefficients=coefficients,
+        )
+         
+
+class PotentialInfo(BaseModel):
+    
+    electrons: int = Field(None, description="Total number of electrons")
+    type: str = Field(None, description="Potential type (e.g. GTH)")
+    nlcc: bool = Field(None, description="Nonlinear core corrected potential")
+    xc: str = Field(None, description="Exchange correlation functional used for creating this potential")
+
+    def softmatch(self, other):
+        if not isinstance(other, PotentialInfo):
+            return False
+        d1 = self.dict()
+        d2 = other.dict()
+        for k, v in d1.items():
+            if v is not None and v != d2[k]:
+                return False
+        return True
+
+    @classmethod
+    def from_string(cls, string):
+        string = string.upper()
+        data = {}
+        if "NLCC" in string:
+            data['nlcc'] = True
+        if "GTH" in string:
+            data['type'] = "GTH"
+        for i, s in enumerate(string):
+            if s == "Q" and string[i+1].isnumeric():
+                data['electrons'] = int("".join(_ for _ in string[i+1:] if _.isnumeric()))
+        
+        for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
+            if x in string:
+                data['xc'] = x
+
+        return cls(**data)
+
+
+class GthPotential(AtomicMetadata):
+    """Representation of GTH-type (pseudo)potential"""
+
+    info: PotentialInfo = Field(None, description="Info about this potential")
+
+    n_elecs: Dict[int, int] = Field(None, description="Number of electrons for each quantum number n")
+    r_loc: float = Field(None, description="Radius for the local part defined by the Gaussian function exponent alpha_erf")
+    nexp_ppl: int = Field(None, description="Number of the local pseudopotential functions")
+    c_exp_ppl: Sequence = Field(None, description="Coefficients of the local pseudopotential functions")
+    radii: Dict[int, float] = Field(None, description="Radius of the nonlocal part for angular momentum quantum number l defined by the Gaussian function exponents alpha_prj_ppnl")
+    nprj: int = Field(None, description="Number of projectors")
+    nprj_ppnl: Dict[int, int] = Field(None, description="Number of the non-local projectors for the angular momentum quantum number l")
+    hprj_ppnl: Dict[int, Dict[int, Dict[int, float]]] = Field(None, description="Coefficients of the non-local projector functions. Coeff ij for ang momentum l")
+    
+    def get_keyword(self) -> Keyword:
+        return Keyword("POTENTIAL", self.name)
+
+    def get_section(self) -> Section:
+        """
+        Convert model to a GTH-formatted section object for input files
+        """
+        keywords = {"POTENTIAL": Keyword("", self.get_string())}
+        return Section(
+            name=self.name, section_parameters=None, subsections=None, 
+            description="Manual definition of GTH Potential", keywords=keywords
+        )
+
+    @classmethod
+    def from_section(cls, section: Section) -> GthPotential:
+        """
+        Extract GTH-formatted string from a section and convert it to model
+        """
+        sec = copy.deepcopy(section)
+        sec.verbosity(False)
+        s = sec.get_string()
+        s = [_ for _ in s.split("\n") if not _.startswith("&")]
+        s = "\n".join(s)
+        return cls.from_string(s) 
+
+    def get_string(self):
+        """
+        Convert model to a GTH-formatted string
+        """
+        s = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
+        s += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
+        s += f"{self.r_loc: .14f} {str(self.nexp_ppl)} "
+        for i in range(self.nexp_ppl):
+            s += f"{self.c_exp_ppl[i]: .14f} "
+        s += "\n"
+        s += f"{self.nprj} \n"
+        for l in range(self.nprj):
+            total_fill = self.nprj_ppnl[l]*20 + 24
+            tmp = f"{self.radii[l]: .14f} {self.nprj_ppnl[l]: d}"
+            s += '{tmp:>{fill}{width}}'.format(tmp=tmp, fill='', width=24)
+            for i in range(self.nprj_ppnl[l]):
+                k = total_fill - 24 if i == 0 else total_fill
+                tmp = " ".join(f"{v: .14f}" for v in self.hprj_ppnl[l][i].values())
+                s += '{tmp:>{fill}{width}}'.format(tmp=tmp, fill='', width=k)
+                s += "\n" 
+        return s
+
+    @classmethod
+    def from_string(cls, string):
+        """
+        Initialize model from a GTH formatted string
+        """
+        lines = [line for line in string.split("\n") if line]
+        firstline = lines[0].split()
+        element, name, aliases = firstline[0], firstline[1], firstline[2:]
+        info = PotentialInfo.from_string(name).dict()
+        for alias in aliases:
+            for k, v in PotentialInfo.from_string(alias).dict().items():
+                if info[k] == None:
+                    info[k] = v
+        info = PotentialInfo(**info)
+        nelecs = {i: int(n) for i, n in enumerate(lines[1].split())}
+        info.electrons = sum(nelecs.values()) # override, more reliable than name
+        thirdline = lines[2].split()
+        r_loc, nexp_ppl, c_exp_ppl = float(thirdline[0]), int(thirdline[1]), list(map(float, thirdline[2:]))
+        nprj = int(lines[3].split()[0]) if len(lines) > 3 else 0
+
+        radii = {}
+        nprj_ppnl =  {}
+        hprj_ppnl = {}
+        lines = lines[4:]
+        i = 0
+        l = 0
+        L = 0
+
+        while l < nprj:
+            line = lines[i].split()
+            radii[l] = float(line[0])
+            nprj_ppnl[l] = int(line[1])
+            hprj_ppnl[l] = {x: {} for x in range(nprj_ppnl[l])}
+            line = list(map(float, line[2:]))
+            hprj_ppnl[l][0] = {j: float(ln) for j, ln in enumerate(line)}
+
+            L = 1
+            i += 1
+            while L < nprj_ppnl[l]:
+                line2 = list(map(float, lines[i].split()))
+                hprj_ppnl[l][L] = {j: float(ln) for j, ln in enumerate(line2)}
+                i += 1
+                L += 1
+            l += 1
+        
+        return cls(
+            element=Element(element), name=name, alias_names=aliases, 
+            n_elecs=nelecs, r_loc=r_loc, nexp_ppl=nexp_ppl, c_exp_ppl=c_exp_ppl, info=info,
+            radii=radii, nprj=nprj, nprj_ppnl=nprj_ppnl, hprj_ppnl=hprj_ppnl
+        )
+
+
+class DataFile(BaseModel):
+    """A data file for a cp2k calc."""
+
+    objects: Sequence = Field(None, description="Objects in the file")
+
+    @classmethod
+    def from_file(cls, fn):
+        """Load from a file"""
+        with open(fn, 'rt') as f:
+            data = cls.from_string(f.read())
+            for obj in data.objects:
+                obj.filename = fn
+            return data
+    
+    @classmethod
+    def from_string(cls):
+        raise NotImplementedError
+
+    def write_file(self, fn):
+        """Write to a file"""
+        with open(fn, 'wt') as f:
+            f.write(self.get_string())
+
+    def get_string(self):
+        """Get string representation"""
+        return "\n".join(b.get_string() for b in self.objects)
+
+    def __str__(self):
+        return self.get_string()
+
+
+class BasisFile(DataFile):
+    """Data file for basis sets only"""
+
+    @classmethod
+    def from_string(cls, string):
+        """Initialize from a string representation"""
+        basis_sets = [GaussianTypeOrbitalBasisSet.from_string(c) for c in chunk(string)]
+        return cls(objects=basis_sets)
+
+
+class PotentialFile(DataFile):
+    """Data file for potentials only"""
+
+    @classmethod
+    def from_string(cls, string):
+        """Initialize from a string representation"""
+        basis_sets = [GthPotential.from_string(c) for c in chunk(string)]
+        return cls(objects=basis_sets)

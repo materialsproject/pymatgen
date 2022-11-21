@@ -2,23 +2,16 @@
 Utility functions for assisting with cp2k IO
 """
 
+from __future__ import annotations
+
 import os
 import re
-import warnings
-from pathlib import Path
-
 import numpy as np
-import yaml
 from monty.io import zopen
-from ruamel.yaml import YAML
 
-from pymatgen.core import SETTINGS
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Structure, Molecule
 
-MODULE_DIR = Path(__file__).resolve().parent
-
-
-def _postprocessor(s):
+def _postprocessor(s: str):
     """
     Helper function to post process the results of the pattern matching functions in Cp2kOutput
     and turn them to python types.
@@ -50,7 +43,7 @@ def _postprocessor(s):
     return s
 
 
-def _preprocessor(s, d="."):
+def _preprocessor(s: str, d: str = "."):
     """
     Cp2k contains internal preprocessor flags that are evaluated before
     execution. This helper function recognizes those preprocessor flags
@@ -93,7 +86,21 @@ def _preprocessor(s, d="."):
     return s
 
 
-def natural_keys(text):
+def chunk(string: str):
+    """
+    Chunk the string from a cp2k basis or potential file
+    """
+    lines = iter(line for line in (l.strip() for l in string.split("\n")) if line and not line.startswith("#"))
+    chunks = []
+    for line in lines:
+        if line.split()[0].isalpha():
+            chunks.append([])
+        chunks[-1].append(line)
+    chunks = ["\n".join(c) for c in chunks]
+    return chunks
+
+
+def natural_keys(text: str):
     """
     Sort text by numbers coming after an underscore with natural number
     convention,
@@ -106,112 +113,7 @@ def natural_keys(text):
     return [atoi(c) for c in re.split(r"_(\d+)", text)]
 
 
-def get_basis_and_potential(species, basis_and_potential_map):
-    """
-    Retrieve basis/potential dictionary
-
-    Args:
-        species: (list) list of species for which to get the potential/basis strings
-        basis_and_potential_map: (dict or str) a keyword string or a dictionary
-            specifying how bases and/or potentials should be assigned
-        functional: (str) functional type. Default: 'PBE'
-
-    Returns:
-        (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
-    """
-
-    if "potential_filename" in basis_and_potential_map:
-        potential_filename = basis_and_potential_map["potential_filename"]
-    else:
-        potential_filename = SETTINGS.get("PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS")
-
-    if "basis_filenames" in basis_and_potential_map:
-        basis_filenames = basis_and_potential_map["basis_filenames"]
-    else:
-        basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
-
-    if "functional" in basis_and_potential_map:
-        functional = basis_and_potential_map["functional"]
-    else:
-        functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-
-    basis_and_potential = {
-        "basis_filenames": basis_filenames,
-        "potential_filename": potential_filename,
-        "functional": functional,
-    }
-
-    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
-        yaml = YAML(typ="unsafe", pure=True)
-        settings = yaml.load(f)
-
-    for s in species:
-        basis_and_potential[s] = {
-            "basis": "TZVP-MOLOPT-PBE",
-            "potential": settings[s]["potentials"]["GTH_POTENTIALS"].get(functional),
-            "cutoff": None,
-        }
-        basis_and_potential[s].update(basis_and_potential_map.get(s, {}))
-
-    return basis_and_potential
-
-
-def get_aux_basis(els, basis_and_potential):
-    """
-    Get auxiliary basis info for a list of species.
-
-    Args:
-        basis_type (dict): dict of auxiliary basis sets to use. i.e:
-            basis_type = {'Si': 'cFIT', 'O': 'cpFIT'}. Basis type needs to
-            exist for that species.
-
-            Basis types:
-                FIT
-                cFIT
-                pFIT
-                cpFIT
-                GTH-def2
-                aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
-
-        default_basis_type (str) default basis type if n
-
-    """
-    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
-        yaml = YAML(typ="unsafe", pure=True)
-        settings = yaml.load(f)
-        aux_basis = {}
-        for el in els:
-            aux_basis[el] = basis_and_potential.get(el, {}).get("aux_basis")
-            if not aux_basis[el]:
-                for basis_file in settings[el]["basis_sets"]:
-                    if "ADMM" in basis_file:
-                        possible_bases = [
-                            basis_name
-                            for basis_name in settings[el]["basis_sets"][basis_file].keys()
-                            if "FIT" in basis_name
-                        ]
-                        for prefix in ["cpFIT", "cFIT", "FIT"]:
-                            tmp = [b for b in possible_bases if prefix in b]
-
-                            def foo(x):
-                                y = x.replace(prefix, "")
-                                if y.isnumeric():
-                                    return int(y)
-                                return 100
-
-                            tmp.sort(key=foo)
-                            if tmp:
-                                aux_basis[el] = tmp[0]
-                                break
-
-    if not any(aux_basis.values()):
-        raise ValueError(
-            "No appropriate default basis detected in settings file. Either re-initialize settings file or specialize manually"
-        )
-    return aux_basis
-
-
-def get_unique_site_indices(structure):
+def get_unique_site_indices(structure: Structure | Molecule):
     """
     Get unique site indices for a structure according to site properties. Whatever site-property
     has the most unique values is used for indexing.
@@ -270,69 +172,7 @@ def get_unique_site_indices(structure):
     return sites
 
 
-def get_cutoff_from_basis(els, bases, rel_cutoff=50):
-    """
-    Gets the appropriate cutoff for the calculation given the elements/basis sets being used
-    and the desired relative cutoff.
-
-    Args:
-        els: list of element symbols
-        bases: corresponding basis set names for the elements
-        rel_cutoff: The desired relative cutoff
-    Returns:
-        Ideal cutoff for calculation.
-    """
-    with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
-        yaml = YAML(typ="unsafe", pure=True)
-        settings = yaml.load(f)
-
-        exponents = []
-        for el in els:
-            for basis_names in settings[el]["basis_sets"].values():
-                exponents.extend(
-                    [v["largest_exponent"] for k, v in basis_names.items() if any(k.startswith(b) for b in bases)]
-                )
-
-        return np.ceil(max(exponents)) * rel_cutoff
-
-
-# TODO this is not comprehensive. There are so many libxc functionals (e.g. see r2scan)
-# and their availability changes with libxc version. I see no easy way to deal with this
-# So these are just a few of the most common ones.
-# TODO whenever ADMM gets interfaced with LibXC, this should include hybrid functionals
-# and the sets will get more streamlined.
-def get_xc_functionals(name):
-    """
-    Get the XC functionals for a given functional name. This utility does
-    not deal with defining hybrid functionals since those may or may not
-    require ADMM, which is not supported by LibXC and so needs to be manually
-    defined.
-
-    Args:
-        name: Name of the functional.
-    """
-    name = name.upper()
-    if name == "PBE":
-        return ["PBE"]
-    if name in ("LDA", "PADE"):
-        return ["PADE"]
-    if name == "B3LYP":
-        return ["B3LYP"]
-    if name == "BLYP":
-        return ["BLYP"]
-    if name == "SCAN":
-        return ["MGGA_X_SCAN", "MGGA_C_SCAN"]
-    if name == "SCANL":
-        return ["MGGA_X_SCANL", "MGGA_C_SCANL"]
-    if name == "R2SCAN":
-        return ["MGGA_X_R2SCAN", "MGGA_C_R2SCAN"]
-    if name == "R2SCANL":
-        return ["MGGA_X_R2SCANL", "MGGA_C_R2SCANL"]
-    warnings.warn(f"Unknown XC functionals: {name}")
-    return [name]
-
-
-def get_truncated_coulomb_cutoff(inp_struct):
+def get_truncated_coulomb_cutoff(inp_struct: Structure):
     """
     Get the truncated Coulomb cutoff for a given structure.
     """
@@ -346,33 +186,3 @@ def get_truncated_coulomb_cutoff(inp_struct):
     return np.floor(100 * min([x, y, z]) / 2) / 100
 
 
-def build_settings_file(cp2k_data_dir, basis_files, potential_files=["GTH_POTENTIALS"]):
-    settings = {
-        str(el): {
-            "potentials": {f: {} for f in potential_files},
-            "basis_sets": {f: {} for f in basis_files},
-        }
-        for el in Element
-    }
-    for potential_file in potential_files:
-        with open(Path(cp2k_data_dir) / potential_file) as f:
-            lines = [l for l in f.readlines() if not l.startswith("#")]
-            for line in lines:
-                splt = line.split()
-                if splt[0].isalpha():
-                    functional = splt[1].split("-")[1]
-                    settings[splt[0]]["potentials"][potential_file][functional] = splt[1]
-
-    for basis_file in basis_files:
-        with open(Path(cp2k_data_dir) / basis_file) as f:
-            lines = list(line for line in (l.strip() for l in f) if line and not line.startswith("#"))
-            for i, line in enumerate(lines):
-                splt = line.split()
-                if splt[0].isalpha():
-                    basis = splt[1]
-                    settings[splt[0]]["basis_sets"][basis_file][basis] = {
-                        "largest_exponent": float(lines[i + 3].split()[0])
-                    }
-
-    with open(Path(MODULE_DIR) / "settings.yaml", "wt") as f:
-        yaml.dump(settings, f, default_flow_style=False)
