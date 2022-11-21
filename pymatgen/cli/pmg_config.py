@@ -91,14 +91,14 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
             yaml.dump(settings.get(el), f, default_flow_style=False)
 
     print(
-        "\n CP2K resource directory generated. It is recommended that you "
-        f"run 'pmg config --add PMG_CP2K_DATA_DIR {os.path.abspath(targetdir)}'"
+        "\n CP2K resource directory generated. It is recommended that you run:"
+        f"\n  'pmg config --add PMG_CP2K_DATA_DIR {os.path.abspath(targetdir)}' "
     )
     print(
         "\n It is also recommended that you set the following (with example values):"
-        "\n  'pmg config --add PMG_DEFAULT_CP2K_FUNCTIONAL PBE"
-        "\n  'pmg config --add PMG_DEFAULT_CP2K_BASIS_TYPE TZVP-MOLOPT"
-        "\n  'pmg config --add PMG_DEFAULT_CP2K_AUX_BASIS_TYPE pFIT"
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_FUNCTIONAL PBE' "
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_BASIS_TYPE TZVP-MOLOPT' "
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_AUX_BASIS_TYPE pFIT' "
     )
     print("\n Start a new terminal to ensure that your environment variables are properly set.")
 
