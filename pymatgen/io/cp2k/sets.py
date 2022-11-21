@@ -212,8 +212,6 @@ class DftSet(Cp2kInput):
         self.insert(ForceEval())
 
         if self.kpoints:
-            print(self.kpoints.num_kpts)
-            print(self.kpoints.kpts)
             if (
                 ((self.kpoints.num_kpts == 0 or self.kpoints.num_kpts == 1) and np.array_equal(self.kpoints.kpts[0], (0, 0, 0)))
                 or np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
@@ -746,7 +744,8 @@ class DftSet(Cp2kInput):
         """
         if not admm:
             for k in self.basis_and_potential:
-                self.basis_and_potential[k].pop("aux_basis", None)
+                if "aux_basis" in self.basis_and_potential[k]:
+                    del self.basis_and_potential[k]["aux_basis"]
             del self['force_eval']['subsys']
             self.create_subsys(self.structure)
 
@@ -1075,12 +1074,6 @@ class DftSet(Cp2kInput):
         Activates a calculation with non-periodic calculations by turning of PBC and
         changing the poisson solver. Still requires a CELL to put the atoms
         """
-        if not self.check("FORCE_EVAL/SUBSYS/CELL"):
-            x = max(s.coords[0] for s in self.structure.sites)
-            y = max(s.coords[1] for s in self.structure.sites)
-            z = max(s.coords[2] for s in self.structure.sites)
-            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]])))
-        self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
         kwds = {
             "POISSON_SOLVER": Keyword("POISSON_SOLVER", solver),
             "PERIODIC": Keyword("PERIODIC", "NONE"),
@@ -1094,6 +1087,13 @@ class DftSet(Cp2kInput):
         subsys = Subsys()
         if isinstance(structure, Structure):
             subsys.insert(Cell(structure.lattice))
+        else:
+            x = max(structure.cart_coords[:, 0])
+            y = max(structure.cart_coords[:, 1])
+            z = max(structure.cart_coords[:, 2])
+            cell = Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
+            cell.add(Keyword("PERIODIC", "NONE"))
+            subsys.insert(cell)
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
