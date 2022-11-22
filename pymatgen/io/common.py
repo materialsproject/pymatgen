@@ -413,6 +413,4 @@ class VolumetricData(MSONable):
             coords_are_cartesian=True,
         )
 
-        # Volumetric data
-        data = np.reshape(np.array(file.read().split()).astype(float), (num_x_voxels, num_y_voxels, num_z_voxels))
         return cls(structure=structure, data={"total": data})
