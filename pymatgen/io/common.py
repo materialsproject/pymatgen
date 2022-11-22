@@ -5,10 +5,9 @@ Module for defining common data used and produced by atomistic simulation packag
 import itertools
 import json
 import warnings
+from copy import deepcopy
 
 import numpy as np
-from numpy import typing as npt
-from copy import deepcopy
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
