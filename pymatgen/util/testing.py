@@ -9,6 +9,8 @@ tests in a single location, so that test scripts can just import it and work
 right away.
 """
 
+from __future__ import annotations
+
 import json
 import tempfile
 import unittest
@@ -19,7 +21,7 @@ from monty.dev import requires
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core import SETTINGS
+from pymatgen.core import SETTINGS, Structure
 from pymatgen.ext.matproj import _MPResterLegacy as MPRester
 
 
@@ -48,7 +50,7 @@ class PymatgenTest(unittest.TestCase):
         TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 
     @classmethod
-    def get_structure(cls, name):
+    def get_structure(cls, name: str) -> Structure:
         """
         Get a structure from the template directories.
 
@@ -59,7 +61,7 @@ class PymatgenTest(unittest.TestCase):
 
     @classmethod
     @requires(SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY needs to be set.")
-    def get_mp_structure(cls, mpid):
+    def get_mp_structure(cls, mpid: str) -> Structure:
         """
         Get a structure from MP.
 
@@ -70,7 +72,7 @@ class PymatgenTest(unittest.TestCase):
         return m.get_structure_by_material_id(mpid)
 
     @staticmethod
-    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
+    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True) -> bool:
         """
         Tests if two arrays are almost equal to a tolerance. The CamelCase
         naming is so that it is consistent with standard unittest methods.
@@ -78,7 +80,7 @@ class PymatgenTest(unittest.TestCase):
         return nptu.assert_almost_equal(actual, desired, decimal, err_msg, verbose)
 
     @staticmethod
-    def assertDictsAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
+    def assertDictsAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True) -> bool:
         """
         Tests if two arrays are almost equal to a tolerance. The CamelCase
         naming is so that it is consistent with standard unittest methods.
@@ -104,7 +106,7 @@ class PymatgenTest(unittest.TestCase):
         return True
 
     @staticmethod
-    def assertArrayEqual(actual, desired, err_msg="", verbose=True):
+    def assertArrayEqual(actual, desired, err_msg="", verbose=True) -> bool:
         """
         Tests if two arrays are equal. The CamelCase naming is so that it is
          consistent with standard unittest methods.
@@ -112,7 +114,7 @@ class PymatgenTest(unittest.TestCase):
         return nptu.assert_equal(actual, desired, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assertStrContentEqual(actual, desired, err_msg="", verbose=True):
+    def assertStrContentEqual(actual, desired, err_msg="", verbose=True) -> bool:
         """
         Tests if two strings are equal, ignoring things like trailing spaces, etc.
         """

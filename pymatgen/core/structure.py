@@ -92,6 +92,27 @@ class Neighbor(Site):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index)[idx]
 
+    def as_dict(self) -> dict:  # type: ignore
+        """
+        Note that method calls the super of Site, which is MSONable itself.
+
+        Returns: dict
+        """
+        return super(Site, self).as_dict()  # pylint: disable=E1003
+
+    @classmethod
+    def from_dict(cls, d: dict) -> Neighbor:  # type: ignore
+        """
+        Returns a Neighbor from a dict.
+
+        Args:
+            d: MSONable dict format.
+
+        Returns:
+            Neighbor
+        """
+        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
+
 
 class PeriodicNeighbor(PeriodicSite):
     """
@@ -151,6 +172,27 @@ class PeriodicNeighbor(PeriodicSite):
         Make neighbor Tuple-like to retain backwards compatibility.
         """
         return (self, self.nn_distance, self.index, self.image)[i]
+
+    def as_dict(self) -> dict:  # type: ignore
+        """
+        Note that method calls the super of Site, which is MSONable itself.
+
+        Returns: dict
+        """
+        return super(Site, self).as_dict()  # pylint: disable=E1003
+
+    @classmethod
+    def from_dict(cls, d: dict) -> PeriodicNeighbor:  # type: ignore
+        """
+        Returns a PeriodicNeighbor from a dict.
+
+        Args:
+            d: MSONable dict format.
+
+        Returns:
+            PeriodicNeighbor
+        """
+        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
