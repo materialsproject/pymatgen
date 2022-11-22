@@ -276,56 +276,6 @@ class VolumetricData(MSONable):
             total = np.sum(np.sum(m, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
-    def mask_sphere(self, radius: float, fcoord: npt.ArrayLike):
-        """
-        Create a mask for a sphere in the data
-
-        Args:
-            radius: Radius of the mask in Angstroms
-            fcoord: The fractional coordinates of the center of the sphere
-        """
-        # makesure fcoord is an array
-        fcoord = np.array(fcoord)
-
-        def _dist_mat(pos_frac):
-            # return a matrix that contains the distances
-            aa = np.linspace(0, 1, len(self.get_axis_grid(0)), endpoint=False)
-            bb = np.linspace(0, 1, len(self.get_axis_grid(1)), endpoint=False)
-            cc = np.linspace(0, 1, len(self.get_axis_grid(2)), endpoint=False)
-            AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
-            dist_from_pos = self.structure.lattice.get_all_distances(
-                fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
-                fcoords2=pos_frac,
-            )
-            return dist_from_pos.reshape(AA.shape)
-
-        if np.any(fcoord < 0) or np.any(fcoord > 1):
-            raise ValueError("f_coords must be in [0,1)")
-        return _dist_mat(fcoord) < radius
-
-    def average_in_sphere(self, radius: float, fcoord: npt.ArrayLike):
-        """
-        Return an average of the total data within a sphere.
-        
-        Args:
-            radius: Radius of the mask in Angstroms
-            fcoord: The fractional coordinates of the center of the sphere 
-        """
-        mask = self.mask_sphere(radius, fcoord)
-        vol_sphere = self.structure.volume * (mask.sum() / self.ngridpts)
-        return np.sum(self.data["total"] * mask) / mask.size / vol_sphere
-
-    def sum_in_sphere(self, radius: float, fcoord: npt.ArrayLike):
-        """
-        Return the sum of the total data within a sphere.
-        
-        Args:
-            radius: Radius of the mask in Angstroms
-            fcoord: The fractional coordinates of the center of the sphere 
-        """
-        mask = self.mask_sphere(radius, fcoord)
-        return np.sum(self.data["total"] * mask) 
-
     def to_hdf5(self, filename):
         """
         Writes the VolumetricData to a HDF5 format, which is a highly optimized
@@ -474,6 +424,4 @@ class VolumetricData(MSONable):
             coords_are_cartesian=True,
         )
 
-        # Volumetric data
-        data = np.reshape(np.array(file.read().split()).astype(float), (num_x_voxels, num_y_voxels, num_z_voxels))
         return cls(structure=structure, data={"total": data})
