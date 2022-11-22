@@ -72,7 +72,7 @@ class PymatgenTest(unittest.TestCase):
         return m.get_structure_by_material_id(mpid)
 
     @staticmethod
-    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True) -> bool:
+    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
         """
         Tests if two arrays are almost equal to a tolerance. The CamelCase
         naming is so that it is consistent with standard unittest methods.
@@ -96,9 +96,8 @@ class PymatgenTest(unittest.TestCase):
                 if not pass_test:
                     return False
             elif isinstance(v, (list, tuple)):
-                pass_test = nptu.assert_almost_equal(v, v2, decimal, err_msg, verbose)
-                if not pass_test:
-                    return False
+                nptu.assert_almost_equal(v, v2, decimal, err_msg, verbose)
+                return True
             elif isinstance(v, (int, float)):
                 PymatgenTest().assertAlmostEqual(v, v2)  # pylint: disable=E1120
             else:
@@ -106,7 +105,7 @@ class PymatgenTest(unittest.TestCase):
         return True
 
     @staticmethod
-    def assertArrayEqual(actual, desired, err_msg="", verbose=True) -> bool:
+    def assertArrayEqual(actual, desired, err_msg="", verbose=True):
         """
         Tests if two arrays are equal. The CamelCase naming is so that it is
          consistent with standard unittest methods.
@@ -114,7 +113,7 @@ class PymatgenTest(unittest.TestCase):
         return nptu.assert_equal(actual, desired, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assertStrContentEqual(actual, desired, err_msg="", verbose=True) -> bool:
+    def assertStrContentEqual(actual, desired, err_msg="", verbose=True):
         """
         Tests if two strings are equal, ignoring things like trailing spaces, etc.
         """
