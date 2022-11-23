@@ -2,6 +2,8 @@
 Module for defining common data used and produced by atomistic simulation packages.
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 import warnings
