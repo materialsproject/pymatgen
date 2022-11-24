@@ -19,7 +19,7 @@ from pymatgen.io.core import InputGenerator, InputSet
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
 
-__author__ = "Ryan Kingsbury, Guillaume Brunin"
+__author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
@@ -45,8 +45,12 @@ class LammpsInputSet(InputSet):
     ):
         """
         Args:
-            inputfile: The input file containing settings
-            data: the data file containing structure and topology information
+            inputfile: The input file containing settings.
+                       It can be a LammpsInputFile object or a string representation.
+            data: The data file containing structure and topology information.
+                  It can be a LammpsData or a CombinedData object.
+            calc_type: String used to shortly describe the type of computations performed by LAMMPS.
+            template_file: Path (string) to the template file used to create the input file for LAMMPS.
         """
         self.inputfile = inputfile
         self.data = data
@@ -68,26 +72,50 @@ class LammpsInputSet(InputSet):
     @classmethod
     def from_directory(cls, directory: str | Path):  # pylint: disable=E1131
         """
-        Construct an InputSet from a directory of one or more files.
+        Construct a LammpsInputSet from a directory of two or more files.
+        TODO: accept directories with only the input file, that should include the structure as well.
 
         Args:
-            directory: Directory to read input files from
+            directory: Directory to read input files from. It should contain at least two files:
+                       in.lammps for the LAMMPS input file, and system.data with the system information.
         """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+        input_file = LammpsInputFile.from_file(os.path.join(directory, "in.lammps"))
+        atom_style = input_file.get_args("atom_style")
+        data_file = LammpsData.from_file(os.path.join(directory, "system.data"), atom_style=atom_style)
+        return LammpsInputSet(inputfile=input_file, data=data_file, calc_type="read_from_dir")
+
+    def validate(self) -> bool:
+        """
+        A place to implement basic checks to verify the validity of an
+        input set. Can be as simple or as complex as desired.
+
+        Will raise a NotImplementedError unless overloaded by the inheriting class.
+        """
+        raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
 
 
 class BaseLammpsGenerator(InputGenerator):
     """
-    Doc
+    Base class to generate LAMMPS input sets.
+    Uses template files for the input. The variables that can be changed
+    in the input template file are those starting with a $ sign, e.g., $nsteps.
+    This generic class is specialized for each template in subclasses, e.g. LammpsMinimization.
+    You can create a template for your own task following those present in pymatgen/io/lammps/templates.
+    The parameters are then replaced based on the values found
+    in the settings dictionary that you provide, e.g., {"nsteps": 1000}.
+
+    Parameters:
+        template: Path (string) to the template file used to create the input file for LAMMPS.
+        calc_type: String used to shortly describe the type of computations performed by LAMMPS.
+
+    Args:
+        settings: Dictionary containing the values of the parameters to replace in the template.
     """
 
     template: str = os.path.join(template_dir, "md.template")
     calc_type: str = "lammps"
 
     def __init__(self, settings: dict | None = None):  # pylint: disable=E1131
-        """
-        Doc
-        """
         self.settings = settings or {}
 
         # load the template
@@ -102,7 +130,7 @@ class BaseLammpsGenerator(InputGenerator):
         self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
     ) -> LammpsInputSet:
         """
-        Generate a LammpsInputSet tailored for minimizing the energy of a system
+        Generate a LammpsInputSet from the structure/data file, tailored to the template file.
         """
         if isinstance(structure, Structure):
             data = LammpsData.from_structure(structure)

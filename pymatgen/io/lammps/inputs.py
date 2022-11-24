@@ -43,7 +43,7 @@ class LammpsInputFile(InputFile):
     def __init__(self, input_settings: list = None):
         """
         Args:
-            input_settings: dictionary of LAMMPS input settings.
+            input_settings: list of tuples of LAMMPS input settings.
         """
         self.nstages = 0
         self.ncomments = 0
@@ -54,17 +54,63 @@ class LammpsInputFile(InputFile):
         """List of names for all the stages present in input_settings."""
         return [self.input_settings[i][0] for i in range(len(self.input_settings))] if self.input_settings else []
 
+    def get_args(self, command):
+        """
+        Given a command, returns the corresponding arguments (or list of arguments) in the LammpsInputFile.
+        If the command is not found, None is returned.
+
+        Args:
+            command: string with the command to find in the input file
+
+        Returns:
+            Value of the argument corresponding to the command.
+            List if the same command is used multiple times.
+        """
+        args = []
+
+        for stage_name, cmd_list in self.input_settings:
+            for cmd, arg in cmd_list:
+                if command == cmd:
+                    args.append(arg)
+
+        if args == []:
+            return None
+        elif len(args) == 1:
+            return args[0]
+        else:
+            return args
+
     def add_stage(self, command: str | list | dict, stage_name: str = None):
         """
         Adds LAMMPS command(s) and its arguments to LAMMPS input file.
 
+        Examples:
+            1) In order to add a stage defining the potential to be used, you can use:
+            your_input_file.add_stage(
+                command=["pair_coeff 1 1 morse 0.0580 3.987 3.404", "pair_coeff 1 4 morse 0.0408 1.399 3.204"],
+                stage_name="Definition of the potential"
+            )
+
+            2) Another stage could consist in an energy minimization. In that case, the commands could look like
+            command = [
+                "thermo 1",
+                "thermo_style custom step lx ly lz press pxx pyy pzz pe",
+                "dump dmp all atom 5 run.dump",
+                "min_style cg",
+                "fix 1 all box/relax iso 0.0 vmax 0.001",
+                "minimize 1.0e-16 1.0e-16 5000 10000",
+                "write_data run.data"
+            ]
+            or a similar version with a long string containing all (separated by \n), or a dictionary such as
+            {"thermo": 1, ...}
+
         Args:
             command: LAMMPS command(s) for this stage of the run.
-                Can pass single string or list of LAMMPS commands
-                with their arguments. Also accepts dictionary of LAMMPS commands and
+                Can pass a single string or a list of LAMMPS commands
+                with their arguments. Also accepts a dictionary of LAMMPS commands and
                 corresponding arguments as key, value pairs.
             stage_name: If a stage name is mentioned, the command is added
-                under that stage block else a new stage is created and named from numerotation.
+                under that stage block, else a new stage is created and named from numbering.
         """
         # Name the stage if not given
         # + 1 so that if a new (list of) command is added without stage name,
@@ -102,7 +148,22 @@ class LammpsInputFile(InputFile):
         """
         Helper method to add a single LAMMPS command and its arguments to
         a LAMMPS input file. The stage name should be provided: a default behavior
-        is avoided here to avoid mistakes.
+        is avoided here to avoid mistakes. To add a command at the end of the input file,
+        use add_stage directly.
+
+        Example:
+            In order to add the command "pair_coeff 1 1 morse 0.0580 3.987 3.404"
+            to the stage "Definition of the potential", simply use
+            your_input_file.add_command(
+                stage_name="Definition of the potential",
+                command="pair_coeff 1 1 morse 0.0580 3.987 3.404"
+            )
+            or
+            your_input_file.add_command(
+                stage_name="Definition of the potential",
+                command="pair_coeff",
+                args="1 1 morse 0.0580 3.987 3.404"
+            )
 
         Args:
             stage_name (str): name of the stage to which the command should be added.
@@ -121,7 +182,7 @@ class LammpsInputFile(InputFile):
 
     def add_comment(self, comment: str, inline: bool = False, stage_name: str = None, index_comment: bool = False):
         """
-         Method to add a comment in a stage or as a whole stage (which will do nothing).
+         Method to add a comment in a stage or as a whole stage (which will do nothing when lammps runs).
 
         Args:
             comment: Comment string to be added. The comment will be
@@ -259,6 +320,9 @@ class LammpsInputFile(InputFile):
 
         return LIF
 
+    def __repr__(self):
+        return self.get_string()
+
     @staticmethod
     def _clean_lines(string_list: list, ignore_comments: bool = False):
         """
@@ -271,6 +335,9 @@ class LammpsInputFile(InputFile):
         Args:
             string_list (list): List of strings.
             ignore_comments: True if the strings starting with # should be ignored.
+
+        Returns:
+            List of strings
         """
         if len(string_list) == 0 or all([s == "" for s in string_list]):
             raise ValueError("The list of strings should contain some non-empty strings.")
@@ -314,6 +381,9 @@ class LammpsInputFile(InputFile):
             string_list (list): List of strings.
             keep_stages: True if the block structure from the input file should be kept.
                          If False, a single block is assumed.
+
+        Returns:
+            List of list of strings containing the different blocks
         """
         blocks: list[list[str]] = [[]]
         i_block = 0
