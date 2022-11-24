@@ -21,12 +21,12 @@ from pymatgen.io.core import InputFile
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
 
-__author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin"
+__author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __version__ = "1.0"
-__maintainer__ = "Zhi Deng"
-__email__ = "z4deng@eng.ucsd.edu"
-__date__ = "Aug 1, 2018"
+__maintainer__ = "Zhi Deng, Matgenix"
+__email__ = "z4deng@eng.ucsd.edu, contact@matgenix.com"
+__date__ = "Nov 2022"
 
 
 class LammpsInputFile(InputFile):
@@ -35,8 +35,8 @@ class LammpsInputFile(InputFile):
     Allows for LAMMPS input generation in line/stage wise manner. A stage
     here is defined as a block of LAMMPS input commands usually performing a
     specific task during the simulation such as energy minimization or
-    NPT/NVT runs. But more broadly, a stage can also be block of LAMMPS
-    input where simulation box is setup, a set of variables are declared or
+    NPT/NVT runs. But more broadly, a stage can also be a block of LAMMPS
+    input where the simulation box is set up, a set of variables are declared or
     quantities are computed.
     """
 

@@ -17,9 +17,9 @@ from pymatgen.io.core import InputGenerator, InputSet
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
 
-__author__ = "Ryan Kingsbury, ..."
+__author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
-__version__ = "0.1"
+__version__ = "0.2"
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
