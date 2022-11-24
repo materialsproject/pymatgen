@@ -23,7 +23,7 @@ from pymatgen.io.template import TemplateInputGen
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Zhi Deng, Matgenix"
 __email__ = "z4deng@eng.ucsd.edu, contact@matgenix.com"
 __date__ = "Nov 2022"
@@ -40,14 +40,18 @@ class LammpsInputFile(InputFile):
     quantities are computed.
     """
 
-    def __init__(self, input_settings: dict = None):
+    def __init__(self, input_settings: list = None):
         """
         Args:
             input_settings: dictionary of LAMMPS input settings.
         """
         self.nstages = 0
         self.ncomments = 0
-        self.input_settings = input_settings if input_settings else {}
+        self.input_settings = input_settings if input_settings else []
+
+    @property
+    def stages_names(self):
+        return [self.input_settings[i][0] for i in range(len(self.input_settings))] if self.input_settings else []
 
     def add_stage(self, command: str | list | dict, stage_name: str = None):
         """
@@ -68,8 +72,8 @@ class LammpsInputFile(InputFile):
             stage_name = f"Stage {self.nstages + 1}"
 
         # Initialize the stage if not already present
-        if stage_name not in self.input_settings.keys():
-            self.input_settings[stage_name] = {}
+        if stage_name not in self.stages_names:
+            self.input_settings.append((stage_name, []))
             self.nstages += 1
 
         # Handle the different input formats to add commands to the stage
@@ -109,11 +113,10 @@ class LammpsInputFile(InputFile):
             command = string_split[0]
             args = " ".join(string_split[1:])
 
-        if command not in self.input_settings[stage_name]:
-            self.input_settings[stage_name][command] = args
-        else:
-            # In LAMMPS, the same command can be used multiple times
-            self.input_settings[stage_name][command] += "\n" + command + " " + args
+        # Find where the command should be added (stage index instead of stage name)
+        idx = self.stages_names.index(stage_name)
+        # Add the command
+        self.input_settings[idx][1].append((command, args))
 
     def add_comment(self, comment: str, inline: bool = False, stage_name: str = None, index_comment: bool = False):
         """
@@ -134,7 +137,6 @@ class LammpsInputFile(InputFile):
                 stage_name = f"Comment {self.ncomments}"
             self.add_stage(command="# " + comment, stage_name=stage_name)
             self.nstages += -1
-
         # Inline comment
         elif inline and stage_name:
             if index_comment:
@@ -157,7 +159,7 @@ class LammpsInputFile(InputFile):
         """
         lammps_input = "# LAMMPS input generated from LammpsInputFile\n"
 
-        for stage_name, stage_dict in self.input_settings.items():
+        for stage_name, stage_list in self.input_settings:
             # Print first the name of the stage in a comment
             if "Comment" not in stage_name:
                 lammps_input += "\n# " + stage_name + "\n"
@@ -167,7 +169,7 @@ class LammpsInputFile(InputFile):
                 lammps_input += "\n"
 
             # Then print the commands and arguments (including inline comments)
-            for command, args in stage_dict.items():
+            for command, args in stage_list:
                 lammps_input += f"{command} {args}\n"
 
         return lammps_input
