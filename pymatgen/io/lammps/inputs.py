@@ -51,6 +51,7 @@ class LammpsInputFile(InputFile):
 
     @property
     def stages_names(self):
+        """List of names for all the stages present in input_settings."""
         return [self.input_settings[i][0] for i in range(len(self.input_settings))] if self.input_settings else []
 
     def add_stage(self, command: str | list | dict, stage_name: str = None):
@@ -148,34 +149,44 @@ class LammpsInputFile(InputFile):
         else:
             raise NotImplementedError("If you want to add an inline comment, please specify the stage name.")
 
-    def get_string(self):
+    def get_string(self, ignore_comments: bool = False, keep_stages: bool = False):
         """
         Generates and returns the string representation of LAMMPS input file.
         Stages are separated by empty lines.
         The headers of the stages will be put in comments preceding each stage.
         Other comments will be put inline within stages, where they have been added.
 
+        Args:
+            ignore_comments: True if only the commands should be kept from the input file.
+            keep_stages: True if the block structure from the input file should be kept.
+                         If False, a single block is assumed.
+
         Returns: String representation of LAMMPS input file.
         """
         lammps_input = "# LAMMPS input generated from LammpsInputFile\n"
+        if not keep_stages:
+            lammps_input += "\n"
 
-        for stage_name, stage_list in self.input_settings:
-            # Print first the name of the stage in a comment
-            if "Comment" not in stage_name:
-                lammps_input += "\n# " + stage_name + "\n"
+        for stage_name, cmd_list in self.input_settings:
+            if keep_stages:
+                # Print first the name of the stage in a comment.
+                # We print this even if ignore_comments is True.
+                if "Comment" not in stage_name and len(self.input_settings) > 1:
+                    lammps_input += "\n# " + stage_name + "\n"
 
-            # In case of a block of comment, the header is not printed (useless)
-            else:
-                lammps_input += "\n"
+                # In case of a block of comment, the header is not printed (useless)
+                else:
+                    lammps_input += "\n"
 
             # Then print the commands and arguments (including inline comments)
-            for command, args in stage_list:
-                lammps_input += f"{command} {args}\n"
+            for command, args in cmd_list:
+                if not (ignore_comments and "#" in command):
+                    lammps_input += f"{command} {args}\n"
 
         return lammps_input
 
     @classmethod
-    def from_string(cls, s: str):
+    def from_string(cls, s: str, ignore_comments: bool = False, keep_stages: bool = False):
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -184,6 +195,9 @@ class LammpsInputFile(InputFile):
 
         Args:
             s: String representation of LammpsInputFile.
+            ignore_comments: True if only the commands should be kept from the input file.
+            keep_stages: True if the block structure from the input file should be kept.
+                         If False, a single block is assumed.
 
         Returns: LammpsInputFile
         """
@@ -205,21 +219,25 @@ class LammpsInputFile(InputFile):
             s = s.replace(sequence + "\n", "")
 
         # Remove unwanted lines from the string
-        lines = cls._clean_lines(s.splitlines())
+        lines = cls._clean_lines(s.splitlines(), ignore_comments=ignore_comments)
         # Split the string into blocks based on the empty lines of the input file
-        blocks = cls._get_blocks(lines)
+        blocks = cls._get_blocks(lines, keep_stages=keep_stages)
 
         for block in blocks:
+            keep_block = True
             # Block of comment(s)
             if all([line[0] == "#" for line in block]):
-                LIF.add_comment(comment=block[0][1:].strip(), inline=False)
-                stage_name = f"Comment {LIF.ncomments}"
-                if len(block) > 1:
-                    for line in block[1:]:
-                        LIF.add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
+                if ignore_comments:
+                    keep_block = False
+                else:
+                    LIF.add_comment(comment=block[0][1:].strip(), inline=False)
+                    stage_name = f"Comment {LIF.ncomments}"
+                    if len(block) > 1:
+                        for line in block[1:]:
+                            LIF.add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
 
             # Header of a stage
-            elif block[0][0] == "#":
+            elif block[0][0] == "#" and keep_block:
                 # Find the name of the header.
                 # If the comment is on multiple lines, the header will be the whole text
                 icomm_max = len(block)
@@ -233,7 +251,7 @@ class LammpsInputFile(InputFile):
                     header += line[1:].strip() + " "
 
                 commands = block[icomm_max:]
-                LIF.add_stage(command=commands, stage_name=header)
+                LIF.add_stage(command=commands, stage_name=None if ignore_comments else header)
 
             # Stage with no header
             else:
@@ -242,7 +260,7 @@ class LammpsInputFile(InputFile):
         return LIF
 
     @staticmethod
-    def _clean_lines(string_list: list):
+    def _clean_lines(string_list: list, ignore_comments: bool = False):
         """
         Helper method to strips whitespaces, carriage returns and redundant empty
         lines from a list of strings.
@@ -252,6 +270,7 @@ class LammpsInputFile(InputFile):
 
         Args:
             string_list (list): List of strings.
+            ignore_comments: True if the strings starting with # should be ignored.
         """
         if len(string_list) == 0 or all([s == "" for s in string_list]):
             raise ValueError("The list of strings should contain some non-empty strings.")
@@ -276,7 +295,8 @@ class LammpsInputFile(InputFile):
 
         for i, s in enumerate(string_list[1:-1]):
             if s != "":
-                lines.append(s)
+                if not (s[0] == "#" and ignore_comments):
+                    lines.append(s)
             if s == "" and string_list[i + 2] != "":
                 lines.append(s)
 
@@ -285,13 +305,15 @@ class LammpsInputFile(InputFile):
         return lines
 
     @staticmethod
-    def _get_blocks(string_list: list):
+    def _get_blocks(string_list: list, keep_stages: bool = False):
         """
         Helper method to return a list of blocks of lammps commands,
         separated from "" in a list of all commands.
 
         Args:
             string_list (list): List of strings.
+            keep_stages: True if the block structure from the input file should be kept.
+                         If False, a single block is assumed.
         """
         blocks: list[list[str]] = [[]]
         i_block = 0
@@ -299,7 +321,7 @@ class LammpsInputFile(InputFile):
         for s in string_list:
             if s != "":
                 blocks[i_block].append(s)
-            if s == "":
+            if s == "" and keep_stages:
                 blocks.append([])
                 i_block += 1
 
