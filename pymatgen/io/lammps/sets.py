@@ -162,6 +162,11 @@ class LammpsMinimization(BaseLammpsGenerator):
         boundary: str = "p p p",
         read_data: str = "system.data",
     ):
+        self.units = units
+        self.atom_style = atom_style
+        self.dimension = dimension
+        self.boundary = boundary
+        self.read_data = read_data
         self.settings = {
             "units": units,
             "atom_style": atom_style,
