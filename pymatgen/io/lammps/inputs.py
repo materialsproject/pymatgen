@@ -43,7 +43,7 @@ class LammpsInputFile(InputFile):
     def __init__(self, input_settings: list = None):
         """
         Args:
-            input_settings: list of tuples of LAMMPS input settings.
+            input_settings: list of LAMMPS input settings.
         """
         self.nstages = 0
         self.ncomments = 0
@@ -54,34 +54,77 @@ class LammpsInputFile(InputFile):
         """List of names for all the stages present in input_settings."""
         return [self.input_settings[i][0] for i in range(len(self.input_settings))] if self.input_settings else []
 
-    def get_args(self, command):
+    def get_args(self, command: str, stage_name: str = None):
         """
         Given a command, returns the corresponding arguments (or list of arguments) in the LammpsInputFile.
+        A stage name can be given; in this case the search will happen only for this stage.
         If the command is not found, None is returned.
 
         Args:
-            command: string with the command to find in the input file
+            command: string with the command to find in the input file.
+            stage_name: String giving the stage name where the change should take place.
 
         Returns:
             Value of the argument corresponding to the command.
             List if the same command is used multiple times.
         """
         args = []
+        stages_to_look = [stage_name] if stage_name else self.stages_names
 
-        for stage_name, cmd_list in self.input_settings:
-            for cmd, arg in cmd_list:
-                if command == cmd:
-                    args.append(arg)
+        for stage, cmd_list in self.input_settings:
+            if stage in stages_to_look:
+                for cmd, arg in cmd_list:
+                    if command == cmd:
+                        args.append(arg)
 
-        if args == []:
+        if not args:
             return None
         elif len(args) == 1:
             return args[0]
         else:
             return args
 
-    def add_stage(self, command: str | list | dict, stage_name: str = None):
+    def set_args(self, command: str, argument: str, stage_name: str = None, how: str | int | list = "all"):
         """
+        Set the argument arg to a given command.
+        If a stage name is specified, it will be replaced or set only for this stage.
+        If the command is set multiple times in the file/stage, it will be replaced based on "how":
+        either the first occurrence, all of them, or the index of the occurrence.
+
+        Args:
+            command: String representing the command to change.
+            argument: String with the new value for the command.
+            stage_name: String giving the stage name where the change should take place.
+            how: "all" for changing all occurrences of the command within the stage_name or the whole input file,
+                 "first" for the first occurrence,
+                 int i corresponding to the i-th time the command is present in the stage_name or the whole input file.
+                 Start at 0. Can be a list of indexes as well.
+        """
+        # Get the stages to look in
+        stages_to_look = [stage_name] if stage_name else self.stages_names
+
+        # Translates how into range of indices
+        if how == "first":
+            how = [0]
+        elif how == "all":
+            getargs = self.get_args(command, stage_name)
+            N = 1 if isinstance(getargs, str) else len(getargs)
+            how = [i for i in range(N)]
+        elif isinstance(how, int):
+            how = [how]
+
+        # Look for occurrences in the relevant stages
+        i = 0
+        for i_stage, (stage, cmd_list) in enumerate(self.input_settings):
+            if stage in stages_to_look:
+                for i_cmd, (cmd, _) in enumerate(cmd_list):
+                    if command == cmd:
+                        if i in how:
+                            self.input_settings[i_stage][1][i_cmd][1] = argument
+                        i += 1
+
+    def add_stage(self, command: str | list | dict, stage_name: str = None):
+        r"""
         Adds LAMMPS command(s) and its arguments to LAMMPS input file.
 
         Examples:
@@ -120,7 +163,10 @@ class LammpsInputFile(InputFile):
 
         # Initialize the stage if not already present
         if stage_name not in self.stages_names:
-            self.input_settings.append((stage_name, []))
+            if not self.input_settings:
+                self.input_settings = [[stage_name, []]]
+            else:
+                self.input_settings.append([stage_name, []])
             self.nstages += 1
 
         # Handle the different input formats to add commands to the stage
@@ -178,7 +224,10 @@ class LammpsInputFile(InputFile):
         # Find where the command should be added (stage index instead of stage name)
         idx = self.stages_names.index(stage_name)
         # Add the command
-        self.input_settings[idx][1].append((command, args))
+        if not self.input_settings[idx][1]:
+            self.input_settings[idx][1] = [[command, args]]
+        else:
+            self.input_settings[idx][1].append([command, args])
 
     def add_comment(self, comment: str, inline: bool = False, stage_name: str = None, index_comment: bool = False):
         """
@@ -201,16 +250,20 @@ class LammpsInputFile(InputFile):
             self.nstages += -1
         # Inline comment
         elif inline and stage_name:
+            command = "#"
             if index_comment:
-                command = f"# Comment {self.ncomments}:"
+                if "Comment" in comment and comment.strip()[9] == ":":
+                    args = ":".join(comment.split(":")[1:])
+                else:
+                    args = comment
             else:
-                command = "#"
-            self.add_command(command=command, args=comment, stage_name=stage_name)
+                args = comment
+            self.add_command(command=command, args=args, stage_name=stage_name)
 
         else:
             raise NotImplementedError("If you want to add an inline comment, please specify the stage name.")
 
-    def get_string(self, ignore_comments: bool = False, keep_stages: bool = False):
+    def get_string(self, ignore_comments: bool = False, keep_stages: bool = False) -> str:
         """
         Generates and returns the string representation of LAMMPS input file.
         Stages are separated by empty lines.
@@ -242,7 +295,7 @@ class LammpsInputFile(InputFile):
             # Then print the commands and arguments (including inline comments)
             for command, args in cmd_list:
                 if not (ignore_comments and "#" in command):
-                    lammps_input += f"{command} {args}\n"
+                    lammps_input += f"{command} {args.strip()}\n"
 
         return lammps_input
 
@@ -311,8 +364,9 @@ class LammpsInputFile(InputFile):
                 for line in comments:
                     header += line[1:].strip() + " "
 
+                header = header.strip()
                 commands = block[icomm_max:]
-                LIF.add_stage(command=commands, stage_name=None if ignore_comments else header)
+                LIF.add_stage(command=commands, stage_name=None if (ignore_comments or not keep_stages) else header)
 
             # Stage with no header
             else:
@@ -325,7 +379,7 @@ class LammpsInputFile(InputFile):
 
     @staticmethod
     def _clean_lines(string_list: list, ignore_comments: bool = False):
-        """
+        r"""
         Helper method to strips whitespaces, carriage returns and redundant empty
         lines from a list of strings.
         Transforms "& \n" and "&\n" into "" as the & symbol means the line continues.
