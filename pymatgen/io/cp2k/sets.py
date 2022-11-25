@@ -104,7 +104,7 @@ class Cp2kInputSet(Cp2kInput):
         basis_and_potential: dict | str = "preferred",
         multiplicity: int = 0,
         project_name: str = "CP2K",
-        override_default_params: dict = None,
+        override_default_params: dict | None = None,
         **kwargs,
     ):
         """
@@ -240,8 +240,8 @@ class DftSet(Cp2kInputSet):
         rel_cutoff: int = 50,
         ngrids: int = 5,
         progression_factor: int = 3,
-        override_default_params: dict = None,
-        wfn_restart_file_name: str = None,
+        override_default_params: dict | None = None,
+        wfn_restart_file_name: str | None = None,
         kpoints: Kpoints | None = None,
         smearing: bool = False,
         **kwargs,
@@ -304,7 +304,6 @@ class DftSet(Cp2kInputSet):
             smearing (bool): whether or not to activate smearing (should be done for systems containing no (or a very
                 small) band gap.
         """
-
         super().__init__(structure, **kwargs)
 
         self.structure = structure
@@ -500,7 +499,7 @@ class DftSet(Cp2kInputSet):
         gga_c_fraction: float = 1,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
-        potential_type: str = None,
+        potential_type: str | None = None,
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
@@ -905,7 +904,7 @@ class StaticSet(DftSet):
         structure: Structure | Molecule,
         project_name: str = "Static",
         run_type: str = "ENERGY_FORCE",
-        override_default_params: dict = None,
+        override_default_params: dict | None = None,
         **kwargs,
     ):
         """
@@ -942,7 +941,7 @@ class RelaxSet(DftSet):
         max_iter: int = 200,
         project_name: str = "Relax",
         optimizer: str = "BFGS",
-        override_default_params: dict = None,
+        override_default_params: dict | None = None,
         **kwargs,
     ):
         """
@@ -1026,7 +1025,7 @@ class CellOptSet(DftSet):
         self,
         structure: Structure | Molecule,
         project_name: str = "CellOpt",
-        override_default_params: dict = None,
+        override_default_params: dict | None = None,
         **kwargs,
     ):
         """
@@ -1079,11 +1078,11 @@ class HybridStaticSet(StaticSet):
         project_name: str = "Hybrid-Static",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
-        potential_type: str = None,
+        potential_type: str | None = None,
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = None,
+        override_default_params: dict | None = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
@@ -1163,13 +1162,13 @@ class HybridRelaxSet(RelaxSet):
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-Static",
-        potential_type: str = None,
+        potential_type: str | None = None,
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = None,
+        override_default_params: dict | None = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,
@@ -1249,13 +1248,13 @@ class HybridCellOptSet(CellOptSet):
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
         project_name: str = "Hybrid-Static",
-        potential_type: str = None,
+        potential_type: str | None = None,
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        override_default_params: dict = None,
+        override_default_params: dict | None = None,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         omega: float = 0.2,

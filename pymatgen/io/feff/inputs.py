@@ -677,7 +677,7 @@ class Tags(dict):
         Convert the given value to string.
         """
         if isinstance(val, list):
-            return " ".join([str(i) for i in val])
+            return " ".join(map(str, val))
 
         return str(val)
 
@@ -692,7 +692,7 @@ class Tags(dict):
             filename: filename and path to write to.
         """
         with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+            f.write(f"{self}\n")
 
     @staticmethod
     def from_file(filename="feff.inp"):
@@ -758,7 +758,6 @@ class Tags(dict):
             key: Feff parameter key
             val: Actual value of Feff parameter.
         """
-
         list_type_keys = list(VALID_FEFF_TAGS)
         del list_type_keys[list_type_keys.index("ELNES")]
         del list_type_keys[list_type_keys.index("EXELFS")]
@@ -920,7 +919,6 @@ class Potential(MSONable):
         Returns:
             forward and reverse atom symbol and potential number dictionaries.
         """
-
         pot_dict = {}
         pot_dict_reverse = {}
         begin = 0

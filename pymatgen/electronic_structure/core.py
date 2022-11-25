@@ -222,7 +222,6 @@ class Magmom(MSONable):
         :param saxis: (list/numpy array) spin quantization axis
         :return: np.ndarray of length 3
         """
-
         # transform back to moment with spin axis [0, 0, 1]
         m_inv = self._get_transformation_matrix_inv(self.saxis)
         moment = np.matmul(self.moment, m_inv)

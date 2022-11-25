@@ -66,7 +66,6 @@ PRIMCOORD
         even if the atomic symbol / number convention
         is different.
         """
-
         test_string = """
 CRYSTAL
 PRIMVEC

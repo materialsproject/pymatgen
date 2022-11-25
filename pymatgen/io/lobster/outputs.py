@@ -73,7 +73,7 @@ class Cohpcar:
 
     """
 
-    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str | None = None):
         """
         Args:
             are_coops: Determines if the file is a list of COHPs or COOPs.
@@ -210,7 +210,6 @@ class Cohpcar:
             indices, a tuple containing the orbitals (if orbital-resolved),
             and a label for the orbitals (if orbital-resolved).
         """
-
         orb_labs = [
             "s",
             "p_y",
@@ -275,7 +274,7 @@ class Icohplist:
 
     """
 
-    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str | None = None):
         """
         Args:
             are_coops: Determines if the file is a list of ICOOPs.
@@ -393,6 +392,7 @@ class Icohplist:
 
         self._icohpcollection = IcohpCollection(
             are_coops=are_coops,
+            are_cobis=are_cobis,
             list_labels=list_labels,
             list_atom1=list_atom1,
             list_atom2=list_atom2,
@@ -655,13 +655,12 @@ class Charge:
 
     def get_structure_with_charges(self, structure_filename):
         """
-        get a Structure with Mulliken and Loewdin charges as site properties
+        Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties
         """
-
         struct = Structure.from_file(structure_filename)
         Mulliken = self.Mulliken
         Loewdin = self.Loewdin
@@ -829,7 +828,6 @@ class Lobsterout:
 
     def get_doc(self):
         """
-
         Returns: LobsterDict with all the information stored in lobsterout
         """
         LobsterDict = {}
@@ -863,7 +861,7 @@ class Lobsterout:
         LobsterDict["hasProjection"] = self.has_Projection
         LobsterDict["hasbandoverlaps"] = self.has_bandoverlaps
         LobsterDict["hasfatband"] = self.has_fatbands
-        LobsterDict["hasGrossPopuliation"] = self.has_grosspopulation
+        LobsterDict["hasGrossPopulation"] = self.has_grosspopulation
         LobsterDict["hasDensityOfEnergies"] = self.has_density_of_energies
 
         return LobsterDict
@@ -1259,9 +1257,8 @@ class Fatband:
 
     def get_bandstructure(self):
         """
-        returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter
+        Returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter
         """
-
         return LobsterBandStructureSymmLine(
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,
@@ -1298,7 +1295,7 @@ class Bandoverlaps:
 
     def _read(self, contents: list, spin_numbers: list):
         """
-        will read in all contents of the file
+        Will read in all contents of the file
         Args:
          contents: list of strings
          spin_numbers: list of spin numbers depending on `Lobster` version.
@@ -1337,13 +1334,12 @@ class Bandoverlaps:
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
-        will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
+        Will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
         Args:
          limit_maxDeviation: limit of the maxDeviation
         Returns:
              Boolean that will give you information about the quality of the projection
         """
-
         for deviation in self.max_deviation:
             if deviation > limit_maxDeviation:
                 return False
@@ -1357,7 +1353,7 @@ class Bandoverlaps:
         limit_deviation: float = 0.1,
     ) -> bool:
         """
-        will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
+        Will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
         limit_deviation
 
         Args:
@@ -1368,7 +1364,6 @@ class Bandoverlaps:
         Returns:
              Boolean that will give you information about the quality of the projection
         """
-
         for matrix in self.bandoverlapsdict[Spin.up].values():
             for iband1, band1 in enumerate(matrix["matrix"]):
                 for iband2, band2 in enumerate(band1):
@@ -1436,13 +1431,12 @@ class Grosspop:
 
     def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
         """
-        get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+        Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
         Args:
             structure_filename (str): filename of POSCAR
         Returns:
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties
         """
-
         struct = Structure.from_file(structure_filename)
         site_properties: dict[str, Any] = {}
         mullikengp = []
@@ -1486,12 +1480,10 @@ class Wavefunction:
 
     def __init__(self, filename, structure):
         """
-
         Args:
             filename: filename of wavecar file from Lobster
             structure: Structure object (e.g., created by Structure.from_file(""))
         """
-
         self.filename = filename
         self.structure = structure
 
@@ -1534,8 +1526,6 @@ class Wavefunction:
         Args:
             grid: grid on which wavefunction was calculated, e.g. [1,2,2]
             structure: Structure object
-
-        Returns:
         """
         Nx = grid[0] - 1
         Ny = grid[1] - 1
@@ -1591,18 +1581,17 @@ class Wavefunction:
 
     def get_volumetricdata_real(self):
         """
-        will return a VolumetricData object including the real part of the wave function
+        Will return a VolumetricData object including the real part of the wave function
 
         Returns: VolumetricData object
         """
-
         if not hasattr(self, "volumetricdata_real"):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_real
 
     def get_volumetricdata_imaginary(self):
         """
-        will return a VolumetricData object including the imaginary part of the wave function
+        Will return a VolumetricData object including the imaginary part of the wave function
 
         Returns: VolumetricData object
         """
@@ -1612,7 +1601,7 @@ class Wavefunction:
 
     def get_volumetricdata_density(self):
         """
-        will return a VolumetricData object including the imaginary part of the wave function
+        Will return a VolumetricData object including the imaginary part of the wave function
 
         Returns: VolumetricData object
         """
@@ -1622,7 +1611,7 @@ class Wavefunction:
 
     def write_file(self, filename="WAVECAR.vasp", part="real"):
         """
-        will save the wavefunction in a file format that can be read by VESTA
+        Will save the wavefunction in a file format that can be read by VESTA
         This will only work if the wavefunction from lobster was constructed with:
         "printLCAORealSpaceWavefunction kpoint 1 coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 2 3 4
         5 6 "
@@ -1631,8 +1620,6 @@ class Wavefunction:
         Args:
             filename: Filename for the output, e.g., WAVECAR.vasp
             part: which part of the wavefunction will be saved ("real" or "imaginary")
-
-        Returns:
         """
         if not (
             hasattr(self, "volumetricdata_real")
@@ -1666,11 +1653,9 @@ class MadelungEnergies:
 
     def __init__(self, filename: str = "MadelungEnergies.lobster"):
         """
-
         Args:
             filename: filename of the "MadelungEnergies.lobster" file
         """
-
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")[5]
         if len(data) == 0:
@@ -1708,7 +1693,6 @@ class SitePotential:
         Args:
             filename: filename for the SitePotentials file, typically "SitePotentials.lobster"
         """
-
         # site_potentials
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")
@@ -1735,13 +1719,12 @@ class SitePotential:
 
     def get_structure_with_site_potentials(self, structure_filename):
         """
-        get a Structure with Mulliken and Loewdin charges as site properties
+        Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties
         """
-
         struct = Structure.from_file(structure_filename)
         Mulliken = self.sitepotentials_Mulliken
         Loewdin = self.sitepotentials_Loewdin

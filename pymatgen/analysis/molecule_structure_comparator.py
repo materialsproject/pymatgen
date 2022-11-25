@@ -288,7 +288,6 @@ class MoleculeStructureComparator(MSONable):
         Returns:
             MoleculeStructureComparator
         """
-
         return cls(
             bond_length_cap=d["bond_length_cap"],
             covalent_radius=d["covalent_radius"],

@@ -45,7 +45,6 @@ class FunctionalGroupExtractor:
             modified, adding Hydrogens, performing a simple conformer search,
             etc.
         """
-
         self.molgraph = None
 
         if isinstance(molecule, str):
@@ -108,7 +107,6 @@ class FunctionalGroupExtractor:
             functional groups are of interest).
         :return: set of ints representing node indices
         """
-
         heteroatoms = set()
 
         for node in self.molgraph.graph.nodes():
@@ -139,7 +137,6 @@ class FunctionalGroupExtractor:
             Default None.
         :return: set of ints representing node indices
         """
-
         specials = set()
 
         # For this function, only carbons are considered
@@ -205,7 +202,6 @@ class FunctionalGroupExtractor:
             using other functions in this class.
         :return: list of sets of ints, representing groups of connected atoms
         """
-
         # We will add hydrogens to functional groups
         hydrogens = {n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"}
 
@@ -241,7 +237,6 @@ class FunctionalGroupExtractor:
             defined in this function will be sought.
         :return: list of sets of ints, representing groups of connected atoms
         """
-
         strat = OpenBabelNN()
 
         hydrogens = {n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"}
@@ -306,7 +301,6 @@ class FunctionalGroupExtractor:
             other methods
         :return: list of sets of ints, representing groups of connected atoms
         """
-
         heteroatoms = self.get_heteroatoms(elements=elements)
         special_cs = self.get_special_carbon(elements=elements)
         groups = self.link_marked_atoms(heteroatoms.union(special_cs))
@@ -325,7 +319,6 @@ class FunctionalGroupExtractor:
             where the group occurs in the MoleculeGraph, and how many of each
             type of group there is.
         """
-
         categories = {}
 
         em = iso.numerical_edge_match("weight", 1)  # pylint: disable=E1102

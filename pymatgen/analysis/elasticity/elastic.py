@@ -97,7 +97,6 @@ class NthOrderElasticTensor(Tensor):
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
         """
-
         Args:
             strains ():
             stresses ():
@@ -155,7 +154,6 @@ class ElasticTensor(NthOrderElasticTensor):
 
             tol (float): tolerance for initial symmetry test of tensor
         """
-
         obj = super().__new__(cls, input_array, check_rank=4, tol=tol)
         return obj.view(cls)
 
@@ -1065,7 +1063,7 @@ def get_symbol_list(rank, dim=6):
     c_vec = np.zeros(len(indices), dtype=object)
     c_arr = np.zeros([dim] * rank, dtype=object)
     for n, idx in enumerate(indices):
-        c_vec[n] = sp.Symbol("c_" + "".join([str(i) for i in idx]))
+        c_vec[n] = sp.Symbol("c_" + "".join(map(str, idx)))
         for perm in itertools.permutations(idx):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr

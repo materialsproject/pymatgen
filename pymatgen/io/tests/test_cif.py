@@ -416,7 +416,6 @@ loop_
         Test the _parse_symbol function with several potentially
         problematic examples of symbols and labels.
         """
-
         test_cases = {
             "MgT": "Mg",
             "MgT1": "Mg",

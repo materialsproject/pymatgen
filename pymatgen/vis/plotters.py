@@ -92,7 +92,6 @@ class SpectrumPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-
         plt = pretty_plot(12, 8)
         base = 0.0
         i = 0

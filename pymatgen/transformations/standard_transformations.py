@@ -572,7 +572,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
-
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
@@ -918,7 +917,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     transformations.
     """
 
-    def __init__(self, max_denominator=5, tol: float = None, fix_denominator=False):
+    def __init__(self, max_denominator=5, tol: float | None = None, fix_denominator=False):
         """
         Args:
             max_denominator:
@@ -1082,7 +1081,6 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
         """
-
         if self.species_map is None:
             match = StructureMatcher()
             s_map = match.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure, structure)

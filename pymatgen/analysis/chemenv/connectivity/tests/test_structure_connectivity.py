@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
-
 import json
 import os
 
@@ -24,7 +19,9 @@ from pymatgen.util.testing import PymatgenTest
 try:
     import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
-    bson = None
+    bson = None  # type: ignore
+
+__author__ = "waroquiers"
 
 
 class StructureConnectivityTest(PymatgenTest):

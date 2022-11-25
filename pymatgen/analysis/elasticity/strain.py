@@ -7,6 +7,8 @@ strains, including applying those deformations to structure objects and
 generating deformed structure sets for further calculations.
 """
 
+from __future__ import annotations
+
 import collections
 import itertools
 
@@ -49,7 +51,7 @@ class Deformation(SquareTensor):
 
     def is_independent(self, tol: float = 1e-8):
         """
-        checks to determine whether the deformation is independent
+        Checks to determine whether the deformation is independent
         """
         return len(self.get_perturbed_indices(tol)) == 1
 
@@ -64,8 +66,7 @@ class Deformation(SquareTensor):
     @property
     def green_lagrange_strain(self):
         """
-        calculates the euler-lagrange strain from
-        the deformation gradient
+        Calculates the Euler-Lagrange strain from the deformation gradient
         """
         return Strain.from_deformation(self)
 

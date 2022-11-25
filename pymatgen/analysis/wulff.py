@@ -174,7 +174,6 @@ class WulffShape:
             e_surf_list ([float]): list of corresponding surface energies
             symprec (float): for recp_operation, default is 1e-5.
         """
-
         if any(se < 0 for se in e_surf_list):
             warnings.warn("Unphysical (negative) surface energy detected.")
 
@@ -362,7 +361,6 @@ class WulffShape:
         """
         Returns the sorted pts in a facet used to draw a line
         """
-
         lines = list(facet.outer_lines)
         pt = []
         prev = None
@@ -554,7 +552,6 @@ class WulffShape:
         Return:
             (plotly.graph_objs.Figure)
         """
-
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"
         (
             color_list,

@@ -328,7 +328,6 @@ class PackmolRunner:
         """
         dump the molecule into pdb file with custom residue name and number.
         """
-
         # ugly hack to get around the openbabel issues with inconsistent
         # residue labelling.
         scratch = tempfile.gettempdir()
@@ -372,7 +371,6 @@ class PackmolRunner:
         Returns:
             Molecule object
         """
-
         restore_site_props = residue_name is not None
 
         if restore_site_props and not hasattr(self, "map_residue_to_mol"):
@@ -416,7 +414,6 @@ class PackmolRunner:
         Returns:
             Molecule
         """
-
         # only for pdb
         if not self.control_params["filetype"] == "pdb":
             raise ValueError()

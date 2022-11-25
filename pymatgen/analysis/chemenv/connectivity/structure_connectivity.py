@@ -79,7 +79,6 @@ class StructureConnectivity(MSONable):
 
     def environment_subgraph(self, environments_symbols=None, only_atoms=None):
         """
-
         Args:
             environments_symbols ():
             only_atoms ():
@@ -262,7 +261,6 @@ class StructureConnectivity(MSONable):
 
     def setup_connectivity_description(self):
         """
-
         Returns:
         """
 
@@ -283,7 +281,6 @@ class StructureConnectivity(MSONable):
 
     def setup_atom_environment_subgraph(self, atom_environment):
         """
-
         Args:
             atom_environment ():
 
@@ -293,7 +290,6 @@ class StructureConnectivity(MSONable):
 
     def setup_environments_subgraph(self, environments_symbols):
         """
-
         Args:
             environments_symbols ():
 
@@ -303,7 +299,6 @@ class StructureConnectivity(MSONable):
 
     def setup_atom_environments_subgraph(self, atoms_environments):
         """
-
         Args:
             atoms_environments ():
 
@@ -313,7 +308,6 @@ class StructureConnectivity(MSONable):
 
     def print_links(self):
         """
-
         Returns:
         """
         nodes = self.environment_subgraph().nodes()
@@ -334,7 +328,6 @@ class StructureConnectivity(MSONable):
 
     def as_dict(self):
         """
-
         Returns:
         """
         return {
@@ -351,7 +344,6 @@ class StructureConnectivity(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-
         Args:
             d ():
 

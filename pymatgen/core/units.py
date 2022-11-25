@@ -183,7 +183,6 @@ class Unit(collections.abc.Mapping):
                 format uses "^" as the power operator and all units must be
                 space-separated.
         """
-
         if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
             import re

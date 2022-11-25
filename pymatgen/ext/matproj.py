@@ -151,7 +151,11 @@ class _MPResterLegacy:
     )
 
     def __init__(
-        self, api_key: str = None, endpoint: str = None, notify_db_version: bool = True, include_user_agent: bool = True
+        self,
+        api_key: str | None = None,
+        endpoint: str | None = None,
+        notify_db_version: bool = True,
+        include_user_agent: bool = True,
     ) -> None:
         """
         Args:
@@ -198,7 +202,7 @@ class _MPResterLegacy:
             warnings.warn(f"Non-default endpoint used: {self.preamble}")
 
         self.session = requests.Session()
-        self.session.headers = {"x-api-key": self.api_key}
+        self.session.headers = {"x-api-key": self.api_key}  # type: ignore
         if include_user_agent:
             pymatgen_info = f"pymatgen/{PMG_VERSION}"
             python_info = f"Python/{sys.version.split()[0]}"
@@ -248,7 +252,7 @@ class _MPResterLegacy:
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(MP_LOG_FILE, "wt") as f:
+                with open(MP_LOG_FILE, "w") as f:
                     yaml.dump(d, f)
             except Exception:
                 pass
@@ -494,7 +498,7 @@ class _MPResterLegacy:
         chemsys_formula_id_criteria: str | dict[str, Any],
         compatible_only: bool = True,
         inc_structure: bool | Literal["initial"] | None = None,
-        property_data: list[str] = None,
+        property_data: list[str] | None = None,
         conventional_unit_cell: bool = False,
         sort_by_e_above_hull: bool = False,
     ) -> list[ComputedEntry]:
@@ -747,7 +751,7 @@ class _MPResterLegacy:
         material_id: str,
         compatible_only: bool = True,
         inc_structure: bool | Literal["initial"] | None = None,
-        property_data: list[str] = None,
+        property_data: list[str] | None = None,
         conventional_unit_cell: bool = False,
     ) -> ComputedEntry | ComputedStructureEntry:
         """
@@ -946,7 +950,6 @@ class _MPResterLegacy:
         Returns:
             An ExpEntry object.
         """
-
         return ExpEntry(Composition(formula), self.get_exp_thermo_data(formula))
 
     def query(
@@ -1349,9 +1352,11 @@ class _MPResterLegacy:
         Gets the cohesive for a material (eV per formula unit). Cohesive energy
             is defined as the difference between the bulk energy and the sum of
             total DFT energy of isolated atoms for atom elements in the bulk.
+
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
             per_atom (bool): Whether or not to return cohesive energy per atom
+
         Returns:
             Cohesive energy (eV).
         """
@@ -1412,7 +1417,6 @@ class _MPResterLegacy:
         Returns:
             list of material_ids corresponding to possible substrates
         """
-
         return self._make_request("/materials/all_substrate_ids")
 
     def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
@@ -1433,6 +1437,7 @@ class _MPResterLegacy:
             of this specific plane will be returned.
             inc_structures (bool): Include final surface slab structures.
                 These are unnecessary for Wulff shape construction.
+
         Returns:
             Surface data for material. Energies are given in SI units (J/m^2).
         """
@@ -1457,6 +1462,7 @@ class _MPResterLegacy:
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
+
         Returns:
             pymatgen.analysis.wulff.WulffShape
         """
@@ -1580,7 +1586,7 @@ class _MPResterLegacy:
 
     def get_download_info(self, material_ids, task_types=None, file_patterns=None):
         """
-        get a list of URLs to retrieve raw VASP output files from the NoMaD repository
+        Get a list of URLs to retrieve raw VASP output files from the NoMaD repository
 
         Args:
             material_ids (list): list of material identifiers (mp-id's)
@@ -1762,23 +1768,16 @@ class MPRester:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.
         """
-
         if len(args) > 0:
             api_key = args[0]
         else:
-            api_key = kwargs.get("api_key", None)
-
-        if api_key is None:
-            api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+            api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
             kwargs["api_key"] = api_key
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
 
-        if len(api_key) == 32:
-            return _MPResterNew(*args, **kwargs)
-        else:
-            return _MPResterLegacy(*args, **kwargs)
+        return (_MPResterNew if len(api_key) == 32 else _MPResterLegacy)(*args, **kwargs)
 
 
 class MPRestError(Exception):

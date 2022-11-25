@@ -5,6 +5,8 @@
 Module containing classes to generate grain boundaries.
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 import warnings
@@ -2087,7 +2089,6 @@ class GrainBoundaryGenerator:
         Returns:
             t_matrix: a slab lattice ( 3 by 3 integer array):
         """
-
         # set the transform matrix in real space
         trans = trans_cry
         # transform matrix in reciprocal space

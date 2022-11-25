@@ -21,5 +21,20 @@ class VasprunTest(PymatgenTest):
         eps_imag_ref = np.array(eps_imag_ref)[:, 0]
         assert np.max(np.abs(eps_real_ref - np.real(eps))) / np.max(np.abs(np.real(eps))) < 0.01
 
+        # masking with all zeros
+        mask = np.zeros_like(dfc.cder, dtype=float)
+        _, eps = dfc.get_epsilon(0, 0, mask=mask)
+        assert np.max(np.imag(eps)) < 1e-10
+
+        # masking with all ones
+        mask = np.ones_like(dfc.cder, dtype=float)
+        _, eps = dfc.get_epsilon(0, 0, mask=mask)
+        assert np.max(np.abs(eps_real_ref - np.real(eps))) / np.max(np.abs(np.real(eps))) < 0.01
+
         _, eps = dfc.get_epsilon(0, 1)
         assert np.max(np.abs(eps)) < 0.1
+
+        # plotting
+        mask = np.ones_like(dfc.cder, dtype=float)
+        x_val, y_val, text = dfc.plot_weighted_transition_data(0, 0, mask=mask, min_val=0.001)
+        assert len(x_val) == len(y_val) == len(text)

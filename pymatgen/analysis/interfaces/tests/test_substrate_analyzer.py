@@ -33,7 +33,7 @@ class SubstrateAnalyzerTest(PymatgenTest):
         s = SubstrateAnalyzer()
 
         matches = list(s.calculate(film, substrate, film_elac))
-        self.assertEqual(len(matches), 192)
+        assert len(matches) == 192
         for match in matches:
             assert match is not None
             assert isinstance(match.match_area, float)

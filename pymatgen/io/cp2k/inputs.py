@@ -59,8 +59,8 @@ class Keyword(MSONable):
         self,
         name: str,
         *values,
-        description: str = None,
-        units: str = None,
+        description: str | None = None,
+        units: str | None = None,
         verbose: bool = True,
         repeats: bool = False,
     ):
@@ -254,14 +254,14 @@ class Section(MSONable):
     def __init__(
         self,
         name: str,
-        subsections: dict = None,
+        subsections: dict | None = None,
         repeats: bool = False,
         description: str | None = None,
-        keywords: dict = None,
-        section_parameters: Sequence[str] = None,
-        location: str = None,
+        keywords: dict | None = None,
+        section_parameters: Sequence[str] | None = None,
+        location: str | None = None,
         verbose: bool = True,
-        alias: str = None,
+        alias: str | None = None,
         **kwargs,
     ):
         """
@@ -297,7 +297,6 @@ class Section(MSONable):
             kwargs are interpreted as keyword, value pairs and added to the keywords array as
             Keyword objects
         """
-
         self.name = name
         self.subsections = subsections if subsections is not None else {}
         self.repeats = repeats
@@ -713,7 +712,7 @@ class Cp2kInput(Section):
     title and by implementing the file i/o.
     """
 
-    def __init__(self, name: str = "CP2K_INPUT", subsections: dict = None, **kwargs):
+    def __init__(self, name: str = "CP2K_INPUT", subsections: dict | None = None, **kwargs):
         """
         Initialize Cp2kInput by calling the super
         """
@@ -745,7 +744,6 @@ class Cp2kInput(Section):
         """
         Initialize from a dictionary
         """
-
         return Cp2kInput(
             "CP2K_INPUT",
             subsections=getattr(
@@ -876,7 +874,6 @@ class Global(Section):
             project_name (str, optional): Defaults to "CP2K".
             run_type (str, optional) what type of calculation to run
         """
-
         self.project_name = project_name
         self.run_type = run_type
         self.kwargs = kwargs
@@ -906,13 +903,12 @@ class ForceEval(Section):
     Controls the calculation of energy and forces in Cp2k
     """
 
-    def __init__(self, subsections: dict = None, **kwargs):
+    def __init__(self, subsections: dict | None = None, **kwargs):
         """Initialize the ForceEval section
 
         Args:
             subsections (dict, optional): Defaults to None.
         """
-
         self.subsections = subsections or {}
         self.kwargs = kwargs
 
@@ -946,8 +942,8 @@ class Dft(Section):
         basis_set_filenames="BASIS_MOLOPT",
         potential_filename="GTH_POTENTIALS",
         uks: bool = True,
-        wfn_restart_file_name: str = None,
-        subsections: dict = None,
+        wfn_restart_file_name: str | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """Initialize the DFT section.
@@ -962,7 +958,6 @@ class Dft(Section):
             wfn_restart_file_name (str, optional): Defaults to None.
             subsections (dict, optional): Any subsections to initialize with. Defaults to None.
         """
-
         self.basis_set_filenames = basis_set_filenames
         self.potential_filename = potential_filename
         self.uks = uks
@@ -1000,7 +995,7 @@ class Subsys(Section):
     Controls the definition of the system to be simulated
     """
 
-    def __init__(self, subsections: dict = None, **kwargs):
+    def __init__(self, subsections: dict | None = None, **kwargs):
         """
         Initialize the subsys section
         """
@@ -1021,7 +1016,7 @@ class QS(Section):
         method: str = "GPW",
         eps_default: float = 1e-10,
         extrapolation: str = "ASPC",
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1040,7 +1035,6 @@ class QS(Section):
                 or ASPC (ASPC especially for MD runs). See the manual for other options.
             subsections (dict): Subsections to initialize with.
         """
-
         self.method = method
         self.eps_default = eps_default
         self.extrapolation = extrapolation
@@ -1075,7 +1069,7 @@ class Scf(Section):
         max_scf: int = 50,
         eps_scf: float = 1e-6,
         scf_guess: str = "RESTART",
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1096,7 +1090,6 @@ class Scf(Section):
                 "SPARSE": Generate a sparse wavefunction using the atomic code (for OT based
                     methods).
         """
-
         self.max_scf = max_scf
         self.eps_scf = eps_scf
         self.scf_guess = scf_guess
@@ -1137,7 +1130,7 @@ class Mgrid(Section):
         rel_cutoff: int | float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1153,7 +1146,6 @@ class Mgrid(Section):
             progression_factor: divisor that decides how to map Gaussians the multigrid after
                 the highest mapping is decided by rel_cutoff
         """
-
         self.cutoff = cutoff
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
@@ -1199,13 +1191,12 @@ class Diagonalization(Section):
         eps_iter: float = 1e-8,
         eps_jacobi: float = 0,
         jacobi_threshold: float = 1e-7,
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
         Initialize the diagronalization section
         """
-
         self.eps_adapt = eps_adapt
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
@@ -1303,7 +1294,7 @@ class OrbitalTransformation(Section):
         occupation_preconditioner: bool = False,
         energy_gap: float = -1,
         linesearch: str = "2PNT",
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1330,7 +1321,6 @@ class OrbitalTransformation(Section):
                 GOLD should always find an electronic minimum. Whereas the 2PNT minimizer is almost always OK,
                 3PNT might be needed for systems in which successive OT CG steps do not decrease the total energy.
         """
-
         self.minimizer = minimizer
         self.preconditioner = preconditioner
         self.algorithm = algorithm
@@ -1385,7 +1375,6 @@ class Cell(Section):
         Args:
             lattice: pymatgen lattice object
         """
-
         self.lattice = lattice
         self.kwargs = kwargs
 
@@ -1411,7 +1400,7 @@ class Kind(Section):
         specie: str,
         alias: str | None = None,
         magnetization: float = 0.0,
-        subsections: dict = None,
+        subsections: dict | None = None,
         basis_set: str = "GTH_BASIS",
         potential: str = "GTH_POTENTIALS",
         ghost: bool = False,
@@ -1435,7 +1424,6 @@ class Kind(Section):
                 potential file
             kwargs: Additional kwargs to pass to Section()
         """
-
         self.name = "KIND"
         self.specie = specie
         self.alias = alias
@@ -1528,7 +1516,6 @@ class DftPlusU(Section):
             u_minus_j: (float) the effective U parameter, Ueff = U-J
             u_ramping: (float) stepwise amount to increase during ramping until u_minus_j is reached
         """
-
         self.name = "DFT_PLUS_U"
         self.eps_u_ramping = 1e-5
         self.init_u_ramping_each_scf = False
@@ -1566,7 +1553,7 @@ class Coord(Section):
         self,
         structure: Structure | Molecule,
         aliases: dict | None = None,
-        subsections: dict = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1575,7 +1562,6 @@ class Coord(Section):
             alias (bool): whether or not to identify the sites by Element + number so you can do things like
                 assign unique magnetization do different elements.
         """
-
         self.structure = structure
         self.aliases = aliases
         self.subsections = subsections or {}
@@ -1620,7 +1606,6 @@ class PDOS(Section):
         Args:
             nlumo: how many unoccupied orbitals to include (-1==ALL)
         """
-
         self.nlumo = nlumo
         self.kwargs = kwargs
 
@@ -1647,7 +1632,6 @@ class LDOS(Section):
         Args:
             index: Index of the atom to project onto
         """
-
         self.index = index
         self.alias = alias
         self.kwargs = kwargs
@@ -1676,7 +1660,6 @@ class V_Hartree_Cube(Section):
         """
         Initialize the V_HARTREE_CUBE section
         """
-
         self.keywords = keywords or {}
         self.kwargs = kwargs
 
@@ -1705,7 +1688,6 @@ class MO_Cubes(Section):
         """
         Initialize the MO_CUBES section
         """
-
         self.write_cube = write_cube
         self.nhomo = nhomo
         self.nlumo = nlumo
@@ -1742,7 +1724,6 @@ class E_Density_Cube(Section):
         """
         Initialize the E_DENSITY_CUBE Section
         """
-
         self.keywords = keywords or {}
         self.kwargs = kwargs
 
@@ -1776,7 +1757,6 @@ class Smear(Section):
         """
         Initialize the SMEAR section
         """
-
         self.elec_temp = elec_temp
         self.method = method
         self.fixed_magnetic_moment = fixed_magnetic_moment
@@ -1829,7 +1809,6 @@ class BrokenSymmetry(Section):
             n_beta: Same as N_alpha for beta channel
             nel_beta: Same as NEL_alpha for beta channel
         """
-
         self.l_alpha = l_alpha
         self.n_alpha = n_alpha
         self.nel_alpha = nel_alpha
@@ -1942,11 +1921,10 @@ class Xc_Functional(Section):
     Defines the XC functional(s) to use.
     """
 
-    def __init__(self, functionals: Iterable = None, subsections: dict = None, **kwargs):
+    def __init__(self, functionals: Iterable | None = None, subsections: dict | None = None, **kwargs):
         """
         Initialize the XC_FUNCTIONAL class
         """
-
         self.functionals = functionals or []
         self.subsections = subsections or {}
         self.kwargs = kwargs
@@ -1986,7 +1964,6 @@ class PBE(Section):
             scale_c (float): scales the correlation part of the functional.
             scale_x (float): scales the exchange part of the functional.
         """
-
         self.parameterization = parameterization
         self.scale_c = scale_c
         self.scale_x = scale_x

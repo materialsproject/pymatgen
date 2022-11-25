@@ -119,7 +119,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         for two_theta, i, hkls in zip(xrd.x, xrd.y, xrd.hkls):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 hkl_tuples = [hkl["hkl"] for hkl in hkls]
-                label = ", ".join([str(hkl_tuple) for hkl_tuple in hkl_tuples])  # 'full' label
+                label = ", ".join(map(str, hkl_tuples))  # 'full' label
                 ax.plot([two_theta, two_theta], [0, i], color="k", linewidth=3, label=label)
 
                 if annotate_peaks == "full":
@@ -131,7 +131,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                     )
                 elif annotate_peaks == "compact":
                     if all(all(i < 10 for i in hkl_tuple) for hkl_tuple in hkl_tuples):
-                        label = ",".join(["".join([str(i) for i in hkl_tuple]) for hkl_tuple in hkl_tuples])
+                        label = ",".join(["".join(map(str, hkl_tuple)) for hkl_tuple in hkl_tuples])
                         # 'compact' label. Would be unclear for indices >= 10
                         # It would have more than 3 figures, e.g. 1031
 
@@ -222,7 +222,6 @@ def get_unique_families(hkls):
     Returns:
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
-
     # TODO: Definitely can be sped up.
     def is_perm(hkl1, hkl2):
         h1 = np.abs(hkl1)

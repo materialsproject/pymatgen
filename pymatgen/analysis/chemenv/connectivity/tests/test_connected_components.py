@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-
 import copy
 import json
 import os
@@ -32,9 +29,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import bson
+    import bson  # type: ignore
 except ModuleNotFoundError:
-    bson = None
+    bson = None  # type: ignore
 
 __author__ = "waroquiers"
 
@@ -467,7 +464,7 @@ class ConnectedComponentTest(PymatgenTest):
 
     def test_real_systems(self):
         # Initialize geometry and connectivity finders
-        strat = SimplestChemenvStrategy()
+        strategy = SimplestChemenvStrategy()
         lgf = LocalGeometryFinder()
         cf = ConnectivityFinder()
 
@@ -475,7 +472,7 @@ class ConnectedComponentTest(PymatgenTest):
         struct = self.get_structure("LiFePO4")
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "P"], maximum_distance_factor=1.2)
-        lse = LightStructureEnvironments.from_structure_environments(strategy=strat, structure_environments=se)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
         for isite in range(0, 4):
             assert lse.structure[isite].specie.symbol == "Li"
@@ -784,7 +781,7 @@ Node #11 P (T:4), connected to :
         struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
-        lse = LightStructureEnvironments.from_structure_environments(strategy=strat, structure_environments=se)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
         for isite in range(0, 4):
             assert lse.structure[isite].specie.symbol == "Li"

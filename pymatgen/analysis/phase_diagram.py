@@ -33,6 +33,7 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
+from pymatgen.util.typing import ArrayLike
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class PDEntry(Entry):
         self,
         composition: Composition,
         energy: float,
-        name: str = None,
+        name: str | None = None,
         attribute: object = None,
     ):
         """
@@ -342,7 +343,7 @@ class PhaseDiagram(MSONable):
         entries: Sequence[PDEntry] | set[PDEntry],
         elements: Sequence[Element] = (),
         *,
-        computed_data: dict[str, Any] = None,
+        computed_data: dict[str, Any] | None = None,
     ) -> None:
         """
         Args:
@@ -365,7 +366,7 @@ class PhaseDiagram(MSONable):
             computed_data = self._compute()
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
-        assert isinstance(computed_data, dict)  # type narrowing to appease mypy
+        assert isinstance(computed_data, dict)  # mypy type narrowing
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
@@ -392,7 +393,7 @@ class PhaseDiagram(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict[str, Any]) -> PhaseDiagram:
         """
         Args:
             d (dict): dictionary representation of PhaseDiagram
@@ -510,19 +511,18 @@ class PhaseDiagram(MSONable):
         return np.array(data)[:, 1:]
 
     @property
-    def unstable_entries(self):
+    def unstable_entries(self) -> set[Entry]:
         """
         Returns:
-            list of Entries that are unstable in the phase diagram.
-                Includes positive formation energy entries.
+            set[Entry]: unstable entries in the phase diagram. Includes positive formation energy entries.
         """
-        return [e for e in self.all_entries if e not in self.stable_entries]
+        return {e for e in self.all_entries if e not in self.stable_entries}
 
     @property
-    def stable_entries(self):
+    def stable_entries(self) -> set[Entry]:
         """
         Returns:
-            the set of stable entries in the phase diagram.
+            set[Entry]: of stable entries in the phase diagram.
         """
         return set(self._stable_entries)
 
@@ -537,7 +537,7 @@ class PhaseDiagram(MSONable):
         """
         return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
 
-    def get_reference_energy_per_atom(self, comp):
+    def get_reference_energy_per_atom(self, comp: Composition) -> float:
         """
         Args:
             comp (Composition): Input composition
@@ -556,10 +556,10 @@ class PhaseDiagram(MSONable):
             entry (PDEntry): A PDEntry-like object.
 
         Returns:
-            Formation energy from the elemental references.
+            float: Formation energy from the elemental references.
         """
         comp = entry.composition
-        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in entry.composition.elements)
+        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
 
     def get_form_energy_per_atom(self, entry: PDEntry) -> float:
         """
@@ -574,7 +574,7 @@ class PhaseDiagram(MSONable):
         """
         return self.get_form_energy(entry) / entry.composition.num_atoms
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         symbols = [el.symbol for el in self.elements]
         output = [
             f"{'-'.join(symbols)} phase diagram",
@@ -584,7 +584,7 @@ class PhaseDiagram(MSONable):
         return "\n".join(output)
 
     @lru_cache(1)
-    def _get_facet_and_simplex(self, comp):
+    def _get_facet_and_simplex(self, comp: Composition) -> tuple[Simplex, Simplex]:
         """
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
@@ -885,7 +885,7 @@ class PhaseDiagram(MSONable):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True, **kwargs)
 
         # take entries with negative e_form and different compositions as competing entries
-        competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
+        competing_entries = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries.
         if len(competing_entries) > space_limit and not stable_only:
@@ -905,7 +905,7 @@ class PhaseDiagram(MSONable):
             inner_hull = PhaseDiagram(reduced_space)
 
             competing_entries = inner_hull.stable_entries.union(self._get_stable_entries_in_space(entry_elems))
-            competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
+            competing_entries = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
 
         if len(competing_entries) > space_limit:
             warnings.warn(
@@ -1508,7 +1508,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def __init__(
         self,
         entries: Sequence[PDEntry] | set[PDEntry],
-        elements: Sequence[Element] = None,
+        elements: Sequence[Element] | None = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,
     ) -> None:
@@ -1868,12 +1868,12 @@ class ReactionDiagram:
 
                 try:
 
-                    m = []
+                    mat = []
                     for e in face_entries:
-                        m.append([e.composition.get_atomic_fraction(el) for el in elements])
-                    m.append(comp_vec2 - comp_vec1)
-                    m = np.array(m).T
-                    coeffs = np.linalg.solve(m, comp_vec2)
+                        mat.append([e.composition.get_atomic_fraction(el) for el in elements])
+                    mat.append(comp_vec2 - comp_vec1)
+                    matrix = np.array(mat).T
+                    coeffs = np.linalg.solve(matrix, comp_vec2)
 
                     x = coeffs[-1]
                     # pylint: disable=R1716
@@ -1969,7 +1969,7 @@ class PhaseDiagramError(Exception):
     """
 
 
-def get_facets(qhull_data, joggle=False):
+def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
     """
     Get the simplex facets for the Convex hull.
 

@@ -23,7 +23,9 @@ Si_structure = Structure(
 )
 
 nonsense_Structure = Structure(
-    lattice=[[-1, -10, -100], [0.1, 0.01, 0.001], [7, 11, 21]], species=["X"], coords=[[-1, -1, -1]]
+    lattice=[[-1, -10, -100], [0.1, 0.01, 0.001], [7, 11, 21]],  # type: ignore[arg-type]
+    species=["X"],
+    coords=[[-1, -1, -1]],
 )
 
 molecule = Molecule(species=["C", "H"], coords=[[0, 0, 0], [1, 1, 1]])

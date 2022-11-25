@@ -644,7 +644,7 @@ class AbinitTimerSection:
         """String representation."""
         string = ""
         for a in AbinitTimerSection.FIELDS:
-            string += a + " = " + self.__dict__[a] + ","
+            string = f"{a} = {self.__dict__[a]},"
         return string[:-1]
 
 
@@ -708,16 +708,14 @@ class AbinitTimer:
 
     def to_table(self, sort_key="wall_time", stop=None):
         """Return a table (list of lists) with timer data"""
-        table = [
-            list(AbinitTimerSection.FIELDS),
-        ]
+        table = [list(AbinitTimerSection.FIELDS)]
         ord_sections = self.order_sections(sort_key)
 
         if stop is not None:
             ord_sections = ord_sections[:stop]
 
         for osect in ord_sections:
-            row = [str(item) for item in osect.to_tuple()]
+            row = list(map(str, osect.to_tuple()))
             table.append(row)
 
         return table

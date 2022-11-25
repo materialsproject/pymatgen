@@ -4,13 +4,16 @@
 """
 This module provides classes to perform fitting of structures.
 """
+from __future__ import annotations
+
 import abc
 import itertools
+from typing import Literal, Sequence
 
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core.composition import Composition
+from pymatgen.core.composition import Composition, SpeciesLike
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
@@ -336,16 +339,16 @@ class StructureMatcher(MSONable):
 
     def __init__(
         self,
-        ltol=0.2,
-        stol=0.3,
-        angle_tol=5,
-        primitive_cell=True,
-        scale=True,
-        attempt_supercell=False,
-        allow_subset=False,
-        comparator=None,
-        supercell_size="num_sites",
-        ignored_species=None,
+        ltol: float = 0.2,
+        stol: float = 0.3,
+        angle_tol: float = 5,
+        primitive_cell: bool = True,
+        scale: bool = True,
+        attempt_supercell: bool = False,
+        allow_subset: bool = False,
+        comparator: AbstractComparator | None = None,
+        supercell_size: Literal["num_sites", "num_atoms", "volume"] = "num_sites",
+        ignored_species: Sequence[SpeciesLike] = (),
     ):
         """
         Args:
@@ -368,7 +371,7 @@ class StructureMatcher(MSONable):
                 structure. This option cannot be combined with
                 attempt_supercell, or with structure grouping.
             comparator (Comparator): A comparator object implementing an equals
-                method that declares declaring equivalency of sites. Default is
+                method that declares equivalency of sites. Default is
                 SpeciesComparator, which implies rigid species
                 mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
 
@@ -381,7 +384,7 @@ class StructureMatcher(MSONable):
                 StructureMatcher with Python's multiprocessing.
             supercell_size (str or list): Method to use for determining the
                 size of a supercell (if applicable). Possible values are
-                num_sites, num_atoms, volume, or an element or list of elements
+                'num_sites', 'num_atoms', 'volume', or an element or list of elements
                 present in both structures.
             ignored_species (list): A list of ions to be ignored in matching.
                 Useful for matching structures that have similar frameworks
@@ -389,7 +392,6 @@ class StructureMatcher(MSONable):
                 This is more useful than allow_subset because it allows better
                 control over what species are ignored in the matching.
         """
-
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
@@ -399,7 +401,7 @@ class StructureMatcher(MSONable):
         self._supercell = attempt_supercell
         self._supercell_size = supercell_size
         self._subset = allow_subset
-        self._ignored_species = [] if ignored_species is None else ignored_species[:]
+        self._ignored_species = ignored_species
 
     def _get_supercell_size(self, s1, s2):
         """
@@ -439,7 +441,9 @@ class StructureMatcher(MSONable):
         cells in it
 
         Args:
-            s, target_s: Structure objects
+            target_lattice (Lattice):
+            s (Structure): input structure.
+            supercell_size (int): Number of primitive cells in returned lattice
         """
         lattices = s.lattice.find_all_mappings(
             target_lattice,

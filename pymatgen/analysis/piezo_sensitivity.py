@@ -7,7 +7,6 @@ import warnings
 import numpy as np
 from monty.dev import requires
 
-import pymatgen.io.phonopy
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
@@ -37,13 +36,12 @@ class BornEffectiveCharge:
         Create an BornEffectiveChargeTensor object defined by a
         structure, point operations of the structure's atomic sites.
         Note that the constructor uses __new__ rather than __init__
-        according to the standard method ofsubclassing numpy ndarrays.
+        according to the standard method of subclassing numpy ndarrays.
 
         Args:
             input_matrix (Nx3x3 array-like): the Nx3x3 array-like
                 representing the born effective charge tensor
         """
-
         self.structure = structure
         self.bec = bec
         self.pointops = pointops
@@ -72,14 +70,14 @@ class BornEffectiveCharge:
         bec = self.bec
         struct = self.structure
         ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniquepointops = []
+        uniq_point_ops = []
         for op in ops:
-            uniquepointops.append(op)
+            uniq_point_ops.append(op)
 
         for ops in self.pointops:
             for op in ops:
-                if op not in uniquepointops:
-                    uniquepointops.append(op)
+                if op not in uniq_point_ops:
+                    uniq_point_ops.append(op)
 
         passed = []
         relations = []
@@ -87,22 +85,22 @@ class BornEffectiveCharge:
             unique = 1
             eig1, vecs1 = np.linalg.eig(val)
             index = np.argsort(eig1)
-            neweig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
+            new_eig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
             for index, p in enumerate(passed):
-                if np.allclose(neweig, p[1], atol=eigtol):
+                if np.allclose(new_eig, p[1], atol=eigtol):
                     relations.append([site, index])
                     unique = 0
-                    passed.append([site, p[0], neweig])
+                    passed.append([site, p[0], new_eig])
                     break
             if unique == 1:
                 relations.append([site, site])
-                passed.append([site, neweig])
+                passed.append([site, new_eig])
         BEC_operations = []
         for atom, r in enumerate(relations):
             BEC_operations.append(r)
             BEC_operations[atom].append([])
 
-            for op in uniquepointops:
+            for op in uniq_point_ops:
                 new = op.transform_tensor(self.bec[relations[atom][1]])
 
                 # Check the matrix it references
@@ -110,6 +108,7 @@ class BornEffectiveCharge:
                     BEC_operations[atom][2].append(op)
 
         self.BEC_operations = BEC_operations
+        return BEC_operations
 
     def get_rand_BEC(self, max_charge=1):
         """
@@ -122,7 +121,6 @@ class BornEffectiveCharge:
         Return:
             np.array Born effective charge tensor
         """
-
         struct = self.structure
         symstruc = sga(struct)
         symstruc = symstruc.get_symmetrized_structure()
@@ -187,7 +185,6 @@ class InternalStrainTensor:
             input_matrix (Nx3x3x3 array-like): the Nx3x3x3 array-like
                 representing the internal strain tensor
         """
-
         self.structure = structure
         self.ist = ist
         self.pointops = pointops
@@ -213,7 +210,6 @@ class InternalStrainTensor:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
-
         struct = self.structure
         ops = sga(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
@@ -249,7 +245,6 @@ class InternalStrainTensor:
         Return:
             InternalStrainTensor object
         """
-
         l = len(self.structure)
         IST = np.zeros((l, 3, 3, 3))
         for atom, ops in enumerate(self.IST_operations):
@@ -286,7 +281,6 @@ class ForceConstantMatrix:
             input_matrix (NxNx3x3 array-like): the NxNx3x3 array-like
                 representing the force constant matrix
         """
-
         self.structure = structure
         self.fcm = fcm
         self.pointops = pointops
@@ -356,12 +350,7 @@ class ForceConstantMatrix:
             if r[0] == r[2] and r[1] == r[3]:
                 good = 1
             if good == 0:
-                FCM_operations[entry] = [
-                    r[0],
-                    r[1],
-                    r[3],
-                    r[2],
-                ]
+                FCM_operations[entry] = [r[0], r[1], r[3], r[2]]
                 FCM_operations[entry].append([])
                 for op in uniquepointops:
                     new = op.transform_tensor(self.fcm[r[2]][r[3]])
@@ -385,7 +374,6 @@ class ForceConstantMatrix:
         Return:
             numpy array representing the force constant matrix
         """
-
         struct = self.structure
         operations = self.FCM_operations
         # set max force in reciprocal space
@@ -448,7 +436,6 @@ class ForceConstantMatrix:
         Return:
             3Nx3N numpy array representing the force constant matrix
         """
-
         operations = self.FCM_operations
         D = unsymmetrized_fcm
         for op in operations:
@@ -513,7 +500,6 @@ class ForceConstantMatrix:
         Return:
             3Nx3N numpy array representing the force constant matrix
         """
-
         check = 0
         count = 0
         while check == 0:
@@ -655,9 +641,10 @@ class ForceConstantMatrix:
         Return:
             NxNx3x3 np.array representing the force constant matrix
         """
+        from pymatgen.io.phonopy import get_phonopy_structure
 
         numsites = len(self.structure.sites)
-        structure = pymatgen.io.phonopy.get_phonopy_structure(self.structure)
+        structure = get_phonopy_structure(self.structure)
         pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
 
         dyn = self.get_unstable_FCM(force)
