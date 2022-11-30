@@ -26,7 +26,7 @@ from pathlib import Path
 
 import numpy as np
 from ruamel.yaml import YAML
-from typing import Sequence, Dict
+from typing import Sequence, Dict, Literal
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
@@ -69,6 +69,7 @@ from pymatgen.io.cp2k.inputs import (
 )
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
+from pymatgen.io.vasp.inputs import Kpoints_supported_modes
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -92,6 +93,7 @@ class DftSet(Cp2kInput):
         multiplicity: int = 0,
         ot: bool = True,
         energy_gap: float = -1,
+        qs_method: str = "GPW",
         eps_default: float = 1e-12,
         eps_scf: float = 1e-6,
         max_scf: int | None = None,
@@ -188,6 +190,7 @@ class DftSet(Cp2kInput):
         else:
             self.multiplicity = multiplicity
         self.ot = ot
+        self.qs_method = qs_method
         self.energy_gap = energy_gap
         self.eps_default = eps_default
         self.eps_scf = eps_scf
@@ -212,15 +215,16 @@ class DftSet(Cp2kInput):
         self.insert(ForceEval())
 
         if self.kpoints:
-            if (
-                ((self.kpoints.num_kpts == 0 or self.kpoints.num_kpts == 1) and np.array_equal(self.kpoints.kpts[0], (0, 0, 0)))
-                or np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
-            ):
-                # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
-                # 0,0,0 will disable certain features. So, you have to drop it all together to
-                # get full support
-                self.kpoints = None
-            else:
+            # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
+            # 0,0,0 will disable certain features. So, you have to drop it all together to
+            # get full support
+            if self.kpoints.style in [Kpoints_supported_modes.Gamma, Kpoints_supported_modes.Monkhorst]:
+                if np.array_equal(self.kpoints.kpts[0], (1, 1, 1)):
+                    self.kpoints  = None
+            elif self.kpoints.style in [Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian]:
+                if np.array_equal(self.kpoints.kpts[0], (0, 0, 0)):
+                    self.kpoints  = None
+            elif ot:
                 warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
                 ot = False
 
@@ -232,7 +236,7 @@ class DftSet(Cp2kInput):
         self.insert(g)
 
         # Build the QS Section
-        qs = QS(eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb", None))
+        qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb", None))
         max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
@@ -750,8 +754,6 @@ class DftSet(Cp2kInput):
             self.create_subsys(self.structure)
 
         else:
-            # Don't change unless you know what you're doing
-            # Use NONE for accurate eigenvalues (static calcs)
             aux_matrix_params = {
                 "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", admm_purification_method),
                 "METHOD": Keyword("METHOD", admm_method),
@@ -996,6 +998,22 @@ class DftSet(Cp2kInput):
             md = Section("MD", subsections={"THERMOSTAT": thermostat}, keywords=md_keywords)
             self["MOTION"].insert(md)
 
+        elif run_type == "BAND":
+            convergence_control_params = {
+                "MAX_DR": Keyword("MAX_DR", max_drift),
+                "MAX_FORCE": Keyword("MAX_FORCE", max_force),
+                "RMS_DR": Keyword("RMS_DR", rms_drift),
+                "RMS_FORCE": Keyword("RMS_FORCE", rms_force),
+            }
+            band_kwargs = {
+                "BAND_TYPE": Keyword("BAND_TYPE", "IT-NEB", description="Improved tangent NEB"),
+                "NUMBER_OF_REPLICA": Keyword("NUMBER_OF_REPLICA"),
+                "NPROC_REP": Keyword(),
+            }
+            band = Section("BAND", keywords=band_kwargs)
+            band.insert(Section("CONVERGENCE_CONTROL", keywords=convergence_control_params))
+            self['MOTION'].insert(band)
+
         self.modify_dft_print_iters(0, add_last="numeric")
 
         if "fix" in self.structure.site_properties:
@@ -1031,6 +1049,66 @@ class DftSet(Cp2kInput):
                 )
             )
 
+    def activate_linres(self, property, **kwargs):
+        """
+        Activate the calculation of a property. Several require localize to be
+        activated first.
+
+            EPR: Calculate the g-tensor and hyperfine coupling tensor. Suggested
+                to use GAPW.
+            NMR: Calculate NMR chemical shifts. Suggested to use with GAPW.
+            POLAR: Calculate polarizations (including raman)
+            TDDFPT: Calculate optical absorption spectrum using time dependent
+                DFPT (GPW only. Supports HFX)
+            XAS: Calculate the x-ray absorption spectroscopy. Suggested to use GAPW.
+
+        """
+
+        if "PROPERTIES" not in self['FORCE_EVAL']:
+            self['FORCE_EVAL'].insert(Section("PROPERTIES"))
+        if property in ["EPR", "NMR", "POLAR", "SPINSPIN"]:
+            self['FORCE_EVAL']['PROPERTIES'].insert(Section("LINRES"))
+            self['FORCE_EVAL']['PROPERTIES']['LINRES'].insert(Section(property, **kwargs))
+                
+        elif property == "TDDFPT":
+            self['FORCE_EVAL']['PROPERTIES'].insert(Section(property, **kwargs))
+    
+    def print_hyperfine(self):
+        self['FORCE_EVAL']['DFT']['PRINT'].insert(Section("HYPERFINE_COUPLING_TENSOR", FILENAME="HYPERFINE"))
+
+    def activate_localize(
+        self, states = "OCCUPIED", 
+        preconditioner="FULL_ALL"
+        ):
+        """
+        Activate calculation of the maximally localized wannier functions.
+
+        Args:
+            states: Which states to calculate. occupied, unoccupied, mixed states, or all states. At
+                present, unoccupied orbitals are only implemented for GPW.
+            preconditioner: Preconditioner to use for optimize
+        """
+        if "PROPERTIES" not in self['FORCE_EVAL']:
+            self['FORCE_EVAL'].insert(Section("PROPERTIES"))
+        if "LINRES" not in self['FORCE_EVAL']['PROPERTIES']:
+            self['FORCE_EVAL']['PROPERTIES'].insert('LINRES')
+
+        self['FORCE_EVAL']['PROPERTIES']["LINRES"].insert(Section("LOCALIZE", PRECONDITIONER=preconditioner, STATES=states))
+        self['FORCE_EVAL']["PROPERTIES"]["LINRES"]['LOCALIZE'].insert(Section("PRINT"))
+        self['FORCE_EVAL']["PROPERTIES"]["LINRES"]['LOCALIZE']["PRINT"].insert(Section("LOC_RESTART"))
+
+    def activate_vdw_potential(
+        self, dispersion_functional: Literal["PAIR_POTENTIAL", "NON_LOCAL"], 
+        potential_type: Literal["DFTD2", "DFTD3", "DFTD3(BJ)", "DRSLL", "LMKLL", "RVV10"]
+        ):
+        """
+        Activate van der Waals dispersion corrections
+        """
+        
+        vdw = Section("VDW_POTENTIAL", keywords={"DISPERSION_FUNCTIONAL": Keyword("DISPERSION_FUNCTIONAL", dispersion_functional)})
+        vdw.insert(Section(dispersion_functional, keywords={"TYPE": Keyword("TYPE", potential_type)}))
+        self['FORCE_EVAL']['DFT']['XC'].insert(vdw)
+    
     def activate_fast_minimization(self, on):
         """
         Method to modify the set to use fast SCF minimization.
@@ -1139,6 +1217,9 @@ class DftSet(Cp2kInput):
                 subsections={"BS": bs} if bs else {},
                 **kwargs,
             )
+            if self.qs_method.upper() == "GAPW":
+                _kind.add(Keyword("RADIAL_GRID", 200))
+                _kind.add(Keyword("LEBEDEV_GRID", 80))
 
             subsys.insert(_kind)
 
