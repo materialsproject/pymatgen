@@ -2127,12 +2127,12 @@ class PotcarSingle:
             if k in ("nentries", "Orbitals"):
                 continue
             hash_str += f"{k}"
-            if isinstance(v, int):
+            if isinstance(v, bool):
                 hash_str += f"{v}"
             elif isinstance(v, float):
                 hash_str += f"{v:.3f}"
-            elif isinstance(v, bool):
-                hash_str += f"{bool}"
+            elif isinstance(v, int):
+                hash_str += f"{v}"
             elif isinstance(v, (tuple, list)):
                 for item in v:
                     if isinstance(item, float):
