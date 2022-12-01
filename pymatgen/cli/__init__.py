@@ -1,4 +1,4 @@
-# Copyright (c) Materials Virtual Lab.
+## Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
 """
