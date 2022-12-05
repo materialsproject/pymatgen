@@ -982,8 +982,8 @@ class QCInput(InputFile):
         pcm_nonels_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_nonels_table:
             print(
-                "No valid $pcm_nonels inputs found. Note that there should be no '=' \
-                 chracters in $pcm_nonels input lines."
+                "No valid $pcm_nonels inputs found. Note that there should be no '=' "
+                "characters in $pcm_nonels input lines."
             )
             return {}
 
