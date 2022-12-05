@@ -1984,9 +1984,9 @@ class PotcarSingle:
         """
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
-    def verify_potcar(self) -> (bool, bool):
+    def verify_potcar(self) -> tuple[bool, bool]:
         """
-        Attempts to verify the integrety of the POTCAR data.
+        Attempts to verify the integrity of the POTCAR data.
 
         This method checks the whole file (removing only the COPYR and SHA256
         metadata) against the SHA256 hash in the header if this is found.
@@ -2022,7 +2022,7 @@ class PotcarSingle:
                 passed_hash_check = True
             else:
                 passed_hash_check = False
-        return has_sha256, passed_hash_check
+        return (has_sha256, passed_hash_check)
 
     def identify_potcar(self, mode: Literal["data", "file"] = "data"):
         """
