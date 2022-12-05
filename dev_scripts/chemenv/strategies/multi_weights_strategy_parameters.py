@@ -69,7 +69,7 @@ class CoordinationEnvironmentMorphing:
         # Set up the weights for the MultiWeights strategy
         weights = self.get_weights(weights_options)
         # Set up the strategy
-        strat = MultiWeightsChemenvStrategy(
+        strategy = MultiWeightsChemenvStrategy(
             dist_ang_area_weight=weights["DistAngArea"],
             self_csm_weight=weights["SelfCSM"],
             delta_csm_weight=weights["DeltaCSM"],
@@ -88,8 +88,8 @@ class CoordinationEnvironmentMorphing:
             # Get the StructureEnvironments
             lgf.setup_structure(structure=struct)
             se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences)
-            strat.set_structure_environments(structure_environments=se)
-            result = strat.get_site_coordination_environments_fractions(
+            strategy.set_structure_environments(structure_environments=se)
+            result = strategy.get_site_coordination_environments_fractions(
                 site=se.structure[0], isite=0, return_strategy_dict_info=True, return_all=True
             )
             for res in result:
