@@ -257,6 +257,53 @@ class CompleteDosTest(unittest.TestCase):
         kurtosis = dos.get_band_kurtosis()
         self.assertAlmostEqual(kurtosis, 7.764506941340621)
 
+    def test_get_dos_fp(self):
+        # normalize=True
+        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, nbins=56, normalize=True)
+        bin_width = np.diff(dos_fp.energies)[0][0]
+        self.assertLessEqual(max(dos_fp.energies[0]), 0)
+        self.assertGreaterEqual(min(dos_fp.energies[0]), -10)
+        self.assertEqual(len(dos_fp.energies[0]), 56)
+        self.assertEqual(dos_fp.type, "s")
+        self.assertAlmostEqual(sum(dos_fp.states * bin_width), 1, delta=0.001)
+        # normalize=False
+        dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, nbins=56, normalize=False)
+        bin_width2 = np.diff(dos_fp2.energies)[0][0]
+        self.assertAlmostEqual(sum(dos_fp2.states * bin_width2), 7.279303571428509, delta=0.001)
+        # binning=False
+        dos_fp = self.dos.get_dos_fp(type="s", min_e=None, max_e=None, nbins=56, normalize=True, binning=False)
+        self.assertEqual(dos_fp.nbins, len(self.dos.energies))
+
+    def test_get_dos_fp_similarity(self):
+        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, nbins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, nbins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True)
+        self.assertAlmostEqual(similarity_index, 0.3342481451042263, delta=0.0001)
+
+        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, nbins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, nbins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True)
+        self.assertEqual(similarity_index, 1)
+
+    def test_dos_fp_exceptions(self):
+        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, nbins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, nbins=56, normalize=True)
+        # test exceptions
+        with self.assertRaises(ValueError) as err:
+
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True, normalize=True)
+        self.assertEqual(
+            err.exception.__str__(),
+            "Cannot compute similarity index, Please set either one of normalize/tanimoto arg to true or set both to false",
+        )
+        with self.assertRaises(ValueError) as err:
+
+            self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, nbins=56, normalize=True)
+        self.assertEqual(
+            err.exception.__str__(),
+            "Please recheck type requested, either the orbital projections unavailable in input dos or some typo has been made.",
+        )
+
 
 class DOSTest(PymatgenTest):
     def setUp(self):
