@@ -19,7 +19,7 @@ import subprocess
 import warnings
 from collections import namedtuple
 from enum import Enum
-from hashlib import md5, sha256
+from hashlib import md5
 from typing import Any, Literal, Sequence
 
 import numpy as np
@@ -1826,7 +1826,6 @@ class PotcarSingle:
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
-            
 
     def __str__(self):
         return self.data + "\n"
