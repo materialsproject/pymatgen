@@ -10,7 +10,9 @@ from __future__ import annotations
 import functools
 import warnings
 from typing import Mapping
+from collections import namedtuple
 
+import re
 import numpy as np
 from monty.json import MSONable
 from scipy.constants import value as _cd
@@ -1164,6 +1166,138 @@ class CompleteDos(Dos):
         # Calculate the upper band edge
         upper_band_edge = energies[np.argmax(densities)]
         return upper_band_edge
+
+
+    def get_dos_fp(self, type='summed_pdos', binning=True, min_e=None, max_e=None, nbins=256, normalize=True):
+        """
+        Generates the DOS fingerprint based on work of F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
+
+        Args:
+            type (str): Fingerprint type needed can accept 's,p,d,f,summed_pdos,tdos'
+            min_e (float): The minimum mode energy to include in the fingerprint
+            max_e (float): The maximum mode energy to include in the fingerprint
+            nbins (int): Number of bins to be used in the fingerprint
+
+        Returns:
+            Fingerprint(namedtuple) : The electronic density of states fingerprint of format (energies, densities, DOS, nbins)
+        """
+        fp_tup = namedtuple("fingerprint", "energies states type nbins")
+        energies = self.energies
+        if max_e is None:
+            max_e = np.max(energies)
+
+        if min_e is None:
+            min_e = np.min(energies)
+
+        pdos_obj=self.get_spd_dos()
+        pdos= {}
+        for k, v in pdos_obj.items():
+            #er = spd_dos_lobster[k].energies
+            dens = pdos_obj[k].get_densities()
+
+            pdos.update({k.name: dens})
+
+        sum_pdos_array = []
+        for dos in pdos.values():
+            sum_pdos_array.append(np.array(dos))
+
+        pdos.update({"summed_pdos":np.sum(sum_pdos_array, axis=0)})
+        pdos.update({"tdos": self.get_densities()})
+
+        energies=self.energies
+
+        try:
+            densities=pdos[type]
+            if len(energies) < nbins:
+                inds = np.where((energies >= min_e) & (energies <= max_e))
+                return fp_tup(energies[inds], densities[inds], [type], len(energies))
+
+            if binning:
+                enerBounds = np.linspace(min_e, max_e, nbins + 1)
+                ener = enerBounds[:-1] + (enerBounds[1] - enerBounds[0]) / 2.0
+            else:
+                enerBounds = np.array(energies)
+                ener = np.append(energies, [energies[-1] + np.abs(energies[-1]) / 10])
+
+            dos_rebin = np.zeros(ener.shape)
+
+            for ii, e1, e2 in zip(range(len(ener)), enerBounds[0:-1], enerBounds[1:]):
+                inds = np.where((energies >= e1) & (energies < e2))[0]
+                dos_rebin[ii] = np.sum(
+                    densities[inds]
+                )
+            if normalize:  # scaling dos bins to make area under histogram equal 1
+                bin_width = np.diff(ener)[0]
+                area = np.sum(dos_rebin * bin_width)
+                dos_rebin_sc = dos_rebin / area
+            else:
+                dos_rebin_sc = dos_rebin
+            return fp_tup(np.array([ener]), dos_rebin_sc, [type], nbins)  # replaced here dos_rebin
+        except KeyError:
+            print('Please recheck type requested, either the orbital projections unavailable in input dos or'
+                  'some typo has been made.')
+
+
+    def fp_to_dict(self, fp):
+        """Converts a fingerprint into a dictionary
+
+        Args:
+            fp: The DOS fingerprint to be converted into a dictionary
+
+        Returns:
+            dict: A dict of the fingerprint Keys=labels, Values=np.ndarray(frequencies, #of states)
+        """
+        fp_dict = {}
+        if len(fp[2]) > 1:
+            for aa in range(len(fp[2])):
+                fp_dict[re.sub("[.]", "_", str(fp[2][aa]))] = np.array(
+                    [fp[0][aa], fp[1][aa]]
+                ).T
+        else:
+            fp_dict[re.sub("[.]", "_", str(fp[2][0]))] = np.array([fp[0], fp[1]]).T
+
+        return fp_dict
+
+    def get_dos_fp_similarity(self, fp1, fp2, col=0, pt="All", normalize=False, tanimoto=False):
+        """Calculates the similarity index (dot product) of two finger prints
+
+        Args:
+            fp1 (get_dos_fp): The 1st dos fingerprint
+            fp2 get_dos_fp:  The 2nd dos fingerprint
+            col (int): The item in the fingerprints to take the dot product of (either 0 or 1)
+            pt (int or 'All') : The index of the point that the dot product is to be taken
+            normalize (bool): If True normalize the scalar product to 1
+
+        Returns:
+        Similarity index (float): The value dot product
+        """
+        if not isinstance(fp1, dict):
+            fp1_dict = self.fp_to_dict(fp1)
+        else:
+            fp1_dict = fp1
+
+        if not isinstance(fp2, dict):
+            fp2_dict = self.fp_to_dict(fp2)
+        else:
+            fp2_dict = fp2
+
+        if pt == "All":
+            vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
+            vec2 = np.array([pt[col] for pt in fp2_dict.values()]).flatten()
+        else:
+            vec1 = fp1_dict[fp1[2][pt]][col]
+            vec2 = fp2_dict[fp2[2][pt]][col]
+
+        rescale = 1.0
+
+        if tanimoto:
+            rescale = (
+                    np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
+            )
+        elif normalize:
+            rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
+
+        return np.dot(vec1, vec2) / rescale
 
     @classmethod
     def from_dict(cls, d) -> CompleteDos:
