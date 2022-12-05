@@ -19,7 +19,7 @@ import subprocess
 import warnings
 from collections import namedtuple
 from enum import Enum
-from hashlib import md5
+from hashlib import md5, sha256
 from typing import Any, Literal, Sequence
 
 import numpy as np
@@ -1701,6 +1701,8 @@ class PotcarSingle:
         "STEP": _parse_list,
         "RRKJ": _parse_list,
         "GGA": _parse_list,
+        "SHA256": _parse_string,
+        "COPYR": _parse_string,
     }
 
     def __init__(self, data, symbol=None):
@@ -1811,19 +1813,20 @@ class PotcarSingle:
 
         if not self.identify_potcar(mode="data")[0]:
             warnings.warn(
+                f"POTCAR with symbol {self.symbol} has metadata that does\n"
+                "not match any VASP POTCAR known to pymatgen. The data in this\n"
+                "POTCAR is known to match the following functionals:\n"
+                f"{self.identify_potcar(mode='data')[0]}",
+                UnknownPotcarWarning,
+            )
+        elif not self.identify_potcar(mode="file")[0]:
+            warnings.warn(
                 f"POTCAR data with symbol { self.symbol} does not match any VASP "
                 "POTCAR known to pymatgen. There is a possibility your "
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
-        elif not self.identify_potcar(mode="file")[0]:
-            warnings.warn(
-                f"POTCAR with symbol {self.symbol} has metadata that does not match\
-                          any VASP POTCAR known to pymatgen. The data in this\
-                          POTCAR is known to match the following functionals:\
-                          {self.identify_potcar(mode='data')[0]}",
-                UnknownPotcarWarning,
-            )
+            
 
     def __str__(self):
         return self.data + "\n"
@@ -2124,7 +2127,7 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
-            if k in ("nentries", "Orbitals"):
+            if k in ("nentries", "Orbitals", "COPYR", "SHA256"):
                 continue
             hash_str += f"{k}"
             if isinstance(v, bool):
