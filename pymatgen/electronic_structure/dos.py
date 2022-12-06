@@ -1180,7 +1180,7 @@ class CompleteDos(Dos):
         Returns:
             Fingerprint(namedtuple) : The electronic density of states fingerprint of format (energies, densities, type, nbins)
         """
-        fp_tup = namedtuple("fingerprint", "energies states type nbins")
+        fp_tup = namedtuple("fingerprint", "energies densities type nbins binwidth")
         energies = self.energies - self.efermi
 
         if max_e is None:
@@ -1209,15 +1209,17 @@ class CompleteDos(Dos):
             densities = pdos[type]
             if len(energies) < nbins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
-                return fp_tup(energies[inds], densities[inds], type, len(energies))
+                return fp_tup(energies[inds], densities[inds], type, len(energies),np.diff(energies)[0])
 
             if binning:
                 enerBounds = np.linspace(min_e, max_e, nbins + 1)
                 ener = enerBounds[:-1] + (enerBounds[1] - enerBounds[0]) / 2.0
+                bin_width = np.diff(ener)[0]
             else:
                 enerBounds = np.array(energies)
                 ener = np.append(energies, [energies[-1] + np.abs(energies[-1]) / 10])
                 nbins = len(energies)
+                bin_width = np.diff(energies)[0]
 
             dos_rebin = np.zeros(ener.shape)
 
@@ -1225,13 +1227,13 @@ class CompleteDos(Dos):
                 inds = np.where((energies >= e1) & (energies < e2))[0]
                 dos_rebin[ii] = np.sum(densities[inds])
             if normalize:  # scale dos bins to make area under histogram equal 1
-                bin_width = np.diff(ener)[0]
+                #bin_width = np.diff(ener)[0]
                 area = np.sum(dos_rebin * bin_width)
                 dos_rebin_sc = dos_rebin / area
             else:
                 dos_rebin_sc = dos_rebin
 
-            return fp_tup(np.array([ener]), dos_rebin_sc, type, nbins)
+            return fp_tup(np.array([ener]), dos_rebin_sc, type, nbins, bin_width)
 
         except KeyError:
             raise ValueError(
@@ -1253,13 +1255,13 @@ class CompleteDos(Dos):
 
         return fp_dict
 
-    def get_dos_fp_similarity(self, fp1, fp2, col=0, pt="All", normalize=False, tanimoto=False):
+    def get_dos_fp_similarity(self, fp1, fp2, col=1, pt="All", normalize=False, tanimoto=False):
         """Calculates the similarity index (dot product) of two finger prints
 
         Args:
             fp1 (get_dos_fp): The 1st dos fingerprint
             fp2 get_dos_fp:  The 2nd dos fingerprint
-            col (int): The item in the fingerprints to take the dot product of (either 0 or 1)
+            col (int): The item in the fingerprints to take the dot product of (0=Energies 1=Densities)
             pt (int or 'All') : The index of the point that the dot product is to be taken
             normalize (bool): If True normalize the scalar product to 1
             tanimoto (bool): If True will compute tanimoto index
