@@ -75,3 +75,4 @@ repos:
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
+      - id: double-quote-cython-strings

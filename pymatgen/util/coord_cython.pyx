@@ -109,7 +109,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
                 frac_im[k] = images_view[i]
                 k += 1
 
-    cdef np.float_t[:, ::1] lat = np.array(matrix, dtype=np.float_, copy=False, order='C')
+    cdef np.float_t[:, ::1] lat = np.array(matrix, dtype=np.float_, copy=False, order="C")
 
     I = len(fcoords1)
     J = len(fcoords2)
@@ -124,12 +124,12 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     cdef bint has_mask = mask is not None
     cdef np.int_t[:, :] m
     if has_mask:
-        m = np.array(mask, dtype=np.int_, copy=False, order='C')
+        m = np.array(mask, dtype=np.int_, copy=False, order="C")
 
     cdef bint has_ftol = (lll_frac_tol is not None)
     cdef np.float_t[:] ftol
     if has_ftol:
-        ftol = np.array(lll_frac_tol, dtype=np.float_, order='C', copy=False)
+        ftol = np.array(lll_frac_tol, dtype=np.float_, order="C", copy=False)
 
 
     dot_2d_mod(fc1, lat, cart_f1)
@@ -207,7 +207,7 @@ def is_coord_subset_pbc(subset, superset, atol, mask, pbc=(True, True, True)):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order='C')
+    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order="C")
 
     cdef int i, j, k, len_fc1, len_fc2
     cdef np.float_t d
