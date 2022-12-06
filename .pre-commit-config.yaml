@@ -69,3 +69,9 @@ repos:
     hooks:
       - id: pydocstyle
         exclude: tests
+
+  - repo: https://github.com/MarcoGorelli/cython-lint
+    rev: v0.9.1
+    hooks:
+      - id: cython-lint
+        args: [--no-pycodestyle]
