@@ -1227,7 +1227,6 @@ class CompleteDos(Dos):
                 inds = np.where((energies >= e1) & (energies < e2))[0]
                 dos_rebin[ii] = np.sum(densities[inds])
             if normalize:  # scale dos bins to make area under histogram equal 1
-                #bin_width = np.diff(ener)[0]
                 area = np.sum(dos_rebin * bin_width)
                 dos_rebin_sc = dos_rebin / area
             else:
