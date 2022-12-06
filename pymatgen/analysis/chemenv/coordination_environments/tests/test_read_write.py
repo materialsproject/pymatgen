@@ -78,12 +78,10 @@ class ReadWriteChemenvTest(unittest.TestCase):
         )
 
         with open("tmp_dir/lse.json", "w") as f:
-            json.dump(lse.as_dict(), f)
+            json.dump(lse.as_dict(), f, default=lambda o: o.tolist() if hasattr(o, "tolist") else o)
 
         with open("tmp_dir/lse.json") as f:
-            dd = json.load(f)
-
-        lse2 = LightStructureEnvironments.from_dict(dd)
+            lse2 = LightStructureEnvironments.from_dict(json.load(f))
 
         assert lse == lse2
 

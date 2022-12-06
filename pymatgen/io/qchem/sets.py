@@ -179,7 +179,7 @@ class QChemDictSet(QCInput):
                 Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
                 custom keywords to overwrite_inputs, e.g.
                 overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
-                Refer to the QChem manual for further details on the models availale.
+                Refer to the QChem manual for further details on the models available.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
@@ -583,7 +583,7 @@ class SinglePointSet(QChemDictSet):
                 Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
                 custom keywords to overwrite_inputs, e.g.
                 overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
-                Refer to the QChem manual for further details on the models availale.
+                Refer to the QChem manual for further details on the models available.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
@@ -712,7 +712,7 @@ class OptSet(QChemDictSet):
                 Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
                 custom keywords to overwrite_inputs, e.g.
                 overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
-                Refer to the QChem manual for further details on the models availale.
+                Refer to the QChem manual for further details on the models available.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
@@ -834,7 +834,7 @@ class TransitionStateSet(QChemDictSet):
                 Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
                 custom keywords to overwrite_inputs, e.g.
                 overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
-                Refer to the QChem manual for further details on the models availale.
+                Refer to the QChem manual for further details on the models available.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
@@ -953,7 +953,7 @@ class ForceSet(QChemDictSet):
                 Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
                 custom keywords to overwrite_inputs, e.g.
                 overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
-                Refer to the QChem manual for further details on the models availale.
+                Refer to the QChem manual for further details on the models available.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
@@ -1069,7 +1069,7 @@ class FreqSet(QChemDictSet):
                 Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
                 custom keywords to overwrite_inputs, e.g.
                 overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
-                Refer to the QChem manual for further details on the models availale.
+                Refer to the QChem manual for further details on the models available.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
@@ -1205,7 +1205,7 @@ class PESScanSet(QChemDictSet):
                 Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
                 custom keywords to overwrite_inputs, e.g.
                 overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
-                Refer to the QChem manual for further details on the models availale.
+                Refer to the QChem manual for further details on the models available.
 
                 **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
