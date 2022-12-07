@@ -976,13 +976,19 @@ class PotcarSingleTest(PymatgenTest):
 
     def test_potcar_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="incomplete"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_header" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="following"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
             PotcarSingle.from_file(filename)
+
+    def test_verify_faulty_potcar_with_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
+        with pytest.raises(ValueError):
+            PotcarSingle.from_file(filename)
+
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
