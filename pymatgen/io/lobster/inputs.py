@@ -96,6 +96,7 @@ class Lobsterin(dict, MSONable):
         "forceEnergyRange",
         "bandwiseSpilling",
         "kpointwiseSpilling",
+        "LSODOS",
     ]
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
