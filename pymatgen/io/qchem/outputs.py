@@ -164,6 +164,14 @@ class QCOutput(MSONable):
         # Check for various warnings
         self._detect_general_warnings()
 
+        # Parse mem_total, if present
+        self.data["mem_total"] = None
+        if read_pattern(self.text, {"key": r"mem_total\s*="}, terminate_on_match=True).get("key") == [[]]:
+            temp_mem_total = read_pattern(self.text, {"key": r"mem_total\s*=\s*(\d+)"}, terminate_on_match=True).get(
+                "key"
+            )
+            self.data["mem_total"] = int(temp_mem_total[0][0])
+
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
         self.data["solvent_data"] = None
@@ -1488,7 +1496,13 @@ class QCOutput(MSONable):
             "key"
         ) == [[]]:
             self.data["errors"] += ["mem_static_too_small"]
+        elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["mem_total_too_small"]
         elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian":
+            self.data["errors"] += ["probably_out_of_memory"]
+        elif self.text[-16:-1] == "Roots Converged":
             self.data["errors"] += ["probably_out_of_memory"]
         else:
             tmp_failed_line_searches = read_pattern(
