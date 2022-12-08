@@ -1488,6 +1488,8 @@ class QCOutput(MSONable):
             "key"
         ) == [[]]:
             self.data["errors"] += ["mem_static_too_small"]
+        elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian":
+            self.data["errors"] += ["probably_out_of_memory"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text,
