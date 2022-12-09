@@ -254,11 +254,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             original label
             List of equivalent atoms.
         """
-        obconv = openbabel.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("a", openbabel.OBConversion.OUTOPTIONS)
-        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obconv.WriteString(mol)
+        ob_conv = openbabel.OBConversion()
+        ob_conv.SetOutFormat("inchi")
+        ob_conv.AddOption("a", openbabel.OBConversion.OUTOPTIONS)
+        ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = ob_conv.WriteString(mol)
         match = re.search(
             r"InChI=(?P<inchi>.+)\nAuxInfo=.+" r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9," r";\(\)]*)/)?",
             inchi_text,
@@ -300,12 +300,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
     def _virtual_molecule(self, mol, ilabels, eq_atoms):
         """
-        Create a virtual molecule by unique atoms, the centriods of the
+        Create a virtual molecule by unique atoms, the centroids of the
         equivalent atoms
 
         Args:
             mol: The molecule. OpenBabel OBMol object
-            ilables: inchi label map
+            ilabels: inchi label map
             eq_atoms: equivalent atom labels
             farthest_group_idx: The equivalent atom group index in which
                 there is the farthest atom to the centroid
@@ -1282,10 +1282,10 @@ class GeneticOrderMatcher(KabschMatcher):
         # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
 
-        for i in range(1, self.N):
+        for idx in range(1, self.N):
             # extending the target fragment with then next atom
-            f_coords = q_coords[: i + 1]
-            f_atom = q_atoms[i]
+            f_coords = q_coords[: idx + 1]
+            f_atom = q_atoms[idx]
 
             f_trans = f_coords.mean(axis=0)
             f_centroid = f_coords - f_trans
@@ -1293,17 +1293,17 @@ class GeneticOrderMatcher(KabschMatcher):
             matches = []
             for indices in partial_matches:
 
-                for j in range(self.N):
+                for jdx in range(self.N):
 
                     # skipping if the this index is already matched
-                    if j in indices:
+                    if jdx in indices:
                         continue
 
                     # skipping if they are different species
-                    if p_atoms[j] != f_atom:
+                    if p_atoms[jdx] != f_atom:
                         continue
 
-                    inds = indices + [j]
+                    inds = indices + [jdx]
                     P = p_coords[inds]
 
                     # Both sets of coordinates must be translated first, so that
@@ -1326,6 +1326,6 @@ class GeneticOrderMatcher(KabschMatcher):
 
             partial_matches = matches
 
-            logger.info(f"number of atom in the fragment: {i + 1}, number of possible matches: {len(matches)}")
+            logger.info(f"number of atom in the fragment: {idx + 1}, number of possible matches: {len(matches)}")
 
         return matches
