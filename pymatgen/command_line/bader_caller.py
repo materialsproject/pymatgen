@@ -27,7 +27,7 @@ from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
 
-from pymatgen.io.cube import Cube
+from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
@@ -151,7 +151,7 @@ class BaderAnalysis:
         else:
             fpath = os.path.abspath(cube_filename)
             self.is_vasp = False
-            self.cube = Cube(fpath)
+            self.cube = VolumetricData.from_cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
