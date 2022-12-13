@@ -1169,6 +1169,9 @@ class CompleteDos(Dos):
     def get_dos_fp(self, type="summed_pdos", binning=True, min_e=None, max_e=None, nbins=256, normalize=True):
         """
         Generates the DOS fingerprint based on work of F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
+        Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
+        Copyright (c) 2020 Florian Knoop, Thomas A.R. Purcell, Matthias Scheffler, Christian Carbogno
+
 
         Args:
             type (str): Specify fingerprint type needed can accept 's/p/d/f/summed_pdos/tdos'
@@ -1209,7 +1212,7 @@ class CompleteDos(Dos):
             densities = pdos[type]
             if len(energies) < nbins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
-                return fp_tup(energies[inds], densities[inds], type, len(energies),np.diff(energies)[0])
+                return fp_tup(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
 
             if binning:
                 enerBounds = np.linspace(min_e, max_e, nbins + 1)
