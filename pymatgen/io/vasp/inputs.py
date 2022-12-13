@@ -1806,10 +1806,13 @@ class PotcarSingle:
             except IndexError:
                 self._symbol = self.keywords["TITEL"].strip()
 
-        # Compute the POTCAR hashes and check them against the database of known
-        # VASP POTCARs
+        # Compute the POTCAR hashes to check them against the database of known
+        # VASP POTCARs and possibly SHA256 hashes contained in the file itself.
         self.hash = self.get_potcar_hash()
         self.file_hash = self.get_potcar_file_hash()
+        if hasattr(self, "SHA256"):
+            self.hash_sha256_from_file = self.SHA256.split()[0]
+            self.hash_sha256_computed = self.get_sha256_file_hash()
 
         if not self.identify_potcar(mode="data")[0]:
             warnings.warn(
@@ -2001,14 +2004,7 @@ class PotcarSingle:
         """
         if hasattr(self, "SHA256"):
             has_sha256 = True
-            # we have to remove lines with the hash itself and the copyright
-            # notice to get the correct hash.
-            potcar_list = self.data.split("\n")
-            potcar_to_hash = [l for l in potcar_list if not l.strip().startswith(("SHA256", "COPYR"))]
-            potcar_to_hash_str = "\n".join(potcar_to_hash)
-            computed_hash = sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
-            self.hash_sha256 = self.SHA256.split()[0]
-            if self.hash_sha256 == computed_hash:
+            if self.hash_sha256_from_file == self.hash_sha256_computed:
                 passed_hash_check = True
             else:
                 passed_hash_check = False
@@ -2157,9 +2153,24 @@ class PotcarSingle:
             return potcar_functionals, identity["potcar_symbols"]
         return [], []
 
+    def get_sha256_file_hash(self):
+        """
+        Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'
+
+        This hash corresponds to the sha256 hash printed in the header of modern POTCAR files.
+
+        :return: Hash value.
+        """
+        # we have to remove lines with the hash itself and the copyright
+        # notice to get the correct hash.
+        potcar_list = self.data.split("\n")
+        potcar_to_hash = [l for l in potcar_list if not l.strip().startswith(("SHA256", "COPYR"))]
+        potcar_to_hash_str = "\n".join(potcar_to_hash)
+        return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
+
     def get_potcar_file_hash(self):
         """
-        Computes a hash of the entire PotcarSingle.
+        Computes a md5 hash of the entire PotcarSingle.
 
         This hash corresponds to the md5 hash of the POTCAR file itself.
 
@@ -2169,12 +2180,14 @@ class PotcarSingle:
 
     def get_potcar_hash(self):
         """
-        Computes a md5 hash of the data defining the PotcarSingle.
+        Computes a md5 hash of the metadata defining the PotcarSingle.
 
         :return: Hash value.
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
+            # for newer POTCARS we have to exclude 'COPYR' and 'SHA256' lines
+            # since they were not used in the initial hashing
             if k in ("nentries", "Orbitals", "COPYR", "SHA256"):
                 continue
             hash_str += f"{k}"

@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 import scipy.constants as const
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 
 from pymatgen.core import SETTINGS
@@ -988,6 +989,17 @@ class PotcarSingleTest(PymatgenTest):
         )
         with pytest.raises(ValueError):
             PotcarSingle.from_file(filename)
+
+    def test_verify_correct_potcar_with_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        metadata_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_pymatgen_hashes.json"))
+
+        psingle = PotcarSingle.from_file(filename)
+        assert psingle.hash in metadata_hash_db
+        assert psingle.file_hash in file_hash_db
+        assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
