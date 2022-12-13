@@ -43,6 +43,7 @@ wide and the volume is aligned with the coordinate axis. There are three atoms.
 import numpy as np
 from monty.io import zopen
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import Site
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import bohr_to_angstrom
@@ -120,25 +121,28 @@ class Cube:
             radius: (float) of the mask (in Angstroms)
             cx, cy, cz: (float) the fractional coordinates of the center of the sphere
         """
-        dx, dy, dz = (
-            np.floor(radius / np.linalg.norm(self.X)).astype(int),
-            np.floor(radius / np.linalg.norm(self.Y)).astype(int),
-            np.floor(radius / np.linalg.norm(self.Z)).astype(int),
+        # create a lattice describing a single voxel
+        voxel_lattice = Lattice([self.X, self.Y, self.Z])
+        # find all voxels who's centre is within the radius of point (cx, cy, cz)
+        # convert (cx, cy, cz) into voxel lattice
+        coords = self.structure.lattice.get_cartesian_coords([cx, cy, cz])
+        voxel_coords = voxel_lattice.get_fractional_coords(coords)
+        # cube voxels are oriented around the centre of the voxel
+        _, _, _, image = voxel_lattice.get_points_in_sphere(
+            [[0.5, 0.5, 0.5]],
+            voxel_lattice.get_cartesian_coords(np.mod(voxel_coords, 1)),
+            radius,
+            zip_results=False,
         )
-        gcd = max(np.gcd(dx, dy), np.gcd(dy, dz), np.gcd(dx, dz))
-        sx, sy, sz = dx // gcd, dy // gcd, dz // gcd
-        r = min(dx, dy, dz)
+        image = np.array(image)
 
-        x0, y0, z0 = int(np.round(self.NX * cx)), int(np.round(self.NY * cy)), int(np.round(self.NZ * cz))
+        # convert into indices
+        idx = np.zeros(image.shape, dtype=int)
+        idx[:] = np.mod(np.add(voxel_coords, image), self.data.shape)
 
-        centerx, centery, centerz = self.NX // 2, self.NY // 2, self.NZ // 2
-        a = np.roll(self.data, (centerx - x0, centery - y0, centerz - z0))
-
-        i, j, k = np.indices(a.shape, sparse=True)
-        a = np.sqrt((sx * i - sx * centerx) ** 2 + (sy * j - sy * centery) ** 2 + (sz * k - sz * centerz) ** 2)
-
-        indices = a > r
-        a[indices] = 0
+        # create mask array
+        a = np.zeros(self.data.shape)
+        a[idx[:, 0], idx[:, 1], idx[:, 2]] = 1
 
         return a
 
