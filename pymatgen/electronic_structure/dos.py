@@ -1181,7 +1181,8 @@ class CompleteDos(Dos):
             normalize (bool): If true, normalizes the area under fp to equal to 1
 
         Returns:
-            Fingerprint(namedtuple) : The electronic density of states fingerprint of format (energies, densities, type, nbins)
+            Fingerprint(namedtuple) : The electronic density of states fingerprint
+            of format (energies, densities, type, nbins)
         """
         fp_tup = namedtuple("fingerprint", "energies densities type nbins binwidth")
         energies = self.energies - self.efermi
