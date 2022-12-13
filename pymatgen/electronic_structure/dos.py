@@ -1217,18 +1217,18 @@ class CompleteDos(Dos):
                 return fp_tup(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
 
             if binning:
-                enerBounds = np.linspace(min_e, max_e, nbins + 1)
-                ener = enerBounds[:-1] + (enerBounds[1] - enerBounds[0]) / 2.0
+                ener_bounds = np.linspace(min_e, max_e, nbins + 1)
+                ener = ener_bounds[:-1] + (ener_bounds[1] - ener_bounds[0]) / 2.0
                 bin_width = np.diff(ener)[0]
             else:
-                enerBounds = np.array(energies)
+                ener_bounds = np.array(energies)
                 ener = np.append(energies, [energies[-1] + np.abs(energies[-1]) / 10])
                 nbins = len(energies)
                 bin_width = np.diff(energies)[0]
 
             dos_rebin = np.zeros(ener.shape)
 
-            for ii, e1, e2 in zip(range(len(ener)), enerBounds[0:-1], enerBounds[1:]):
+            for ii, e1, e2 in zip(range(len(ener)), ener_bounds[0:-1], ener_bounds[1:]):
                 inds = np.where((energies >= e1) & (energies < e2))[0]
                 dos_rebin[ii] = np.sum(densities[inds])
             if normalize:  # scale dos bins to make area under histogram equal 1
@@ -1242,10 +1242,11 @@ class CompleteDos(Dos):
         except KeyError:
             raise ValueError(
                 "Please recheck type requested, either the orbital projections unavailable in input dos or "
-                "some error in the spelling."
+                "some there exist some mistake in the spelling."
             )
 
-    def _fp_to_dict(self, fp):
+    @staticmethod
+    def fp_to_dict(fp):
         """Converts a fingerprint into a dictionary
 
         Args:
@@ -1259,7 +1260,8 @@ class CompleteDos(Dos):
 
         return fp_dict
 
-    def get_dos_fp_similarity(self, fp1, fp2, col=1, pt="All", normalize=False, tanimoto=False):
+    @staticmethod
+    def get_dos_fp_similarity(fp1, fp2, col=1, pt="All", normalize=False, tanimoto=False):
         """Calculates the similarity index (dot product) of two finger prints
 
         Args:
@@ -1274,12 +1276,12 @@ class CompleteDos(Dos):
         Similarity index (float): The value dot product
         """
         if not isinstance(fp1, dict):
-            fp1_dict = self._fp_to_dict(fp1)
+            fp1_dict = CompleteDos.fp_to_dict(fp1)
         else:
             fp1_dict = fp1
 
         if not isinstance(fp2, dict):
-            fp2_dict = self._fp_to_dict(fp2)
+            fp2_dict = CompleteDos.fp_to_dict(fp2)
         else:
             fp2_dict = fp2
 

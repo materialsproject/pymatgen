@@ -302,7 +302,7 @@ class CompleteDosTest(unittest.TestCase):
             self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, nbins=56, normalize=True)
         self.assertEqual(
             err.exception.__str__(),
-            "Please recheck type requested, either the orbital projections unavailable in input dos or some typo has been made.",
+            "Please recheck type requested, either the orbital projections unavailable in input dos or some there exist some mistake in the spelling.",
         )
 
 
