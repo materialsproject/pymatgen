@@ -1168,9 +1168,10 @@ class CompleteDos(Dos):
 
     def get_dos_fp(self, type="summed_pdos", binning=True, min_e=None, max_e=None, nbins=256, normalize=True):
         """
-        Generates the DOS fingerprint based on work of F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
+        Generates the DOS fingerprint based on work of
+        F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
-        Copyright (c) 2020 Florian Knoop, Thomas A.R. Purcell, Matthias Scheffler, Christian Carbogno
+        Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno
 
 
         Args:
@@ -1241,7 +1242,7 @@ class CompleteDos(Dos):
         except KeyError:
             raise ValueError(
                 "Please recheck type requested, either the orbital projections unavailable in input dos or "
-                "some typo has been made."
+                "some error in the spelling."
             )
 
     def _fp_to_dict(self, fp):
@@ -1263,7 +1264,7 @@ class CompleteDos(Dos):
 
         Args:
             fp1 (get_dos_fp): The 1st dos fingerprint
-            fp2 get_dos_fp:  The 2nd dos fingerprint
+            fp2 (get_dos_fp):  The 2nd dos fingerprint
             col (int): The item in the fingerprints to take the dot product of (0=Energies 1=Densities)
             pt (int or 'All') : The index of the point that the dot product is to be taken
             normalize (bool): If True normalize the scalar product to 1
