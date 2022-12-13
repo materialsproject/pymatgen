@@ -1273,7 +1273,7 @@ class CompleteDos(Dos):
             tanimoto (bool): If True will compute tanimoto index
 
         Returns:
-        Similarity index (float): The value dot product
+        Similarity index (float): The value of dot product
         """
         if not isinstance(fp1, dict):
             fp1_dict = CompleteDos.fp_to_dict(fp1)
