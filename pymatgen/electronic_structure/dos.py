@@ -1195,7 +1195,7 @@ class CompleteDos(Dos):
         pdos_obj = self.get_spd_dos()
 
         pdos = {}
-        for k, v in pdos_obj.items():
+        for k, _v in pdos_obj.items():
             dens = pdos_obj[k].get_densities()
 
             pdos.update({k.name: dens})

@@ -270,7 +270,7 @@ class CompleteDosTest(unittest.TestCase):
         dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, nbins=56, normalize=False)
         bin_width2 = np.diff(dos_fp2.energies)[0][0]
         self.assertAlmostEqual(sum(dos_fp2.densities * bin_width2), 7.279303571428509, delta=0.001)
-        self.assertAlmostEqual(dos_fp2.binwidth , bin_width2, delta=0.001)
+        self.assertAlmostEqual(dos_fp2.binwidth, bin_width2, delta=0.001)
         # binning=False
         dos_fp = self.dos.get_dos_fp(type="s", min_e=None, max_e=None, nbins=56, normalize=True, binning=False)
         self.assertEqual(dos_fp.nbins, len(self.dos.energies))
