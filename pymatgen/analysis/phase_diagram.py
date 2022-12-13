@@ -2510,7 +2510,7 @@ class PDPlotter:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
             cbar.set_label(
-                "Energy [meV/at] above hull (in red)\nInverse energy [ meV/at] above hull (in green)",
+                "Energy [meV/at] above hull (positive values)\nInverse energy [meV/at] above hull (negative values)",
                 rotation=-90,
                 ha="center",
                 va="bottom",
