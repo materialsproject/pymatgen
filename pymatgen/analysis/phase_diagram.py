@@ -2512,8 +2512,8 @@ class PDPlotter:
             cbar.set_label(
                 "Energy [meV/at] above hull (in red)\nInverse energy [ meV/at] above hull (in green)",
                 rotation=-90,
-                ha="left",
-                va="center",
+                ha="center",
+                va="bottom",
             )
         f = plt.gcf()
         f.set_size_inches((8, 6))
