@@ -1262,7 +1262,7 @@ class CompleteDos(Dos):
 
     @staticmethod
     def get_dos_fp_similarity(fp1, fp2, col=1, pt="All", normalize=False, tanimoto=False):
-        """Calculates the similarity index (dot product) of two finger prints
+        """Calculates the similarity index (dot product) of two fingerprints
 
         Args:
             fp1 (get_dos_fp): The 1st dos fingerprint
