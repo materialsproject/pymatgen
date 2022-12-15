@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 import scipy.constants as const
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 
 from pymatgen.core import SETTINGS
@@ -884,8 +885,7 @@ class PotcarSingleTest(PymatgenTest):
     def test_psctr(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns():
-            psingle = PotcarSingle.from_file(filename)
+        psingle = PotcarSingle.from_file(filename)
 
         data = {
             "nentries": 9,
@@ -969,20 +969,37 @@ class PotcarSingleTest(PymatgenTest):
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns():
-            psingle = PotcarSingle.from_file(filename)
+        psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
 
     def test_potcar_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="incomplete"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_header" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="following"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
             PotcarSingle.from_file(filename)
+
+    def test_verify_faulty_potcar_with_hash(self):
+        filename = (
+            PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
+        )
+        with pytest.raises(ValueError):
+            PotcarSingle.from_file(filename)
+
+    def test_verify_correct_potcar_with_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        metadata_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_pymatgen_hashes.json"))
+
+        psingle = PotcarSingle.from_file(filename)
+        assert psingle.hash in metadata_hash_db
+        assert psingle.file_hash in file_hash_db
+        assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
