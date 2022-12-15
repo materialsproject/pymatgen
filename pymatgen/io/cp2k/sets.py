@@ -15,6 +15,7 @@ In order to implement a new Set within the current code structure, follow this 3
     (1) Inherit from Cp2kInputSet or one of its children and call the super() constructor
     (2) Create the new sections and insert them into self and its subsections as needed
     (3) Call self.update(override_default_params) in order to allow user settings.
+
 """
 
 from __future__ import annotations

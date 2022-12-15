@@ -4,6 +4,7 @@
 """
 This module defines the Cp2k output parser along with a few other functions for parsing cp2k-related
 outputs.
+
 """
 
 import glob

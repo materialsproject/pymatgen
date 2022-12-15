@@ -29,7 +29,7 @@ import re
 import textwrap
 from hashlib import md5
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Sequence
+from typing import Any, Iterable, Literal, Sequence
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -2312,7 +2312,7 @@ class BasisInfo(BaseModel):
     def from_string(cls, string: str) -> BasisInfo:
         """Get summary info from a string"""
         string = string.upper()
-        data = {}  # type: Dict[str, Any]
+        data = {}  # type: dict[str, Any]
         data["cc"] = "CC" in string
         string = string.replace("CC", "")
         data["pc"] = "PC" in string
@@ -2668,11 +2668,11 @@ class GthPotential(AtomicMetadata):
         for l in range(self.nprj):
             total_fill = self.nprj_ppnl[l] * 20 + 24
             tmp = f"{self.radii[l]: .14f} {self.nprj_ppnl[l]: d}"
-            s += "{tmp:>{fill}{width}}".format(tmp=tmp, fill="", width=24)
+            s += f"{tmp:>{''}{24}}"
             for i in range(self.nprj_ppnl[l]):
                 k = total_fill - 24 if i == 0 else total_fill
                 tmp = " ".join(f"{v: .14f}" for v in self.hprj_ppnl[l][i].values())
-                s += "{tmp:>{fill}{width}}".format(tmp=tmp, fill="", width=k)
+                s += f"{tmp:>{''}{k}}"
                 s += "\n"
         return s
 
