@@ -1166,7 +1166,15 @@ class CompleteDos(Dos):
         upper_band_edge = energies[np.argmax(densities)]
         return upper_band_edge
 
-    def get_dos_fp(self, type="summed_pdos", binning=True, min_e=None, max_e=None, nbins=256, normalize=True):
+    def get_dos_fp(
+        self,
+        type: str = "summed_pdos",
+        binning: bool = True,
+        min_e: float = None,
+        max_e: float = None,
+        n_bins: int = 256,
+        normalize: bool = True,
+    ):
         """
         Generates the DOS fingerprint based on work of
         F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
@@ -1176,16 +1184,17 @@ class CompleteDos(Dos):
 
         Args:
             type (str): Specify fingerprint type needed can accept 's/p/d/f/summed_pdos/tdos'
-            min_e (float): The minimum mode energy to include in the fingerprint
-            max_e (float): The maximum mode energy to include in the fingerprint
-            nbins (int): Number of bins to be used in the fingerprint
-            normalize (bool): If true, normalizes the area under fp to equal to 1
+            (default is summed_pdos)
+            min_e (float): The minimum mode energy to include in the fingerprint (default is None)
+            max_e (float): The maximum mode energy to include in the fingerprint (default is None)
+            n_bins (int): Number of bins to be used in the fingerprint (default is 256)
+            normalize (bool): If true, normalizes the area under fp to equal to 1 (default is True)
 
         Returns:
             Fingerprint(namedtuple) : The electronic density of states fingerprint
-            of format (energies, densities, type, nbins)
+            of format (energies, densities, type, n_bins)
         """
-        fp_tup = namedtuple("fingerprint", "energies densities type nbins binwidth")
+        fp_tup = namedtuple("fingerprint", "energies densities type n_bins bin_width")
         energies = self.energies - self.efermi
 
         if max_e is None:
@@ -1212,18 +1221,18 @@ class CompleteDos(Dos):
         try:
 
             densities = pdos[type]
-            if len(energies) < nbins:
+            if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
                 return fp_tup(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
 
             if binning:
-                ener_bounds = np.linspace(min_e, max_e, nbins + 1)
+                ener_bounds = np.linspace(min_e, max_e, n_bins + 1)
                 ener = ener_bounds[:-1] + (ener_bounds[1] - ener_bounds[0]) / 2.0
                 bin_width = np.diff(ener)[0]
             else:
                 ener_bounds = np.array(energies)
                 ener = np.append(energies, [energies[-1] + np.abs(energies[-1]) / 10])
-                nbins = len(energies)
+                n_bins = len(energies)
                 bin_width = np.diff(energies)[0]
 
             dos_rebin = np.zeros(ener.shape)
@@ -1237,7 +1246,7 @@ class CompleteDos(Dos):
             else:
                 dos_rebin_sc = dos_rebin
 
-            return fp_tup(np.array([ener]), dos_rebin_sc, type, nbins, bin_width)
+            return fp_tup(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
 
         except KeyError:
             raise ValueError(
@@ -1253,24 +1262,31 @@ class CompleteDos(Dos):
             fp: The DOS fingerprint to be converted into a dictionary
 
         Returns:
-            dict: A dict of the fingerprint Keys=type, Values=np.ndarray(energies, states)
+            dict: A dict of the fingerprint Keys=type, Values=np.ndarray(energies, densities)
         """
         fp_dict = {}
-        fp_dict[fp[2]] = np.array([fp[0], fp[1]]).T
+        fp_dict[fp[2]] = np.array([fp[0], fp[1]],dtype=object).T
 
         return fp_dict
 
     @staticmethod
-    def get_dos_fp_similarity(fp1, fp2, col=1, pt="All", normalize=False, tanimoto=False):
+    def get_dos_fp_similarity(
+        fp1,
+        fp2,
+        col: int = 1,
+        pt: int | str = "All",
+        normalize: bool = False,
+        tanimoto: bool = False,
+    ):
         """Calculates the similarity index (dot product) of two fingerprints
 
         Args:
-            fp1 (get_dos_fp): The 1st dos fingerprint
-            fp2 (get_dos_fp):  The 2nd dos fingerprint
-            col (int): The item in the fingerprints to take the dot product of (0=Energies 1=Densities)
-            pt (int or 'All') : The index of the point that the dot product is to be taken
-            normalize (bool): If True normalize the scalar product to 1
-            tanimoto (bool): If True will compute tanimoto index
+            fp1 (get_dos_fp): The 1st dos fingerprint object
+            fp2 (get_dos_fp):  The 2nd dos fingerprint object
+            col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
+            pt (int or str) : The index of the point that the dot product is to be taken (default is All)
+            normalize (bool): If True normalize the scalar product to 1 (default is False)
+            tanimoto (bool): If True will compute tanimoto index (default is False)
 
         Returns:
         Similarity index (float): The value of dot product
