@@ -72,6 +72,19 @@ class SetTest(PymatgenTest):
         ss.print_v_hartree()
         self.assertTrue(ss.check("force_eval/dft/print/v_hartree_cube"))
 
+        # Test property activators
+        self.assertFalse(ss.check("force_eval/properties"))
+        ss.activate_nmr()
+        ss.activate_epr()
+        ss.activate_hyperfine()
+        ss.activate_polar()
+        ss.activate_tddfpt()
+        self.assertTrue(ss.check("force_eval/properties/linres/localize"))
+        self.assertTrue(ss.check("force_eval/properties/linres/nmr/print/chi_tensor"))
+        self.assertTrue(ss.check("force_eval/properties/linres/epr/print/g_tensor"))
+        self.assertTrue(ss.check("force_eval/properties/tddfpt"))
+        self.assertTrue(ss.check("force_eval/dft/print/hyperfine_coupling_tensor"))
+
 
         # For at least up to v2022.1, DOS doesn't work without kpoints
         self.assertFalse(ss.check("force_eval/dft/print/dos"))

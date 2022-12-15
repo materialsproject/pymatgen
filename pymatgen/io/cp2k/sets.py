@@ -22,7 +22,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import List, Dict, Literal
+from typing import List, Literal
 
 import numpy as np
 from ruamel.yaml import YAML
@@ -372,8 +372,8 @@ class DftSet(Cp2kInput):
 
             Strategy 2: global descriptors
 
-                In this case, any elements not present in the argument will be dealt with by searching the pmg configured
-                cp2k data files to find a objects matching your requirements.
+                In this case, any elements not present in the argument will be dealt with by searching the pmg
+                configured cp2k data files to find a objects matching your requirements.
 
                     - functional: Find potential and basis that have been optimized for a specific functional like PBE.
                         Can be None if you do not require them to match.
@@ -447,7 +447,7 @@ class DftSet(Cp2kInput):
                 pfn2 = data.get("potential_filename")
                 if pfn1 and pfn2 and pfn1 != pfn2:
                     raise ValueError(
-                        f"Provided potentials have more than one corresponding file."
+                        "Provided potentials have more than one corresponding file."
                         "CP2K does not support multiple potential filenames"
                     )
                 data["potential_filename"] = basis_and_potential[el].get("potential_filename")
@@ -506,9 +506,7 @@ class DftSet(Cp2kInput):
 
             if basis is None:
                 if basis_and_potential.get(el, {}).get("basis"):
-                    warnings.warn(
-                        f"Unable to validate basis for {el}. Exact name provided will be put in input file."
-                    )
+                    warnings.warn(f"Unable to validate basis for {el}. Exact name provided will be put in input file.")
                     basis = basis_and_potential[el].get("basis")
                 else:
                     raise ValueError("No explicit basis found and matching has failed.")
@@ -535,7 +533,7 @@ class DftSet(Cp2kInput):
             pfn2 = potential.filename
             if pfn1 and pfn2 and pfn1 != pfn2:
                 raise ValueError(
-                    f"Provided potentials have more than one corresponding file."
+                    "Provided potentials have more than one corresponding file."
                     "CP2K does not support multiple potential filenames"
                 )
             data["potential_filename"] = pfn2
@@ -550,18 +548,16 @@ class DftSet(Cp2kInput):
     @staticmethod
     def get_cutoff_from_basis(basis_sets, rel_cutoff) -> int | float:
         """Given a basis and a relative cutoff. Determine the ideal cutoff variable"""
-
         for b in basis_sets:
             if not b.exponents:
                 raise ValueError(f"Basis set {b} contains missing exponent info. Please specify cutoff manually")
 
         def get_soft_exponents(b):
             if b.potential == "All Electron":
-                warnings.warn("Auto-detection of soft basis exponents for GAPW is not implemented. Choosing 10.")
-                radius = 1.2 if b.element == Element("H") else 1.512 # Hard radius defaults for gapw
-                threshold = 1e-4 # Default for gapw
+                radius = 1.2 if b.element == Element("H") else 1.512  # Hard radius defaults for gapw
+                threshold = 1e-4  # Default for gapw
                 max_lshell = max(l for l in b.lmax)
-                exponent = np.log(radius**max_lshell/threshold)/radius**2
+                exponent = np.log(radius**max_lshell / threshold) / radius**2
                 return [[exponent]]
             else:
                 return b.exponents
@@ -1109,7 +1105,7 @@ class DftSet(Cp2kInput):
 
     def activate_tddfpt(self, **kwargs):
         """Activate TDDFPT for calculating excited states. Only works with GPW. Supports hfx."""
-        if "PROPERTIES" not in self["FORCE_EVAL"]:
+        if not self.check("force_eval/properties"):
             self["FORCE_EVAL"].insert(Section("PROPERTIES"))
         self["FORCE_EVAL"]["PROPERTIES"].insert(Section("TDDFPT", **kwargs))
 
@@ -1118,12 +1114,14 @@ class DftSet(Cp2kInput):
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("EPR", **kwargs))
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"].update({"PRINT": {"G_TENSOR": {}}})
 
     def activate_nmr(self, **kwargs):
         """Calculate nmr shifts. Requires localize. Suggested with GAPW"""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("NMR", **kwargs))
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["NMR"].update({"PRINT": {"CHI_TENSOR": {}, "SHIELDING_TENSOR": {}}})
 
     def activate_spinspin(self, **kwargs):
         """Calculate spin-spin coupling tensor. Requires localize."""
@@ -1133,9 +1131,9 @@ class DftSet(Cp2kInput):
 
     def activate_polar(self, **kwargs):
         """Calculate polarizations (including raman)."""
-        if "PROPERTIES" not in self["FORCE_EVAL"]:
+        if not self.check("force_eval/properties"):
             self["FORCE_EVAL"].insert(Section("PROPERTIES"))
-        if "LINRES" not in self["FORCE_EVAL"]["PROPERTIES"]:
+        if not self.check("force_eval/properties/linres"):
             self["FORCE_EVAL"]["PROPERTIES"].insert("LINRES")
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("POLAR", **kwargs))
 
@@ -1153,10 +1151,10 @@ class DftSet(Cp2kInput):
             preconditioner: Preconditioner to use for optimize
             restart: Initialize from the localization restart file
         """
-        if "PROPERTIES" not in self["FORCE_EVAL"]:
+        if not self.check("force_eval/properties"):
             self["FORCE_EVAL"].insert(Section("PROPERTIES"))
-        if "LINRES" not in self["FORCE_EVAL"]["PROPERTIES"]:
-            self["FORCE_EVAL"]["PROPERTIES"].insert("LINRES")
+        if not self.check("force_eval/properties/linres"):
+            self["FORCE_EVAL"]["PROPERTIES"].insert(Section("LINRES"))
 
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(
             Section("LOCALIZE", PRECONDITIONER=preconditioner, STATES=states, RESTART=restart)

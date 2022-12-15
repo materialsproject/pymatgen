@@ -592,13 +592,13 @@ class Cp2kOutput:
         """
         Parse the CP2K general parameters from CP2K output file into a dictionary.
         """
-        version = re.compile(r"\s+CP2K\|.+(\d\.\d)")
+        version = re.compile(r"\s+CP2K\|.+version\s+(.+)")
         input_file = re.compile(r"\s+CP2K\|\s+Input file name\s+(.+)$")
         self.read_pattern(
             {"cp2k_version": version, "input_filename": input_file},
             terminate_on_match=True,
             reverse=False,
-            postprocess=_postprocessor,
+            postprocess=str,
         )
 
     def parse_plus_u_params(self):
@@ -1443,7 +1443,7 @@ class Cp2kOutput:
             lines = [line for line in f.read().split("\n") if line]
 
         hyperfine = [[] for _ in self.ionic_steps]
-        for (i,) in range(2, len(lines), 5):
+        for i in range(2, len(lines), 5):
             x = list(map(float, lines[i + 2].split()[-3:]))
             y = list(map(float, lines[i + 3].split()[-3:]))
             z = list(map(float, lines[i + 4].split()[-3:]))
@@ -1487,7 +1487,7 @@ class Cp2kOutput:
             else:
                 splt = [_postprocessor(s) for s in line.split()]
                 splt = [s for s in splt if isinstance(s, float)]
-                data[dat][ionic].append(list(map(float, splt)))
+                data[dat][ionic].append(list(map(float, splt[-3:])))
         self.data.update(data)
         return data["gtensor_total"][-1]
 
@@ -1550,6 +1550,18 @@ class Cp2kOutput:
                 data[dat][ionic].append(list(map(float, splt)))
         self.data.update(data)
         return data["chi_total"][-1]
+
+    def parse_nmr_shift(self):
+        """Parse NMR calculation"""
+        raise NotImplementedError("NMR Parsing not yet implemented")
+
+    def parse_tddfpt(self):
+        """Parse TDDFPT calculation"""
+        raise NotImplementedError("TDDFPT excited states parsing not yet implemented")
+
+    def parse_raman(self):
+        """Parse raman calculation"""
+        raise NotImplementedError("Raman parsing not yet implemented")
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
