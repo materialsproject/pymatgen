@@ -462,7 +462,7 @@ class Poscar(MSONable):
                 line to maintain backward vasp 4.x compatibility. Defaults
                 to False.
             significant_figures (int): No. of significant figures to
-                output all quantities. Defaults to 6. Note that positions are
+                output all quantities. Defaults to 16. Note that positions are
                 output in fixed point, while velocities are output in
                 scientific format.
 
