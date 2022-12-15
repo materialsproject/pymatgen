@@ -2555,7 +2555,7 @@ class PotentialInfo(BaseModel):
     """Metadata for this potential"""
 
     electrons: int = Field(None, description="Total number of electrons")
-    type: str = Field(None, description="Potential type (e.g. GTH)")
+    potential_type: str = Field(None, description="Potential type (e.g. GTH)")
     nlcc: bool = Field(None, description="Nonlinear core corrected potential")
     xc: str = Field(None, description="Exchange correlation functional used for creating this potential")
 
