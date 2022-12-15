@@ -10,7 +10,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import Mapping
+from typing import Optional, Mapping
 
 import numpy as np
 from monty.json import MSONable
@@ -1170,8 +1170,8 @@ class CompleteDos(Dos):
         self,
         type: str = "summed_pdos",
         binning: bool = True,
-        min_e: float = None,
-        max_e: float = None,
+        min_e: Optional[float] = None,
+        max_e: Optional[float] = None,
         n_bins: int = 256,
         normalize: bool = True,
     ):
@@ -1194,7 +1194,7 @@ class CompleteDos(Dos):
             Fingerprint(namedtuple) : The electronic density of states fingerprint
             of format (energies, densities, type, n_bins)
         """
-        fp_tup = namedtuple("fingerprint", "energies densities type n_bins bin_width")
+        fingerprint = namedtuple("fingerprint", "energies densities type n_bins bin_width")
         energies = self.energies - self.efermi
 
         if max_e is None:
@@ -1223,7 +1223,7 @@ class CompleteDos(Dos):
             densities = pdos[type]
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
-                return fp_tup(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
+                return fingerprint(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
 
             if binning:
                 ener_bounds = np.linspace(min_e, max_e, n_bins + 1)
@@ -1246,7 +1246,7 @@ class CompleteDos(Dos):
             else:
                 dos_rebin_sc = dos_rebin
 
-            return fp_tup(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
+            return fingerprint(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
 
         except KeyError:
             raise ValueError(
@@ -1265,7 +1265,7 @@ class CompleteDos(Dos):
             dict: A dict of the fingerprint Keys=type, Values=np.ndarray(energies, densities)
         """
         fp_dict = {}
-        fp_dict[fp[2]] = np.array([fp[0], fp[1]], dtype=object).T
+        fp_dict[fp[2]] = np.array([fp[0], fp[1]], dtype=tuple).T
 
         return fp_dict
 
