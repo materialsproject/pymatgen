@@ -8,13 +8,10 @@ import numpy as np
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
-    Coord,
-    Cp2kInput,
-    Keyword,
-    KeywordList,
-    Kind,
-    Section,
-    SectionList,
+    Coord, Cp2kInput, Keyword, KeywordList, Kind, Section, SectionList,
+    GaussianTypeOrbitalBasisSet, GthPotential,
+    BasisInfo, BasisFile,
+    PotentialInfo, PotentialFile,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -31,6 +28,101 @@ nonsense_Structure = Structure(
 )
 
 molecule = Molecule(species=["C", "H"], coords=[[0, 0, 0], [1, 1, 1]])
+
+basis = """
+ H  SZV-MOLOPT-GTH SZV-MOLOPT-GTH-q1
+ 1
+ 2 0 0 7 1
+     11.478000339908  0.024916243200
+      3.700758562763  0.079825490000
+      1.446884268432  0.128862675300
+      0.716814589696  0.379448894600
+      0.247918564176  0.324552432600
+      0.066918004004  0.037148121400
+      0.021708243634 -0.001125195500
+"""
+all_H = """
+H ALLELECTRON ALL
+    1    0    0
+     0.20000000    0
+"""
+pot_H = """
+H GTH-PBE-q1 GTH-PBE
+    1
+     0.20000000    2    -4.17890044     0.72446331
+    0
+"""
+
+
+class BasisAndPotentialTest(PymatgenTest):
+
+    def test_basis_info(self):
+        # Ensure basis metadata can be read from string
+        b = BasisInfo.from_string("cc-pc-DZVP-MOLOPT-q1-SCAN")
+        self.assertEqual(b.valence, 2)
+        self.assertEqual(b.molopt, True)
+        self.assertEqual(b.electrons, 1)
+        self.assertEqual(b.polarization, 1)
+        self.assertEqual(b.cc, True)
+        self.assertEqual(b.pc, True)
+        self.assertEqual(b.xc, 'SCAN')
+
+        # Ensure one-way softmatching works
+        b2 = BasisInfo.from_string("cc-pc-DZVP-MOLOPT-q1")
+        self.assertTrue(b2.softmatch(b))
+        self.assertFalse(b.softmatch(b2))
+
+    def test_potential_info(self):
+        # Ensure potential metadata can be read from string
+        p = PotentialInfo.from_string("GTH-PBE-q1-NLCC")
+        self.assertEqual(p.type, "GTH")
+        self.assertEqual(p.xc, "PBE")
+        self.assertEqual(p.nlcc, True)
+
+        # Ensure one-way softmatching works
+        p2 = PotentialInfo.from_string("GTH-q1-NLCC")
+        self.assertTrue(p2.softmatch(p))
+        self.assertFalse(p.softmatch(p2))
+
+    def test_basis(self):
+        # Ensure cp2k formatted string can be read for data correctly
+        molopt = GaussianTypeOrbitalBasisSet.from_string(basis)
+        self.assertEqual(molopt.nexp, [7])
+        self.assertArrayAlmostEqual(
+            molopt.exponents[0],
+            [11.478000339908, 3.700758562763, 1.446884268432, 0.716814589696, 0.247918564176, 0.066918004004, 0.021708243634]
+            )
+
+        # Basis file can read from strings
+        bf = BasisFile.from_string(basis)
+        self.assertEqual(bf.objects[0], molopt)
+
+        # Ensure keyword can be properly generated
+        kw = molopt.get_keyword()
+        self.assertEqual(kw.values[0], "SZV-MOLOPT-GTH")
+        molopt.info.admm = True
+        kw = molopt.get_keyword()
+        self.assertArrayEqual(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
+
+    def test_potentials(self):
+        # Ensure cp2k formatted string can be read for data correctly
+        alle = GthPotential.from_string(all_H)
+        self.assertEqual(alle.potential, "All Electron")
+        pot = GthPotential.from_string(pot_H)
+        self.assertEqual(pot.potential, "Pseudopotential")
+        self.assertAlmostEqual(pot.r_loc, 0.2)
+        self.assertAlmostEqual(pot.nexp_ppl, 2)
+        self.assertArrayAlmostEqual(pot.c_exp_ppl, [-4.17890044, 0.72446331])
+
+        # Basis file can read from strings
+        pf = PotentialFile.from_string(pot_H)
+        self.assertEqual(pf.objects[0], pot)
+
+        # Ensure keyword can be properly generated
+        kw = pot.get_keyword()
+        self.assertEqual(kw.values[0], "GTH-PBE-q1")
+        kw = alle.get_keyword()
+        self.assertEqual(kw.values[0], "ALL")
 
 
 class InputTest(PymatgenTest):

@@ -27,13 +27,14 @@ import itertools
 import os
 import re
 import textwrap
-from typing import Dict, Iterable, Sequence, Literal
-from pydantic import BaseModel, Field, validator
 from hashlib import md5
 from pathlib import Path
+from typing import Dict, Iterable, Sequence, Literal, Any, List
+from pydantic import BaseModel, Field
+from pydantic.dataclasses import dataclass
 
 from monty.io import zopen
-from monty.json import MSONable 
+from monty.json import MSONable
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -50,8 +51,8 @@ __date__ = "September 2022"
 
 MODULE_DIR = Path(__file__).resolve().parent
 
-class Keyword(MSONable):
 
+class Keyword(MSONable):
     """
     Class representing a keyword argument in CP2K. Within CP2K Sections, which activate features
     of the CP2K code, the keywords are arguments that control the functionality of that feature.
@@ -76,14 +77,15 @@ class Keyword(MSONable):
         input file.
 
         Args:
-            name (str): The name of this keyword. Must match an acceptable keyword from CP2K
-            args: All non-keyword arguments after 'name' are interpreted as the values to set for
+            name: The name of this keyword. Must match an acceptable keyword from CP2K
+            values: All non-keyword arguments after 'name' are interpreted as the values to set for
                 this keyword. i.e: KEYWORD ARG1 ARG2 would provide two values to the keyword.
-            description (str): The description for this keyword. This can make readability of
+            description: The description for this keyword. This can make readability of
                 input files easier for some. Default=None.
-            units (str): The units for this keyword. If not specified, CP2K default units will be
+            units: The units for this keyword. If not specified, CP2K default units will be
                 used. Consult manual for default units. Default=None.
-            repeats (bool): Whether or not this keyword may be repeated. Default=False.
+            verbose: Whether the description should be printed with the string of this keyword
+            repeats: Whether or not this keyword may be repeated. Default=False.
         """
         self.name = name
         self.values = values
@@ -162,7 +164,7 @@ class Keyword(MSONable):
         that the keywords is a number, then None is return (used by
         the file reader).
 
-        returns:
+        Returns:
             Keyword or None
         """
         s = s.strip()
@@ -185,7 +187,6 @@ class Keyword(MSONable):
 
 
 class KeywordList(MSONable):
-
     """
     Some keywords can be repeated, which makes accessing them via the normal dictionary
     methods a little unnatural. This class deals with this by defining a collection
@@ -222,13 +223,13 @@ class KeywordList(MSONable):
 
     def append(self, item):
         """
-        append the keyword list
+        Append the keyword list
         """
         self.keywords.append(item)
 
     def extend(self, l):
         """
-        extend the keyword list
+        Extend the keyword list
         """
         self.keywords.extend(l)
 
@@ -247,7 +248,6 @@ class KeywordList(MSONable):
 
 
 class Section(MSONable):
-
     """
     Basic input representation of input to Cp2k. Activates functionality inside of the
     Cp2k executable.
@@ -272,34 +272,34 @@ class Section(MSONable):
         forces.
 
         Args:
-            name (str): The name of the section (must match name in CP2K)
-            subsections (dict): A dictionary of subsections that are nested in this section.
+            name: The name of the section (must match name in CP2K)
+            subsections: A dictionary of subsections that are nested in this section.
                 Format is {'NAME': Section(*args, **kwargs). The name you chose for 'NAME'
                 to index that subsection does not *have* to be the same as the section's true name,
                 but we recommend matching them. You can specify a blank dictionary if there are
                 no subsections, or if you want to insert the subsections later.
-            repeats (bool): Whether or not this section can be repeated. Most sections cannot.
+            repeats: Whether or not this section can be repeated. Most sections cannot.
                 Default=False.
-            description (str): Description of this section for easier readability
-            keywords (list): the keywords to be set for this section. Each element should be a
+            description: Description of this section for easier readability
+            keywords: the keywords to be set for this section. Each element should be a
                 Keyword object. This can be more cumbersome than simply using kwargs for building
                 a class in a script, but is more convenient for the class instantiations of CP2K
                 sections (see below).
-            section_parameters (list): the section parameters for this section. Section parameters
+            section_parameters: the section parameters for this section. Section parameters
                 are specialized keywords that modify the behavior of the section overall. Most
                 sections do not have section parameters, but some do. Unlike normal Keywords,
                 these are specified as strings and not as Keyword objects.
-            location (str): the path to the section in the form 'SECTION/SUBSECTION1/SUBSECTION3',
+            location: the path to the section in the form 'SECTION/SUBSECTION1/SUBSECTION3',
                 example for QS module: 'FORCE_EVAL/DFT/QS'. This location is used to automatically
                 determine if a subsection requires a supersection to be activated.
-            verbose (str): Controls how much is printed to Cp2k input files (Also see Keyword).
+            verbose: Controls how much is printed to Cp2k input files (Also see Keyword).
                 If True, then a description of the section will be printed with it as a comment
                 (if description is set). Default=True.
+            alias: An alias for this class to use in place of the name.
 
             kwargs are interpreted as keyword, value pairs and added to the keywords array as
             Keyword objects
         """
-
         self.name = name
         self.subsections = subsections if subsections else {}
         self.repeats = repeats
@@ -639,7 +639,6 @@ class Section(MSONable):
 
 
 class SectionList(MSONable):
-
     """
     Section list
     """
@@ -696,26 +695,25 @@ class SectionList(MSONable):
 
     def append(self, item):
         """
-        append the keyword list
+        Append the section list
         """
         self.sections.append(item)
 
     def extend(self, l):
         """
-        extend the keyword list
+        Extend the section list
         """
         self.sections.extend(l)
 
     def verbosity(self, verbosity):
         """
-        Silence all keywords in keyword list
+        Silence all sections in section list
         """
         for k in self.sections:
             k.verbosity(verbosity)
 
 
 class Cp2kInput(Section):
-
     """
     Special instance of 'Section' class that is meant to represent the overall cp2k input.
     Distinguishes itself from Section by overriding get_string() to not print this section's
@@ -754,7 +752,6 @@ class Cp2kInput(Section):
         """
         Initialize from a dictionary
         """
-
         return Cp2kInput(
             "CP2K_INPUT",
             subsections=getattr(
@@ -868,7 +865,6 @@ class Cp2kInput(Section):
 
 
 class Global(Section):
-
     """
     Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME
     """
@@ -883,10 +879,10 @@ class Global(Section):
         """Initialize the global section
 
         Args:
-            project_name (str, optional): Defaults to "CP2K".
-            run_type (str, optional) what type of calculation to run
+            project_name: Defaults to "CP2K".
+            run_type: what type of calculation to run
+            keywords: Additional keywords to add
         """
-
         self.project_name = project_name
         self.run_type = run_type
         keywords = keywords if keywords else {}
@@ -911,18 +907,12 @@ class Global(Section):
 
 
 class ForceEval(Section):
-
     """
     Controls the calculation of energy and forces in Cp2k
     """
 
     def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
-        """Initialize the ForceEval section
-
-        Args:
-            subsections (dict, optional): Defaults to None.
-        """
-
+        """Initialize the ForceEval section"""
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
 
@@ -946,7 +936,6 @@ class ForceEval(Section):
 
 
 class Dft(Section):
-
     """
     Controls the DFT parameters in Cp2k
     """
@@ -964,16 +953,16 @@ class Dft(Section):
         """Initialize the DFT section.
 
         Args:
-            basis_set_filenames (str, optional): Name of the file that contains the basis set
+            basis_set_filenames: Name of the file that contains the basis set
                 information. Defaults to "BASIS_MOLOPT".
-            potential_filename (str, optional): Name of the file that contains the pseudopotential
+            potential_filename: Name of the file that contains the pseudopotential
                 information. Defaults to "GTH_POTENTIALS".
-            uks (bool, optional): Whether to run unrestricted Kohn Sham (spin polarized).
+            uks: Whether to run unrestricted Kohn Sham (spin polarized).
                 Defaults to True.
-            wfn_restart_file_name (str, optional): Defaults to None.
-            subsections (dict, optional): Any subsections to initialize with. Defaults to None.
+            wfn_restart_file_name: Defaults to None.
+            keywords: additional keywords to add.
+            subsections: Any subsections to initialize with. Defaults to None.
         """
-
         self.basis_set_filenames = basis_set_filenames
         self.potential_filename = potential_filename
         self.uks = uks
@@ -1007,15 +996,12 @@ class Dft(Section):
 
 
 class Subsys(Section):
-
     """
     Controls the definition of the system to be simulated
     """
 
     def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
-        """
-        Initialize the subsys section
-        """
+        """Initialize the subsys section"""
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = "A subsystem: coordinates, topology, molecules and cell"
@@ -1023,10 +1009,7 @@ class Subsys(Section):
 
 
 class QS(Section):
-
-    """
-    Controls the quickstep settings (DFT driver)
-    """
+    """Controls the quickstep settings (DFT driver)"""
 
     def __init__(
         self,
@@ -1049,12 +1032,13 @@ class QS(Section):
                 global value for all the numerical value of all EPS_* values in QS module.
                 It is not the same as EPS_SCF, which sets convergence accuracy of the SCF cycle
                 alone.
+            eps_pgf_orb: Precision for the overlap matrix. Default is to use sqrt(eps_default)
             extrapolation ("PS" | "ASPC"): Method use for extrapolation. If using
                 gamma-point-only calculation, then one should either PS
                 or ASPC (ASPC especially for MD runs). See the manual for other options.
-            subsections (dict): Subsections to initialize with.
+            keywords: Additional keywords to add
+            subsections: Subsections to initialize with.
         """
-
         self.method = method
         self.eps_default = eps_default
         self.eps_pgf_orb = eps_pgf_orb
@@ -1083,10 +1067,7 @@ class QS(Section):
 
 
 class Scf(Section):
-
-    """
-    Controls the self consistent field loop
-    """
+    """Controls the self consistent field loop"""
 
     def __init__(
         self,
@@ -1114,8 +1095,9 @@ class Scf(Section):
                 "RESTART": Use the RESTART file as an initial guess (and ATOMIC if not present).
                 "SPARSE": Generate a sparse wavefunction using the atomic code (for OT based
                     methods).
+            keywords: Additional keywords
+            subsections: Additional subsections
         """
-
         self.max_scf = max_scf
         self.eps_scf = eps_scf
         self.scf_guess = scf_guess
@@ -1146,10 +1128,7 @@ class Scf(Section):
 
 
 class Mgrid(Section):
-
-    """
-    Controls the multigrid for numerical integration
-    """
+    """Controls the multigrid for numerical integration"""
 
     def __init__(
         self,
@@ -1173,8 +1152,9 @@ class Mgrid(Section):
             ngrids: number of grids to use
             progression_factor: divisor that decides how to map Gaussians the multigrid after
                 the highest mapping is decided by rel_cutoff
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         self.cutoff = cutoff
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
@@ -1209,10 +1189,7 @@ class Mgrid(Section):
 
 
 class Diagonalization(Section):
-
-    """
-    Controls diagonalization settings (if using traditional diagonalization).
-    """
+    """Controls diagonalization settings (if using traditional diagonalization)."""
 
     def __init__(
         self,
@@ -1224,10 +1201,7 @@ class Diagonalization(Section):
         subsections: dict = None,
         **kwargs,
     ):
-        """
-        Initialize the diagronalization section
-        """
-
+        """Initialize the diagronalization section"""
         self.eps_adapt = eps_adapt
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
@@ -1256,10 +1230,7 @@ class Diagonalization(Section):
 
 
 class Davidson(Section):
-
-    """
-    Parameters for davidson diagonalization
-    """
+    """Parameters for davidson diagonalization"""
 
     def __init__(
         self,
@@ -1287,6 +1258,8 @@ class Davidson(Section):
                 "FULL_S_INVERSE": Cholesky inversion of S, not as good as FULL_KINETIC,
                     yet equally expensive.
                 "NONE": skip preconditioning
+            keywords: additional keywords
+            subsections: additional subsections
         """
         self.new_prec_each = new_prec_each
         self.preconditioner = preconditioner
@@ -1308,7 +1281,6 @@ class Davidson(Section):
 
 
 class OrbitalTransformation(Section):
-
     """
     Turns on the Orbital Transformation scheme for diagonalizing the Hamiltonian. Often faster
     and with guaranteed convergence compared to normal diagonalization, but requires the system
@@ -1336,29 +1308,33 @@ class OrbitalTransformation(Section):
         Initialize the OT section
 
         Args:
-            minimizer (str): The minimizer to use with the OT method. Default is conjugate gradient
+            minimizer: The minimizer to use with the OT method. Default is conjugate gradient
                 method, which is more robust, but more well-behaved systems should use DIIS, which
                 can be as much as 50% faster.
-            preconditioner (str): Preconditioner to use for OT, FULL_ALL tends to be most robust,
+            preconditioner: Preconditioner to use for OT, FULL_ALL tends to be most robust,
                 but is not always most efficient. For difficult systems, FULL_SINGLE_INVERSE can be
                 more robust, and is reasonably efficient with large systems. For huge, but well
                 behaved, systems, where construction of the preconditioner can take a very long
                 time, FULL_KINETIC can be a good choice.
-            energy_gap (float): Guess for the band gap. For FULL_ALL, should be smaller than the
+            algorithm: What algorithm to use for OT. 'Strict': Taylor or diagonalization
+                based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
+                Approximative Congruence transformation (OT/IR).
+            rotation: Introduce additional variables to allow subspace rotations (i.e fractional
+                occupations)
+            occupation_preconditioner: include the fractional occupation in the preconditioning
+            energy_gap: Guess for the band gap. For FULL_ALL, should be smaller than the
                 actual band gap, so simply using 0.01 is a robust value. Choosing a larger value
                 will help if you start with a bad initial guess though. For FULL_SINGLE_INVERSE,
                 energy_gap is treated as a lower bound. Values lower than 0.05 in this case can
                 lead to stability issues.
-            algorithm (str): What algorithm to use for OT. 'Strict': Taylor or diagonalization
-                based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
-                Approximative Congruence transformation (OT/IR).
             linesearch (str): From the manual: 1D line search algorithm to be used with the OT
                 minimizer, in increasing order of robustness and cost. MINIMIZER CG combined with
                 LINESEARCH GOLD should always find an electronic minimum. Whereas the 2PNT
                 minimizer is almost always OK, 3PNT might be needed for systems in which successive
                 OT CG steps do not decrease the total energy.
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         self.minimizer = minimizer
         self.preconditioner = preconditioner
         self.algorithm = algorithm
@@ -1401,10 +1377,7 @@ class OrbitalTransformation(Section):
 
 
 class Cell(Section):
-
-    """
-    Defines the simulation cell (lattice)
-    """
+    """Defines the simulation cell (lattice)"""
 
     def __init__(self, lattice: Lattice, keywords: dict = None, **kwargs):
         """
@@ -1412,8 +1385,8 @@ class Cell(Section):
 
         Args:
             lattice: pymatgen lattice object
+            keywords: additional keywords
         """
-
         self.lattice = lattice
         keywords = keywords if keywords else {}
         description = "Lattice parameters and optional settings for creating a the CELL"
@@ -1428,10 +1401,7 @@ class Cell(Section):
 
 
 class Kind(Section):
-
-    """
-    Specifies the information for the different atom types being simulated.
-    """
+    """Specifies the information for the different atom types being simulated."""
 
     def __init__(
         self,
@@ -1450,20 +1420,23 @@ class Kind(Section):
         Initialize a KIND section
 
         Args:
-            specie (Species or Element): Object representing the atom.
-            alias (str): Alias for the atom, can be used for specifying modifications
+            specie: Object representing the atom.
+            alias: Alias for the atom, can be used for specifying modifications
                 to certain atoms but not all, e.g. Mg_1 and Mg_2 to force difference
                 oxidation states on the two atoms.
-            magnetization (float): From the CP2K Manual: The magnetization used
+            magnetization: From the CP2K Manual: The magnetization used
                 in the atomic initial guess. Adds magnetization/2 spin-alpha
                 electrons and removes magnetization/2 spin-beta electrons.
-            basis_set (str): Basis set for this atom, accessible from the
+            basis_set: Basis set for this atom, accessible from the
                 basis set file specified
-            potential (str): Pseudopotential for this atom, accessible from the
+            potential: Pseudopotential for this atom, accessible from the
                 potential file
+            ghost: Turn this into ghost atom (disaple the potential)
+            aux_basis: Auxiliary basis to use with ADMM
+            keywords: additional keywords
+            subsections: additional subsections
             kwargs: Additional kwargs to pass to Section()
         """
-
         self.name = "KIND"
         self.specie = specie
         self.alias = alias
@@ -1506,11 +1479,19 @@ class Kind(Section):
             "GHOST": Keyword("GHOST", ghost),
         }
         if basis_set:
-            _keywords["BASIS_SET"] = basis_set if isinstance(basis_set, str) else basis_set.get_keyword()
+            _keywords["BASIS_SET"] = (
+                Keyword("BASIS_SET", basis_set) if isinstance(basis_set, str) else basis_set.get_keyword()
+            )
         if potential:
-            _keywords["POTENTIAL"] = potential if isinstance(potential, str) else potential.get_keyword()
+            _keywords["POTENTIAL"] = (
+                Keyword("POTENTIAL", potential) if isinstance(potential, str) else potential.get_keyword()
+            )
         if aux_basis:
-            _keywords["BASIS_SET"] += f"AUX_FIT {aux_basis}" if isinstance(aux_basis, str) else aux_basis.get_keyword()
+            _keywords["BASIS_SET"] += (
+                Keyword("BASIS_SET", f"BASIS_SET AUX_FIT {aux_basis}")
+                if isinstance(aux_basis, str)
+                else aux_basis.get_keyword()
+            )
 
         kind_name = alias if alias else specie.__str__()
         alias = kind_name
@@ -1532,10 +1513,7 @@ class Kind(Section):
 
 
 class DftPlusU(Section):
-
-    """
-    Controls DFT+U for an atom kind
-    """
+    """Controls DFT+U for an atom kind"""
 
     def __init__(
         self,
@@ -1557,8 +1535,9 @@ class DftPlusU(Section):
             l: (int) angular moment of the orbital to apply the +U correction
             u_minus_j: (float) the effective U parameter, Ueff = U-J
             u_ramping: (float) stepwise amount to increase during ramping until u_minus_j is reached
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         name = "DFT_PLUS_U"
         self.eps_u_ramping = 1e-5
         self.init_u_ramping_each_scf = False
@@ -1581,10 +1560,7 @@ class DftPlusU(Section):
 
 
 class Coord(Section):
-
-    """
-    Specifies the coordinates of the atoms using a pymatgen structure object.
-    """
+    """Specifies the coordinates of the atoms using a pymatgen structure object."""
 
     def __init__(
         self,
@@ -1599,8 +1575,9 @@ class Coord(Section):
             structure: Pymatgen structure object
             alias (bool): whether or not to identify the sites by Element + number so you can do
                 things like assign unique magnetization do different elements.
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         self.structure = structure
         self.aliases = aliases
         keywords = keywords if keywords else {}
@@ -1628,9 +1605,7 @@ class Coord(Section):
 
 
 class DOS(Section):
-    """
-    Controls printing of the density of states.
-    """
+    """Controls printing of the density of states."""
 
     def __init__(self, ndigits: int = 6, keywords: dict = None, subsections: dict = None, **kwargs):
         """
@@ -1639,6 +1614,8 @@ class DOS(Section):
         Args:
             ndigits: how many digits of precision to print. As of 2022.1,
                 this is necessary to not lose information.
+            keywords: additional keywords
+            subsections: additional subsections
         """
         self.ndigits = ndigits
         keywords = keywords if keywords else {}
@@ -1650,7 +1627,6 @@ class DOS(Section):
 
 
 class PDOS(Section):
-
     """
     Controls printing of projected density of states onto the different atom KINDS
     (elemental decomposed DOS).
@@ -1662,8 +1638,9 @@ class PDOS(Section):
 
         Args:
             nlumo: how many unoccupied orbitals to include (-1==ALL)
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         self.nlumo = nlumo
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
@@ -1678,7 +1655,6 @@ class PDOS(Section):
 
 
 class LDOS(Section):
-
     """
     Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms.
     """
@@ -1696,8 +1672,10 @@ class LDOS(Section):
 
         Args:
             index: Index of the atom to project onto
+            alias: section alias
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         self.index = index
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
@@ -1715,16 +1693,9 @@ class LDOS(Section):
 
 
 class V_Hartree_Cube(Section):
-
-    """
-    Controls printing of the hartree potential as a cube file.
-    """
+    """Controls printing of the hartree potential as a cube file."""
 
     def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
-        """
-        Initialize the V_HARTREE_CUBE section
-        """
-
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = (
@@ -1742,10 +1713,7 @@ class V_Hartree_Cube(Section):
 
 
 class MO_Cubes(Section):
-
-    """
-    Controls printing of the molecular orbital eigenvalues
-    """
+    """Controls printing of the molecular orbital eigenvalues"""
 
     def __init__(
         self,
@@ -1759,7 +1727,6 @@ class MO_Cubes(Section):
         """
         Initialize the MO_CUBES section
         """
-
         self.write_cube = write_cube
         self.nhomo = nhomo
         self.nlumo = nlumo
@@ -1787,15 +1754,9 @@ class MO_Cubes(Section):
 
 
 class E_Density_Cube(Section):
-
-    """
-    Controls printing of the electron density cube file
-    """
+    """Controls printing of the electron density cube file"""
 
     def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
-        """
-        Initialize the E_DENSITY_CUBE Section
-        """
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = (
@@ -1813,10 +1774,7 @@ class E_Density_Cube(Section):
 
 
 class Smear(Section):
-
-    """
-    Control electron smearing
-    """
+    """Control electron smearing"""
 
     def __init__(
         self,
@@ -1827,10 +1785,6 @@ class Smear(Section):
         subsections: dict = None,
         **kwargs,
     ):
-        """
-        Initialize the SMEAR section
-        """
-
         self.elec_temp = elec_temp
         self.method = method
         self.fixed_magnetic_moment = fixed_magnetic_moment
@@ -1854,7 +1808,6 @@ class Smear(Section):
 
 
 class BrokenSymmetry(Section):
-
     """
     Define the required atomic orbital occupation assigned in initialization
     of the density matrix, by adding or subtracting electrons from specific
@@ -1883,7 +1836,6 @@ class BrokenSymmetry(Section):
             n_beta: Same as N_alpha for beta channel
             nel_beta: Same as NEL_alpha for beta channel
         """
-
         self.l_alpha = l_alpha
         self.n_alpha = n_alpha
         self.nel_alpha = nel_alpha
@@ -1990,10 +1942,7 @@ class BrokenSymmetry(Section):
 
 
 class Xc_Functional(Section):
-
-    """
-    Defines the XC functional(s) to use.
-    """
+    """Defines the XC functional(s) to use."""
 
     def __init__(
         self,
@@ -2002,10 +1951,6 @@ class Xc_Functional(Section):
         subsections: dict | None = None,
         **kwargs,
     ):
-        """
-        Initialize the XC_FUNCTIONAL class
-        """
-
         self.functionals = functionals if functionals else []
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
@@ -2025,10 +1970,7 @@ class Xc_Functional(Section):
 
 
 class PBE(Section):
-
-    """
-    Info about the PBE functional.
-    """
+    """Info about the PBE functional."""
 
     def __init__(
         self,
@@ -2046,8 +1988,9 @@ class PBE(Section):
                 REVPBE: revised PBE
             scale_c (float): scales the correlation part of the functional.
             scale_x (float): scales the exchange part of the functional.
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         self.parameterization = parameterization
         self.scale_c = scale_c
         self.scale_x = scale_x
@@ -2073,10 +2016,7 @@ class PBE(Section):
 
 
 class Kpoints(Section):
-
-    """
-    Description of the k-points to use for the calculation.
-    """
+    """Description of the k-points to use for the calculation."""
 
     def __init__(
         self,
@@ -2218,10 +2158,7 @@ class Kpoints(Section):
 
 
 class Kpoint_Set(Section):
-
-    """
-    Specifies a kpoint line to be calculated between special points.
-    """
+    """Specifies a kpoint line to be calculated between special points."""
 
     def __init__(self, npoints: int, kpoints: Iterable, units: str = "B_VECTOR") -> None:
         """
@@ -2233,7 +2170,6 @@ class Kpoint_Set(Section):
                          "CART_ANGSTROM" (units of 2*Pi/Angstrom)
                          "CART_BOHR" (units of 2*Pi/Bohr)
         """
-
         self.npoints = npoints
         self.kpoints = kpoints
         self.units = units
@@ -2259,10 +2195,7 @@ class Kpoint_Set(Section):
 
 
 class Band_Structure(Section):
-
-    """
-    Specifies high symmetry paths for outputing the band structure in CP2K.
-    """
+    """Specifies high symmetry paths for outputing the band structure in CP2K."""
 
     def __init__(
         self,
@@ -2277,8 +2210,9 @@ class Band_Structure(Section):
             kpoint_sets: Sequence of Kpoint_Set objects for the band structure calculation.
             filename: Filename for the band structure output
             added_mos: Added (unoccupied) molecular orbitals for the calculation.
+            keywords: additional keywords
+            subsections: additional subsections
         """
-
         self.kpoint_sets = SectionList(kpoint_sets)
         self.filename = filename
         self.added_mos = added_mos
@@ -2305,8 +2239,8 @@ class Band_Structure(Section):
 
         Args:
             kpoints: a kpoint object from the vasp module, which was constructed in line mode
+            kpoints_line_density: Number of kpoints along each path
         """
-
         if kpoints.style == Kpoints_supported_modes.Line_mode:
 
             def pairwise(iterable):
@@ -2344,7 +2278,11 @@ class BasisInfo(BaseModel):
 
     electrons: int = Field(None, description="Number of electrons")
     core: int = Field(None, description="Number of basis functions per core electron")
-    valence: int = Field(None, description="Number of basis functions per valence electron OR number of exp. if it is a FIT formatted admm basis")
+    valence: int = Field(
+        None,
+        description="Number of basis functions per valence electron OR number of exp "
+        "if it is a FIT formatted admm basis",
+    )
     polarization: int = Field(None, description="Number of polarization functions")
     diffuse: int = Field(None, description="Number of added, diffuse/augmentation functions")
     cc: bool = Field(False, description="Correlation consistent")
@@ -2375,50 +2313,50 @@ class BasisInfo(BaseModel):
     def from_string(cls, string: str) -> BasisInfo:
         """Get summary info from a string"""
         string = string.upper()
-        data = {}
-        data['cc'] = "CC" in string
+        data = {}  # type: Dict[str, Any]
+        data["cc"] = "CC" in string
         string = string.replace("CC", "")
-        data['pc'] = "PC" in string
+        data["pc"] = "PC" in string
         string = string.replace("PC", "")
-        data['sr'] = "SR" in string
+        data["sr"] = "SR" in string
         string = string.replace("SR", "")
-        data['molopt'] = "MOLOPT" in string
+        data["molopt"] = "MOLOPT" in string
         string = string.replace("MOLOPT", "")
-        for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
+        for x in ("LDA", "PADE", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
             if x in string:
-                data['xc'] = x
-                string.replace(x, "")
+                data["xc"] = x
+                string = string.replace(x, "")
                 break
 
         tmp = {"S": 1, "D": 2, "T": 3, "Q": 4}
 
         if "ADMM" in string or "FIT" in string:
-            data['admm'] = True
+            data["admm"] = True
             bool_core = False
-            data['contracted'] = "C" in string
+            data["contracted"] = "C" in string
             nums = "".join(s for s in string if s.isnumeric())
-            data['valence'] = int(nums) if nums else None
+            data["valence"] = int(nums) if nums else None
         else:
             if "LRI" in string:
-                data['LRI'] = True
-            bool_core = "V" not in string
+                data["LRI"] = True
+            bool_core = "V" not in string or "ALL" in string
 
-        data['polarization'] = string.count("P")
-        data['diffuse'] = string.count("X")
+        data["polarization"] = string.count("P")
+        data["diffuse"] = string.count("X")
         for i, s in enumerate(string):
             if s == "Z":
-                z = int(tmp.get(string[i-1], string[i-1]))
-                data['core'] = z if bool_core else None
-                data['valence'] = z
-            elif s == "P" and string[i-1].isnumeric():
-                data['polarization'] = int(string[i-1])
-            elif s == "X" and string[i-1].isnumeric():
-                data['diffuse'] = int(string[i-1])
-            elif s == "Q" and string[i+1].isnumeric():
-                data['electrons'] = int("".join(_ for _ in string[i+1:] if _.isnumeric()))
+                z = int(tmp.get(string[i - 1], string[i - 1]))
+                data["core"] = z if bool_core else None
+                data["valence"] = z
+            elif s == "P" and string[i - 1].isnumeric():
+                data["polarization"] = int(string[i - 1])
+            elif s == "X" and string[i - 1].isnumeric():
+                data["diffuse"] = int(string[i - 1])
+            elif s == "Q" and string[i + 1].isnumeric():
+                data["electrons"] = int("".join(_ for _ in string[i + 1 :] if _.isnumeric()))
 
-        if not data['diffuse']:
-            data['diffuse'] = string.count("AUG")
+        if not data["diffuse"]:
+            data["diffuse"] = string.count("AUG")
 
         return cls(**data)
 
@@ -2447,9 +2385,11 @@ class AtomicMetadata(BaseModel):
             return False
         if self.element is not None and self.element != other.element:
             return False
+        if self.potential is not None and self.potential != other.potential:
+            return False
         this_names = [self.name]
         if self.alias_names:
-            this_names.extend(self.alias_names) 
+            this_names.extend(self.alias_names)
         other_names = [other.name]
         if other.alias_names:
             other_names.extend(other.alias_names)
@@ -2458,26 +2398,38 @@ class AtomicMetadata(BaseModel):
                 return False
         return True
 
-    def get_hash(self) -> int:
-        return md5(self.get_string().lower().encode("utf-8")).hexdigest()    
+    def get_hash(self) -> str:
+        """Get a hash of this object"""
+        return md5(self.get_string().lower().encode("utf-8")).hexdigest()
 
     def get_string(self):
+        """Get string representation"""
         return str(self)
 
 
 class GaussianTypeOrbitalBasisSet(AtomicMetadata):
     """Model definition of a GTO basis set"""
 
-    info: BasisInfo = Field(None, description="Cardinality of this basis") 
+    info: BasisInfo = Field(None, description="Cardinality of this basis")
     nset: int = Field(None, description="Number of exponent sets")
-    n: Sequence[int] = Field(None, description="Principle quantum number for each set")
-    lmax: Sequence[int] = Field(None, description="Maximum angular momentum quantum number for each set")
-    lmin: Sequence[int] = Field(None, description="Minimum angular momentum quantum number for each set")
-    nshell: Sequence[Dict[int, int]] = Field(None, description="Number of shells for angular momentum l for each set")
-    exponents: Sequence[Sequence] = Field(None, description="Exponents for each set")
-    coefficients: Sequence[Dict[int, Dict[int, Dict[int, float]]]] = Field(None, description="Contraction coefficients for each set. Dict[exp->l->shell]")
+    n: List[int] = Field(None, description="Principle quantum number for each set")
+    lmax: List[int] = Field(None, description="Maximum angular momentum quantum number for each set")
+    lmin: List[int] = Field(None, description="Minimum angular momentum quantum number for each set")
+    nshell: List[Dict[int, int]] = Field(None, description="Number of shells for angular momentum l for each set")
+    exponents: List[List[float]] = Field(None, description="Exponents for each set")
+    coefficients: List[Dict[int, Dict[int, Dict[int, float]]]] = Field(
+        None, description="Contraction coefficients for each set. Dict[exp->l->shell]"
+    )
+
+    def __init__(self, **data: Any) -> None:
+        super().__init__(**data)
+        if self.potential == "All Electron" and self.element:
+            self.info.electrons = self.element.Z
+        if self.name == "ALLELECTRON":
+            self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
 
     def get_keyword(self) -> Keyword:
+        """Convert basis to keyword object"""
         vals = []
         if self.info and self.info.admm:
             vals.append("AUX_FIT")
@@ -2486,16 +2438,21 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
     @property
     def nexp(self):
+        """Number of exponents"""
         return [len(e) for e in self.exponents]
 
     def get_string(self) -> str:
-        """
-        Get standard cp2k GTO formatted string
-        """
+        """Get standard cp2k GTO formatted string"""
         s = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
         s += f"{str(self.nset)}\n"
         for set_index in range(self.nset):
-            s += f"{str(self.n[set_index])} {str(self.lmin[set_index])} {str(self.lmax[set_index])} {str(self.nexp[set_index])} {' '.join(map(str, self.nshell[set_index].values()))}\n"
+            s += (
+                f"{str(self.n[set_index])} "
+                f"{str(self.lmin[set_index])} "
+                f"{str(self.lmax[set_index])} "
+                f"{str(self.nexp[set_index])} "
+                f"{' '.join(map(str, self.nshell[set_index].values()))}\n"
+            )
             for exp in self.coefficients[set_index]:
                 s += f"\t {self.exponents[set_index][exp]: .14f} "
                 for l in self.coefficients[set_index][exp]:
@@ -2511,24 +2468,25 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         """
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
-        element = firstline[0]
-        element = Element(element)
+        element = Element(firstline[0])
         names = firstline[1:]
-        name, aliases = names[0], names[1:] 
-        info = BasisInfo.from_string(name).dict()
+        name, aliases = names[0], names[1:]
+        _info = BasisInfo.from_string(name).dict()
         for alias in aliases:
             for k, v in BasisInfo.from_string(alias).dict().items():
-                if info[k] == None:
-                    info[k] = v
-        info = BasisInfo(**info)
+                if _info[k] is None:
+                    _info[k] = v
+        info = BasisInfo(**_info)
+        if any("ALL" in x for x in [name] + aliases):
+            info.electrons = element.Z
         nset = int(lines[1].split()[0])
 
         n = []
         lmin = []
         lmax = []
         nshell = []
-        exponents = []
-        coefficients = []
+        exponents: List[List[float]] = []
+        coefficients: List[Dict[int, Dict[int, Dict[int, float]]]] = []
 
         line_index = 2
         for set_index in range(nset):
@@ -2540,9 +2498,9 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
             lmax.append(_lmax)
 
             _nshell = map(int, setinfo[4:])
-            nshell.append({l: int(next(_nshell)) for l in range(_lmin, _lmax+1)})
+            nshell.append({l: int(next(_nshell)) for l in range(_lmin, _lmax + 1)})
             exponents.append([])
-            coefficients.append({i: {l: {} for l in range(_lmin, _lmax+1)} for i in range(_nexp)})
+            coefficients.append({i: {l: {} for l in range(_lmin, _lmax + 1)} for i in range(_nexp)})
             line_index += 1
 
             for i in range(_nexp):
@@ -2551,35 +2509,63 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
                 coeffs = list(map(float, line[1:]))
 
                 j = 0
-                for l in range(_lmin, _lmax+1):
+                for l in range(_lmin, _lmax + 1):
                     for shell in range(nshell[set_index][l]):
                         coefficients[set_index][i][l][shell] = coeffs[j]
                         j += 1
-                
+
                 line_index += 1
 
         potential = "All Electron" if "ALL" in name else "Pseudopotential"
         xc = None
         for x in name.split("-")[1:]:
-            if x in ("LDA", "PADA", "GGA", "MGGA", "HF", "PBE", "BP", "BLYP", "B3LYP", "PBE0", "SCAN"): # Known xc names
+            if x in (
+                "LDA",
+                "PADE",
+                "GGA",
+                "MGGA",
+                "HF",
+                "PBE",
+                "BP",
+                "BLYP",
+                "B3LYP",
+                "PBE0",
+                "SCAN",
+            ):  # Known xc names
                 xc = x
                 break
 
         return cls(
-            element=element, potential=potential, xc=xc,
-            name=name, alias_names=aliases, info=info, nset=nset,
-            n=n, lmin=lmin, lmax=lmax, nshell=nshell, exponents=exponents, coefficients=coefficients,
+            element=element,
+            potential=potential,
+            xc=xc,
+            name=name,
+            alias_names=aliases,
+            info=info,
+            nset=nset,
+            n=n,
+            lmin=lmin,
+            lmax=lmax,
+            nshell=nshell,
+            exponents=exponents,
+            coefficients=coefficients,
         )
-         
+
 
 class PotentialInfo(BaseModel):
-    
+    """Metadata for this potential"""
+
     electrons: int = Field(None, description="Total number of electrons")
     type: str = Field(None, description="Potential type (e.g. GTH)")
     nlcc: bool = Field(None, description="Nonlinear core corrected potential")
     xc: str = Field(None, description="Exchange correlation functional used for creating this potential")
 
     def softmatch(self, other):
+        """
+        Soft matching to see if two potentials match.
+
+        Will only match those attributes which *are* defined for this basis info object (one way checking)
+        """
         if not isinstance(other, PotentialInfo):
             return False
         d1 = self.dict()
@@ -2591,19 +2577,20 @@ class PotentialInfo(BaseModel):
 
     @classmethod
     def from_string(cls, string):
+        """Get a cp2k formatted string representation"""
         string = string.upper()
         data = {}
         if "NLCC" in string:
-            data['nlcc'] = True
+            data["nlcc"] = True
         if "GTH" in string:
-            data['type'] = "GTH"
+            data["type"] = "GTH"
         for i, s in enumerate(string):
-            if s == "Q" and string[i+1].isnumeric():
-                data['electrons'] = int("".join(_ for _ in string[i+1:] if _.isnumeric()))
-        
+            if s == "Q" and string[i + 1].isnumeric():
+                data["electrons"] = int("".join(_ for _ in string[i + 1 :] if _.isnumeric()))
+
         for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
             if x in string:
-                data['xc'] = x
+                data["xc"] = x
 
         return cls(**data)
 
@@ -2614,15 +2601,33 @@ class GthPotential(AtomicMetadata):
     info: PotentialInfo = Field(None, description="Info about this potential")
 
     n_elecs: Dict[int, int] = Field(None, description="Number of electrons for each quantum number n")
-    r_loc: float = Field(None, description="Radius for the local part defined by the Gaussian function exponent alpha_erf")
+    r_loc: float = Field(
+        None, description="Radius for the local part defined by the Gaussian function exponent alpha_erf"
+    )
     nexp_ppl: int = Field(None, description="Number of the local pseudopotential functions")
     c_exp_ppl: Sequence = Field(None, description="Coefficients of the local pseudopotential functions")
-    radii: Dict[int, float] = Field(None, description="Radius of the nonlocal part for angular momentum quantum number l defined by the Gaussian function exponents alpha_prj_ppnl")
+    radii: Dict[int, float] = Field(
+        None,
+        description="Radius of the nonlocal part for angular momentum quantum number "
+        "l defined by the Gaussian function exponents alpha_prj_ppnl",
+    )
     nprj: int = Field(None, description="Number of projectors")
-    nprj_ppnl: Dict[int, int] = Field(None, description="Number of the non-local projectors for the angular momentum quantum number l")
-    hprj_ppnl: Dict[int, Dict[int, Dict[int, float]]] = Field(None, description="Coefficients of the non-local projector functions. Coeff ij for ang momentum l")
-    
+    nprj_ppnl: Dict[int, int] = Field(
+        None, description="Number of the non-local projectors for the angular momentum quantum number l"
+    )
+    hprj_ppnl: Dict[int, Dict[int, Dict[int, float]]] = Field(
+        None, description="Coefficients of the non-local projector functions. Coeff ij for ang momentum l"
+    )
+
+    def __init__(self, **data: Any) -> None:
+        super().__init__(**data)
+        if self.potential == "All Electron" and self.element:
+            self.info.electrons = self.element.Z
+        if self.name == "ALLELECTRON":
+            self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
+
     def get_keyword(self) -> Keyword:
+        """Get keyword object for the potential"""
         return Keyword("POTENTIAL", self.name)
 
     def get_section(self) -> Section:
@@ -2631,8 +2636,11 @@ class GthPotential(AtomicMetadata):
         """
         keywords = {"POTENTIAL": Keyword("", self.get_string())}
         return Section(
-            name=self.name, section_parameters=None, subsections=None, 
-            description="Manual definition of GTH Potential", keywords=keywords
+            name=self.name,
+            section_parameters=None,
+            subsections=None,
+            description="Manual definition of GTH Potential",
+            keywords=keywords,
         )
 
     @classmethod
@@ -2645,7 +2653,7 @@ class GthPotential(AtomicMetadata):
         s = sec.get_string()
         s = [_ for _ in s.split("\n") if not _.startswith("&")]
         s = "\n".join(s)
-        return cls.from_string(s) 
+        return cls.from_string(s)
 
     def get_string(self):
         """
@@ -2659,14 +2667,14 @@ class GthPotential(AtomicMetadata):
         s += "\n"
         s += f"{self.nprj} \n"
         for l in range(self.nprj):
-            total_fill = self.nprj_ppnl[l]*20 + 24
+            total_fill = self.nprj_ppnl[l] * 20 + 24
             tmp = f"{self.radii[l]: .14f} {self.nprj_ppnl[l]: d}"
-            s += '{tmp:>{fill}{width}}'.format(tmp=tmp, fill='', width=24)
+            s += "{tmp:>{fill}{width}}".format(tmp=tmp, fill="", width=24)
             for i in range(self.nprj_ppnl[l]):
                 k = total_fill - 24 if i == 0 else total_fill
                 tmp = " ".join(f"{v: .14f}" for v in self.hprj_ppnl[l][i].values())
-                s += '{tmp:>{fill}{width}}'.format(tmp=tmp, fill='', width=k)
-                s += "\n" 
+                s += "{tmp:>{fill}{width}}".format(tmp=tmp, fill="", width=k)
+                s += "\n"
         return s
 
     @classmethod
@@ -2680,17 +2688,22 @@ class GthPotential(AtomicMetadata):
         info = PotentialInfo.from_string(name).dict()
         for alias in aliases:
             for k, v in PotentialInfo.from_string(alias).dict().items():
-                if info[k] == None:
+                if info[k] is None:
                     info[k] = v
         info = PotentialInfo(**info)
+        if any("ALL" in x for x in [name] + aliases):
+            potential = "All Electron"
+            info.electrons = Element(element).Z
+        else:
+            potential = "Pseudopotential"
         nelecs = {i: int(n) for i, n in enumerate(lines[1].split())}
-        info.electrons = sum(nelecs.values()) # override, more reliable than name
+        info.electrons = sum(nelecs.values())  # override, more reliable than name
         thirdline = lines[2].split()
         r_loc, nexp_ppl, c_exp_ppl = float(thirdline[0]), int(thirdline[1]), list(map(float, thirdline[2:]))
         nprj = int(lines[3].split()[0]) if len(lines) > 3 else 0
 
         radii = {}
-        nprj_ppnl =  {}
+        nprj_ppnl = {}
         hprj_ppnl = {}
         lines = lines[4:]
         i = 0
@@ -2713,11 +2726,21 @@ class GthPotential(AtomicMetadata):
                 i += 1
                 L += 1
             l += 1
-        
+
         return cls(
-            element=Element(element), name=name, alias_names=aliases, 
-            n_elecs=nelecs, r_loc=r_loc, nexp_ppl=nexp_ppl, c_exp_ppl=c_exp_ppl, info=info,
-            radii=radii, nprj=nprj, nprj_ppnl=nprj_ppnl, hprj_ppnl=hprj_ppnl
+            element=Element(element),
+            name=name,
+            alias_names=aliases,
+            potential=potential,
+            n_elecs=nelecs,
+            r_loc=r_loc,
+            nexp_ppl=nexp_ppl,
+            c_exp_ppl=c_exp_ppl,
+            info=info,
+            radii=radii,
+            nprj=nprj,
+            nprj_ppnl=nprj_ppnl,
+            hprj_ppnl=hprj_ppnl,
         )
 
 
@@ -2729,19 +2752,20 @@ class DataFile(BaseModel):
     @classmethod
     def from_file(cls, fn):
         """Load from a file"""
-        with open(fn, 'rt') as f:
+        with open(fn, "rt") as f:
             data = cls.from_string(f.read())
             for obj in data.objects:
                 obj.filename = fn
             return data
-    
+
     @classmethod
     def from_string(cls):
+        """Initialize from a string"""
         raise NotImplementedError
 
     def write_file(self, fn):
         """Write to a file"""
-        with open(fn, 'wt') as f:
+        with open(fn, "wt") as f:
             f.write(self.get_string())
 
     def get_string(self):

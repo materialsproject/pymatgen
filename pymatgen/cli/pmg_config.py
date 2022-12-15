@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import sys
 from argparse import Namespace
-from typing import Literal
+from typing import Literal, Dict
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
@@ -44,7 +44,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
     basis_files = glob.glob(os.path.join(data_dir, "*BASIS*"))
     potential_files = glob.glob(os.path.join(data_dir, "*POTENTIAL*"))
 
-    settings = {
+    settings: Dict[str, Dict] = {
         str(el): {
             "potentials": {},
             "basis_sets": {},
@@ -68,7 +68,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
             except:
                 # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
                 pass
-            
+
     for basis_file in basis_files:
         print(f"Processing... {basis_file}")
         with open(basis_file, 'rt') as f:
@@ -80,13 +80,15 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
             try:
                 basis = GaussianTypeOrbitalBasisSet.from_string(c)
                 basis.filename = os.path.basename(basis_file)
-                basis.version = None
                 settings[basis.element.symbol]['basis_sets'][basis.get_hash()] = jsanitize(basis.dict())
             except:
                 # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
                 pass
 
+    print("Done processing cp2k data files")
+
     for el in settings:
+        print(f"Writting {el} settings file")
         with open(os.path.join(targetdir, el), "wt") as f:
             yaml.dump(settings.get(el), f, default_flow_style=False)
 

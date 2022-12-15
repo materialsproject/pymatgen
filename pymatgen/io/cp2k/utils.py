@@ -11,6 +11,7 @@ from monty.io import zopen
 
 from pymatgen.core import Structure, Molecule
 
+
 def _postprocessor(s: str):
     """
     Helper function to post process the results of the pattern matching functions in Cp2kOutput
@@ -19,11 +20,11 @@ def _postprocessor(s: str):
     s = s.rstrip()  # Remove leading/trailing whitespace
     s = s.replace(" ", "_")  # Remove whitespaces
 
-    if s.lower() == "no" or s.lower() == "false" or s.lower() == 'f':
+    if s.lower() == "no" or s.lower() == "false" or s.lower() == "f":
         return False
     if s.lower() == "none":
         return None
-    if s.lower() == "yes" or s.lower() == "true" or s.lower() == 't':
+    if s.lower() == "yes" or s.lower() == "true" or s.lower() == "t":
         return True
     if re.match(r"^-?\d+$", s):
         try:
@@ -184,5 +185,3 @@ def get_truncated_coulomb_cutoff(inp_struct: Structure):
     y = abs(np.dot(b, np.cross(a, c)) / np.linalg.norm(np.cross(a, c)))
     z = abs(np.dot(c, np.cross(a, b)) / np.linalg.norm(np.cross(a, b)))
     return np.floor(100 * min([x, y, z]) / 2) / 100
-
-

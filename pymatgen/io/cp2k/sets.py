@@ -22,15 +22,14 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from pathlib import Path
+from typing import List, Dict, Literal
 
 import numpy as np
 from ruamel.yaml import YAML
-from typing import Sequence, Dict, Literal
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.structure import Molecule, Structure, Element
 from pymatgen.io.cp2k.inputs import (
     DOS,
     LDOS,
@@ -47,7 +46,6 @@ from pymatgen.io.cp2k.inputs import (
     ForceEval,
     Global,
     Keyword,
-    KeywordList,
     Kind,
     Kpoints,
     Mgrid,
@@ -60,12 +58,12 @@ from pymatgen.io.cp2k.inputs import (
     Subsys,
     V_Hartree_Cube,
     Xc_Functional,
-    GthPotential, 
+    GthPotential,
     GaussianTypeOrbitalBasisSet,
     BasisFile,
     PotentialFile,
-    BasisInfo, 
-    PotentialInfo
+    BasisInfo,
+    PotentialInfo,
 )
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
@@ -89,7 +87,7 @@ class DftSet(Cp2kInput):
         structure: Structure | Molecule,
         project_name: str = "CP2K",
         basis_and_potential: dict | None = None,
-        xc_functionals: Sequence | str | None = None,
+        xc_functionals: List | str | None = None,
         multiplicity: int = 0,
         ot: bool = True,
         energy_gap: float = -1,
@@ -177,12 +175,10 @@ class DftSet(Cp2kInput):
             smearing (bool): whether or not to activate smearing (should be done for systems
                 containing no (or a very small) band gap.
         """
-
         super().__init__(name="CP2K_INPUT", subsections={})
 
         self.structure = structure
         self.basis_and_potential = basis_and_potential if basis_and_potential else {}
-        self.xc_functionals = xc_functionals
         self.project_name = project_name
         self.charge = int(structure.charge)
         if not multiplicity and isinstance(self.structure, Molecule):
@@ -220,10 +216,10 @@ class DftSet(Cp2kInput):
             # get full support
             if self.kpoints.style in [Kpoints_supported_modes.Gamma, Kpoints_supported_modes.Monkhorst]:
                 if np.array_equal(self.kpoints.kpts[0], (1, 1, 1)):
-                    self.kpoints  = None
+                    self.kpoints = None
             elif self.kpoints.style in [Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian]:
                 if np.array_equal(self.kpoints.kpts[0], (0, 0, 0)):
-                    self.kpoints  = None
+                    self.kpoints = None
             elif ot:
                 warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
                 ot = False
@@ -279,7 +275,9 @@ class DftSet(Cp2kInput):
         self.basis_and_potential = DftSet.get_basis_and_potential(self.structure, self.basis_and_potential)
         self.basis_set_file_names = self.basis_and_potential.get("basis_filenames")
         self.potential_file_name = self.basis_and_potential.get("potential_filename")
-        self.xc_functionals = DftSet.get_xc_functionals(xc_functionals=xc_functionals) #kwargs.get("xc_functional", "PBE"))
+        self.xc_functionals = DftSet.get_xc_functionals(
+            xc_functionals=xc_functionals
+        )  # kwargs.get("xc_functional", "PBE"))
 
         # create the subsys (structure)
         self.create_subsys(self.structure)
@@ -328,7 +326,7 @@ class DftSet(Cp2kInput):
 
         if kwargs.get("print_forces", True):
             self.print_forces()
-        if kwargs.get("print_dos", False):
+        if kwargs.get("print_dos", True):
             self.print_dos()
         if kwargs.get("print_pdos", True):
             self.print_pdos()
@@ -344,37 +342,57 @@ class DftSet(Cp2kInput):
             self.print_bandstructure(kwargs.get("kpoints_line_density", 20))
 
         self.update(self.override_default_params)
+        if kwargs.get("validate", True):
+            self.validate()
 
     @staticmethod
     def get_basis_and_potential(structure, basis_and_potential):
         """
         Get a dictionary of basis and potential info for constructing the input file.
 
-        basis_and_potential and have the following content:
+        data in basis_and_potential argument can be specified in several ways:
 
-        Strategy 1: Element-specific info (takes precedence)
+            Strategy 1: Element-specific info (takes precedence)
 
-            1. Provide a basis and potential object:
+                1. Provide a basis and potential object:
 
-                el: {'basis': obj, 'potential': obj}
+                    el: {'basis': obj, 'potential': obj}
 
-            2. Provide a hash of the object:
+                2. Provide a hash of the object that matches the keys in the pmg configured cp2k data files.
 
-                el: {'basis': hash, 'potential': hash}
+                    el: {'basis': hash, 'potential': hash}
 
-            3. Provide the name of the basis and potential AND the basis_filenames and potential_filename keywords
-            specifying where to find these objects
+                3. Provide the name of the basis and potential AND the basis_filenames and potential_filename
+                keywords specifying where to find these objects
 
-                el: {'basis': name, 'potential': name, 'basis_filenames': [filenames], 'potential_filename': filename}
+                    el: {
+                        'basis': name, 'potential': name, 'basis_filenames': [filenames],
+                        'potential_filename': filename
+                    }
 
-        Strategy 2: By functional and basis_quality.
-            ***BE WARNED*** CP2K data objects can have the same name, this will sort those and choose the first one 
-            that matches.
+            Strategy 2: global descriptors
 
+                In this case, any elements not present in the argument will be dealt with by searching the pmg configured
+                cp2k data files to find a objects matching your requirements.
+
+                    - functional: Find potential and basis that have been optimized for a specific functional like PBE.
+                        Can be None if you do not require them to match.
+                    - basis_type: type of basis to search for (e.g. DZVP-MOLOPT).
+                    - aux_basis_type: type of basis to search for (e.g. pFIT). Some elements do not have all aux types
+                        available. Use aux_basis_type that is universal to avoid issues, or avoid using this strategy.
+                    - potential_type: "Psuedpotential" or "All Electron"
+
+                ***BE WARNED*** CP2K data objects can have the same name, this will sort those and choose the first one
+                that matches.
+
+        Will raise an error if no basis/potential info can be found according to the input.
         """
         data = {"basis_filenames": []}
-        functional = basis_and_potential.get("functional", SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")) 
-        basis_type = basis_and_potential.get("basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_BASIS_TYPE")) 
+        functional = basis_and_potential.get("functional", SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL"))
+        basis_type = basis_and_potential.get("basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_BASIS_TYPE"))
+        potential_type = basis_and_potential.get(
+            "potential_type", SETTINGS.get("PMG_DEFAULT_POTENTIAL_TYPE", "Pseudopotential")
+        )
         aux_basis_type = basis_and_potential.get("aux_basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_AUX_BASIS_TYPE"))
 
         for el in structure.symbol_set:
@@ -384,9 +402,9 @@ class DftSet(Cp2kInput):
             desired_basis, desired_aux_basis, desired_potential = None, None, None
             have_element_file = os.path.exists(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el))
 
-            # Necessary if matching data to cp2k data files 
+            # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el), 'rt') as f:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el), "rt") as f:
                     yaml = YAML(typ="unsafe", pure=True)
                     DATA = yaml.load(f)
                     if not DATA.get("basis_sets"):
@@ -394,50 +412,60 @@ class DftSet(Cp2kInput):
                     if not DATA.get("potentials"):
                         raise ValueError(f"No standard potentials available in data directory for {el}")
 
-            # Give presidence to explicitly listing info for the element
-            if el in basis_and_potential and have_element_file:
+            # Give precedence to explicitly listing info for the element
+            if el in basis_and_potential:
                 _basis = basis_and_potential[el].get("basis")
-                if not isinstance(_basis, GaussianTypeOrbitalBasisSet):
-                    if _basis in DATA['basis_sets']:
-                        basis = GaussianTypeOrbitalBasisSet(**DATA['basis_sets'][_basis])
-                        possible_basis_sets.append(basis)
+                if isinstance(_basis, GaussianTypeOrbitalBasisSet):
+                    possible_basis_sets.append(_basis)
+                elif have_element_file:
+                    if _basis in DATA["basis_sets"]:
+                        possible_basis_sets.append(GaussianTypeOrbitalBasisSet(**DATA["basis_sets"][_basis]))
                     elif _basis:
                         desired_basis = GaussianTypeOrbitalBasisSet(name=_basis)
 
                 _aux_basis = basis_and_potential[el].get("aux_basis")
-                if not isinstance(_aux_basis, GaussianTypeOrbitalBasisSet):
-                    if _aux_basis in DATA['basis_sets']:
-                        aux_basis = GaussianTypeOrbitalBasisSet(**DATA['basis_sets'][_aux_basis])
+                if isinstance(_aux_basis, GaussianTypeOrbitalBasisSet):
+                    aux_basis = _aux_basis
+                elif have_element_file:
+                    if _aux_basis in DATA["basis_sets"]:
+                        aux_basis = GaussianTypeOrbitalBasisSet(**DATA["basis_sets"][_aux_basis])
                     elif _aux_basis:
                         desired_aux_basis = GaussianTypeOrbitalBasisSet(name=_aux_basis)
 
                 _potential = basis_and_potential[el].get("potential")
-                if not isinstance(_potential, GthPotential):
-                    if _potential in DATA['potentials']:
-                        potential = GthPotential(**DATA['potentials'][_potential])
-                        possible_potentials.append(potential)
+                if isinstance(_potential, GthPotential):
+                    possible_potentials.append(_potential)
+                elif have_element_file:
+                    if _potential in DATA["potentials"]:
+                        possible_potentials.append(GthPotential(**DATA["potentials"][_potential]))
                     elif _potential:
                         desired_potential = GthPotential(name=_potential)
 
-                if basis_and_potential[el].get("basis_filename"): 
-                    data['basis_filenames'].append(basis_and_potential[el].get("basis_filename"))
+                if basis_and_potential[el].get("basis_filename"):
+                    data["basis_filenames"].append(basis_and_potential[el].get("basis_filename"))
                 pfn1 = basis_and_potential[el].get("potential_filename")
-                pfn2 = data.get('potential_filename')
+                pfn2 = data.get("potential_filename")
                 if pfn1 and pfn2 and pfn1 != pfn2:
                     raise ValueError(
                         f"Provided potentials have more than one corresponding file."
                         "CP2K does not support multiple potential filenames"
                     )
-                data['potential_filename'] = basis_and_potential[el].get("potential_filename")
+                data["potential_filename"] = basis_and_potential[el].get("potential_filename")
 
-            # Else, if functional/basis settings are provided, create objects to search the data files with
+            # Else, if functional/basis settings are provided, create objects to search the data files
             else:
-                if functional and basis_type and have_element_file:
-                    desired_basis = GaussianTypeOrbitalBasisSet(info=BasisInfo.from_string(f"{basis_type}-{functional}"))
-                    desired_potential = GthPotential(potential="Pseudopotential", info=PotentialInfo(xc=functional))
+                if basis_type and have_element_file:
+                    desired_basis = GaussianTypeOrbitalBasisSet(
+                        element=Element(el),
+                        potential=potential_type,
+                        info=BasisInfo.from_string(f"{basis_type}-{functional}"),
+                    )
+                    desired_potential = GthPotential(
+                        element=Element(el), potential=potential_type, info=PotentialInfo(xc=functional)
+                    )
                 if aux_basis_type and have_element_file:
                     desired_aux_basis = GaussianTypeOrbitalBasisSet(info=BasisInfo.from_string(aux_basis_type))
-            
+
             # If basis/potential are not explicit, match the desired ones to available ones in the element file
             if desired_basis:
                 for _possible_basis in DATA.get("basis_sets").values():
@@ -449,7 +477,7 @@ class DftSet(Cp2kInput):
                     possible_basis = GaussianTypeOrbitalBasisSet(**_possible_basis)
                     if desired_aux_basis.softmatch(possible_basis):
                         aux_basis = possible_basis
-                        data['basis_filenames'].append(aux_basis.filename)
+                        data["basis_filenames"].append(aux_basis.filename)
                         break
             if desired_potential:
                 for _possible_potential in DATA.get("potentials").values():
@@ -457,48 +485,52 @@ class DftSet(Cp2kInput):
                     if desired_potential.softmatch(possible_potential):
                         possible_potentials.append(possible_potential)
 
-            possible_basis_sets = sorted(filter(lambda x: x.info.electrons, possible_basis_sets), key=lambda x: x.info.electrons, reverse=True)
-            possible_potentials = sorted(filter(lambda x: x.info.electrons, possible_potentials), key=lambda x: x.info.electrons, reverse=True)
+            possible_basis_sets = sorted(
+                filter(lambda x: x.info.electrons, possible_basis_sets), key=lambda x: x.info.electrons, reverse=True
+            )
+            possible_potentials = sorted(
+                filter(lambda x: x.info.electrons, possible_potentials), key=lambda x: x.info.electrons, reverse=True
+            )
 
-            def foo(x):
+            def match_elecs(x):
                 for p in possible_potentials:
                     if x.info.electrons == p.info.electrons:
                         return p
 
             for b in possible_basis_sets:
-                fb = foo(b)
+                fb = match_elecs(b)
                 if fb is not None:
                     basis = b
                     potential = fb
                     break
 
             if basis is None:
-                if desired_basis:
+                if basis_and_potential.get(el, {}).get("basis"):
                     warnings.warn(
-                        f"Unable to validate basis for {el}."
-                        "Exact name provided will be put in input file."
-                        )
-                    basis = desired_basis
+                        f"Unable to validate basis for {el}. Exact name provided will be put in input file."
+                    )
+                    basis = basis_and_potential[el].get("basis")
                 else:
                     raise ValueError("No explicit basis found and matching has failed.")
-            if aux_basis is None and desired_aux_basis:
-                warnings.warn(
-                    f"Unable to validate auxiliary basis for {el}."
-                    " Exact name provided will be put in input file."
-                    )
-                aux_basis = desired_aux_basis
-            if potential is None:
-                if desired_potential:
+
+            if aux_basis is None:
+                if basis_and_potential.get(el, {}).get("aux_basis"):
                     warnings.warn(
-                        f"Unable to validate potential for {el}."
-                        " Exact name provided will be put in input file."
-                        )
-                    potential = desired_potential
+                        f"Unable to validate auxiliary basis for {el}. Exact name provided will be put in input file."
+                    )
+                    aux_basis = basis_and_potential[el].get("aux_basis")
+
+            if potential is None:
+                if basis_and_potential.get(el, {}).get("potential"):
+                    warnings.warn(
+                        f"Unable to validate potential for {el}. " " Exact name provided will be put in input file."
+                    )
+                    potential = basis_and_potential.get(el, {}).get("potential")
                 else:
                     raise ValueError("No explicit potential found and matching has failed.")
-                
-            if basis.filename: 
-                data['basis_filenames'].append(basis.filename)
+
+            if basis.filename:
+                data["basis_filenames"].append(basis.filename)
             pfn1 = data.get("potential_filename")
             pfn2 = potential.filename
             if pfn1 and pfn2 and pfn1 != pfn2:
@@ -506,7 +538,7 @@ class DftSet(Cp2kInput):
                     f"Provided potentials have more than one corresponding file."
                     "CP2K does not support multiple potential filenames"
                 )
-            data['potential_filename'] = pfn2
+            data["potential_filename"] = pfn2
 
             data[el] = {
                 "basis": basis,
@@ -516,19 +548,33 @@ class DftSet(Cp2kInput):
         return data
 
     @staticmethod
-    def get_cutoff_from_basis(basis_sets, rel_cutoff):
-        exponents = [b.exponents for b in basis_sets if b.exponents]
-        exponents = list(itertools.chain.from_iterable(exponents))
+    def get_cutoff_from_basis(basis_sets, rel_cutoff) -> int | float:
+        """Given a basis and a relative cutoff. Determine the ideal cutoff variable"""
+
         for b in basis_sets:
             if not b.exponents:
                 raise ValueError(f"Basis set {b} contains missing exponent info. Please specify cutoff manually")
+
+        def get_soft_exponents(b):
+            if b.potential == "All Electron":
+                warnings.warn("Auto-detection of soft basis exponents for GAPW is not implemented. Choosing 10.")
+                radius = 1.2 if b.element == Element("H") else 1.512 # Hard radius defaults for gapw
+                threshold = 1e-4 # Default for gapw
+                max_lshell = max(l for l in b.lmax)
+                exponent = np.log(radius**max_lshell/threshold)/radius**2
+                return [[exponent]]
+            else:
+                return b.exponents
+
+        exponents = [get_soft_exponents(b) for b in basis_sets if b.exponents]
+        exponents = list(itertools.chain.from_iterable(exponents))
         cutoff = np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
         return cutoff
 
     @staticmethod
-    def get_xc_functionals(xc_functionals: Sequence | str | None = None):
+    def get_xc_functionals(xc_functionals: List | str | None = None) -> List:
         """
-        Get XC functionals. If simplified names are provided in kwargs, they 
+        Get XC functionals. If simplified names are provided in kwargs, they
         will be expanded into their corresponding X and C names.
         """
         names = xc_functionals if xc_functionals else SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
@@ -555,9 +601,11 @@ class DftSet(Cp2kInput):
         return cp2k_names
 
     def write_basis_set_file(self, basis_sets, fn="BASIS"):
+        """Write the basis sets to a file"""
         BasisFile(objects=basis_sets).write_file(fn)
 
     def write_potential_file(self, potentials, fn="POTENTIAL"):
+        """Write the potentials to a file"""
         PotentialFile(objects=potentials).write_file(fn)
 
     def print_forces(self):
@@ -567,7 +615,7 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"].insert(Section("PRINT", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
-    
+
     def print_dos(self, ndigits=6):
         """
         Activate printing of the overall DOS file.
@@ -575,7 +623,8 @@ class DftSet(Cp2kInput):
         Note: As of 2022.1, ndigits needs to be set to a sufficient value to ensure data is not lost.
         Note: As of 2022.1, can only be used with a k-point calculation.
         """
-        self["force_eval"]["dft"]["print"].insert(DOS(ndigits))
+        if self.kpoints:
+            self["force_eval"]["dft"]["print"].insert(DOS(ndigits))
 
     def print_pdos(self, nlumo=-1):
         """
@@ -586,7 +635,7 @@ class DftSet(Cp2kInput):
                 CAUTION: Setting this value to be higher than the number of states present may
                 cause a Cholesky error.
         """
-        if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
+        if not self.check("FORCE_EVAL/DFT/PRINT/PDOS") and not self.kpoints:
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
 
     def print_ldos(self, nlumo=-1):
@@ -655,10 +704,18 @@ class DftSet(Cp2kInput):
         )
         self["force_eval"]["dft"]["print"].insert(bs)
 
+    def print_hirshfeld(self, on=True):
+        """Activate or deactivate printing of Hirshfeld charges"""
+        section = Section("HIRSHFELD", section_parameters=["ON" if on else "OFF"])
+        self["force_eval"]["dft"]["print"].insert(section)
+
+    def print_mulliken(self, on=False):
+        """Activate or deactivate printing of Mulliken charges"""
+        section = Section("MULLIKEN", section_parameters=["ON" if on else "OFF"])
+        self["force_eval"]["dft"]["print"].insert(section)
+
     def set_charge(self, charge: int):
-        """
-        Set the overall charge of the simulation cell
-        """
+        """Set the overall charge of the simulation cell"""
         self["FORCE_EVAL"]["DFT"]["CHARGE"] = Keyword("CHARGE", int(charge))
 
     def activate_hybrid(
@@ -670,10 +727,10 @@ class DftSet(Cp2kInput):
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
         potential_type: str = None,
+        omega: float = 0.11,
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,
         scale_longrange: float = 1,
-        omega: float = 0.11,
         admm: bool = True,
         admm_method: str = "BASIS_PROJECTION",
         admm_purification_method: str = "NONE",
@@ -683,7 +740,6 @@ class DftSet(Cp2kInput):
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
     ):
-
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
@@ -722,8 +778,9 @@ class DftSet(Cp2kInput):
                 values will constitute a user-override.
             omega (float): For HSE, this specifies the screening parameter. HSE06 sets this as
                 0.2, which is the default.
-            aux_basis (dict): If you want to specify the aux basis to use, specify it as a dict of
-                the form {'specie_1': 'AUX_BASIS_1', 'specie_2': 'AUX_BASIS_2'}
+            scale_coulomb: Scale for the coulomb operator if useing a range seperated functional
+            scale_gaussian: Scale for the gaussian operator (if applicable)
+            scale_longrange: Scale for the coulomb operator if using a range seperated functional
             admm: Whether or not to use the auxiliary density matrix method for the exact
                 HF exchange contribution. Highly recommended. Speed ups between 10x and 1000x are
                 possible when compared to non ADMM hybrid calculations.
@@ -747,10 +804,10 @@ class DftSet(Cp2kInput):
             screen_p_forces: Same as screen_on_initial_p, but for screening of forces.
         """
         if not admm:
-            for k in self.basis_and_potential:
-                if "aux_basis" in self.basis_and_potential[k]:
+            for k, v in self.basis_and_potential.items():
+                if "aux_basis" in v:
                     del self.basis_and_potential[k]["aux_basis"]
-            del self['force_eval']['subsys']
+            del self["force_eval"]["subsys"]
             self.create_subsys(self.structure)
 
         else:
@@ -944,6 +1001,7 @@ class DftSet(Cp2kInput):
         timestep: float | int = 0.5,
         nsteps: int = 3,
         thermostat: str = "NOSE",
+        nproc_rep: int = 1,
     ):
         """
         Turns on the motion section for GEO_OPT, CELL_OPT, etc. calculations.
@@ -1008,11 +1066,11 @@ class DftSet(Cp2kInput):
             band_kwargs = {
                 "BAND_TYPE": Keyword("BAND_TYPE", "IT-NEB", description="Improved tangent NEB"),
                 "NUMBER_OF_REPLICA": Keyword("NUMBER_OF_REPLICA"),
-                "NPROC_REP": Keyword(),
+                "NPROC_REP": Keyword("NPROC_REP", nproc_rep),
             }
             band = Section("BAND", keywords=band_kwargs)
             band.insert(Section("CONVERGENCE_CONTROL", keywords=convergence_control_params))
-            self['MOTION'].insert(band)
+            self["MOTION"].insert(band)
 
         self.modify_dft_print_iters(0, add_last="numeric")
 
@@ -1049,37 +1107,43 @@ class DftSet(Cp2kInput):
                 )
             )
 
-    def activate_linres(self, property, **kwargs):
-        """
-        Activate the calculation of a property. Several require localize to be
-        activated first.
+    def activate_tddfpt(self, **kwargs):
+        """Activate TDDFPT for calculating excited states. Only works with GPW. Supports hfx."""
+        if "PROPERTIES" not in self["FORCE_EVAL"]:
+            self["FORCE_EVAL"].insert(Section("PROPERTIES"))
+        self["FORCE_EVAL"]["PROPERTIES"].insert(Section("TDDFPT", **kwargs))
 
-            EPR: Calculate the g-tensor and hyperfine coupling tensor. Suggested
-                to use GAPW.
-            NMR: Calculate NMR chemical shifts. Suggested to use with GAPW.
-            POLAR: Calculate polarizations (including raman)
-            TDDFPT: Calculate optical absorption spectrum using time dependent
-                DFPT (GPW only. Supports HFX)
-            XAS: Calculate the x-ray absorption spectroscopy. Suggested to use GAPW.
+    def activate_epr(self, **kwargs):
+        """Calculate g-tensor. Requires localize. Suggested with GAPW"""
+        if not self.check("force_eval/properties/linres/localize"):
+            self.activate_localize()
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("EPR", **kwargs))
 
-        """
+    def activate_nmr(self, **kwargs):
+        """Calculate nmr shifts. Requires localize. Suggested with GAPW"""
+        if not self.check("force_eval/properties/linres/localize"):
+            self.activate_localize()
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("NMR", **kwargs))
 
-        if "PROPERTIES" not in self['FORCE_EVAL']:
-            self['FORCE_EVAL'].insert(Section("PROPERTIES"))
-        if property in ["EPR", "NMR", "POLAR", "SPINSPIN"]:
-            self['FORCE_EVAL']['PROPERTIES'].insert(Section("LINRES"))
-            self['FORCE_EVAL']['PROPERTIES']['LINRES'].insert(Section(property, **kwargs))
-                
-        elif property == "TDDFPT":
-            self['FORCE_EVAL']['PROPERTIES'].insert(Section(property, **kwargs))
-    
-    def print_hyperfine(self):
-        self['FORCE_EVAL']['DFT']['PRINT'].insert(Section("HYPERFINE_COUPLING_TENSOR", FILENAME="HYPERFINE"))
+    def activate_spinspin(self, **kwargs):
+        """Calculate spin-spin coupling tensor. Requires localize."""
+        if not self.check("force_eval/properties/linres/localize"):
+            self.activate_localize()
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("SPINSPIN", **kwargs))
 
-    def activate_localize(
-        self, states = "OCCUPIED", 
-        preconditioner="FULL_ALL"
-        ):
+    def activate_polar(self, **kwargs):
+        """Calculate polarizations (including raman)."""
+        if "PROPERTIES" not in self["FORCE_EVAL"]:
+            self["FORCE_EVAL"].insert(Section("PROPERTIES"))
+        if "LINRES" not in self["FORCE_EVAL"]["PROPERTIES"]:
+            self["FORCE_EVAL"]["PROPERTIES"].insert("LINRES")
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("POLAR", **kwargs))
+
+    def activate_hyperfine(self):
+        """Print the hyperfine coupling constants."""
+        self["FORCE_EVAL"]["DFT"]["PRINT"].insert(Section("HYPERFINE_COUPLING_TENSOR", FILENAME="HYPERFINE"))
+
+    def activate_localize(self, states="OCCUPIED", preconditioner="FULL_ALL", restart=False):
         """
         Activate calculation of the maximally localized wannier functions.
 
@@ -1087,28 +1151,43 @@ class DftSet(Cp2kInput):
             states: Which states to calculate. occupied, unoccupied, mixed states, or all states. At
                 present, unoccupied orbitals are only implemented for GPW.
             preconditioner: Preconditioner to use for optimize
+            restart: Initialize from the localization restart file
         """
-        if "PROPERTIES" not in self['FORCE_EVAL']:
-            self['FORCE_EVAL'].insert(Section("PROPERTIES"))
-        if "LINRES" not in self['FORCE_EVAL']['PROPERTIES']:
-            self['FORCE_EVAL']['PROPERTIES'].insert('LINRES')
+        if "PROPERTIES" not in self["FORCE_EVAL"]:
+            self["FORCE_EVAL"].insert(Section("PROPERTIES"))
+        if "LINRES" not in self["FORCE_EVAL"]["PROPERTIES"]:
+            self["FORCE_EVAL"]["PROPERTIES"].insert("LINRES")
 
-        self['FORCE_EVAL']['PROPERTIES']["LINRES"].insert(Section("LOCALIZE", PRECONDITIONER=preconditioner, STATES=states))
-        self['FORCE_EVAL']["PROPERTIES"]["LINRES"]['LOCALIZE'].insert(Section("PRINT"))
-        self['FORCE_EVAL']["PROPERTIES"]["LINRES"]['LOCALIZE']["PRINT"].insert(Section("LOC_RESTART"))
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(
+            Section("LOCALIZE", PRECONDITIONER=preconditioner, STATES=states, RESTART=restart)
+        )
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["LOCALIZE"].insert(Section("PRINT"))
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["LOCALIZE"]["PRINT"].insert(Section("LOC_RESTART"))
 
     def activate_vdw_potential(
-        self, dispersion_functional: Literal["PAIR_POTENTIAL", "NON_LOCAL"], 
-        potential_type: Literal["DFTD2", "DFTD3", "DFTD3(BJ)", "DRSLL", "LMKLL", "RVV10"]
-        ):
+        self,
+        dispersion_functional: Literal["PAIR_POTENTIAL", "NON_LOCAL"],
+        potential_type: Literal["DFTD2", "DFTD3", "DFTD3(BJ)", "DRSLL", "LMKLL", "RVV10"],
+    ):
         """
         Activate van der Waals dispersion corrections
         """
-        
-        vdw = Section("VDW_POTENTIAL", keywords={"DISPERSION_FUNCTIONAL": Keyword("DISPERSION_FUNCTIONAL", dispersion_functional)})
-        vdw.insert(Section(dispersion_functional, keywords={"TYPE": Keyword("TYPE", potential_type)}))
-        self['FORCE_EVAL']['DFT']['XC'].insert(vdw)
-    
+        vdw = Section(
+            "VDW_POTENTIAL", keywords={"DISPERSION_FUNCTIONAL": Keyword("DISPERSION_FUNCTIONAL", dispersion_functional)}
+        )
+        keywords = {"TYPE": Keyword("TYPE", potential_type)}
+        if dispersion_functional == "PAIR_POTENTIAL":
+            reference_functional = self.xc_functionals[0]
+            warnings.warn(
+                "Reference functional will not be checked for validity. "
+                "Calculation will fail if the reference functional "
+                "does not exist in the dftd3 reference data"
+            )
+            keywords["REFERENCE_FUNCTIONAL"] = Keyword("REFERENCE_FUNCTIONAL", reference_functional)
+
+        vdw.insert(Section(dispersion_functional, keywords=keywords))
+        self["FORCE_EVAL"]["DFT"]["XC"].insert(vdw)
+
     def activate_fast_minimization(self, on):
         """
         Method to modify the set to use fast SCF minimization.
@@ -1169,6 +1248,9 @@ class DftSet(Cp2kInput):
             x = max(structure.cart_coords[:, 0])
             y = max(structure.cart_coords[:, 1])
             z = max(structure.cart_coords[:, 2])
+            x = x if x else 1
+            y = y if y else 1
+            z = z if z else 1
             cell = Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
             cell.add(Keyword("PERIODIC", "NONE"))
             subsys.insert(cell)
@@ -1206,7 +1288,9 @@ class DftSet(Cp2kInput):
 
             if "aux_basis" in self.structure.site_properties:
                 kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][v[0]]
-            else:
+            elif self.basis_and_potential[kind].get("aux_basis") and self.check(
+                "force_eval/dft/auxiliary_density_matrix_method"
+            ):
                 kwargs["aux_basis"] = self.basis_and_potential[kind].get("aux_basis")
 
             _kind = Kind(
@@ -1226,7 +1310,7 @@ class DftSet(Cp2kInput):
         coord = Coord(structure, aliases=unique_kinds)
         subsys.insert(coord)
         self["FORCE_EVAL"].insert(subsys)
-    
+
     def modify_dft_print_iters(self, iters, add_last="no"):
         """
         Modify all DFT print iterations at once. Common use is to set iters to the max
@@ -1235,7 +1319,7 @@ class DftSet(Cp2kInput):
         speeding up/saving space on GEO_OPT or MD runs where you don't need the intermediate
         values.
 
-        Args
+        Args:
             iters (int): print each "iters" iterations.
             add_last (str): Whether to explicitly include the last iteration, and how to mark it.
                 numeric: mark last iteration with the iteration number
@@ -1261,433 +1345,74 @@ class DftSet(Cp2kInput):
                 v.insert(Section("EACH", subsections=None, keywords={run_type: Keyword(run_type, iters)}))
                 v.keywords["ADD_LAST"] = Keyword("ADD_LAST", add_last)
 
+    def validate(self):
+        """Implements a few checks for a valid input set"""
+        if self.check("force_eval/dft/kpoints") and self.check("force_eval/dft/xc/hf"):
+            raise Cp2kValidationError("Does not support hartree fock with kpoints")
+
+        for k, v in self["force_eval"]["subsys"].subsections.items():
+            if v.name.upper() == "KIND":
+                if v["POTENTIAL"].values[0].upper() == "ALL":
+                    if self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW":
+                        raise Cp2kValidationError("All electron basis sets require GAPW method")
+
 
 class StaticSet(DftSet):
+    """Quick Constructor for static calculations"""
 
-    """
-    Basic static energy calculation. Turns on Quickstep module, sets the run_type in global,
-    and uses structure object to build the subsystem.
-    """
-
-    def __init__(
-        self,
-        structure: Structure | Molecule,
-        project_name: str = "Static",
-        run_type: str = "ENERGY_FORCE",
-        override_default_params: dict | None = None,
-        **kwargs,
-    ):
-        """
-        Args:
-            structure: Pymatgen structure object
-            project_name (str): What to name this cp2k project (controls naming of files printed out)
-            run_type (str): Run type. As a static set it should be one of the static aliases,
-                like 'ENERGY_FORCE'
-        """
-        super().__init__(structure, **kwargs)
-        global_section = Global(project_name=project_name, run_type=run_type)
-        self.structure = structure
-        self.project_name = project_name
-        self.run_type = run_type
-        self.override_default_params = override_default_params if override_default_params else {}
-        self.insert(global_section)
-        self.update(self.override_default_params)
-        self.kwargs = kwargs
+    def __init__(self, **kwargs):
+        super().__init__(run_type="ENERGY_FORCE", **kwargs)
 
 
 class RelaxSet(DftSet):
+    """Quick Constructor for geometry relaxation"""
 
-    """
-    CP2K input set containing the basic settings for performing geometry optimization. Values are
-        all cp2k defaults, and should be good for most systems of interest.
-    """
-
-    def __init__(
-        self,
-        structure: Structure | Molecule,
-        max_drift: float = 3e-3,
-        rms_drift: float = 1.5e-3,
-        max_force: float = 4.5e-4,
-        rms_force: float = 3e-4,
-        max_iter: int = 200,
-        project_name: str = "Relax",
-        optimizer: str = "BFGS",
-        override_default_params: dict | None = None,
-        **kwargs,
-    ):
-
-        """
-        Args:
-            structure: Pymatgen structure object
-            max_drift: Convergence criterion for the maximum geometry change between the current
-                and the last optimizer iteration.
-                precisely one real.
-                Default unit: [bohr]
-            rms_drift: Convergence criterion for the RMS geometry change between the current and
-                the last optimizer iteration.
-                precisely one real.
-                Default unit: [bohr]
-            max_force (float): Convergence criterion for the maximum force component of the current
-                configuration.
-                Default unit: [bohr^-1*hartree]
-            rms_force (float): Convergence criterion for the RMS force component of the current
-                configuration.
-                Default unit: [bohr^-1*hartree]
-            max_iter (int): Specifies the maximum number of geometry optimization steps.
-                One step might imply several force evaluations for the CG and LBFGS optimizers.
-            optimizer (str): Specify which method to use to perform a geometry optimization.
-                This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
-                quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
-                is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweighs robustness. CG is more robust, especially when you are far
-                from the minimum, but it slower.
-        """
-        super().__init__(structure, **kwargs)
-
-        self.structure = structure
-        self.max_drift = max_drift
-        self.rms_drift = rms_drift
-        self.max_force = max_force
-        self.rms_force = rms_force
-        self.max_iter = max_iter
-        self.project_name = project_name
-        self.optimizer = optimizer
-        self.override_default_params = override_default_params if override_default_params else {}
-        self.kwargs = kwargs
-
-        global_section = Global(project_name=project_name, run_type="GEO_OPT")
-
-        geo_opt_params = {
-            "TYPE": Keyword("TYPE", "MINIMIZATION"),
-            "MAX_DR": Keyword("MAX_DR", max_drift),
-            "MAX_FORCE": Keyword("MAX_FORCE", max_force),
-            "RMS_DR": Keyword("RMS_DR", rms_drift),
-            "RMS_FORCE": Keyword("RMS_FORCE", rms_force),
-            "MAX_ITER": Keyword("MAX_ITER", max_iter),
-            "OPTIMIZER": Keyword("OPTIMIZER", optimizer),
-        }
-        geo_opt = Section("GEO_OPT", subsections={}, keywords=geo_opt_params)
-
-        if optimizer.upper() == "CG":
-            ls = Section("LINE_SEARCH", subsections={}, keywords={"TYPE": Keyword("TYPE", "2PNT")})
-            cg = Section("CG", subsections={"LINE_SEARCH": ls}, keywords={})
-            geo_opt.insert(cg)
-
+    def __init__(self, **kwargs):
+        super().__init__(run_type="GEO_OPT", **kwargs)
         self.activate_motion()
-        self["MOTION"].insert(geo_opt)
-        self.insert(global_section)
-        self.modify_dft_print_iters(0, add_last="numeric")
-        self.update(self.override_default_params)
 
 
-# TODO Add cell opt convergence criteria
 class CellOptSet(DftSet):
+    """Quick Constructor for cell optimization relaxation"""
 
-    """
-    CP2K input set containing the basic settings for performing geometry optimization. Values are
-    all cp2k defaults, and should be good for most systems of interest.
-    """
-
-    def __init__(
-        self,
-        structure: Structure | Molecule,
-        project_name: str = "CellOpt",
-        override_default_params: dict | None = None,
-        **kwargs,
-    ):
-
-        """
-        Args:
-            structure: Pymatgen structure object
-            max_drift: Convergence criterion for the maximum geometry change between the current
-                and the last optimizer iteration.
-                precisely one real.
-                Default unit: [bohr]
-            rms_drift: Convergence criterion for the RMS geometry change between the current and
-                the last optimizer iteration.
-                precisely one real.
-                Default unit: [bohr]
-            max_force (float): Convergence criterion for the maximum force component of the current
-                configuration.
-                Default unit: [bohr^-1*hartree]
-            rms_force (float): Convergence criterion for the RMS force component of the current
-                configuration.
-                Default unit: [bohr^-1*hartree]
-            max_iter (int): Specifies the maximum number of geometry optimization steps.
-                One step might imply several force evaluations for the CG and LBFGS optimizers.
-            optimizer (str): Specify which method to use to perform a geometry optimization.
-                This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
-                quasi-newtonian method, and will best for "small" systems near the minimum. LBFGS
-                is a limited memory version that can be used for "large" (>1000 atom) systems when
-                efficiency outweighs robustness. CG is more robust, especially when you are far
-                from the minimum, but it slower.
-        """
-        super().__init__(structure, **kwargs)
-
-        self.structure = structure
-        self.project_name = project_name
-        self.override_default_params = override_default_params if override_default_params else {}
-        self.kwargs = kwargs
-        global_section = Global(project_name=project_name, run_type="CELL_OPT")
-        self.insert(global_section)
+    def __init__(self, **kwargs):
+        super().__init__(run_type="CELL_OPT", **kwargs)
         self.activate_motion()
-        self.modify_dft_print_iters(0, add_last="numeric")
-        self.update(self.override_default_params)
 
 
-class HybridStaticSet(StaticSet):
+class HybridStaticSet(DftSet):
+    """Quick Constructor for static calculations"""
 
+    def __init__(self, **kwargs):
+        super().__init__(run_type="ENERGY_FORCE", **kwargs)
+        self.activate_hybrid(**kwargs.get("activate_hybrid"))
+
+
+class HybridRelaxSet(DftSet):
+    """Quick Constructor for hybrid geometry relaxation"""
+
+    def __init__(self, **kwargs):
+        super().__init__(run_type="GEO_OPT", **kwargs)
+        self.activate_hybrid(**kwargs.get("activate_hybrid"))
+
+
+class HybridCellOptSet(DftSet):
+    """Quick Constructor for hybrid cell optimization relaxation"""
+
+    def __init__(self, **kwargs):
+        super().__init__(run_type="CELL_OPT", **kwargs)
+        self.activate_hybrid(**kwargs.get("activate_hybrid"))
+
+
+class Cp2kValidationError(Exception):
     """
-    Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
-    """
-
-    def __init__(
-        self,
-        structure: Structure | Molecule,
-        hybrid_functional: str = "PBE0",
-        hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Static",
-        gga_x_fraction: float = 0.75,
-        gga_c_fraction: float = 1,
-        potential_type: str = None,
-        scale_coulomb: float = 1,
-        scale_gaussian: float = 1,
-        scale_longrange: float = 1,
-        override_default_params: dict | None = None,
-        max_memory: int = 2000,
-        cutoff_radius: float = 8.0,
-        omega: float = 0.2,
-        aux_basis: dict | None = None,
-        admm: bool = True,
-        eps_schwarz: float = 1e-6,
-        eps_schwarz_forces: float = 1e-6,
-        screen_on_initial_p: bool = True,
-        screen_p_forces: bool = True,
-        **kwargs,
-    ):
-        """
-        Args:
-            structure: pymatgen structure object
-            method: hybrid dft method to use (currently select between HSE06 and PBE0)
-            hf_fraction: percentage of exact HF to mix-in
-            project_name: what to call this project
-            gga_x_fraction: percentage of gga exchange to use
-            gga_c_fraction: percentage of gga correlation to use
-            override_default_params: override settings (see above).
-        """
-        super().__init__(structure, project_name=project_name, **kwargs)
-
-        self.structure = structure
-        self.hybrid_functional = hybrid_functional
-        self.hf_fraction = hf_fraction
-        self.project_name = project_name
-        self.potential_type = potential_type
-        self.gga_x_fraction = gga_x_fraction
-        self.gga_c_fraction = gga_c_fraction
-        self.scale_coulomb = scale_coulomb
-        self.scale_gaussian = scale_gaussian
-        self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params if override_default_params else {}
-        self.max_memory = max_memory
-        self.cutoff_radius = cutoff_radius
-        self.omega = omega
-        self.aux_basis = aux_basis
-        self.admm = admm
-        self.eps_schwarz = eps_schwarz
-        self.eps_schwarz_forces = eps_schwarz_forces
-        self.screen_on_initial_p = screen_on_initial_p
-        self.screen_p_forces = screen_p_forces
-        self.kwargs = kwargs
-
-        self.activate_hybrid(
-            hybrid_functional=self.hybrid_functional,
-            hf_fraction=self.hf_fraction,
-            potential_type=self.potential_type,
-            gga_x_fraction=self.gga_x_fraction,
-            gga_c_fraction=self.gga_c_fraction,
-            scale_coulomb=self.scale_coulomb,
-            scale_gaussian=self.scale_gaussian,
-            scale_longrange=self.scale_longrange,
-            max_memory=self.max_memory,
-            cutoff_radius=cutoff_radius,
-            omega=self.omega,
-            aux_basis=self.aux_basis,
-            admm=self.admm,
-            eps_schwarz=self.eps_schwarz,
-            eps_schwarz_forces=self.eps_schwarz_forces,
-            screen_on_initial_p=self.screen_on_initial_p,
-            screen_p_forces=self.screen_p_forces,
-        )
-        self.update(self.override_default_params)
-
-
-class HybridRelaxSet(RelaxSet):
-
-    """
-    Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
+    Cp2k Validation Exception. Not exhausted. May raise validation
+    errors for features which actually do work if using a newer version
+    of cp2k
     """
 
-    def __init__(
-        self,
-        structure: Structure | Molecule,
-        hybrid_functional: str = "PBE0",
-        hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Static",
-        potential_type: str = None,
-        gga_x_fraction: float = 0.75,
-        gga_c_fraction: float = 1,
-        scale_coulomb: float = 1,
-        scale_gaussian: float = 1,
-        scale_longrange: float = 1,
-        override_default_params: dict | None = None,
-        max_memory: int = 2000,
-        cutoff_radius: float = 8.0,
-        omega: float = 0.2,
-        aux_basis: dict | None = None,
-        admm: bool = True,
-        eps_schwarz: float = 1e-6,
-        eps_schwarz_forces: float = 1e-6,
-        screen_on_initial_p: bool = True,
-        screen_p_forces: bool = True,
-        **kwargs,
-    ):
-        """
-        Args:
-            structure: pymatgen structure object
-            method: hybrid dft method to use (currently select between HSE06 and PBE0)
-            hf_fraction: percentage of exact HF to mix-in
-            project_name: what to call this project
-            gga_x_fraction: percentage of gga exchange to use
-            gga_c_fraction: percentage of gga correlation to use
-            override_default_params: override settings (see above).
-        """
-        super().__init__(structure, project_name=project_name, **kwargs)
+    CP2K_VERSION = "v2022.1"
 
-        self.structure = structure
-        self.hybrid_functional = hybrid_functional
-        self.hf_fraction = hf_fraction
-        self.project_name = project_name
-        self.potential_type = potential_type
-        self.gga_x_fraction = gga_x_fraction
-        self.gga_c_fraction = gga_c_fraction
-        self.scale_coulomb = scale_coulomb
-        self.scale_gaussian = scale_gaussian
-        self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params if override_default_params else {}
-        self.max_memory = max_memory
-        self.cutoff_radius = cutoff_radius
-        self.omega = omega
-        self.aux_basis = aux_basis
-        self.admm = admm
-        self.eps_schwarz = eps_schwarz
-        self.eps_schwarz_forces = eps_schwarz_forces
-        self.screen_on_initial_p = screen_on_initial_p
-        self.screen_p_forces = screen_p_forces
-        self.kwargs = kwargs
-
-        self.activate_hybrid(
-            hybrid_functional=self.hybrid_functional,
-            hf_fraction=self.hf_fraction,
-            potential_type=self.potential_type,
-            gga_x_fraction=self.gga_x_fraction,
-            gga_c_fraction=self.gga_c_fraction,
-            scale_coulomb=self.scale_coulomb,
-            scale_gaussian=self.scale_gaussian,
-            scale_longrange=self.scale_longrange,
-            max_memory=self.max_memory,
-            cutoff_radius=cutoff_radius,
-            omega=self.omega,
-            aux_basis=self.aux_basis,
-            admm=self.admm,
-            eps_schwarz=self.eps_schwarz,
-            eps_schwarz_forces=self.eps_schwarz_forces,
-            screen_on_initial_p=self.screen_on_initial_p,
-            screen_p_forces=self.screen_p_forces,
-        )
-        self.update(self.override_default_params)
-
-
-class HybridCellOptSet(CellOptSet):
-
-    """
-    Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
-    """
-
-    def __init__(
-        self,
-        structure: Structure | Molecule,
-        hybrid_functional: str = "PBE0",
-        hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Static",
-        potential_type: str = None,
-        gga_x_fraction: float = 0.75,
-        gga_c_fraction: float = 1,
-        scale_coulomb: float = 1,
-        scale_gaussian: float = 1,
-        scale_longrange: float = 1,
-        override_default_params: dict | None = None,
-        max_memory: int = 2000,
-        cutoff_radius: float = 8.0,
-        omega: float = 0.2,
-        aux_basis: dict | None = None,
-        admm: bool = True,
-        eps_schwarz: float = 1e-6,
-        eps_schwarz_forces: float = 1e-6,
-        screen_on_initial_p: bool = True,
-        screen_p_forces: bool = True,
-        **kwargs,
-    ):
-        """
-        Args:
-            structure: pymatgen structure object
-            method: hybrid dft method to use (currently select between HSE06 and PBE0)
-            hf_fraction: percentage of exact HF to mix-in
-            project_name: what to call this project
-            gga_x_fraction: percentage of gga exchange to use
-            gga_c_fraction: percentage of gga correlation to use
-            override_default_params: override settings (see above).
-        """
-        super().__init__(structure, project_name=project_name, **kwargs)
-
-        self.structure = structure
-        self.hybrid_functional = hybrid_functional
-        self.hf_fraction = hf_fraction
-        self.project_name = project_name
-        self.potential_type = potential_type
-        self.gga_x_fraction = gga_x_fraction
-        self.gga_c_fraction = gga_c_fraction
-        self.scale_coulomb = scale_coulomb
-        self.scale_gaussian = scale_gaussian
-        self.scale_longrange = scale_longrange
-        self.override_default_params = override_default_params if override_default_params else {}
-        self.max_memory = max_memory
-        self.cutoff_radius = cutoff_radius
-        self.omega = omega
-        self.aux_basis = aux_basis
-        self.admm = admm
-        self.eps_schwarz = eps_schwarz
-        self.eps_schwarz_forces = eps_schwarz_forces
-        self.screen_on_initial_p = screen_on_initial_p
-        self.screen_p_forces = screen_p_forces
-        self.kwargs = kwargs
-
-        self.activate_hybrid(
-            hybrid_functional=self.hybrid_functional,
-            hf_fraction=self.hf_fraction,
-            potential_type=self.potential_type,
-            gga_x_fraction=self.gga_x_fraction,
-            gga_c_fraction=self.gga_c_fraction,
-            scale_coulomb=self.scale_coulomb,
-            scale_gaussian=self.scale_gaussian,
-            scale_longrange=self.scale_longrange,
-            max_memory=self.max_memory,
-            cutoff_radius=cutoff_radius,
-            omega=self.omega,
-            aux_basis=self.aux_basis,
-            admm=self.admm,
-            eps_schwarz=self.eps_schwarz,
-            eps_schwarz_forces=self.eps_schwarz_forces,
-            screen_on_initial_p=self.screen_on_initial_p,
-            screen_p_forces=self.screen_p_forces,
-        )
-        self.update(self.override_default_params)
+    def __init__(self, message):
+        message = f"CP2K {self.CP2K_VERSION}: {message}"
+        super().__init__(message)
