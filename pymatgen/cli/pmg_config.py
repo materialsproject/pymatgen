@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import sys
 from argparse import Namespace
-from typing import Dict, Literal
+from typing import Literal
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
@@ -92,7 +92,6 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
             except IndexError:
                 # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
                 continue
-
 
     print("Done processing cp2k data files")
 
