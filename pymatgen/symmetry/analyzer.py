@@ -21,7 +21,7 @@ import warnings
 from collections import defaultdict
 from fractions import Fraction
 from math import cos, sin
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import spglib
@@ -76,12 +76,14 @@ class SpacegroupAnalyzer:
                 magmoms.append(site.magmom)
             elif site.is_ordered and hasattr(site.specie, "spin"):
                 magmoms.append(site.specie.spin)
-            else:
-                magmoms.append(0)  # needed for spglib
 
         self._unique_species = unique_species
         self._numbers = zs
-        self._cell = structure.lattice.matrix, structure.frac_coords, zs, magmoms
+
+        if len(magmoms) > 0:
+            self._cell: tuple[Any, ...] = structure.lattice.matrix, structure.frac_coords, zs, magmoms
+        else:  # if no magmoms given do not add to cell
+            self._cell = structure.lattice.matrix, structure.frac_coords, zs
 
         self._space_group_data = spglib.get_symmetry_dataset(
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance
@@ -217,6 +219,11 @@ class SpacegroupAnalyzer:
             vectors in scaled positions.
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        if d is None:
+            raise ValueError(
+                f"Symmetry detection failed for structure with formula {self._structure.formula}. "
+                f"Try setting symprec={self._symprec} to a different value."
+            )
         # Sometimes spglib returns small translation vectors, e.g.
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator

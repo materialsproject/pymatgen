@@ -11,7 +11,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import Any, Dict, List, Sequence
+from typing import Any, Sequence
 
 import numpy as np
 import spglib
@@ -19,6 +19,7 @@ from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
 
+from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
@@ -27,7 +28,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Janine George, Marco Esters "
+__maintainer__ = "Janine George, Marco Esters"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 13, 2017"
 
@@ -95,6 +96,7 @@ class Lobsterin(dict, MSONable):
         "forceEnergyRange",
         "bandwiseSpilling",
         "kpointwiseSpilling",
+        "LSODOS",
     ]
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
@@ -135,7 +137,7 @@ class Lobsterin(dict, MSONable):
 
     def __getitem__(self, item):
         """
-        implements getitem from dict to avoid problems with cases
+        Implements getitem from dict to avoid problems with cases
         """
         found = False
         for key_here in self:
@@ -152,8 +154,10 @@ class Lobsterin(dict, MSONable):
         """
         Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.
         Similar to the diff in INCAR.
+
         Args:
             other (Lobsterin): Lobsterin object to compare to
+
         Returns:
             dict with differences and similarities
         """
@@ -209,12 +213,12 @@ class Lobsterin(dict, MSONable):
 
     def _get_nbands(self, structure: Structure):
         """
-        get number of nbands
+        Get number of bands.
         """
         if self.get("basisfunctions") is None:
             raise OSError("No basis functions are provided. The program cannot calculate nbands.")
 
-        basis_functions = []  # type: List[str]
+        basis_functions: list[str] = []
         for string_basis in self["basisfunctions"]:
             # string_basis.lstrip()
             string_basis_raw = string_basis.strip().split(" ")
@@ -238,12 +242,12 @@ class Lobsterin(dict, MSONable):
 
     def write_lobsterin(self, path="lobsterin", overwritedict=None):
         """
-        writes a lobsterin file
+        Writes a lobsterin file
+
         Args:
             path (str): filename of the lobsterin file that will be written
             overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
         """
-
         # will overwrite previous entries
         # has to search first if entry is already in Lobsterindict (due to case insensitivity)
         if overwritedict is not None:
@@ -298,11 +302,12 @@ class Lobsterin(dict, MSONable):
         incar_output: str = "INCAR.lobster",
         poscar_input: str = "POSCAR",
         isym: int = -1,
-        further_settings: dict = None,
+        further_settings: dict | None = None,
     ):
         """
         Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
         You have to check for the rest.
+
         Args:
             incar_input (str): path to input INCAR
             incar_output (str): path to output INCAR
@@ -333,14 +338,16 @@ class Lobsterin(dict, MSONable):
     def get_basis(
         structure: Structure,
         potcar_symbols: list,
-        address_basis_file: str = None,
+        address_basis_file: str | None = None,
     ):
         """
-        will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
+        Will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
         #include this in lobsterin class
+
         Args:
             structure (Structure): Structure object
             potcar_symbols: list of potcar symbols
+
         Returns:
             returns basis
         """
@@ -375,11 +382,10 @@ class Lobsterin(dict, MSONable):
     def get_all_possible_basis_functions(
         structure: Structure,
         potcar_symbols: list,
-        address_basis_file_min: str = None,
-        address_basis_file_max: str = None,
+        address_basis_file_min: str | None = None,
+        address_basis_file_max: str | None = None,
     ):
         """
-
         Args:
             structure: Structure object
             potcar_symbols: list of the potcar symbols
@@ -417,7 +423,8 @@ class Lobsterin(dict, MSONable):
         POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec: float = 0.01
     ):
         """
-        writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
+        Writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
+
         Args:
             POSCAR_input (str): filename of input POSCAR
             POSCAR_output (str): filename of output POSCAR
@@ -441,7 +448,8 @@ class Lobsterin(dict, MSONable):
         symprec: float = 0.01,
     ):
         """
-        writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
+        Writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
+
         Args:
             POSCAR_input (str): path to POSCAR
             KPOINTS_output (str): path to output KPOINTS
@@ -465,7 +473,7 @@ class Lobsterin(dict, MSONable):
         # we need to switch off symmetry here
         latt = structure.lattice.matrix
         positions = structure.frac_coords
-        unique_species = []  # type: List[Any]
+        unique_species: list[Composition] = []
         zs = []
         magmoms = []
 
@@ -574,7 +582,7 @@ class Lobsterin(dict, MSONable):
             data = f.read().split("\n")
         if len(data) == 0:
             raise OSError("lobsterin file contains no data.")
-        Lobsterindict = {}  # type: Dict
+        Lobsterindict: dict[str, Any] = {}
 
         for datum in data:
             # will remove all comments to avoid complications
@@ -610,9 +618,11 @@ class Lobsterin(dict, MSONable):
     @staticmethod
     def _get_potcar_symbols(POTCAR_input: str) -> list:
         """
-        will return the name of the species in the POTCAR
+        Will return the name of the species in the POTCAR
+
         Args:
-         POTCAR_input(str): string to potcar file
+            POTCAR_input(str): string to potcar file
+
         Returns:
             list of the names of the species in string format
         """
@@ -652,7 +662,7 @@ class Lobsterin(dict, MSONable):
         option: str = "standard",
     ):
         """
-        will generate Lobsterin with standard settings
+        Will generate Lobsterin with standard settings
 
         Args:
             POSCAR_input(str): path to POSCAR
@@ -696,7 +706,7 @@ class Lobsterin(dict, MSONable):
         ]:
             raise ValueError("The option is not valid!")
 
-        Lobsterindict = {}  # type: Dict[Any,Any]
+        Lobsterindict: dict[str, Any] = {}
         # this basis set covers most elements
         Lobsterindict["basisSet"] = "pbeVaspFit2015"
         # energies around e-fermi

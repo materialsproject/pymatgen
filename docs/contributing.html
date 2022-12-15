@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contributing &mdash; pymatgen 2022.10.22 documentation</title>
+  <title>Contributing &mdash; pymatgen 2022.11.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,9 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.10.22
+                2022.11.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -81,8 +78,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Contributing</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Contributing</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/contributing.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -92,8 +89,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h1>
+  <div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline"></a></h1>
 <p>Pymatgen is a community project. We welcome any contributions to either improve or expand its functionality. There are
 two main ways of contributing to pymatgen:</p>
 <ol class="arabic simple">
@@ -112,8 +109,8 @@ should be as an add-on. It is helpful to always submit a <a class="reference ext
 maintainers as well as the broader community. It is also possible that a package that initially was developed as an
 add-on subsequently gain enough broad interest and traction such that it is incorporated into the main pymatgen
 distribution.</p>
-<section id="direct-contributions-to-pymatgen-main-distribution">
-<h2>Direct contributions to pymatgen main distribution<a class="headerlink" href="#direct-contributions-to-pymatgen-main-distribution" title="Permalink to this heading"></a></h2>
+<div class="section" id="direct-contributions-to-pymatgen-main-distribution">
+<h2>Direct contributions to pymatgen main distribution<a class="headerlink" href="#direct-contributions-to-pymatgen-main-distribution" title="Permalink to this headline"></a></h2>
 <ol class="arabic">
 <li><p>Create a free GitHub account (if you don’t already have one) and perform the necessary setup (e.g., install SSH
 keys etc.).</p></li>
@@ -129,9 +126,7 @@ when they are ready to be merged:</p>
 necessary for rigorous testing of the code.</p>
 </li>
 <li><p>It is highly recommended you install all the optional dependencies as well:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">-</span><span class="n">optional</span><span class="o">.</span><span class="n">txt</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s1">&#39;.[dev,optional]&#39;</span>
 </pre></div>
 </div>
 </li>
@@ -184,9 +179,9 @@ will only be merged if these checks passed.</p></li>
 <p>“Work-in-progress” pull requests are encouraged, especially if this is your first time contributing to pymatgen, and
 the maintainers will be happy to help or provide code review as necessary. Put “[WIP]” in the title of your
 pull request to indicate it’s not ready to be merged.</p>
-</section>
-<section id="writing-add-ons-for-pymatgen">
-<h2>Writing add-ons for pymatgen<a class="headerlink" href="#writing-add-ons-for-pymatgen" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="writing-add-ons-for-pymatgen">
+<h2>Writing add-ons for pymatgen<a class="headerlink" href="#writing-add-ons-for-pymatgen" title="Permalink to this headline"></a></h2>
 <p>Add-on packages can be developed under the pymatgen, pymatgen.analysis, pymatgen.ext and and pymatgen.io
 <a class="reference external" href="http://packaging.python.org/guides/packaging-namespace-packages/">namespaces</a>. We ask that most add-ons be developed
 under the pymatgen.analysis, pymatgen.ext and and pymatgen.io namespaces and not the root pymatgen namespace. The
@@ -216,9 +211,9 @@ no guarantees whatsoever on the quality or reliability of any code that is not p
 The add-on architecture therefore provides flexibility for broad expansion of scope in pymatgen functionality by the
 community by loosening up the tight control in the main repository, which is bottlenecked by the small team maintaining
 it.</p>
-</section>
-<section id="coding-guidelines">
-<h2>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="coding-guidelines">
+<h2>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline"></a></h2>
 <p>Given that pymatgen is intended to be long-term code base, we adopt very strict
 quality control and coding guidelines for all contributions to pymatgen. The
 following must be satisfied for your contributions to be accepted into pymatgen.</p>
@@ -247,8 +242,8 @@ selecting the entire code and using the Code-&gt;Reformat Code within Pycharm.</
 </ol>
 <p>For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

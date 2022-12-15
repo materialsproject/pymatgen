@@ -33,6 +33,7 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
+from pymatgen.util.typing import ArrayLike
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class PDEntry(Entry):
         self,
         composition: Composition,
         energy: float,
-        name: str = None,
+        name: str | None = None,
         attribute: object = None,
     ):
         """
@@ -342,7 +343,7 @@ class PhaseDiagram(MSONable):
         entries: Sequence[PDEntry] | set[PDEntry],
         elements: Sequence[Element] = (),
         *,
-        computed_data: dict[str, Any] = None,
+        computed_data: dict[str, Any] | None = None,
     ) -> None:
         """
         Args:
@@ -365,7 +366,7 @@ class PhaseDiagram(MSONable):
             computed_data = self._compute()
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
-        assert isinstance(computed_data, dict)  # type narrowing to appease mypy
+        assert isinstance(computed_data, dict)  # mypy type narrowing
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
@@ -392,7 +393,7 @@ class PhaseDiagram(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict[str, Any]) -> PhaseDiagram:
         """
         Args:
             d (dict): dictionary representation of PhaseDiagram
@@ -1507,7 +1508,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def __init__(
         self,
         entries: Sequence[PDEntry] | set[PDEntry],
-        elements: Sequence[Element] = None,
+        elements: Sequence[Element] | None = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,
     ) -> None:
@@ -1867,12 +1868,12 @@ class ReactionDiagram:
 
                 try:
 
-                    m = []
+                    mat = []
                     for e in face_entries:
-                        m.append([e.composition.get_atomic_fraction(el) for el in elements])
-                    m.append(comp_vec2 - comp_vec1)
-                    m = np.array(m).T
-                    coeffs = np.linalg.solve(m, comp_vec2)
+                        mat.append([e.composition.get_atomic_fraction(el) for el in elements])
+                    mat.append(comp_vec2 - comp_vec1)
+                    matrix = np.array(mat).T
+                    coeffs = np.linalg.solve(matrix, comp_vec2)
 
                     x = coeffs[-1]
                     # pylint: disable=R1716
@@ -1968,7 +1969,7 @@ class PhaseDiagramError(Exception):
     """
 
 
-def get_facets(qhull_data: np.ndarray, joggle: bool = False) -> ConvexHull:
+def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
     """
     Get the simplex facets for the Convex hull.
 

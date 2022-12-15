@@ -149,7 +149,6 @@ class Kpoint(MSONable):
         Returns:
             A Kpoint object
         """
-
         return cls(
             coords=d["fcoords"],
             lattice=Lattice.from_dict(d["lattice"]),
@@ -209,8 +208,8 @@ class BandStructure:
         efermi: float,
         labels_dict=None,
         coords_are_cartesian: bool = False,
-        structure: Structure = None,
-        projections: dict[Spin, np.ndarray] = None,
+        structure: Structure | None = None,
+        projections: dict[Spin, np.ndarray] | None = None,
     ) -> None:
         """
         Args:
@@ -962,7 +961,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         """
         JSON-serializable dict representation of BandStructureSymmLine.
         """
-
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

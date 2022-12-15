@@ -75,7 +75,7 @@ class MagneticSpaceGroupTest(PymatgenTest):
 
     def test_symmetry_ops(self):
 
-        msg_1_symmops = "\n".join([str(op) for op in self.msg_1.symmetry_ops])
+        msg_1_symmops = "\n".join(map(str, self.msg_1.symmetry_ops))
         msg_1_symmops_ref = """x, y, z, +1
 -x+3/4, -y+3/4, z, +1
 -x, -y, -z, +1
@@ -110,7 +110,7 @@ x+1/2, -y+5/4, -z+3/4, -1
 x+3/4, -y+1/2, z+1/4, -1"""
         self.assertStrContentEqual(msg_1_symmops, msg_1_symmops_ref)
 
-        msg_2_symmops = "\n".join([str(op) for op in self.msg_2.symmetry_ops])
+        msg_2_symmops = "\n".join(map(str, self.msg_2.symmetry_ops))
         msg_2_symmops_ref = """x, y, z, +1
 -x, y+1/2, -z, +1
 -x, -y, -z, +1
@@ -121,7 +121,7 @@ x+1/2, -y+1/2, -z+1/2, -1
 x+1/2, y, -z+1/2, -1"""
         self.assertStrContentEqual(msg_2_symmops, msg_2_symmops_ref)
 
-        msg_3_symmops = "\n".join([str(op) for op in self.msg_3.symmetry_ops])
+        msg_3_symmops = "\n".join(map(str, self.msg_3.symmetry_ops))
         msg_3_symmops_ref = """x, y, z, +1
 x, -y, -z, +1
 -x, y, -z+1/2, +1
@@ -140,7 +140,7 @@ x, -y+1/2, -z+1/2, -1
 -x, -y+1/2, z, -1"""
         assert msg_3_symmops == msg_3_symmops_ref
 
-        msg_4_symmops = "\n".join([str(op) for op in self.msg_4.symmetry_ops])
+        msg_4_symmops = "\n".join(map(str, self.msg_4.symmetry_ops))
         msg_4_symmops_ref = """x, y, z, +1
 -x, -y, -z, +1
 x+1/2, y, z, -1

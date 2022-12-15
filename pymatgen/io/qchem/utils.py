@@ -7,6 +7,9 @@ from collections import defaultdict
 
 import numpy as np
 
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
+
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
     r"""
@@ -37,6 +40,25 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
             if terminate_on_match:
                 break
     return matches
+
+
+def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, postprocess=str):
+    """Parse a matrix to get the quantities in a numpy array."""
+
+    # Get the piece of text between the header and the footer
+    header_regex = re.compile(header_pattern)
+    footer_regex = re.compile(footer_pattern)
+
+    # Find the text between the header and footer
+    text_between_header_and_footer = text[header_regex.search(text).end() : footer_regex.search(text).start()]
+
+    # Get the elements
+    elements = re.findall(elements_pattern, text_between_header_and_footer)
+
+    # Apply postprocessing to all the elements
+    elements = [postprocess(e) for e in elements]
+
+    return elements
 
 
 def read_table_pattern(
@@ -111,10 +133,10 @@ def read_table_pattern(
 
 def lower_and_check_unique(dict_to_check):
     """
-    Takes a dictionary and makes all the keys lower case. Also replaces
-    "jobtype" with "job_type" just so that key specifically can be called
-    elsewhere without ambiguity. Finally, ensures that multiple identical
-    keys, that differed only due to different capitalizations, are not
+    Takes a dictionary and makes all the keys lower case. Also converts all numeric
+    values (floats, ints) to str and replaces "jobtype" with "job_type" just so that
+    key specifically can be called elsewhere without ambiguity. Finally, ensures that
+    multiple identical keys, that differed only due to different capitalizations, are not
     present. If there are multiple equivalent keys, an Exception is raised.
 
     Args:
@@ -128,18 +150,25 @@ def lower_and_check_unique(dict_to_check):
         return None
 
     to_return = {}
-    for key in dict_to_check:
+    for key, val in dict_to_check.items():
+        # lowercase the key
         new_key = key.lower()
+
+        if isinstance(val, str):
+            val = val.lower()
+        elif isinstance(val, int) or isinstance(val, float):
+            # convert all numeric keys to str
+            val = str(val)
+        else:
+            pass
+
         if new_key == "jobtype":
             new_key = "job_type"
-        if new_key in to_return:
-            if to_return[key] != to_return[new_key]:
-                raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
-        else:
-            try:
-                to_return[new_key] = dict_to_check.get(key).lower()
-            except AttributeError:
-                to_return[new_key] = dict_to_check.get(key)
+
+        if new_key in to_return and val != to_return[new_key]:
+            raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
+
+        to_return[new_key] = val
     return to_return
 
 
@@ -153,3 +182,32 @@ def process_parsed_coords(coords):
         for jj in range(3):
             geometry[ii, jj] = float(entry[jj])
     return geometry
+
+
+def process_parsed_fock_matrix(fock_matrix):
+    """The Fock matrix is parsed as a list, while it should actually be
+    a square matrix, this function takes the list of finds the right dimensions
+    in order to reshape the matrix."""
+    total_elements = len(fock_matrix)
+    n_rows = int(np.sqrt(total_elements))
+    n_cols = n_rows
+
+    # Q-Chem splits the printing of the matrix into chunks of 6 elements
+    # per line. TODO: Is there a better way than to hard-code this?
+    chunks = 6 * n_rows
+    # Decide the indices of the chunks
+    chunk_indices = np.arange(chunks, total_elements, chunks)
+    # Split the arrays into the chunks
+    fock_matrix_chunks = np.split(fock_matrix, chunk_indices)
+
+    # Reshape the chunks into the matrix and populate the matrix
+    fock_matrix_reshaped = np.zeros(shape=(n_rows, n_cols), dtype=float)
+    index_cols = 0
+    for fock_matrix_chunk in fock_matrix_chunks:
+        n_cols_chunks = len(fock_matrix_chunk) / n_rows
+        n_cols_chunks = int(n_cols_chunks)
+        fock_matrix_chunk_reshaped = np.reshape(fock_matrix_chunk, (n_rows, n_cols_chunks))
+        fock_matrix_reshaped[:, index_cols : index_cols + n_cols_chunks] = fock_matrix_chunk_reshaped
+        index_cols += n_cols_chunks
+
+    return fock_matrix_reshaped

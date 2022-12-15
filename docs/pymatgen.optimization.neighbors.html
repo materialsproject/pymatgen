@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.optimization.neighbors module &mdash; pymatgen 2022.10.22 documentation</title>
+  <title>pymatgen.optimization.neighbors module &mdash; pymatgen 2022.11.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,9 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.10.22
+                2022.11.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -101,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.optimization.html">pymatgen.optimization package</a> &raquo;</li>
-      <li>pymatgen.optimization.neighbors module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+      <li class="breadcrumb-item active">pymatgen.optimization.neighbors module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.optimization.neighbors.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -115,20 +112,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.optimization.neighbors">
-<span id="pymatgen-optimization-neighbors-module"></span><h1>pymatgen.optimization.neighbors module<a class="headerlink" href="#module-pymatgen.optimization.neighbors" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.optimization.neighbors">
+<span id="pymatgen-optimization-neighbors-module"></span><h1>pymatgen.optimization.neighbors module<a class="headerlink" href="#module-pymatgen.optimization.neighbors" title="Permalink to this headline"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.optimization.neighbors.compute_offset_vectors">
-<span class="sig-name descname"><span class="pre">compute_offset_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.10.22/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.compute_offset_vectors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compute_offset_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.11.7/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.compute_offset_vectors" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.optimization.neighbors.find_points_in_spheres">
-<span class="sig-name descname"><span class="pre">find_points_in_spheres</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.10.22/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_points_in_spheres</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.11.7/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition"></a></dt>
 <dd><p>For each point in <cite>center_coords</cite>, get all the neighboring points in <cite>all_coords</cite> that are within the
-cutoff radius <cite>r</cite>. All the coordinates should be in cartesian.</p>
+cutoff radius <cite>r</cite>. All the coordinates should be in Cartesian.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>all_coords</strong> – (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,
 this is all the points in the lattice.</p></li>
@@ -143,7 +140,7 @@ will calculate neighbor list using min_r as cutoff and discard
 those that have larger distances.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair</dt><dd><p>offset_vectors are the periodic image offsets for the all_coords.</p>
 </dd>
@@ -153,7 +150,7 @@ those that have larger distances.</p></li>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

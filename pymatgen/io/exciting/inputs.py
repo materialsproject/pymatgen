@@ -55,7 +55,6 @@ class ExcitingInput(MSONable):
             lockxyz (Nx3 array): bool values for selective dynamics,
                 where N is number of sites. Defaults to None.
         """
-
         if structure.is_ordered:
             site_properties = {}
             if lockxyz:
@@ -84,7 +83,6 @@ class ExcitingInput(MSONable):
         """
         Reads the exciting input from a string
         """
-
         root = ET.fromstring(data)
         speciesnode = root.find("structure").iter("species")
         elements = []

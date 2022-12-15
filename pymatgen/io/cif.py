@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.string import remove_non_ascii
 
 from pymatgen.core.composition import Composition
@@ -46,13 +47,9 @@ _COD_DATA = None
 
 def _get_cod_data():
     global _COD_DATA
+
     if _COD_DATA is None:
-        import pymatgen
-
-        with open(os.path.join(pymatgen.symmetry.__path__[0], "symm_ops.json")) as f:
-            import json
-
-            _COD_DATA = json.load(f)
+        _COD_DATA = loadfn(os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json"))
 
     return _COD_DATA
 
@@ -392,7 +389,6 @@ class CifParser:
         CIF files extracted from the Springer Materials/Pauling File
         databases, and that are different from standard ICSD formats.
         """
-
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
@@ -493,7 +489,6 @@ class CifParser:
         as a result of magCIF being in widespread use prior to
         specification being finalized (on advice of Branton Campbell).
         """
-
         if self.feature_flags["magcif"]:
 
             # CIF-1 style has all underscores, interim standard
@@ -1145,7 +1140,6 @@ class CifParser:
         Returns:
             List of Structures.
         """
-
         if primitive and symmetrized:
             raise ValueError(
                 "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
@@ -1179,7 +1173,6 @@ class CifParser:
         :param data:
         :return: BibTeX string
         """
-
         try:
             from pybtex.database import BibliographyData, Entry
         except ImportError:
@@ -1292,7 +1285,6 @@ class CifWriter:
             refine_struct: Used only if symprec is not None. If True, get_refined_structure
                 is invoked to convert input structure from primitive to conventional.
         """
-
         if write_magmoms and symprec:
             warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
             symprec = None

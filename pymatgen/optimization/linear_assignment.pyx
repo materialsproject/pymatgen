@@ -1,8 +1,3 @@
-#cython: language_level=3
-# coding: utf-8
-
-from __future__ import division, unicode_literals
-
 """
 This module contains an algorithm to solve the Linear Assignment Problem
 """
@@ -52,13 +47,13 @@ class LinearAssignment:
     """
 
     def __init__(self, costs, epsilon=1e-13):
-        self.orig_c = np.array(costs, dtype=np.float_, copy=False, order='C')
+        self.orig_c = np.array(costs, dtype=np.float_, copy=False, order="C")
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
 
         self.epsilon = fabs(epsilon)
 
-        #check that cost matrix is square
+        # check that cost matrix is square
         if self.nx > self.ny:
             raise ValueError("cost matrix must have at least as many columns as rows")
 
@@ -68,7 +63,7 @@ class LinearAssignment:
             self.c = np.zeros((self.n, self.n), dtype=np.float_)
             self.c[:self.nx] = self.orig_c
 
-        #initialize solution vectors
+        # initialize solution vectors
         self._x = np.empty(self.n, dtype=np.int)
         self._y = np.empty(self.n, dtype=np.int)
 

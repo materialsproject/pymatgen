@@ -636,8 +636,11 @@ class IcohplistTest(unittest.TestCase):
         }
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
+        self.assertEqual(-2.38796, self.icohp_bise.icohpcollection.extremum_icohpvalue())
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
+        self.assertEqual(-0.29919, self.icoop_fe.icohpcollection.extremum_icohpvalue())
         self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
+        self.assertEqual(0.24714, self.icoop_bise.icohpcollection.extremum_icohpvalue())
         self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)
@@ -656,6 +659,7 @@ class IcohplistTest(unittest.TestCase):
             0.58649 / 2,
             3,
         )
+        self.assertEqual(0.58649, self.icobi.icohpcollection.extremum_icohpvalue())
 
 
 class DoscarTest(unittest.TestCase):
@@ -1451,7 +1455,7 @@ class LobsteroutTest(PymatgenTest):
             "hasProjection": False,
             "hasbandoverlaps": True,
             "hasfatband": False,
-            "hasGrossPopuliation": False,
+            "hasGrossPopulation": False,
             "hasDensityOfEnergies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():

@@ -28,7 +28,7 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
+__date__ = "Feb 21, 2013M"
 
 __all__ = [
     "as_ncreader",

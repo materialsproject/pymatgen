@@ -124,6 +124,21 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         ds = self.sg.get_symmetry_dataset()
         assert ds["international"] == "Pnma"
 
+    def test_get_symmetry(self):
+        # see discussion in https://github.com/materialsproject/pymatgen/pull/2724
+        Co8 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Co8.cif"))
+        symprec = 1e-1
+
+        with pytest.raises(
+            ValueError,
+            match=f"Symmetry detection failed for structure with formula {Co8.formula}. "
+            f"Try setting {symprec=} to a different value.",
+        ):
+            sga = SpacegroupAnalyzer(Co8, symprec=symprec)
+            magmoms = [0] * len(Co8)  # bad magmoms, see https://github.com/materialsproject/pymatgen/pull/2727
+            sga._cell = (*sga._cell, magmoms)
+            sga._get_symmetry()
+
     def test_get_crystal_system(self):
         crystal_system = self.sg.get_crystal_system()
         assert "orthorhombic" == crystal_system

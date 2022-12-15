@@ -692,10 +692,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def oxi_state_guesses(
         self,
-        oxi_states_override: dict = None,
+        oxi_states_override: dict | None = None,
         target_charge: float = 0,
         all_oxi_states: bool = False,
-        max_sites: int = None,
+        max_sites: int | None = None,
     ) -> list[dict[str, float]]:
         """
         Checks if the composition is charge-balanced and returns back all
@@ -786,10 +786,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def add_charges_from_oxi_state_guesses(
         self,
-        oxi_states_override: dict = None,
+        oxi_states_override: dict | None = None,
         target_charge: float = 0,
         all_oxi_states: bool = False,
-        max_sites: int = None,
+        max_sites: int | None = None,
     ) -> Composition:
         """
         Assign oxidation states based on guessed oxidation states.
@@ -1026,7 +1026,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @staticmethod
     def _comps_from_fuzzy_formula(
         fuzzy_formula: str,
-        m_dict: dict[str, float] = None,
+        m_dict: dict[str, float] | None = None,
         m_points: int = 0,
         factor: int | float = 1,
     ) -> Generator[tuple[Composition, int], None, None]:

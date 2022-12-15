@@ -1,6 +1,18 @@
 Change log
 ==========
 
+v2022.11.7
+----------
+* PR #2724 from @janosh: raise ValueError in ``SpacegroupAnalyzer.get_symmetrized_structure()`` if spglib returns no symmetries
+* PR #2720 by @utf: Fix tensor mapping
+* PR #2562 from @sudarshanv01: In case the Fock-matrix and eigenvalues are requested by the user (though the flags `scf_final_print` or `scf_print`), outputs.py now allows parsing both these quantities.
+
+v2022.11.1
+----------
+* Order of kwargs `fmt` and `filename` in `Structure.to()` swapped for ease of use (note: this can break codes that do not use these options as kwargs).
+* @yuzie007 Parse "Atomic configuration" in POTCAR (52 and 54). Useful for estimating a reasonable NBANDS value.
+* EnumerateStructureTransformation now supports `m3gnet_relax` or `m3gnet_static` options.
+
 v2022.10.22
 -----------
 * Allow env settings to override .pmgrc.yaml (@janosh)

@@ -453,7 +453,6 @@ class EwaldSummation(MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details.
         """
-
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -472,7 +471,7 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any], fmt: str = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, d: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:

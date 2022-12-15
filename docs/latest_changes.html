@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.10.22 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.11.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,9 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.10.22
+                2022.11.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -74,8 +71,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Change log</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Change log</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/latest_changes.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -85,24 +82,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="change-log">
-<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
-<section id="v2022-10-22">
-<h2>v2022.10.22<a class="headerlink" href="#v2022-10-22" title="Permalink to this heading"></a></h2>
+  <div class="section" id="change-log">
+<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
+<div class="section" id="v2022-11-7">
+<h2>v2022.11.7<a class="headerlink" href="#v2022-11-7" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>Allow env settings to override .pmgrc.yaml (&#64;janosh)</p></li>
-<li><p>Add EntryLike type (&#64;janosh)</p></li>
-<li><p>Update spglib to 2.0+.</p></li>
-<li><p>&#64;cnncnnzh Method to plot the atom-resolved phonon band structures.</p></li>
-<li><p>&#64;jmmshn More Flexible reproduction of VASP’s optical code</p></li>
-<li><p>&#64;Ameyanagi Fix the sorting of the FEFF IO module to create ATOMS input.</p></li>
-<li><p>&#64;JaGeo Extend the ThermalDisplacementMatrices class to read cif files in P1 format.</p></li>
-<li><p>&#64;rkingsbury Changes to FEFF I/O to support the use of non-periodic input structures.</p></li>
-<li><p>&#64;jmmshn Merge Waverder and Wavederf</p></li>
-<li><p>&#64;jmmshn  Set the structure_charge while parsing Potcar</p></li>
+<li><p>PR #2724 from &#64;janosh: raise ValueError in <code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_symmetrized_structure()</span></code> if spglib returns no symmetries</p></li>
+<li><p>PR #2720 by &#64;utf: Fix tensor mapping</p></li>
+<li><p>PR #2562 from &#64;sudarshanv01: In case the Fock-matrix and eigenvalues are requested by the user (though the flags <cite>scf_final_print</cite> or <cite>scf_print</cite>), outputs.py now allows parsing both these quantities.</p></li>
 </ul>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

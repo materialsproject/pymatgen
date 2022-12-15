@@ -96,16 +96,15 @@ class Poscar(MSONable):
     def __init__(
         self,
         structure: Structure,
-        comment: str = None,
+        comment: str | None = None,
         selective_dynamics=None,
         true_names: bool = True,
-        velocities: ArrayLike = None,
-        predictor_corrector: ArrayLike = None,
-        predictor_corrector_preamble: str = None,
+        velocities: ArrayLike | None = None,
+        predictor_corrector: ArrayLike | None = None,
+        predictor_corrector_preamble: str | None = None,
         sort_structure: bool = False,
     ):
         """
-
         :param structure: Structure object.
         :param comment: Optional comment line for POSCAR. Defaults to unit
             cell formula of structure. Defaults to None.
@@ -463,7 +462,7 @@ class Poscar(MSONable):
                 line to maintain backward vasp 4.x compatibility. Defaults
                 to False.
             significant_figures (int): No. of significant figures to
-                output all quantities. Defaults to 6. Note that positions are
+                output all quantities. Defaults to 16. Note that positions are
                 output in fixed point, while velocities are output in
                 scientific format.
 
@@ -484,7 +483,7 @@ class Poscar(MSONable):
 
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join([str(x) for x in self.natoms]))
+        lines.append(" ".join(map(str, self.natoms)))
         if self.selective_dynamics:
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
@@ -637,7 +636,7 @@ class Incar(dict, MSONable):
     a dictionary with some helper functions
     """
 
-    def __init__(self, params: dict[str, Any] = None):
+    def __init__(self, params: dict[str, Any] | None = None):
         """
         Creates an Incar object.
 
@@ -722,7 +721,7 @@ class Incar(dict, MSONable):
 
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
-                lines.append([k, " ".join([str(i) for i in self[k]])])
+                lines.append([k, " ".join(map(str, self[k]))])
             else:
                 lines.append([k, self[k]])
 
@@ -1513,17 +1512,17 @@ class Kpoints(MSONable):
         style = self.style.name.lower()[0]
         if style == "l":
             lines.append(self.coord_type)
-        for i in range(len(self.kpts)):
-            lines.append(" ".join([str(x) for x in self.kpts[i]]))
+        for idx, kpt in enumerate(self.kpts):
+            lines.append(" ".join(map(str, kpt)))
             if style == "l":
-                lines[-1] += " ! " + self.labels[i]
-                if i % 2 == 1:
+                lines[-1] += " ! " + self.labels[idx]
+                if idx % 2 == 1:
                     lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
-                    lines[-1] += f" {int(self.kpts_weights[i])} {self.labels[i]}"
+                    lines[-1] += f" {int(self.kpts_weights[idx])} {self.labels[idx]}"
                 else:
-                    lines[-1] += f" {int(self.kpts_weights[i])}"
+                    lines[-1] += f" {int(self.kpts_weights[idx])}"
 
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
@@ -1535,7 +1534,7 @@ class Kpoints(MSONable):
 
         # Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
-            lines.append(" ".join([str(x) for x in self.kpts_shift]))
+            lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
@@ -1737,17 +1736,20 @@ class PotcarSingle:
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
-        atomic_configuration = re.search(r"Atomic configuration\s*\n?" r"(.*?)Description", search_lines)
+        atomic_configuration = re.search(
+            r"(?s)Atomic configuration(.*?)Description",
+            search_lines,
+        )
         if atomic_configuration:
             lines = atomic_configuration.group(1).splitlines()
-            num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
+            num_entries = re.search(r"([0-9]+)", lines[1]).group(1)
             num_entries = int(num_entries)
             PSCTR["nentries"] = num_entries
-            for line in lines[1:]:
+            for line in lines[3:]:
                 orbit = array_search.findall(line)
                 if orbit:
                     orbitals.append(
-                        self.Orbital(
+                        Orbital(
                             int(orbit[0]),
                             int(orbit[1]),
                             float(orbit[2]),
@@ -1877,7 +1879,7 @@ class PotcarSingle:
                 return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
-    def from_symbol_and_functional(symbol: str, functional: str = None):
+    def from_symbol_and_functional(symbol: str, functional: str | None = None):
         """
         Makes a PotcarSingle from a symbol and functional.
 
@@ -1886,7 +1888,7 @@ class PotcarSingle:
         :return: PotcarSingle
         """
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-        assert isinstance(functional, str)  # type narrowing
+        assert isinstance(functional, str)  # mypy type narrowing
         funcdir = PotcarSingle.functional_dir[functional]
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
@@ -1906,7 +1908,8 @@ class PotcarSingle:
                 psingle = PotcarSingle.from_file(p)
                 return psingle
         raise OSError(
-            f"You do not have the right POTCAR with functional {functional} and label {symbol} in your VASP_PSP_DIR"
+            f"You do not have the right POTCAR with functional {functional} and label {symbol} "
+            f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"
         )
 
     @property
@@ -2121,6 +2124,8 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
+            if k in ("nentries", "Orbitals"):
+                continue
             hash_str += f"{k}"
             if isinstance(v, int):
                 hash_str += f"{v}"
@@ -2401,7 +2406,7 @@ class VaspInput(dict, MSONable):
     def run_vasp(
         self,
         run_dir: PathLike = ".",
-        vasp_cmd: list = None,
+        vasp_cmd: list | None = None,
         output_file: PathLike = "vasp.out",
         err_file: PathLike = "vasp.err",
     ):

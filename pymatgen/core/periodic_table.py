@@ -1141,7 +1141,6 @@ class Species(MSONable, Stringify):
         """
         Ionic radius of specie. Returns None if data is not present.
         """
-
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
@@ -1178,7 +1177,6 @@ class Species(MSONable, Stringify):
         Raises:
             ValueError if species_string cannot be interpreted.
         """
-
         # e.g. Fe2+,spin=5
         # 1st group: ([A-Z][a-z]*)    --> Fe
         # 2nd group: ([0-9.]*)        --> "2"
@@ -1246,7 +1244,6 @@ class Species(MSONable, Stringify):
             isotope (str): the isotope to get the quadrupole moment for
                 default is None, which gets the lowest mass isotope
         """
-
         quad_mom = self._el.nmr_quadrupole_moment
 
         if not quad_mom:

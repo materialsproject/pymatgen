@@ -4,6 +4,8 @@
 """
 This module provides classes to perform fitting of structures.
 """
+from __future__ import annotations
+
 import abc
 import itertools
 from typing import Literal, Sequence
@@ -344,7 +346,7 @@ class StructureMatcher(MSONable):
         scale: bool = True,
         attempt_supercell: bool = False,
         allow_subset: bool = False,
-        comparator: AbstractComparator = None,
+        comparator: AbstractComparator | None = None,
         supercell_size: Literal["num_sites", "num_atoms", "volume"] = "num_sites",
         ignored_species: Sequence[SpeciesLike] = (),
     ):

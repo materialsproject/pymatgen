@@ -151,7 +151,11 @@ class _MPResterLegacy:
     )
 
     def __init__(
-        self, api_key: str = None, endpoint: str = None, notify_db_version: bool = True, include_user_agent: bool = True
+        self,
+        api_key: str | None = None,
+        endpoint: str | None = None,
+        notify_db_version: bool = True,
+        include_user_agent: bool = True,
     ) -> None:
         """
         Args:
@@ -198,7 +202,7 @@ class _MPResterLegacy:
             warnings.warn(f"Non-default endpoint used: {self.preamble}")
 
         self.session = requests.Session()
-        self.session.headers = {"x-api-key": self.api_key}
+        self.session.headers = {"x-api-key": self.api_key}  # type: ignore
         if include_user_agent:
             pymatgen_info = f"pymatgen/{PMG_VERSION}"
             python_info = f"Python/{sys.version.split()[0]}"
@@ -248,7 +252,7 @@ class _MPResterLegacy:
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(MP_LOG_FILE, "wt") as f:
+                with open(MP_LOG_FILE, "w") as f:
                     yaml.dump(d, f)
             except Exception:
                 pass
@@ -494,7 +498,7 @@ class _MPResterLegacy:
         chemsys_formula_id_criteria: str | dict[str, Any],
         compatible_only: bool = True,
         inc_structure: bool | Literal["initial"] | None = None,
-        property_data: list[str] = None,
+        property_data: list[str] | None = None,
         conventional_unit_cell: bool = False,
         sort_by_e_above_hull: bool = False,
     ) -> list[ComputedEntry]:
@@ -747,7 +751,7 @@ class _MPResterLegacy:
         material_id: str,
         compatible_only: bool = True,
         inc_structure: bool | Literal["initial"] | None = None,
-        property_data: list[str] = None,
+        property_data: list[str] | None = None,
         conventional_unit_cell: bool = False,
     ) -> ComputedEntry | ComputedStructureEntry:
         """

@@ -39,7 +39,6 @@ class CRESTInput(MSONable):
         constraints: dict[str, list[int] | float] | None = None,
     ):
         """
-
         :param molecule (pymatgen Molecule object):
             Input molecule, the only required CREST input.
         :param working_dir (str):
@@ -60,7 +59,6 @@ class CRESTInput(MSONable):
         """
         Write input files to working directory
         """
-
         self.molecule.to(filename=os.path.join(self.working_dir, self.coords_filename))
         if self.constraints:
             constrains_string = self.constrains_template(
@@ -74,7 +72,6 @@ class CRESTInput(MSONable):
     @staticmethod
     def constrains_template(molecule, reference_fnm, constraints) -> str:
         """
-
         :param molecule (pymatgen Molecule):
             Molecule the constraints will be performed on
         :param reference_fnm:
@@ -104,12 +101,10 @@ class CRESTInput(MSONable):
         )
         constrains_file_string = (
             "$constrain\n"
-            + f"  atoms: {','.join([str(i) for i in atoms_to_constrain])}\n"
-            + f"  force constant={force_constant}\n"
-            + f"  reference={reference_fnm}\n"
-            + "$metadyn\n"
-            + f"  atoms: {allowed_mtd_string}\n"
-            + "$end"
+            f"  atoms: {','.join(map(str, atoms_to_constrain))}\n"
+            f"  force constant={force_constant}\n"
+            f"  reference={reference_fnm}\n$metadyn\n"
+            f"  atoms: {allowed_mtd_string}\n$end"
         )
 
         return constrains_file_string

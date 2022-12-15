@@ -62,7 +62,7 @@ class DosPlotter:
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
 
-    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float = None) -> None:
+    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float | None = None) -> None:
         """
         Args:
             zero_at_efermi (bool): Whether to shift all Dos to have zero energy at the
@@ -135,7 +135,6 @@ class DosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
 
@@ -263,7 +262,6 @@ class BSPlotter:
         Args:
             bs: A BandStructureSymmLine object.
         """
-
         self._bs: list[BandStructureSymmLine] = []
         self._nb_bands: list[int] = []
 
@@ -427,7 +425,6 @@ class BSPlotter:
             is_metal: True if the band structure is metallic (i.e., there is at
             least one band crossing the fermi level).
         """
-
         if bs is None:
             if isinstance(self._bs, list):
                 # if BSPlotter
@@ -528,7 +525,6 @@ class BSPlotter:
         number of branches (high symmetry lines) defined in the
         BandStructureSymmLine object (see BandStructureSymmLine._branches).
         """
-
         int_energies, int_distances = [], []
         smooth_k_orig = smooth_k
 
@@ -894,7 +890,6 @@ class BSPlotter:
         """
         plot the Brillouin zone
         """
-
         # get labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
@@ -2368,7 +2363,7 @@ class BSDOSPlotter:
             left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
             right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
-            xlabel_distances.append(xlabel_distances[-1] + distance)
+            xlabel_distances.append(xlabel_distances[-1] + distance)  # type: ignore
 
             # add x-coordinates for kpoint data
             npts = branch["end_index"] - branch["start_index"]
@@ -2813,7 +2808,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         plt = pretty_plot(9, 7)
         for T in temps:
             sbk_mass = self._bz.get_seebeck_eff_mass(output=output, temp=T, Lambda=0.5)
@@ -3055,7 +3049,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             sbk = self._bz.get_seebeck(output="average")
         elif output == "eigs":
@@ -3110,7 +3103,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3166,7 +3158,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3221,7 +3212,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3275,7 +3265,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             em = self._bz.get_average_eff_mass(output="average")
         elif output == "eigs":
@@ -3328,7 +3317,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             sbk = self._bz.get_seebeck(output="average")
         elif output == "eigs":
@@ -3547,7 +3535,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             em = self._bz.get_average_eff_mass(output="average")
         elif output == "eigs":

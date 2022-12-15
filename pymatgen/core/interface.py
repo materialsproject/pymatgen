@@ -76,7 +76,6 @@ class Interface(Structure):
                 the original distance between substrate and film sites
             vacuum_over_film: vacuum space above the film in Angstroms
         """
-
         assert (
             "interface_label" in site_properties
         ), "Must provide labeling of substrate and film sites in site properties"
@@ -201,7 +200,6 @@ class Interface(Structure):
         Returns:
             Interface: A copy of the Interface.
         """
-
         return Interface.from_dict(self.as_dict())
 
     def get_sorted_structure(self, key=None, reverse=False) -> Structure:

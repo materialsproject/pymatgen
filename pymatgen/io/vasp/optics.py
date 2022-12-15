@@ -1,6 +1,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Classes for parsing and manipulating VASP optical properties calculations."""
+
 from __future__ import annotations
 
 import itertools
@@ -16,18 +17,19 @@ from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
+import scipy.constants
+import scipy.special
 from monty.json import MSONable
-from scipy import constants, special
 from tqdm import tqdm
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
-au2ang = constants.physical_constants["atomic unit of length"][0] / 1e-10
-ryd2ev = constants.physical_constants["Rydberg constant times hc in eV"][0]
+au2ang = scipy.constants.physical_constants["atomic unit of length"][0] / 1e-10
+ryd2ev = scipy.constants.physical_constants["Rydberg constant times hc in eV"][0]
 edeps = 4 * np.pi * 2 * ryd2ev * au2ang  # from constant.inc in VASP
 
-KB = constants.physical_constants["Boltzmann constant in eV/K"][0]
+KB = scipy.constants.physical_constants["Boltzmann constant in eV/K"][0]
 
 
 @dataclass
@@ -140,14 +142,14 @@ class DielectricFunctionCalculator(MSONable):
         self,
         idir: int,
         jdir: int,
-        efermi: float = None,
-        nedos: int = None,
-        deltae: float = None,
-        ismear: int = None,
-        sigma: float = None,
-        cshift: float = None,
+        efermi: float | None = None,
+        nedos: int | None = None,
+        deltae: float | None = None,
+        ismear: int | None = None,
+        sigma: float | None = None,
+        cshift: float | None = None,
         mask: npt.NDArray | None = None,
-    ) -> npt.NDArray:
+    ) -> tuple[npt.NDArray, npt.NDArray]:
         """Compute the frequency dependent dielectric function.
 
         Args:
@@ -260,8 +262,8 @@ def delta_methfessel_paxton(x, n):
     A_i = (-1)^i / ( i! 4^i sqrt(pi) )
     """
     ii = np.arange(0, n + 1)
-    A = (-1) ** ii / (special.factorial(ii) * 4**ii * np.sqrt(np.pi))
-    H = special.eval_hermite(ii * 2, np.tile(x, (len(ii), 1)).T)
+    A = (-1) ** ii / (scipy.special.factorial(ii) * 4**ii * np.sqrt(np.pi))
+    H = scipy.special.eval_hermite(ii * 2, np.tile(x, (len(ii), 1)).T)
     return np.exp(-(x * x)) * np.dot(A, H.T)
 
 
@@ -272,9 +274,9 @@ def step_methfessel_paxton(x, n):
     A_i = (-1)^i / ( i! 4^i sqrt(pi) )
     """
     ii = np.arange(1, n + 1)
-    A = (-1) ** ii / (special.factorial(ii) * 4**ii * np.sqrt(np.pi))
-    H = special.eval_hermite(ii * 2 - 1, np.tile(x, (len(ii), 1)).T)
-    return (1.0 + special.erf(x)) / 2.0 - np.exp(-(x * x)) * np.dot(A, H.T)
+    A = (-1) ** ii / (scipy.special.factorial(ii) * 4**ii * np.sqrt(np.pi))
+    H = scipy.special.eval_hermite(ii * 2 - 1, np.tile(x, (len(ii), 1)).T)
+    return (1.0 + scipy.special.erf(x)) / 2.0 - np.exp(-(x * x)) * np.dot(A, H.T)
 
 
 def delta_func(x, ismear):
@@ -295,7 +297,7 @@ def step_func(x, ismear):
     elif ismear == -1:
         return 1 / (1.0 + np.exp(-x))
     elif ismear < 0:
-        return 0.5 + 0.5 * special.erf(x)
+        return 0.5 + 0.5 * scipy.special.erf(x)
     return step_methfessel_paxton(x, ismear)
 
 
@@ -427,7 +429,7 @@ def epsilon_imag(
 
 
 def kramers_kronig(
-    eps: npt.ArrayLike,
+    eps: np.ndarray,
     nedos: int,
     deltae: float,
     cshift: float = 0.1,

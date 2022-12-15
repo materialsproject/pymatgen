@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+import warnings
 from typing import Literal
 
 from monty.io import zopen
@@ -18,10 +19,112 @@ from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
-__copyright__ = "Copyright 2018-2021, The Materials Project"
-__version__ = "0.1"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 
 logger = logging.getLogger(__name__)
+
+# note that in addition to the solvent-specific parameters, this dict contains
+# dielectric constants for use with each solvent. The dielectric constants
+# are used by the isodensity SS(V)PE electrostatic calculation part of CMIRS
+# they are not part of the parameters tabulated by Q-Chem
+# see https://manual.q-chem.com/latest/example_CMIRS-water.html
+CMIRS_SETTINGS = {
+    "water": {
+        "0.001": {
+            "a": "-0.006736",
+            "b": "0.032698",
+            "c": "-1249.6",
+            "d": "-21.405",
+            "gamma": "3.7",
+            "solvrho": "0.05",
+        },
+        "0.0005": {
+            "a": "-0.006496",
+            "b": "0.050833",
+            "c": "-566.7",
+            "d": "-30.503",
+            "gamma": "3.2",
+            "solvrho": "0.05",
+        },
+        "dielst": "78.39",
+    },
+    "benzene": {
+        "0.001": {
+            "a": "-0.00522",
+            "b": "0.01294",
+            "c": None,
+            "d": None,
+            "gamma": None,
+            "solvrho": "0.0421",
+        },
+        "0.0005": {
+            "a": "-0.00572",
+            "b": "0.01116",
+            "c": None,
+            "d": None,
+            "gamma": None,
+            "solvrho": "0.0421",
+        },
+        "dielst": "2.28",
+    },
+    "cyclohexane": {
+        "0.001": {
+            "a": "-0.00938",
+            "b": "0.03184",
+            "c": None,
+            "d": None,
+            "gamma": None,
+            "solvrho": "0.0396",
+        },
+        "0.0005": {
+            "a": "-0.00721",
+            "b": "0.05618",
+            "c": None,
+            "d": None,
+            "gamma": None,
+            "solvrho": "0.0396",
+        },
+        "dielst": "2.02",
+    },
+    "dimethyl sulfoxide": {
+        "0.001": {
+            "a": "-0.00951",
+            "b": "0.044791",
+            "c": None,
+            "d": "-162.07",
+            "gamma": "4.1",
+            "solvrho": "0.05279",
+        },
+        "0.0005": {
+            "a": "-0.002523",
+            "b": "0.011757",
+            "c": None,
+            "d": "-817.93",
+            "gamma": "4.3",
+            "solvrho": "0.05279",
+        },
+        "dielst": "47",
+    },
+    "acetonitrile": {
+        "0.001": {
+            "a": "-0.008178",
+            "b": "0.045278",
+            "c": None,
+            "d": "-0.33914",
+            "gamma": "1.3",
+            "solvrho": "0.03764",
+        },
+        "0.0005": {
+            "a": "-0.003805",
+            "b": "0.03223",
+            "c": None,
+            "d": "-0.44492",
+            "gamma": "1.2",
+            "solvrho": "0.03764",
+        },
+        "dielst": "36.64",
+    },
+}
 
 
 class QChemDictSet(QCInput):
@@ -37,7 +140,9 @@ class QChemDictSet(QCInput):
         scf_algorithm: str,
         dft_rung: int = 4,
         pcm_dielectric: float | None = None,
+        isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
+        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
         custom_smd: str | None = None,
         opt_variables: dict[str, list] | None = None,
         scan_variables: dict[str, list] | None = None,
@@ -48,6 +153,7 @@ class QChemDictSet(QCInput):
         new_geom_opt: dict | None = None,
         overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        extra_scf_print: bool = False,
     ):
         """
         Args:
@@ -69,12 +175,31 @@ class QChemDictSet(QCInput):
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+                If supplied, will set up the $pcm section of the input file for a C-PCM calculation.
+                Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
+                custom keywords to overwrite_inputs, e.g.
+                overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
+                Refer to the QChem manual for further details on the models available.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
+                (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
+                of the input file with appropriate parameters.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
                 argument to "custom" and populate custom_smd with the necessary parameters.
 
-                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            cmirs_solvent (str): Solvent to use for the CMIRS implicit solvation model. (Default: None).
+                Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
+                "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
+                populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
+                to compute electrostatics.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
                 Must be given as a string of seven comma separated values in the following order:
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
@@ -124,6 +249,9 @@ class QChemDictSet(QCInput):
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
                 radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
+            extra_scf_print (bool): Whether to store extra information generated from the SCF
+                cycle. If switched on, the Fock Matrix, coefficients of MO and the density matrix
+                will be stored.
         """
         self.molecule = molecule
         self.job_type = job_type
@@ -131,7 +259,9 @@ class QChemDictSet(QCInput):
         self.scf_algorithm = scf_algorithm
         self.dft_rung = dft_rung
         self.pcm_dielectric = pcm_dielectric
+        self.isosvp_dielectric = isosvp_dielectric
         self.smd_solvent = smd_solvent
+        self.cmirs_solvent = cmirs_solvent
         self.custom_smd = custom_smd
         self.opt_variables = opt_variables
         self.scan_variables = scan_variables
@@ -142,6 +272,7 @@ class QChemDictSet(QCInput):
         self.new_geom_opt = new_geom_opt
         self.overwrite_inputs = overwrite_inputs
         self.vdw_mode = vdw_mode
+        self.extra_scf_print = extra_scf_print
 
         pcm_defaults = {
             "heavypoints": "194",
@@ -150,6 +281,8 @@ class QChemDictSet(QCInput):
             "theory": "cpcm",
             "vdwscale": "1.1",
         }
+
+        svp_defaults = {"rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
 
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
@@ -163,12 +296,14 @@ class QChemDictSet(QCInput):
         else:
             myscan = self.scan_variables
 
-        mypcm = {}
-        mysolvent = {}
-        mysmx = {}
-        myvdw = {}
-        myplots = {}
-        myrem = {}
+        mypcm: dict = dict()
+        mysolvent: dict = dict()
+        mysmx: dict = dict()
+        myvdw: dict = dict()
+        myplots: dict = dict()
+        myrem: dict = dict()
+        mysvp: dict = dict()
+        mypcm_nonels: dict = dict()
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
@@ -198,13 +333,23 @@ class QChemDictSet(QCInput):
         if self.job_type.lower() in ["opt", "ts", "pes_scan"]:
             myrem["geom_opt_max_cycles"] = str(self.geom_opt_max_cycles)
 
-        if self.pcm_dielectric is not None and self.smd_solvent is not None:
-            raise ValueError("Only one of pcm or smd may be used for solvation.")
+        solvent_def = 0
+        for a in [self.pcm_dielectric, self.isosvp_dielectric, self.smd_solvent, self.cmirs_solvent]:
+            if a is not None:
+                solvent_def += 1
+        if solvent_def > 1:
+            raise ValueError("Only one of PCM, ISOSVP, SMD, and CMIRSmay be used for solvation.")
 
         if self.pcm_dielectric is not None:
             mypcm = pcm_defaults
-            mysolvent["dielectric"] = self.pcm_dielectric
+            mysolvent["dielectric"] = str(self.pcm_dielectric)
             myrem["solvent_method"] = "pcm"
+
+        if self.isosvp_dielectric is not None:
+            mysvp = svp_defaults
+            mysvp["dielst"] = str(self.isosvp_dielectric)
+            myrem["solvent_method"] = "isosvp"
+            myrem["gen_scfman"] = "false"
 
         if self.smd_solvent is not None:
             if self.smd_solvent == "custom":
@@ -221,6 +366,18 @@ class QChemDictSet(QCInput):
                         + " dielectric, refractive index, acidity, basicity, surface"
                         + " tension, aromaticity, electronegative halogenicity"
                     )
+
+        if self.cmirs_solvent is not None:
+            # set up the ISOSVP calculation consistently with the CMIRS
+            mysvp = svp_defaults
+            myrem["solvent_method"] = "isosvp"
+            myrem["gen_scfman"] = "false"
+            mysvp["dielst"] = CMIRS_SETTINGS[self.cmirs_solvent]["dielst"]  # type: ignore
+            mysvp["idefesr"] = "1"  # this flag enables the CMIRS part
+            mysvp["ipnrf"] = "1"  # this flag is also required for some undocumented reason
+            mypcm_nonels = CMIRS_SETTINGS[self.cmirs_solvent][mysvp["rhoiso"]]  # type: ignore
+            mypcm_nonels["delta"] = "7"  # as recommended by Q-Chem. See manual.
+            mypcm_nonels["gaulag_n"] = "40"  # as recommended by Q-Chem. See manual.
 
         if self.plot_cubes:
             myplots = plots_defaults
@@ -264,6 +421,8 @@ class QChemDictSet(QCInput):
                         mypcm[k] = v
                 if sec == "solvent":
                     temp_solvent = lower_and_check_unique(sec_dict)
+                    if myrem["solvent_method"] != "pcm":
+                        warnings.warn("The solvent section will be ignored unless solvent_method=pcm!", UserWarning)
                     for k, v in temp_solvent.items():
                         mysolvent[k] = v
                 if sec == "smx":
@@ -302,6 +461,51 @@ class QChemDictSet(QCInput):
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
                         myopt[k] = v
+                if sec == "svp":
+                    temp_svp = lower_and_check_unique(sec_dict)
+                    for k, v in temp_svp.items():
+                        if k == "rhoiso":
+                            if self.cmirs_solvent is not None:
+                                # must update both svp and pcm_nonels sections
+                                if v not in ["0.001", "0.0005"]:
+                                    raise RuntimeError(
+                                        "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
+                                    )
+                                for k2, _v2 in mypcm_nonels.items():
+                                    if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
+                                        mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
+                        if k == "idefesr":
+                            if self.cmirs_solvent is not None and v == "0":
+                                warnings.warn(
+                                    "Setting IDEFESR=0 will disable the CMIRS calculation you requested!", UserWarning
+                                )
+                            if self.cmirs_solvent is None and v == "1":
+                                warnings.warn(
+                                    "Setting IDEFESR=1 will have no effect unless you specify a cmirs_solvent!",
+                                    UserWarning,
+                                )
+                        if k == "dielst" and myrem["solvent_method"] != "isosvp":
+                            warnings.warn(
+                                "Setting DIELST will have no effect unless you specify a solvent_method=isosvp!",
+                                UserWarning,
+                            )
+
+                        mysvp[k] = v
+                if sec == "pcm_nonels":
+                    temp_pcm_nonels = lower_and_check_unique(sec_dict)
+                    for k, v in temp_pcm_nonels.items():
+                        mypcm_nonels[k] = v
+
+        if extra_scf_print:
+            # Allow for the printing of the Fock matrix and the eigenvales
+            myrem["scf_final_print"] = "3"
+            # If extra_scf_print is specified, make sure that the convergence of the
+            # SCF cycle is at least 1e-8. Anything less than that might not be appropriate
+            # for printing out the Fock Matrix and coefficients of the MO.
+            if "scf_convergence" not in myrem:
+                myrem["scf_convergence"] = "8"
+            elif int(myrem["scf_convergence"]) < 8:
+                myrem["scf_convergence"] = "8"
 
         super().__init__(
             self.molecule,
@@ -316,6 +520,8 @@ class QChemDictSet(QCInput):
             plots=myplots,
             nbo=mynbo,
             geom_opt=my_geom_opt,
+            svp=mysvp,
+            pcm_nonels=mypcm_nonels,
         )
 
     def write(self, input_file: str):
@@ -341,13 +547,16 @@ class SinglePointSet(QChemDictSet):
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: float | None = None,
+        isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
+        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
         nbo_params: dict | None = None,
         overwrite_inputs: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
+        extra_scf_print: bool = False,
     ):
         """
         Args:
@@ -370,12 +579,35 @@ class SinglePointSet(QChemDictSet):
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+                If supplied, will set up the $pcm section of the input file for a C-PCM calculation.
+                Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
+                custom keywords to overwrite_inputs, e.g.
+                overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
+                Refer to the QChem manual for further details on the models available.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
+                (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
+                of the input file with appropriate parameters. Note that due to limitations in Q-Chem, use of the ISOSVP
+                or CMIRS solvent models will disable the GEN_SCFMAN algorithm, which may limit compatible choices
+                for scf_algorithm.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
                 argument to "custom" and populate custom_smd with the necessary parameters.
 
-                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            cmirs_solvent (str): Solvent to use for the CMIRS implicit solvation model. (Default: None).
+                Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
+                "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
+                populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
+                to compute electrostatics. Note also that due to limitations in Q-Chem, use of the ISOSVP
+                or CMIRS solvent models will disable the GEN_SCFMAN algorithm, which may limit compatible choices
+                for scf_algorithm.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
                 Must be given as a string of seven comma separated values in the following order:
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
@@ -403,6 +635,9 @@ class SinglePointSet(QChemDictSet):
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
                 radius (e.g., '12' = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
+            extra_scf_print (bool): Whether to store extra information generated from the SCF
+                cycle. If switched on, the Fock Matrix, coefficients of MO and the density matrix
+                will be stored.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -412,7 +647,9 @@ class SinglePointSet(QChemDictSet):
             job_type="sp",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            isosvp_dielectric=isosvp_dielectric,
             smd_solvent=smd_solvent,
+            cmirs_solvent=cmirs_solvent,
             custom_smd=custom_smd,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
@@ -421,6 +658,7 @@ class SinglePointSet(QChemDictSet):
             nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
+            extra_scf_print=extra_scf_print,
         )
 
 
@@ -436,7 +674,9 @@ class OptSet(QChemDictSet):
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: float | None = None,
+        isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
+        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -468,12 +708,31 @@ class OptSet(QChemDictSet):
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+                If supplied, will set up the $pcm section of the input file for a C-PCM calculation.
+                Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
+                custom keywords to overwrite_inputs, e.g.
+                overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
+                Refer to the QChem manual for further details on the models available.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
+                (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
+                of the input file with appropriate parameters.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
                 argument to "custom" and populate custom_smd with the necessary parameters.
 
-                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            cmirs_solvent (str): Solvent to use for the CMIRS implicit solvation model. (Default: None).
+                Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
+                "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
+                populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
+                to compute electrostatics.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
                 Must be given as a string of seven comma separated values in the following order:
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
@@ -512,7 +771,9 @@ class OptSet(QChemDictSet):
             job_type="opt",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            isosvp_dielectric=isosvp_dielectric,
             smd_solvent=smd_solvent,
+            cmirs_solvent=cmirs_solvent,
             custom_smd=custom_smd,
             opt_variables=opt_variables,
             basis_set=self.basis_set,
@@ -539,7 +800,9 @@ class TransitionStateSet(QChemDictSet):
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: float | None = None,
+        isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
+        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -567,12 +830,31 @@ class TransitionStateSet(QChemDictSet):
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+                If supplied, will set up the $pcm section of the input file for a C-PCM calculation.
+                Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
+                custom keywords to overwrite_inputs, e.g.
+                overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
+                Refer to the QChem manual for further details on the models available.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
+                (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
+                of the input file with appropriate parameters.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
                 argument to "custom" and populate custom_smd with the necessary parameters.
 
-                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            cmirs_solvent (str): Solvent to use for the CMIRS implicit solvation model. (Default: None).
+                Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
+                "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
+                populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
+                to compute electrostatics.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
                 Must be given as a string of seven comma separated values in the following order:
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
@@ -611,7 +893,9 @@ class TransitionStateSet(QChemDictSet):
             job_type="ts",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            isosvp_dielectric=isosvp_dielectric,
             smd_solvent=smd_solvent,
+            cmirs_solvent=cmirs_solvent,
             custom_smd=custom_smd,
             opt_variables=opt_variables,
             basis_set=self.basis_set,
@@ -637,7 +921,9 @@ class ForceSet(QChemDictSet):
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: float | None = None,
+        isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
+        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -663,12 +949,31 @@ class ForceSet(QChemDictSet):
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+                If supplied, will set up the $pcm section of the input file for a C-PCM calculation.
+                Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
+                custom keywords to overwrite_inputs, e.g.
+                overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
+                Refer to the QChem manual for further details on the models available.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
+                (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
+                of the input file with appropriate parameters.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
                 argument to "custom" and populate custom_smd with the necessary parameters.
 
-                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            cmirs_solvent (str): Solvent to use for the CMIRS implicit solvation model. (Default: None).
+                Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
+                "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
+                populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
+                to compute electrostatics.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
                 Must be given as a string of seven comma separated values in the following order:
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
@@ -706,7 +1011,9 @@ class ForceSet(QChemDictSet):
             job_type="force",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            isosvp_dielectric=isosvp_dielectric,
             smd_solvent=smd_solvent,
+            cmirs_solvent=cmirs_solvent,
             custom_smd=custom_smd,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
@@ -730,7 +1037,9 @@ class FreqSet(QChemDictSet):
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: float | None = None,
+        isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
+        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -756,12 +1065,31 @@ class FreqSet(QChemDictSet):
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+                If supplied, will set up the $pcm section of the input file for a C-PCM calculation.
+                Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
+                custom keywords to overwrite_inputs, e.g.
+                overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
+                Refer to the QChem manual for further details on the models available.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
+                (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
+                of the input file with appropriate parameters.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
                 argument to "custom" and populate custom_smd with the necessary parameters.
 
-                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            cmirs_solvent (str): Solvent to use for the CMIRS implicit solvation model. (Default: None).
+                Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
+                "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
+                populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
+                to compute electrostatics.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
                 Must be given as a string of seven comma separated values in the following order:
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
@@ -799,7 +1127,9 @@ class FreqSet(QChemDictSet):
             job_type="freq",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            isosvp_dielectric=isosvp_dielectric,
             smd_solvent=smd_solvent,
+            cmirs_solvent=cmirs_solvent,
             custom_smd=custom_smd,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
@@ -829,7 +1159,9 @@ class PESScanSet(QChemDictSet):
         scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: float | None = None,
+        isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
+        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -869,12 +1201,31 @@ class PESScanSet(QChemDictSet):
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approximations"**
             pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+                If supplied, will set up the $pcm section of the input file for a C-PCM calculation.
+                Other types of PCM calculations (e.g., IEF-PCM, SS(V)PE, etc.) may be requested by passing
+                custom keywords to overwrite_inputs, e.g.
+                overwrite_inputs = {"pcm": {"theory": "ssvpe"}}
+                Refer to the QChem manual for further details on the models available.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            isosvp_dielectric (float): Dielectric constant to use for isodensity SS(V)PE implicit solvation model.
+                (Default: None). If supplied, will set solvent_method to "isosvp" and populate the $svp section
+                of the input file with appropriate parameters.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
                 argument to "custom" and populate custom_smd with the necessary parameters.
 
-                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
+            cmirs_solvent (str): Solvent to use for the CMIRS implicit solvation model. (Default: None).
+                Only 5 solvents are presently available as of Q-Chem 6: "water", "benzene", "cyclohexane",
+                "dimethyl sulfoxide", and "acetonitrile". Note that selection of a solvent here will also
+                populate the iso SS(V)PE dielectric constant, because CMIRS uses the isodensity SS(V)PE model
+                to compute electrostatics.
+
+                **Note that only one of pcm_dielectric, isosvp_dielectric, smd_solvent, or cmirs_solvent may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
                 Must be given as a string of seven comma separated values in the following order:
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
@@ -916,7 +1267,9 @@ class PESScanSet(QChemDictSet):
             job_type="pes_scan",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            isosvp_dielectric=isosvp_dielectric,
             smd_solvent=smd_solvent,
+            cmirs_solvent=cmirs_solvent,
             custom_smd=custom_smd,
             opt_variables=opt_variables,
             scan_variables=scan_variables,

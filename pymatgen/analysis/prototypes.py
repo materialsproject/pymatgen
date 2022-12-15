@@ -104,7 +104,6 @@ class AflowPrototypeMatcher:
         but it is possible a material can match
         multiple prototypes.
         """
-
         tags = self._match_single_prototype(structure)
 
         if len(tags) == 0:

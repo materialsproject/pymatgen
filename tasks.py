@@ -6,12 +6,12 @@ To cut a new pymatgen release, use `invoke update-changelog` followed by `invoke
 Author: Shyue Ping Ong
 """
 import datetime
-import glob
 import json
 import os
 import re
 import subprocess
 import webbrowser
+from glob import glob
 
 import requests
 from invoke import task
@@ -44,28 +44,28 @@ def make_doc(ctx):
         ctx.run("rm pymatgen.*.rst", warn=True)
         ctx.run("sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm *.tests.*rst")
-        for f in glob.glob("*.rst"):
+        for f in glob("*.rst"):
             if f.startswith("pymatgen") and f.endswith("rst"):
-                newoutput = []
-                suboutput = []
-                subpackage = False
+                new_output = []
+                sub_output = []
+                sub_package = False
                 with open(f) as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
-                            subpackage = True
-                        if not subpackage and not clean.endswith("tests"):
-                            newoutput.append(line)
+                            sub_package = True
+                        if not sub_package and not clean.endswith("tests"):
+                            new_output.append(line)
                         else:
                             if not clean.endswith("tests"):
-                                suboutput.append(line)
+                                sub_output.append(line)
                             if clean.startswith("pymatgen") and not clean.endswith("tests"):
-                                newoutput.extend(suboutput)
-                                subpackage = False
-                                suboutput = []
+                                new_output.extend(sub_output)
+                                sub_package = False
+                                sub_output = []
 
                 with open(f, "w") as fid:
-                    fid.write("".join(newoutput))
+                    fid.write("".join(new_output))
         ctx.run("make html")
 
         ctx.run("cp _static/* ../docs/html/_static", warn=True)
@@ -207,9 +207,9 @@ def release_github(ctx, version):
     toks = desc.split("\n")
     desc = "\n".join(toks[:-1]).strip()
     payload = {
-        "tag_name": "v" + version,
+        "tag_name": f"v{version}",
         "target_commitish": "master",
-        "name": "v" + version,
+        "name": f"v{version}",
         "body": desc,
         "draft": False,
         "prerelease": False,
@@ -217,13 +217,12 @@ def release_github(ctx, version):
     response = requests.post(
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
-        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
+        headers={"Authorization": f"token {os.environ['GITHUB_RELEASES_TOKEN']}"},
     )
     print(response.text)
 
 
-@task
-def post_discourse(ctx, version):
+def post_discourse(version):
     """
     Post release announcement to http://discuss.matsci.org/c/pymatgen.
 
@@ -235,7 +234,7 @@ def post_discourse(ctx, version):
     desc = toks[1].strip()
     toks = desc.split("\n")
     desc = "\n".join(toks[:-1]).strip()
-    raw = "v" + version + "\n\n" + desc
+    raw = f"v{version}\n\n{desc}"
     payload = {
         "topic_id": 36,
         "raw": raw,
@@ -249,12 +248,13 @@ def post_discourse(ctx, version):
 
 
 @task
-def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), sim=False):
+def update_changelog(ctx, version=None, sim=False):
     """
     Create a preliminary change log using the git logs.
 
     :param ctx:
     """
+    version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{CURRENT_VER}..HEAD"])
     lines = []
     misc = []
@@ -279,7 +279,7 @@ def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d")
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
-    head = f"\n\nv{version}\n" + "-" * (len(version) + 1) + "\n"
+    head = f"\n\nv{version}\n{'-' * (len(version) + 1)}\n"
     toks.insert(-1, head + "\n".join(lines))
     if not sim:
         with open("CHANGES.rst", "w") as f:
@@ -292,13 +292,14 @@ def update_changelog(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d")
 
 
 @task
-def release(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), nodoc=False):
+def release(ctx, version=None, nodoc=False):
     """
     Run full sequence for releasing pymatgen.
 
     :param ctx:
     :param nodoc: Whether to skip doc generation.
     """
+    version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:
@@ -307,8 +308,10 @@ def release(ctx, version=datetime.datetime.now().strftime("%Y.%-m.%-d"), nodoc=F
         ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
     release_github(ctx, version)
+
     ctx.run("rm -f dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel", warn=True)
+    check_egg_sources_txt_for_completeness()
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
     ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
     # post_discourse(ctx, warn=True)
@@ -322,10 +325,31 @@ def open_doc(ctx):
     :param ctx:
     """
     pth = os.path.abspath("docs/_build/html/index.html")
-    webbrowser.open("file://" + pth)
+    webbrowser.open(f"file://{pth}")
 
 
 @task
 def lint(ctx):
     for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
         ctx.run(f"{cmd} pymatgen")
+
+
+def check_egg_sources_txt_for_completeness():
+    """Check that all source and data files in pymatgen/ are listed in pymatgen.egg-info/SOURCES.txt."""
+    src_txt = "pymatgen.egg-info/SOURCES.txt"
+    if not os.path.exists(src_txt):
+        raise FileNotFoundError(f"{src_txt} not found. Run `pip install .` to create")
+
+    with open(src_txt) as file:
+        sources = file.read()
+
+    for src_file in sources.splitlines():
+        if not os.path.exists(src_file):
+            raise ValueError(f"{src_file} does not exist!")
+
+    for ext in ("py", "json", "json.gz", "yaml", "csv"):
+        for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
+            if "/tests/" in filepath:
+                continue
+            if filepath not in sources:
+                raise ValueError(f"{filepath} not found in {src_txt}")

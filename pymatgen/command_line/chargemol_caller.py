@@ -180,19 +180,18 @@ class ChargemolAnalysis:
                 Default: None.
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-
         with ScratchDir("."):
             with zopen(self._chgcarpath, "rt") as f_in:
-                with open("CHGCAR", "wt") as f_out:
+                with open("CHGCAR", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             with zopen(self._potcarpath, "rt") as f_in:
-                with open("POTCAR", "wt") as f_out:
+                with open("POTCAR", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             with zopen(self._aeccar0path, "rt") as f_in:
-                with open("AECCAR0", "wt") as f_out:
+                with open("AECCAR0", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             with zopen(self._aeccar2path, "rt") as f_in:
-                with open("AECCAR2", "wt") as f_out:
+                with open("AECCAR2", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
             # write job_script file:
@@ -428,7 +427,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", "wt") as fh:
+        with open("job_control.txt", "w") as fh:
             fh.write(lines)
 
     @staticmethod
@@ -439,7 +438,6 @@ class ChargemolAnalysis:
         Args:
             filepath (str): The path to the DDEC6_even_tempered_net_atomic_charges.xyz file
         """
-
         i = 0
         start = False
         dipoles = []
@@ -535,7 +533,6 @@ class ChargemolAnalysis:
                         }
             }
         """
-
         summary = {}
         ddec_summary = {
             "partial_charges": self.ddec_charges,
@@ -576,7 +573,6 @@ class ChargemolAnalysis:
         Returns:
             list[float]: site-specific properties
         """
-
         props = []
         if os.path.exists(xyz_path):
             with open(xyz_path) as r:

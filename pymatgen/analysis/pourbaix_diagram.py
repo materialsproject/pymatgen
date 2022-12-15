@@ -693,7 +693,6 @@ class PourbaixDiagram(MSONable):
             nproc (int): number of processes to be used in parallel
                 treatment of entry combos
         """
-
         N = len(self._elt_comp)  # No. of elements
         total_comp = Composition(self._elt_comp)
 
@@ -873,7 +872,6 @@ class PourbaixDiagram(MSONable):
             Decomposition energy for the entry, i. e. the energy above
                 the "Pourbaix hull" in eV/atom at the given conditions
         """
-
         # Check composition consistency between entry and Pourbaix diagram:
         pbx_comp = Composition(self._elt_comp).fractional_composition
         entry_pbx_comp = Composition(

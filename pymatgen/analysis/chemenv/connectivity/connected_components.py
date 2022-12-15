@@ -383,7 +383,6 @@ class ConnectedComponent(MSONable):
 
     def compute_periodicity(self, algorithm="all_simple_paths"):
         """
-
         Args:
             algorithm ():
 
@@ -399,7 +398,6 @@ class ConnectedComponent(MSONable):
 
     def compute_periodicity_all_simple_paths_algorithm(self):
         """
-
         Returns:
         """
         self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
@@ -487,7 +485,6 @@ class ConnectedComponent(MSONable):
 
     def compute_periodicity_cycle_basis(self):
         """
-
         Returns:
         """
         my_simple_graph = nx.Graph(self._connected_subgraph)
@@ -534,7 +531,6 @@ class ConnectedComponent(MSONable):
 
     def make_supergraph(self, multiplicity):
         """
-
         Args:
             multiplicity ():
 
@@ -545,7 +541,6 @@ class ConnectedComponent(MSONable):
 
     def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True):
         """
-
         Args:
             graph ():
             save_file ():
@@ -597,7 +592,6 @@ class ConnectedComponent(MSONable):
     @property
     def is_periodic(self):
         """
-
         Returns:
         """
         return not self.is_0d
@@ -605,7 +599,6 @@ class ConnectedComponent(MSONable):
     @property
     def is_0d(self):
         """
-
         Returns:
         """
         if self._periodicity_vectors is None:
@@ -615,7 +608,6 @@ class ConnectedComponent(MSONable):
     @property
     def is_1d(self):
         """
-
         Returns:
         """
         if self._periodicity_vectors is None:
@@ -625,7 +617,6 @@ class ConnectedComponent(MSONable):
     @property
     def is_2d(self):
         """
-
         Returns:
         """
         if self._periodicity_vectors is None:
@@ -635,7 +626,6 @@ class ConnectedComponent(MSONable):
     @property
     def is_3d(self):
         """
-
         Returns:
         """
         if self._periodicity_vectors is None:
@@ -673,7 +663,6 @@ class ConnectedComponent(MSONable):
     @property
     def periodicity_vectors(self):
         """
-
         Returns:
         """
         if self._periodicity_vectors is None:
@@ -683,7 +672,6 @@ class ConnectedComponent(MSONable):
     @property
     def periodicity(self):
         """
-
         Returns:
         """
         if self._periodicity_vectors is None:
@@ -692,7 +680,6 @@ class ConnectedComponent(MSONable):
 
     def elastic_centered_graph(self, start_node=None):
         """
-
         Args:
             start_node ():
 
@@ -764,7 +751,7 @@ class ConnectedComponent(MSONable):
                     )
                     logging.debug(
                         f"            Delta image from node {str(node)} to neighbor {str(node_neighbor)} : "
-                        f"({', '.join([str(iii) for iii in myddelta])})"
+                        f"({', '.join(map(str, myddelta))})"
                     )
                     # Loop on the edges of this neighbor
                     for n1, n2, key, edata in node_neighbor_edges:
@@ -917,15 +904,15 @@ class ConnectedComponent(MSONable):
 
     def description(self, full=False):
         """
-
         Args:
-            full ():
+            full (bool): Whether to return a short or full description.
 
         Returns:
+            str: A description of the connected component.
         """
         out = ["Connected component with environment nodes :"]
         if not full:
-            out.extend([str(en) for en in sorted(self.graph.nodes())])
+            out.extend(map(str, sorted(self.graph.nodes())))
             return "\n".join(out)
         for en in sorted(self.graph.nodes()):
             out.append(f"{en}, connected to :")

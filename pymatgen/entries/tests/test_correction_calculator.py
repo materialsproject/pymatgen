@@ -108,7 +108,6 @@ class CorrectionCalculatorTest(unittest.TestCase):
         """
         Test that the values in MPCompatiblity.yaml are reproduced correctly.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
@@ -121,7 +120,6 @@ class CorrectionCalculatorTest(unittest.TestCase):
         """
         Test that compounds can be included/excluded using the allow_{warning} optional parameters.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
@@ -134,7 +132,6 @@ class CorrectionCalculatorTest(unittest.TestCase):
         """
         Test that corrections can be calculated with no uncertainties.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
@@ -147,7 +144,6 @@ class CorrectionCalculatorTest(unittest.TestCase):
         """
         Test that correct error is raised (ValueError) if the input is missing a computed entry.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_missing_compounds.json.gz")
 

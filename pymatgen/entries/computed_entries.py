@@ -142,7 +142,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self.value:.3f} eV)"
+        return f"{self.description} ({self.value:.3f} eV)"
 
     def normalize(self, factor):
         """
@@ -222,7 +222,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
+        return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -289,7 +289,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
+        return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -312,10 +312,10 @@ class ComputedEntry(Entry):
         composition: Composition | str | dict[str, float],
         energy: float,
         correction: float = 0.0,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
     ):
         """
         Initializes a ComputedEntry.
@@ -439,7 +439,6 @@ class ComputedEntry(Entry):
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
         """
-
         factor = self._normalization_factor(mode)
         new_composition = self._composition / factor
         new_energy = self._energy / factor
@@ -566,6 +565,19 @@ class ComputedEntry(Entry):
 
         return super().__hash__()
 
+    def copy(self) -> ComputedEntry:
+        """
+        Returns a copy of the ComputedEntry.
+        """
+        return ComputedEntry(
+            composition=self.composition,
+            energy=self.uncorrected_energy,
+            energy_adjustments=self.energy_adjustments,
+            parameters=self.parameters,
+            data=self.data,
+            entry_id=self.entry_id,
+        )
+
 
 class ComputedStructureEntry(ComputedEntry):
     """
@@ -579,11 +591,11 @@ class ComputedStructureEntry(ComputedEntry):
         energy: float,
         correction: float = 0.0,
         composition: Composition | str | dict[str, float] | None = None,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
-    ):
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
+    ) -> None:
         """
         Initializes a ComputedStructureEntry.
 
@@ -591,20 +603,21 @@ class ComputedStructureEntry(ComputedEntry):
             structure (Structure): The actual structure of an entry.
             energy (float): Energy of the entry. Usually the final calculated
                 energy from VASP or other electronic structure codes.
-            energy_adjustments: An optional list of EnergyAdjustment to
-                be applied to the energy. This is used to modify the energy for
-                certain analyses. Defaults to None.
+            correction (float, optional): A correction to the energy. This is mutually exclusive with
+                energy_adjustments, i.e. pass either or neither but not both. Defaults to 0.
             composition (Composition): Composition of the entry. For
                 flexibility, this can take the form of all the typical input
                 taken by a Composition, including a {symbol: amt} dict,
                 a string formula, and others.
+            energy_adjustments: An optional list of EnergyAdjustment to
+                be applied to the energy. This is used to modify the energy for
+                certain analyses. Defaults to None.
             parameters: An optional dict of parameters associated with
                 the entry. Defaults to None.
             data: An optional dict of any additional data associated
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
         """
-
         if composition:
             composition = Composition(composition)
             if (
@@ -676,8 +689,8 @@ class ComputedStructureEntry(ComputedEntry):
 
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedStructureEntry:
         """
-        Normalize the entry's composition and energy. The structure remains
-        unchanged.
+        Normalize the entry's composition and energy. The structure remains unchanged.
+
         Args:
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
@@ -697,6 +710,20 @@ class ComputedStructureEntry(ComputedEntry):
         entry._composition /= factor  # pylint: disable=E1101
         return entry
 
+    def copy(self) -> ComputedStructureEntry:
+        """
+        Returns a copy of the ComputedStructureEntry.
+        """
+        return ComputedStructureEntry(
+            structure=self.structure.copy(),
+            energy=self.uncorrected_energy,
+            composition=self.composition,
+            energy_adjustments=self.energy_adjustments,
+            parameters=self.parameters,
+            data=self.data,
+            entry_id=self.entry_id,
+        )
+
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
     """
@@ -710,12 +737,12 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         formation_enthalpy_per_atom: float,
         temp: float = 300,
         gibbs_model: Literal["SISSO"] = "SISSO",
-        composition: Composition = None,
+        composition: Composition | None = None,
         correction: float = 0.0,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
     ):
         """
         Args:
@@ -893,7 +920,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
             float: G^delta [eV/atom]
         """
-
         return (
             (-2.48e-4 * np.log(vol_per_atom) - 8.94e-5 * reduced_mass / vol_per_atom) * temp
             + 0.181 * np.log(temp)

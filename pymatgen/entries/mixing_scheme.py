@@ -52,7 +52,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def __init__(
         self,
-        structure_matcher: StructureMatcher = None,
+        structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
         compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008

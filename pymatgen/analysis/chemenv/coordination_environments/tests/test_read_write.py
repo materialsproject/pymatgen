@@ -78,12 +78,10 @@ class ReadWriteChemenvTest(unittest.TestCase):
         )
 
         with open("tmp_dir/lse.json", "w") as f:
-            json.dump(lse.as_dict(), f)
+            json.dump(lse.as_dict(), f, default=lambda o: o.tolist() if hasattr(o, "tolist") else o)
 
         with open("tmp_dir/lse.json") as f:
-            dd = json.load(f)
-
-        lse2 = LightStructureEnvironments.from_dict(dd)
+            lse2 = LightStructureEnvironments.from_dict(json.load(f))
 
         assert lse == lse2
 
@@ -146,11 +144,11 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         nb_set_info = nb_set.info
 
-        assert round(abs(nb_set_info["normalized_angles_mean"] - 0.996506826547), 7) == 0
-        assert round(abs(nb_set_info["normalized_distances_std"] - 0.000896138995037), 7) == 0
-        assert round(abs(nb_set_info["angles_std"] - 0.0108895833142), 7) == 0
-        assert round(abs(nb_set_info["distances_std"] - 0.00145669776056), 7) == 0
-        assert round(abs(nb_set_info["distances_mean"] - 1.62698328347), 7) == 0
+        assert nb_set_info["normalized_angles_mean"] == pytest.approx(0.996506826547)
+        assert nb_set_info["normalized_distances_std"] == pytest.approx(0.000896138995037)
+        assert nb_set_info["angles_std"] == pytest.approx(0.0108895833142)
+        assert nb_set_info["distances_std"] == pytest.approx(0.00145669776056)
+        assert nb_set_info["distances_mean"] == pytest.approx(1.62698328347)
 
         assert (
             str(nb_set) == "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n"

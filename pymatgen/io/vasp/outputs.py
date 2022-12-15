@@ -10,7 +10,6 @@ from __future__ import annotations
 import datetime
 import glob
 import itertools
-import json
 import logging
 import math
 import os
@@ -29,7 +28,6 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
-from scipy.interpolate import RegularGridInterpolator
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -44,6 +42,7 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.io.common import VolumetricData as BaseVolumetricData
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
@@ -811,7 +810,7 @@ class Vasprun(MSONable):
         """
         return self.parameters.get("ISPIN", 1) == 2
 
-    def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str = None):
+    def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str | None = None):
         """
         Returns a ComputedEntry or ComputedStructureEntry from the Vasprun.
 
@@ -3469,138 +3468,11 @@ class Outcar:
         self.data["fermi_contact_shift"] = fc_shift_table
 
 
-class VolumetricData(MSONable):
+class VolumetricData(BaseVolumetricData):
     """
-    Simple volumetric object for reading LOCPOT and CHGCAR type files.
-
-    .. attribute:: structure
-
-        Structure associated with the Volumetric Data object
-
-    ..attribute:: is_spin_polarized
-
-        True if run is spin polarized
-
-    ..attribute:: dim
-
-        Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
-
-    ..attribute:: data
-
-        Actual data as a dict of {string: np.array}. The string are "total"
-        and "diff", in accordance to the output format of vasp LOCPOT and
-        CHGCAR files where the total spin density is written first, followed
-        by the difference spin density.
-
-    .. attribute:: ngridpts
-
-        Total number of grid points in volumetric data.
+    Container for volumetric data that allows
+    for reading/writing with Poscar-type data.
     """
-
-    def __init__(self, structure: Structure, data, distance_matrix=None, data_aug=None):
-        """
-        Typically, this constructor is not used directly and the static
-        from_file constructor is used. This constructor is designed to allow
-        summation and other operations between VolumetricData objects.
-
-        Args:
-            structure: Structure associated with the volumetric data
-            data: Actual volumetric data. If the data is provided as in list format,
-                it will be converted into an np.array automatically
-            data_aug: Any extra information associated with volumetric data
-                (typically augmentation charges)
-            distance_matrix: A pre-computed distance matrix if available.
-                Useful so pass distance_matrices between sums,
-                shortcircuiting an otherwise expensive operation.
-        """
-        self.structure = structure
-        self.is_spin_polarized = len(data) >= 2
-        self.is_soc = len(data) >= 4
-        # convert data to numpy arrays in case they were jsanitized as lists
-        self.data = {k: np.array(v) for k, v in data.items()}
-        self.dim = self.data["total"].shape
-        self.data_aug = data_aug or {}
-        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
-        # lazy init the spin data since this is not always needed.
-        self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = {} if not distance_matrix else distance_matrix
-        self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
-        self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
-        self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
-        self.interpolator = RegularGridInterpolator(
-            (self.xpoints, self.ypoints, self.zpoints),
-            self.data["total"],
-            bounds_error=True,
-        )
-        self.name = "VolumetricData"
-
-    @property
-    def spin_data(self):
-        """
-        The data decomposed into actual spin data as {spin: data}.
-        Essentially, this provides the actual Spin.up and Spin.down data
-        instead of the total and diff. Note that by definition, a
-        non-spin-polarized run would have Spin.up data == Spin.down data.
-        """
-        if not self._spin_data:
-            spin_data = {}
-            spin_data[Spin.up] = 0.5 * (self.data["total"] + self.data.get("diff", 0))
-            spin_data[Spin.down] = 0.5 * (self.data["total"] - self.data.get("diff", 0))
-            self._spin_data = spin_data
-        return self._spin_data
-
-    def get_axis_grid(self, ind):
-        """
-        Returns the grid for a particular axis.
-
-        Args:
-            ind (int): Axis index.
-        """
-        ng = self.dim
-        num_pts = ng[ind]
-        lengths = self.structure.lattice.abc
-        return [i / num_pts * lengths[ind] for i in range(num_pts)]
-
-    def __add__(self, other):
-        return self.linear_add(other, 1.0)
-
-    def __sub__(self, other):
-        return self.linear_add(other, -1.0)
-
-    def copy(self):
-        """
-        :return: Copy of Volumetric object
-        """
-        return VolumetricData(
-            self.structure,
-            {k: v.copy() for k, v in self.data.items()},
-            distance_matrix=self._distance_matrix,
-            data_aug=self.data_aug,
-        )
-
-    def linear_add(self, other, scale_factor=1.0):
-        """
-        Method to do a linear sum of volumetric objects. Used by + and -
-        operators as well. Returns a VolumetricData object containing the
-        linear sum.
-
-        Args:
-            other (VolumetricData): Another VolumetricData object
-            scale_factor (float): Factor to scale the other data by.
-
-        Returns:
-            VolumetricData corresponding to self + scale_factor * other.
-        """
-        if self.structure != other.structure:
-            warnings.warn("Structures are different. Make sure you know what you are doing...")
-        if list(self.data) != list(other.data):
-            raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
-
-        # To add checks
-        data = {}
-        for k in self.data:
-            data[k] = self.data[k] + scale_factor * other.data[k]
-        return VolumetricData(self.structure, data, self._distance_matrix)
 
     @staticmethod
     def parse_file(filename):
@@ -3777,173 +3649,6 @@ class VolumetricData(MSONable):
                 write_spin("diff_z")
             elif self.is_spin_polarized:
                 write_spin("diff")
-
-    def value_at(self, x, y, z):
-        """
-        Get a data value from self.data at a given point (x, y, z) in terms
-        of fractional lattice parameters. Will be interpolated using a
-        RegularGridInterpolator on self.data if (x, y, z) is not in the original
-        set of data points.
-
-        Args:
-            x (float): Fraction of lattice vector a.
-            y (float): Fraction of lattice vector b.
-            z (float): Fraction of lattice vector c.
-
-        Returns:
-            Value from self.data (potentially interpolated) correspondisng to
-            the point (x, y, z).
-        """
-        return self.interpolator([x, y, z])[0]
-
-    def linear_slice(self, p1, p2, n=100):
-        """
-        Get a linear slice of the volumetric data with n data points from
-        point p1 to point p2, in the form of a list.
-
-        Args:
-            p1 (list): 3-element list containing fractional coordinates of the first point.
-            p2 (list): 3-element list containing fractional coordinates of the second point.
-            n (int): Number of data points to collect, defaults to 100.
-
-        Returns:
-            List of n data points (mostly interpolated) representing a linear slice of the
-            data from point p1 to point p2.
-        """
-        assert type(p1) in [list, np.ndarray] and type(p2) in [list, np.ndarray]
-        assert len(p1) == 3 and len(p2) == 3
-        xpts = np.linspace(p1[0], p2[0], num=n)
-        ypts = np.linspace(p1[1], p2[1], num=n)
-        zpts = np.linspace(p1[2], p2[2], num=n)
-        return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
-
-    def get_integrated_diff(self, ind, radius, nbins=1):
-        """
-        Get integrated difference of atom index ind up to radius. This can be
-        an extremely computationally intensive process, depending on how many
-        grid points are in the VolumetricData.
-
-        Args:
-            ind (int): Index of atom.
-            radius (float): Radius of integration.
-            nbins (int): Number of bins. Defaults to 1. This allows one to
-                obtain the charge integration up to a list of the cumulative
-                charge integration values for radii for [radius/nbins,
-                2 * radius/nbins, ....].
-
-        Returns:
-            Differential integrated charge as a np array of [[radius, value],
-            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
-            data[:,1])
-        """
-        # For non-spin-polarized runs, this is zero by definition.
-        if not self.is_spin_polarized:
-            radii = [radius / nbins * (i + 1) for i in range(nbins)]
-            data = np.zeros((nbins, 2))
-            data[:, 0] = radii
-            return data
-
-        struct = self.structure
-        a = self.dim
-        if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
-            coords = []
-            for x, y, z in itertools.product(*(list(range(i)) for i in a)):
-                coords.append([x / a[0], y / a[1], z / a[2]])
-            sites_dist = struct.lattice.get_points_in_sphere(coords, struct[ind].coords, radius)
-            self._distance_matrix[ind] = {
-                "max_radius": radius,
-                "data": np.array(sites_dist),
-            }
-
-        data = self._distance_matrix[ind]["data"]
-
-        # Use boolean indexing to find all charges within the desired distance.
-        inds = data[:, 1] <= radius
-        dists = data[inds, 1]
-        data_inds = np.rint(np.mod(list(data[inds, 0]), 1) * np.tile(a, (len(dists), 1))).astype(int)
-        vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
-
-        hist, edges = np.histogram(dists, bins=nbins, range=[0, radius], weights=vals)
-        data = np.zeros((nbins, 2))
-        data[:, 0] = edges[1:]
-        data[:, 1] = [sum(hist[0 : i + 1]) / self.ngridpts for i in range(nbins)]
-        return data
-
-    def get_average_along_axis(self, ind):
-        """
-        Get the averaged total of the volumetric data a certain axis direction.
-        For example, useful for visualizing Hartree Potentials from a LOCPOT
-        file.
-
-        Args:
-            ind (int): Index of axis.
-
-        Returns:
-            Average total along axis
-        """
-        m = self.data["total"]
-        ng = self.dim
-        if ind == 0:
-            total = np.sum(np.sum(m, axis=1), 1)
-        elif ind == 1:
-            total = np.sum(np.sum(m, axis=0), 1)
-        else:
-            total = np.sum(np.sum(m, axis=0), 0)
-        return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
-
-    def to_hdf5(self, filename):
-        """
-        Writes the VolumetricData to a HDF5 format, which is a highly optimized
-        format for reading storing large data. The mapping of the VolumetricData
-        to this file format is as follows:
-
-        VolumetricData.data -> f["vdata"]
-        VolumetricData.structure ->
-            f["Z"]: Sequence of atomic numbers
-            f["fcoords"]: Fractional coords
-            f["lattice"]: Lattice in the pymatgen.core.lattice.Lattice matrix
-                format
-            f.attrs["structure_json"]: String of json representation
-
-        Args:
-            filename (str): Filename to output to.
-        """
-        import h5py
-
-        with h5py.File(filename, "w") as f:
-            ds = f.create_dataset("lattice", (3, 3), dtype="float")
-            ds[...] = self.structure.lattice.matrix
-            ds = f.create_dataset("Z", (len(self.structure.species),), dtype="i")
-            ds[...] = np.array([sp.Z for sp in self.structure.species])
-            ds = f.create_dataset("fcoords", self.structure.frac_coords.shape, dtype="float")
-            ds[...] = self.structure.frac_coords
-            dt = h5py.special_dtype(vlen=str)
-            ds = f.create_dataset("species", (len(self.structure.species),), dtype=dt)
-            ds[...] = [str(sp) for sp in self.structure.species]
-            grp = f.create_group("vdata")
-            for k in self.data:
-                ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
-                ds[...] = self.data[k]
-            f.attrs["name"] = self.name
-            f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
-
-    @classmethod
-    def from_hdf5(cls, filename, **kwargs):
-        """
-        Reads VolumetricData from HDF5 file.
-
-        :param filename: Filename
-        :return: VolumetricData
-        """
-        import h5py
-
-        with h5py.File(filename, "r") as f:
-            data = {k: np.array(v) for k, v in f["vdata"].items()}
-            data_aug = None
-            if "vdata_aug" in f:
-                data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
-            structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
 
 class Locpot(VolumetricData):
@@ -5350,7 +5055,7 @@ class Wavecar:
                 for ispin in range(self.spin):
                     for ib in range(self.nb):
                         data[ib, :, :, :] = np.fft.ifftn(self.fft_mesh(ik, ib, spin=ispin)) * N
-                    Unk(ik + 1, data).write_file(str(out_dir / (fname + f"{ispin+1}")))
+                    Unk(ik + 1, data).write_file(str(out_dir / f"{fname}{ispin+1}"))
 
 
 class Eigenval:
