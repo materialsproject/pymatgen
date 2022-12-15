@@ -1702,7 +1702,6 @@ class PotcarSingle:
         "RRKJ": _parse_list,
         "GGA": _parse_list,
         "SHA256": _parse_string,
-        "COPYR": _parse_string,
     }
 
     def __init__(self, data, symbol=None):
@@ -1991,7 +1990,7 @@ class PotcarSingle:
         """
         Attempts to verify the integrity of the POTCAR data.
 
-        This method checks the whole file (removing only the COPYR and SHA256
+        This method checks the whole file (removing only the SHA256
         metadata) against the SHA256 hash in the header if this is found.
         If no SHA256 hash is found in the file, the file hash (md5 hash of the
         whole file) is checked against all POTCAR file hashes known to pymatgen.
@@ -2186,9 +2185,9 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
-            # for newer POTCARS we have to exclude 'COPYR' and 'SHA256' lines
+            # for newer POTCARS we have to exclude 'SHA256' lines
             # since they were not used in the initial hashing
-            if k in ("nentries", "Orbitals", "COPYR", "SHA256"):
+            if k in ("nentries", "Orbitals", "SHA256"):
                 continue
             hash_str += f"{k}"
             if isinstance(v, bool):
