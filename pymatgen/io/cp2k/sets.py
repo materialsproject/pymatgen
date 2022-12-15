@@ -22,7 +22,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import List, Literal
+from typing import Literal
 
 import numpy as np
 from ruamel.yaml import YAML
@@ -1348,7 +1348,7 @@ class DftSet(Cp2kInput):
         if self.check("force_eval/dft/kpoints") and self.check("force_eval/dft/xc/hf"):
             raise Cp2kValidationError("Does not support hartree fock with kpoints")
 
-        for k, v in self["force_eval"]["subsys"].subsections.items():
+        for _, v in self["force_eval"]["subsys"].subsections.items():
             if v.name.upper() == "KIND":
                 if v["POTENTIAL"].values[0].upper() == "ALL":
                     if self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW":

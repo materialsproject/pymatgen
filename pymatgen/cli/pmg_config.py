@@ -59,7 +59,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
         with open(potential_file) as f:
             try:
                 chunks = chunk(f.read())
-            except:
+            except IndexError:
                 continue
         for c in chunks:
             try:
@@ -67,25 +67,32 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
                 potential.filename = os.path.basename(potential_file)
                 potential.version = None
                 settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(potential.dict())
-            except:
+            except ValueError:
+                # Chunk was readable, but the element is not pmg recognized
+                continue
+            except IndexError:
                 # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
-                pass
+                continue
 
     for basis_file in basis_files:
         print(f"Processing... {basis_file}")
         with open(basis_file) as f:
             try:
                 chunks = chunk(f.read())
-            except:
+            except IndexError:
                 continue
         for c in chunks:
             try:
                 basis = GaussianTypeOrbitalBasisSet.from_string(c)
                 basis.filename = os.path.basename(basis_file)
                 settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(basis.dict())
-            except:
+            except ValueError:
+                # Chunk was readable, but the element is not pmg recognized
+                continue
+            except IndexError:
                 # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
-                pass
+                continue
+
 
     print("Done processing cp2k data files")
 
