@@ -1265,7 +1265,7 @@ class CompleteDos(Dos):
             dict: A dict of the fingerprint Keys=type, Values=np.ndarray(energies, densities)
         """
         fp_dict = {}
-        fp_dict[fp[2]] = np.array([fp[0], fp[1]], dtype=tuple).T
+        fp_dict[fp[2]] = np.array([fp[0], fp[1]]).T
 
         return fp_dict
 
