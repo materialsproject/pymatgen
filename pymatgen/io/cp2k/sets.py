@@ -29,7 +29,7 @@ from ruamel.yaml import YAML
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure, Element
+from pymatgen.core.structure import Element, Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     DOS,
     LDOS,
@@ -37,6 +37,8 @@ from pymatgen.io.cp2k.inputs import (
     PDOS,
     QS,
     Band_Structure,
+    BasisFile,
+    BasisInfo,
     BrokenSymmetry,
     Cell,
     Coord,
@@ -44,13 +46,17 @@ from pymatgen.io.cp2k.inputs import (
     Dft,
     E_Density_Cube,
     ForceEval,
+    GaussianTypeOrbitalBasisSet,
     Global,
+    GthPotential,
     Keyword,
     Kind,
     Kpoints,
     Mgrid,
     MO_Cubes,
     OrbitalTransformation,
+    PotentialFile,
+    PotentialInfo,
     Scf,
     Section,
     SectionList,
@@ -58,12 +64,6 @@ from pymatgen.io.cp2k.inputs import (
     Subsys,
     V_Hartree_Cube,
     Xc_Functional,
-    GthPotential,
-    GaussianTypeOrbitalBasisSet,
-    BasisFile,
-    PotentialFile,
-    BasisInfo,
-    PotentialInfo,
 )
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
@@ -87,7 +87,7 @@ class DftSet(Cp2kInput):
         structure: Structure | Molecule,
         project_name: str = "CP2K",
         basis_and_potential: dict | None = None,
-        xc_functionals: List | str | None = None,
+        xc_functionals: list | str | None = None,
         multiplicity: int = 0,
         ot: bool = True,
         energy_gap: float = -1,
@@ -404,7 +404,7 @@ class DftSet(Cp2kInput):
 
             # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el), "rt") as f:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el)) as f:
                     yaml = YAML(typ="unsafe", pure=True)
                     DATA = yaml.load(f)
                     if not DATA.get("basis_sets"):
@@ -568,7 +568,7 @@ class DftSet(Cp2kInput):
         return cutoff
 
     @staticmethod
-    def get_xc_functionals(xc_functionals: List | str | None = None) -> List:
+    def get_xc_functionals(xc_functionals: list | str | None = None) -> list:
         """
         Get XC functionals. If simplified names are provided in kwargs, they
         will be expanded into their corresponding X and C names.

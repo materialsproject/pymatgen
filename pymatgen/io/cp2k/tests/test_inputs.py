@@ -8,10 +8,19 @@ import numpy as np
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
-    Coord, Cp2kInput, Keyword, KeywordList, Kind, Section, SectionList,
-    GaussianTypeOrbitalBasisSet, GthPotential,
-    BasisInfo, BasisFile,
-    PotentialInfo, PotentialFile,
+    BasisFile,
+    BasisInfo,
+    Coord,
+    Cp2kInput,
+    GaussianTypeOrbitalBasisSet,
+    GthPotential,
+    Keyword,
+    KeywordList,
+    Kind,
+    PotentialFile,
+    PotentialInfo,
+    Section,
+    SectionList,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -55,7 +64,6 @@ H GTH-PBE-q1 GTH-PBE
 
 
 class BasisAndPotentialTest(PymatgenTest):
-
     def test_basis_info(self):
         # Ensure basis metadata can be read from string
         b = BasisInfo.from_string("cc-pc-DZVP-MOLOPT-q1-SCAN")
@@ -65,7 +73,7 @@ class BasisAndPotentialTest(PymatgenTest):
         self.assertEqual(b.polarization, 1)
         self.assertEqual(b.cc, True)
         self.assertEqual(b.pc, True)
-        self.assertEqual(b.xc, 'SCAN')
+        self.assertEqual(b.xc, "SCAN")
 
         # Ensure one-way softmatching works
         b2 = BasisInfo.from_string("cc-pc-DZVP-MOLOPT-q1")
@@ -90,8 +98,16 @@ class BasisAndPotentialTest(PymatgenTest):
         self.assertEqual(molopt.nexp, [7])
         self.assertArrayAlmostEqual(
             molopt.exponents[0],
-            [11.478000339908, 3.700758562763, 1.446884268432, 0.716814589696, 0.247918564176, 0.066918004004, 0.021708243634]
-            )
+            [
+                11.478000339908,
+                3.700758562763,
+                1.446884268432,
+                0.716814589696,
+                0.247918564176,
+                0.066918004004,
+                0.021708243634,
+            ],
+        )
 
         # Basis file can read from strings
         bf = BasisFile.from_string(basis)
