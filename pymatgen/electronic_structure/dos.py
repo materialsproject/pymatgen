@@ -10,7 +10,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import Optional, Mapping
+from typing import Mapping, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -1170,8 +1170,8 @@ class CompleteDos(Dos):
         self,
         type: str = "summed_pdos",
         binning: bool = True,
-        min_e: Optional[float] = None,
-        max_e: Optional[float] = None,
+        min_e: float | None = None,
+        max_e: float | None = None,
         n_bins: int = 256,
         normalize: bool = True,
     ):
