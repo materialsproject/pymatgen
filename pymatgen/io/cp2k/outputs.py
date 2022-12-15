@@ -57,7 +57,6 @@ class Cp2kOutput:
             auto_load (bool): Whether or not to automatically load basic info like energies
                 and structures.
         """
-
         # IO Info
         self.filename = filename
         self.dir = os.path.dirname(filename)
@@ -205,14 +204,16 @@ class Cp2kOutput:
         if ("UKS" or "UNRESTRICTED_KOHN_SHAM" or "LSD" or "SPIN_POLARIZED") in self.data["dft"].values():
             return True
         return False
-    
+
     @property
     def charge(self):
+        """Get charge from the input file"""
         return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]
 
     @property
     def multiplicity(self):
-        return self.input['FORCE_EVAL']['DFT'].get("Multiplicity", Keyword("", None)).values[0]
+        """Get the spin multiplicity from input file"""
+        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("", None)).values[0]
 
     @property
     def is_molecule(self):
@@ -237,9 +238,7 @@ class Cp2kOutput:
 
     @property
     def is_hubbard(self):
-        """
-        returns True if hubbard +U correction was used
-        """
+        """Returns True if hubbard +U correction was used"""
         for v in self.data.get("atomic_kind_info", {}).values():
             if "DFT_PLUS_U" in v:
                 if v.get("DFT_PLUS_U").get("U_MINUS_J") > 0:
@@ -269,6 +268,12 @@ class Cp2kOutput:
         self.filenames["electron_density"] = glob.glob(os.path.join(self.dir, "*ELECTRON_DENSITY*.cube*"))
         self.filenames["spin_density"] = glob.glob(os.path.join(self.dir, "*SPIN_DENSITY*.cube*"))
         self.filenames["v_hartree"] = glob.glob(os.path.join(self.dir, "*hartree*.cube*"))
+        self.filenames["hyperfine_tensor"] = glob.glob(os.path.join(self.dir, "*HYPERFINE*eprhyp*"))
+        self.filenames["g_tensor"] = glob.glob(os.path.join(self.dir, "*GTENSOR*data*"))
+        self.filenames["spinspin_tensor"] = glob.glob(os.path.join(self.dir, "*K*data*"))
+        self.filenames["chi_tensor"] = glob.glob(os.path.join(self.dir, "*CHI*data*"))
+        self.filenames["nmr_shift"] = glob.glob(os.path.join(self.dir, "*SHIFT*data*"))
+        self.filenames["raman"] = glob.glob(os.path.join(self.dir, "*raman*data*"))
         restart = glob.glob(os.path.join(self.dir, "*restart*"))
         self.filenames["restart.bak"] = []
         self.filenames["restart"] = []
@@ -394,7 +399,8 @@ class Cp2kOutput:
                 species=[i[2] for i in coord_table],
                 coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
                 site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
-                charge=self.charge, spin_multiplicity=self.multiplicity
+                charge=self.charge,
+                spin_multiplicity=self.multiplicity,
             )
         else:
             self.initial_structure = Structure(
@@ -508,10 +514,7 @@ class Cp2kOutput:
         self.final_energy = self.data.get("total_energy", [])[-1]
 
     def parse_forces(self):
-        """
-        Get the forces from the output file
-        """
-
+        """Get the forces from the forces file, or from the main output file"""
         if len(self.filenames["forces"]) == 1:
             self.data["forces"] = [
                 [list(atom.coords) for atom in step]
@@ -530,12 +533,8 @@ class Cp2kOutput:
                 last_one_only=False,
             )
 
-    # TODO stress file still parses correctly, but the other is not rigorously tested
     def parse_stresses(self):
-        """
-        Get the stresses from the output file.
-        """
-
+        """Get the stresses from stress file, or from the main output file."""
         if len(self.filenames["stress"]) == 1:
             dat = np.genfromtxt(self.filenames["stress"][0], skip_header=1)
             dat = [dat] if len(np.shape(dat)) == 1 else dat
@@ -577,15 +576,17 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        self.ionic_steps = [
-            {"structure": structure, "E": energy, "stress_tensor": stress, "forces": forces}
-            for structure, energy, stress, forces in zip(
-                self.structures,
-                self.data.get("total_energy", []),
-                self.data.get("stress_tensor", []),
-                self.data.get("forces", []),
+        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"))):
+            self.ionic_steps.append(
+                {
+                    "structure": structure,
+                    "E": energy,
+                    "forces": self.data["forces"][i] if self.data.get("forces") else None,
+                    "stress_tensor": self.data["stress_tensor"][i] if self.data.get("stress_tensor") else None,
+                }
             )
-        ]
+
+        return self.ionic_steps
 
     def parse_cp2k_params(self):
         """
@@ -694,7 +695,19 @@ class Cp2kOutput:
             reverse=False,
         )
         if self.data.get("vdw"):
-            self.data["dft"]["vdw"] = self.data.pop("vdw")[0][0]
+            found = False
+            suffix = ""
+            for l in self.data.get("vdw"):
+                for _possible, _name in zip(
+                    ["RVV10", "LMKLL", "DRSLL", "DFT-D3", "DFT-D2"],
+                    ["RVV10", "LMKLL", "DRSLL", "D3", "D2"],
+                ):
+                    if _possible in l[0]:
+                        found = _name
+                    if "BJ" in l[0]:
+                        suffix = "(BJ)"
+
+            self.data["dft"]["vdw"] = found + suffix if found else self.data.pop("vdw")[0][0]
 
         poisson_periodic = {"poisson_periodicity": re.compile(r"POISSON\| Periodicity\s+(\w+)")}
         self.read_pattern(poisson_periodic, terminate_on_match=True)
@@ -736,7 +749,6 @@ class Cp2kOutput:
         """
         Retrieve the most import SCF parameters: the max number of scf cycles (max_scf),
         the convergence cutoff for scf (eps_scf),
-        :return:
         """
         max_scf = re.compile(r"max_scf:\s+(\d+)")
         eps_scf = re.compile(r"eps_scf:\s+(\d+)")
@@ -1020,9 +1032,7 @@ class Cp2kOutput:
             print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):
-        """
-        parse the hirshfeld population analysis for each step
-        """
+        """Parse the hirshfeld population analysis for each step."""
         uks = self.spin_polarized
         header = r"Hirshfeld Charges.+Net charge"
         footer = r"^$"
@@ -1185,7 +1195,6 @@ class Cp2kOutput:
         self.data["eigenvalues"] = eigenvalues
 
         if len(eigenvalues) == 0:
-            warnings.warn("No MO eigenvalues detected.")
             return
 
         if self.spin_polarized:
@@ -1266,11 +1275,9 @@ class Cp2kOutput:
         in the calculation directory.
 
         Args:
+            dos_file (str): Name of the dos file, otherwise will be inferred
             pdos_files (list): list of pdos file paths, otherwise they will be inferred
-            ldos_Files (list): list of ldos file paths, otherwise they will be inferred
-            sigma (float): Gaussian smearing parameter, if desired. Because cp2k is generally
-                used as a gamma-point only code, this is often needed to get smooth DOS that
-                are comparable to k-point averaged DOS
+            ldos_files (list): list of ldos file paths, otherwise they will be inferred
         """
         if dos_file is None:
             dos_file = self.filenames["DOS"][0] if self.filenames["DOS"] else None
@@ -1333,16 +1340,12 @@ class Cp2kOutput:
 
     @property
     def complete_dos(self) -> CompleteDos:
-        """
-        Returns complete dos object if it has been parsed.
-        """
+        """Returns complete dos object if it has been parsed."""
         return self.data.get("cdos")
 
     @property
     def band_structure(self) -> BandStructure:
-        """
-        Returns band structure object if it has been parsed.
-        """
+        """Returns band structure object if it has been parsed."""
         return self.data.get("band_structure")
 
     def parse_bandstructure(self, bandstructure_filename=None) -> None:
@@ -1425,6 +1428,128 @@ class Cp2kOutput:
         self.band_gap = self.data["band_structure"].get_band_gap().get("energy")
         self.vbm = self.data["band_structure"].get_vbm().get("energy")
         self.cbm = self.data["band_structure"].get_cbm().get("energy")
+
+    def parse_hyperfine(self, hyperfine_filename=None):
+        """
+        Parse a file containing hyperfine coupling tensors for each atomic site.
+        """
+        if not hyperfine_filename:
+            if self.filenames["hyperfine_tensor"]:
+                hyperfine_filename = self.filenames["hyperfine_tensor"][0]
+            else:
+                return
+
+        with zopen(hyperfine_filename, "rt") as f:
+            lines = [line for line in f.read().split("\n") if line]
+
+        hyperfine = [[] for _ in self.ionic_steps]
+        for (i,) in range(2, len(lines), 5):
+            x = list(map(float, lines[i + 2].split()[-3:]))
+            y = list(map(float, lines[i + 3].split()[-3:]))
+            z = list(map(float, lines[i + 4].split()[-3:]))
+            hyperfine[-1].append([x, y, z])
+
+        self.data["hyperfine_tensor"] = hyperfine
+        return hyperfine
+
+    def parse_gtensor(self, gtensor_filename=None):
+        """
+        Parse a file containing g tensor.
+        """
+        if not gtensor_filename:
+            if self.filenames["g_tensor"]:
+                gtensor_filename = self.filenames["g_tensor"][0]
+            else:
+                return
+
+        with zopen(gtensor_filename, "rt") as f:
+            lines = [line for line in f.read().split("\n") if line]
+
+        data = {}
+        data["gmatrix_zke"] = []
+        data["gmatrix_so"] = []
+        data["gmatrix_soo"] = []
+        data["gmatrix_total"] = []
+        data["gtensor_total"] = []
+        data["delta_g"] = []
+        ionic = -1
+        dat = None
+        for _, line in enumerate(lines):
+            first = line.strip()
+            if first == "G tensor":
+                ionic += 1
+                for _, d in data.items():
+                    d.append([])
+            elif first in data:
+                dat = first
+            elif first.startswith("delta_g"):
+                dat = "delta_g"
+            else:
+                splt = [_postprocessor(s) for s in line.split()]
+                splt = [s for s in splt if isinstance(s, float)]
+                data[dat][ionic].append(list(map(float, splt)))
+        self.data.update(data)
+        return data["gtensor_total"][-1]
+
+    def parse_chi_tensor(self, chi_filename=None):
+        """
+        Parse the magnetic susceptibility tensor
+        """
+        if not chi_filename:
+            if self.filenames["chi_tensor"]:
+                chi_filename = self.filenames["chi_tensor"][0]
+            else:
+                return
+
+        with zopen(chi_filename, "rt") as f:
+            lines = [line for line in f.read().split("\n") if line]
+
+        data = {}
+        data["chi_soft"] = []
+        data["chi_local"] = []
+        data["chi_total"] = []
+        data["chi_total_ppm_cgs"] = []
+        data["PV1"] = []
+        data["PV2"] = []
+        data["PV3"] = []
+        data["ISO"] = []
+        data["ANISO"] = []
+        ionic = -1
+        dat = None
+        for _, line in enumerate(lines):
+            first = line.strip()
+            if first == "Magnetic Susceptibility Tensor":
+                ionic += 1
+                for _, d in data.items():
+                    d.append([])
+            elif first in data:
+                dat = first
+            elif "SOFT" in first:
+                dat = "chi_soft"
+            elif "LOCAL" in first:
+                dat = "chi_local"
+            elif "Total" in first:
+                if "ppm" in first:
+                    dat = "chi_total_ppm_cgs"
+                else:
+                    dat = "chi_total"
+            elif first.startswith("PV1"):
+                splt = [_postprocessor(s) for s in line.split()]
+                splt = [s for s in splt if isinstance(s, float)]
+                data["PV1"][ionic] = splt[0]
+                data["PV2"][ionic] = splt[1]
+                data["PV3"][ionic] = splt[2]
+            elif first.startswith("ISO"):
+                splt = [_postprocessor(s) for s in line.split()]
+                splt = [s for s in splt if isinstance(s, float)]
+                data["ISO"][ionic] = splt[0]
+                data["ANISO"][ionic] = splt[1]
+            else:
+                splt = [_postprocessor(s) for s in line.split()]
+                splt = [s for s in splt if isinstance(s, float)]
+                data[dat][ionic].append(list(map(float, splt)))
+        self.data.update(data)
+        return data["chi_total"][-1]
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
