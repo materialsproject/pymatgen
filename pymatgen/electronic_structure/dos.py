@@ -10,7 +10,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import Mapping, Optional
+from typing import Mapping
 
 import numpy as np
 from monty.json import MSONable
