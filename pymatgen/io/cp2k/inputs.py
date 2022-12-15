@@ -29,7 +29,7 @@ import re
 import textwrap
 from hashlib import md5
 from pathlib import Path
-from typing import Any, Iterable, Literal, Sequence, List, Dict
+from typing import Any, Dict, Iterable, List, Literal, Sequence
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -2411,12 +2411,12 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
     info: BasisInfo = Field(None, description="Cardinality of this basis")
     nset: int = Field(None, description="Number of exponent sets")
-    n: List[int] = Field(None, description="Principle quantum number for each set")
-    lmax: List[int] = Field(None, description="Maximum angular momentum quantum number for each set")
-    lmin: List[int] = Field(None, description="Minimum angular momentum quantum number for each set")
-    nshell: List[Dict[int, int]] = Field(None, description="Number of shells for angular momentum l for each set")
-    exponents: List[List[float]] = Field(None, description="Exponents for each set")
-    coefficients: List[Dict[int, Dict[int, Dict[int, float]]]] = Field(
+    n: list[int] = Field(None, description="Principle quantum number for each set")
+    lmax: list[int] = Field(None, description="Maximum angular momentum quantum number for each set")
+    lmin: list[int] = Field(None, description="Minimum angular momentum quantum number for each set")
+    nshell: list[dict[int, int]] = Field(None, description="Number of shells for angular momentum l for each set")
+    exponents: list[list[float]] = Field(None, description="Exponents for each set")
+    coefficients: list[dict[int, dict[int, dict[int, float]]]] = Field(
         None, description="Contraction coefficients for each set. Dict[exp->l->shell]"
     )
 
@@ -2484,8 +2484,8 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         lmin = []
         lmax = []
         nshell = []
-        exponents: List[List[float]] = []
-        coefficients: List[Dict[int, Dict[int, Dict[int, float]]]] = []
+        exponents: list[list[float]] = []
+        coefficients: list[dict[int, dict[int, dict[int, float]]]] = []
 
         line_index = 2
         for set_index in range(nset):
