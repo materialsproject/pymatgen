@@ -1238,7 +1238,7 @@ class CompleteDos(Dos):
             dos_rebin = np.zeros(ener.shape)
 
             for ii, e1, e2 in zip(range(len(ener)), ener_bounds[0:-1], ener_bounds[1:]):
-                inds = np.where((energies >= e1) & (energies < e2))[0]
+                inds = np.where((energies >= e1) & (energies < e2))
                 dos_rebin[ii] = np.sum(densities[inds])
             if normalize:  # scale dos bins to make area under histogram equal 1
                 area = np.sum(dos_rebin * bin_width)
@@ -1265,7 +1265,7 @@ class CompleteDos(Dos):
             dict: A dict of the fingerprint Keys=type, Values=np.ndarray(energies, densities)
         """
         fp_dict = {}
-        fp_dict[fp[2]] = np.array([fp[0], fp[1]]).T
+        fp_dict[fp[2]] = np.array([fp[0], fp[1]], dtype="object").T
 
         return fp_dict
 
