@@ -15,7 +15,6 @@ In order to implement a new Set within the current code structure, follow this 3
     (1) Inherit from Cp2kInputSet or one of its children and call the super() constructor
     (2) Create the new sections and insert them into self and its subsections as needed
     (3) Call self.update(override_default_params) in order to allow user settings.
-
 """
 
 from __future__ import annotations
@@ -107,7 +106,7 @@ class DftSet(Cp2kInput):
         ngrids: int = 5,
         progression_factor: int = 3,
         override_default_params: dict | None = None,
-        wfn_restart_file_name: str = None,
+        wfn_restart_file_name: str | None = None,
         kpoints: VaspKpoints | None = None,
         smearing: bool = False,
         **kwargs,
@@ -723,7 +722,7 @@ class DftSet(Cp2kInput):
         gga_c_fraction: float = 1,
         max_memory: int = 2000,
         cutoff_radius: float = 8.0,
-        potential_type: str = None,
+        potential_type: str | None = None,
         omega: float = 0.11,
         scale_coulomb: float = 1,
         scale_gaussian: float = 1,

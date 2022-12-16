@@ -18,6 +18,7 @@ A quick overview of the module:
    calculation input.
 -- The rest of the classes are children of Section intended to make initialization of common
    sections easier.
+
 """
 
 from __future__ import annotations
@@ -64,10 +65,10 @@ class Keyword(MSONable):
         self,
         name: str,
         *values,
-        description: str = None,
-        units: str = None,
-        verbose: bool = True,
-        repeats: bool = False,
+        description: str | None = None,
+        units: str | None = None,
+        verbose: bool | None = True,
+        repeats: bool | None = False,
     ):
         """
         Initializes a keyword. These Keywords and the value passed to them are sometimes as simple
@@ -719,7 +720,7 @@ class Cp2kInput(Section):
     title and by implementing the file i/o.
     """
 
-    def __init__(self, name: str = "CP2K_INPUT", subsections: dict = None, **kwargs):
+    def __init__(self, name: str = "CP2K_INPUT", subsections: dict | None = None, **kwargs):
         """
         Initialize Cp2kInput by calling the super
         """
@@ -872,7 +873,7 @@ class Global(Section):
         self,
         project_name: str = "CP2K",
         run_type: str = "ENERGY_FORCE",
-        keywords: dict = None,
+        keywords: dict | None = None,
         **kwargs,
     ):
         """Initialize the global section
@@ -910,7 +911,7 @@ class ForceEval(Section):
     Controls the calculation of energy and forces in Cp2k
     """
 
-    def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the ForceEval section"""
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
@@ -944,9 +945,9 @@ class Dft(Section):
         basis_set_filenames: Iterable = ("BASIS_MOLOPT",),
         potential_filename="GTH_POTENTIALS",
         uks: bool = True,
-        wfn_restart_file_name: str = None,
-        keywords: dict = None,
-        subsections: dict = None,
+        wfn_restart_file_name: str | None = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """Initialize the DFT section.
@@ -999,7 +1000,7 @@ class Subsys(Section):
     Controls the definition of the system to be simulated
     """
 
-    def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the subsys section"""
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
@@ -1016,8 +1017,8 @@ class QS(Section):
         eps_default: float = 1e-10,
         eps_pgf_orb: float | None = None,
         extrapolation: str = "ASPC",
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1073,8 +1074,8 @@ class Scf(Section):
         max_scf: int = 50,
         eps_scf: float = 1e-6,
         scf_guess: str = "RESTART",
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1135,8 +1136,8 @@ class Mgrid(Section):
         rel_cutoff: int | float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1196,8 +1197,8 @@ class Diagonalization(Section):
         eps_iter: float = 1e-8,
         eps_jacobi: float = 0,
         jacobi_threshold: float = 1e-7,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """Initialize the diagronalization section"""
@@ -1235,8 +1236,8 @@ class Davidson(Section):
         self,
         new_prec_each: int = 20,
         preconditioner: str = "FULL_SINGLE_INVERSE",
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1299,8 +1300,8 @@ class OrbitalTransformation(Section):
         occupation_preconditioner: bool = False,
         energy_gap: float = -1,
         linesearch: str = "2PNT",
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1378,7 +1379,7 @@ class OrbitalTransformation(Section):
 class Cell(Section):
     """Defines the simulation cell (lattice)"""
 
-    def __init__(self, lattice: Lattice, keywords: dict = None, **kwargs):
+    def __init__(self, lattice: Lattice, keywords: dict | None = None, **kwargs):
         """
         Initialize the cell section.
 
@@ -1411,8 +1412,8 @@ class Kind(Section):
         potential: GthPotential | str | None = "GTH_POTENTIALS",
         ghost: bool = False,
         aux_basis: GaussianTypeOrbitalBasisSet | str | None = None,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1521,8 +1522,8 @@ class DftPlusU(Section):
         l=-1,
         u_minus_j=0,
         u_ramping=0,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1565,8 +1566,8 @@ class Coord(Section):
         self,
         structure: Structure | Molecule,
         aliases: dict | None = None,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1606,7 +1607,7 @@ class Coord(Section):
 class DOS(Section):
     """Controls printing of the density of states."""
 
-    def __init__(self, ndigits: int = 6, keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(self, ndigits: int = 6, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """
         Initialize the DOS section
 
@@ -1631,7 +1632,7 @@ class PDOS(Section):
     (elemental decomposed DOS).
     """
 
-    def __init__(self, nlumo: int = -1, keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(self, nlumo: int = -1, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """
         Initialize the PDOS section
 
@@ -1662,8 +1663,8 @@ class LDOS(Section):
         self,
         index: int = 1,
         alias: str | None = None,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1694,7 +1695,7 @@ class LDOS(Section):
 class V_Hartree_Cube(Section):
     """Controls printing of the hartree potential as a cube file."""
 
-    def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = (
@@ -1719,8 +1720,8 @@ class MO_Cubes(Section):
         write_cube: bool = False,
         nhomo: int = 1,
         nlumo: int = 1,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         """
@@ -1755,7 +1756,7 @@ class MO_Cubes(Section):
 class E_Density_Cube(Section):
     """Controls printing of the electron density cube file"""
 
-    def __init__(self, keywords: dict = None, subsections: dict = None, **kwargs):
+    def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = (
@@ -1780,8 +1781,8 @@ class Smear(Section):
         elec_temp: int | float = 300,
         method: str = "FERMI_DIRAC",
         fixed_magnetic_moment: float = -1e2,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
         **kwargs,
     ):
         self.elec_temp = elec_temp
@@ -1976,8 +1977,8 @@ class PBE(Section):
         parameterization: str = "ORIG",
         scale_c: float | int = 1,
         scale_x: float | int = 1,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
     ):
         """
         Args:
@@ -2201,8 +2202,8 @@ class Band_Structure(Section):
         kpoint_sets: Sequence[Kpoint_Set],
         filename: str = "BAND.bs",
         added_mos: int = -1,
-        keywords: dict = None,
-        subsections: dict = None,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
     ):
         """
         Args:
