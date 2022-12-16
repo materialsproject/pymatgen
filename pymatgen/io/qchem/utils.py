@@ -3,6 +3,7 @@ Utilities for Qchem io.
 """
 
 import re
+import copy
 from collections import defaultdict
 
 import numpy as np
@@ -153,3 +154,35 @@ def process_parsed_coords(coords):
         for jj in range(3):
             geometry[ii, jj] = float(entry[jj])
     return geometry
+
+
+def process_parsed_HESS(hess_data):
+    dim = int(hess_data[1].split()[1])
+    hess = []
+    tmp_part = []
+    for ii in range(dim):
+        tmp_part.append(0.0)
+    for ii in range(dim):
+        hess.append(copy.deepcopy(tmp_part))
+
+    row = 0
+    column = 0
+    for ii, line in enumerate(hess_data):
+        if ii not in [0, 1, len(hess_data)-1]:
+            split_line = line.split()
+            for jj in range(len(split_line)):
+                num = float(split_line[jj])
+                hess[row][column] = num
+                if row == column:
+                    row += 1
+                    column = 0
+                else:
+                    hess[column][row] = num
+                    column += 1
+
+    processed_hess_data = []
+    for ii in range(dim):
+        for jj in range(dim):
+            processed_hess_data.append(hess[ii][jj])
+
+    return processed_hess_data
