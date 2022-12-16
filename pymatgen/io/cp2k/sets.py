@@ -22,7 +22,6 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import Literal
 
 import numpy as np
 from ruamel.yaml import YAML
@@ -1164,17 +1163,23 @@ class DftSet(Cp2kInput):
 
     def activate_vdw_potential(
         self,
-        dispersion_functional: Literal["PAIR_POTENTIAL", "NON_LOCAL"],
-        potential_type: Literal["DFTD2", "DFTD3", "DFTD3(BJ)", "DRSLL", "LMKLL", "RVV10"],
+        dispersion_functional: str,
+        potential_type: str,
     ):
         """
-        Activate van der Waals dispersion corrections
+        Activate van der Waals dispersion corrections.
+
+        Args:
+            dispersion_functional: Type of dispersion functional.
+                Options: pair_potential or non_local
+            potential_type: What type of potential to use, given a dispersion functional type
+                Options: DFTD2, DFTD3, DFTD3(BJ), DRSLL, LMKLL, RVV10
         """
         vdw = Section(
             "VDW_POTENTIAL", keywords={"DISPERSION_FUNCTIONAL": Keyword("DISPERSION_FUNCTIONAL", dispersion_functional)}
         )
         keywords = {"TYPE": Keyword("TYPE", potential_type)}
-        if dispersion_functional == "PAIR_POTENTIAL":
+        if dispersion_functional.upper() == "PAIR_POTENTIAL":
             reference_functional = self.xc_functionals[0]
             warnings.warn(
                 "Reference functional will not be checked for validity. "
