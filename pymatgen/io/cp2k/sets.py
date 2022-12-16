@@ -1181,6 +1181,7 @@ class DftSet(Cp2kInput):
                 "Calculation will fail if the reference functional "
                 "does not exist in the dftd3 reference data"
             )
+            keywords['PARAMETER_FILE_NAME'] = Keyword("PARAMETER_FILE_NAME", "dftd3.dat")
             keywords["REFERENCE_FUNCTIONAL"] = Keyword("REFERENCE_FUNCTIONAL", reference_functional)
 
         vdw.insert(Section(dispersion_functional, keywords=keywords))
