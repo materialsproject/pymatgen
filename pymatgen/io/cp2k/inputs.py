@@ -2528,13 +2528,13 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
                 if _info[k] is None:
                     _info[k] = v
         info = BasisInfo.from_dict(_info)
+        potential: Literal["All Electron", "Pseudopotential"]
         if any("ALL" in x for x in [name] + aliases):
             info.electrons = element.Z
             potential = "All Electron"
         else:
             potential = "Pseudopotential"
         nset = int(lines[1].split()[0])
-
         n = []
         lmin = []
         lmax = []
@@ -2757,6 +2757,7 @@ class GthPotential(AtomicMetadata):
                 if info[k] is None:
                     info[k] = v
         info = PotentialInfo.from_dict(info)
+        potential: Literal["All Electron", "Pseudopotential"]
         if any("ALL" in x for x in [name] + aliases):
             potential = "All Electron"
             info.electrons = Element(element).Z
