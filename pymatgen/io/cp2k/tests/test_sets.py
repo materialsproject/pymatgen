@@ -22,7 +22,6 @@ Si_structure = Structure(
 molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
 
 
-# TODO More comprehensive testing
 class SetTest(PymatgenTest):
     def setUp(self) -> None:
         self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
@@ -39,7 +38,7 @@ class SetTest(PymatgenTest):
 
         # Basis sets / potentials searching
         basis_and_potential = {"basis_type": "SZV", "potential_type": "Pseudopotential", "functional": None}
-        ss = DftSet(Si_structure, basis_and_potential=basis_and_potential)
+        #ss = DftSet(Si_structure, basis_and_potential=basis_and_potential)
 
         # Basis sets / potentials by hash value
         basis_and_potential = {

@@ -420,7 +420,7 @@ class DftSet(Cp2kInput):
                     possible_basis_sets.append(_basis)
                 elif have_element_file:
                     if _basis in DATA["basis_sets"]:
-                        possible_basis_sets.append(GaussianTypeOrbitalBasisSet(**DATA["basis_sets"][_basis]))
+                        possible_basis_sets.append(GaussianTypeOrbitalBasisSet.from_dict(DATA["basis_sets"][_basis]))
                     elif _basis:
                         desired_basis = GaussianTypeOrbitalBasisSet(name=_basis)
 
@@ -429,7 +429,7 @@ class DftSet(Cp2kInput):
                     aux_basis = _aux_basis
                 elif have_element_file:
                     if _aux_basis in DATA["basis_sets"]:
-                        aux_basis = GaussianTypeOrbitalBasisSet(**DATA["basis_sets"][_aux_basis])
+                        aux_basis = GaussianTypeOrbitalBasisSet.from_dict(DATA["basis_sets"][_aux_basis])
                     elif _aux_basis:
                         desired_aux_basis = GaussianTypeOrbitalBasisSet(name=_aux_basis)
 
@@ -438,7 +438,7 @@ class DftSet(Cp2kInput):
                     possible_potentials.append(_potential)
                 elif have_element_file:
                     if _potential in DATA["potentials"]:
-                        possible_potentials.append(GthPotential(**DATA["potentials"][_potential]))
+                        possible_potentials.append(GthPotential.from_dict(DATA["potentials"][_potential]))
                     elif _potential:
                         desired_potential = GthPotential(name=_potential)
 
@@ -470,19 +470,19 @@ class DftSet(Cp2kInput):
             # If basis/potential are not explicit, match the desired ones to available ones in the element file
             if desired_basis:
                 for _possible_basis in DATA.get("basis_sets").values():
-                    possible_basis = GaussianTypeOrbitalBasisSet(**_possible_basis)
+                    possible_basis = GaussianTypeOrbitalBasisSet.from_dict(_possible_basis)
                     if desired_basis.softmatch(possible_basis):
                         possible_basis_sets.append(possible_basis)
             if desired_aux_basis:
                 for _possible_basis in DATA.get("basis_sets").values():
-                    possible_basis = GaussianTypeOrbitalBasisSet(**_possible_basis)
+                    possible_basis = GaussianTypeOrbitalBasisSet.from_dict(_possible_basis)
                     if desired_aux_basis.softmatch(possible_basis):
                         aux_basis = possible_basis
                         data["basis_filenames"].append(aux_basis.filename)
                         break
             if desired_potential:
                 for _possible_potential in DATA.get("potentials").values():
-                    possible_potential = GthPotential(**_possible_potential)
+                    possible_potential = GthPotential.from_dict(_possible_potential)
                     if desired_potential.softmatch(possible_potential):
                         possible_potentials.append(possible_potential)
 

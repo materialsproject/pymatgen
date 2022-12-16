@@ -1,11 +1,17 @@
 # Test data file for cp2k
 potentials:
   21e2f468a18404ff6119fe801da81e43:
+    '@class': GthPotential
+    '@module': pymatgen.io.cp2k.inputs
+    '@version': null
     alias_names:
     - GTH-GGA-q4
     c_exp_ppl:
     - -6.26927043053227
-    element: Si
+    element:
+      '@class': Element
+      '@module': pymatgen.core.periodic_table
+      element: Si
     filename: POTENTIAL_UZH
     hprj_ppnl:
       '0':
@@ -18,9 +24,12 @@ potentials:
         '0':
           '0': 2.4312767590505
     info:
+      '@class': PotentialInfo
+      '@module': pymatgen.io.cp2k.inputs
+      '@version': null
       electrons: 4
       nlcc: null
-      type: GTH
+      potential_type: GTH
       xc: PBE
     n_elecs:
       '0': 2
@@ -41,6 +50,9 @@ potentials:
     version: null
 basis_sets:
   30767c18f6e7e46c1b56c1d34ff6007d:
+    '@class': GaussianTypeOrbitalBasisSet
+    '@module': pymatgen.io.cp2k.inputs
+    '@version': null
     alias_names:
     - SZV-GTH
     coefficients:
@@ -64,7 +76,10 @@ basis_sets:
           '0': -0.1909870193
         '1':
           '0': -0.3623984652
-    element: Si
+    element:
+      '@class': Element
+      '@module': pymatgen.core.periodic_table
+      element: Si
     exponents:
     - - 1.20324036
       - 0.468838597
@@ -72,6 +87,9 @@ basis_sets:
       - 0.057561689
     filename: GTH_BASIS_SETS
     info:
+      '@class': BasisInfo
+      '@module': pymatgen.io.cp2k.inputs
+      '@version': null
       admm: false
       cc: false
       contracted: null
@@ -96,5 +114,5 @@ basis_sets:
     nshell:
     - '0': 1
       '1': 1
-    potential: Pseudopotential
+    potential: null
     version: null

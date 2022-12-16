@@ -83,7 +83,7 @@ class BasisAndPotentialTest(PymatgenTest):
     def test_potential_info(self):
         # Ensure potential metadata can be read from string
         p = PotentialInfo.from_string("GTH-PBE-q1-NLCC")
-        self.assertEqual(p.type, "GTH")
+        self.assertEqual(p.potential_type, "GTH")
         self.assertEqual(p.xc, "PBE")
         self.assertEqual(p.nlcc, True)
 
@@ -96,22 +96,21 @@ class BasisAndPotentialTest(PymatgenTest):
         # Ensure cp2k formatted string can be read for data correctly
         molopt = GaussianTypeOrbitalBasisSet.from_string(basis)
         self.assertEqual(molopt.nexp, [7])
-        self.assertArrayAlmostEqual(
-            molopt.exponents[0],
-            [
-                11.478000339908,
-                3.700758562763,
-                1.446884268432,
-                0.716814589696,
-                0.247918564176,
-                0.066918004004,
-                0.021708243634,
-            ],
-        )
-
         # Basis file can read from strings
         bf = BasisFile.from_string(basis)
-        self.assertEqual(bf.objects[0], molopt)
+        for obj in [molopt, bf.objects[0]]:
+            self.assertArrayAlmostEqual(
+                obj.exponents[0],
+                [
+                    11.478000339908,
+                    3.700758562763,
+                    1.446884268432,
+                    0.716814589696,
+                    0.247918564176,
+                    0.066918004004,
+                    0.021708243634,
+                ],
+            )
 
         # Ensure keyword can be properly generated
         kw = molopt.get_keyword()
@@ -119,6 +118,7 @@ class BasisAndPotentialTest(PymatgenTest):
         molopt.info.admm = True
         kw = molopt.get_keyword()
         self.assertArrayEqual(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
+        molopt.info.admm = False
 
     def test_potentials(self):
         # Ensure cp2k formatted string can be read for data correctly

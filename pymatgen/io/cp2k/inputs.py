@@ -29,11 +29,11 @@ import re
 import textwrap
 from hashlib import md5
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Sequence
+from dataclasses import dataclass, field
+from typing import Any, Iterable, Literal, Sequence
 
 from monty.io import zopen
 from monty.json import MSONable
-from pydantic import BaseModel, Field
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -2272,26 +2272,41 @@ class Band_Structure(Section):
         return Band_Structure(kpoint_sets=kpoint_sets, filename="BAND.bs")
 
 
-class BasisInfo(BaseModel):
-    """Summary info about a basis set"""
+@dataclass
+class BasisInfo(MSONable):
+    """
+    Summary info about a basis set
 
-    electrons: int = Field(None, description="Number of electrons")
-    core: int = Field(None, description="Number of basis functions per core electron")
-    valence: int = Field(
-        None,
-        description="Number of basis functions per valence electron OR number of exp "
-        "if it is a FIT formatted admm basis",
-    )
-    polarization: int = Field(None, description="Number of polarization functions")
-    diffuse: int = Field(None, description="Number of added, diffuse/augmentation functions")
-    cc: bool = Field(False, description="Correlation consistent")
-    pc: bool = Field(False, description="Polarization consistent")
-    sr: bool = Field(False, description="Short-range optimized")
-    molopt: bool = Field(False, description="Optimized for molecules/solids")
-    admm: bool = Field(False, description="Whether this is an auxiliary basis set for ADMM")
-    lri: bool = Field(False, description="Whether this is a local resolution of identity auxiliary basis")
-    contracted: bool = Field(None, description="Whether this basis set is contracted")
-    xc: str = Field(None, description="Exchange correlation functional used for creating this potential")
+    Attributes:
+        electrons: Number of electrons
+        core: Number of basis functions per core electron
+        valence: Number of basis functions per valence electron OR number of exp if it
+            is a FIT formatted admm basis
+        polarization: Number of polarization functions
+        diffuse: Number of added, diffuse/augmentation functions
+        cc: Correlation consistent
+        pc: Polarization consistent
+        sr: Short-range optimized
+        molopt: Optimized for molecules/solids
+        admm: Whether this is an auxiliary basis set for ADMM
+        lri: Whether this is a local resolution of identity auxiliary basis
+        contracted: Whether this basis set is contracted
+        xc: Exchange correlation functional used for creating this potential
+    """
+
+    electrons: int | None = None
+    core: int | None = None
+    valence: int | None = None
+    polarization: int | None = None
+    diffuse: int | None = None
+    cc: bool | None = False
+    pc: bool | None = False
+    sr: bool | None = False
+    molopt: bool | None = False
+    admm: bool | None = False
+    lri: bool | None = False
+    contracted: bool | None = None
+    xc: str | None = None
 
     def softmatch(self, other):
         """
@@ -2301,8 +2316,8 @@ class BasisInfo(BaseModel):
         """
         if not isinstance(other, BasisInfo):
             return False
-        d1 = self.dict()
-        d2 = other.dict()
+        d1 = self.as_dict()
+        d2 = other.as_dict()
         for k, v in d1.items():
             if v is not None and v != d2[k]:
                 return False
@@ -2312,7 +2327,7 @@ class BasisInfo(BaseModel):
     def from_string(cls, string: str) -> BasisInfo:
         """Get summary info from a string"""
         string = string.upper()
-        data = {}  # type: Dict[str, Any]
+        data = {}  # type: dict[str, Any]
         data["cc"] = "CC" in string
         string = string.replace("CC", "")
         data["pc"] = "PC" in string
@@ -2328,7 +2343,6 @@ class BasisInfo(BaseModel):
                 break
 
         tmp = {"S": 1, "D": 2, "T": 3, "Q": 4}
-
         if "ADMM" in string or "FIT" in string:
             data["admm"] = True
             bool_core = False
@@ -2336,8 +2350,9 @@ class BasisInfo(BaseModel):
             nums = "".join(s for s in string if s.isnumeric())
             data["valence"] = int(nums) if nums else None
         else:
+            data["admm"] = False
             if "LRI" in string:
-                data["LRI"] = True
+                data["lri"] = True
             bool_core = "V" not in string or "ALL" in string
 
         data["polarization"] = string.count("P")
@@ -2360,16 +2375,28 @@ class BasisInfo(BaseModel):
         return cls(**data)
 
 
-class AtomicMetadata(BaseModel):
-    """Metadata for basis sets and potentials in cp2k"""
+@dataclass
+class AtomicMetadata(MSONable):
+    """
+    Metadata for basis sets and potentials in cp2k
 
-    info: BaseModel = Field(None, description="Info about this object")
-    element: Element = Field(None, description="Element for this object")
-    potential: Literal["All Electron", "Pseudopotential"] = Field(None, description="The potential for this object")
-    name: str = Field(None, description="Name of the object")
-    alias_names: Sequence = Field(None, description="Optional aliases")
-    filename: str = Field(None, description="Name of the file containing this object")
-    version: str = Field(None, description="Version")
+    Attributes:
+        info: Info about this object
+        element: Element for this object
+        potential: The potential for this object
+        name: Name of the object
+        alias_names: Optional aliases
+        filename: Name of the file containing this object
+        version: Version
+    """
+
+    info: BasisInfo | PotentialInfo | None = None
+    element: Element | None = None
+    potential: Literal["All Electron", "Pseudopotential"] | None = None
+    name: str | None = None
+    alias_names: list = field(default_factory=list)
+    filename: str | None = None
+    version: str | None = None
 
     def softmatch(self, other):
         """
@@ -2406,30 +2433,42 @@ class AtomicMetadata(BaseModel):
         return str(self)
 
 
+@dataclass
 class GaussianTypeOrbitalBasisSet(AtomicMetadata):
-    """Model definition of a GTO basis set"""
+    """
+    Model definition of a GTO basis set
 
-    info: BasisInfo = Field(None, description="Cardinality of this basis")
-    nset: int = Field(None, description="Number of exponent sets")
-    n: list[int] = Field(None, description="Principle quantum number for each set")
-    lmax: list[int] = Field(None, description="Maximum angular momentum quantum number for each set")
-    lmin: list[int] = Field(None, description="Minimum angular momentum quantum number for each set")
-    nshell: list[dict[int, int]] = Field(None, description="Number of shells for angular momentum l for each set")
-    exponents: list[list[float]] = Field(None, description="Exponents for each set")
-    coefficients: list[dict[int, dict[int, dict[int, float]]]] = Field(
-        None, description="Contraction coefficients for each set. Dict[exp->l->shell]"
-    )
+    Attributes:
+        info: Cardinality of this basis
+        nset: Number of exponent sets
+        n: Principle quantum number for each set
+        lmax: Maximum angular momentum quantum number for each set
+        lmin: Minimum angular momentum quantum number for each set
+        nshell: Number of shells for angular momentum l for each set
+        exponents: Exponents for each set
+        coefficients: Contraction coefficients for each set. Dict[exp->l->shell]
+    """
 
-    def __init__(self, **data: Any) -> None:
-        super().__init__(**data)
-        if self.potential == "All Electron" and self.element:
+    info: BasisInfo | None = None
+    nset: int | None = None
+    n: list[int] | None = None
+    lmax: list[int] | None = None
+    lmin: list[int] | None = None
+    nshell: list[dict[int, int]] | None = None
+    exponents: list[list[float]] | None = None
+    coefficients: list[dict[int, dict[int, dict[int, float]]]] | None = None
+
+    def __post_init__(self) -> None:
+        if self.info and self.potential == "All Electron" and self.element:
             self.info.electrons = self.element.Z
         if self.name == "ALLELECTRON":
             self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
 
     def get_keyword(self) -> Keyword:
         """Convert basis to keyword object"""
-        vals = []
+        if not self.name:
+            raise ValueError("No name attribute. Cannot create keyword")
+        vals: Any = []
         if self.info and self.info.admm:
             vals.append("AUX_FIT")
         vals.append(self.name)
@@ -2442,6 +2481,18 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
     def get_string(self) -> str:
         """Get standard cp2k GTO formatted string"""
+        if (
+            self.info is None
+            or self.nset is None
+            or self.n is None
+            or self.lmax is None
+            or self.lmin is None
+            or self.nshell is None
+            or self.exponents is None
+            or self.coefficients is None
+        ):
+            raise ValueError("Must have all attributes defined to get string representation")
+
         s = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
         s += f"{str(self.nset)}\n"
         for set_index in range(self.nset):
@@ -2470,12 +2521,12 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         element = Element(firstline[0])
         names = firstline[1:]
         name, aliases = names[0], names[1:]
-        _info = BasisInfo.from_string(name).dict()
+        _info = BasisInfo.from_string(name).as_dict()
         for alias in aliases:
-            for k, v in BasisInfo.from_string(alias).dict().items():
+            for k, v in BasisInfo.from_string(alias).as_dict().items():
                 if _info[k] is None:
                     _info[k] = v
-        info = BasisInfo(**_info)
+        info = BasisInfo.from_dict(_info)
         if any("ALL" in x for x in [name] + aliases):
             info.electrons = element.Z
         nset = int(lines[1].split()[0])
@@ -2515,29 +2566,8 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
                 line_index += 1
 
-        potential = "All Electron" if "ALL" in name else "Pseudopotential"
-        xc = None
-        for x in name.split("-")[1:]:
-            if x in (
-                "LDA",
-                "PADE",
-                "GGA",
-                "MGGA",
-                "HF",
-                "PBE",
-                "BP",
-                "BLYP",
-                "B3LYP",
-                "PBE0",
-                "SCAN",
-            ):  # Known xc names
-                xc = x
-                break
-
         return cls(
             element=element,
-            potential=potential,
-            xc=xc,
             name=name,
             alias_names=aliases,
             info=info,
@@ -2551,13 +2581,22 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         )
 
 
-class PotentialInfo(BaseModel):
-    """Metadata for this potential"""
+@dataclass
+class PotentialInfo(MSONable):
+    """
+    Metadata for this potential
 
-    electrons: int = Field(None, description="Total number of electrons")
-    potential_type: str = Field(None, description="Potential type (e.g. GTH)")
-    nlcc: bool = Field(None, description="Nonlinear core corrected potential")
-    xc: str = Field(None, description="Exchange correlation functional used for creating this potential")
+    Attributes:
+        electrons: Total number of electrons
+        potential_type: Potential type (e.g. GTH)
+        nlcc: Nonlinear core corrected potential
+        xc: Exchange correlation functional used for creating this potential
+    """
+
+    electrons: int | None = None
+    potential_type: str | None = None
+    nlcc: bool | None = None
+    xc: str | None = None
 
     def softmatch(self, other):
         """
@@ -2567,8 +2606,8 @@ class PotentialInfo(BaseModel):
         """
         if not isinstance(other, PotentialInfo):
             return False
-        d1 = self.dict()
-        d2 = other.dict()
+        d1 = self.as_dict()
+        d2 = other.as_dict()
         for k, v in d1.items():
             if v is not None and v != d2[k]:
                 return False
@@ -2582,7 +2621,7 @@ class PotentialInfo(BaseModel):
         if "NLCC" in string:
             data["nlcc"] = True
         if "GTH" in string:
-            data["type"] = "GTH"
+            data["potential_type"] = "GTH"
         for i, s in enumerate(string):
             if s == "Q" and string[i + 1].isnumeric():
                 data["electrons"] = int("".join(_ for _ in string[i + 1 :] if _.isnumeric()))
@@ -2594,32 +2633,36 @@ class PotentialInfo(BaseModel):
         return cls(**data)
 
 
+@dataclass
 class GthPotential(AtomicMetadata):
-    """Representation of GTH-type (pseudo)potential"""
+    """
+    Representation of GTH-type (pseudo)potential
 
-    info: PotentialInfo = Field(None, description="Info about this potential")
+    Attributes:
+        info: Info about this potential
+        n_elecs: Number of electrons for each quantum number
+        r_loc: Radius of local projectors
+        nexp_ppl: Number of the local pseudopotential functions
+        c_exp_ppl: Sequence = field(None, description="Coefficients of the local pseudopotential functions
+        radii: Radius of the nonlocal part for angular momentum quantum number l defined by the Gaussian
+            function exponents alpha_prj_ppnl
+        nprj: Number of projectors
+        nprj_ppnl: Number of the non-local projectors for the angular momentum quantum number
+        hprj_ppnl: Coefficients of the non-local projector functions. Coeff ij for ang momentum l
+        )
+    """
 
-    n_elecs: dict[int, int] = Field(None, description="Number of electrons for each quantum number n")
-    r_loc: float = Field(
-        None, description="Radius for the local part defined by the Gaussian function exponent alpha_erf"
-    )
-    nexp_ppl: int = Field(None, description="Number of the local pseudopotential functions")
-    c_exp_ppl: Sequence = Field(None, description="Coefficients of the local pseudopotential functions")
-    radii: dict[int, float] = Field(
-        None,
-        description="Radius of the nonlocal part for angular momentum quantum number "
-        "l defined by the Gaussian function exponents alpha_prj_ppnl",
-    )
-    nprj: int = Field(None, description="Number of projectors")
-    nprj_ppnl: dict[int, int] = Field(
-        None, description="Number of the non-local projectors for the angular momentum quantum number l"
-    )
-    hprj_ppnl: dict[int, dict[int, dict[int, float]]] = Field(
-        None, description="Coefficients of the non-local projector functions. Coeff ij for ang momentum l"
-    )
+    info: PotentialInfo
+    n_elecs: dict[int, int] | None = None
+    r_loc: float | None = None
+    nexp_ppl: int | None = None
+    c_exp_ppl: Sequence | None = None
+    radii: dict[int, float] | None = None
+    nprj: int | None = None
+    nprj_ppnl: dict[int, int] | None = None
+    hprj_ppnl: dict[int, dict[int, dict[int, float]]] | None = None
 
-    def __init__(self, **data: Any) -> None:
-        super().__init__(**data)
+    def __post_init__(self) -> None:
         if self.potential == "All Electron" and self.element:
             self.info.electrons = self.element.Z
         if self.name == "ALLELECTRON":
@@ -2627,12 +2670,18 @@ class GthPotential(AtomicMetadata):
 
     def get_keyword(self) -> Keyword:
         """Get keyword object for the potential"""
+        if self.name is None:
+            raise ValueError("Cannot get keyword without name attribute")
+
         return Keyword("POTENTIAL", self.name)
 
     def get_section(self) -> Section:
         """
         Convert model to a GTH-formatted section object for input files
         """
+        if self.name is None:
+            raise ValueError("Cannot get section without name attribute")
+
         keywords = {"POTENTIAL": Keyword("", self.get_string())}
         return Section(
             name=self.name,
@@ -2658,6 +2707,19 @@ class GthPotential(AtomicMetadata):
         """
         Convert model to a GTH-formatted string
         """
+        if (
+            self.info is None
+            or self.n_elecs is None
+            or self.r_loc is None
+            or self.nexp_ppl is None
+            or self.c_exp_ppl is None
+            or self.radii is None
+            or self.nprj is None
+            or self.nprj_ppnl is None
+            or self.hprj_ppnl is None
+        ):
+            raise ValueError("Must initialize all attributes in order to get string")
+
         s = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
         s += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
         s += f"{self.r_loc: .14f} {str(self.nexp_ppl)} "
@@ -2684,12 +2746,12 @@ class GthPotential(AtomicMetadata):
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
         element, name, aliases = firstline[0], firstline[1], firstline[2:]
-        info = PotentialInfo.from_string(name).dict()
+        info = PotentialInfo.from_string(name).as_dict()
         for alias in aliases:
-            for k, v in PotentialInfo.from_string(alias).dict().items():
+            for k, v in PotentialInfo.from_string(alias).as_dict().items():
                 if info[k] is None:
                     info[k] = v
-        info = PotentialInfo(**info)
+        info = PotentialInfo.from_dict(info)
         if any("ALL" in x for x in [name] + aliases):
             potential = "All Electron"
             info.electrons = Element(element).Z
@@ -2698,7 +2760,11 @@ class GthPotential(AtomicMetadata):
         nelecs = {i: int(n) for i, n in enumerate(lines[1].split())}
         info.electrons = sum(nelecs.values())  # override, more reliable than name
         thirdline = lines[2].split()
-        r_loc, nexp_ppl, c_exp_ppl = float(thirdline[0]), int(thirdline[1]), list(map(float, thirdline[2:]))
+        r_loc, nexp_ppl, c_exp_ppl = (
+            float(thirdline[0]),
+            int(thirdline[1]),
+            list(map(float, thirdline[2:])),
+        )
         nprj = int(lines[3].split()[0]) if len(lines) > 3 else 0
 
         radii = {}
@@ -2743,10 +2809,11 @@ class GthPotential(AtomicMetadata):
         )
 
 
-class DataFile(BaseModel):
+@dataclass
+class DataFile(MSONable):
     """A data file for a cp2k calc."""
 
-    objects: Sequence = Field(None, description="Objects in the file")
+    objects: Sequence | None = None
 
     @classmethod
     def from_file(cls, fn):
@@ -2775,6 +2842,7 @@ class DataFile(BaseModel):
         return self.get_string()
 
 
+@dataclass
 class BasisFile(DataFile):
     """Data file for basis sets only"""
 
@@ -2785,6 +2853,7 @@ class BasisFile(DataFile):
         return cls(objects=basis_sets)
 
 
+@dataclass
 class PotentialFile(DataFile):
     """Data file for potentials only"""
 

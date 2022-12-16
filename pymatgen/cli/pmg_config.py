@@ -35,10 +35,8 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
     print("Generating pymatgen resource directory for CP2K...")
 
     import glob
-
     from monty.json import jsanitize
     from ruamel import yaml
-
     from pymatgen.core import Element
     from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
     from pymatgen.io.cp2k.utils import chunk
@@ -66,7 +64,9 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
                 potential = GthPotential.from_string(c)
                 potential.filename = os.path.basename(potential_file)
                 potential.version = None
-                settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(potential.dict())
+                settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(
+                    potential, strict=True
+                )
             except ValueError:
                 # Chunk was readable, but the element is not pmg recognized
                 continue
@@ -85,7 +85,9 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
             try:
                 basis = GaussianTypeOrbitalBasisSet.from_string(c)
                 basis.filename = os.path.basename(basis_file)
-                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(basis.dict())
+                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(  # type: ignore
+                    basis, strict=True
+                )
             except ValueError:
                 # Chunk was readable, but the element is not pmg recognized
                 continue
