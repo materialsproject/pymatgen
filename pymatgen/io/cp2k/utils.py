@@ -63,7 +63,8 @@ def _preprocessor(s: str, d: str = "."):
         @IF/@ELIF: Not implemented yet.
 
     Args:
-        s (str): string representation of cp2k input to preprocess
+        s: string representation of cp2k input to preprocess
+        d: Path for include files. Default is current directory
     """
     includes = re.findall(r"(@include.+)", s, re.IGNORECASE)
     for incl in includes:
@@ -93,7 +94,7 @@ def chunk(string: str):
     Chunk the string from a cp2k basis or potential file
     """
     lines = iter(line for line in (l.strip() for l in string.split("\n")) if line and not line.startswith("#"))
-    chunks = []
+    chunks: list = []
     for line in lines:
         if line.split()[0].isalpha():
             chunks.append([])
@@ -162,7 +163,7 @@ def get_unique_site_indices(structure: Structure | Molecule):
         for i, site in enumerate(structure)
     ]
     unique_itms = list(set(items))
-    _sites = {u: [] for u in unique_itms}
+    _sites: dict[tuple, list] = {u: [] for u in unique_itms}
     for i, itm in enumerate(items):
         _sites[itm].append(i)
     sites = {}
@@ -178,7 +179,6 @@ def get_truncated_coulomb_cutoff(inp_struct: Structure):
     """
     Get the truncated Coulomb cutoff for a given structure.
     """
-
     m = inp_struct.lattice.matrix
     m = (abs(m) > 1e-5) * m
     a, b, c = m[0], m[1], m[2]
