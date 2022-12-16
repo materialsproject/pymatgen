@@ -2530,6 +2530,9 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         info = BasisInfo.from_dict(_info)
         if any("ALL" in x for x in [name] + aliases):
             info.electrons = element.Z
+            potential = "All Electron"
+        else:
+            potential = "Pseudopotential"
         nset = int(lines[1].split()[0])
 
         n = []
@@ -2572,6 +2575,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
             name=name,
             alias_names=aliases,
             info=info,
+            potential=potential,
             nset=nset,
             n=n,
             lmin=lmin,

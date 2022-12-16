@@ -114,5 +114,5 @@ basis_sets:
     nshell:
     - '0': 1
       '1': 1
-    potential: null
+    potential: Pseudopotential
     version: null
