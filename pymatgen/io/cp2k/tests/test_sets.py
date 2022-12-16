@@ -110,7 +110,7 @@ class SetTest(PymatgenTest):
         with self.assertRaises(Cp2kValidationError):
             ss.validate()
 
-        ss = DftSet(molecule, basis_and_potential=basis_and_potential)
+        ss = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         self.assertTrue(ss.check("force_eval/dft/poisson"))
         self.assertEqual(ss["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper(), "NONE")
 
