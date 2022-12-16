@@ -35,8 +35,10 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
     print("Generating pymatgen resource directory for CP2K...")
 
     import glob
+
     from monty.json import jsanitize
     from ruamel import yaml
+
     from pymatgen.core import Element
     from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
     from pymatgen.io.cp2k.utils import chunk

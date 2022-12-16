@@ -27,9 +27,9 @@ import itertools
 import os
 import re
 import textwrap
+from dataclasses import dataclass, field
 from hashlib import md5
 from pathlib import Path
-from dataclasses import dataclass, field
 from typing import Any, Iterable, Literal, Sequence
 
 from monty.io import zopen

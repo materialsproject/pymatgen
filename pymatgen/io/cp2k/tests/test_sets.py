@@ -38,7 +38,7 @@ class SetTest(PymatgenTest):
 
         # Basis sets / potentials searching
         basis_and_potential = {"basis_type": "SZV", "potential_type": "Pseudopotential", "functional": None}
-        #ss = DftSet(Si_structure, basis_and_potential=basis_and_potential)
+        # ss = DftSet(Si_structure, basis_and_potential=basis_and_potential)
 
         # Basis sets / potentials by hash value
         basis_and_potential = {
