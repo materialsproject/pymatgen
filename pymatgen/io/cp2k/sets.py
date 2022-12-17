@@ -1292,9 +1292,7 @@ class DftSet(Cp2kInput):
 
             if "aux_basis" in self.structure.site_properties:
                 kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][v[0]]
-            elif self.basis_and_potential[kind].get("aux_basis") and self.check(
-                "force_eval/dft/auxiliary_density_matrix_method"
-            ):
+            elif self.basis_and_potential[kind].get("aux_basis"):
                 kwargs["aux_basis"] = self.basis_and_potential[kind].get("aux_basis")
 
             _kind = Kind(

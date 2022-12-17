@@ -116,3 +116,80 @@ basis_sets:
       '1': 1
     potential: Pseudopotential
     version: null
+  da9aa03297b93d6b497c19c7def10af0:
+    '@class': GaussianTypeOrbitalBasisSet
+    '@module': pymatgen.io.cp2k.inputs
+    '@version': null
+    alias_names: []
+    coefficients:
+    - '0':
+        '0':
+          '0': 1.0
+    - '0':
+        '0':
+          '0': -2.467978079989986
+      '1':
+        '0':
+          '0': 1.0
+    - '0':
+        '1':
+          '0': 1.0
+    - '0':
+        '1':
+          '0': 1.0
+      '1':
+        '1':
+          '0': -0.03233631711903798
+    element:
+      '@class': Element
+      '@module': pymatgen.core.periodic_table
+      element: Si
+    exponents:
+    - - 0.09648
+    - - 0.24696
+      - 1.27756
+    - - 0.08949
+    - - 0.29563
+      - 2.20247
+    filename: BASIS_ADMM
+    info:
+      '@class': BasisInfo
+      '@module': pymatgen.io.cp2k.inputs
+      '@version': null
+      admm: true
+      cc: false
+      contracted: true
+      core: null
+      diffuse: 0
+      electrons: null
+      lri: false
+      molopt: false
+      pc: false
+      polarization: 0
+      sr: false
+      valence: 3
+      xc: null
+    lmax:
+    - 0
+    - 0
+    - 1
+    - 1
+    lmin:
+    - 0
+    - 0
+    - 1
+    - 1
+    n:
+    - 1
+    - 1
+    - 1
+    - 1
+    name: cFIT3
+    nset: 4
+    nshell:
+    - '0': 1
+    - '0': 1
+    - '1': 1
+    - '1': 1
+    potential: Pseudopotential
+    version: null
