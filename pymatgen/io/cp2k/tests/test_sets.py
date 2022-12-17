@@ -41,13 +41,13 @@ class SetTest(PymatgenTest):
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
 
         # Basis sets / potentials by name
-        basis_and_potential = {"Si": {'basis': "SZV-GTH-q4", 'potential': "GTH-PBE-q4"}}
+        basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4"}}
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
 
         # Basis sets / potentials by name with ADMM
-        basis_and_potential ={"Si": {'basis': "SZV-GTH-q4", 'potential': "GTH-PBE-q4", "aux_basis": "cFIT3"}}
+        basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4", "aux_basis": "cFIT3"}}
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
-        basis_sets = ss['force_eval']['subsys']['Si_1'].get("basis_set")
+        basis_sets = ss["force_eval"]["subsys"]["Si_1"].get("basis_set")
         self.assertTrue(any("AUX_FIT" in b.values for b in basis_sets))
         self.assertTrue(any("cFIT3" in b.values for b in basis_sets))
 
