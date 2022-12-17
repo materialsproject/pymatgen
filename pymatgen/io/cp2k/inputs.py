@@ -2465,6 +2465,19 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         if self.name == "ALLELECTRON":
             self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
 
+        def cast(d):
+            new = {}
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    v = cast(v)
+                new[int(k)] = v
+            return new
+
+        if self.nshell:
+            self.nshell = [cast(n) for n in self.nshell]
+        if self.coefficients:
+            self.coefficients = [cast(c) for c in self.coefficients]
+
     def get_keyword(self) -> Keyword:
         """Convert basis to keyword object"""
         if not self.name:
@@ -2672,6 +2685,23 @@ class GthPotential(AtomicMetadata):
             self.info.electrons = self.element.Z
         if self.name == "ALLELECTRON":
             self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
+
+        def cast(d):
+            new = {}
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    v = cast(v)
+                new[int(k)] = v
+            return new
+
+        if self.n_elecs:
+            self.n_elecs = cast(self.n_elecs)
+        if self.radii:
+            self.radii = cast(self.radii)
+        if self.nprj_ppnl:
+            self.nprj_ppnl = cast(self.nprj_ppnl)
+        if self.hprj_ppnl:
+            self.hprj_ppnl = cast(self.hprj_ppnl)
 
     def get_keyword(self) -> Keyword:
         """Get keyword object for the potential"""
