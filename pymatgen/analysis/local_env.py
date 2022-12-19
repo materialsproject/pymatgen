@@ -1215,7 +1215,10 @@ class JmolNN(NearNeighbors):
     """
 
     def __init__(
-        self, tol: float = 0.45, min_bond_distance: float = 0.4, el_radius_updates: dict[SpeciesLike, float] = None
+        self,
+        tol: float = 0.45,
+        min_bond_distance: float = 0.4,
+        el_radius_updates: dict[SpeciesLike, float] | None = None,
     ):
         """
         Args:
@@ -2834,7 +2837,7 @@ class LocalStructOrderParams:
         return self._params[index]
 
     def get_order_parameters(
-        self, structure: Structure, n: int, indices_neighs: list[int] = None, tol: float = 0.0, target_spec=None
+        self, structure: Structure, n: int, indices_neighs: list[int] | None = None, tol: float = 0.0, target_spec=None
     ):
         """
         Compute all order parameters of site n.

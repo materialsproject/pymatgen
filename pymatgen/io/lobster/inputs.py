@@ -96,6 +96,7 @@ class Lobsterin(dict, MSONable):
         "forceEnergyRange",
         "bandwiseSpilling",
         "kpointwiseSpilling",
+        "LSODOS",
     ]
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
@@ -301,7 +302,7 @@ class Lobsterin(dict, MSONable):
         incar_output: str = "INCAR.lobster",
         poscar_input: str = "POSCAR",
         isym: int = -1,
-        further_settings: dict = None,
+        further_settings: dict | None = None,
     ):
         """
         Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
@@ -337,7 +338,7 @@ class Lobsterin(dict, MSONable):
     def get_basis(
         structure: Structure,
         potcar_symbols: list,
-        address_basis_file: str = None,
+        address_basis_file: str | None = None,
     ):
         """
         Will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
@@ -381,8 +382,8 @@ class Lobsterin(dict, MSONable):
     def get_all_possible_basis_functions(
         structure: Structure,
         potcar_symbols: list,
-        address_basis_file_min: str = None,
-        address_basis_file_max: str = None,
+        address_basis_file_min: str | None = None,
+        address_basis_file_max: str | None = None,
     ):
         """
         Args:

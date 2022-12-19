@@ -58,7 +58,7 @@ class DOS(Spectrum):
         super().__init__(energies, densities, efermi)
         self.efermi = efermi
 
-    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin = None):
+    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
         Expects a DOS object and finds the gap
 
@@ -141,7 +141,7 @@ class DOS(Spectrum):
         i_gap_end -= 1
         return self.x[i_gap_end], self.x[i_gap_start]
 
-    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin = None):
+    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
         Expects a DOS object and finds the gap.
 
@@ -202,7 +202,7 @@ class Dos(MSONable):
         self.energies = np.array(energies)
         self.densities = {k: np.array(d) for k, d in densities.items()}
 
-    def get_densities(self, spin: Spin = None):
+    def get_densities(self, spin: Spin | None = None):
         """
         Returns the density of states for a particular spin.
 
@@ -272,7 +272,7 @@ class Dos(MSONable):
             f[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return f
 
-    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin = None):
+    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
         Expects a DOS object and finds the gap
 
@@ -308,7 +308,7 @@ class Dos(MSONable):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin = None):
+    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
         Expects a DOS object and finds the cbm and vbm.
 
@@ -344,7 +344,7 @@ class Dos(MSONable):
         i_gap_end -= 1
         return self.energies[i_gap_end], self.energies[i_gap_start]
 
-    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin = None):
+    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
         Expects a DOS object and finds the gap.
 
@@ -411,9 +411,9 @@ class FermiDos(Dos, MSONable):
     def __init__(
         self,
         dos: Dos,
-        structure: Structure = None,
-        nelecs: float = None,
-        bandgap: float = None,
+        structure: Structure | None = None,
+        nelecs: float | None = None,
+        bandgap: float | None = None,
     ):
         """
         Args:
@@ -820,9 +820,9 @@ class CompleteDos(Dos):
     def get_band_filling(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
-        spin: Spin = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
+        spin: Spin | None = None,
     ) -> float:
         """
         Computes the orbital-projected band filling, defined as the zeroth moment
@@ -874,10 +874,10 @@ class CompleteDos(Dos):
     def get_band_center(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
-        spin: Spin = None,
-        erange: list[float] = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
+        spin: Spin | None = None,
+        erange: list[float] | None = None,
     ) -> float:
         """
         Computes the orbital-projected band center, defined as the first moment
@@ -908,10 +908,10 @@ class CompleteDos(Dos):
     def get_band_width(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
-        spin: Spin = None,
-        erange: list[float] = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
+        spin: Spin | None = None,
+        erange: list[float] | None = None,
     ) -> float:
         """
         Get the orbital-projected band width, defined as the square root of the second moment
@@ -938,10 +938,10 @@ class CompleteDos(Dos):
     def get_band_skewness(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
-        spin: Spin = None,
-        erange: list[float] = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
+        spin: Spin | None = None,
+        erange: list[float] | None = None,
     ) -> float:
         """
         Get the orbital-projected skewness, defined as the third standardized moment
@@ -972,10 +972,10 @@ class CompleteDos(Dos):
     def get_band_kurtosis(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
-        spin: Spin = None,
-        erange: list[float] = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
+        spin: Spin | None = None,
+        erange: list[float] | None = None,
     ) -> float:
         """
         Get the orbital-projected kurtosis, defined as the fourth standardized moment
@@ -1008,10 +1008,10 @@ class CompleteDos(Dos):
         self,
         n: int,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
-        spin: Spin = None,
-        erange: list[float] = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
+        spin: Spin | None = None,
+        erange: list[float] | None = None,
         center: bool = True,
     ) -> float:
         """
@@ -1080,8 +1080,8 @@ class CompleteDos(Dos):
     def get_hilbert_transform(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
     ) -> Dos:
         """
         Returns the Hilbert transform of the orbital-projected density of states,
@@ -1129,10 +1129,10 @@ class CompleteDos(Dos):
     def get_upper_band_edge(
         self,
         band: OrbitalType = OrbitalType.d,
-        elements: list[SpeciesLike] = None,
-        sites: list[PeriodicSite] = None,
-        spin: Spin = None,
-        erange: list[float] = None,
+        elements: list[SpeciesLike] | None = None,
+        sites: list[PeriodicSite] | None = None,
+        spin: Spin | None = None,
+        erange: list[float] | None = None,
     ) -> float:
         """
         Get the orbital-projected upper band edge. The definition by Xin et al.

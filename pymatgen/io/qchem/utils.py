@@ -7,6 +7,9 @@ from collections import defaultdict
 
 import numpy as np
 
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
+
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
     r"""
@@ -130,10 +133,10 @@ def read_table_pattern(
 
 def lower_and_check_unique(dict_to_check):
     """
-    Takes a dictionary and makes all the keys lower case. Also replaces
-    "jobtype" with "job_type" just so that key specifically can be called
-    elsewhere without ambiguity. Finally, ensures that multiple identical
-    keys, that differed only due to different capitalizations, are not
+    Takes a dictionary and makes all the keys lower case. Also converts all numeric
+    values (floats, ints) to str and replaces "jobtype" with "job_type" just so that
+    key specifically can be called elsewhere without ambiguity. Finally, ensures that
+    multiple identical keys, that differed only due to different capitalizations, are not
     present. If there are multiple equivalent keys, an Exception is raised.
 
     Args:
@@ -147,18 +150,25 @@ def lower_and_check_unique(dict_to_check):
         return None
 
     to_return = {}
-    for key in dict_to_check:
+    for key, val in dict_to_check.items():
+        # lowercase the key
         new_key = key.lower()
+
+        if isinstance(val, str):
+            val = val.lower()
+        elif isinstance(val, int) or isinstance(val, float):
+            # convert all numeric keys to str
+            val = str(val)
+        else:
+            pass
+
         if new_key == "jobtype":
             new_key = "job_type"
-        if new_key in to_return:
-            if to_return[key] != to_return[new_key]:
-                raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
-        else:
-            try:
-                to_return[new_key] = dict_to_check.get(key).lower()
-            except AttributeError:
-                to_return[new_key] = dict_to_check.get(key)
+
+        if new_key in to_return and val != to_return[new_key]:
+            raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
+
+        to_return[new_key] = val
     return to_return
 
 

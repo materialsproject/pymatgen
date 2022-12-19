@@ -17,7 +17,7 @@ if sys.platform.startswith("win") and platform.machine().endswith("64"):
 setup(
     name="pymatgen",
     packages=find_namespace_packages(
-        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
+        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
     version="2022.11.7",
@@ -51,7 +51,7 @@ setup(
             "coverage",
             "coveralls",
             "flake8",
-            "mypy==0.982",  # pinned due to long list of errors starting with mypy 0.990
+            "mypy==0.991",  # pinned due to long list of errors starting with mypy 0.990
             "pre-commit",
             "pydocstyle",
             "pylint",
@@ -101,11 +101,12 @@ setup(
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
-        "pymatgen.command_line": ["OxideTersoffPotentials"],
+        "pymatgen.command_line": ["*"],
         "pymatgen.util": ["structures/*.json", "*.json"],
         "pymatgen.vis": ["*.yaml"],
         "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/md.txt"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
+        "cmd_line": ["**/*"],
     },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
@@ -113,6 +114,11 @@ setup(
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
     url="https://pymatgen.org",
     license="MIT",
+    project_url={
+        "Documentation": "https://pymatgen.org",
+        "Package": "https://pypi.org/project/pymatgen",
+        "Repo": "https://github.com/materialsproject/pymatgen",
+    },
     description="Python Materials Genomics is a robust materials "
     "analysis code that defines core object representations for "
     "structures and molecules with support for many electronic "
@@ -142,9 +148,9 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Information Analysis",

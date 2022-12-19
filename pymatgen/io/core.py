@@ -117,7 +117,7 @@ class InputSet(MSONable, MutableMapping):
     is optional.
     """
 
-    def __init__(self, inputs: dict[str | Path, str | InputFile] = None, **kwargs):
+    def __init__(self, inputs: dict[str | Path, str | InputFile] | None = None, **kwargs):
         """
         Instantiate an InputSet.
 

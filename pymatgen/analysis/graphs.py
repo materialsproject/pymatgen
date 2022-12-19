@@ -4,6 +4,7 @@
 """
 Module for graph representations of crystals and molecules.
 """
+from __future__ import annotations
 
 import copy
 import logging
@@ -2790,7 +2791,7 @@ class MoleculeGraph(MSONable):
         """
         return len(self.molecule)
 
-    def sort(self, key: Callable[[Molecule], float] = None, reverse: bool = False) -> None:
+    def sort(self, key: Callable[[Molecule], float] | None = None, reverse: bool = False) -> None:
         """Same as Molecule.sort(), also remaps nodes in graph.
 
         Args:

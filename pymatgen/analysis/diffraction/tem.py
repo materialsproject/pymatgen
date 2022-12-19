@@ -47,11 +47,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     def __init__(
         self,
-        symprec: float = None,
+        symprec: float | None = None,
         voltage: float = 200,
         beam_direction: tuple[int, int, int] = (0, 0, 1),
         camera_length: int = 160,
-        debye_waller_factors: dict[str, float] = None,
+        debye_waller_factors: dict[str, float] | None = None,
         cs: float = 1,
     ) -> None:
         """
@@ -280,8 +280,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def get_pattern(
         self,
         structure: Structure,
-        scaled: bool = None,
-        two_theta_range: tuple[float, float] = None,
+        scaled: bool | None = None,
+        two_theta_range: tuple[float, float] | None = None,
     ) -> pd.DataFrame:
         """
         Returns all relevant TEM DP info in a pandas dataframe.

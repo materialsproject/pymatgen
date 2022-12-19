@@ -35,7 +35,7 @@ class Site(collections.abc.Hashable, MSONable):
         self,
         species: SpeciesLike | CompositionLike,
         coords: ArrayLike,
-        properties: dict = None,
+        properties: dict | None = None,
         skip_checks: bool = False,
     ):
         """
@@ -299,7 +299,7 @@ class PeriodicSite(Site, MSONable):
         lattice: Lattice,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
         skip_checks: bool = False,
     ):
         """

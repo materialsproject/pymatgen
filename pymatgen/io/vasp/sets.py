@@ -2776,10 +2776,10 @@ class LobsterSet(MPRelaxSet):
         structure: Structure,
         isym: int = 0,
         ismear: int = -5,
-        reciprocal_density: int = None,
-        address_basis_file: str = None,
-        user_supplied_basis: dict = None,
-        user_potcar_settings: dict = None,
+        reciprocal_density: int | None = None,
+        address_basis_file: str | None = None,
+        user_supplied_basis: dict | None = None,
+        user_potcar_settings: dict | None = None,
         **kwargs,
     ):
         """

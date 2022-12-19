@@ -60,7 +60,7 @@ class PDEntry(Entry):
         self,
         composition: Composition,
         energy: float,
-        name: str = None,
+        name: str | None = None,
         attribute: object = None,
     ):
         """
@@ -343,7 +343,7 @@ class PhaseDiagram(MSONable):
         entries: Sequence[PDEntry] | set[PDEntry],
         elements: Sequence[Element] = (),
         *,
-        computed_data: dict[str, Any] = None,
+        computed_data: dict[str, Any] | None = None,
     ) -> None:
         """
         Args:
@@ -1508,7 +1508,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def __init__(
         self,
         entries: Sequence[PDEntry] | set[PDEntry],
-        elements: Sequence[Element] = None,
+        elements: Sequence[Element] | None = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,
     ) -> None:

@@ -161,10 +161,10 @@ class OptimadeRester:
     @staticmethod
     def _build_filter(
         elements: str | list[str] | None = None,
-        nelements: int = None,
-        nsites: int = None,
-        chemical_formula_anonymous: str = None,
-        chemical_formula_hill: str = None,
+        nelements: int | None = None,
+        nsites: int | None = None,
+        chemical_formula_anonymous: str | None = None,
+        chemical_formula_hill: str | None = None,
     ):
         """
         Convenience method to build an OPTIMADE filter.
@@ -200,10 +200,10 @@ class OptimadeRester:
     def get_structures(
         self,
         elements: list[str] | str | None = None,
-        nelements: int = None,
-        nsites: int = None,
-        chemical_formula_anonymous: str = None,
-        chemical_formula_hill: str = None,
+        nelements: int | None = None,
+        nsites: int | None = None,
+        chemical_formula_anonymous: str | None = None,
+        chemical_formula_hill: str | None = None,
     ) -> dict[str, dict[str, Structure]]:
         """
         Retrieve Structures from OPTIMADE providers.
@@ -233,10 +233,10 @@ class OptimadeRester:
     def get_snls(
         self,
         elements: list[str] | str | None = None,
-        nelements: int = None,
-        nsites: int = None,
-        chemical_formula_anonymous: str = None,
-        chemical_formula_hill: str = None,
+        nelements: int | None = None,
+        nsites: int | None = None,
+        chemical_formula_anonymous: str | None = None,
+        chemical_formula_hill: str | None = None,
         additional_response_fields: str | list[str] | set[str] | None = None,
     ) -> dict[str, dict[str, StructureNL]]:
         """

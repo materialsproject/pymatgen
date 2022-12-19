@@ -90,7 +90,7 @@ class CollinearMagneticStructureAnalyzer:
         round_magmoms: bool = False,
         detect_valences: bool = False,
         make_primitive: bool = True,
-        default_magmoms: dict = None,
+        default_magmoms: dict | None = None,
         set_net_positive: bool = True,
         threshold: float = 0.00,
         threshold_nonmag: float = 0.1,

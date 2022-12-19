@@ -312,10 +312,10 @@ class ComputedEntry(Entry):
         composition: Composition | str | dict[str, float],
         energy: float,
         correction: float = 0.0,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
     ):
         """
         Initializes a ComputedEntry.
@@ -591,10 +591,10 @@ class ComputedStructureEntry(ComputedEntry):
         energy: float,
         correction: float = 0.0,
         composition: Composition | str | dict[str, float] | None = None,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
     ) -> None:
         """
         Initializes a ComputedStructureEntry.
@@ -737,12 +737,12 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         formation_enthalpy_per_atom: float,
         temp: float = 300,
         gibbs_model: Literal["SISSO"] = "SISSO",
-        composition: Composition = None,
+        composition: Composition | None = None,
         correction: float = 0.0,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
     ):
         """
         Args:

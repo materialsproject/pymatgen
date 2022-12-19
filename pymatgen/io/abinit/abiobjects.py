@@ -18,7 +18,6 @@ from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
-from pymatgen.util.serialization import pmg_serialize
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
@@ -388,10 +387,11 @@ class SpinMode(
             "nspden": self.nspden,
         }
 
-    @pmg_serialize
     def as_dict(self):
         """Convert object to dict."""
-        return {k: getattr(self, k) for k in self._fields}
+        out = {k: getattr(self, k) for k in self._fields}
+        out.update({"@module": type(self).__module__, "@class": type(self).__name__})
+        return out
 
     @classmethod
     def from_dict(cls, d):
@@ -499,10 +499,14 @@ class Smearing(AbivarAble, MSONable):
             return {"occopt": 1, "tsmear": 0.0}
         return {"occopt": self.occopt, "tsmear": self.tsmear}
 
-    @pmg_serialize
     def as_dict(self):
         """json friendly dict representation of Smearing"""
-        return {"occopt": self.occopt, "tsmear": self.tsmear}
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "occopt": self.occopt,
+            "tsmear": self.tsmear,
+        }
 
     @staticmethod
     def from_dict(d):
@@ -539,10 +543,9 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
         """Dictionary with Abinit input variables."""
         return self.copy()
 
-    @pmg_serialize
     def as_dict(self):
         """Convert object to dict."""
-        return self.copy()
+        return {"@module": type(self).__module__, "@class": type(self).__name__, **self.copy()}
 
     @classmethod
     def from_dict(cls, d):
