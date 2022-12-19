@@ -38,7 +38,7 @@ if __name__ == "__main__":
             for i2 in perp_plane[i0]:
                 # 3. point opposite to point 2.
                 i3 = opposite_points[i2]
-                remaining = range(6)
+                remaining = list(range(6))
                 remaining.remove(i0)
                 remaining.remove(i1)
                 remaining.remove(i2)
