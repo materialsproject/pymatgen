@@ -10,7 +10,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import Mapping
+from typing import Mapping, NamedTuple
 
 import numpy as np
 from monty.json import MSONable
@@ -1174,7 +1174,7 @@ class CompleteDos(Dos):
         max_e: float | None = None,
         n_bins: int = 256,
         normalize: bool = True,
-    ) -> namedtuple[...]:
+    ) -> NamedTuple:
         """
         Generates the DOS fingerprint based on work of
         F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
@@ -1255,7 +1255,7 @@ class CompleteDos(Dos):
             )
 
     @staticmethod
-    def fp_to_dict(fp: namedtuple[...]) -> dict:
+    def fp_to_dict(fp: NamedTuple) -> dict:
         """Converts a fingerprint into a dictionary
 
         Args:
