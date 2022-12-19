@@ -1702,6 +1702,7 @@ class PotcarSingle:
         "RRKJ": _parse_list,
         "GGA": _parse_list,
         "SHA256": _parse_string,
+        "COPYR": _parse_string,
     }
 
     def __init__(self, data, symbol=None):
@@ -2185,9 +2186,9 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
-            # for newer POTCARS we have to exclude 'SHA256' lines
+            # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
             # since they were not used in the initial hashing
-            if k in ("nentries", "Orbitals", "SHA256"):
+            if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
                 continue
             hash_str += f"{k}"
             if isinstance(v, bool):
@@ -2297,7 +2298,7 @@ class Potcar(list, MSONable):
                 fdata = f.read()
 
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)", re.S).findall(fdata)
+        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
         functionals = []
         for p in potcar_strings:
             single = PotcarSingle(p)
