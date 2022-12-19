@@ -200,7 +200,6 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
     cdef double *distances = <double*> safe_malloc(n*sizeof(double))
-    cdef long[:] ncube_indices_map
     cdef long cube_index_temp
     cdef long link_index
     cdef double d_temp2
@@ -495,10 +494,8 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
 
 def compute_offset_vectors(long n):
     cdef long i, j, k
-    cdef long v[3]
     cdef double center[8][3] # center vertices coords
     cdef int ind
-    cdef bint is_within
     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
     cdef long count = 0

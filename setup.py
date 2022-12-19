@@ -114,6 +114,11 @@ setup(
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
     url="https://pymatgen.org",
     license="MIT",
+    project_url={
+        "Documentation": "https://pymatgen.org",
+        "Package": "https://pypi.org/project/pymatgen",
+        "Repo": "https://github.com/materialsproject/pymatgen",
+    },
     description="Python Materials Genomics is a robust materials "
     "analysis code that defines core object representations for "
     "structures and molecules with support for many electronic "
@@ -143,9 +148,9 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Information Analysis",
