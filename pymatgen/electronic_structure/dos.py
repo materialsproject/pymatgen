@@ -1174,7 +1174,7 @@ class CompleteDos(Dos):
         max_e: float | None = None,
         n_bins: int = 256,
         normalize: bool = True,
-    ):
+    ) -> namedtuple():
         """
         Generates the DOS fingerprint based on work of
         F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
@@ -1206,17 +1206,17 @@ class CompleteDos(Dos):
         pdos_obj = self.get_spd_dos()
 
         pdos = {}
-        for k, _v in pdos_obj.items():
-            dens = pdos_obj[k].get_densities()
+        for key in pdos_obj:
+            dens = pdos_obj[key].get_densities()
 
-            pdos.update({k.name: dens})
+            pdos[key.name] = dens
 
         sum_pdos_array = []
         for dos in pdos.values():
             sum_pdos_array.append(np.array(dos))
 
-        pdos.update({"summed_pdos": np.sum(sum_pdos_array, axis=0)})
-        pdos.update({"tdos": self.get_densities()})
+        pdos["summed_pdos"] = np.sum(sum_pdos_array, axis=0)
+        pdos["tdos"] = self.get_densities()
 
         try:
 
@@ -1255,7 +1255,7 @@ class CompleteDos(Dos):
             )
 
     @staticmethod
-    def fp_to_dict(fp):
+    def fp_to_dict(fp: namedtuple()) -> dict:
         """Converts a fingerprint into a dictionary
 
         Args:
@@ -1277,7 +1277,7 @@ class CompleteDos(Dos):
         pt: int | str = "All",
         normalize: bool = False,
         tanimoto: bool = False,
-    ):
+    ) -> float:
         """Calculates the similarity index (dot product) of two fingerprints
 
         Args:
@@ -1286,7 +1286,7 @@ class CompleteDos(Dos):
             col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
             pt (int or str) : The index of the point that the dot product is to be taken (default is All)
             normalize (bool): If True normalize the scalar product to 1 (default is False)
-            tanimoto (bool): If True will compute tanimoto index (default is False)
+            tanimoto (bool): If True will compute Tanimoto index (default is False)
 
         Returns:
         Similarity index (float): The value of dot product
