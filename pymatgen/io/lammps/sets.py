@@ -172,7 +172,7 @@ class LammpsMinimization(BaseLammpsGenerator):
             "atom_style": atom_style,
             "dimension": dimension,
             "boundary": boundary,
-            "read_data": read_data,
+            "read_structure": read_data,
         }
         super().__init__(settings=self.settings)
 
