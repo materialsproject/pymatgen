@@ -679,34 +679,34 @@ class Lobsterout:
       .. attribute: basis_type
          list of basis type that were used in lobster run as strings
 
-      .. attribute: chargespilling
+      .. attribute: charge_spilling
          list of charge spilling (first entry: result for spin 1, second entry: result for spin 2 or not present)
 
-      .. attribute: dftprogram
+      .. attribute: dft_program
          string representing the dft program used for the calculation of the wave function
 
       .. attribute: elements
          list of strings of elements that were present in lobster calculation
 
-      .. attribute: has_CHARGE
+      .. attribute: has_charge
          Boolean, indicates that CHARGE.lobster is present
 
-      .. attribute: has_COHPCAR
+      .. attribute: has_cohpcar
         Boolean, indicates that COHPCAR.lobster and ICOHPLIST.lobster are present
 
       .. attribute: has_madelung
         Boolean, indicates that SitePotentials.lobster and MadelungEnergies.lobster are present
 
-      .. attribute: has_COOPCAR
+      .. attribute: has_coopcar
         Boolean, indicates that COOPCAR.lobster and ICOOPLIST.lobster are present
 
-      .. attribute: has_COBICAR
+      .. attribute: has_cobicar
         Boolean, indicates that COBICAR.lobster and ICOBILIST.lobster are present
 
-      .. attribute: has_DOSCAR
+      .. attribute: has_doscar
         Boolean, indicates that DOSCAR.lobster is present
 
-      .. attribute: has_Projection
+      .. attribute: has_projection
         Boolean, indicates that projectionData.lobster is present
 
       .. attribute: has_bandoverlaps
@@ -742,10 +742,10 @@ class Lobsterout:
       .. attribute: timing
         dict with infos on timing
 
-      .. attribute: totalspilling
+      .. attribute: total_spilling
         list of values indicating the total spilling for spin channel 1 (and spin channel 2)
 
-      .. attribute: warninglines
+      .. attribute: warning_lines
         string with all warnings
 
     """
@@ -769,12 +769,12 @@ class Lobsterout:
         self.lobster_version = self._get_lobster_version(data=data)
 
         self.number_of_threads = int(self._get_threads(data=data))
-        self.dftprogram = self._get_dft_program(data=data)
+        self.dft_program = self._get_dft_program(data=data)
 
         self.number_of_spins = self._get_number_of_spins(data=data)
         chargespilling, totalspilling = self._get_spillings(data=data, number_of_spins=self.number_of_spins)
-        self.chargespilling = chargespilling
-        self.totalspilling = totalspilling
+        self.charge_spilling = chargespilling
+        self.total_spilling = totalspilling
 
         (
             elements,
@@ -787,13 +787,13 @@ class Lobsterout:
 
         wall_time, user_time, sys_time = self._get_timing(data=data)
         timing = {}
-        timing["walltime"] = wall_time
-        timing["usertime"] = user_time
+        timing["wall_time"] = wall_time
+        timing["user_time"] = user_time
         timing["sys_time"] = sys_time
         self.timing = timing
 
         warninglines = self._get_all_warning_lines(data=data)
-        self.warninglines = warninglines
+        self.warning_lines = warninglines
 
         orthowarning = self._get_warning_orthonormalization(data=data)
         self.info_orthonormalization = orthowarning
@@ -801,22 +801,22 @@ class Lobsterout:
         infos = self._get_all_info_lines(data=data)
         self.info_lines = infos
 
-        self.has_DOSCAR = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
-        self.has_COHPCAR = (
+        self.has_doscar = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
+        self.has_cohpcar = (
             "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
             and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
         )
-        self.has_COOPCAR = (
+        self.has_coopcar = (
             "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
             and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
         )
-        self.has_COBICAR = (
+        self.has_cobicar = (
             "writing COBICAR.lobster and ICOBILIST.lobster..." in data
             and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
         )
 
-        self.has_CHARGE = "SKIPPING writing CHARGE.lobster..." not in data
-        self.has_Projection = "saving projection to projectionData.lobster..." in data
+        self.has_charge = "SKIPPING writing CHARGE.lobster..." not in data
+        self.has_projection = "saving projection to projectionData.lobster..." in data
         self.has_bandoverlaps = "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in data
         self.has_fatbands = self._has_fatband(data=data)
         self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
@@ -835,34 +835,34 @@ class Lobsterout:
         LobsterDict["restart_from_projection"] = self.is_restart_from_projection
         LobsterDict["lobster_version"] = self.lobster_version
         LobsterDict["threads"] = self.number_of_threads
-        LobsterDict["Dftprogram"] = self.dftprogram
+        LobsterDict["dft_program"] = self.dft_program
 
-        LobsterDict["chargespilling"] = self.chargespilling
-        LobsterDict["totalspilling"] = self.totalspilling
+        LobsterDict["charge_spilling"] = self.charge_spilling
+        LobsterDict["total_spilling"] = self.total_spilling
 
         LobsterDict["elements"] = self.elements
-        LobsterDict["basistype"] = self.basis_type
-        LobsterDict["basisfunctions"] = self.basis_functions
+        LobsterDict["basis_type"] = self.basis_type
+        LobsterDict["basis_functions"] = self.basis_functions
 
         LobsterDict["timing"] = self.timing
 
-        LobsterDict["warnings"] = self.warninglines
+        LobsterDict["warning_lines"] = self.warning_lines
 
-        LobsterDict["orthonormalization"] = self.info_orthonormalization
+        LobsterDict["info_orthonormalization"] = self.info_orthonormalization
 
-        LobsterDict["infos"] = self.info_lines
+        LobsterDict["info_lines"] = self.info_lines
 
-        LobsterDict["hasDOSCAR"] = self.has_DOSCAR
-        LobsterDict["hasCOHPCAR"] = self.has_COHPCAR
-        LobsterDict["hasCOOPCAR"] = self.has_COOPCAR
-        LobsterDict["hasCOBICAR"] = self.has_COBICAR
-        LobsterDict["hasCHARGE"] = self.has_CHARGE
-        LobsterDict["hasmadelung"] = self.has_madelung
-        LobsterDict["hasProjection"] = self.has_Projection
-        LobsterDict["hasbandoverlaps"] = self.has_bandoverlaps
-        LobsterDict["hasfatband"] = self.has_fatbands
-        LobsterDict["hasGrossPopulation"] = self.has_grosspopulation
-        LobsterDict["hasDensityOfEnergies"] = self.has_density_of_energies
+        LobsterDict["has_doscar"] = self.has_doscar
+        LobsterDict["has_cohpcar"] = self.has_cohpcar
+        LobsterDict["has_coopcar"] = self.has_coopcar
+        LobsterDict["has_cobicar"] = self.has_cobicar
+        LobsterDict["has_charge"] = self.has_charge
+        LobsterDict["has_madelung"] = self.has_madelung
+        LobsterDict["has_projection"] = self.has_projection
+        LobsterDict["has_bandoverlaps"] = self.has_bandoverlaps
+        LobsterDict["has_fatbands"] = self.has_fatbands
+        LobsterDict["has_grosspopulation"] = self.has_grosspopulation
+        LobsterDict["has_density_of_energies"] = self.has_density_of_energies
 
         return LobsterDict
 
