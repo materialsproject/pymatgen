@@ -157,6 +157,11 @@ def process_parsed_coords(coords):
 
 
 def process_parsed_HESS(hess_data):
+    """
+    Takes the information contained in a HESS file and converts it into
+    the format of the machine-readable 132.0 file which is printed out
+    to be read into subsequent optimizations.
+    """
     dim = int(hess_data[1].split()[1])
     hess = []
     tmp_part = []

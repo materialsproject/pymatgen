@@ -582,7 +582,7 @@ class OptSetTest(PymatgenTest):
         )
         self.assertEqual(
             v6_OptSet.geom_opt,
-            {"maxiter": "200", "coordinates": "redundant", "max_displacement": "0.1", "optimization_restart": "false"},
+            {"maxiter": "200", "coordinates": "redundant", "initial_hessian": "model", "max_displacement": "0.1", "optimization_restart": "false"},
         )
         self.assertEqual(v6_OptSet.molecule, test_molecule)
 
@@ -590,7 +590,7 @@ class OptSetTest(PymatgenTest):
             molecule=test_molecule,
             qchem_version=6,
             basis_set="def2-tzvpd",
-            geom_opt={"coordinates": "delocalized", "optimization_restart": "true"},
+            geom_opt={"coordinates": "delocalized", "initial_hessian": "read"},
         )
         self.assertEqual(
             v6_OptSet_modified.geom_opt,
@@ -598,7 +598,8 @@ class OptSetTest(PymatgenTest):
                 "maxiter": "200",
                 "coordinates": "delocalized",
                 "max_displacement": "0.1",
-                "optimization_restart": "true",
+                "initial_hessian": "read",
+                "optimization_restart": "false",
             },
         )
 
