@@ -1676,7 +1676,7 @@ class Lattice(MSONable):
                     images[within_r[1:]],
                 )
             )
-        return (
+        return (  # type: ignore
             shifted_coords[within_r],
             np.sqrt(d_2[within_r]),
             indices[within_r[0]],
