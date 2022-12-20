@@ -219,7 +219,7 @@ class DftSet(Cp2kInput):
             elif self.kpoints.style in [Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian]:
                 if np.array_equal(self.kpoints.kpts[0], (0, 0, 0)):
                     self.kpoints = None
-            elif ot:
+            if ot and self.kpoints:
                 warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
                 ot = False
 

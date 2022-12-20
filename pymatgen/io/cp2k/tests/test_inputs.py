@@ -80,6 +80,11 @@ class BasisAndPotentialTest(PymatgenTest):
         self.assertTrue(b2.softmatch(b))
         self.assertFalse(b.softmatch(b2))
 
+        b3 = BasisInfo.from_string("cpFIT3")
+        self.assertEqual(b3.valence, 3)
+        self.assertEqual(b3.polarization, 1)
+        self.assertTrue(b3.contracted, True)
+
     def test_potential_info(self):
         # Ensure potential metadata can be read from string
         p = PotentialInfo.from_string("GTH-PBE-q1-NLCC")

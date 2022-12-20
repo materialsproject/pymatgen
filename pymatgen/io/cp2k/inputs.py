@@ -2358,6 +2358,7 @@ class BasisInfo(MSONable):
 
         data["polarization"] = string.count("P")
         data["diffuse"] = string.count("X")
+        string = "#" + string
         for i, s in enumerate(string):
             if s == "Z":
                 z = int(tmp.get(string[i - 1], string[i - 1]))
@@ -2647,6 +2648,7 @@ class PotentialInfo(MSONable):
         for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
             if x in string:
                 data["xc"] = x
+                break
 
         return cls(**data)
 
