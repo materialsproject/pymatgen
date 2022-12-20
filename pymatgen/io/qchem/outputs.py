@@ -324,6 +324,10 @@ class QCOutput(MSONable):
                 temp_driver = read_pattern(self.text, {"key": r"(?i)\s*geom_opt_driver\s*(?:=)*\s*optimize"}).get("key")
                 if temp_driver is None:
                     self.data["new_optimizer"] = [[]]
+            # Check if we have an unexpected transition state
+            tmp_transition_state = read_pattern(self.text, {"key": r"TRANSITION STATE CONVERGED"}).get("key")
+            if tmp_transition_state is not None:
+                self.data["warnings"]["unexpected_transition_state"] = True
             self._read_optimization_data()
 
         # Check if the calculation is a transition state optimization. If so, parse the relevant output
@@ -822,12 +826,12 @@ class QCOutput(MSONable):
             # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
             if self.data.get("new_optimizer") is None:
                 header_pattern = (
-                    r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+                    r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
                 )
                 table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 footer_pattern = r"\s+Z-matrix Print:"
             else:  # pylint: disable=line-too-long
-                header_pattern = r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+                header_pattern = r"(OPTIMIZATION|TRANSITION STATE)\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
                 table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
                 footer_pattern = r"\s*-+"
             parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
@@ -835,7 +839,7 @@ class QCOutput(MSONable):
             if not parsed_optimized_geometries:
                 self.data["optimized_geometry"] = None
                 header_pattern = (
-                    r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
+                    r"^\s+\*+\s+(OPTIMIZATION|TRANSITION STATE) CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
                     r"Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
                 )
                 table_pattern = (

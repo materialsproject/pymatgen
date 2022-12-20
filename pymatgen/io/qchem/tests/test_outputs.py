@@ -101,6 +101,7 @@ property_list = {
     "ccsd(t)_correlation_energy",
     "ccsd(t)_total_energy",
     "norm_of_stepsize",
+    "version",
 }
 
 if have_babel:
@@ -170,7 +171,7 @@ single_job_out_names = {
     "new_qchem_files/ccsdt.qout",
     "new_qchem_files/custom_gdm_gdmqls_opt.qout",
     "new_qchem_files/unable.qout",
-    "new_qchem_files/switch_to_cartesian.qout",
+    "new_qchem_files/unexpected_ts.out",
     "new_qchem_files/svd_failed.qout",
     "new_qchem_files/v6_old_driver.out",
 }
@@ -221,7 +222,12 @@ class TestQCOutput(PymatgenTest):
             try:
                 self.assertEqual(outdata.get(key), single_job_dict[name].get(key))
             except ValueError:
-                self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
+                try:
+                    self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
+                except AssertionError:
+                    raise RuntimeError("Issue with file: " + name + " Exiting...")
+            except AssertionError:
+                raise RuntimeError("Issue with file: " + name + " Exiting...")
         for name, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
