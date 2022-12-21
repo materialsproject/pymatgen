@@ -1934,11 +1934,16 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     continue
                 if "None" in line:
                     continue
-                if "3C" in line:
-                    continue
 
                 # Extract the values
                 entry: dict[str, str | int | float] = {}
+                first_3C = False
+                second_3C = False
+                if line[7] == "3":
+                    first_3C = True
+                if line[35] == "3":
+                    second_3C = True
+
                 if line[4] == ".":
                     entry["donor bond index"] = int(line[0:4].strip())
                     entry["donor type"] = str(line[5:9].strip())
@@ -1961,17 +1966,38 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     entry["donor bond index"] = int(line[0:5].strip())
                     entry["donor type"] = str(line[6:10].strip())
                     entry["donor orbital index"] = int(line[11:13].strip())
-                    entry["donor atom 1 symbol"] = str(line[14:16].strip())
-                    entry["donor atom 1 number"] = int(line[16:19].strip())
-                    entry["donor atom 2 symbol"] = str(line[20:22].strip())
-                    entry["donor atom 2 number"] = z_int(line[22:25].strip())
+
+                    if first_3C:
+                        tmp = str(line[14:25].strip())
+                        split = tmp.split("-")
+                        if len(split) != 3:
+                            raise ValueError("Should have three components! Exiting...")
+                        entry["donor 3C 1"] = split[0]
+                        entry["donor 3C 2"] = split[1]
+                        entry["donor 3C 3"] = split[2]
+                    else:
+                        entry["donor atom 1 symbol"] = str(line[14:16].strip())
+                        entry["donor atom 1 number"] = int(line[16:19].strip())
+                        entry["donor atom 2 symbol"] = str(line[20:22].strip())
+                        entry["donor atom 2 number"] = z_int(line[22:25].strip())
+
                     entry["acceptor bond index"] = int(line[25:33].strip())
                     entry["acceptor type"] = str(line[34:38].strip())
                     entry["acceptor orbital index"] = int(line[39:41].strip())
-                    entry["acceptor atom 1 symbol"] = str(line[42:44].strip())
-                    entry["acceptor atom 1 number"] = int(line[44:47].strip())
-                    entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
-                    entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
+
+                    if second_3C:
+                        tmp = str(line[42:53].strip())
+                        split = tmp.split("-")
+                        if len(split) != 3:
+                            raise ValueError("Should have three components! Exiting...")
+                        entry["acceptor 3C 1"] = split[0]
+                        entry["acceptor 3C 2"] = split[1]
+                        entry["acceptor 3C 3"] = split[2]
+                    else:
+                        entry["acceptor atom 1 symbol"] = str(line[42:44].strip())
+                        entry["acceptor atom 1 number"] = int(line[44:47].strip())
+                        entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
+                        entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
                     try:
                         entry["perturbation energy"] = float(line[53:63].strip())
                     except ValueError:
