@@ -6,6 +6,8 @@ This module implements classes and methods for processing LAMMPS output
 files (log and dump).
 """
 
+from __future__ import annotations
+
 import glob
 import re
 from io import StringIO
@@ -123,7 +125,7 @@ class LammpsDump(MSONable):
     Object for representing dump data for a single snapshot.
     """
 
-    def __init__(self, timestep, natoms, box, data):
+    def __init__(self, timestep: int, natoms: int, box: LammpsBox, data: pd.DataFrame):
         """
         Base constructor.
 
@@ -143,7 +145,7 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    def from_string(cls, string):
+    def from_string(cls, string: str) -> LammpsDump:
         """
         Constructor from string parsing.
 
@@ -168,7 +170,7 @@ class LammpsDump(MSONable):
         return cls(timestep, natoms, box, data)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> LammpsDump:
         """
         Args:
             d (dict): Dict representation
@@ -185,17 +187,18 @@ class LammpsDump(MSONable):
         items["data"].index.name = "id"
         return cls(**items)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         Returns: MSONable dict
         """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["timestep"] = self.timestep
-        d["natoms"] = self.natoms
-        d["box"] = self.box.as_dict()
-        d["data"] = self.data.to_json(orient="split")
+        d = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "timestep": self.timestep,
+            "natoms": self.natoms,
+            "box": self.box.as_dict(),
+            "data": self.data.to_json(orient="split"),
+        }
         return d
 
 
@@ -208,7 +211,7 @@ class LammpsTrajectory(MSONable):
         trajectory: dictionary with timesteps as keys and LammpsDump objects as values
     """
 
-    def __init__(self, trajectory):
+    def __init__(self, trajectory: dict):
         self.trajectory = trajectory
 
         # Getting the timestep (assumed to be constant)
@@ -220,7 +223,9 @@ class LammpsTrajectory(MSONable):
             raise ValueError("The timestep cannot be <= 0.")
 
     @classmethod
-    def from_file_pattern(cls, file_pattern, timestep_min=None, timestep_max=None):
+    def from_file_pattern(
+        cls, file_pattern: str, timestep_min: int = 0, timestep_max: int | None = None
+    ) -> LammpsTrajectory:
         """
         Creates a LammpsTrajectory object from a file pattern for the dump files.
         The created trajectory object contains timesteps between timestep_min and
@@ -233,10 +238,8 @@ class LammpsTrajectory(MSONable):
             timestep_min: minimal timestep to include in the trajectory
             timestep_max: maximal timestep to include in the trajectory
         """
-        if timestep_min is None:
-            timestep_min = 0
         if timestep_max is None:
-            timestep_max = 1e20
+            timestep_max = int(1e20)
 
         trajectory = {}
         for dump in parse_lammps_dumps(file_pattern):
@@ -246,7 +249,16 @@ class LammpsTrajectory(MSONable):
         return cls(trajectory)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> LammpsTrajectory:
+        """
+        Return a LammpsTrajectory from a dictionary of {timestep: LammpsDump}.
+
+        Args:
+            d (dict): dictionary to transform to LammpsTrajectory.
+
+        Returns:
+            LammpsTrajectory
+        """
         trajectory = {}
         for timestep, dump in d.items():
             if not (isinstance(timestep, int) or isinstance(timestep, float)):
@@ -258,7 +270,7 @@ class LammpsTrajectory(MSONable):
 
         return LammpsTrajectory(trajectory)
 
-    def get_msd(self, atom_type=None, time_average=True):
+    def get_msd(self, atom_type: int | list | np.ndarray = None, time_average: bool = True) -> np.ndarray:
         """
         Compute the mean-square displacement for a trajectory.
         MSD = (1/N) sum_i^N < | R_i(t' + t) - R_i(t') |^2 >
@@ -332,7 +344,9 @@ class LammpsTrajectory(MSONable):
 
         return MSD
 
-    def get_diffusion_coefficient(self, MSD=None, start=None, stop=None):
+    def get_diffusion_coefficient(
+        self, MSD: list | np.ndarray = None, start: int | None = None, stop: int | None = None
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Compute the diffusion coefficient from the MSD
 

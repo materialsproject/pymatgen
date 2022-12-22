@@ -15,6 +15,7 @@ from pathlib import Path
 from string import Template
 
 from monty.dev import deprecated
+from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.io.core import InputFile
@@ -40,7 +41,7 @@ class LammpsInputFile(InputFile):
     quantities are computed.
     """
 
-    def __init__(self, input_settings: list = None):
+    def __init__(self, input_settings: list | None = None):
         """
         Args:
             input_settings: list of LAMMPS input settings.
@@ -50,11 +51,11 @@ class LammpsInputFile(InputFile):
         self.input_settings = input_settings if input_settings else []
 
     @property
-    def stages_names(self):
+    def stages_names(self) -> list:
         """List of names for all the stages present in input_settings."""
         return [self.input_settings[i][0] for i in range(len(self.input_settings))] if self.input_settings else []
 
-    def get_args(self, command: str, stage_name: str = None):
+    def get_args(self, command: str, stage_name: str | None = None) -> list | str:
         """
         Given a command, returns the corresponding arguments (or list of arguments) in the LammpsInputFile.
         A stage name can be given; in this case the search will happen only for this stage.
@@ -77,14 +78,12 @@ class LammpsInputFile(InputFile):
                     if command == cmd:
                         args.append(arg)
 
-        if not args:
-            return None
-        elif len(args) == 1:
+        if len(args) == 1:
             return args[0]
         else:
             return args
 
-    def set_args(self, command: str, argument: str, stage_name: str = None, how: str | int | list = "all"):
+    def set_args(self, command: str, argument: str, stage_name: str | None = None, how: str | int | list = "all"):
         """
         Set the argument arg to a given command.
         If a stage name is specified, it will be replaced or set only for this stage.
@@ -123,7 +122,7 @@ class LammpsInputFile(InputFile):
                             self.input_settings[i_stage][1][i_cmd][1] = argument
                         i += 1
 
-    def add_stage(self, command: str | list | dict, stage_name: str = None):
+    def add_stage(self, command: str | list | dict, stage_name: str | None = None):
         r"""
         Adds LAMMPS command(s) and its arguments to LAMMPS input file.
 
@@ -190,7 +189,7 @@ class LammpsInputFile(InputFile):
         else:
             raise TypeError("The command should be a string, list of strings or dictionary.")
 
-    def add_command(self, stage_name: str, command: str, args: str = None):
+    def add_command(self, stage_name: str, command: str, args: str | None = None):
         """
         Helper method to add a single LAMMPS command and its arguments to
         a LAMMPS input file. The stage name should be provided: a default behavior
@@ -229,7 +228,9 @@ class LammpsInputFile(InputFile):
         else:
             self.input_settings[idx][1].append([command, args])
 
-    def add_comment(self, comment: str, inline: bool = False, stage_name: str = None, index_comment: bool = False):
+    def add_comment(
+        self, comment: str, inline: bool = False, stage_name: str | None = None, index_comment: bool = False
+    ):
         """
          Method to add a comment in a stage or as a whole stage (which will do nothing when lammps runs).
 
@@ -299,8 +300,22 @@ class LammpsInputFile(InputFile):
 
         return lammps_input
 
+    def write_file(self, filename: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> None:
+        """
+        Write the input file.
+
+        Args:
+            filename: The filename to output to, including path.
+            ignore_comments: True if only the commands should be kept from the input file.
+            keep_stages: True if the block structure from the input file should be kept.
+                         If False, a single block is assumed.
+        """
+        filename = filename if isinstance(filename, Path) else Path(filename)
+        with zopen(filename, "wt") as f:
+            f.write(self.get_string(ignore_comments=ignore_comments, keep_stages=keep_stages))
+
     @classmethod
-    def from_string(cls, s: str, ignore_comments: bool = False, keep_stages: bool = False):
+    def from_string(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -308,17 +323,18 @@ class LammpsInputFile(InputFile):
         could have done on your input script. Always check that you have what you want !
 
         Args:
-            s: String representation of LammpsInputFile.
+            contents: String representation of LammpsInputFile.
             ignore_comments: True if only the commands should be kept from the input file.
             keep_stages: True if the block structure from the input file should be kept.
                          If False, a single block is assumed.
 
-        Returns: LammpsInputFile
+        Returns:
+            LammpsInputFile
         """
         LIF = cls()
 
         # Strip string from starting and/or ending white spaces
-        s = s.strip()
+        s = contents.strip()
 
         # Remove "&" symbols at the end of lines
         while "&" in s:
@@ -374,11 +390,29 @@ class LammpsInputFile(InputFile):
 
         return LIF
 
+    @classmethod
+    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+        """
+        Creates an InputFile object from a file.
+
+        Args:
+            path: Filename to read, including path.
+            ignore_comments: True if only the commands should be kept from the input file.
+            keep_stages: True if the block structure from the input file should be kept.
+                         If False, a single block is assumed.
+
+        Returns:
+            LammpsInputFile
+        """
+        filename = path if isinstance(path, Path) else Path(path)
+        with zopen(filename, "rt") as f:
+            return cls.from_string(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
+
     def __repr__(self):
         return self.get_string()
 
     @staticmethod
-    def _clean_lines(string_list: list, ignore_comments: bool = False):
+    def _clean_lines(string_list: list, ignore_comments: bool = False) -> list:
         r"""
         Helper method to strips whitespaces, carriage returns and redundant empty
         lines from a list of strings.
@@ -426,7 +460,7 @@ class LammpsInputFile(InputFile):
         return lines
 
     @staticmethod
-    def _get_blocks(string_list: list, keep_stages: bool = False):
+    def _get_blocks(string_list: list, keep_stages: bool = False) -> list:
         """
         Helper method to return a list of blocks of lammps commands,
         separated from "" in a list of all commands.

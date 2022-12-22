@@ -57,26 +57,25 @@ class InputFile(MSONable):
     """
 
     @abc.abstractmethod
-    def get_string(self, **kwargs) -> str:
+    def get_string(self) -> str:
         """
         Return a string representation of an entire input file.
         """
 
-    def write_file(self, filename: str | Path, **kwargs) -> None:
+    def write_file(self, filename: str | Path) -> None:
         """
         Write the input file.
 
         Args:
             filename: The filename to output to, including path.
-            kwargs: Keyword arguments passed to get_string()
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_string())
 
     @classmethod
     @abc.abstractmethod
-    def from_string(cls, contents: str, **kwargs):
+    def from_string(cls, contents: str):
         """
         Create an InputFile object from a string
 
@@ -88,7 +87,7 @@ class InputFile(MSONable):
         """
 
     @classmethod
-    def from_file(cls, path: str | Path, **kwargs):
+    def from_file(cls, path: str | Path):
         """
         Creates an InputFile object from a file.
 
@@ -100,7 +99,7 @@ class InputFile(MSONable):
         """
         filename = path if isinstance(path, Path) else Path(path)
         with zopen(filename, "rt") as f:
-            return cls.from_string(f.read(), **kwargs)
+            return cls.from_string(f.read())
 
     def __str__(self):
         return self.get_string()
