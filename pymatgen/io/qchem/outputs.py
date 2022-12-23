@@ -2204,7 +2204,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     entry["donor orbital index"] = int(line[11:13].strip())
 
                     if first_3C:
-                        tmp = str(line[14:25].strip())
+                        tmp = str(line[14:28].strip())
                         split = tmp.split("-")
                         if len(split) != 3:
                             raise ValueError("Should have three components! Exiting...")
@@ -2227,12 +2227,12 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         entry["donor atom 2 symbol"] = str(line[20:22].strip())
                         entry["donor atom 2 number"] = z_int(line[22:25].strip())
 
-                    entry["acceptor bond index"] = int(line[25:33].strip())
+                    entry["acceptor bond index"] = int(line[28:33].strip())
                     entry["acceptor type"] = str(line[34:38].strip())
                     entry["acceptor orbital index"] = int(line[39:41].strip())
 
                     if second_3C:
-                        tmp = str(line[42:53].strip())
+                        tmp = str(line[42:56].strip())
                         split = tmp.split("-")
                         if len(split) != 3:
                             raise ValueError("Should have three components! Exiting...")
@@ -2255,9 +2255,9 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
                         entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
                     try:
-                        entry["perturbation energy"] = float(line[53:63].strip())
+                        entry["perturbation energy"] = float(line[56:63].strip())
                     except ValueError:
-                        if line[53:63].strip() == "*******":
+                        if line[56:63].strip() == "*******":
                             entry["perturbation energy"] = float("inf")
                         else:
                             raise ValueError("Unknown value error in parsing perturbation energy")
