@@ -2208,9 +2208,19 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         split = tmp.split("-")
                         if len(split) != 3:
                             raise ValueError("Should have three components! Exiting...")
-                        entry["donor 3C 1"] = split[0]
-                        entry["donor 3C 2"] = split[1]
-                        entry["donor 3C 3"] = split[2]
+                        # This is a bit hacky, but making new more accurate entry
+                        # keys for 3C info forces there to be a NAN for those values
+                        # for all other entries, which I believe would nontrivially
+                        # increase the size of the data being stored, which is aleady
+                        # very large. So, here we have saved info that should be labeled
+                        # "donor 3C 1", "donor 3C 2", and "donor 3C 3" in the 
+                        # "donor atom 1 symbol", "donor atom 1 number", and 
+                        # "donor atom 2 symbol" fields, and then put a reminder in the
+                        # "donor atom 2 number" field. 
+                        entry["donor atom 1 symbol"] = split[0]
+                        entry["donor atom 1 number"] = split[1]
+                        entry["donor atom 2 symbol"] = split[2]
+                        entry["donor atom 2 number"] = "info_is_from_3C"
                     else:
                         entry["donor atom 1 symbol"] = str(line[14:16].strip())
                         entry["donor atom 1 number"] = int(line[16:19].strip())
@@ -2226,9 +2236,19 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         split = tmp.split("-")
                         if len(split) != 3:
                             raise ValueError("Should have three components! Exiting...")
-                        entry["acceptor 3C 1"] = split[0]
-                        entry["acceptor 3C 2"] = split[1]
-                        entry["acceptor 3C 3"] = split[2]
+                        # This is a bit hacky, but making new more accurate entry
+                        # keys for 3C info forces there to be a NAN for those values
+                        # for all other entries, which I believe would nontrivially
+                        # increase the size of the data being stored, which is aleady
+                        # very large. So, here we have saved info that should be labeled
+                        # "acceptor 3C 1", "acceptor 3C 2", and "acceptor 3C 3" in the 
+                        # "acceptor atom 1 symbol", "acceptor atom 1 number", and 
+                        # "acceptor atom 2 symbol" fields, and then put a reminder in the
+                        # "acceptor atom 2 number" field. 
+                        entry["acceptor atom 1 symbol"] = split[0]
+                        entry["acceptor atom 1 number"] = split[1]
+                        entry["acceptor atom 2 symbol"] = split[2]
+                        entry["acceptor atom 2 number"] = "info_is_from_3C"
                     else:
                         entry["acceptor atom 1 symbol"] = str(line[42:44].strip())
                         entry["acceptor atom 1 number"] = int(line[44:47].strip())
