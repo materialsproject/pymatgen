@@ -582,7 +582,7 @@ class OptSetTest(PymatgenTest):
         )
         self.assertEqual(
             v6_OptSet.geom_opt,
-            {"maxiter": "200", "coordinates": "redundant", "initial_hessian": "model", "max_displacement": "0.1", "optimization_restart": "false"},
+            {"maxiter": "200", "coordinates": "redundant", "max_displacement": "0.1", "optimization_restart": "false"},
         )
         self.assertEqual(v6_OptSet.molecule, test_molecule)
 
