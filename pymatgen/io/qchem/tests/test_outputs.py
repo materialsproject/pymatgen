@@ -337,6 +337,12 @@ class TestQCOutput(PymatgenTest):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_inf.qout")).data
         self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0], float("inf"))
 
+    def test_NBO_hyperbonds(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "hyper.qout")).data
+        self.assertEqual(len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()),2)
+        self.assertEqual(data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1],106)
+        self.assertEqual(data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0],"C")
+        self.assertEqual(data["nbo_data"]["hyperbonds"][0]["occ"][1],3.0802)
 
 if __name__ == "__main__":
     unittest.main()
