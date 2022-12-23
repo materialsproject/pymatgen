@@ -1730,6 +1730,90 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     return pop_dfs
 
 
+def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
+    """
+    Parse the natural populations section of NBO output.
+
+    Args:
+            lines: QChem output lines.
+
+    Returns:
+            Data frame of formatted output.
+
+    Raises:
+            RuntimeError
+    """
+
+    no_failures = True
+    hyperbond_dfs = []
+
+    while no_failures:
+        # hyperbonds
+        try:
+            lines = jump_to_header(
+                lines,
+                "3-Center, 4-Electron A:-B-:C Hyperbonds (A-B :C <=> A: B-C)",
+            )
+        except RuntimeError:
+            no_failures = False
+
+        if no_failures:
+
+            # Jump to values
+            lines = lines[2:]
+
+            # Extract hyperbond data
+            hyperbond_data = []
+            for line in lines:
+
+                # Termination condition
+                if "NATURAL BOND ORBITALS" in line:
+                    break
+                if "SECOND ORDER PERTURBATION THEORY" in line:
+                    break
+                if "NHO DIRECTIONALITY AND BOND BENDING" in line:
+                    break
+                if "Archival summary:" in line:
+                    break
+
+                # Skip conditions
+                if line.strip() == "":
+                    continue
+                if "NBOs" in line:
+                    continue
+                if "threshold" in line:
+                    continue
+                if "-------------" in line:
+                    continue
+                if "A:-B-:C" in line:
+                    continue
+
+                # Extract the values
+                entry: dict[str, str | int | float] = {}
+                entry["hyperbond index"] = int(line[0:4].strip())
+                entry["bond atom 1 symbol"] = str(line[5:8].strip())
+                entry["bond atom 1 index"] = int(line[8:11].strip())
+                entry["bond atom 2 symbol"] = str(line[13:15].strip())
+                entry["bond atom 2 index"] = int(line[15:18].strip())
+                entry["bond atom 3 symbol"] = str(line[20:22].strip())
+                entry["bond atom 3 index"] = int(line[22:25].strip())
+                entry["pctA-B"] = float(line[27:31].strip())
+                entry["pctB-C"] = float(line[32:36].strip())
+                entry["occ"] = float(line[38:44].strip())
+                entry["BD(A-B)"] = int(line[46:53].strip())
+                entry["LP(C)"] = int(line[54:59].strip())
+                entry["h(A)"] = int(line[61:65].strip())
+                entry["h(B)"] = int(line[67:71].strip())
+                entry["h(C)"] = int(line[73:77].strip())
+
+                hyperbond_data.append(entry)
+
+            # Store values in a dataframe
+            hyperbond_dfs.append(pd.DataFrame(data=hyperbond_data))
+
+    return hyperbond_dfs
+
+
 def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the hybridization character section of NBO output.
@@ -1748,7 +1832,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     orbitals = ["s", "p", "d", "f"]
 
     no_failures = True
-    lp_and_bd_dfs = []
+    lp_and_bd_and_tc_dfs = []
 
     while no_failures:
 
@@ -1769,6 +1853,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
             # Save the data for different types of orbitals
             lp_data = []
             bd_data = []
+            tc_data = []
 
             # Iterate over the lines
             i = -1
@@ -1873,11 +1958,96 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     # Save the entry
                     bd_data.append(BDentry)
 
-            # Store values in a dataframe
-            lp_and_bd_dfs.append(pd.DataFrame(data=lp_data))
-            lp_and_bd_dfs.append(pd.DataFrame(data=bd_data))
+                # 3-center bond
+                if "3C" in line:
+                    TCentry: dict[str, str | int | float] = {
+                        f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 4)
+                    }
+                    TCentry["bond index"] = line[0:4].strip()
+                    TCentry["occupancy"] = line[7:14].strip()
+                    TCentry["type"] = line[16:19].strip()
+                    TCentry["orbital index"] = line[20:22].strip()
+                    TCentry["atom 1 symbol"] = line[23:25].strip()
+                    TCentry["atom 1 number"] = line[25:28].strip()
+                    TCentry["atom 2 symbol"] = line[29:31].strip()
+                    TCentry["atom 2 number"] = line[31:34].strip()
+                    TCentry["atom 3 symbol"] = line[35:37].strip()
+                    TCentry["atom 3 number"] = line[37:40].strip()
 
-    return lp_and_bd_dfs
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    TCentry["atom 1 polarization"] = line[16:22].strip()
+                    TCentry["atom 1 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move down until you see an orbital
+                    while "s" not in line:
+                        i += 1
+                        line = lines[i]
+
+                    TCentry["atom 2 polarization"] = line[16:22].strip()
+                    TCentry["atom 2 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move down until you see an orbital
+                    while "s" not in line:
+                        i += 1
+                        line = lines[i]
+
+                    TCentry["atom 3 polarization"] = line[16:22].strip()
+                    TCentry["atom 3 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 3 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 3 {orbital}"] = get_percentage(line, orbital)
+
+                    # Save the entry
+                    tc_data.append(TCentry)
+
+            # Store values in a dataframe
+            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=lp_data))
+            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=bd_data))
+            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=tc_data))
+
+    return lp_and_bd_and_tc_dfs
 
 
 def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
@@ -2037,5 +2207,6 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs = {}
     dfs["natural_populations"] = parse_natural_populations(lines)
     dfs["hybridization_character"] = parse_hybridization_character(lines)
+    dfs["hyperbonds"] = parse_hyperbonds(lines)
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs
