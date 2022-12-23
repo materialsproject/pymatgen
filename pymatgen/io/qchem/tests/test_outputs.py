@@ -102,6 +102,11 @@ property_list = {
     "ccsd(t)_total_energy",
     "norm_of_stepsize",
     "version",
+    "dipoles",
+    "KSgap",
+    "HOMO",
+    "LUMO",
+
 }
 
 if have_babel:
@@ -174,6 +179,9 @@ single_job_out_names = {
     "new_qchem_files/unexpected_ts.out",
     "new_qchem_files/svd_failed.qout",
     "new_qchem_files/v6_old_driver.out",
+    "new_qchem_files/3C.qout",
+    "new_qchem_files/gap.qout",
+    "new_qchem_files/hyper.qout",
 }
 
 multi_job_out_names = {
