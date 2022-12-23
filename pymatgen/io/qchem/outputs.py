@@ -158,8 +158,8 @@ class QCOutput(MSONable):
         # Parse the SCF
         self._read_SCF()
 
-        # Parse the Mulliken/ESP/RESP charges
-        self._read_charges()
+        # Parse the Mulliken/ESP/RESP charges and dipoles
+        self._read_charges_and_dipoles()
 
         # Check for various warnings
         self._detect_general_warnings()
@@ -171,6 +171,21 @@ class QCOutput(MSONable):
                 "key"
             )
             self.data["mem_total"] = int(temp_mem_total[0][0])
+
+        # Parse gap info, if present:
+        if read_pattern(self.text, {"key": r"Generalized Kohn-Sham gap"}, terminate_on_match=True).get("key") == [[]]:
+            temp_HOMO = read_pattern(
+                self.text, {"key": r"HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+            ).get("key")
+            self.data["HOMO"] = float(temp_HOMO[0][0])
+            temp_LUMO = read_pattern(
+                self.text, {"key": r"LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+            ).get("key")
+            self.data["LUMO"] = float(temp_LUMO[0][0])
+            temp_KSgap = read_pattern(
+                self.text, {"key": r"KS gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+            ).get("key")
+            self.data["KSgap"] = float(temp_KSgap[0][0])
 
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
@@ -618,10 +633,38 @@ class QCOutput(MSONable):
                     Total_energy[ii] = float(val[0])
                 self.data["Total_energy_in_the_final_basis_set"] = Total_energy
 
-    def _read_charges(self):
+    def _read_charges_and_dipoles(self):
         """
-        Parses Mulliken/ESP/RESP charges. Also parses spins given an unrestricted SCF.
+        Parses Mulliken/ESP/RESP charges.
+        Parses associated dipoles.
+        Also parses spins given an unrestricted SCF.
         """
+
+        self.data["dipoles"] = {}
+        temp_dipole_total = read_pattern(
+            self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
+        ).get("key")
+        temp_dipole = read_pattern(
+            self.text, {"key": r"X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\s*Tot\s*[\d\-\.]+"}
+        ).get("key")
+        if temp_dipole is not None:
+            if len(temp_dipole_total) == 1:
+                self.data["dipoles"]["total"] = float(temp_dipole_total[0][0])
+                dipole = np.zeros(3)
+                for ii, val in enumerate(temp_dipole[0]):
+                    dipole[ii] = float(val)
+                self.data["dipoles"]["dipole"] = dipole 
+            else:
+                total = np.zeros(len(temp_dipole_total))
+                for ii, val in enumerate(temp_dipole_total):
+                    total[ii] = float(val[0])
+                self.data["dipoles"]["total"] = total
+                dipole = np.zeros(shape=(len(temp_dipole_total),3))
+                for ii, entry in enumerate(temp_dipole):
+                    for jj, val in enumerate(temp_dipole[ii]):
+                        dipole[ii][jj] = temp_dipole[ii][jj]
+                self.data["dipoles"]["dipole"] = dipole
+
         if self.data.get("unrestricted", []):
             header_pattern = (
                 r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+"
@@ -665,6 +708,29 @@ class QCOutput(MSONable):
                     temp[ii] = float(entry[0])
                 real_esp_or_resp += [temp]
             self.data[esp_or_resp[0][0]] = real_esp_or_resp
+            temp_RESP_dipole_total = read_pattern(
+                self.text, {"key": r"Related Dipole Moment =\s*([\d\-\.]+)\s*\(X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\)"}
+            ).get("key")
+            temp_RESP_dipole = read_pattern(
+                self.text, {"key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\)"}
+            ).get("key")
+            if temp_RESP_dipole is not None:
+                if len(temp_RESP_dipole_total) == 1:
+                    self.data["dipoles"]["RESP_total"] = float(temp_RESP_dipole_total[0][0])
+                    RESP_dipole = np.zeros(3)
+                    for ii, val in enumerate(temp_RESP_dipole[0]):
+                        RESP_dipole[ii] = float(val)
+                    self.data["dipoles"]["RESP_dipole"] = RESP_dipole 
+                else:
+                    RESP_total = np.zeros(len(temp_RESP_dipole_total))
+                    for ii, val in enumerate(temp_RESP_dipole_total):
+                        RESP_total[ii] = float(val[0])
+                    self.data["dipoles"]["RESP_total"] = RESP_total
+                    RESP_dipole = np.zeros(shape=(len(temp_RESP_dipole_total),3))
+                    for ii, entry in enumerate(temp_RESP_dipole):
+                        for jj, val in enumerate(temp_RESP_dipole[ii]):
+                            RESP_dipole[ii][jj] = temp_RESP_dipole[ii][jj]
+                    self.data["dipoles"]["RESP_dipole"] = RESP_dipole
 
     def _detect_general_warnings(self):
         # Check for inaccurate integrated density
