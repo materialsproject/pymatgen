@@ -23,7 +23,7 @@ except ImportError:
     ArrayLike = Union[Sequence[float], Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]  # type: ignore
 
 if TYPE_CHECKING:  # needed to avoid circular imports
-    from pymatgen.analysis.cost import CostEntry
+    from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]
     from pymatgen.analysis.phase_diagram import (
         GrandPotPDEntry,
         PDEntry,
