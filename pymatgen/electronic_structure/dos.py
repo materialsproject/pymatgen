@@ -1269,8 +1269,8 @@ class CompleteDos(Dos):
 
     @staticmethod
     def get_dos_fp_similarity(
-        fp1,
-        fp2,
+        fp1: NamedTuple,
+        fp2: NamedTuple,
         col: int = 1,
         pt: int | str = "All",
         normalize: bool = False,
@@ -1279,8 +1279,8 @@ class CompleteDos(Dos):
         """Calculates the similarity index (dot product) of two fingerprints
 
         Args:
-            fp1 (get_dos_fp): The 1st dos fingerprint object
-            fp2 (get_dos_fp):  The 2nd dos fingerprint object
+            fp1 (NamedTuple): The 1st dos fingerprint object
+            fp2 (NamedTuple): The 2nd dos fingerprint object
             col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
             pt (int or str) : The index of the point that the dot product is to be taken (default is All)
             normalize (bool): If True normalize the scalar product to 1 (default is False)
