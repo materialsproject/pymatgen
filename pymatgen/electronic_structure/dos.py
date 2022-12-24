@@ -1183,12 +1183,15 @@ class CompleteDos(Dos):
 
 
         Args:
-            type (str): Specify fingerprint type needed can accept 's/p/d/f/summed_pdos/tdos'
+            type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
             min_e (float): The minimum mode energy to include in the fingerprint (default is None)
             max_e (float): The maximum mode energy to include in the fingerprint (default is None)
             n_bins (int): Number of bins to be used in the fingerprint (default is 256)
             normalize (bool): If true, normalizes the area under fp to equal to 1 (default is True)
+
+        Raises:
+            ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.
 
         Returns:
             Fingerprint(namedtuple) : The electronic density of states fingerprint
@@ -1235,7 +1238,7 @@ class CompleteDos(Dos):
             for ii, e1, e2 in zip(range(len(ener)), ener_bounds[0:-1], ener_bounds[1:]):
                 inds = np.where((energies >= e1) & (energies < e2))
                 dos_rebin[ii] = np.sum(densities[inds])
-            if normalize:  # scale dos bins to make area under histogram equal 1
+            if normalize:  # scale DOS bins to make area under histogram equal 1
                 area = np.sum(dos_rebin * bin_width)
                 dos_rebin_sc = dos_rebin / area
             else:
@@ -1245,8 +1248,8 @@ class CompleteDos(Dos):
 
         except KeyError:
             raise ValueError(
-                "Please recheck type requested, either the orbital projections unavailable in input dos or "
-                "some there exist some mistake in the spelling."
+                "Please recheck type requested, either the orbital projections unavailable in input DOS or "
+                "there's a typo in type."
             )
 
     @staticmethod
@@ -1283,6 +1286,9 @@ class CompleteDos(Dos):
             normalize (bool): If True normalize the scalar product to 1 (default is False)
             tanimoto (bool): If True will compute Tanimoto index (default is False)
 
+        Raises:
+            ValueError: If both tanimoto and normalize are set to True.
+
         Returns:
         Similarity index (float): The value of dot product
         """
@@ -1317,8 +1323,7 @@ class CompleteDos(Dos):
 
         else:
             raise ValueError(
-                "Cannot compute similarity index, Please set either one of normalize/tanimoto arg to true "
-                "or set both to false"
+                "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
             )
 
     @classmethod
