@@ -295,14 +295,14 @@ class CompleteDosTest(unittest.TestCase):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True, normalize=True)
         self.assertEqual(
             err.exception.__str__(),
-            "Cannot compute similarity index, Please set either one of normalize/tanimoto arg to true or set both to false",
+            "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False.",
         )
         with self.assertRaises(ValueError) as err:
 
             self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
         self.assertEqual(
             err.exception.__str__(),
-            "Please recheck type requested, either the orbital projections unavailable in input dos or some there exist some mistake in the spelling.",
+            "Please recheck type requested, either the orbital projections unavailable in input DOS or there's a typo in type.",
         )
 
 
