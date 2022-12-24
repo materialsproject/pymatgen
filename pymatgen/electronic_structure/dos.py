@@ -1211,15 +1211,10 @@ class CompleteDos(Dos):
 
             pdos[key.name] = dens
 
-        sum_pdos_array = []
-        for dos in pdos.values():
-            sum_pdos_array.append(np.array(dos))
-
-        pdos["summed_pdos"] = np.sum(sum_pdos_array, axis=0)
+        pdos["summed_pdos"] = np.sum(list(pdos.values()), axis=0)
         pdos["tdos"] = self.get_densities()
 
         try:
-
             densities = pdos[type]
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
