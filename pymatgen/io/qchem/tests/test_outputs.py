@@ -103,9 +103,7 @@ property_list = {
     "norm_of_stepsize",
     "version",
     "dipoles",
-    "KSgap",
-    "HOMO",
-    "LUMO",
+    "gap_info",
 
 }
 
@@ -182,6 +180,7 @@ single_job_out_names = {
     "new_qchem_files/3C.qout",
     "new_qchem_files/gap.qout",
     "new_qchem_files/hyper.qout",
+    "new_qchem_files/os_gap.qout",
 }
 
 multi_job_out_names = {

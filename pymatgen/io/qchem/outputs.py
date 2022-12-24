@@ -174,18 +174,49 @@ class QCOutput(MSONable):
 
         # Parse gap info, if present:
         if read_pattern(self.text, {"key": r"Generalized Kohn-Sham gap"}, terminate_on_match=True).get("key") == [[]]:
+            gap_info = {}
+            # If this is open-shell gap info:
+            if read_pattern(self.text, {"key": r"Alpha HOMO Eigenvalue"}, terminate_on_match=True).get("key") == [[]]:
+                temp_alpha_HOMO = read_pattern(
+                    self.text, {"key": r"Alpha HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["alpha_HOMO"] = float(temp_alpha_HOMO[0][0])
+                temp_beta_HOMO = read_pattern(
+                    self.text, {"key": r"Beta  HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["beta_HOMO"] = float(temp_beta_HOMO[0][0])
+                temp_alpha_LUMO = read_pattern(
+                    self.text, {"key": r"Alpha LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["alpha_LUMO"] = float(temp_alpha_LUMO[0][0])
+                temp_beta_LUMO = read_pattern(
+                    self.text, {"key": r"Beta  LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["beta_LUMO"] = float(temp_beta_LUMO[0][0])
+                temp_alpha_gap = read_pattern(
+                    self.text, {"key": r"HOMO-Alpha LUMO gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["alpha_gap"] = float(temp_alpha_gap[0][0])
+                temp_beta_gap = read_pattern(
+                    self.text, {"key": r"HOMO-Beta LUMO gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["beta_gap"] = float(temp_beta_gap[0][0])
+
             temp_HOMO = read_pattern(
-                self.text, {"key": r"HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                self.text, {"key": r"    HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
-            self.data["HOMO"] = float(temp_HOMO[0][0])
+            gap_info["HOMO"] = float(temp_HOMO[0][0])
             temp_LUMO = read_pattern(
-                self.text, {"key": r"LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                self.text, {"key": r"    LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
-            self.data["LUMO"] = float(temp_LUMO[0][0])
+            gap_info["LUMO"] = float(temp_LUMO[0][0])
             temp_KSgap = read_pattern(
                 self.text, {"key": r"KS gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
-            self.data["KSgap"] = float(temp_KSgap[0][0])
+            gap_info["KSgap"] = float(temp_KSgap[0][0])
+            self.data["gap_info"] = gap_info
+        else:
+            self.data["gap_info"] = None
 
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
