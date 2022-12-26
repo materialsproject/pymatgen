@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import abc
 import itertools
-from typing import Literal, Sequence
+from typing import Literal, Mapping, Sequence
 
 import numpy as np
 from monty.json import MSONable
@@ -441,7 +441,7 @@ class StructureMatcher(MSONable):
         cells in it
 
         Args:
-            target_lattice (Lattice):
+            target_lattice (Lattice): target lattice.
             s (Structure): input structure.
             supercell_size (int): Number of primitive cells in returned lattice
         """
@@ -521,7 +521,7 @@ class StructureMatcher(MSONable):
             normalization (float): inverse normalization length
 
         Returns:
-            Distances from s2 to s1, normalized by (V/Natom) ^ 1/3
+            Distances from s2 to s1, normalized by (V/atom) ^ 1/3
             Fractional translation vector to apply to s2.
             Mapping from s1 to s2, i.e. with numpy slicing, s1[mapping] => s2
         """
@@ -588,20 +588,19 @@ class StructureMatcher(MSONable):
         Args:
             struct1 (Structure): 1st structure
             struct2 (Structure): 2nd structure
-            symmetric (Bool): Defaults to False
+            symmetric (bool): Defaults to False
                 If True, check the equality both ways.
                 This only impacts a small percentage of structures
-            skip_structure_reduction (Bool): Defaults to False
+            skip_structure_reduction (bool): Defaults to False
                 If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2
 
         Returns:
-            True or False.
+            bool: True if the structures are equivalent
         """
         struct1, struct2 = self._process_species([struct1, struct2])
 
-        if not self._subset and self._comparator.get_hash(struct1.composition) != self._comparator.get_hash(
-            struct2.composition
-        ):
+        hash_match = self._comparator.get_hash(struct1.composition) != self._comparator.get_hash(struct2.composition)
+        if not self._subset and not hash_match:
             return False
 
         if not symmetric:
@@ -727,25 +726,24 @@ class StructureMatcher(MSONable):
 
     def _strict_match(
         self,
-        struct1,
-        struct2,
-        fu,
-        s1_supercell=True,
-        use_rms=False,
-        break_on_match=False,
-    ):
+        struct1: Structure,
+        struct2: Structure,
+        fu: int,
+        s1_supercell: bool = True,
+        use_rms: bool = False,
+        break_on_match: bool = False,
+    ) -> tuple[float, float, np.ndarray, float, Mapping] | None:
         """
         Matches struct2 onto struct1 (which should contain all sites in
         struct2).
 
         Args:
-            struct1, struct2 (Structure): structures to be matched
+            struct1 (Structure): structure to match onto
+            struct2 (Structure): structure to match
             fu (int): size of supercell to create
-            s1_supercell (bool): whether to create the supercell of
-                struct1 (vs struct2)
+            s1_supercell (bool): whether to create the supercell of struct1 (vs struct2)
             use_rms (bool): whether to minimize the rms of the matching
-            break_on_match (bool): whether to stop search at first
-                valid match
+            break_on_match (bool): whether to stop search at first match
         """
         if fu < 1:
             raise ValueError("fu cannot be less than 1")
@@ -895,9 +893,9 @@ class StructureMatcher(MSONable):
 
     def _anonymous_match(
         self,
-        struct1,
-        struct2,
-        fu,
+        struct1: Structure,
+        struct2: Structure,
+        fu: int,
         s1_supercell=True,
         use_rms=False,
         break_on_match=False,
@@ -906,7 +904,14 @@ class StructureMatcher(MSONable):
         """
         Tries all permutations of matching struct1 to struct2.
         Args:
-            struct1, struct2 (Structure): Preprocessed input structures
+            struct1 (Structure): First structure
+            struct2 (Structure): Second structure
+            fu (int): Factor of unit cell of struct1 to match to struct2
+            s1_supercell (bool): whether to create the supercell of struct1 (vs struct2)
+            use_rms (bool): Whether to minimize the rms of the matching
+            break_on_match (bool): Whether to break search on first match
+            single_match (bool): Whether to return only the best match
+
         Returns:
             List of (mapping, match)
         """
@@ -1062,8 +1067,8 @@ class StructureMatcher(MSONable):
         Args:
             struct1 (Structure): 1st structure
             struct2 (Structure): 2nd structure
-            niggli (Bool): If true, perform Niggli reduction for struct1 and struct2
-            skip_structure_reduction (Bool): Defaults to False
+            niggli (bool): If true, perform Niggli reduction for struct1 and struct2
+            skip_structure_reduction (bool): Defaults to False
                 If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2
 
         Returns:
