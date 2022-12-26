@@ -159,7 +159,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
             if "eigenvector" in b:
                 eig_b = []
                 for i, eig_a in enumerate(b["eigenvector"]):
-                    v = np.zeros(3, np.complex)
+                    v = np.zeros(3, complex)
                     for x in range(3):
                         v[x] = eig_a[x][0] + eig_a[x][1] * 1j
                     eig_b.append(

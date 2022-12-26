@@ -12,11 +12,10 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        options: [test, release]
         type: choice
-        required: true
-        default: test
-        description: Task
+        options: [tests, release]
+        default: tests
+        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
 
 permissions:
   contents: read
@@ -104,7 +103,7 @@ jobs:
 
   release:
     needs: pytest
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'release')
     strategy:
       matrix:
         os: [macos-latest, windows-latest]

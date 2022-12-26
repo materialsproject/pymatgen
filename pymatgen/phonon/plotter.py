@@ -423,9 +423,9 @@ class PhononBSPlotter:
     def get_proj_plot(
         self,
         site_comb: str | list[list[int]] = "element",
-        ylim: tuple[None | float, None | float] = None,
+        ylim: tuple[None | float, None | float] | None = None,
         units: str = "thz",
-        rgb_labels: tuple[None | str] = None,
+        rgb_labels: tuple[None | str] | None = None,
     ) -> plt.Axes:
         """
         Get a matplotlib object for the bandstructure plot projected along atomic
@@ -546,9 +546,9 @@ class PhononBSPlotter:
     def show_proj(
         self,
         site_comb: str | list[list[int]] = "element",
-        ylim: tuple[None | float, None | float] = None,
+        ylim: tuple[None | float, None | float] | None = None,
         units: str = "thz",
-        rgb_labels: tuple[str] = None,
+        rgb_labels: tuple[str] | None = None,
     ):
         """
         Show the projected plot using matplotlib.

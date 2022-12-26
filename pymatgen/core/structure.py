@@ -65,7 +65,7 @@ class Neighbor(Site):
         self,
         species: Composition,
         coords: np.ndarray,
-        properties: dict = None,
+        properties: dict | None = None,
         nn_distance: float = 0.0,
         index: int = 0,
     ):
@@ -92,6 +92,27 @@ class Neighbor(Site):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index)[idx]
 
+    def as_dict(self) -> dict:  # type: ignore
+        """
+        Note that method calls the super of Site, which is MSONable itself.
+
+        Returns: dict
+        """
+        return super(Site, self).as_dict()  # pylint: disable=E1003
+
+    @classmethod
+    def from_dict(cls, d: dict) -> Neighbor:  # type: ignore
+        """
+        Returns a Neighbor from a dict.
+
+        Args:
+            d: MSONable dict format.
+
+        Returns:
+            Neighbor
+        """
+        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
+
 
 class PeriodicNeighbor(PeriodicSite):
     """
@@ -110,7 +131,7 @@ class PeriodicNeighbor(PeriodicSite):
         species: Composition,
         coords: np.ndarray,
         lattice: Lattice,
-        properties: dict = None,
+        properties: dict | None = None,
         nn_distance: float = 0.0,
         index: int = 0,
         image: tuple = (0, 0, 0),
@@ -151,6 +172,27 @@ class PeriodicNeighbor(PeriodicSite):
         Make neighbor Tuple-like to retain backwards compatibility.
         """
         return (self, self.nn_distance, self.index, self.image)[i]
+
+    def as_dict(self) -> dict:  # type: ignore
+        """
+        Note that method calls the super of Site, which is MSONable itself.
+
+        Returns: dict
+        """
+        return super(Site, self).as_dict()  # pylint: disable=E1003
+
+    @classmethod
+    def from_dict(cls, d: dict) -> PeriodicNeighbor:  # type: ignore
+        """
+        Returns a PeriodicNeighbor from a dict.
+
+        Args:
+            d: MSONable dict format.
+
+        Returns:
+            PeriodicNeighbor
+        """
+        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
@@ -643,11 +685,11 @@ class IStructure(SiteCollection, MSONable):
         lattice: ArrayLike | Lattice,
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
-        charge: float = None,
+        charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
-        site_properties: dict = None,
+        site_properties: dict | None = None,
     ) -> None:
         """
         Create a periodic structure.
@@ -707,7 +749,7 @@ class IStructure(SiteCollection, MSONable):
                     self._lattice,
                     to_unit_cell,
                     coords_are_cartesian=coords_are_cartesian,
-                    properties=prop,
+                    properties=prop,  # type: ignore
                 )
             )
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
@@ -719,7 +761,7 @@ class IStructure(SiteCollection, MSONable):
     def from_sites(
         cls,
         sites: list[PeriodicSite],
-        charge: float = None,
+        charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
     ) -> IStructure:
@@ -771,7 +813,7 @@ class IStructure(SiteCollection, MSONable):
         lattice: list | np.ndarray | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
-        site_properties: dict[str, Sequence] = None,
+        site_properties: dict[str, Sequence] | None = None,
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
     ) -> IStructure | Structure:
@@ -1257,7 +1299,7 @@ class IStructure(SiteCollection, MSONable):
     def _get_neighbor_list_py(
         self,
         r: float,
-        sites: list[PeriodicSite] = None,
+        sites: list[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
     ) -> tuple[np.ndarray, ...]:
@@ -1311,7 +1353,7 @@ class IStructure(SiteCollection, MSONable):
     def get_neighbor_list(
         self,
         r: float,
-        sites: Sequence[PeriodicSite] = None,
+        sites: Sequence[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
     ) -> tuple[np.ndarray, ...]:
@@ -1539,7 +1581,7 @@ class IStructure(SiteCollection, MSONable):
         r: float,
         include_index: bool = False,
         include_image: bool = False,
-        sites: Sequence[PeriodicSite] = None,
+        sites: Sequence[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
     ) -> list[list[PeriodicNeighbor]]:
         """
@@ -1627,7 +1669,7 @@ class IStructure(SiteCollection, MSONable):
         r: float,
         include_index: bool = False,
         include_image: bool = False,
-        sites: Sequence[PeriodicSite] = None,
+        sites: Sequence[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
     ) -> list[list[PeriodicNeighbor]]:
         """
@@ -2726,9 +2768,9 @@ class IMolecule(SiteCollection, MSONable):
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
         charge: float = 0.0,
-        spin_multiplicity: int = None,
+        spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
-        site_properties: dict = None,
+        site_properties: dict | None = None,
         charge_spin_check: bool = True,
     ):
         """
@@ -2771,7 +2813,7 @@ class IMolecule(SiteCollection, MSONable):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(species[i], coords[i], properties=prop))
+            sites.append(Site(species[i], coords[i], properties=prop))  # type: ignore
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
@@ -2841,7 +2883,7 @@ class IMolecule(SiteCollection, MSONable):
         cls,
         sites: Sequence[Site],
         charge: float = 0,
-        spin_multiplicity: int = None,
+        spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         charge_spin_check: bool = True,
     ) -> IMolecule | Molecule:
@@ -3080,7 +3122,7 @@ class IMolecule(SiteCollection, MSONable):
         random_rotation: bool = False,
         min_dist: float = 1.0,
         cls=None,
-        offset: ArrayLike = None,
+        offset: ArrayLike | None = None,
         no_cross: bool = False,
         reorder: bool = True,
     ) -> IStructure | Structure:
@@ -3349,11 +3391,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         lattice: ArrayLike | Lattice,
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
-        charge: float = None,
+        charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
-        site_properties: dict = None,
+        site_properties: dict | None = None,
     ):
         """
         Create a periodic structure.
@@ -3494,7 +3536,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         coords: ArrayLike,
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
     ):
         """
         Append a site to the structure.
@@ -3527,7 +3569,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         coords: ArrayLike,
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
     ):
         """
         Insert a site to the structure.
@@ -3562,9 +3604,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         i: int,
         species: CompositionLike,
-        coords: ArrayLike = None,
+        coords: ArrayLike | None = None,
         coords_are_cartesian: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
     ):
         """
         Replace a single site. Takes either a species or a dict of species and
@@ -3584,7 +3626,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         elif coords_are_cartesian:
             frac_coords = self._lattice.get_fractional_coords(coords)
         else:
-            frac_coords = coords
+            frac_coords = coords  # type: ignore
 
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
         self._sites[i] = new_site
@@ -3776,7 +3818,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
 
-    def sort(self, key: Callable = None, reverse: bool = False) -> None:
+    def sort(self, key: Callable | None = None, reverse: bool = False) -> None:
         """
         Sort a structure in place. The parameters have the same meaning as in
         list.sort. By default, sites are sorted by the electronegativity of
@@ -3825,10 +3867,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def rotate_sites(
         self,
-        indices: list[int] = None,
+        indices: list[int] | None = None,
         theta: float = 0.0,
-        axis: ArrayLike = None,
-        anchor: ArrayLike = None,
+        axis: ArrayLike | None = None,
+        anchor: ArrayLike | None = None,
         to_unit_cell: bool = True,
     ) -> None:
         """
@@ -3876,7 +3918,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             )
             self._sites[i] = new_site
 
-    def perturb(self, distance: float, min_distance: float = None) -> None:
+    def perturb(self, distance: float, min_distance: float | None = None) -> None:
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -4112,9 +4154,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         species: Sequence[SpeciesLike],
         coords: Sequence[ArrayLike],
         charge: float = 0.0,
-        spin_multiplicity: int = None,
+        spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
-        site_properties: dict = None,
+        site_properties: dict | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -4200,7 +4242,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         species: CompositionLike,
         coords: ArrayLike,
         validate_proximity: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
     ):
         """
         Appends a site to the molecule.
@@ -4258,7 +4300,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         species: CompositionLike,
         coords: ArrayLike,
         validate_proximity: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
     ):
         """
         Insert a site to the molecule.
@@ -4305,7 +4347,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """
         self._sites = [self._sites[i] for i in range(len(self._sites)) if i not in indices]
 
-    def translate_sites(self, indices: Sequence[int] = None, vector: ArrayLike = None):
+    def translate_sites(self, indices: Sequence[int] | None = None, vector: ArrayLike | None = None):
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
@@ -4325,7 +4367,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             self._sites[i] = new_site
 
     def rotate_sites(
-        self, indices: Sequence[int] = None, theta: float = 0.0, axis: ArrayLike = None, anchor: ArrayLike = None
+        self,
+        indices: Sequence[int] | None = None,
+        theta: float = 0.0,
+        axis: ArrayLike | None = None,
+        anchor: ArrayLike | None = None,
     ):
         """
         Rotate specific sites by some angle around vector at anchor.

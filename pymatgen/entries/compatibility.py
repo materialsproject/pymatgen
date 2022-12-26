@@ -840,7 +840,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         compat_type: str = "Advanced",
         correct_peroxide: bool = True,
         check_potcar_hash: bool = False,
-        config_file: str = None,
+        config_file: str | None = None,
     ) -> None:
         """
         Args:

@@ -35,9 +35,9 @@ class Site(collections.abc.Hashable, MSONable):
         self,
         species: SpeciesLike | CompositionLike,
         coords: ArrayLike,
-        properties: dict = None,
+        properties: dict | None = None,
         skip_checks: bool = False,
-    ):
+    ) -> None:
         """
         Creates a non-periodic Site.
 
@@ -70,13 +70,13 @@ class Site(collections.abc.Hashable, MSONable):
         self.coords: np.ndarray = coords  # type: ignore
         self.properties: dict = properties or {}
 
-    def __getattr__(self, a):
+    def __getattr__(self, attr):
         # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
-        p = object.__getattribute__(self, "properties")
-        if a in p:
-            return p[a]
-        raise AttributeError(a)
+        props = object.__getattribute__(self, "properties")
+        if attr in props:
+            return props[attr]
+        raise AttributeError(attr)
 
     @property
     def species(self) -> Composition:
@@ -299,7 +299,7 @@ class PeriodicSite(Site, MSONable):
         lattice: Lattice,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
         skip_checks: bool = False,
     ):
         """

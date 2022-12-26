@@ -1,6 +1,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import json
 import os
 import random
 import unittest
@@ -10,6 +11,7 @@ from shutil import which
 
 import numpy as np
 import pytest
+from monty.json import MontyDecoder, MontyEncoder
 from monty.tempfile import ScratchDir
 
 from pymatgen.core.composition import Composition
@@ -20,6 +22,7 @@ from pymatgen.core.structure import (
     IMolecule,
     IStructure,
     Molecule,
+    PeriodicNeighbor,
     Structure,
     StructureError,
 )
@@ -33,6 +36,16 @@ try:
     import m3gnet
 except ImportError:
     m3gnet = None
+
+
+class NeighborTest(PymatgenTest):
+    def test_msonable(self):
+        s = PymatgenTest.get_structure("Li2O")
+        nn = s.get_neighbors(s[0], r=3)
+        self.assertIsInstance(nn[0], PeriodicNeighbor)
+        str_ = json.dumps(nn, cls=MontyEncoder)
+        nn = json.loads(str_, cls=MontyDecoder)
+        self.assertIsInstance(nn[0], PeriodicNeighbor)
 
 
 class IStructureTest(PymatgenTest):

@@ -38,9 +38,8 @@ except ImportError:
     openbabel = None
 
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 __credits__ = "Gabe Gomes"
 
 logger = logging.getLogger(__name__)
@@ -151,14 +150,58 @@ class QCOutput(MSONable):
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
         self.data["solvent_data"] = None
+
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "PCM"
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*smd"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "SMD"
+        if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*isosvp"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
+            self.data["solvent_method"] = "ISOSVP"
+
+        # if solvent_method is not None, populate solvent_data with None values for all possible keys
+        # ISOSVP and CMIRS data are nested under respective keys
+        # TODO - nest PCM and SMD data under respective keys in a future PR
+        pcm_keys = [
+            "PCM_dielectric",
+            "g_electrostatic",
+            "g_cavitation",
+            "g_dispersion",
+            "g_repulsion",
+            "total_contribution_pcm",
+            "solute_internal_energy",
+        ]
+        smd_keys = ["SMD_solvent", "smd0", "smd3", "smd4", "smd6", "smd9"]
+        isosvp_keys = [
+            "isosvp_dielectric",
+            "final_soln_phase_e",
+            "solute_internal_e",
+            "total_solvation_free_e",
+            "change_solute_internal_e",
+            "reaction_field_free_e",
+        ]
+        cmirs_keys = [
+            "CMIRS_enabled",
+            "dispersion_e",
+            "exchange_e",
+            "min_neg_field_e",
+            "max_pos_field_e",
+        ]
+
+        if self.data["solvent_method"] is not None:
+            self.data["solvent_data"] = {}
+            for key in pcm_keys + smd_keys:
+                self.data["solvent_data"][key] = None
+            self.data["solvent_data"]["isosvp"] = {}
+            for key in isosvp_keys:
+                self.data["solvent_data"]["isosvp"][key] = None
+            self.data["solvent_data"]["cmirs"] = {}
+            for key in cmirs_keys:
+                self.data["solvent_data"]["cmirs"][key] = None
 
         # Parse information specific to a solvent model
         if self.data["solvent_method"] == "PCM":
-            self.data["solvent_data"] = {}
             temp_dielectric = read_pattern(
                 self.text, {"key": r"dielectric\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
@@ -170,7 +213,6 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["unrecognized_solvent"]
                 else:
                     self.data["warnings"]["unrecognized_solvent"] = True
-            self.data["solvent_data"] = {}
             temp_solvent = read_pattern(self.text, {"key": r"\s[Ss]olvent:? ([a-zA-Z]+)"}).get("key")
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
@@ -184,6 +226,24 @@ class QCOutput(MSONable):
                             self.data["warnings"]["questionable_SMD_parsing"] = True
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
+        elif self.data["solvent_method"] == "ISOSVP":
+            self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = False
+            self._read_isosvp_information()
+            if read_pattern(
+                self.text,
+                {"cmirs": r"DEFESR calculation with single-center isodensity surface"},
+                terminate_on_match=True,
+            ).get("cmirs") == [[]]:
+                # this is a CMIRS calc
+                # note that all other outputs follow the same format as ISOSVP
+                self._read_cmirs_information()
+                # TODO - would it make more sense to set solvent_method = 'cmirs'?
+                # but in the QChem input file, solvent_method is still 'isosvp'
+                self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = True
+
+                # TODO - parsing to identify the CMIRS solvent?
+                # this would require parsing the $pcm_nonels section of input and comparing
+                # parameters to the contents of CMIRS_SETTINGS in pymatgen.io.qchem.sets
 
         # Parse the final energy
         temp_final_energy = read_pattern(self.text, {"key": r"Final\senergy\sis\s+([\d\-\.]+)"}).get("key")
@@ -1405,10 +1465,6 @@ class QCOutput(MSONable):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
 
-        smd_keys = ["smd0", "smd3", "smd4", "smd6", "smd9"]
-        for key in smd_keys:
-            self.data["solvent_data"][key] = None
-
     def _read_smd_information(self):
         """
         Parses information from SMD solvent calculations.
@@ -1435,16 +1491,94 @@ class QCOutput(MSONable):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
 
-        pcm_keys = [
-            "g_electrostatic",
-            "g_cavitation",
-            "g_dispersion",
-            "g_repulsion",
-            "total_contribution_pcm",
-            "solute_internal_energy",
-        ]
-        for key in pcm_keys:
-            self.data["solvent_data"][key] = None
+    def _read_isosvp_information(self):
+        """
+        Parses information from ISOSVP solvent calculations.
+
+        There are 5 energies output, as in the example below
+
+        --------------------------------------------------------------------------------
+        The Final SS(V)PE energies and Properties
+        --------------------------------------------------------------------------------
+
+        Energies
+        --------------------
+        The Final Solution-Phase Energy =     -40.4850599390
+        The Solute Internal Energy =          -40.4846329759
+        The Change in Solute Internal Energy =  0.0000121970  (   0.00765 KCAL/MOL)
+        The Reaction Field Free Energy =       -0.0004269631  (  -0.26792 KCAL/MOL)
+        The Total Solvation Free Energy =      -0.0004147661  (  -0.26027 KCAL/MOL)
+
+        In addition, we need to parse the DIELST fortran variable to get the dielectric
+        constant used.
+        """
+        temp_dict = read_pattern(
+            self.text,
+            {
+                "final_soln_phase_e": r"\s*The Final Solution-Phase Energy\s+=\s+([\d\-\.]+)\s*",
+                "solute_internal_e": r"\s*The Solute Internal Energy\s+=\s+([\d\-\.]+)\s*",
+                "total_solvation_free_e": r"\s*The Total Solvation Free Energy\s+=\s+([\d\-\.]+)\s*",
+                "change_solute_internal_e": r"\s*The Change in Solute Internal Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "reaction_field_free_e": r"\s*The Reaction Field Free Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "isosvp_dielectric": r"\s*DIELST=\s+(\s+[\d\-\.]+)\s*",
+            },
+        )
+
+        for key, _v in temp_dict.items():
+            if temp_dict.get(key) is None:
+                self.data["solvent_data"]["isosvp"][key] = None
+            elif len(temp_dict.get(key)) == 1:
+                self.data["solvent_data"]["isosvp"][key] = float(temp_dict.get(key)[0][0])
+            else:
+                temp_result = np.zeros(len(temp_dict.get(key)))
+                for ii, entry in enumerate(temp_dict.get(key)):
+                    temp_result[ii] = float(entry[0])
+                self.data["solvent_data"]["isosvp"][key] = temp_result
+
+    def _read_cmirs_information(self):
+        """
+        Parses information from CMIRS solvent calculations.
+
+        In addition to the 5 energies returned by ISOSVP (and read separately in
+        _read_isosvp_information), there are 4 additional energies reported, as shown
+        in the example below
+
+        --------------------------------------------------------------------------------
+        The Final SS(V)PE energies and Properties
+        --------------------------------------------------------------------------------
+
+        Energies
+        --------------------
+        The Final Solution-Phase Energy =     -40.4751881546
+        The Solute Internal Energy =          -40.4748568841
+        The Change in Solute Internal Energy =  0.0000089729  (   0.00563 KCAL/MOL)
+        The Reaction Field Free Energy =       -0.0003312705  (  -0.20788 KCAL/MOL)
+        The Dispersion Energy =                 0.6955550107  (  -2.27836 KCAL/MOL)
+        The Exchange Energy =                   0.2652679507  (   2.15397 KCAL/MOL)
+        Min. Negative Field Energy =            0.0005235850  (   0.00000 KCAL/MOL)
+        Max. Positive Field Energy =            0.0179866718  (   0.00000 KCAL/MOL)
+        The Total Solvation Free Energy =      -0.0005205275  (  -0.32664 KCAL/MOL)
+        """
+        temp_dict = read_pattern(
+            self.text,
+            {
+                "dispersion_e": r"\s*The Dispersion Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "exchange_e": r"\s*The Exchange Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "min_neg_field_e": r"\s*Min. Negative Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "max_pos_field_e": r"\s*Max. Positive Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+            },
+        )
+
+        for key, _v in temp_dict.items():
+            if temp_dict.get(key) is None:
+                self.data["solvent_data"]["cmirs"][key] = None
+            elif len(temp_dict.get(key)) == 1:
+                self.data["solvent_data"]["cmirs"][key] = float(temp_dict.get(key)[0][0])
+            else:
+                temp_result = np.zeros(len(temp_dict.get(key)))
+                for ii, entry in enumerate(temp_dict.get(key)):
+                    temp_result[ii] = float(entry[0])
+                self.data["solvent_data"]["cmirs"][key] = temp_result
 
     def _read_nbo_data(self):
         """

@@ -374,7 +374,7 @@ class Tensor(np.ndarray, MSONable):
                 transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
         for trans_seq in itertools.product(*transpose_pieces):
             transpose_seq = list(itertools.chain(*trans_seq))
-            if (self - self.transpose(transpose_seq) > tol).any():
+            if (self - self.transpose(transpose_seq) > tol).any():  # type: ignore
                 return False
         return True
 

@@ -19,7 +19,7 @@ import subprocess
 import warnings
 from collections import namedtuple
 from enum import Enum
-from hashlib import md5
+from hashlib import md5, sha256
 from typing import Any, Literal, Sequence
 
 import numpy as np
@@ -96,12 +96,12 @@ class Poscar(MSONable):
     def __init__(
         self,
         structure: Structure,
-        comment: str = None,
+        comment: str | None = None,
         selective_dynamics=None,
         true_names: bool = True,
-        velocities: ArrayLike = None,
-        predictor_corrector: ArrayLike = None,
-        predictor_corrector_preamble: str = None,
+        velocities: ArrayLike | None = None,
+        predictor_corrector: ArrayLike | None = None,
+        predictor_corrector_preamble: str | None = None,
         sort_structure: bool = False,
     ):
         """
@@ -462,7 +462,7 @@ class Poscar(MSONable):
                 line to maintain backward vasp 4.x compatibility. Defaults
                 to False.
             significant_figures (int): No. of significant figures to
-                output all quantities. Defaults to 6. Note that positions are
+                output all quantities. Defaults to 16. Note that positions are
                 output in fixed point, while velocities are output in
                 scientific format.
 
@@ -636,7 +636,7 @@ class Incar(dict, MSONable):
     a dictionary with some helper functions
     """
 
-    def __init__(self, params: dict[str, Any] = None):
+    def __init__(self, params: dict[str, Any] | None = None):
         """
         Creates an Incar object.
 
@@ -1701,6 +1701,8 @@ class PotcarSingle:
         "STEP": _parse_list,
         "RRKJ": _parse_list,
         "GGA": _parse_list,
+        "SHA256": _parse_string,
+        "COPYR": _parse_string,
     }
 
     def __init__(self, data, symbol=None):
@@ -1804,25 +1806,37 @@ class PotcarSingle:
             except IndexError:
                 self._symbol = self.keywords["TITEL"].strip()
 
-        # Compute the POTCAR hashes and check them against the database of known
-        # VASP POTCARs
+        # Compute the POTCAR hashes to check them against the database of known
+        # VASP POTCARs and possibly SHA256 hashes contained in the file itself.
         self.hash = self.get_potcar_hash()
         self.file_hash = self.get_potcar_file_hash()
+        if hasattr(self, "SHA256"):
+            self.hash_sha256_from_file = self.SHA256.split()[0]
+            self.hash_sha256_computed = self.get_sha256_file_hash()
 
         if not self.identify_potcar(mode="data")[0]:
+            warnings.warn(
+                f"POTCAR with symbol {self.symbol} has metadata that does\n"
+                "not match any VASP POTCAR known to pymatgen. The data in this\n"
+                "POTCAR is known to match the following functionals:\n"
+                f"{self.identify_potcar(mode='data')[0]}",
+                UnknownPotcarWarning,
+            )
+
+        has_sh256, hash_check_passed = self.verify_potcar()
+        if not has_sh256 and not hash_check_passed:
             warnings.warn(
                 f"POTCAR data with symbol { self.symbol} does not match any VASP "
                 "POTCAR known to pymatgen. There is a possibility your "
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
-        elif not self.identify_potcar(mode="file")[0]:
-            warnings.warn(
-                f"POTCAR with symbol {self.symbol} has metadata that does not match\
-                          any VASP POTCAR known to pymatgen. The data in this\
-                          POTCAR is known to match the following functionals:\
-                          {self.identify_potcar(mode='data')[0]}",
-                UnknownPotcarWarning,
+        elif has_sh256 and not hash_check_passed:
+            raise ValueError(
+                f"POTCAR with symbol {self.symbol} and functional\n"
+                f"{self.functional} has a SHA256 hash defined,\n"
+                "but the computed hash differs.\n"
+                "YOUR POTCAR FILE HAS BEEN CORRUPTED AND SHOULD NOT BE USED!"
             )
 
     def __str__(self):
@@ -1879,7 +1893,7 @@ class PotcarSingle:
                 return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
-    def from_symbol_and_functional(symbol: str, functional: str = None):
+    def from_symbol_and_functional(symbol: str, functional: str | None = None):
         """
         Makes a PotcarSingle from a symbol and functional.
 
@@ -1973,17 +1987,50 @@ class PotcarSingle:
         """
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
+    def verify_potcar(self) -> tuple[bool, bool]:
+        """
+        Attempts to verify the integrity of the POTCAR data.
+
+        This method checks the whole file (removing only the SHA256
+        metadata) against the SHA256 hash in the header if this is found.
+        If no SHA256 hash is found in the file, the file hash (md5 hash of the
+        whole file) is checked against all POTCAR file hashes known to pymatgen.
+
+        Returns
+        -------
+        (bool, bool)
+            has_sh256 and passed_hash_check are returned.
+
+        """
+        if hasattr(self, "SHA256"):
+            has_sha256 = True
+            if self.hash_sha256_from_file == self.hash_sha256_computed:
+                passed_hash_check = True
+            else:
+                passed_hash_check = False
+        else:
+            has_sha256 = False
+            # if no sha256 hash is found in the POTCAR file, compare the whole
+            # file with known potcar file hashes.
+            md5_file_hash = self.file_hash
+            hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
+            if md5_file_hash in hash_db.keys():
+                passed_hash_check = True
+            else:
+                passed_hash_check = False
+        return (has_sha256, passed_hash_check)
+
     def identify_potcar(self, mode: Literal["data", "file"] = "data"):
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
-        This method checks the md5 hash of either the POTCAR data (PotcarSingle.hash)
+        This method checks the md5 hash of either the POTCAR metadadata (PotcarSingle.hash)
         or the entire POTCAR file (PotcarSingle.file_hash) against a database
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
-            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR data itself,
-                while 'file' mode checks the hash of the entire POTCAR file, including metadata.
+            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR metadata in self.PSCTR,
+                while 'file' mode checks the hash of the entire POTCAR file.
 
         Returns:
             symbol (List): List of symbols associated with the PotcarSingle
@@ -2106,33 +2153,50 @@ class PotcarSingle:
             return potcar_functionals, identity["potcar_symbols"]
         return [], []
 
+    def get_sha256_file_hash(self):
+        """
+        Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'
+
+        This hash corresponds to the sha256 hash printed in the header of modern POTCAR files.
+
+        :return: Hash value.
+        """
+        # we have to remove lines with the hash itself and the copyright
+        # notice to get the correct hash.
+        potcar_list = self.data.split("\n")
+        potcar_to_hash = [l for l in potcar_list if not l.strip().startswith(("SHA256", "COPYR"))]
+        potcar_to_hash_str = "\n".join(potcar_to_hash)
+        return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
+
     def get_potcar_file_hash(self):
         """
-        Computes a hash of the entire PotcarSingle.
+        Computes a md5 hash of the entire PotcarSingle.
 
         This hash corresponds to the md5 hash of the POTCAR file itself.
 
         :return: Hash value.
         """
-        return md5(str(self).encode("utf-8")).hexdigest()
+        return md5(self.data.encode("utf-8")).hexdigest()
 
     def get_potcar_hash(self):
         """
-        Computes a md5 hash of the data defining the PotcarSingle.
+        Computes a md5 hash of the metadata defining the PotcarSingle.
 
         :return: Hash value.
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
-            if k in ("nentries", "Orbitals"):
+            # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
+            # since they were not used in the initial hashing
+            if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
                 continue
             hash_str += f"{k}"
-            if isinstance(v, int):
+            if isinstance(v, bool):
                 hash_str += f"{v}"
             elif isinstance(v, float):
                 hash_str += f"{v:.3f}"
-            elif isinstance(v, bool):
-                hash_str += f"{bool}"
+            elif isinstance(v, int):
+                hash_str += f"{v}"
             elif isinstance(v, (tuple, list)):
                 for item in v:
                     if isinstance(item, float):
@@ -2234,7 +2298,7 @@ class Potcar(list, MSONable):
                 fdata = f.read()
 
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)", re.S).findall(fdata)
+        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
         functionals = []
         for p in potcar_strings:
             single = PotcarSingle(p)
@@ -2406,7 +2470,7 @@ class VaspInput(dict, MSONable):
     def run_vasp(
         self,
         run_dir: PathLike = ".",
-        vasp_cmd: list = None,
+        vasp_cmd: list | None = None,
         output_file: PathLike = "vasp.out",
         err_file: PathLike = "vasp.err",
     ):

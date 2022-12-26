@@ -38,10 +38,10 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species: list[str] = None,
+        species: list[str] | None = None,
         max_error: float = 0.1,
         allow_unstable: float | bool = 0.1,
-        exclude_polyanions: list[str] = None,
+        exclude_polyanions: list[str] | None = None,
     ) -> None:
         """
         Initializes a CorrectionCalculator.

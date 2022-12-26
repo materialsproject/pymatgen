@@ -102,7 +102,9 @@ class FiestaRun(MSONable):
         otherwise it breaks
     """
 
-    def __init__(self, folder: str = None, grid: tuple[int, int, int] = (2, 2, 2), log_file: str = "log") -> None:
+    def __init__(
+        self, folder: str | None = None, grid: tuple[int, int, int] = (2, 2, 2), log_file: str = "log"
+    ) -> None:
         """
         Args:
             folder: Folder to look for runs.
@@ -308,11 +310,11 @@ class FiestaInput(MSONable):
     def __init__(
         self,
         mol,
-        correlation_grid: dict[str, str] = None,
-        Exc_DFT_option: dict[str, str] = None,
-        COHSEX_options: dict[str, str] = None,
-        GW_options: dict[str, str] = None,
-        BSE_TDDFT_options: dict[str, str] = None,
+        correlation_grid: dict[str, str] | None = None,
+        Exc_DFT_option: dict[str, str] | None = None,
+        COHSEX_options: dict[str, str] | None = None,
+        GW_options: dict[str, str] | None = None,
+        BSE_TDDFT_options: dict[str, str] | None = None,
     ):
         """
         :param mol: pymatgen mol
