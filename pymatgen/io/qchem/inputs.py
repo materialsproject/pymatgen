@@ -841,7 +841,7 @@ class QCInput(InputFile):
             (dict) nbo parameters.
         """
         header = r"^\s*\$nbo"
-        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        row = r"\s*([a-zA-Z\_\d]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         nbo_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if nbo_table == []:

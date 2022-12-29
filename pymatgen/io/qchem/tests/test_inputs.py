@@ -959,6 +959,19 @@ $end
         ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
 
+    def test_read_write_nbo_e2pert(self):
+        qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin"))
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
+        test_file = open(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin"))
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            assert l_test == l_ref
+
+        test_file.close()
+        ref_file.close()
+        os.remove(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
+
 
 if __name__ == "__main__":
     unittest.main()
