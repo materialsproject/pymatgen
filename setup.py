@@ -74,7 +74,7 @@ setup(
             "f90nml>=1.1.2",
             "fdint>=2.0.2",
             "galore>=0.6.1",
-            "h5py==3.6.0",  # pinned due to 3.7 crashing on windows
+            "h5py==3.7.0",  # pinned due to 3.7 crashing on windows
             # https://github.com/h5py/h5py/issues/2110
             "jarvis-tools>=2020.7.14",
             "netCDF4>=1.5.8",
