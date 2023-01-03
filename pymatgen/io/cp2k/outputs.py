@@ -30,7 +30,7 @@ from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.cp2k.inputs import Keyword
 from pymatgen.io.cp2k.sets import Cp2kInput
-from pymatgen.io.cp2k.utils import postprocessor, natural_keys
+from pymatgen.io.cp2k.utils import natural_keys, postprocessor
 from pymatgen.io.xyz import XYZ
 
 __author__ = "Nicholas Winner"
