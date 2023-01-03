@@ -109,7 +109,7 @@ class DftSet(Cp2kInput):
         kpoints: VaspKpoints | None = None,
         smearing: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         """
         Args:
             structure: Pymatgen structure or molecule object
@@ -117,7 +117,7 @@ class DftSet(Cp2kInput):
                 diagonalization. OT is the flagship scf solver of CP2K, and will provide
                 speed-ups for this part of the calculation, but the system must have a band gap
                 for OT to be used (higher band-gap --> faster convergence).
-            energy_gap (float): Estimate of energy gap for preconditioner. Default is -1, leaving
+            energy_gap (float): Estimate of energy gap for pre-conditioner. Default is -1, leaving
                 it up to cp2k.
             eps_default (float): Replaces all EPS_XX Keywords in the DFT section value, ensuring
                 an overall accuracy of at least this much.
@@ -135,7 +135,7 @@ class DftSet(Cp2kInput):
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the
                 more robust conjugate gradient method, and so it is chosen as default. Switch to CG
                 if dealing with a difficult system.
-            preconditioner (str): Preconditioner for the OT method. FULL_SINGLE_INVERSE is very
+            preconditioner (str): Pre-conditioner for the OT method. FULL_SINGLE_INVERSE is very
                 robust and compatible with non-integer occupations from IRAC+rotation. FULL_ALL is
                 considered "best" but needs algorithm to be set to STRICT. Only change from these
                 two when simulation cell gets to be VERY large, in which case FULL_KINETIC might be
@@ -158,7 +158,7 @@ class DftSet(Cp2kInput):
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high
                 cutoff will allow you to have very accurate calculations PROVIDED that REL_CUTOFF
                 is appropriate. By default cutoff is set to 0, leaving it up to the set.
-            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different
+            rel_cutoff (int): This cutoff decides how the Gaussians are mapped onto the different
                 levels of the multigrid. If REL_CUTOFF is too low, then even if you have a high
                 CUTOFF, all Gaussians will be mapped onto the coarsest level of the multi-grid,
                 and thus the effective integration grid for the calculation may still be too
@@ -379,7 +379,7 @@ class DftSet(Cp2kInput):
                     - basis_type: type of basis to search for (e.g. DZVP-MOLOPT).
                     - aux_basis_type: type of basis to search for (e.g. pFIT). Some elements do not have all aux types
                         available. Use aux_basis_type that is universal to avoid issues, or avoid using this strategy.
-                    - potential_type: "Psuedpotential" or "All Electron"
+                    - potential_type: "Pseudopotential" or "All Electron"
 
                 ***BE WARNED*** CP2K data objects can have the same name, this will sort those and choose the first one
                 that matches.
@@ -595,15 +595,15 @@ class DftSet(Cp2kInput):
 
         return cp2k_names
 
-    def write_basis_set_file(self, basis_sets, fn="BASIS"):
+    def write_basis_set_file(self, basis_sets, fn="BASIS") -> None:
         """Write the basis sets to a file"""
         BasisFile(objects=basis_sets).write_file(fn)
 
-    def write_potential_file(self, potentials, fn="POTENTIAL"):
+    def write_potential_file(self, potentials, fn="POTENTIAL") -> None:
         """Write the potentials to a file"""
         PotentialFile(objects=potentials).write_file(fn)
 
-    def print_forces(self):
+    def print_forces(self) -> None:
         """
         Print out the forces and stress during calculation
         """
@@ -611,7 +611,7 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
 
-    def print_dos(self, ndigits=6):
+    def print_dos(self, ndigits=6) -> None:
         """
         Activate printing of the overall DOS file.
 
@@ -621,7 +621,7 @@ class DftSet(Cp2kInput):
         if self.kpoints:
             self["force_eval"]["dft"]["print"].insert(DOS(ndigits))
 
-    def print_pdos(self, nlumo=-1):
+    def print_pdos(self, nlumo: int = -1) -> None:
         """
         Activate creation of the PDOS file.
 
@@ -633,7 +633,7 @@ class DftSet(Cp2kInput):
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS") and not self.kpoints:
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
 
-    def print_ldos(self, nlumo=-1):
+    def print_ldos(self, nlumo: int = -1) -> None:
         """
         Activate the printing of LDOS files, printing one for each atom kind by default
 
@@ -647,7 +647,7 @@ class DftSet(Cp2kInput):
         for i in range(self.structure.num_sites):
             self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
 
-    def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
+    def print_mo_cubes(self, write_cube: bool = False, nlumo: int = -1, nhomo: int = -1) -> None:
         """
         Activate printing of molecular orbitals.
 
@@ -659,13 +659,13 @@ class DftSet(Cp2kInput):
         if not self.check("FORCE_EVAL/DFT/PRINT/MO_CUBES"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
 
-    def print_mo(self):
+    def print_mo(self) -> None:
         """
         Print molecular orbitals when running non-OT diagonalization
         """
         raise NotImplementedError
 
-    def print_v_hartree(self, stride=(2, 2, 2)):
+    def print_v_hartree(self, stride=(2, 2, 2)) -> None:
         """
         Controls the printing of a cube file with eletrostatic potential generated by the
             total density (electrons+ions). It is valid only for QS with GPW formalism.
@@ -674,14 +674,14 @@ class DftSet(Cp2kInput):
         if not self.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
-    def print_e_density(self, stride=(2, 2, 2)):
+    def print_e_density(self, stride=(2, 2, 2)) -> None:
         """
         Controls the printing of cube files with electronic density and, for UKS, the spin density
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
-    def print_bandstructure(self, kpoints_line_density: int = 20):
+    def print_bandstructure(self, kpoints_line_density: int = 20) -> None:
         """
         Attaches a non-scf band structure calc the end of an SCF loop.
 
@@ -699,17 +699,17 @@ class DftSet(Cp2kInput):
         )
         self["force_eval"]["dft"]["print"].insert(bs)
 
-    def print_hirshfeld(self, on=True):
+    def print_hirshfeld(self, on=True) -> None:
         """Activate or deactivate printing of Hirshfeld charges"""
         section = Section("HIRSHFELD", section_parameters=["ON" if on else "OFF"])
         self["force_eval"]["dft"]["print"].insert(section)
 
-    def print_mulliken(self, on=False):
+    def print_mulliken(self, on=False) -> None:
         """Activate or deactivate printing of Mulliken charges"""
         section = Section("MULLIKEN", section_parameters=["ON" if on else "OFF"])
         self["force_eval"]["dft"]["print"].insert(section)
 
-    def set_charge(self, charge: int):
+    def set_charge(self, charge: int) -> None:
         """Set the overall charge of the simulation cell"""
         self["FORCE_EVAL"]["DFT"]["CHARGE"] = Keyword("CHARGE", int(charge))
 
@@ -734,7 +734,7 @@ class DftSet(Cp2kInput):
         eps_schwarz_forces: float = 1e-6,
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
-    ):
+    ) -> None:
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
@@ -773,9 +773,9 @@ class DftSet(Cp2kInput):
                 values will constitute a user-override.
             omega (float): For HSE, this specifies the screening parameter. HSE06 sets this as
                 0.2, which is the default.
-            scale_coulomb: Scale for the coulomb operator if useing a range seperated functional
+            scale_coulomb: Scale for the coulomb operator if using a range separated functional
             scale_gaussian: Scale for the gaussian operator (if applicable)
-            scale_longrange: Scale for the coulomb operator if using a range seperated functional
+            scale_longrange: Scale for the coulomb operator if using a range separated functional
             admm: Whether or not to use the auxiliary density matrix method for the exact
                 HF exchange contribution. Highly recommended. Speed ups between 10x and 1000x are
                 possible when compared to non ADMM hybrid calculations.
@@ -929,9 +929,8 @@ class DftSet(Cp2kInput):
             )
         else:
             warnings.warn(
-                "Unknown hybrid functional. Using PBE base functional"
-                " and overriding all settings manually. Proceed with"
-                " caution."
+                "Unknown hybrid functional. Using PBE base functional and overriding all "
+                "settings manually. Proceed with caution."
             )
             pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
@@ -997,7 +996,7 @@ class DftSet(Cp2kInput):
         nsteps: int = 3,
         thermostat: str = "NOSE",
         nproc_rep: int = 1,
-    ):
+    ) -> None:
         """
         Turns on the motion section for GEO_OPT, CELL_OPT, etc. calculations.
         Will turn on the printing subsections and also bind any constraints
@@ -1102,33 +1101,33 @@ class DftSet(Cp2kInput):
                 )
             )
 
-    def activate_tddfpt(self, **kwargs):
+    def activate_tddfpt(self, **kwargs) -> None:
         """Activate TDDFPT for calculating excited states. Only works with GPW. Supports hfx."""
         if not self.check("force_eval/properties"):
             self["FORCE_EVAL"].insert(Section("PROPERTIES"))
         self["FORCE_EVAL"]["PROPERTIES"].insert(Section("TDDFPT", **kwargs))
 
-    def activate_epr(self, **kwargs):
+    def activate_epr(self, **kwargs) -> None:
         """Calculate g-tensor. Requires localize. Suggested with GAPW"""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("EPR", **kwargs))
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"].update({"PRINT": {"G_TENSOR": {}}})
 
-    def activate_nmr(self, **kwargs):
+    def activate_nmr(self, **kwargs) -> None:
         """Calculate nmr shifts. Requires localize. Suggested with GAPW"""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("NMR", **kwargs))
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["NMR"].update({"PRINT": {"CHI_TENSOR": {}, "SHIELDING_TENSOR": {}}})
 
-    def activate_spinspin(self, **kwargs):
+    def activate_spinspin(self, **kwargs) -> None:
         """Calculate spin-spin coupling tensor. Requires localize."""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("SPINSPIN", **kwargs))
 
-    def activate_polar(self, **kwargs):
+    def activate_polar(self, **kwargs) -> None:
         """Calculate polarizations (including raman)."""
         if not self.check("force_eval/properties"):
             self["FORCE_EVAL"].insert(Section("PROPERTIES"))
@@ -1136,11 +1135,11 @@ class DftSet(Cp2kInput):
             self["FORCE_EVAL"]["PROPERTIES"].insert("LINRES")
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("POLAR", **kwargs))
 
-    def activate_hyperfine(self):
+    def activate_hyperfine(self) -> None:
         """Print the hyperfine coupling constants."""
         self["FORCE_EVAL"]["DFT"]["PRINT"].insert(Section("HYPERFINE_COUPLING_TENSOR", FILENAME="HYPERFINE"))
 
-    def activate_localize(self, states="OCCUPIED", preconditioner="FULL_ALL", restart=False):
+    def activate_localize(self, states="OCCUPIED", preconditioner="FULL_ALL", restart=False) -> None:
         """
         Activate calculation of the maximally localized wannier functions.
 
@@ -1165,7 +1164,7 @@ class DftSet(Cp2kInput):
         self,
         dispersion_functional: str,
         potential_type: str,
-    ):
+    ) -> None:
         """
         Activate van der Waals dispersion corrections.
 
@@ -1192,7 +1191,7 @@ class DftSet(Cp2kInput):
         vdw.insert(Section(dispersion_functional, keywords=keywords))
         self["FORCE_EVAL"]["DFT"]["XC"].insert(vdw)
 
-    def activate_fast_minimization(self, on):
+    def activate_fast_minimization(self, on) -> None:
         """
         Method to modify the set to use fast SCF minimization.
         """
@@ -1205,7 +1204,7 @@ class DftSet(Cp2kInput):
             )
             self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
-    def activate_robust_minimization(self):
+    def activate_robust_minimization(self) -> None:
         """
         Method to modify the set to use more robust SCF minimization technique
         """
@@ -1217,7 +1216,7 @@ class DftSet(Cp2kInput):
         )
         self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
-    def activate_very_strict_minimization(self):
+    def activate_very_strict_minimization(self) -> None:
         """
         Method to modify the set to use very strict SCF minimization scheme
         :return:
@@ -1230,7 +1229,7 @@ class DftSet(Cp2kInput):
         )
         self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
-    def activate_nonperiodic(self, solver="ANALYTIC"):
+    def activate_nonperiodic(self, solver="ANALYTIC") -> None:
         """
         Activates a calculation with non-periodic calculations by turning of PBC and
         changing the poisson solver. Still requires a CELL to put the atoms
@@ -1241,7 +1240,7 @@ class DftSet(Cp2kInput):
         }
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
 
-    def create_subsys(self, structure: Structure | Molecule):
+    def create_subsys(self, structure: Structure | Molecule) -> None:
         """
         Create the structure for the input
         """
@@ -1362,14 +1361,14 @@ class DftSet(Cp2kInput):
 class StaticSet(DftSet):
     """Quick Constructor for static calculations"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(run_type="ENERGY_FORCE", **kwargs)
 
 
 class RelaxSet(DftSet):
     """Quick Constructor for geometry relaxation"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(run_type="GEO_OPT", **kwargs)
         self.activate_motion()
 
@@ -1377,7 +1376,7 @@ class RelaxSet(DftSet):
 class CellOptSet(DftSet):
     """Quick Constructor for cell optimization relaxation"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(run_type="CELL_OPT", **kwargs)
         self.activate_motion()
 
@@ -1385,25 +1384,25 @@ class CellOptSet(DftSet):
 class HybridStaticSet(DftSet):
     """Quick Constructor for static calculations"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(run_type="ENERGY_FORCE", **kwargs)
-        self.activate_hybrid(**kwargs.get("activate_hybrid"))
+        self.activate_hybrid(**kwargs.get("activate_hybrid", {}))
 
 
 class HybridRelaxSet(DftSet):
     """Quick Constructor for hybrid geometry relaxation"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(run_type="GEO_OPT", **kwargs)
-        self.activate_hybrid(**kwargs.get("activate_hybrid"))
+        self.activate_hybrid(**kwargs.get("activate_hybrid", {}))
 
 
 class HybridCellOptSet(DftSet):
     """Quick Constructor for hybrid cell optimization relaxation"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(run_type="CELL_OPT", **kwargs)
-        self.activate_hybrid(**kwargs.get("activate_hybrid"))
+        self.activate_hybrid(**kwargs.get("activate_hybrid", {}))
 
 
 class Cp2kValidationError(Exception):
@@ -1415,6 +1414,6 @@ class Cp2kValidationError(Exception):
 
     CP2K_VERSION = "v2022.1"
 
-    def __init__(self, message):
+    def __init__(self, message) -> None:
         message = f"CP2K {self.CP2K_VERSION}: {message}"
         super().__init__(message)
