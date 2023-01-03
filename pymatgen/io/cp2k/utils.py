@@ -13,45 +13,49 @@ from monty.io import zopen
 from pymatgen.core import Molecule, Structure
 
 
-def _postprocessor(s: str):
+def _postprocessor(data: str) -> str | int | float | bool | None:
     """
     Helper function to post process the results of the pattern matching functions in Cp2kOutput
-    and turn them to python types.
-    """
-    s = s.rstrip()  # Remove leading/trailing whitespace
-    s = s.replace(" ", "_")  # Remove whitespaces
+    and turn them to Python types.
 
-    if s.lower() == "no" or s.lower() == "false" or s.lower() == "f":
+    Args:
+        data (str): The data to be post processed.
+
+    Raises:
+        ValueError: If the data cannot be parsed.
+
+    Returns:
+        str | int | float | bool | None: The post processed data.
+    """
+    data = data.strip().replace(" ", "_")  # remove leading/trailing whitespace, replace spaces with _
+
+    if data.lower() in ("false", "no", "f"):
         return False
-    if s.lower() == "none":
+    if data.lower() == "none":
         return None
-    if s.lower() == "yes" or s.lower() == "true" or s.lower() == "t":
+    if data.lower() in ("true", "yes", "t"):
         return True
-    if re.match(r"^-?\d+$", s):
+    if re.match(r"^-?\d+$", data):
         try:
-            return int(s)
-        except ValueError:
-            raise OSError("Error in parsing CP2K file.")
-    if re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
+            return int(data)
+        except ValueError as exc:
+            raise ValueError(f"Error parsing '{data}' as int in CP2K file.") from exc
+    if re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", data):
         try:
-            return float(s)
-        except ValueError:
-            raise OSError("Error in parsing CP2K file.")
-    if re.match(r"\*+", s):
-        try:
-            return np.NaN
-        except ValueError:
-            raise OSError("Error in parsing CP2K file.")
-    return s
+            return float(data)
+        except ValueError as exc:
+            raise ValueError(f"Error parsing '{data}' as float in CP2K file.") from exc
+    if re.match(r"\*+", data):
+        return np.NaN
+    return data
 
 
-def _preprocessor(s: str, d: str = "."):
+def _preprocessor(data: str, dir: str = ".") -> str:
     """
-    Cp2k contains internal preprocessor flags that are evaluated before
-    execution. This helper function recognizes those preprocessor flags
-    and replacees them with an equivalent cp2k input (this way everything
-    is contained neatly in the cp2k input structure, even if the user
-    preferred to use the flags.
+    Cp2k contains internal preprocessor flags that are evaluated before execution. This helper
+    function recognizes those preprocessor flags and replaces them with an equivalent cp2k input
+    (this way everything is contained neatly in the cp2k input structure, even if the user preferred
+    to use the flags.
 
     CP2K preprocessor flags (with arguments) are:
 
@@ -63,30 +67,33 @@ def _preprocessor(s: str, d: str = "."):
         @IF/@ELIF: Not implemented yet.
 
     Args:
-        s: string representation of cp2k input to preprocess
-        d: Path for include files. Default is current directory
+        data (str): cp2k input to preprocess
+        dir (str, optional): Path for include files. Default is '.' (current directory).
+
+    Returns:
+        Preprocessed string
     """
-    includes = re.findall(r"(@include.+)", s, re.IGNORECASE)
+    includes = re.findall(r"(@include.+)", data, re.IGNORECASE)
     for incl in includes:
         inc = incl.split()
         assert len(inc) == 2  # @include filename
         inc = inc[1].strip("'")
         inc = inc.strip('"')
-        with zopen(os.path.join(d, inc)) as f:
-            s = re.sub(rf"{incl}", f.read(), s)
-    variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
+        with zopen(os.path.join(dir, inc)) as f:
+            data = re.sub(rf"{incl}", f.read(), data)
+    variable_sets = re.findall(r"(@SET.+)", data, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
-        s = re.sub(rf"{match}", "", s)
-        s = re.sub(r"\${?" + var + "}?", value, s)
+        data = re.sub(rf"{match}", "", data)
+        data = re.sub(r"\${?" + var + "}?", value, data)
 
-    c1 = re.findall(r"@IF", s, re.IGNORECASE)
-    c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
+    c1 = re.findall(r"@IF", data, re.IGNORECASE)
+    c2 = re.findall(r"@ELIF", data, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
         raise NotImplementedError("This cp2k input processor does not currently support conditional blocks.")
-    return s
+    return data
 
 
 def chunk(string: str):
