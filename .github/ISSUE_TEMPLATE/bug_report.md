@@ -10,9 +10,9 @@ A clear and concise description of what the bug is.
 Steps to reproduce the behavior:
 
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+1. Click on '....'
+1. Scroll down to '....'
+1. See error
 
 Provide any example files that are needed to reproduce the error,
 especially if the bug pertains to parsing of a file.
@@ -23,7 +23,7 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+**Environment (please supply relevant versions and platform info):**
 
 - OS: (e.g. Mac, Windows, Linux)
 - Version (e.g. 2022.11.17)

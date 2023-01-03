@@ -8,23 +8,23 @@ developers:
 - affiliations: ['University of California, Berkeley', Lawrence Berkeley National Laboratory]
   first_name: Iulia-Oxana
   last_name: Andriuc
-  orcid: ''
+  orcid: null
 - affiliations: [Micron Technology Inc.]
   first_name: Saurabh
   last_name: Bajaj
-  orcid: ''
+  orcid: null
 - affiliations: [Hitachi]
   first_name: Janakiraman
   last_name: Balachandran
-  orcid: ''
+  orcid: null
 - affiliations: [Optum]
   first_name: Tonnam
   last_name: Balankura
-  orcid: ''
+  orcid: null
 - affiliations: ['University of California, Berkeley']
   first_name: Luis
   last_name: Barroso-Luque
-  orcid: ''
+  orcid: null
 - affiliations: [Tilde Materials Informatics]
   first_name: Evgeny
   last_name: Blokhin
@@ -40,7 +40,7 @@ developers:
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Danny
   last_name: Broberg
-  orcid: ''
+  orcid: null
 - affiliations: [University of Pennsylvania]
   first_name: Nathan
   last_name: C. Frey
@@ -52,11 +52,11 @@ developers:
 - affiliations: [Cornell University]
   first_name: Rees
   last_name: Chang
-  orcid: ''
+  orcid: null
 - affiliations: [University of California, San Diego]
   first_name: Chi
   last_name: Chen
-  orcid: ''
+  orcid: null
 - affiliations: [Institute of Applied Physics and Computational Mathematics]
   first_name: Xin
   last_name: Chen
@@ -76,19 +76,19 @@ developers:
 - affiliations: [UC Berkeley, Lawrence Berkeley National Laboratory]
   first_name: Orion
   last_name: Cohen
-  orcid: ''
+  orcid: null
 - affiliations: [University of Florida]
   first_name: Conrad
   last_name: Cole
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: John
   last_name: Dagdelen
-  orcid: ''
+  orcid: null
 - affiliations: [Light Bytes Technology Ltd.]
   first_name: Liam
   last_name: Deacon
-  orcid: ''
+  orcid: null
 - affiliations: [D. E. Shaw Research]
   first_name: Elizabeth
   last_name: Decolvenaere
@@ -112,7 +112,7 @@ developers:
 - affiliations: [Northwestern University]
   first_name: Maxwell
   last_name: Dylla
-  orcid: ''
+  orcid: null
 - affiliations: [University of California, Santa Barbara]
   first_name: Mark
   last_name: E. Turiansky
@@ -121,7 +121,7 @@ developers:
   first_name: Kristjan
   last_name: Eimre
   orcid: 0000-0002-3444-3286
-- affiliations: ['University of California, Berkeley', ' Lawrence Berkeley National Laboratory']
+- affiliations: ['University of California, Berkeley', 'Lawrence Berkeley National Laboratory']
   first_name: Alex
   last_name: Epstein
   orcid: 0000-0002-9914-2388
@@ -136,7 +136,7 @@ developers:
 - affiliations: [Université catholique de Louvain]
   first_name: Adam
   last_name: Fekete
-  orcid: ''
+  orcid: null
 - affiliations: [Northwestern University]
   first_name: Dale
   last_name: Gaines II
@@ -156,7 +156,7 @@ developers:
 - affiliations: [Université catholique de Louvain]
   first_name: Matteo
   last_name: Giantomassi
-  orcid: ''
+  orcid: null
 - affiliations: [Université catholique de Louvain]
   first_name: Yannick
   last_name: Gillet
@@ -172,7 +172,7 @@ developers:
 - affiliations: ['University of California, Berkeley']
   first_name: Ayush
   last_name: Gupta
-  orcid: ''
+  orcid: null
 - affiliations: [University of Texas at Austin]
   first_name: Viet-Anh
   last_name: Ha
@@ -180,7 +180,7 @@ developers:
 - affiliations: [Los Alamos National Laboratory]
   first_name: Steven
   last_name: Hartman
-  orcid: ''
+  orcid: null
 - affiliations: [Université catholique de Louvain]
   first_name: Geoffroy
   last_name: Hautier
@@ -188,7 +188,7 @@ developers:
 - affiliations: [Max Planck Institute for Solid State Research]
   first_name: Niclas
   last_name: Heinsdorf
-  orcid: ''
+  orcid: null
 - affiliations: [West Virginia University]
   first_name: Uthpala
   last_name: Herath
@@ -212,11 +212,11 @@ developers:
 - affiliations: ['University of California, Berkeley']
   first_name: Yu
   last_name: Hsuan Liang
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Patrick
   last_name: Huck
-  orcid: ''
+  orcid: null
 - affiliations: [University of Notre Dame]
   first_name: Michael
   last_name: Humbert
@@ -233,7 +233,7 @@ developers:
   first_name: Benjamin
   last_name: J. Morgan
   orcid: 0000-0002-3056-8233
-- affiliations: [imec Leuven, ' European Theoretical Spectroscopy Facility']
+- affiliations: [imec Leuven, 'European Theoretical Spectroscopy Facility']
   first_name: Michiel
   last_name: J. van Setten
   orcid: 0000-0003-0557-5260
@@ -260,15 +260,15 @@ developers:
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Benjamin
   last_name: Justus
-  orcid: ''
+  orcid: null
 - affiliations: [RIKEN]
   first_name: Eisuke
   last_name: Kawashima
-  orcid: ''
+  orcid: null
 - affiliations: [NIOSH]
   first_name: Alan
   last_name: Kent Dozier
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Ryan
   last_name: Kingsbury
@@ -280,7 +280,7 @@ developers:
 - affiliations: [Erudita]
   first_name: Michael
   last_name: Kocher
-  orcid: ''
+  orcid: null
 - affiliations: [Institute of Metal Physics, UB RAS]
   first_name: Dmitry
   last_name: Korotin
@@ -296,7 +296,7 @@ developers:
 - affiliations: [Physics, University of California, Berkeley]
   first_name: Katherine
   last_name: Latimer
-  orcid: ''
+  orcid: null
 - affiliations: [Tsinghua University]
   first_name: Weitang
   last_name: Li
@@ -308,11 +308,11 @@ developers:
 - affiliations: [TSMC]
   first_name: Yuh-Chieh
   last_name: Lin
-  orcid: ''
+  orcid: null
 - affiliations: ['University of California, Berkeley']
   first_name: Handong
   last_name: Ling
-  orcid: ''
+  orcid: null
 - affiliations: ['University of Michigan - Shanghai Jiao Tong University Joint Institute']
   first_name: Ke
   last_name: Liu
@@ -320,7 +320,7 @@ developers:
 - affiliations: [California Institute of Technology]
   first_name: Zachary
   last_name: M Gibbs
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Samuel
   last_name: M. Blau
@@ -336,7 +336,7 @@ developers:
 - affiliations: []
   first_name: Kiran
   last_name: Mathew
-  orcid: ''
+  orcid: null
 - affiliations: [University of Wisconsin-Madison]
   first_name: Tam
   last_name: Mayeshiba
@@ -344,7 +344,7 @@ developers:
 - affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   first_name: Matthew
   last_name: McDermott
-  orcid: ''
+  orcid: null
 - affiliations: [University of Delaware]
   first_name: Bharat
   last_name: Medasani
@@ -352,11 +352,11 @@ developers:
 - affiliations: [Brookhaven National Laboratory]
   first_name: Fanchen
   last_name: Meng
-  orcid: ''
+  orcid: null
 - affiliations: [Brookhaven National Laboratory]
   first_name: Fanchen
   last_name: Meng
-  orcid: ''
+  orcid: null
 - affiliations: [Vilnius University Institute of Biotechnology]
   first_name: Andrius
   last_name: Merkys
@@ -368,11 +368,11 @@ developers:
 - affiliations: [University of Tokyo]
   first_name: Shishin
   last_name: Mo
-  orcid: ''
+  orcid: null
 - affiliations: [The University of Tokyo]
   first_name: Shishin
   last_name: Mo
-  orcid: ''
+  orcid: null
 - affiliations: [Toyota Research Institute]
   first_name: Joseph
   last_name: Montoya
@@ -380,11 +380,11 @@ developers:
 - affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   first_name: Guy
   last_name: Moore
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Jason
   last_name: Munro
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Koki
   last_name: Muraoka
@@ -402,30 +402,30 @@ developers:
   last_name: Patel
   orcid: 0000-0002-0590-7619
 - affiliations: [Frontier Institute of Science and Technology, Xi''an Jiaotong University,
-    ' Massachusetts Institute of Technology']
+    'Massachusetts Institute of Technology']
   first_name: Kai
   last_name: Pei
   orcid: 0000-0001-7378-9987
 - affiliations: []
   first_name: Ioannis
   last_name: Petousis
-  orcid: ''
+  orcid: null
 - affiliations: [Université catholique de Louvain]
   first_name: Guido
   last_name: Petretto
-  orcid: ''
+  orcid: null
 - affiliations: [Brookhaven National Laboratory]
   first_name: Xiaohui
   last_name: Qu
   orcid: 0000-0001-5651-8405
-- affiliations: ['Materials, Imperial College London', ' Chemistry, University College London', 'Thomas Young Centre']
+- affiliations: ['Materials, Imperial College London', 'Chemistry, University College London', 'Thomas Young Centre']
   first_name: 'Se\xE1n'
   last_name: R. Kavanagh
   orcid: 0000-0003-4577-9647
 - affiliations: ['Friedrich-Schiller-Universität Jena']
   first_name: Jens
   last_name: 'Ren\xE8 Suckert'
-  orcid: ''
+  orcid: null
 - affiliations: ['IMCN/MODL - Université catholique de Louvain']
   first_name: Francesco
   last_name: Ricci
@@ -433,7 +433,7 @@ developers:
 - affiliations: [University of Cambridge]
   first_name: Janosh
   last_name: Riebesell
-  orcid: ''
+  orcid: 0000-0001-5233-3462
 - affiliations: [Department of Chemical & Biological Engineering, Northwestern University]
   first_name: Andrew
   last_name: Rosen
@@ -453,15 +453,15 @@ developers:
 - affiliations: [Kyoto University]
   first_name: Kohei
   last_name: Shinohara
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   first_name: Martin
   last_name: Siron
   orcid: 0000-0002-4562-7814
-- affiliations: ['University of California, Berkeley', ' Lawrence Berkeley National Laboratory']
+- affiliations: ['University of California, Berkeley', 'Lawrence Berkeley National Laboratory']
   first_name: Eric
   last_name: Sivonxay
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory]
   first_name: Tess
   last_name: Smidt
@@ -469,7 +469,7 @@ developers:
 - affiliations: [Karlsruhe Institute of Technology]
   first_name: Christopher
   last_name: Stihl
-  orcid: ''
+  orcid: null
 - affiliations: [University of North Carolina (Chapel Hill)]
   first_name: Jack
   last_name: Sundberg
@@ -485,7 +485,7 @@ developers:
 - affiliations: [PKSHA]
   first_name: Yohei
   last_name: Tamura
-  orcid: ''
+  orcid: null
 - affiliations: [UC San Diego]
   first_name: Hanmei
   last_name: Tang
@@ -497,7 +497,7 @@ developers:
 - affiliations: [University of California, San Diego]
   first_name: Richard
   last_name: Tran
-  orcid: ''
+  orcid: null
 - affiliations: [Carnegie Mellon University]
   first_name: Richard
   last_name: Tran
@@ -517,11 +517,11 @@ developers:
 - affiliations: [IDA]
   first_name: Nicholas
   last_name: Wagner
-  orcid: ''
+  orcid: null
 - affiliations: [Institute for Defense Analyses]
   first_name: Nicholas
   last_name: Wagner
-  orcid: ''
+  orcid: null
 - affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley']
   first_name: Evan
   last_name: Walter Clark Spotte-Smith
@@ -529,11 +529,11 @@ developers:
 - affiliations: ['University of California, Berkeley']
   first_name: Amanda
   last_name: Wang
-  orcid: ''
+  orcid: null
 - affiliations: [University of California, San Diego]
   first_name: Zhenbin
   last_name: Wang
-  orcid: ''
+  orcid: null
 - affiliations: [Argonne National Laboratory]
   first_name: Logan
   last_name: Ward
@@ -545,11 +545,11 @@ developers:
 - affiliations: [Université catholique de Louvain]
   first_name: David
   last_name: Waroquiers
-  orcid: ''
+  orcid: null
 - affiliations: [Michigan Technological University]
   first_name: Kevin
   last_name: Waters
-  orcid: ''
+  orcid: null
 - affiliations: [Max Planck Institute for Solid State Research]
   first_name: Oskar
   last_name: Weser
@@ -566,14 +566,14 @@ developers:
   first_name: Michael
   last_name: Wolloch
   orcid: 0000-0002-3419-5526
-- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley', ' National Renewable Energy Laboratory']
+- affiliations: [Lawrence Berkeley National Laboratory, 'University of California, Berkeley', 'National Renewable Energy Laboratory']
   first_name: Rachel
   last_name: Woods-Robinson
   orcid: 0000-0001-5009-9510
 - affiliations: ['University of California, Berkeley']
   first_name: Michael
   last_name: Wu
-  orcid: ''
+  orcid: null
 - affiliations: ['University of California, Berkeley']
   first_name: Yihan
   last_name: Xiao
@@ -589,11 +589,11 @@ developers:
 - affiliations: [Hebei Vocational University of Technology and Engineering]
   first_name: Hongsheng
   last_name: Zhao
-  orcid: ''
+  orcid: null
 - affiliations: [UNNC]
   first_name: Steven
   last_name: Zhu
-  orcid: ''
+  orcid: null
 - affiliations: [Parent]
   first_name: Nils
   last_name: Zimmermann

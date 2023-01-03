@@ -109,8 +109,7 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
 
 class SpeciesComparator(AbstractComparator):
     """
-    A Comparator that matches species exactly. The default used in
-    StructureMatcher.
+    A Comparator that matches species exactly. The default used in StructureMatcher.
     """
 
     def are_equal(self, sp1, sp2):
@@ -599,7 +598,7 @@ class StructureMatcher(MSONable):
         """
         struct1, struct2 = self._process_species([struct1, struct2])
 
-        hash_match = self._comparator.get_hash(struct1.composition) != self._comparator.get_hash(struct2.composition)
+        hash_match = self._comparator.get_hash(struct1.composition) == self._comparator.get_hash(struct2.composition)
         if not self._subset and not hash_match:
             return False
 
