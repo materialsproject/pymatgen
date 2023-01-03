@@ -132,6 +132,16 @@ def main():
         nargs="+",
         help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/psps",
     )
+
+    groups.add_argument(
+        "--cp2k",
+        dest="cp2k_data_dirs",
+        metavar="dir_name",
+        nargs=2,
+        help="Initial directory where the CP2K data is located and the output directory where the "
+        "CP2K yaml data files will be written",
+    )
+
     parser_config.add_argument(
         "-b",
         "--backup",
