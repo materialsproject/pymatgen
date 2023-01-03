@@ -30,7 +30,7 @@ from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.cp2k.inputs import Keyword
 from pymatgen.io.cp2k.sets import Cp2kInput
-from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
+from pymatgen.io.cp2k.utils import postprocessor, natural_keys
 from pymatgen.io.xyz import XYZ
 
 __author__ = "Nicholas Winner"
@@ -530,7 +530,7 @@ class Cp2kOutput:
                 header_pattern=header_pattern,
                 row_pattern=row_pattern,
                 footer_pattern=footer_pattern,
-                postprocess=_postprocessor,
+                postprocess=postprocessor,
                 last_one_only=False,
             )
 
@@ -551,7 +551,7 @@ class Cp2kOutput:
                 header_pattern=header_pattern,
                 row_pattern=row_pattern,
                 footer_pattern=footer_pattern,
-                postprocess=_postprocessor,
+                postprocess=postprocessor,
                 last_one_only=False,
             )
 
@@ -611,7 +611,7 @@ class Cp2kOutput:
             {"dft_plus_u_method": method},
             terminate_on_match=True,
             reverse=False,
-            postprocess=_postprocessor,
+            postprocess=postprocessor,
         )
 
     def parse_input(self):
@@ -634,7 +634,7 @@ class Cp2kOutput:
         pat = re.compile(r"\s+GLOBAL\|\s+([\w+\s]*)\s+(\w+)")
         self.read_pattern({"global": pat}, terminate_on_match=False, reverse=False)
         for d in self.data["global"]:
-            d[0], d[1] = _postprocessor(d[0]), str(d[1])
+            d[0], d[1] = postprocessor(d[0]), str(d[1])
         self.data["global"] = dict(self.data["global"])
 
     def parse_dft_params(self):
@@ -645,7 +645,7 @@ class Cp2kOutput:
         self.read_pattern(
             {"dft": pat},
             terminate_on_match=False,
-            postprocess=_postprocessor,
+            postprocess=postprocessor,
             reverse=False,
         )
         self.data["dft"] = dict(self.data["dft"])
@@ -669,7 +669,7 @@ class Cp2kOutput:
             self.read_pattern(
                 {"functional": functional},
                 terminate_on_match=False,
-                postprocess=_postprocessor,
+                postprocess=postprocessor,
                 reverse=False,
             )
             self.data["dft"]["functional"] = [item for sublist in self.data.pop("functional", None) for item in sublist]
@@ -682,7 +682,7 @@ class Cp2kOutput:
         self.read_pattern(
             {"hfx": hfx},
             terminate_on_match=False,
-            postprocess=_postprocessor,
+            postprocess=postprocessor,
             reverse=False,
         )
         self.data["dft"]["hfx"] = dict(self.data.pop("hfx"))
@@ -721,7 +721,7 @@ class Cp2kOutput:
         self.read_pattern(
             {"QS": pat},
             terminate_on_match=False,
-            postprocess=_postprocessor,
+            postprocess=postprocessor,
             reverse=False,
         )
         self.data["QS"] = dict(self.data["QS"])
@@ -743,7 +743,7 @@ class Cp2kOutput:
             {"overlap_condition_number": overlap_condition},
             terminate_on_match=True,
             reverse=False,
-            postprocess=_postprocessor,
+            postprocess=postprocessor,
         )
 
     def parse_scf_params(self):
@@ -949,7 +949,7 @@ class Cp2kOutput:
             row_pattern=row,
             footer_pattern=footer,
             last_one_only=True,
-            postprocess=_postprocessor,
+            postprocess=postprocessor,
         )
         self.timing = {}
         for t in timing:
@@ -1011,7 +1011,7 @@ class Cp2kOutput:
                 "pressure_converged": pressure_converged,
             },
             terminate_on_match=False,
-            postprocess=_postprocessor,
+            postprocess=postprocessor,
         )
 
     def parse_mulliken(self):
@@ -1486,7 +1486,7 @@ class Cp2kOutput:
             elif first.startswith("delta_g"):
                 dat = "delta_g"
             else:
-                splt = [_postprocessor(s) for s in line.split()]
+                splt = [postprocessor(s) for s in line.split()]
                 splt = [s for s in splt if isinstance(s, float)]
                 data[dat][ionic].append(list(map(float, splt[-3:])))
         self.data.update(data)
@@ -1535,18 +1535,18 @@ class Cp2kOutput:
                 else:
                     dat = "chi_total"
             elif first.startswith("PV1"):
-                splt = [_postprocessor(s) for s in line.split()]
+                splt = [postprocessor(s) for s in line.split()]
                 splt = [s for s in splt if isinstance(s, float)]
                 data["PV1"][ionic] = splt[0]
                 data["PV2"][ionic] = splt[1]
                 data["PV3"][ionic] = splt[2]
             elif first.startswith("ISO"):
-                splt = [_postprocessor(s) for s in line.split()]
+                splt = [postprocessor(s) for s in line.split()]
                 splt = [s for s in splt if isinstance(s, float)]
                 data["ISO"][ionic] = splt[0]
                 data["ANISO"][ionic] = splt[1]
             else:
-                splt = [_postprocessor(s) for s in line.split()]
+                splt = [postprocessor(s) for s in line.split()]
                 splt = [s for s in splt if isinstance(s, float)]
                 data[dat][ionic].append(list(map(float, splt)))
         self.data.update(data)

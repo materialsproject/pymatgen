@@ -13,7 +13,7 @@ from monty.io import zopen
 from pymatgen.core import Molecule, Structure
 
 
-def _postprocessor(data: str) -> str | int | float | bool | None:
+def postprocessor(data: str) -> str | int | float | bool | None:
     """
     Helper function to post process the results of the pattern matching functions in Cp2kOutput
     and turn them to Python types.
@@ -50,7 +50,7 @@ def _postprocessor(data: str) -> str | int | float | bool | None:
     return data
 
 
-def _preprocessor(data: str, dir: str = ".") -> str:
+def preprocessor(data: str, dir: str = ".") -> str:
     """
     Cp2k contains internal preprocessor flags that are evaluated before execution. This helper
     function recognizes those preprocessor flags and replaces them with an equivalent cp2k input

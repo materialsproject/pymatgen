@@ -39,7 +39,7 @@ from monty.json import MSONable
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor, chunk
+from pymatgen.io.cp2k.utils import postprocessor, preprocessor, chunk
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import Kpoints_supported_modes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -175,7 +175,7 @@ class Keyword(MSONable):
             description = None
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
-        args = list(map(_postprocessor, s.split()))
+        args = list(map(postprocessor, s.split()))
         args[0] = str(args[0])
         return Keyword(*args, units=units[0], description=description)
 
@@ -768,7 +768,7 @@ class Cp2kInput(Section):
         Initialize from a file
         """
         with zopen(file, "rt") as f:
-            txt = _preprocessor(f.read(), os.path.dirname(f.name))
+            txt = preprocessor(f.read(), os.path.dirname(f.name))
             return Cp2kInput.from_string(txt)
 
     @staticmethod
