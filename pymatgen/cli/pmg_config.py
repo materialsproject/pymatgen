@@ -22,16 +22,16 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE
 
 
-def setup_cp2k_data(cp2k_data_dirs: list[str]):
-    """Setup cp2k basis and potential data directory"""
-    data_dir, targetdir = (os.path.abspath(d) for d in cp2k_data_dirs)
+def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
+    """Setup CP2K basis and potential data directory"""
+    data_dir, target_dir = (os.path.abspath(dir) for dir in cp2k_data_dirs)
     try:
-        os.mkdir(targetdir)
+        os.mkdir(target_dir)
     except OSError:
-        r = input("Destination directory exists. Continue (y/n)?")
-        if r != "y":
+        reply = input("Destination directory exists. Continue (y/n)?")
+        if reply != "y":
             print("Exiting ...")
-            sys.exit(0)
+            raise SystemExit(0)
     print("Generating pymatgen resource directory for CP2K...")
 
     import glob
@@ -46,24 +46,18 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
     basis_files = glob.glob(os.path.join(data_dir, "*BASIS*"))
     potential_files = glob.glob(os.path.join(data_dir, "*POTENTIAL*"))
 
-    settings: dict[str, dict] = {
-        str(el): {
-            "potentials": {},
-            "basis_sets": {},
-        }
-        for el in Element
-    }
+    settings: dict[str, dict] = {str(el): {"potentials": {}, "basis_sets": {}} for el in Element}
 
     for potential_file in potential_files:
         print(f"Processing... {potential_file}")
-        with open(potential_file) as f:
+        with open(potential_file) as file:
             try:
-                chunks = chunk(f.read())
+                chunks = chunk(file.read())
             except IndexError:
                 continue
-        for c in chunks:
+        for chk in chunks:
             try:
-                potential = GthPotential.from_string(c)
+                potential = GthPotential.from_string(chk)
                 potential.filename = os.path.basename(potential_file)
                 potential.version = None
                 settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(
@@ -78,14 +72,14 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
 
     for basis_file in basis_files:
         print(f"Processing... {basis_file}")
-        with open(basis_file) as f:
+        with open(basis_file) as file:
             try:
-                chunks = chunk(f.read())
+                chunks = chunk(file.read())
             except IndexError:
                 continue
-        for c in chunks:
+        for chk in chunks:
             try:
-                basis = GaussianTypeOrbitalBasisSet.from_string(c)
+                basis = GaussianTypeOrbitalBasisSet.from_string(chk)
                 basis.filename = os.path.basename(basis_file)
                 settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(  # type: ignore
                     basis, strict=True
@@ -100,13 +94,13 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
     print("Done processing cp2k data files")
 
     for el in settings:
-        print(f"Writting {el} settings file")
-        with open(os.path.join(targetdir, el), "w") as f:
-            yaml.dump(settings.get(el), f, default_flow_style=False)
+        print(f"Writing {el} settings file")
+        with open(os.path.join(target_dir, el), "w") as file:
+            yaml.dump(settings.get(el), file, default_flow_style=False)
 
     print(
         "\n CP2K resource directory generated. It is recommended that you run:"
-        f"\n  'pmg config --add PMG_CP2K_DATA_DIR {os.path.abspath(targetdir)}' "
+        f"\n  'pmg config --add PMG_CP2K_DATA_DIR {os.path.abspath(target_dir)}' "
     )
     print(
         "\n It is also recommended that you set the following (with example values):"
@@ -119,14 +113,14 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]):
 
 def setup_potcars(potcar_dirs: list[str]):
     """Setup POTCAR directories."""
-    pspdir, targetdir = (os.path.abspath(d) for d in potcar_dirs)
+    psp_dir, target_dir = (os.path.abspath(d) for d in potcar_dirs)
     try:
-        os.makedirs(targetdir)
+        os.makedirs(target_dir)
     except OSError:
-        r = input("Destination directory exists. Continue (y/n)? ")
-        if r != "y":
+        reply = input("Destination directory exists. Continue (y/n)? ")
+        if reply != "y":
             print("Exiting ...")
-            sys.exit(0)
+            raise SystemExit(0)
 
     print("Generating pymatgen resources directory...")
 
@@ -146,18 +140,18 @@ def setup_potcars(potcar_dirs: list[str]):
         "potUSPP_GGA": "POT_GGA_US_PW91",
     }
 
-    for parent, subdirs, _files in os.walk(pspdir):
+    for parent, subdirs, _files in os.walk(psp_dir):
         basename = os.path.basename(parent)
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
             filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
             if len(filenames) > 0:
                 try:
-                    basedir = os.path.join(targetdir, basename)
-                    if not os.path.exists(basedir):
-                        os.makedirs(basedir)
+                    base_dir = os.path.join(target_dir, basename)
+                    if not os.path.exists(base_dir):
+                        os.makedirs(base_dir)
                     fname = filenames[0]
-                    dest = os.path.join(basedir, os.path.basename(fname))
+                    dest = os.path.join(base_dir, os.path.basename(fname))
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
                     if ext.upper() in ["Z", "GZ"]:
@@ -168,8 +162,8 @@ def setup_potcars(potcar_dirs: list[str]):
                             p.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
-                    dest = os.path.join(basedir, f"POTCAR.{subdir}")
-                    shutil.move(os.path.join(basedir, "POTCAR"), dest)
+                    dest = os.path.join(base_dir, f"POTCAR.{subdir}")
+                    shutil.move(os.path.join(base_dir, "POTCAR"), dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
                 except Exception as ex:
@@ -177,7 +171,7 @@ def setup_potcars(potcar_dirs: list[str]):
 
     print(
         "\nPSP resources directory generated. It is recommended that you "
-        f"run 'pmg config --add PMG_VASP_PSP_DIR {os.path.abspath(targetdir)}'"
+        f"run 'pmg config --add PMG_VASP_PSP_DIR {os.path.abspath(target_dir)}'"
     )
     print("Start a new terminal to ensure that your environment variables are properly set.")
 
