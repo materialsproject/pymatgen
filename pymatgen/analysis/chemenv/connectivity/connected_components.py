@@ -590,14 +590,14 @@ class ConnectedComponent(MSONable):
         return self._connected_subgraph
 
     @property
-    def is_periodic(self):
+    def is_periodic(self) -> bool:
         """
         Returns:
         """
         return not self.is_0d
 
     @property
-    def is_0d(self):
+    def is_0d(self) -> bool:
         """
         Returns:
         """
@@ -606,7 +606,7 @@ class ConnectedComponent(MSONable):
         return len(self._periodicity_vectors) == 0
 
     @property
-    def is_1d(self):
+    def is_1d(self) -> bool:
         """
         Returns:
         """
@@ -615,7 +615,7 @@ class ConnectedComponent(MSONable):
         return len(self._periodicity_vectors) == 1
 
     @property
-    def is_2d(self):
+    def is_2d(self) -> bool:
         """
         Returns:
         """
@@ -624,7 +624,7 @@ class ConnectedComponent(MSONable):
         return len(self._periodicity_vectors) == 2
 
     @property
-    def is_3d(self):
+    def is_3d(self) -> bool:
         """
         Returns:
         """

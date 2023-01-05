@@ -61,7 +61,7 @@ def in_coord_list(coord_list, coord, atol=1e-8):
     return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
 
-def is_coord_subset(subset, superset, atol=1e-8):
+def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     """
     Tests if all coords in subset are contained in superset.
     Doesn't use periodic boundary conditions

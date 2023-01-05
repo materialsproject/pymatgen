@@ -217,7 +217,7 @@ class Cp2kOutput:
         return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("", None)).values[0]
 
     @property
-    def is_molecule(self):
+    def is_molecule(self) -> bool:
         """
         Returns True if the cp2k output was generated for a molecule (i.e.
         no periodicity in the cell). Returns false otherwise.
@@ -227,7 +227,7 @@ class Cp2kOutput:
         return False
 
     @property
-    def is_metal(self):
+    def is_metal(self) -> bool:
         """
         Was a band gap found? i.e. is it a metal
         """
@@ -238,7 +238,7 @@ class Cp2kOutput:
         return False
 
     @property
-    def is_hubbard(self):
+    def is_hubbard(self) -> bool:
         """Returns True if hubbard +U correction was used"""
         for v in self.data.get("atomic_kind_info", {}).values():
             if "DFT_PLUS_U" in v:
@@ -1266,9 +1266,9 @@ class Cp2kOutput:
 
         One file type is the overall DOS file, which is used for k-point calculations. For
         non-kpoint calculation, the overall DOS is generally not calculated, but the
-        element-projected pDOS is. Seperate files are created for each spin channel and each
+        element-projected pDOS is. Separate files are created for each spin channel and each
         atom kind. If requested, cp2k can also do site/local projected dos (ldos). Each site
-        requested will have a seperate file for each spin channel (if spin polarized calculation
+        requested will have a separate file for each spin channel (if spin polarized calculation
         is performed).
 
         If possible, this function will assimilate the ldos files into a CompleteDos object.

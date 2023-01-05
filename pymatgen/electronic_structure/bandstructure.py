@@ -330,7 +330,7 @@ class BandStructure:
                             result[spin][i][j][str(sp)][o] += v[i][j][orb_i][k]
         return result
 
-    def is_metal(self, efermi_tol=1e-4):
+    def is_metal(self, efermi_tol=1e-4) -> bool:
         """
         Check if the band structure indicates a metal by looking if the fermi
         level crosses a band.

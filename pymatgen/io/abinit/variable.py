@@ -218,7 +218,7 @@ class InputVariable:
         return line.rstrip("\n")
 
 
-def is_iter(obj):
+def is_iter(obj) -> bool:
     """Return True if the argument is list-like."""
     return hasattr(obj, "__iter__")
 

@@ -438,7 +438,7 @@ class OptimadeRester:
         TODO: add better exception handling, intentionally permissive currently
         """
 
-        def is_url(url):
+        def is_url(url) -> bool:
             """
             Basic URL validation thanks to https://stackoverflow.com/a/52455972
             """

@@ -656,7 +656,7 @@ class GulpCaller:
             cmd: Command. Defaults to gulp.
         """
 
-        def is_exe(f):
+        def is_exe(f) -> bool:
             return os.path.isfile(f) and os.access(f, os.X_OK)
 
         fpath, fname = os.path.split(cmd)

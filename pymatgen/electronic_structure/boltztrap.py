@@ -1484,7 +1484,7 @@ class BoltztrapAnalyzer:
             {"value", "temperature", "doping", "isotropic"}
         """
 
-        def is_isotropic(x, isotropy_tolerance):
+        def is_isotropic(x, isotropy_tolerance) -> bool:
             """
             Internal method to tell you if 3-vector "x" is isotropic
 

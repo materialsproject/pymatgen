@@ -795,7 +795,7 @@ class Vasprun(MSONable):
         return rt
 
     @property
-    def is_hubbard(self):
+    def is_hubbard(self) -> bool:
         """
         True if run is a DFT+U run.
         """
@@ -804,7 +804,7 @@ class Vasprun(MSONable):
         return sum(self.hubbards.values()) > 1e-8
 
     @property
-    def is_spin(self):
+    def is_spin(self) -> bool:
         """
         True if run is spin-polarized.
         """

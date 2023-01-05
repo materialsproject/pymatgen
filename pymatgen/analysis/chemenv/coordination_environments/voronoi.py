@@ -726,7 +726,7 @@ class DetailedVoronoiContainer(MSONable):
             "angle_limits": ang_limits,
         }
 
-    def is_close_to(self, other, rtol=0.0, atol=1e-8):
+    def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:
         """
         Whether two DetailedVoronoiContainer objects are close to each other.
 

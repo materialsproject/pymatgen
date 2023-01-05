@@ -403,7 +403,7 @@ class Slab(Structure):
             dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
         return dipole
 
-    def is_polar(self, tol_dipole_per_unit_area=1e-3):
+    def is_polar(self, tol_dipole_per_unit_area=1e-3) -> bool:
         """
         Checks whether the surface is polar by computing the dipole per unit
         area. Note that the Slab must be oxidation state-decorated for this

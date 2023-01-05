@@ -2333,7 +2333,7 @@ class ChemicalEnvironments(MSONable):
             out += f"       perfect2local : {str(self.coord_geoms[mp_symbol]['perfect2local_map'])}\n"
         return out
 
-    def is_close_to(self, other, rtol=0.0, atol=1e-8):
+    def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:
         """
         Whether this ChemicalEnvironments object is close to another one.
 
