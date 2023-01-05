@@ -232,6 +232,15 @@ class QChemDictSet(QCInput):
                         + " dielectric, refractive index, acidity, basicity, surface"
                         + " tension, aromaticity, electronegative halogenicity"
                     )
+                elif self.qchem_version == 6:
+                    custom_smd_vals = self.custom_smd.split(",")
+                    mysmx["epsilon"] = custom_smd_vals[0]
+                    mysmx["SolN"] = custom_smd_vals[1]
+                    mysmx["SolA"] = custom_smd_vals[2]
+                    mysmx["SolB"] = custom_smd_vals[3]
+                    mysmx["SolG"] = custom_smd_vals[4]
+                    mysmx["SolC"] = custom_smd_vals[5]
+                    mysmx["SolH"] = custom_smd_vals[6]
 
         if self.plot_cubes:
             myplots = plots_defaults
@@ -336,7 +345,7 @@ class QChemDictSet(QCInput):
             input_file (str): Filename
         """
         self.write_file(input_file)
-        if self.smd_solvent in ("custom", "other"):
+        if self.smd_solvent in ("custom", "other") and qchem_version == 5::
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), "wt") as f:
                 f.write(self.custom_smd)
 
