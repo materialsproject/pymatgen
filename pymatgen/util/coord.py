@@ -6,6 +6,7 @@ Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -115,7 +116,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
         list of indices such that superset[indices] = subset
     """
     # pylint: disable=I1101
-    atol = np.array([1.0, 1.0, 1.0]) * atol
+    atol = np.ones(3) * atol
     return cuc.coord_list_mapping_pbc(subset, superset, atol, pbc)
 
 
