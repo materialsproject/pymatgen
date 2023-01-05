@@ -354,12 +354,10 @@ class Section(MSONable):
 
     def setitem(self, key, value, strict=False):
         """
-        Helper function for setting items. Kept seperate from
-        the dunder function so that "strict" option can be made
-        possible.
+        Helper function for setting items. Kept separate from the double-underscore function so that
+        "strict" option can be made possible.
 
-        strict will only set values for items that already have
-        a key entry (no insertion)
+        strict will only set values for items that already have a key entry (no insertion).
         """
         if isinstance(value, (Section, SectionList)):
             if key in self.subsections:
@@ -2195,7 +2193,7 @@ class Kpoint_Set(Section):
 
 
 class Band_Structure(Section):
-    """Specifies high symmetry paths for outputing the band structure in CP2K."""
+    """Specifies high symmetry paths for outputting the band structure in CP2K."""
 
     def __init__(
         self,
@@ -2328,7 +2326,7 @@ class BasisInfo(MSONable):
     def from_string(cls, string: str) -> BasisInfo:
         """Get summary info from a string"""
         string = string.upper()
-        data = {}  # type: dict[str, Any]
+        data: dict[str, Any] = {}
         data["cc"] = "CC" in string
         string = string.replace("CC", "")
         data["pc"] = "PC" in string

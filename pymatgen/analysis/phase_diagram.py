@@ -173,7 +173,7 @@ class GrandPotPDEntry(PDEntry):
         output = [
             f"GrandPotPDEntry with original composition {self.original_entry.composition}, "
             f"energy = {self.original_entry.energy:.4f}, ",
-            "chempots = " + ", ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()]),
+            "chempots = " + ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()),
         ]
         return "".join(output)
 
@@ -979,7 +979,7 @@ class PhaseDiagram(MSONable):
 
         chempots = {}
         for facet in all_facets:
-            facet_name = "-".join([self.qhull_entries[j].name for j in facet])
+            facet_name = "-".join(self.qhull_entries[j].name for j in facet)
             chempots[facet_name] = self._get_facet_chempots(facet)
 
         return chempots
@@ -1342,7 +1342,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
 
     def __repr__(self):
         chemsys = "-".join([el.symbol for el in self.elements])
-        chempots = ", ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
+        chempots = ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items())
 
         output = [
             f"{chemsys} GrandPotentialPhaseDiagram with chempots = {chempots}",
