@@ -844,23 +844,12 @@ class Vasprun(MSONable):
         params = {p: getattr(self, p) for p in param_names}
         data = {p: getattr(self, p) for p in data} if data is not None else {}
 
-        if not entry_id:
-            entry_id = f"vasprun-{datetime.datetime.now()}"
-
         if inc_structure:
             return ComputedStructureEntry(
-                self.final_structure,
-                self.final_energy,
-                parameters=params,
-                data=data,
-                entry_id=entry_id,
+                self.final_structure, self.final_energy, parameters=params, data=data, entry_id=entry_id
             )
         return ComputedEntry(
-            self.final_structure.composition,
-            self.final_energy,
-            parameters=params,
-            data=data,
-            entry_id=entry_id,
+            self.final_structure.composition, self.final_energy, parameters=params, data=data, entry_id=entry_id
         )
 
     def get_band_structure(
