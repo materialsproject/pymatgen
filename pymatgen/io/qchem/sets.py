@@ -345,7 +345,7 @@ class QChemDictSet(QCInput):
             input_file (str): Filename
         """
         self.write_file(input_file)
-        if self.smd_solvent in ("custom", "other") and qchem_version == 5:
+        if self.smd_solvent in ("custom", "other") and self.qchem_version == 5:
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), "wt") as f:
                 f.write(self.custom_smd)
 
