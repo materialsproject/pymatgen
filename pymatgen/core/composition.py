@@ -162,6 +162,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Defines == for Compositions."""
         if not isinstance(other, (Composition, dict)):
             return NotImplemented
+
         #  elements with amounts < Composition.amount_tolerance don't show up
         #  in the el_map, so checking len enables us to only check one
         #  composition's elements
