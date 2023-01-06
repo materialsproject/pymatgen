@@ -546,7 +546,7 @@ class Atoms(MSONable):
         String representation of Atoms file.
         """
         lines_sorted = self.get_lines()
-        # TODO: remove the formatting and update the unittests
+        # TODO: remove the formatting and update the unit tests
         lines_formatted = str(
             tabulate(
                 lines_sorted,
@@ -554,7 +554,7 @@ class Atoms(MSONable):
             )
         )
         atom_list = lines_formatted.replace("--", "**")
-        return "".join("ATOMS\n", atom_list, "\nEND\n")
+        return f"ATOMS\n{atom_list}\nEND\n"
 
     def write_file(self, filename="ATOMS"):
         """
@@ -564,7 +564,7 @@ class Atoms(MSONable):
            filename: path for file to be written
         """
         with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+            f.write(f"{self}\n")
 
 
 class Tags(dict):
