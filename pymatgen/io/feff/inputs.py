@@ -979,7 +979,7 @@ class Potential(MSONable):
             )
         )
         ipotlist = ipotrow.replace("--", "**")
-        ipotlist = "".join("POTENTIALS\n", ipotlist)
+        ipotlist = f"POTENTIALS \n{ipotlist}"
 
         return ipotlist
 
