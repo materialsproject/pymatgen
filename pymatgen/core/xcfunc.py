@@ -236,7 +236,7 @@ class XcFunc(MSONable):
             return self.defined_aliases[xc].name
         if self.xc is not None:
             return self.xc.name
-        return "+".join(self.x.name, self.c.name)
+        return f"{self.x.name}+{self.c.name}"
 
     def __repr__(self) -> str:
         return str(self.name)

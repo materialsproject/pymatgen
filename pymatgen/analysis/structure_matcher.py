@@ -54,7 +54,6 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         Returns:
             Boolean indicating whether species are considered equal.
         """
-        return
 
     @abc.abstractmethod
     def get_hash(self, composition):
@@ -75,7 +74,6 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         Returns:
             A hashable object. Examples can be string formulas, integers etc.
         """
-        return
 
     @classmethod
     def from_dict(cls, d):

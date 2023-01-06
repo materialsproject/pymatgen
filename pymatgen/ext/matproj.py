@@ -1577,7 +1577,7 @@ class _MPResterLegacy:
                 `pymatgen.analysis.reaction_calculator.Reaction`.
         """
         payload = {
-            "reactants": " ".join(reactant1, reactant2),
+            "reactants": " ".join([reactant1, reactant2]),
             "open_el": open_el,
             "relative_mu": relative_mu,
             "use_hull_energy": use_hull_energy,
