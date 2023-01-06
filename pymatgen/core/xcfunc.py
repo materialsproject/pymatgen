@@ -221,7 +221,7 @@ class XcFunc(MSONable):
         # If self is not in defined_aliases, use LibxcFunc family
         if self.xc is not None:
             return self.xc.family
-        return "+".join([self.x.family, self.c.family])
+        return "+".join(self.x.family, self.c.family)
 
     @lazy_property
     def name(self) -> str:
@@ -236,7 +236,7 @@ class XcFunc(MSONable):
             return self.defined_aliases[xc].name
         if self.xc is not None:
             return self.xc.name
-        return "+".join([self.x.name, self.c.name])
+        return "+".join(self.x.name, self.c.name)
 
     def __repr__(self) -> str:
         return str(self.name)

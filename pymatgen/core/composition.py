@@ -457,7 +457,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return list(self)
 
     def __str__(self):
-        return " ".join([f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items()])
+        return " ".join(f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items())
 
     def to_pretty_string(self) -> str:
         """
@@ -580,7 +580,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             if m.group(2) != "":
                 factor = float(m.group(2))
             unit_sym_dict = get_sym_dict(m.group(1), factor)
-            expanded_sym = "".join([f"{el}{amt}" for el, amt in unit_sym_dict.items()])
+            expanded_sym = "".join(f"{el}{amt}" for el, amt in unit_sym_dict.items())
             expanded_formula = formula.replace(m.group(), expanded_sym)
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)

@@ -174,7 +174,7 @@ class OptimadeRester:
         if elements:
             if isinstance(elements, str):
                 elements = [elements]
-            elements_str = ", ".join([f'"{el}"' for el in elements])
+            elements_str = ", ".join(f'"{el}"' for el in elements)
             filters.append(f"(elements HAS ALL {elements_str})")
 
         if nsites:

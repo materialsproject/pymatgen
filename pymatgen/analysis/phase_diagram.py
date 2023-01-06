@@ -579,7 +579,7 @@ class PhaseDiagram(MSONable):
         output = [
             f"{'-'.join(symbols)} phase diagram",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in sorted(self.stable_entries, key=str)]),
+            ", ".join(entry.name for entry in sorted(self.stable_entries, key=str)),
         ]
         return "\n".join(output)
 
@@ -1341,13 +1341,13 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         super().__init__(all_entries, elements, computed_data=None)
 
     def __repr__(self):
-        chemsys = "-".join([el.symbol for el in self.elements])
+        chemsys = "-".join(el.symbol for el in self.elements)
         chempots = ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items())
 
         output = [
             f"{chemsys} GrandPotentialPhaseDiagram with chempots = {chempots}",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in self.stable_entries]),
+            ", ".join(entry.name for entry in self.stable_entries),
         ]
         return "".join(output)
 

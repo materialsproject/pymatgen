@@ -386,7 +386,7 @@ class Trajectory(MSONable):
 
             for (frac_coord, specie) in zip(frac_coords, self.species):
                 coords = frac_coord
-                line = f'{" ".join([format_str.format(c) for c in coords])} {specie}'
+                line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
                 lines.append(line)
 
         xdatcar_string = "\n".join(lines) + "\n"
