@@ -341,8 +341,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         charge = 0
         for site in self:
             for specie, amt in site.species.items():
-                if hasattr(specie,"oxi_state") and specie.oxi_state:
-                    charge += specie.oxi_state * amt
+                charge += (getattr(specie, "oxi_state", 0) or 0)* amt
                     
         return charge
 
