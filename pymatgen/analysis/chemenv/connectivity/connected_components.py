@@ -735,7 +735,7 @@ class ConnectedComponent(MSONable):
                                     raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
                     logging.debug(
-                        "        ddeltas : " + ", ".join([f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas])
+                        "        ddeltas : " + ", ".join(f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas)
                     )
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError("Should not have more than one 000 delta ...")

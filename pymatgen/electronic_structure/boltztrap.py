@@ -327,7 +327,7 @@ class BoltztrapRunner(MSONable):
 
             f.write(
                 "\n".join(
-                    " ".join([f"{Length(i, 'ang').to('bohr'):.5f}" for i in row])
+                    " ".join(f"{Length(i, 'ang').to('bohr'):.5f}" for i in row)
                     for row in self._bs.structure.lattice.matrix
                 )
                 + "\n"

@@ -739,8 +739,8 @@ class StructureVis:
                     for site in self.mapper_map[mapper]:
                         row = [
                             f"{site.species_string} - ",
-                            ", ".join([f"{c:.3f}" for c in site.frac_coords]),
-                            "[" + ", ".join([f"{c:.3f}" for c in site.coords]) + "]",
+                            ", ".join(f"{c:.3f}" for c in site.frac_coords),
+                            "[" + ", ".join(f"{c:.3f}" for c in site.coords) + "]",
                         ]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
@@ -780,7 +780,7 @@ class StructureVis:
                     site = self.mapper_map[mapper]
                     output = [
                         site.species_string,
-                        "Frac. coords: " + " ".join([f"{c:.4f}" for c in site.frac_coords]),
+                        "Frac. coords: " + " ".join(f"{c:.4f}" for c in site.frac_coords),
                     ]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)

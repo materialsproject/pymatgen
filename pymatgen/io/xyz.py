@@ -144,7 +144,7 @@ class XYZ:
         return "\n".join(output)
 
     def __str__(self):
-        return "\n".join([self._frame_str(mol) for mol in self._mols])
+        return "\n".join(self._frame_str(mol) for mol in self._mols)
 
     def write_file(self, filename: str) -> None:
         """

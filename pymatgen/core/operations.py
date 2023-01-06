@@ -155,7 +155,7 @@ class SymmOp(MSONable):
         # Build einstein sum string
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]
-        einsum_string = ",".join([a + i for a, i in zip(*indices)])
+        einsum_string = ",".join(a + i for a, i in zip(*indices))
         einsum_string += f",{indices[::-1][0]}->{indices[::-1][1]}"
         einsum_args = [self.rotation_matrix] * rank + [tensor]
 

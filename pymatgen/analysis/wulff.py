@@ -207,7 +207,7 @@ class WulffShape:
 
         wulff_convex = ConvexHull(wulff_pt_list)
         wulff_cv_simp = wulff_convex.simplices
-        logger.debug(", ".join([str(len(x)) for x in wulff_cv_simp]))
+        logger.debug(", ".join(str(len(x)) for x in wulff_cv_simp))
 
         # store simplices and convex
         self.dual_cv_simp = dual_cv_simp
