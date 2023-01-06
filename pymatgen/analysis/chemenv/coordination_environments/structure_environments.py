@@ -24,7 +24,7 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import PeriodicNeighbor, Structure
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -227,8 +227,6 @@ class StructureEnvironments(MSONable):
             """
             all_nbs_normalized_angles_sorted = sorted(nb["normalized_angle"] for nb in self.voronoi)
             minang = np.min(self.normalized_angles)
-            # print('minang', minang)
-            # print('all_nbs_normalized_angles_sorted', all_nbs_normalized_angles_sorted)
             for nb in self.voronoi:
                 print(nb)
             plateau = None
@@ -2093,7 +2091,14 @@ class LightStructureEnvironments(MSONable):
             "coordination_environments": self.coordination_environments,
             "all_nbs_sites": [
                 {
-                    "site": nb_site["site"].as_dict(),
+                    "site": PeriodicSite(
+                        species=nb_site["site"].species,
+                        coords=nb_site["site"].frac_coords,
+                        lattice=nb_site["site"].lattice,
+                        to_unit_cell=False,
+                        coords_are_cartesian=False,
+                        properties=nb_site["site"].properties,
+                    ).as_dict(),
                     "index": nb_site["index"],
                     "image_cell": [int(ii) for ii in nb_site["image_cell"]],
                 }
@@ -2122,7 +2127,13 @@ class LightStructureEnvironments(MSONable):
         structure = dec.process_decoded(d["structure"])
         all_nbs_sites = []
         for nb_site in d["all_nbs_sites"]:
-            site = dec.process_decoded(nb_site["site"])
+            periodic_site = dec.process_decoded(nb_site["site"])
+            site = PeriodicNeighbor(
+                species=periodic_site.species,
+                coords=periodic_site.frac_coords,
+                lattice=periodic_site.lattice,
+                properties=periodic_site.properties,
+            )
             if "image_cell" in nb_site:
                 image_cell = np.array(nb_site["image_cell"], int)
             else:
