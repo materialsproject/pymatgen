@@ -7,6 +7,8 @@ and update the enum values declared in LibxcFunc.
 The script must be executed inside pymatgen/dev_scripts.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import sys

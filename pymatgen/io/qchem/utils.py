@@ -2,6 +2,8 @@
 Utilities for Qchem io.
 """
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 

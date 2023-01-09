@@ -6,6 +6,8 @@ Determine functional groups present in a Molecule.
 """
 
 
+from __future__ import annotations
+
 import copy
 
 from pymatgen.analysis.graphs import MoleculeGraph

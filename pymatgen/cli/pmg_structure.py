@@ -6,6 +6,8 @@
 Implementation for `pmg structure` CLI.
 """
 
+from __future__ import annotations
+
 import sys
 
 from tabulate import tabulate

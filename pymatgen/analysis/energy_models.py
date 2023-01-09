@@ -7,6 +7,8 @@ implementations. Basically, an EnergyModel is any model that returns an
 "energy" for any given structure.
 """
 
+from __future__ import annotations
+
 import abc
 
 from monty.json import MSONable

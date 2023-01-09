@@ -5,6 +5,8 @@
 This module contains the definition of some objects used in the chemenv package.
 """
 
+from __future__ import annotations
+
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     is_anion_cation_bond,
 )

@@ -5,6 +5,8 @@
 This module defines classes to represent the phonon density of states, etc.
 """
 
+from __future__ import annotations
+
 import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property

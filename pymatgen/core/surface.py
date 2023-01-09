@@ -16,6 +16,8 @@ as well as::
     Surface Science, 2013, 617, 53-59, doi:10.1016/j.susc.2013.05.016.
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 import json

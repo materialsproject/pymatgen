@@ -6,6 +6,8 @@ This module defines the BorgQueen class, which manages drones to assimilate
 data using Python's multiprocessing.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os

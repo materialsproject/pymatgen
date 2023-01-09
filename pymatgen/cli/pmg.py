@@ -6,6 +6,8 @@
 A master convenience script with many tools for vasp and structure analysis.
 """
 
+from __future__ import annotations
+
 import argparse
 import itertools
 import sys

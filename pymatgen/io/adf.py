@@ -2,6 +2,8 @@
 IO for ADF files.
 """
 
+from __future__ import annotations
+
 import os
 import re
 from typing import Generator

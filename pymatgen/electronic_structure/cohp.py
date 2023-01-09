@@ -7,6 +7,8 @@ populations (COHP) and integrated COHP (ICOHP), but can also be used
 for crystal orbital overlap populations (COOP).
 """
 
+from __future__ import annotations
+
 import re
 import sys
 import warnings

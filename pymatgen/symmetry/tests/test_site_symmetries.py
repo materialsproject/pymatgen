@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 __author__ = "Handong Ling"
 __version__ = "0.1"
 __maintainer__ = "Handong Ling"

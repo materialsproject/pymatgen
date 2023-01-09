@@ -4,6 +4,8 @@
 """This module provides classes used to enumerate surface sites and to find
 adsorption sites on slabs."""
 
+from __future__ import annotations
+
 import itertools
 import os
 

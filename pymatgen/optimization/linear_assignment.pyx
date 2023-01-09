@@ -3,6 +3,8 @@ This module contains an algorithm to solve the Linear Assignment Problem
 """
 
 
+from __future__ import annotations
+
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -64,8 +66,8 @@ class LinearAssignment:
             self.c[:self.nx] = self.orig_c
 
         # initialize solution vectors
-        self._x = np.empty(self.n, dtype=np.int_)
-        self._y = np.empty(self.n, dtype=np.int_)
+        self._x = np.empty(self.n, dtype=np.int64)
+        self._y = np.empty(self.n, dtype=np.int64)
 
         self.min_cost = compute(self.n, self.c, self._x, self._y, self.epsilon)
         self.solution = self._x[:self.nx]

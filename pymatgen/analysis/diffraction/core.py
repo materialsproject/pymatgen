@@ -5,6 +5,8 @@
 This module implements core classes for calculation of diffraction patterns.
 """
 
+from __future__ import annotations
+
 import abc
 import collections
 

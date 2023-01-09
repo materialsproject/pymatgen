@@ -3,6 +3,8 @@
 """
 This module provides utility classes for string operations.
 """
+from __future__ import annotations
+
 import re
 from fractions import Fraction
 

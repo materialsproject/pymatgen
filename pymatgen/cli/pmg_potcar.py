@@ -5,6 +5,8 @@ Implementation for `pmg potcar` CLI.
 """
 
 
+from __future__ import annotations
+
 import os
 
 from pymatgen.io.vasp import Potcar

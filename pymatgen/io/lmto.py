@@ -8,6 +8,8 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 """
 
 
+from __future__ import annotations
+
 import re
 
 import numpy as np

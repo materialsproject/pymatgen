@@ -8,6 +8,8 @@ Part of this module is automatically generated so be careful when refactoring st
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
 
+from __future__ import annotations
+
 import json
 import os
 from enum import Enum

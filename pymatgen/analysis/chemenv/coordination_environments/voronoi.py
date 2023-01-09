@@ -5,6 +5,8 @@
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
