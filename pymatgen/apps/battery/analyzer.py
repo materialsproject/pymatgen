@@ -243,7 +243,7 @@ class BatteryAnalyzer:
         return numa
 
 
-def is_redox_active_intercalation(element):
+def is_redox_active_intercalation(element) -> bool:
     """
     True if element is redox active and interesting for intercalation materials
 

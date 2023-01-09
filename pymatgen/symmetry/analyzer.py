@@ -42,7 +42,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5.0):
+    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance=5.0):
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -757,7 +757,7 @@ class SpacegroupAnalyzer:
                 ],
             ]
 
-            def is_all_acute_or_obtuse(m):
+            def is_all_acute_or_obtuse(m) -> bool:
                 recp_angles = np.array(Lattice(m).reciprocal_lattice.angles)
                 return np.all(recp_angles <= 90) or np.all(recp_angles > 90)
 
@@ -876,7 +876,7 @@ class SpacegroupAnalyzer:
             raise ValueError("Unable to find 1:1 corresponding between input kpoints and irreducible grid!")
         return [w / sum(weights) for w in weights]
 
-    def is_laue(self):
+    def is_laue(self) -> bool:
         """Check if the point group of the structure has Laue symmetry (centrosymmetry)"""
         laue = ("-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m")
 
@@ -1258,7 +1258,7 @@ class PointGroupAnalyzer:
                 symm_number += 1
         return symm_number
 
-    def is_valid_op(self, symmop):
+    def is_valid_op(self, symmop) -> bool:
         """Check if a particular symmetry operation is a valid symmetry operation for a
         molecule, i.e., the operation maps all atoms to another equivalent atom.
 
@@ -1597,7 +1597,7 @@ class SpacegroupOperations(list):
         self.int_number = int_number
         super().__init__(symmops)
 
-    def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
+    def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3) -> bool:
         """Given two sets of PeriodicSites, test if they are actually symmetrically
         equivalent under this space group. Useful, for example, if you want to test if
         selecting atoms 1 and 2 out of a set of 4 atoms are symmetrically the same as

@@ -11,6 +11,7 @@ import re
 import string
 import warnings
 from math import cos, pi, sin, sqrt
+from typing import Any
 
 import numpy as np
 from monty.json import MSONable
@@ -33,7 +34,7 @@ class SymmOp(MSONable):
         A 4x4 numpy.array representing the symmetry operation.
     """
 
-    def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01) -> None:
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are
@@ -55,8 +56,8 @@ class SymmOp(MSONable):
     def from_rotation_and_translation(
         rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         translation_vec: ArrayLike = (0, 0, 0),
-        tol=0.1,
-    ):
+        tol: float = 0.1,
+    ) -> SymmOp:
         """
         Creates a symmetry operation from a rotation matrix and a translation
         vector.
@@ -85,13 +86,13 @@ class SymmOp(MSONable):
             return NotImplemented
         return np.allclose(self.affine_matrix, other.affine_matrix, atol=self.tol)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = [
             "Rot:",
             str(self.affine_matrix[0:3][:, 0:3]),
@@ -100,7 +101,7 @@ class SymmOp(MSONable):
         ]
         return "\n".join(output)
 
-    def operate(self, point):
+    def operate(self, point: ArrayLike) -> np.ndarray:
         """
         Apply the operation on a point.
 
@@ -113,7 +114,7 @@ class SymmOp(MSONable):
         affine_point = np.array([point[0], point[1], point[2], 1])
         return np.dot(self.affine_matrix, affine_point)[0:3]
 
-    def operate_multi(self, points):
+    def operate_multi(self, points: ArrayLike) -> np.ndarray:
         """
         Apply the operation on a list of points.
 
@@ -127,7 +128,7 @@ class SymmOp(MSONable):
         affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
-    def apply_rotation_only(self, vector: ArrayLike):
+    def apply_rotation_only(self, vector: ArrayLike) -> np.ndarray:
         """
         Vectors should only be operated by the rotation matrix and not the
         translation vector.
@@ -137,7 +138,7 @@ class SymmOp(MSONable):
         """
         return np.dot(self.rotation_matrix, vector)
 
-    def transform_tensor(self, tensor: np.ndarray):
+    def transform_tensor(self, tensor: np.ndarray) -> np.ndarray:
         """
         Applies rotation portion to a tensor. Note that tensor has to be in
         full form, not the Voigt form.
@@ -154,7 +155,7 @@ class SymmOp(MSONable):
         # Build einstein sum string
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]
-        einsum_string = ",".join([a + i for a, i in zip(*indices)])
+        einsum_string = ",".join(a + i for a, i in zip(*indices))
         einsum_string += f",{indices[::-1][0]}->{indices[::-1][1]}"
         einsum_args = [self.rotation_matrix] * rank + [tensor]
 
@@ -202,6 +203,7 @@ class SymmOp(MSONable):
             r_a (3x1 array): Change of unit cell of the first vector.
             r_b (3x1 array): Change of unit cell of the second vector.
             tol (float): Absolute tolerance for checking distance.
+
         Returns:
             (are_related, is_reversed)
         """
@@ -437,7 +439,7 @@ class SymmOp(MSONable):
         m = np.dot(rot.affine_matrix, refl.affine_matrix)
         return SymmOp(m)
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """
         :return: MSONAble dict.
         """
@@ -465,6 +467,7 @@ class SymmOp(MSONable):
         Args:
             xyz_string: string of the form 'x, y, z', '-x, -y, z',
                 '-2y+1/2, 3x+1/2, z-y+1/2', etc.
+
         Returns:
             SymmOp
         """
@@ -499,20 +502,18 @@ class SymmOp(MSONable):
 
 class MagSymmOp(SymmOp):
     """
-    Thin wrapper around SymmOp to extend it to support magnetic symmetry
-    by including a  time reversal operator. Magnetic symmetry is similar
-    to conventional crystal symmetry, except symmetry is reduced by the
-    addition of a time reversal operator which acts on an atom's magnetic
+    Thin wrapper around SymmOp to extend it to support magnetic symmetry by including a time
+    reversal operator. Magnetic symmetry is similar to conventional crystal symmetry, except
+    symmetry is reduced by the addition of a time reversal operator which acts on an atom's magnetic
     moment.
     """
 
     def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01):
         """
-        Initializes the MagSymmOp from a 4x4 affine transformation matrix
-        and time reversal operator.
-        In general, this constructor should not be used unless you are
-        transferring rotations. Use the static constructors instead to
-        generate a SymmOp from proper rotations and translation.
+        Initializes the MagSymmOp from a 4x4 affine transformation matrix and time reversal
+        operator. In general, this constructor should not be used unless you are transferring
+        rotations. Use the static constructors instead to generate a SymmOp from proper rotations
+        and translation.
 
         Args:
             affine_transformation_matrix (4x4 array): Representing an
@@ -621,6 +622,7 @@ class MagSymmOp(SymmOp):
         Args:
             xyz_string: string of the form 'x, y, z, +1', '-x, -y, z, -1',
                 '-2y+1/2, 3x+1/2, z-y+1/2, +1', etc.
+
         Returns:
             MagSymmOp object
         """
@@ -639,7 +641,7 @@ class MagSymmOp(SymmOp):
         xyzt_string = SymmOp.as_xyz_string(self)
         return f"{xyzt_string}, {self.time_reversal:+}"
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """
         :return: MSONABle dict
         """

@@ -2264,7 +2264,7 @@ class LobsterinTest(unittest.TestCase):
                 )
             )
 
-    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist):
+    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist) -> bool:
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (

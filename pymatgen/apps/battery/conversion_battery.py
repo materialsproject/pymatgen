@@ -171,7 +171,7 @@ class ConversionElectrode(AbstractElectrode):
                 )
         return sub_electrodes
 
-    def is_super_electrode(self, conversion_electrode):
+    def is_super_electrode(self, conversion_electrode) -> bool:
         """
         Checks if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in

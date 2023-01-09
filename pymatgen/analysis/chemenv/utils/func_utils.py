@@ -67,7 +67,7 @@ class AbstractRatioFunction:
                 if len(function_options) == 1:
                     opts = f'Option "{function_options[0]}"'
                 else:
-                    opts1 = ", ".join([f'"{op}"' for op in function_options[:-1]])
+                    opts1 = ", ".join(f'"{op}"' for op in function_options[:-1])
                     opts = f'Options {opts1} and "{function_options[-1]}"'
                 if options_dict is None or len(options_dict) == 0:
                     missing = "no option was provided."
@@ -76,7 +76,7 @@ class AbstractRatioFunction:
                     if len(options_dict) == 1:
                         missing = f'only "{optgiven[0]}" was provided.'
                     else:
-                        missing1 = ", ".join([f'"{miss}"' for miss in optgiven[:-1]])
+                        missing1 = ", ".join(f'"{miss}"' for miss in optgiven[:-1])
                         missing = f'only {missing1} and "{optgiven[-1]}" were provided.'
                 raise ValueError(
                     f'{opts} should be provided for function "{self.function}" in RatioFunction of '

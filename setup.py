@@ -114,8 +114,8 @@ setup(
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
     url="https://pymatgen.org",
     license="MIT",
-    project_url={
-        "Documentation": "https://pymatgen.org",
+    project_urls={
+        "Docs": "https://pymatgen.org",
         "Package": "https://pypi.org/project/pymatgen",
         "Repo": "https://github.com/materialsproject/pymatgen",
     },

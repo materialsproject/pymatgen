@@ -795,7 +795,7 @@ class Vasprun(MSONable):
         return rt
 
     @property
-    def is_hubbard(self):
+    def is_hubbard(self) -> bool:
         """
         True if run is a DFT+U run.
         """
@@ -804,7 +804,7 @@ class Vasprun(MSONable):
         return sum(self.hubbards.values()) > 1e-8
 
     @property
-    def is_spin(self):
+    def is_spin(self) -> bool:
         """
         True if run is spin-polarized.
         """
@@ -3616,8 +3616,8 @@ class VolumetricData(BaseVolumetricData):
             for vec in self.structure.lattice.matrix:
                 lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
             if not vasp4_compatible:
-                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
-            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
+                lines += "".join(f"{s:5}" for s in p.site_symbols) + "\n"
+            lines += "".join(f"{x:6}" for x in p.natoms) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 a, b, c = site.frac_coords
@@ -4334,7 +4334,7 @@ class Xdatcar:
             latt = Lattice(-latt.matrix)
         lines = [self.comment, "1.0", str(latt)]
         lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join([str(x) for x in self.natoms]))
+        lines.append(" ".join(str(x) for x in self.natoms))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
@@ -4345,7 +4345,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             else:
@@ -4353,7 +4353,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
         return "\n".join(lines) + "\n"

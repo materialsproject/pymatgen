@@ -187,7 +187,7 @@ class MoleculeStructureComparator(MSONable):
         self.ignore_halogen_self_bond = True
         self.bond_13_cap = bond_13_cap
 
-    def are_equal(self, mol1, mol2):
+    def are_equal(self, mol1, mol2) -> bool:
         """
         Compare the bond table of the two molecules.
 

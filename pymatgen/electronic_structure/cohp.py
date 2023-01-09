@@ -77,8 +77,8 @@ class Cohp(MSONable):
             if Spin.down in self.cohp:
                 header.append("I" + cohpstring + "Down")
                 data.append(self.icohp[Spin.down])
-        formatheader = "#" + " ".join(["{:15s}" for __ in header])
-        formatdata = " ".join(["{:.5f}" for __ in header])
+        formatheader = "#" + " ".join("{:15s}" for __ in header)
+        formatdata = " ".join("{:.5f}" for __ in header)
         stringarray = [formatheader.format(*header)]
         for i, __ in enumerate(self.energies):
             stringarray.append(formatdata.format(*(d[i] for d in data)))
@@ -983,7 +983,7 @@ class IcohpValue(MSONable):
         return self._num
 
     @property
-    def are_coops(self):
+    def are_coops(self) -> bool:
         """
         tells if ICOOPs or not
         Returns:
@@ -992,7 +992,7 @@ class IcohpValue(MSONable):
         return self._are_coops
 
     @property
-    def are_cobis(self):
+    def are_cobis(self) -> bool:
         """
         tells if ICOBIs or not
         Returns:
@@ -1001,7 +1001,7 @@ class IcohpValue(MSONable):
         return self._are_cobis
 
     @property
-    def is_spin_polarized(self):
+    def is_spin_polarized(self) -> bool:
         """
         tells if spin polarized calculation or not
         Returns:
@@ -1281,21 +1281,21 @@ class IcohpCollection(MSONable):
         return extremum
 
     @property
-    def is_spin_polarized(self):
+    def is_spin_polarized(self) -> bool:
         """
         :return: Whether it is spin polarized.
         """
         return self._is_spin_polarized
 
     @property
-    def are_coops(self):
+    def are_coops(self) -> bool:
         """
         :return: Whether this is a coop.
         """
         return self._are_coops
 
     @property
-    def are_cobis(self):
+    def are_cobis(self) -> bool:
         """
         :return: Whether this a cobi.
         """

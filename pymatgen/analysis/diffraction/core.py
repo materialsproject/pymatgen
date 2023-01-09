@@ -131,7 +131,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                     )
                 elif annotate_peaks == "compact":
                     if all(all(i < 10 for i in hkl_tuple) for hkl_tuple in hkl_tuples):
-                        label = ",".join(["".join(map(str, hkl_tuple)) for hkl_tuple in hkl_tuples])
+                        label = ",".join("".join(map(str, hkl_tuple)) for hkl_tuple in hkl_tuples)
                         # 'compact' label. Would be unclear for indices >= 10
                         # It would have more than 3 figures, e.g. 1031
 
@@ -223,7 +223,7 @@ def get_unique_families(hkls):
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
     # TODO: Definitely can be sped up.
-    def is_perm(hkl1, hkl2):
+    def is_perm(hkl1, hkl2) -> bool:
         h1 = np.abs(hkl1)
         h2 = np.abs(hkl2)
         return all(i == j for i, j in zip(sorted(h1), sorted(h2)))

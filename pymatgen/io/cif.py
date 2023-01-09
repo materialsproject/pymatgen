@@ -312,7 +312,7 @@ class CifParser:
         self.feature_flags = {}
         self.warnings = []
 
-        def is_magcif():
+        def is_magcif() -> bool:
             """
             Checks to see if file appears to be a magCIF file (heuristic).
             """
@@ -332,7 +332,7 @@ class CifParser:
 
         self.feature_flags["magcif"] = is_magcif()
 
-        def is_magcif_incommensurate():
+        def is_magcif_incommensurate() -> bool:
             """
             Checks to see if file contains an incommensurate magnetic
             structure (heuristic).

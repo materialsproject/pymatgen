@@ -788,7 +788,7 @@ class KSampling(AbivarAble, MSONable):
         # self.abivars["#comment"] = comment
 
     @property
-    def is_homogeneous(self):
+    def is_homogeneous(self) -> bool:
         """Homogeneous sampling."""
         return self.mode not in ["path"]
 

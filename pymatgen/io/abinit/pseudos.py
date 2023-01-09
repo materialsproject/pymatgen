@@ -1740,7 +1740,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                 pseudos.append(dec.process_decoded(v))
         return cls(pseudos)
 
-    def is_complete(self, zmax=118):
+    def is_complete(self, zmax=118) -> bool:
         """
         True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
         """

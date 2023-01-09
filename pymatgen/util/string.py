@@ -116,7 +116,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     returnstr = ""
     if header is not None:
         returnstr += delimiter.join(header) + "\n"
-    return returnstr + "\n".join([delimiter.join([str(m) for m in result]) for result in results])
+    return returnstr + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 
 def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
