@@ -5,7 +5,7 @@
 # cython: profile=True
 # distutils: language = c
 
-from __future__ import annotations
+# isort: dont-add-imports
 
 import numpy as np
 
