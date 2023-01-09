@@ -5,6 +5,8 @@
 This module contains some math utils that are used in the chemenv package.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"

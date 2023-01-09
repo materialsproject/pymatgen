@@ -7,6 +7,8 @@ the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures based on
 bonding analysis with Lobster.
 """
+from __future__ import annotations
+
 import collections
 import copy
 import math

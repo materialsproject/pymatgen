@@ -7,6 +7,8 @@ files (log and dump).
 """
 
 
+from __future__ import annotations
+
 import glob
 import re
 from io import StringIO

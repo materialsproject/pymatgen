@@ -17,6 +17,8 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 (2016). Surface energies of elemental crystals. Scientific Data.
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 import warnings

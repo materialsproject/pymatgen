@@ -5,6 +5,8 @@
 Classes for reading/manipulating/writing exciting input files.
 """
 
+from __future__ import annotations
+
 import xml.etree.ElementTree as ET
 
 import numpy as np

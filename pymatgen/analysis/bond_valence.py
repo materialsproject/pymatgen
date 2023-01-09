@@ -5,6 +5,8 @@
 This module implements classes to perform bond valence analyses.
 """
 
+from __future__ import annotations
+
 import collections
 import functools
 import operator

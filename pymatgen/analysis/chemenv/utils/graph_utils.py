@@ -2,6 +2,8 @@
 This module contains some graph utils that are used in the chemenv package.
 """
 
+from __future__ import annotations
+
 import itertools
 import operator
 

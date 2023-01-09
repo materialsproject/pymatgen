@@ -20,6 +20,8 @@ get_dimensionality_gorai:
     J. Mater. Chem. A 2, 4136 (2016).
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 from collections import defaultdict

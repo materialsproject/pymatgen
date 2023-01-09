@@ -5,6 +5,8 @@
 Module implementing an XYZ file object class.
 """
 
+from __future__ import annotations
+
 import re
 from io import StringIO
 

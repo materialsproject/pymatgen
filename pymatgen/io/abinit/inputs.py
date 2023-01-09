@@ -4,6 +4,8 @@ Note that not all the features of Abinit are supported by BasicAbinitInput.
 For a more comprehensive implementation, use the AbinitInput object provided by AbiPy.
 """
 
+from __future__ import annotations
+
 import abc
 import copy
 import json

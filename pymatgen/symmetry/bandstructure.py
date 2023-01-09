@@ -5,6 +5,8 @@ Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
+from __future__ import annotations
+
 import itertools
 from warnings import warn
 

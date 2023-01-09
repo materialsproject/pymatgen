@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 from pymatgen.analysis.prototypes import AflowPrototypeMatcher
 from pymatgen.util.testing import PymatgenTest
 

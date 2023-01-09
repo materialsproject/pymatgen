@@ -5,6 +5,8 @@
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
+from __future__ import annotations
+
 import warnings
 
 from pymatgen.analysis.interfaces import CoherentInterfaceBuilder  # noqa: F401

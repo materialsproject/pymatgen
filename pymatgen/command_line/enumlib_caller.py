@@ -27,6 +27,8 @@ superstructures for systems with high configurational freedom," Comp. Mat.
 Sci. 136 144-149 (May 2017)
 """
 
+from __future__ import annotations
+
 import fractions
 import glob
 import itertools

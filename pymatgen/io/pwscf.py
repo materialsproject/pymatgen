@@ -5,6 +5,8 @@
 This module implements input and output processing from PWSCF.
 """
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 

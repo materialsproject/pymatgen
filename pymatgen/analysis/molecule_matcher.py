@@ -12,6 +12,8 @@ The implementation is based on an excellent python package called `rmsd` that
 you can find at https://github.com/charnley/rmsd.
 """
 
+from __future__ import annotations
+
 __author__ = "Xiaohui Qu, Adam Fekete"
 __version__ = "1.0"
 __email__ = "xhqu1981@gmail.com"

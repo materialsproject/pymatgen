@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import numpy as np
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
