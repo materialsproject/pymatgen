@@ -67,7 +67,8 @@ def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     Doesn't use periodic boundary conditions
 
     Args:
-        subset, superset: List of coords
+        subset: List of coords
+        superset: List of coords
 
     Returns:
         True if all of subset is in superset.
@@ -76,7 +77,7 @@ def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     c2 = np.array(superset)
     is_close = np.all(np.abs(c1[:, None, :] - c2[None, :, :]) < atol, axis=-1)
     any_close = np.any(is_close, axis=-1)
-    return np.all(any_close)
+    return all(any_close)
 
 
 def coord_list_mapping(subset, superset, atol=1e-8):

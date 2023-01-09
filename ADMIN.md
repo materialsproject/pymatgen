@@ -8,7 +8,7 @@ following assumes you are using miniconda or Anaconda.
 The general procedure to releasing pymatgen comprises the following
 steps:
 
-1. Wait for all unittests to pass on CircleCI.
+1. Make sure all CI checks are green. We don't want to release known bugs.
 2. Update and edit change log.
 3. Release PyPI versions + doc.
 4. Release conda versions.

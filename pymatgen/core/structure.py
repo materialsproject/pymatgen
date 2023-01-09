@@ -309,18 +309,18 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             raise AttributeError("atomic_numbers available only for ordered Structures")
 
     @property
-    def site_properties(self) -> dict[str, list]:
+    def site_properties(self) -> dict[str, Sequence]:
         """
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
-        props: dict[str, list] = {}
+        props: dict[str, Sequence] = {}
         prop_keys: set[str] = set()
         for site in self:
             prop_keys.update(site.properties)
 
-        for k in prop_keys:
-            props[k] = [site.properties.get(k, None) for site in self]
+        for key in prop_keys:
+            props[key] = [site.properties.get(key) for site in self]
         return props
 
     def __contains__(self, site: object) -> bool:

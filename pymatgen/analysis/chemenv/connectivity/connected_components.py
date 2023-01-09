@@ -2,6 +2,8 @@
 Connected components.
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 
@@ -222,7 +224,7 @@ class ConnectedComponent(MSONable):
         Returns:
             ConnectedComponent: Instance of this class
         """
-        self._periodicity_vectors = None
+        self._periodicity_vectors: list[list] | None = None
         self._primitive_reduced_connected_subgraph = None
         self._projected = False
         if graph is None:
@@ -420,7 +422,7 @@ class ConnectedComponent(MSONable):
             paths = []
             # TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
             test_node_neighbors = my_simple_graph.neighbors(test_node)
-            breaknodeloop = False
+            break_node_loop = False
             for test_node_neighbor in test_node_neighbors:
                 # Special case for two nodes
                 if len(self._connected_subgraph[test_node][test_node_neighbor]) > 1:
@@ -442,7 +444,7 @@ class ConnectedComponent(MSONable):
                     test_node_neighbor,
                     cutoff=len(self._connected_subgraph),
                 ):
-                    path_indices = [nodepath.isite for nodepath in path]
+                    path_indices = [node_path.isite for node_path in path]
                     if path_indices == [test_node.isite, test_node_neighbor.isite]:
                         continue
                     path_indices.append(test_node.isite)
@@ -465,9 +467,9 @@ class ConnectedComponent(MSONable):
                     this_node_cell_img_vectors.extend(this_path_deltas)
                     this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
                     if len(this_node_cell_img_vectors) == 3:
-                        breaknodeloop = True
+                        break_node_loop = True
                         break
-                if breaknodeloop:
+                if break_node_loop:
                     break
             this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
             independent_cell_img_vectors = this_node_cell_img_vectors
@@ -504,7 +506,6 @@ class ConnectedComponent(MSONable):
             all_deltas.extend(this_cycle_deltas)
             all_deltas = get_linearly_independent_vectors(all_deltas)
             if len(all_deltas) == 3:
-                self._periodicity_vectors = all_deltas
                 return
         # One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles)
         edges = my_simple_graph.edges()
@@ -603,6 +604,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 0
 
     @property
@@ -612,6 +614,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 1
 
     @property
@@ -621,6 +624,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 2
 
     @property
@@ -630,6 +634,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 3
 
     @staticmethod

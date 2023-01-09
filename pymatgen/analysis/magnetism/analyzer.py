@@ -858,7 +858,7 @@ class MagneticStructureEnumerator:
             fm_structure = analyzer.get_ferromagnetic_structure()
             # store magmom as spin property, to be consistent with output from
             # other transformations
-            fm_structure.add_spin_by_site(fm_structure.site_properties["magmom"])
+            fm_structure.add_spin_by_site(fm_structure.site_properties["magmom"])  # type: ignore[arg-type]
             fm_structure.remove_site_property("magmom")
 
             # we now have our first magnetic ordering...
