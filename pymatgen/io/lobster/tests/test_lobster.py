@@ -1405,6 +1405,7 @@ class LobsteroutTest(PymatgenTest):
         self.assertEqual(self.lobsterout_cobi_madelung.has_cobicar, True)
         self.assertEqual(self.lobsterout_cobi_madelung.has_cohpcar, True)
         self.assertEqual(self.lobsterout_cobi_madelung.has_madelung, True)
+        self.assertFalse(self.lobsterout_cobi_madelung.has_doscar_lso)
 
         self.assertTrue(self.lobsterout_doscar_lso.has_doscar_lso)
 
