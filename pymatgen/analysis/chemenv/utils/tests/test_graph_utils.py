@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __author__ = "waroquiers"
 
 import numpy as np

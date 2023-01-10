@@ -9,6 +9,8 @@ Henkelman's utilities will be added.
 This allows the usage and customization in Python.
 """
 
+from __future__ import annotations
+
 import glob
 import os
 

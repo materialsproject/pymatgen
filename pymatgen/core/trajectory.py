@@ -12,7 +12,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Sequence, Tuple, Union
 
 import numpy as np
 from monty.io import zopen
@@ -34,7 +34,7 @@ __date__ = "Jun 29, 2022"
 
 Vector3D = Tuple[float, float, float]
 Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
-SitePropsType = Union[List[Dict[Any, List[Any]]], Dict[Any, List[Any]]]
+SitePropsType = Union[List[Dict[Any, Sequence[Any]]], Dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
@@ -445,7 +445,7 @@ class Trajectory(MSONable):
             lattice,
             species,  # type: ignore
             frac_coords,
-            site_properties=site_properties,
+            site_properties=site_properties,  # type: ignore
             constant_lattice=constant_lattice,
             **kwargs,
         )
@@ -503,7 +503,9 @@ class Trajectory(MSONable):
         return lat, constant_lat
 
     @staticmethod
-    def _combine_site_props(prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int):
+    def _combine_site_props(
+        prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int
+    ) -> SitePropsType | None:
         """
         Combine site properties.
 
@@ -515,7 +517,7 @@ class Trajectory(MSONable):
         if prop1 is None and prop2 is None:
             return None
 
-        if isinstance(prop1, dict) and isinstance(prop2, dict) and prop1 == prop2:
+        if isinstance(prop1, dict) and prop1 == prop2:
             return prop1
 
         # general case

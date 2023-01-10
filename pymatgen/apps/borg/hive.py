@@ -5,6 +5,8 @@
 This module define the various drones used to assimilate data.
 """
 
+from __future__ import annotations
+
 import abc
 import glob
 import json

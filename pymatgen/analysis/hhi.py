@@ -12,6 +12,8 @@ Performance and Resource Considerations" by Gaultois et al., published
 in Chemistry of Materials (2013).
 """
 
+from __future__ import annotations
+
 import os
 
 from monty.design_patterns import singleton

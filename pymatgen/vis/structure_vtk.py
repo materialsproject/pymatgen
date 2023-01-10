@@ -5,6 +5,8 @@
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
+from __future__ import annotations
+
 import itertools
 import math
 import os

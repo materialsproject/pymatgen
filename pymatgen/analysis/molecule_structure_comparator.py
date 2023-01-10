@@ -11,6 +11,8 @@ correspondence prerequisite, while molecule_matcher is supposed to do exact
 comparisons without the atom order correspondence prerequisite.
 """
 
+from __future__ import annotations
+
 import itertools
 
 from monty.json import MSONable

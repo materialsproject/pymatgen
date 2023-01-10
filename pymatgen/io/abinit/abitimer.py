@@ -5,6 +5,8 @@ This module provides objects for extracting timing data from the ABINIT output f
 It also provides tools to analyze and to visualize the parallel efficiency.
 """
 
+from __future__ import annotations
+
 import collections
 import logging
 import os

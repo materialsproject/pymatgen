@@ -6,6 +6,8 @@ Atoms object and pymatgen Structure objects.
 """
 
 
+from __future__ import annotations
+
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"

@@ -7,6 +7,8 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
 """
 
+from __future__ import annotations
+
 import copy
 import logging
 import sys

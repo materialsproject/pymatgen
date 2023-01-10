@@ -3,6 +3,8 @@ Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.
 """
 
+# isort: dont-add-imports
+
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"

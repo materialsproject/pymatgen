@@ -5,6 +5,8 @@
 A module for NMR analysis
 """
 
+from __future__ import annotations
+
 from collections import namedtuple
 
 import numpy as np

@@ -5,6 +5,8 @@
 Script to visualize the model coordination environments
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"

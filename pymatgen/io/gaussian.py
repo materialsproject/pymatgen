@@ -5,6 +5,8 @@
 This module implements input and output processing from Gaussian.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
 
