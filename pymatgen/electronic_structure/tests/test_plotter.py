@@ -244,6 +244,16 @@ class BSDOSPlotterTest(unittest.TestCase):
             v.complete_dos,
         )
         plt.close("all")
+        
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_SrBa2Sn2O7_bands.xml"), parse_projected_eigen=True)
+        p = BSDOSPlotter()
+        plt = p.get_plot(
+            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_SrBa2Sn2O7_bands"))
+        )
+        plt = p.get_plot(
+            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_SrBa2Sn2O7_bands")),
+            v.complete_dos,
+        )
 
 
 class PlotBZTest(unittest.TestCase):
