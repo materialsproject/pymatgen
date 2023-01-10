@@ -966,6 +966,9 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_cobi_madelung = Lobsterout(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung")
         )
+        self.lobsterout_doscar_lso = Lobsterout(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_doscar_lso")
+        )
 
         # TODO: implement skipping madelung/cobi
         self.lobsterout_skipping_cobi_madelung = Lobsterout(
@@ -1404,6 +1407,9 @@ class LobsteroutTest(PymatgenTest):
         self.assertEqual(self.lobsterout_cobi_madelung.has_cobicar, True)
         self.assertEqual(self.lobsterout_cobi_madelung.has_cohpcar, True)
         self.assertEqual(self.lobsterout_cobi_madelung.has_madelung, True)
+        self.assertFalse(self.lobsterout_cobi_madelung.has_doscar_lso)
+
+        self.assertTrue(self.lobsterout_doscar_lso.has_doscar_lso)
 
         self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_cobicar, False)
         self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_madelung, False)
@@ -1451,6 +1457,7 @@ class LobsteroutTest(PymatgenTest):
                 "the PAW bands from 21 and upwards will be ignored.",
             ],
             "has_doscar": True,
+            "has_doscar_lso": False,
             "has_cohpcar": True,
             "has_coopcar": True,
             "has_charge": True,
