@@ -37,7 +37,7 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def are_equal(self, sp1, sp2):
+    def are_equal(self, sp1, sp2) -> bool:
         """
         Defines how the species of two sites are considered equal. For
         example, one can consider sites to have the same species only when
@@ -54,7 +54,6 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         Returns:
             Boolean indicating whether species are considered equal.
         """
-        return
 
     @abc.abstractmethod
     def get_hash(self, composition):
@@ -75,7 +74,6 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         Returns:
             A hashable object. Examples can be string formulas, integers etc.
         """
-        return
 
     @classmethod
     def from_dict(cls, d):
@@ -109,11 +107,10 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
 
 class SpeciesComparator(AbstractComparator):
     """
-    A Comparator that matches species exactly. The default used in
-    StructureMatcher.
+    A Comparator that matches species exactly. The default used in StructureMatcher.
     """
 
-    def are_equal(self, sp1, sp2):
+    def are_equal(self, sp1, sp2) -> bool:
         """
         True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.
 
@@ -142,7 +139,7 @@ class SpinComparator(AbstractComparator):
     structures with opposite spins, which are equivalent.
     """
 
-    def are_equal(self, sp1, sp2):
+    def are_equal(self, sp1, sp2) -> bool:
         """
         True if species are exactly the same, i.e., Fe2+ == Fe2+ but not
         Fe3+. and the spins are reversed. i.e., spin up maps to spin down,
@@ -182,7 +179,7 @@ class ElementComparator(AbstractComparator):
     ignored.
     """
 
-    def are_equal(self, sp1, sp2):
+    def are_equal(self, sp1, sp2) -> bool:
         """
         True if element:amounts are exactly the same, i.e.,
         oxidation state is not considered.
@@ -213,7 +210,7 @@ class FrameworkComparator(AbstractComparator):
     A Comparator that matches sites, regardless of species.
     """
 
-    def are_equal(self, sp1, sp2):
+    def are_equal(self, sp1, sp2) -> bool:
         """
         True if there are atoms on both sites.
 
@@ -241,7 +238,7 @@ class OrderDisorderElementComparator(AbstractComparator):
     composition
     """
 
-    def are_equal(self, sp1, sp2):
+    def are_equal(self, sp1, sp2) -> bool:
         """
         True if there is some overlap in composition between the species
 
@@ -271,7 +268,7 @@ class OccupancyComparator(AbstractComparator):
     irrespective of the species of those sites.
     """
 
-    def are_equal(self, sp1, sp2):
+    def are_equal(self, sp1, sp2) -> bool:
         """
         Args:
             sp1: First species. A dict of {specie/element: amt} as per the
@@ -599,7 +596,7 @@ class StructureMatcher(MSONable):
         """
         struct1, struct2 = self._process_species([struct1, struct2])
 
-        hash_match = self._comparator.get_hash(struct1.composition) != self._comparator.get_hash(struct2.composition)
+        hash_match = self._comparator.get_hash(struct1.composition) == self._comparator.get_hash(struct2.composition)
         if not self._subset and not hash_match:
             return False
 

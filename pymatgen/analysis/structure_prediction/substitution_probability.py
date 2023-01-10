@@ -6,6 +6,8 @@ This module provides classes for representing species substitution
 probabilities.
 """
 
+from __future__ import annotations
+
 import functools
 import itertools
 import json

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 
 from pymatgen.analysis.disorder import get_warren_cowley_parameters

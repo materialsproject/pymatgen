@@ -327,7 +327,7 @@ class BoltztrapRunner(MSONable):
 
             f.write(
                 "\n".join(
-                    " ".join([f"{Length(i, 'ang').to('bohr'):.5f}" for i in row])
+                    " ".join(f"{Length(i, 'ang').to('bohr'):.5f}" for i in row)
                     for row in self._bs.structure.lattice.matrix
                 )
                 + "\n"
@@ -1484,7 +1484,7 @@ class BoltztrapAnalyzer:
             {"value", "temperature", "doping", "isotropic"}
         """
 
-        def is_isotropic(x, isotropy_tolerance):
+        def is_isotropic(x, isotropy_tolerance) -> bool:
             """
             Internal method to tell you if 3-vector "x" is isotropic
 

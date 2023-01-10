@@ -7,6 +7,8 @@ the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures based on
 bonding analysis with Lobster.
 """
+from __future__ import annotations
+
 import collections
 import copy
 import math
@@ -600,6 +602,7 @@ class LobsterNeighbors(NearNeighbors):
             onlycation_isites: will only use cations, if isite==None
 
         Returns:
+            tuple: summed_icohps, list_icohps, number_bonds, label_list, atoms_list
         """
         lowerlimit = self.lowerlimit
         upperlimit = self.upperlimit
@@ -705,7 +708,6 @@ class LobsterNeighbors(NearNeighbors):
         adapt_extremum_to_add_cond=False,
     ):
         """
-
         Args:
             lowerlimit: lower limit which determines the ICOHPs that are considered for the determination of the
             neighbors

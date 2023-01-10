@@ -16,6 +16,8 @@ more info.
 
 """
 
+from __future__ import annotations
+
 import itertools
 import re
 import warnings
@@ -226,8 +228,8 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
     tilt = None if lattice.is_orthogonal else [xy, xz, yz]
     rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0], [xy, yhi - ylo, 0], [xz, yz, zhi - zlo]], m)
     bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
-    symmop = SymmOp.from_rotation_and_translation(rot_matrix, origin)
-    return LammpsBox(bounds, tilt), symmop
+    symm_op = SymmOp.from_rotation_and_translation(rot_matrix, origin)
+    return LammpsBox(bounds, tilt), symm_op
 
 
 class LammpsData(MSONable):
@@ -838,14 +840,14 @@ class LammpsData(MSONable):
             s = structure.get_sorted_structure()
         else:
             s = structure.copy()
-        box, symmop = lattice_2_lmpbox(s.lattice)
-        coords = symmop.operate_multi(s.cart_coords)
+        box, symm_op = lattice_2_lmpbox(s.lattice)
+        coords = symm_op.operate_multi(s.cart_coords)
         site_properties = s.site_properties
         if "velocities" in site_properties:
             velos = np.array(s.site_properties["velocities"])
-            rot = SymmOp.from_rotation_and_translation(symmop.rotation_matrix)
+            rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
-            site_properties.update({"velocities": rot_velos})
+            site_properties.update({"velocities": rot_velos})  # type: ignore
         boxed_s = Structure(
             box.to_lattice(),
             s.species,

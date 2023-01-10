@@ -173,7 +173,7 @@ class GrandPotPDEntry(PDEntry):
         output = [
             f"GrandPotPDEntry with original composition {self.original_entry.composition}, "
             f"energy = {self.original_entry.energy:.4f}, ",
-            "chempots = " + ", ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()]),
+            "chempots = " + ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()),
         ]
         return "".join(output)
 
@@ -579,7 +579,7 @@ class PhaseDiagram(MSONable):
         output = [
             f"{'-'.join(symbols)} phase diagram",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in sorted(self.stable_entries, key=str)]),
+            ", ".join(entry.name for entry in sorted(self.stable_entries, key=str)),
         ]
         return "\n".join(output)
 
@@ -979,7 +979,7 @@ class PhaseDiagram(MSONable):
 
         chempots = {}
         for facet in all_facets:
-            facet_name = "-".join([self.qhull_entries[j].name for j in facet])
+            facet_name = "-".join(self.qhull_entries[j].name for j in facet)
             chempots[facet_name] = self._get_facet_chempots(facet)
 
         return chempots
@@ -1341,13 +1341,13 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         super().__init__(all_entries, elements, computed_data=None)
 
     def __repr__(self):
-        chemsys = "-".join([el.symbol for el in self.elements])
-        chempots = ", ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
+        chemsys = "-".join(el.symbol for el in self.elements)
+        chempots = ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items())
 
         output = [
             f"{chemsys} GrandPotentialPhaseDiagram with chempots = {chempots}",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in self.stable_entries]),
+            ", ".join(entry.name for entry in self.stable_entries),
         ]
         return "".join(output)
 

@@ -7,6 +7,8 @@ A convenience script engine to read Gaussian output in a directory tree.
 """
 
 
+from __future__ import annotations
+
 import argparse
 import logging
 import multiprocessing

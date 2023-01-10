@@ -5,6 +5,8 @@
 Analysis classes for batteries
 """
 
+from __future__ import annotations
+
 import math
 from collections import defaultdict
 
@@ -243,7 +245,7 @@ class BatteryAnalyzer:
         return numa
 
 
-def is_redox_active_intercalation(element):
+def is_redox_active_intercalation(element) -> bool:
     """
     True if element is redox active and interesting for intercalation materials
 

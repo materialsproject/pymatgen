@@ -5,6 +5,8 @@
 This module contains the classes for configuration of the chemenv package.
 """
 
+from __future__ import annotations
+
 import json
 from os import makedirs
 from os.path import exists, expanduser

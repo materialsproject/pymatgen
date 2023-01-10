@@ -6,6 +6,8 @@ This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.
 """
 
+from __future__ import annotations
+
 import math
 
 import numpy as np

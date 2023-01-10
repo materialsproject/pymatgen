@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import unittest
 
@@ -240,7 +242,7 @@ class GaussianOutputTest(unittest.TestCase):
         4\H,-0.5104846227,0.884185303,-0.3609671384\\Version=IA32L-G03RevD.01\
         State=1-A1\HF=-39.9768776\RMSD=3.210e-09\RMSF=5.014e-08\Thermal=0.\Dip
         ole=0.,0.,0.\PG=TD [O(C1),4C3(H1)]\\@"""
-        methane_resume = "".join([r.strip() for r in methane_resume.split("\n")])
+        methane_resume = "".join(r.strip() for r in methane_resume.split("\n"))
 
         self.assertEqual(resume, methane_resume)
 

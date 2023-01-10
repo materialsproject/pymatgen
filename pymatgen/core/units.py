@@ -10,6 +10,8 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
 
+from __future__ import annotations
+
 import collections
 import numbers
 from functools import partial

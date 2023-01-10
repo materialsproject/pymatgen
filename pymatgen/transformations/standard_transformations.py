@@ -84,7 +84,7 @@ class RotationTransformation(AbstractTransformation):
         return RotationTransformation(self.axis, -self.angle, self.angle_in_radians)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: False"""
         return False
 
@@ -124,7 +124,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -184,7 +184,7 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -223,7 +223,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -290,7 +290,7 @@ class SupercellTransformation(AbstractTransformation):
         raise NotImplementedError()
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -360,7 +360,7 @@ class SubstitutionTransformation(AbstractTransformation):
         return SubstitutionTransformation(inverse_map)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -408,7 +408,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -474,7 +474,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return trans.apply_transformation(structure, return_ranked_list)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: True
         """
@@ -689,7 +689,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: True
         """
@@ -747,7 +747,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -798,7 +798,7 @@ class ConventionalCellTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -856,7 +856,7 @@ class PerturbStructureTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -903,7 +903,7 @@ class DeformStructureTransformation(AbstractTransformation):
         return DeformStructureTransformation(self._deform.inv)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -978,7 +978,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -1027,7 +1027,7 @@ class ChargedCellTransformation(AbstractTransformation):
         raise NotImplementedError()
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -1111,7 +1111,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """

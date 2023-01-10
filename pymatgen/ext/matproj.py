@@ -1516,9 +1516,9 @@ class _MPResterLegacy:
             Energies are given in SI units (J/m^2).
         """
         if gb_plane:
-            gb_plane = ",".join([str(i) for i in gb_plane])
+            gb_plane = ",".join(str(i) for i in gb_plane)
         if rotation_axis:
-            rotation_axis = ",".join([str(i) for i in rotation_axis])
+            rotation_axis = ",".join(str(i) for i in rotation_axis)
 
         payload = {
             "material_id": material_id,

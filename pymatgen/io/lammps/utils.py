@@ -5,6 +5,8 @@
 This module defines utility classes and functions.
 """
 
+from __future__ import annotations
+
 import os
 import tempfile
 from shutil import which

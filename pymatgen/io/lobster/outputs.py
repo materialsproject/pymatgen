@@ -706,6 +706,9 @@ class Lobsterout:
       .. attribute: has_doscar
         Boolean, indicates that DOSCAR.lobster is present
 
+      .. attribute: has_doscar_lso
+        Boolean, indicates that DOSCAR.LSO.lobster is present
+
       .. attribute: has_projection
         Boolean, indicates that projectionData.lobster is present
 
@@ -802,6 +805,9 @@ class Lobsterout:
         self.info_lines = infos
 
         self.has_doscar = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
+        self.has_doscar_lso = (
+            "writing DOSCAR.LSO.lobster..." in data and "SKIPPING writing DOSCAR.LSO.lobster..." not in data
+        )
         self.has_cohpcar = (
             "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
             and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
@@ -853,6 +859,7 @@ class Lobsterout:
         LobsterDict["info_lines"] = self.info_lines
 
         LobsterDict["has_doscar"] = self.has_doscar
+        LobsterDict["has_doscar_lso"] = self.has_doscar_lso
         LobsterDict["has_cohpcar"] = self.has_cohpcar
         LobsterDict["has_coopcar"] = self.has_coopcar
         LobsterDict["has_cobicar"] = self.has_cobicar

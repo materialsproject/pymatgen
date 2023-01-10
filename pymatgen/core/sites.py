@@ -71,8 +71,7 @@ class Site(collections.abc.Hashable, MSONable):
         self.properties: dict = properties or {}
 
     def __getattr__(self, attr):
-        # overriding getattr doesn't play nice with pickle, so we
-        # can't use self._properties
+        # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
         props = object.__getattribute__(self, "properties")
         if attr in props:
             return props[attr]
@@ -162,7 +161,7 @@ class Site(collections.abc.Hashable, MSONable):
         if self.is_ordered:
             return str(list(self.species)[0])
         sorted_species = sorted(self.species)
-        return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
+        return ", ".join(f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species)
 
     @property
     def specie(self) -> Element | Species | DummySpecies:

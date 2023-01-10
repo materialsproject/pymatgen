@@ -174,7 +174,7 @@ class OptimadeRester:
         if elements:
             if isinstance(elements, str):
                 elements = [elements]
-            elements_str = ", ".join([f'"{el}"' for el in elements])
+            elements_str = ", ".join(f'"{el}"' for el in elements)
             filters.append(f"(elements HAS ALL {elements_str})")
 
         if nsites:
@@ -438,7 +438,7 @@ class OptimadeRester:
         TODO: add better exception handling, intentionally permissive currently
         """
 
-        def is_url(url):
+        def is_url(url) -> bool:
             """
             Basic URL validation thanks to https://stackoverflow.com/a/52455972
             """

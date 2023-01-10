@@ -3,6 +3,8 @@ Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.
 """
 
+# isort: dont-add-imports
+
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -251,7 +253,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    inds = np.zeros(len(subset)) - 1
+    inds = -np.ones(len(subset), dtype=int)
     subset = np.atleast_2d(subset)
     superset = np.atleast_2d(superset)
 

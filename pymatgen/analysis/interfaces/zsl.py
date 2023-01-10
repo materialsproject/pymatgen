@@ -101,7 +101,7 @@ class ZSLGenerator(MSONable):
         self.max_angle_tol = max_angle_tol
         self.bidirectional = bidirectional
 
-    def is_same_vectors(self, vec_set1, vec_set2):
+    def is_same_vectors(self, vec_set1, vec_set2) -> bool:
         """
         Determine if two sets of vectors are the same within length and angle
         tolerances

@@ -21,6 +21,8 @@ This module implements input and output processing from Nwchem.
         1. forces.                      ["forces"]
 """
 
+from __future__ import annotations
+
 import os
 import re
 import warnings
