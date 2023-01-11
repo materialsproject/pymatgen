@@ -103,7 +103,7 @@ jobs:
 
   release:
     needs: pytest
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'release')
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
