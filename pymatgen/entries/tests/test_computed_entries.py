@@ -400,6 +400,27 @@ class ComputedStructureEntryTest(unittest.TestCase):
         assert copy.structure is not self.entry.structure
         assert str(copy) == str(self.entry)
 
+    def test_eq(self):
+        copy1 = self.entry.copy()
+        copy2 = self.entry.copy()
+        copy3 = self.entry.copy()
+
+        # if no entry ids but same energy/comps --> equal
+        assert copy1 == copy2
+
+        # check different entry_ids --> not equal
+        copy1.entry_id = "mp_1"
+        copy2.entry_id = "mp_2"
+        assert copy1 != copy2
+
+        # same entry_id and energy --> equal
+        copy3.entry_id = "mp_1"
+        assert copy3 == copy1
+
+        # check different energy adjustments (but same id) --> not equal
+        copy3.energy_adjustments.append(ConstantEnergyAdjustment(0.1))
+        assert copy3 != copy1
+
 
 class GibbsComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
