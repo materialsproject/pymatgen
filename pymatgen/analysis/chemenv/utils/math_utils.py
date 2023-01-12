@@ -5,6 +5,8 @@
 This module contains some math utils that are used in the chemenv package.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -83,7 +85,7 @@ def divisors(n):
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [[k**x for x in range(0, factors[k] + 1)] for k in list(factors.keys())]
+    listexponents = [[k**x for x in range(0, factors[k] + 1)] for k in list(factors)]
     listfactors = _cartesian_product(listexponents)
     for f in listfactors:
         _divisors.append(reduce(lambda x, y: x * y, f, 1))

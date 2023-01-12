@@ -7,6 +7,8 @@ files (log and dump).
 """
 
 
+from __future__ import annotations
+
 import glob
 import re
 from io import StringIO
@@ -36,11 +38,10 @@ class LammpsDump(MSONable):
         Base constructor.
 
         Args:
-            timestep (int): Current timestep.
+            timestep (int): Current time step.
             natoms (int): Total number of atoms in the box.
             box (LammpsBox): Simulation box.
             data (pd.DataFrame): Dumped atomic data.
-
         """
         self.timestep = timestep
         self.natoms = natoms
@@ -54,11 +55,10 @@ class LammpsDump(MSONable):
 
         Args:
             string (str): Input string.
-
         """
         lines = string.split("\n")
         timestep = int(lines[1])
-        natoms = int(lines[3])
+        n_atoms = int(lines[3])
         box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
         bounds = box_arr[:, :2]
         tilt = None
@@ -70,7 +70,7 @@ class LammpsDump(MSONable):
         box = LammpsBox(bounds, tilt)
         data_head = lines[8].replace("ITEM: ATOMS", "").split()
         data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, delim_whitespace=True)
-        return cls(timestep, natoms, box, data)
+        return cls(timestep, n_atoms, box, data)
 
     @classmethod
     def from_dict(cls, d):
@@ -91,8 +91,8 @@ class LammpsDump(MSONable):
         Returns: MSONable dict
         """
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["timestep"] = self.timestep
         d["natoms"] = self.natoms
         d["box"] = self.box.as_dict()
@@ -115,8 +115,7 @@ def parse_lammps_dumps(file_pattern):
     """
     files = glob.glob(file_pattern)
     if len(files) > 1:
-        pattern = r"%s" % file_pattern.replace("*", "([0-9]+)")
-        pattern = pattern.replace("\\", "\\\\")
+        pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
 
     for fname in files:

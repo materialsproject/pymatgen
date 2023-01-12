@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import datetime
 import unittest
 
@@ -29,9 +31,7 @@ class StructureNLCase(unittest.TestCase):
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
         self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
-        self.matproj = (
-            "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {http://www.materialsproject.org}\n}"
-        )
+        self.matproj = "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {http://materialsproject.org}\n}"
         self.pmg = (
             "@article{Ong2013,\n author = {Ong, "
             "Shyue Ping and Richards, William Davidson and Jain, "
@@ -111,7 +111,7 @@ class StructureNLCase(unittest.TestCase):
         StructureNL(self.s, self.hulk, references=self.unicode_title)
 
         # multi-line references should be OK
-        StructureNL(self.s, self.hulk, references="\n".join([self.matproj, self.pmg]))
+        StructureNL(self.s, self.hulk, references=f"{self.matproj}\n{self.pmg}")
 
         # super long references are bad
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk, references=self.superlong)

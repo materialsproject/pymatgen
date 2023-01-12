@@ -2,8 +2,12 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
+
+import pytest
 
 from pymatgen.io.qchem.sets import (
     ForceSet,
@@ -17,9 +21,8 @@ from pymatgen.io.qchem.sets import (
 )
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
@@ -40,10 +43,12 @@ class QChemDictSetTest(PymatgenTest):
                 "job_type": "opt",
                 "gen_scfman": "true",
                 "basis": "6-31g*",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xv",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "geom_opt_max_cycles": "200",
                 "symmetry": "false",
                 "sym_ignore": "true",
@@ -78,6 +83,8 @@ class QChemDictSetTest(PymatgenTest):
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "pcm",
                 "symmetry": "false",
                 "sym_ignore": "true",
@@ -94,7 +101,7 @@ class QChemDictSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_DictSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_DictSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_DictSet.molecule, test_molecule)
 
         test_DictSet = QChemDictSet(
@@ -117,6 +124,8 @@ class QChemDictSetTest(PymatgenTest):
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "symmetry": "false",
@@ -132,7 +141,8 @@ class QChemDictSetTest(PymatgenTest):
             "rem": {
                 "method": "b3lyp",
                 "basis": "6-31g*",
-                "thresh": 10,
+                "thresh": "10",
+                "s2thresh": "12",
                 "xc_grid": "000150000302",
             }
         }
@@ -141,12 +151,13 @@ class QChemDictSetTest(PymatgenTest):
             "job_type": "opt",
             "gen_scfman": "true",
             "basis": "6-31g*",
-            "max_scf_cycles": "200",
+            "max_scf_cycles": "100",
             "method": "b3lyp",
             "scf_algorithm": "diis",
             "xc_grid": "000150000302",
             "geom_opt_max_cycles": "200",
-            "thresh": 10,
+            "thresh": "10",
+            "s2thresh": "12",
             "symmetry": "false",
             "sym_ignore": "true",
             "resp_charges": "true",
@@ -196,6 +207,8 @@ class QChemDictSetTest(PymatgenTest):
             "gen_scfman": "true",
             "scf_algorithm": "diis",
             "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
             "solvent_method": "pcm",
             "symmetry": "false",
             "sym_ignore": "true",
@@ -208,7 +221,51 @@ class QChemDictSetTest(PymatgenTest):
             "theory": "cpcm",
             "vdwscale": "1.1",
         }
-        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": "10.0"})
+        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": 10.0})
+        for k, v in qc_input.as_dict().items():
+            self.assertEqual(v, test_dict[k])
+        os.remove("mol.qin")
+
+    def test_isosvp_write(self):
+        """
+        Also tests overwrite_inputs with a RHOISO value
+        """
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        dict_set = QChemDictSet(
+            molecule=test_molecule,
+            job_type="opt",
+            basis_set="def2-SVPD",
+            scf_algorithm="diis",
+            dft_rung=5,
+            isosvp_dielectric=62,
+            max_scf_cycles=35,
+            overwrite_inputs={"svp": {"RHOISO": 0.0009}},
+        )
+        dict_set.write("mol.qin")
+        test_dict = QCInput.from_file("mol.qin").as_dict()
+        rem = {
+            "job_type": "opt",
+            "basis": "def2-SVPD",
+            "max_scf_cycles": "35",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "gen_scfman": "false",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "isosvp",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
+
+        qc_input = QCInput(
+            molecule=test_molecule,
+            rem=rem,
+            pcm_nonels=None,
+            svp={"RHOISO": 0.0009, "DIELST": 62, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2},
+        )
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
@@ -235,6 +292,8 @@ class QChemDictSetTest(PymatgenTest):
             "gen_scfman": "true",
             "scf_algorithm": "diis",
             "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
             "solvent_method": "smd",
             "ideriv": "1",
             "symmetry": "false",
@@ -242,6 +301,60 @@ class QChemDictSetTest(PymatgenTest):
             "resp_charges": "true",
         }
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "water"})
+        for k, v in qc_input.as_dict().items():
+            self.assertEqual(v, test_dict[k])
+        os.remove("mol.qin")
+
+    def test_cmirs_write(self):
+        """
+        Also tests overwrite_inputs with a RHOISO value
+        """
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        dict_set = QChemDictSet(
+            molecule=test_molecule,
+            job_type="opt",
+            basis_set="def2-SVPD",
+            scf_algorithm="diis",
+            dft_rung=5,
+            cmirs_solvent="water",
+            max_scf_cycles=35,
+            overwrite_inputs={"svp": {"RHOISO": 0.0005}},
+        )
+        dict_set.write("mol.qin")
+        test_dict = QCInput.from_file("mol.qin").as_dict()
+        rem = {
+            "job_type": "opt",
+            "basis": "def2-SVPD",
+            "max_scf_cycles": "35",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "gen_scfman": "false",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "isosvp",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
+        pcm_nonels = {
+            "A": -0.006496,
+            "B": 0.050833,
+            "C": -566.7,
+            "D": -30.503,
+            "gamma": 3.2,
+            "solvrho": 0.05,
+            "Delta": 7,
+            "GauLag_N": 40,
+        }
+
+        qc_input = QCInput(
+            molecule=test_molecule,
+            rem=rem,
+            pcm_nonels=pcm_nonels,
+            svp={"RHOISO": 0.0005, "DIELST": 78.39, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2, "IPNRF": 1, "IDEFESR": 1},
+        )
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
@@ -269,6 +382,8 @@ class QChemDictSetTest(PymatgenTest):
             "gen_scfman": "true",
             "scf_algorithm": "diis",
             "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
             "solvent_method": "smd",
             "ideriv": "1",
             "symmetry": "false",
@@ -284,6 +399,67 @@ class QChemDictSetTest(PymatgenTest):
             self.assertEqual(lines[0], "90.00,1.415,0.00,0.735,20.2,0.00,0.00")
         os.remove("solvent_data")
 
+    def test_solvation_warnings(self):
+        """
+        Tests warnings / errors resulting from nonsensical overwrite_inputs
+        """
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        with pytest.raises(RuntimeError, match="CMIRS is only parameterized"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                cmirs_solvent="water",
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"RHOISO": 0.0007}},
+            )
+        with pytest.warns(UserWarning, match="Setting IDEFESR=0"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                cmirs_solvent="water",
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"IDEFESR": 0}},
+            )
+        with pytest.warns(UserWarning, match="Setting IDEFESR=1"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                isosvp_dielectric=78,
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"IDEFESR": 1}},
+            )
+        with pytest.warns(UserWarning, match="Setting DIELST"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                pcm_dielectric=78,
+                max_scf_cycles=35,
+                overwrite_inputs={"svp": {"DIELST": 67}},
+            )
+        with pytest.warns(UserWarning, match="The solvent section will be ignored"):
+            QChemDictSet(
+                molecule=test_molecule,
+                job_type="opt",
+                basis_set="def2-SVPD",
+                scf_algorithm="diis",
+                dft_rung=5,
+                isosvp_dielectric=78,
+                max_scf_cycles=35,
+                overwrite_inputs={"solvent": {"dielectric": 67}},
+            )
+
 
 class SinglePointSetTest(PymatgenTest):
     def test_init(self):
@@ -295,13 +471,41 @@ class SinglePointSetTest(PymatgenTest):
                 "job_type": "sp",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "symmetry": "false",
                 "sym_ignore": "true",
                 "resp_charges": "true",
+            },
+        )
+        self.assertEqual(test_SPSet.pcm, {})
+        self.assertEqual(test_SPSet.solvent, {})
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
+    def test_scf_extra_print(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(molecule=test_molecule, extra_scf_print=True)
+        self.assertEqual(
+            test_SPSet.rem,
+            {
+                "job_type": "sp",
+                "gen_scfman": "true",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": "100",
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+                "scf_convergence": "8",
+                "scf_final_print": "3",
             },
         )
         self.assertEqual(test_SPSet.pcm, {})
@@ -317,10 +521,12 @@ class SinglePointSetTest(PymatgenTest):
                 "job_type": "sp",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "pcm",
                 "symmetry": "false",
                 "sym_ignore": "true",
@@ -337,7 +543,34 @@ class SinglePointSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_SPSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_SPSet.solvent, {"dielectric": "10.0"})
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
+    def test_isosvp_init(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(molecule=test_molecule, isosvp_dielectric=10.0)
+        self.assertEqual(
+            test_SPSet.rem,
+            {
+                "job_type": "sp",
+                "gen_scfman": "false",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": "100",
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "solvent_method": "isosvp",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+            },
+        )
+        self.assertEqual(
+            test_SPSet.svp,
+            {"dielst": "10.0", "rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"},
+        )
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -349,10 +582,12 @@ class SinglePointSetTest(PymatgenTest):
                 "job_type": "sp",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "symmetry": "false",
@@ -361,6 +596,56 @@ class SinglePointSetTest(PymatgenTest):
             },
         )
         self.assertEqual(test_SPSet.smx, {"solvent": "water"})
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
+    def test_cmirs_init(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(
+            molecule=test_molecule, cmirs_solvent="benzene", overwrite_inputs={"svp": {"RHOISO": 0.0005}}
+        )
+        self.assertEqual(
+            test_SPSet.rem,
+            {
+                "job_type": "sp",
+                "gen_scfman": "false",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": "100",
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
+                "solvent_method": "isosvp",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+            },
+        )
+        self.assertEqual(
+            test_SPSet.svp,
+            {
+                "dielst": "2.28",
+                "rhoiso": "0.0005",
+                "nptleb": "1202",
+                "itrngr": "2",
+                "irotgr": "2",
+                "ipnrf": "1",
+                "idefesr": "1",
+            },
+        )
+        self.assertEqual(
+            test_SPSet.pcm_nonels,
+            {
+                "a": "-0.00572",
+                "b": "0.01116",
+                "c": None,
+                "d": None,
+                "gamma": None,
+                "solvrho": "0.0421",
+                "gaulag_n": "40",
+                "delta": "7",
+            },
+        )
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
     def test_plots_init(self):
@@ -372,10 +657,12 @@ class SinglePointSetTest(PymatgenTest):
                 "job_type": "sp",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "symmetry": "false",
@@ -400,10 +687,12 @@ class OptSetTest(PymatgenTest):
                 "job_type": "opt",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "geom_opt_max_cycles": "200",
                 "symmetry": "false",
                 "sym_ignore": "true",
@@ -424,11 +713,13 @@ class OptSetTest(PymatgenTest):
                 "job_type": "opt",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "pcm",
                 "symmetry": "false",
                 "sym_ignore": "true",
@@ -445,7 +736,7 @@ class OptSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_OptSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_OptSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_OptSet.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -457,11 +748,13 @@ class OptSetTest(PymatgenTest):
                 "job_type": "opt",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "symmetry": "false",
@@ -489,10 +782,12 @@ class OptSetTest(PymatgenTest):
                 "gen_scfman": "true",
                 "geom_opt_max_cycles": "200",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "symmetry": "false",
                 "sym_ignore": "true",
                 "resp_charges": "true",
@@ -513,10 +808,12 @@ class TransitionStateSetTest(PymatgenTest):
                 "job_type": "ts",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "geom_opt_max_cycles": "200",
                 "resp_charges": "true",
                 "sym_ignore": "true",
@@ -537,11 +834,13 @@ class TransitionStateSetTest(PymatgenTest):
                 "job_type": "ts",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "pcm",
                 "resp_charges": "true",
                 "sym_ignore": "true",
@@ -552,7 +851,7 @@ class TransitionStateSetTest(PymatgenTest):
             test_TSSet.pcm,
             {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"},
         )
-        self.assertEqual(test_TSSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_TSSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_TSSet.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -564,11 +863,13 @@ class TransitionStateSetTest(PymatgenTest):
                 "job_type": "ts",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "geom_opt_max_cycles": "200",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "resp_charges": "true",
@@ -590,10 +891,12 @@ class ForceSetTest(PymatgenTest):
                 "job_type": "force",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "symmetry": "false",
                 "sym_ignore": "true",
                 "resp_charges": "true",
@@ -612,10 +915,12 @@ class ForceSetTest(PymatgenTest):
                 "job_type": "force",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "pcm",
                 "symmetry": "false",
                 "sym_ignore": "true",
@@ -626,7 +931,7 @@ class ForceSetTest(PymatgenTest):
             test_forceset.pcm,
             {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"},
         )
-        self.assertEqual(test_forceset.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_forceset.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_forceset.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -638,10 +943,12 @@ class ForceSetTest(PymatgenTest):
                 "job_type": "force",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "symmetry": "false",
@@ -664,11 +971,13 @@ class PESScanSetTest(PymatgenTest):
                 "job_type": "pes_scan",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "geom_opt_max_cycles": "200",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "resp_charges": "true",
                 "sym_ignore": "true",
                 "symmetry": "false",
@@ -691,11 +1000,13 @@ class PESScanSetTest(PymatgenTest):
                 "job_type": "pes_scan",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "geom_opt_max_cycles": "200",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "pcm",
                 "resp_charges": "true",
                 "sym_ignore": "true",
@@ -706,7 +1017,7 @@ class PESScanSetTest(PymatgenTest):
             test_pes_scan.pcm,
             {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"},
         )
-        self.assertEqual(test_pes_scan.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_pes_scan.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_pes_scan.scan, {"stre": ["3 6 1.5 1.9 0.01"]})
         self.assertEqual(test_pes_scan.molecule, test_molecule)
 
@@ -721,11 +1032,13 @@ class PESScanSetTest(PymatgenTest):
                 "job_type": "pes_scan",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "geom_opt_max_cycles": "200",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "resp_charges": "true",
@@ -748,10 +1061,12 @@ class FreqSetTest(PymatgenTest):
                 "job_type": "freq",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "symmetry": "false",
                 "sym_ignore": "true",
                 "resp_charges": "true",
@@ -770,10 +1085,12 @@ class FreqSetTest(PymatgenTest):
                 "job_type": "freq",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "pcm",
                 "symmetry": "false",
                 "sym_ignore": "true",
@@ -790,7 +1107,7 @@ class FreqSetTest(PymatgenTest):
                 "vdwscale": "1.1",
             },
         )
-        self.assertEqual(test_FreqSet.solvent, {"dielectric": 10.0})
+        self.assertEqual(test_FreqSet.solvent, {"dielectric": "10.0"})
         self.assertEqual(test_FreqSet.molecule, test_molecule)
 
     def test_smd_init(self):
@@ -802,10 +1119,12 @@ class FreqSetTest(PymatgenTest):
                 "job_type": "freq",
                 "gen_scfman": "true",
                 "basis": "def2-tzvppd",
-                "max_scf_cycles": "200",
+                "max_scf_cycles": "100",
                 "method": "wb97xd",
                 "scf_algorithm": "diis",
                 "xc_grid": "3",
+                "thresh": "14",
+                "s2thresh": "16",
                 "solvent_method": "smd",
                 "ideriv": "1",
                 "symmetry": "false",

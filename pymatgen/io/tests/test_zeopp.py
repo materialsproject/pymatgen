@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -242,13 +244,13 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         self.structure = bv.get_oxi_state_decorated_structure(self.structure)
         valences = bv.get_valences(self.structure)
         radii = []
-        for i in range(len(valences)):
-            el = self.structure.sites[i].specie.symbol
-            radius = Species(el, valences[i]).ionic_radius
+        for idx, valence in enumerate(valences):
+            el = self.structure.sites[idx].specie.symbol
+            radius = Species(el, valence).ionic_radius
             radii.append(radius)
         el = [site.species_string for site in self.structure.sites]
         self.rad_dict = dict(zip(el, radii))
-        for el in self.rad_dict.keys():
+        for el in self.rad_dict:
             print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):

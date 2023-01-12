@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.dimensionality module &mdash; pymatgen 2022.2.10 documentation</title>
+  <title>pymatgen.analysis.dimensionality module &mdash; pymatgen 2023.1.9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -20,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.analysis.energy_models module" href="pymatgen.analysis.energy_models.html" />
-    <link rel="prev" title="pymatgen.analysis.diffusion_analyzer module" href="pymatgen.analysis.diffusion_analyzer.html" />
+    <link rel="next" title="pymatgen.analysis.disorder module" href="pymatgen.analysis.disorder.html" />
+    <link rel="prev" title="pymatgen.analysis.cost module" href="pymatgen.analysis.cost.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -39,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.2.10
+                2023.1.9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -52,7 +51,326 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">v2023.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-7">v2022.11.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-1">v2022.11.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-10-22">v2022.10.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-21">v2022.9.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-8">v2022.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-8-23">v2022.8.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-25">v2022.7.25</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24-1">v2022.7.24.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24">v2022.7.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-19">v2022.7.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-8">v2022.7.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-26">v2022.5.26</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-19">v2022.5.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18-1">v2022.5.18.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18">v2022.5.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-17">v2022.5.17</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-26">v2022.4.26</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-19">v2022.4.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-29">v2022.3.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-24">v2022.3.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-22">v2022.3.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-7">v2022.3.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-10">v2022.2.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-7">v2022.2.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-1">v2022.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-24">v2022.1.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-20">v2022.1.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-9">v2022.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-8">v2022.1.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-17">v2022.0.17</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-16">v2022.0.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-15">v2022.0.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-14">v2022.0.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-13">v2022.0.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-12">v2022.0.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-11">v2022.0.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-10">v2022.0.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-9">v2022.0.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-8">v2022.0.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-7">v2022.0.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-6">v2022.0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-5">v2022.0.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-3">v2022.0.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-2-yanked">v2022.0.2 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-1-yanked">v2022.0.1 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-0-yanked">v2022.0.0 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-5">v2021.3.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-4-yanked">v2021.3.4 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-3">v2021.3.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-16">v2021.2.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-14">v2021.2.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-12">v2021.2.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8-1">v2021.2.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8">v2021.2.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-1-28">v2021.1.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-31">v2020.12.31</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-18">v2020.12.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-3">v2020.12.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-11-11">v2020.11.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-20">v2020.10.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-9">v2020.10.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-9-14">v2020.9.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-13">v2020.8.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-3">v2020.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-18">v2020.7.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-16">v2020.7.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-14">v2020.7.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-10">v2020.7.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-3">v2020.7.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-6-8">v2020.6.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-29">v2020.4.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-2">v2020.4.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-13">v2020.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-2">v2020.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-28">v2020.1.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-10">v2020.1.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-22">v2019.12.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-3">v2019.12.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-11-11">v2019.11.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-16">v2019.10.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-4">v2019.10.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-3">v2019.10.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-2">v2019.10.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-16">v2019.9.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-12">v2019.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-8">v2019.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-7">v2019.9.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-23">v2019.8.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-14">v2019.8.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-30">v2019.7.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-21">v2019.7.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-2">v2019.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-20">v2019.6.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-5">v2019.6.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-28">v2019.5.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-8">v2019.5.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-1">v2019.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-4-11">v2019.4.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-27">v2019.3.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-13">v2019.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-28">v2019.2.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-24">v2019.2.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-4">v2019.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-24">v2019.1.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-13">v2019.1.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-12-12">v2018.12.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-30">v2018.11.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-6">v2018.11.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-10-18">v2018.10.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-30">v2018.9.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-19">v2018.9.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-12">v2018.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-10">v2018.8.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-7">v2018.8.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-7-15">v2018.7.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-27">v2018.6.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-11">v2018.6.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-22">v2018.5.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-21">v2018.5.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-14">v2018.5.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-3">v2018.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-20">v2018.4.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-6">v2018.4.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-22">v2018.3.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-14">v2018.3.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-13">v2018.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-2">v2018.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-2-13">v2018.2.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-29">v2018.1.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-19">v2018.1.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-30">v2017.12.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-16">v2017.12.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-15">v2017.12.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-8">v2017.12.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-6">v2017.12.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-30">v2017.11.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-27">v2017.11.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-9">v2017.11.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-6">v2017.11.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-10-16">v2017.10.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-29">v2017.9.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-23">v2017.9.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-3">v2017.9.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-1">v2017.9.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-21">v2017.8.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-20">v2017.8.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-16">v2017.8.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-14">v2017.8.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-4">v2017.8.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-21">v2017.7.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-4">v2017.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-24">v2017.6.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-22">v2017.6.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-8">v2017.6.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-7">v4.7.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-6">v4.7.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-5">v4.7.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-4">v4.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-3">v4.7.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-2">v4.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-1">v4.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-0">v4.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-2">v4.6.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-1">v4.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-0">v4.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-7">v4.5.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-6">v4.5.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-5">v4.5.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-4">v4.5.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-3">v4.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-2">v4.5.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-1">v4.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-0">v4.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-12">v4.4.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-11">v4.4.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-10">v4.4.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-9">v4.4.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-8">v4.4.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-7">v4.4.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-6">v4.4.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-5">v4.4.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-4">v4.4.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-3">v4.4.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-2">v4.4.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-1">v4.4.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-0">v4.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-2">v4.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-1">v4.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-0">v4.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-5">v4.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-4">v4.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-3">v4.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-2">v4.2.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-1">v4.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-0">v4.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-1">v4.1.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-0">v4.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-2">v4.0.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-1">v4.0.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-0">v4.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-1">v3.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-0">v3.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-1">v3.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-0">v3.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-3">v3.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-2">v3.5.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-1">v3.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-0">v3.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-4-0">v3.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-6">v3.3.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-5">v3.3.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-4">v3.3.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-3">v3.3.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-2">v3.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-1">v3.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-0">v3.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-10">v3.2.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-9">v3.2.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-8">v3.2.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-7">v3.2.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-6">v3.2.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-5">v3.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-4">v3.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-3">v3.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-1">v3.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-0">v3.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-9">v3.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-7">v3.1.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-6">v3.1.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-5">v3.1.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-4">v3.1.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-3">v3.1.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-2">v3.1.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-1">v3.1.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-0">v3.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-13">v3.0.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-11">v3.0.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-10">v3.0.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-9">v3.0.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-8">v3.0.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-7">v3.0.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-6">v3.0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-5">v3.0.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-4">v3.0.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-3">v3.0.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-2">v3.0.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-1">v3.0.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-0">v3.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-6">v2.10.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-5">v2.10.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-3">v2.10.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-2">v2.10.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-1">v2.10.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-0">v2.10.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-14">v2.9.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-13">v2.9.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-12">v2.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-11">v2.9.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-10">v2.9.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-9">v2.9.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-8">v2.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-7">v2.9.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-6">v2.9.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-5">v2.9.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-4">v2.9.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-3">v2.9.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-2">v2.9.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-1">v2.9.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-0">v2.9.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-10">v2.8.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-9">v2.8.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-8">v2.8.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-7">v2.8.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-6">v2.8.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-4">v2.8.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-3">v2.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-2">v2.8.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-1">v2.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-0">v2.8.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-9">v2.7.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-7">v2.7.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-6">v2.7.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-5">v2.7.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-4">v2.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-2">v2.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-1">v2.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-0">v2.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-6">v2.6.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-5">v2.6.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-4">v2.6.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-3">v2.6.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-2">v2.6.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-1">v2.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-5">v2.5.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-4">v2.5.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-3">v2.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-1">v2.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-0">v2.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-3">v2.4.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-0">v2.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-2">v2.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-1">v2.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-0">v2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-6">v2.2.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-4">v2.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-3">v2.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-2">v2.2.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-1">v2.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-0">v2.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-1-2">v2.1.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-0-0">v2.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-9-0">v1.9.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-3">v1.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-1">v1.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-0">v1.8.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-2">v1.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-0">v1.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-6-0">v1.6.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -99,11 +417,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-      <li>pymatgen.analysis.dimensionality module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.analysis.dimensionality module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.dimensionality.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -113,7 +431,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.analysis.dimensionality">
+  <div class="section" id="module-pymatgen.analysis.dimensionality">
 <span id="pymatgen-analysis-dimensionality-module"></span><h1>pymatgen.analysis.dimensionality module<a class="headerlink" href="#module-pymatgen.analysis.dimensionality" title="Permalink to this headline"></a></h1>
 <p>This module provides functions to get the dimensionality of a structure.</p>
 <p>A number of different algorithms are implemented. These are based on the
@@ -140,7 +458,7 @@ J. Mater. Chem. A 2, 4136 (2016).</p></li>
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.calculate_dimensionality_of_site">
-<span class="sig-name descname"><span class="pre">calculate_dimensionality_of_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_vertices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L169-L244"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.calculate_dimensionality_of_site" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_dimensionality_of_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_vertices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L171-L246"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.calculate_dimensionality_of_site" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the dimensionality of the component containing the given site.</p>
 <p>Implements directly the modified breadth-first-search algorithm described in
 Algorithm 1 of:</p>
@@ -172,7 +490,7 @@ vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.find_clusters">
-<span class="sig-name descname"><span class="pre">find_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connected_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L443-L495"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.find_clusters" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connected_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L450-L502"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.find_clusters" title="Permalink to this definition"></a></dt>
 <dd><p>Finds bonded clusters of atoms in the structure with periodic boundary
 conditions.</p>
 <p>If there are atoms that are not bonded to anything, returns [0,1,0]. (For
@@ -201,7 +519,7 @@ sets of indices of atoms</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.find_connected_atoms">
-<span class="sig-name descname"><span class="pre">find_connected_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ldict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Ac':</span> <span class="pre">1.88,</span> <span class="pre">'Ag':</span> <span class="pre">1.59,</span> <span class="pre">'Al':</span> <span class="pre">1.35,</span> <span class="pre">'Am':</span> <span class="pre">1.51,</span> <span class="pre">'Ar':</span> <span class="pre">1.57,</span> <span class="pre">'As':</span> <span class="pre">1.21,</span> <span class="pre">'At':</span> <span class="pre">1.7,</span> <span class="pre">'Au':</span> <span class="pre">1.5,</span> <span class="pre">'B':</span> <span class="pre">0.83,</span> <span class="pre">'Ba':</span> <span class="pre">1.34,</span> <span class="pre">'Be':</span> <span class="pre">0.35,</span> <span class="pre">'Bh':</span> <span class="pre">1.6,</span> <span class="pre">'Bi':</span> <span class="pre">1.54,</span> <span class="pre">'Bk':</span> <span class="pre">1.5,</span> <span class="pre">'Br':</span> <span class="pre">1.21,</span> <span class="pre">'C':</span> <span class="pre">0.68,</span> <span class="pre">'Ca':</span> <span class="pre">0.99,</span> <span class="pre">'Cd':</span> <span class="pre">1.69,</span> <span class="pre">'Ce':</span> <span class="pre">1.83,</span> <span class="pre">'Cf':</span> <span class="pre">1.5,</span> <span class="pre">'Cl':</span> <span class="pre">0.99,</span> <span class="pre">'Cm':</span> <span class="pre">1.5,</span> <span class="pre">'Co':</span> <span class="pre">1.33,</span> <span class="pre">'Cr':</span> <span class="pre">1.35,</span> <span class="pre">'Cs':</span> <span class="pre">1.67,</span> <span class="pre">'Cu':</span> <span class="pre">1.52,</span> <span class="pre">'Db':</span> <span class="pre">1.6,</span> <span class="pre">'Dy':</span> <span class="pre">1.75,</span> <span class="pre">'Er':</span> <span class="pre">1.73,</span> <span class="pre">'Es':</span> <span class="pre">1.5,</span> <span class="pre">'Eu':</span> <span class="pre">1.99,</span> <span class="pre">'F':</span> <span class="pre">0.64,</span> <span class="pre">'Fe':</span> <span class="pre">1.34,</span> <span class="pre">'Fm':</span> <span class="pre">1.5,</span> <span class="pre">'Fr':</span> <span class="pre">2,</span> <span class="pre">'Ga':</span> <span class="pre">1.22,</span> <span class="pre">'Gd':</span> <span class="pre">1.79,</span> <span class="pre">'Ge':</span> <span class="pre">1.17,</span> <span class="pre">'H':</span> <span class="pre">0.23,</span> <span class="pre">'He':</span> <span class="pre">0.93,</span> <span class="pre">'Hf':</span> <span class="pre">1.57,</span> <span class="pre">'Hg':</span> <span class="pre">1.7,</span> <span class="pre">'Ho':</span> <span class="pre">1.74,</span> <span class="pre">'Hs':</span> <span class="pre">1.6,</span> <span class="pre">'I':</span> <span class="pre">1.4,</span> <span class="pre">'In':</span> <span class="pre">1.63,</span> <span class="pre">'Ir':</span> <span class="pre">1.32,</span> <span class="pre">'K':</span> <span class="pre">1.33,</span> <span class="pre">'Kr':</span> <span class="pre">1.91,</span> <span class="pre">'La':</span> <span class="pre">1.87,</span> <span class="pre">'Li':</span> <span class="pre">0.68,</span> <span class="pre">'Lr':</span> <span class="pre">1.5,</span> <span class="pre">'Lu':</span> <span class="pre">1.72,</span> <span class="pre">'Md':</span> <span class="pre">1.5,</span> <span class="pre">'Mg':</span> <span class="pre">1.1,</span> <span class="pre">'Mn':</span> <span class="pre">1.35,</span> <span class="pre">'Mo':</span> <span class="pre">1.47,</span> <span class="pre">'Mt':</span> <span class="pre">1.6,</span> <span class="pre">'N':</span> <span class="pre">0.68,</span> <span class="pre">'Na':</span> <span class="pre">0.97,</span> <span class="pre">'Nb':</span> <span class="pre">1.48,</span> <span class="pre">'Nd':</span> <span class="pre">1.81,</span> <span class="pre">'Ne':</span> <span class="pre">1.12,</span> <span class="pre">'Ni':</span> <span class="pre">1.5,</span> <span class="pre">'No':</span> <span class="pre">1.5,</span> <span class="pre">'Np':</span> <span class="pre">1.55,</span> <span class="pre">'O':</span> <span class="pre">0.68,</span> <span class="pre">'Os':</span> <span class="pre">1.37,</span> <span class="pre">'P':</span> <span class="pre">0.75,</span> <span class="pre">'Pa':</span> <span class="pre">1.61,</span> <span class="pre">'Pb':</span> <span class="pre">1.54,</span> <span class="pre">'Pd':</span> <span class="pre">1.5,</span> <span class="pre">'Pm':</span> <span class="pre">1.8,</span> <span class="pre">'Po':</span> <span class="pre">1.68,</span> <span class="pre">'Pr':</span> <span class="pre">1.82,</span> <span class="pre">'Pt':</span> <span class="pre">1.5,</span> <span class="pre">'Pu':</span> <span class="pre">1.53,</span> <span class="pre">'Ra':</span> <span class="pre">1.9,</span> <span class="pre">'Rb':</span> <span class="pre">1.47,</span> <span class="pre">'Re':</span> <span class="pre">1.35,</span> <span class="pre">'Rf':</span> <span class="pre">1.6,</span> <span class="pre">'Rh':</span> <span class="pre">1.45,</span> <span class="pre">'Rn':</span> <span class="pre">2.4,</span> <span class="pre">'Ru':</span> <span class="pre">1.4,</span> <span class="pre">'S':</span> <span class="pre">1.02,</span> <span class="pre">'Sb':</span> <span class="pre">1.46,</span> <span class="pre">'Sc':</span> <span class="pre">1.44,</span> <span class="pre">'Se':</span> <span class="pre">1.22,</span> <span class="pre">'Sg':</span> <span class="pre">1.6,</span> <span class="pre">'Si':</span> <span class="pre">1.2,</span> <span class="pre">'Sm':</span> <span class="pre">1.8,</span> <span class="pre">'Sn':</span> <span class="pre">1.46,</span> <span class="pre">'Sr':</span> <span class="pre">1.12,</span> <span class="pre">'Ta':</span> <span class="pre">1.43,</span> <span class="pre">'Tb':</span> <span class="pre">1.76,</span> <span class="pre">'Tc':</span> <span class="pre">1.35,</span> <span class="pre">'Te':</span> <span class="pre">1.47,</span> <span class="pre">'Th':</span> <span class="pre">1.79,</span> <span class="pre">'Ti':</span> <span class="pre">1.47,</span> <span class="pre">'Tl':</span> <span class="pre">1.55,</span> <span class="pre">'Tm':</span> <span class="pre">1.72,</span> <span class="pre">'U':</span> <span class="pre">1.58,</span> <span class="pre">'V':</span> <span class="pre">1.33,</span> <span class="pre">'W':</span> <span class="pre">1.37,</span> <span class="pre">'Xe':</span> <span class="pre">1.98,</span> <span class="pre">'Y':</span> <span class="pre">1.78,</span> <span class="pre">'Yb':</span> <span class="pre">1.94,</span> <span class="pre">'Zn':</span> <span class="pre">1.45,</span> <span class="pre">'Zr':</span> <span class="pre">1.56}</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L395-L440"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.find_connected_atoms" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_connected_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ldict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L399-L447"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.find_connected_atoms" title="Permalink to this definition"></a></dt>
 <dd><p>Finds bonded atoms and returns a adjacency matrix of bonded atoms.</p>
 <p>Author: “Gowoon Cheon”
 Email: “<a class="reference external" href="mailto:gcheon&#37;&#52;&#48;stanford&#46;edu">gcheon<span>&#64;</span>stanford<span>&#46;</span>edu</a>”</p>
@@ -230,7 +548,7 @@ conditions, the matrix element [atom i, atom j] is 1.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.get_dimensionality_cheon">
-<span class="sig-name descname"><span class="pre">get_dimensionality_cheon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_raw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ldict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Ac':</span> <span class="pre">1.88,</span> <span class="pre">'Ag':</span> <span class="pre">1.59,</span> <span class="pre">'Al':</span> <span class="pre">1.35,</span> <span class="pre">'Am':</span> <span class="pre">1.51,</span> <span class="pre">'Ar':</span> <span class="pre">1.57,</span> <span class="pre">'As':</span> <span class="pre">1.21,</span> <span class="pre">'At':</span> <span class="pre">1.7,</span> <span class="pre">'Au':</span> <span class="pre">1.5,</span> <span class="pre">'B':</span> <span class="pre">0.83,</span> <span class="pre">'Ba':</span> <span class="pre">1.34,</span> <span class="pre">'Be':</span> <span class="pre">0.35,</span> <span class="pre">'Bh':</span> <span class="pre">1.6,</span> <span class="pre">'Bi':</span> <span class="pre">1.54,</span> <span class="pre">'Bk':</span> <span class="pre">1.5,</span> <span class="pre">'Br':</span> <span class="pre">1.21,</span> <span class="pre">'C':</span> <span class="pre">0.68,</span> <span class="pre">'Ca':</span> <span class="pre">0.99,</span> <span class="pre">'Cd':</span> <span class="pre">1.69,</span> <span class="pre">'Ce':</span> <span class="pre">1.83,</span> <span class="pre">'Cf':</span> <span class="pre">1.5,</span> <span class="pre">'Cl':</span> <span class="pre">0.99,</span> <span class="pre">'Cm':</span> <span class="pre">1.5,</span> <span class="pre">'Co':</span> <span class="pre">1.33,</span> <span class="pre">'Cr':</span> <span class="pre">1.35,</span> <span class="pre">'Cs':</span> <span class="pre">1.67,</span> <span class="pre">'Cu':</span> <span class="pre">1.52,</span> <span class="pre">'Db':</span> <span class="pre">1.6,</span> <span class="pre">'Dy':</span> <span class="pre">1.75,</span> <span class="pre">'Er':</span> <span class="pre">1.73,</span> <span class="pre">'Es':</span> <span class="pre">1.5,</span> <span class="pre">'Eu':</span> <span class="pre">1.99,</span> <span class="pre">'F':</span> <span class="pre">0.64,</span> <span class="pre">'Fe':</span> <span class="pre">1.34,</span> <span class="pre">'Fm':</span> <span class="pre">1.5,</span> <span class="pre">'Fr':</span> <span class="pre">2,</span> <span class="pre">'Ga':</span> <span class="pre">1.22,</span> <span class="pre">'Gd':</span> <span class="pre">1.79,</span> <span class="pre">'Ge':</span> <span class="pre">1.17,</span> <span class="pre">'H':</span> <span class="pre">0.23,</span> <span class="pre">'He':</span> <span class="pre">0.93,</span> <span class="pre">'Hf':</span> <span class="pre">1.57,</span> <span class="pre">'Hg':</span> <span class="pre">1.7,</span> <span class="pre">'Ho':</span> <span class="pre">1.74,</span> <span class="pre">'Hs':</span> <span class="pre">1.6,</span> <span class="pre">'I':</span> <span class="pre">1.4,</span> <span class="pre">'In':</span> <span class="pre">1.63,</span> <span class="pre">'Ir':</span> <span class="pre">1.32,</span> <span class="pre">'K':</span> <span class="pre">1.33,</span> <span class="pre">'Kr':</span> <span class="pre">1.91,</span> <span class="pre">'La':</span> <span class="pre">1.87,</span> <span class="pre">'Li':</span> <span class="pre">0.68,</span> <span class="pre">'Lr':</span> <span class="pre">1.5,</span> <span class="pre">'Lu':</span> <span class="pre">1.72,</span> <span class="pre">'Md':</span> <span class="pre">1.5,</span> <span class="pre">'Mg':</span> <span class="pre">1.1,</span> <span class="pre">'Mn':</span> <span class="pre">1.35,</span> <span class="pre">'Mo':</span> <span class="pre">1.47,</span> <span class="pre">'Mt':</span> <span class="pre">1.6,</span> <span class="pre">'N':</span> <span class="pre">0.68,</span> <span class="pre">'Na':</span> <span class="pre">0.97,</span> <span class="pre">'Nb':</span> <span class="pre">1.48,</span> <span class="pre">'Nd':</span> <span class="pre">1.81,</span> <span class="pre">'Ne':</span> <span class="pre">1.12,</span> <span class="pre">'Ni':</span> <span class="pre">1.5,</span> <span class="pre">'No':</span> <span class="pre">1.5,</span> <span class="pre">'Np':</span> <span class="pre">1.55,</span> <span class="pre">'O':</span> <span class="pre">0.68,</span> <span class="pre">'Os':</span> <span class="pre">1.37,</span> <span class="pre">'P':</span> <span class="pre">0.75,</span> <span class="pre">'Pa':</span> <span class="pre">1.61,</span> <span class="pre">'Pb':</span> <span class="pre">1.54,</span> <span class="pre">'Pd':</span> <span class="pre">1.5,</span> <span class="pre">'Pm':</span> <span class="pre">1.8,</span> <span class="pre">'Po':</span> <span class="pre">1.68,</span> <span class="pre">'Pr':</span> <span class="pre">1.82,</span> <span class="pre">'Pt':</span> <span class="pre">1.5,</span> <span class="pre">'Pu':</span> <span class="pre">1.53,</span> <span class="pre">'Ra':</span> <span class="pre">1.9,</span> <span class="pre">'Rb':</span> <span class="pre">1.47,</span> <span class="pre">'Re':</span> <span class="pre">1.35,</span> <span class="pre">'Rf':</span> <span class="pre">1.6,</span> <span class="pre">'Rh':</span> <span class="pre">1.45,</span> <span class="pre">'Rn':</span> <span class="pre">2.4,</span> <span class="pre">'Ru':</span> <span class="pre">1.4,</span> <span class="pre">'S':</span> <span class="pre">1.02,</span> <span class="pre">'Sb':</span> <span class="pre">1.46,</span> <span class="pre">'Sc':</span> <span class="pre">1.44,</span> <span class="pre">'Se':</span> <span class="pre">1.22,</span> <span class="pre">'Sg':</span> <span class="pre">1.6,</span> <span class="pre">'Si':</span> <span class="pre">1.2,</span> <span class="pre">'Sm':</span> <span class="pre">1.8,</span> <span class="pre">'Sn':</span> <span class="pre">1.46,</span> <span class="pre">'Sr':</span> <span class="pre">1.12,</span> <span class="pre">'Ta':</span> <span class="pre">1.43,</span> <span class="pre">'Tb':</span> <span class="pre">1.76,</span> <span class="pre">'Tc':</span> <span class="pre">1.35,</span> <span class="pre">'Te':</span> <span class="pre">1.47,</span> <span class="pre">'Th':</span> <span class="pre">1.79,</span> <span class="pre">'Ti':</span> <span class="pre">1.47,</span> <span class="pre">'Tl':</span> <span class="pre">1.55,</span> <span class="pre">'Tm':</span> <span class="pre">1.72,</span> <span class="pre">'U':</span> <span class="pre">1.58,</span> <span class="pre">'V':</span> <span class="pre">1.33,</span> <span class="pre">'W':</span> <span class="pre">1.37,</span> <span class="pre">'Xe':</span> <span class="pre">1.98,</span> <span class="pre">'Y':</span> <span class="pre">1.78,</span> <span class="pre">'Yb':</span> <span class="pre">1.94,</span> <span class="pre">'Zn':</span> <span class="pre">1.45,</span> <span class="pre">'Zr':</span> <span class="pre">1.56}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standardize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">larger_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L299-L392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_dimensionality_cheon" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dimensionality_cheon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_raw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ldict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standardize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">larger_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L301-L396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_dimensionality_cheon" title="Permalink to this definition"></a></dt>
 <dd><p>Algorithm for finding the dimensions of connected subunits in a structure.
 This method finds the dimensionality of the material even when the material
 is not layered along low-index planes, or does not have flat
@@ -254,7 +572,7 @@ Values from JMol are used as default</p></li>
 <li><p><strong>standardize</strong> – works with conventional standard structures if True. It is
 recommended to keep this as True.</p></li>
 <li><p><strong>larger_cell</strong> – <p>tests with 3x3x3 supercell instead of 2x2x2. Testing with
-2x2x2 supercell is faster but misclssifies rare interpenetrated 3D</p>
+2x2x2 supercell is faster but misclassifies rare interpenetrated 3D</p>
 <blockquote>
 <div><p>structures. Testing with a larger cell circumvents this problem</p>
 </div></blockquote>
@@ -273,7 +591,7 @@ or molecules it returns ‘intercalated ion/molecule’</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.get_dimensionality_gorai">
-<span class="sig-name descname"><span class="pre">get_dimensionality_gorai</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_hkl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">el_radius_updates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standardize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L498-L561"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_dimensionality_gorai" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dimensionality_gorai</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_hkl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">el_radius_updates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standardize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L505-L568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_dimensionality_gorai" title="Permalink to this definition"></a></dt>
 <dd><p>This method returns whether a structure is 3D, 2D (layered), or 1D (linear
 chains or molecules) according to the algorithm published in Gorai, P.,
 Toberer, E. &amp; Stevanovic, V. Computational Identification of Promising
@@ -311,7 +629,7 @@ defined as {(“P”, “O”): 3}.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.get_dimensionality_larsen">
-<span class="sig-name descname"><span class="pre">get_dimensionality_larsen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L42-L70"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_dimensionality_larsen" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dimensionality_larsen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L44-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_dimensionality_larsen" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the dimensionality of a bonded structure.</p>
 <p>The dimensionality of the structure is the highest dimensionality of all
 structure components. This method is very robust and can handle
@@ -343,7 +661,7 @@ CrystalNN.get_bonded_structure() method.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.get_structure_components">
-<span class="sig-name descname"><span class="pre">get_structure_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_site_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_molecule_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L73-L166"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_structure_components" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_structure_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_site_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_molecule_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L75-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.get_structure_components" title="Permalink to this definition"></a></dt>
 <dd><p>Gets information on the components in a bonded structure.</p>
 <p>Correctly determines the dimensionality of all structures, regardless of
 structure type or improper connections due to periodic boundary conditions.</p>
@@ -411,7 +729,7 @@ of dictionaries with the keys:</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.dimensionality.zero_d_graph_to_molecule_graph">
-<span class="sig-name descname"><span class="pre">zero_d_graph_to_molecule_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.2.10/pymatgen/core/../analysis/dimensionality.py#L247-L296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.zero_d_graph_to_molecule_graph" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zero_d_graph_to_molecule_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/dimensionality.py#L249-L298"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.dimensionality.zero_d_graph_to_molecule_graph" title="Permalink to this definition"></a></dt>
 <dd><p>Converts a zero-dimensional networkx Graph object into a MoleculeGraph.</p>
 <p>Implements a similar breadth-first search to that in
 calculate_dimensionality_of_site().</p>
@@ -434,7 +752,7 @@ interest.</p></li>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

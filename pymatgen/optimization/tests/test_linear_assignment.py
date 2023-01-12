@@ -2,11 +2,13 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import unittest
 
 import numpy as np
 
-from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
+from pymatgen.optimization.linear_assignment import LinearAssignment
 
 
 class LinearAssignmentTest(unittest.TestCase):
@@ -268,5 +270,4 @@ class LinearAssignmentTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import unittest
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
@@ -44,7 +46,7 @@ class InterfaceBuilderTest(PymatgenTest):
             substrate_miller=(1, 1, 1),
         )
 
-        self.assertEqual(len(builder.terminations), 2)
+        assert len(builder.terminations) == 2
         # SP: I am commenting out this test which is super fragile and the result fluctates between 6 and 30 for
         # no apparent reason. The author should fix this.
         # self.assertEqual(len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))), 30)

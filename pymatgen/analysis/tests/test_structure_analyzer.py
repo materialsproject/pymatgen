@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 
@@ -60,7 +62,7 @@ class RelaxationAnalyzerTest(unittest.TestCase):
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
     def test_vol_and_para_changes(self):
-        for k, v in self.analyzer.get_percentage_lattice_parameter_changes().items():
+        for v in self.analyzer.get_percentage_lattice_parameter_changes().values():
             self.assertAlmostEqual(-0.0092040921155279731, v)
             latt_change = v
         vol_change = self.analyzer.get_percentage_volume_change()
@@ -70,8 +72,8 @@ class RelaxationAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual((1 + latt_change) ** 3 - 1, vol_change)
 
     def test_get_percentage_bond_dist_changes(self):
-        for k, v in self.analyzer.get_percentage_bond_dist_changes().items():
-            for k2, v2 in v.items():
+        for v in self.analyzer.get_percentage_bond_dist_changes().values():
+            for v2 in v.values():
                 self.assertAlmostEqual(-0.009204092115527862, v2)
 
 

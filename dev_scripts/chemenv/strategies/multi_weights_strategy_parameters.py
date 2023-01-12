@@ -5,6 +5,8 @@
 Script to visualize the model coordination environments
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"
@@ -14,6 +16,7 @@ __date__ = "Feb 20, 2016"
 
 import copy
 import json
+from typing import Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,6 +44,10 @@ allcg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
+    """
+    Class to morph a coordination environment into another one.
+    """
+
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
@@ -50,6 +57,17 @@ class CoordinationEnvironmentMorphing:
 
     @classmethod
     def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
+        """
+        Simple expansion of a coordination environment.
+
+        Args:
+            initial_environment_symbol (str): The initial coordination environment symbol.
+            expected_final_environment_symbol (str): The expected final coordination environment symbol.
+            neighbors_indices (list): The indices of the neighbors to be expanded.
+
+        Returns:
+            CoordinationEnvironmentMorphing
+        """
         morphing_description = [
             {"ineighbor": i_nb, "site_type": "neighbor", "expansion_origin": "central_site"}
             for i_nb in neighbors_indices
@@ -60,7 +78,14 @@ class CoordinationEnvironmentMorphing:
             morphing_description=morphing_description,
         )
 
-    def figure_fractions(self, weights_options, morphing_factors=None):
+    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] = None) -> None:
+        """
+        Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
+
+        Args:
+            weights_options (dict): The weights options.
+            morphing_factors (list): The morphing factors.
+        """
         if morphing_factors is None:
             morphing_factors = np.linspace(1.0, 2.0, 21)
         # Set up the local geometry finder
@@ -69,7 +94,7 @@ class CoordinationEnvironmentMorphing:
         # Set up the weights for the MultiWeights strategy
         weights = self.get_weights(weights_options)
         # Set up the strategy
-        strat = MultiWeightsChemenvStrategy(
+        strategy = MultiWeightsChemenvStrategy(
             dist_ang_area_weight=weights["DistAngArea"],
             self_csm_weight=weights["SelfCSM"],
             delta_csm_weight=weights["DeltaCSM"],
@@ -88,8 +113,8 @@ class CoordinationEnvironmentMorphing:
             # Get the StructureEnvironments
             lgf.setup_structure(structure=struct)
             se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences)
-            strat.set_structure_environments(structure_environments=se)
-            result = strat.get_site_coordination_environments_fractions(
+            strategy.set_structure_environments(structure_environments=se)
+            result = strategy.get_site_coordination_environments_fractions(
                 site=se.structure[0], isite=0, return_strategy_dict_info=True, return_all=True
             )
             for res in result:

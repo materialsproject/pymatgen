@@ -17,13 +17,14 @@ After installation, you may need to manually add the path of the packmol
 executable to the PATH environment variable.
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from shutil import which
 
 import numpy as np
-from monty.os.path import which
 
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputGenerator, InputSet
@@ -41,7 +42,7 @@ class PackmolSet(InputSet):
     to
     """
 
-    def run(self, path: Union[str, Path], timeout=30):
+    def run(self, path: str | Path, timeout=30):
         """Run packmol and write out the packed structure.
         Args:
             path: The path in which packmol input files are located.
@@ -88,7 +89,7 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
-    def from_directory(cls, directory: Union[str, Path]):
+    def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.
 
@@ -108,10 +109,10 @@ class PackmolBoxGen(InputGenerator):
         self,
         tolerance: float = 2.0,
         seed: int = 1,
-        control_params: Optional[Dict] = None,
-        inputfile: Union[str, Path] = "packmol.inp",
-        outputfile: Union[str, Path] = "packmol_out.xyz",
-        stdoutfile: Union[str, Path] = "packmol.stdout",
+        control_params: dict | None = None,
+        inputfile: str | Path = "packmol.inp",
+        outputfile: str | Path = "packmol_out.xyz",
+        stdoutfile: str | Path = "packmol.stdout",
     ):
         """
         Instantiate a PackmolBoxGen class. The init method defines simulations parameters
@@ -128,14 +129,14 @@ class PackmolBoxGen(InputGenerator):
         self.inputfile = inputfile
         self.outputfile = outputfile
         self.stdoutfile = stdoutfile
-        self.control_params = control_params if control_params else {}
+        self.control_params = control_params or {}
         self.tolerance = tolerance
         self.seed = seed
 
     def get_input_set(  # type: ignore
         self,
-        molecules: List[Dict],
-        box: Optional[List[float]] = None,
+        molecules: list[dict],
+        box: list[float] | None = None,
     ):
         """
         Generate a Packmol InputSet for a set of molecules.
@@ -161,7 +162,7 @@ class PackmolBoxGen(InputGenerator):
 
         for k, v in self.control_params.items():
             if isinstance(v, list):
-                file_contents += "{} {}\n".format(k, " ".join(str(x) for x in v))
+                file_contents += f"{k} {' '.join(str(x) for x in v)}\n"
             else:
                 file_contents += f"{k} {str(v)}\n"
         file_contents += f"seed {self.seed}\n"
@@ -213,7 +214,7 @@ class PackmolBoxGen(InputGenerator):
                 # fmt: on
             else:
                 file_contents += f"structure {fname}\n"
-            file_contents += "  number {}\n".format(str(d["number"]))
+            file_contents += f"  number {str(d['number'])}\n"
             file_contents += f"  inside box {box_list}\n"
             file_contents += "end structure\n\n"
 

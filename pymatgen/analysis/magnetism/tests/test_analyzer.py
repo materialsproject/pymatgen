@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import unittest
 import warnings
@@ -246,7 +248,6 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         # ferrimagnetic (Cr produces net spin)
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/Cr2NiO4.json"))
         enumerator = MagneticStructureEnumerator(structure)
-        print(enumerator.input_origin)
         self.assertEqual(enumerator.input_origin, "ferri_by_Cr")
 
         # antiferromagnetic on single magnetic site

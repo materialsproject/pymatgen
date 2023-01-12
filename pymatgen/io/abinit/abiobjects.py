@@ -6,21 +6,20 @@
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
 
+from __future__ import annotations
+
 import abc
 import collections
 from enum import Enum
 from pprint import pformat
+from typing import cast
 
 import numpy as np
 from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
-from pymatgen.core import units
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.core.units import ArrayWithUnit
-from pymatgen.util.serialization import pmg_serialize
+from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
@@ -172,7 +171,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     )
 
 
-def species_by_znucl(structure):
+def species_by_znucl(structure: Structure) -> list[Species]:
     """
     Return list of unique specie found in structure **ordered according to sites**.
 
@@ -228,19 +227,14 @@ or the Virtual Crystal Approximation."""
 
         if len(enforce_typat) != len(structure):
             raise ValueError(
-                "enforce_typat contains %d entries while it should be natom: %s" % (len(enforce_typat)),
-                len(structure),
+                f"enforce_typat contains {len(enforce_typat)} entries while it should be natom: {len(structure)}"
             )
 
         if len(enforce_znucl) != ntypat:
-            raise ValueError(
-                "enforce_znucl contains %d entries while it should be ntypat: %s" % (len(enforce_znucl)),
-                ntypat,
-            )
+            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be ntypat: {ntypat}")
 
     if not enforce_order:
         types_of_specie = species_by_znucl(structure)
-        # types_of_specie = structure.types_of_species
 
         # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
@@ -395,10 +389,11 @@ class SpinMode(
             "nspden": self.nspden,
         }
 
-    @pmg_serialize
     def as_dict(self):
         """Convert object to dict."""
-        return {k: getattr(self, k) for k in self._fields}
+        out = {k: getattr(self, k) for k in self._fields}
+        out.update({"@module": type(self).__module__, "@class": type(self).__name__})
+        return out
 
     @classmethod
     def from_dict(cls, d):
@@ -443,17 +438,17 @@ class Smearing(AbivarAble, MSONable):
             s += f"tsmear {self.tsmear}"
         return s
 
-    def __eq__(self, other):
-        return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("occopt", "tsmear")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
 
-    def __ne__(self, other):
-        return not self == other
+        other = cast(Smearing, other)
+
+        return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
 
     def __bool__(self):
         return self.mode != "nosmearing"
-
-    # py2 old version
-    __nonzero__ = __bool__
 
     @classmethod
     def as_smearing(cls, obj):
@@ -506,10 +501,14 @@ class Smearing(AbivarAble, MSONable):
             return {"occopt": 1, "tsmear": 0.0}
         return {"occopt": self.occopt, "tsmear": self.tsmear}
 
-    @pmg_serialize
     def as_dict(self):
         """json friendly dict representation of Smearing"""
-        return {"occopt": self.occopt, "tsmear": self.tsmear}
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "occopt": self.occopt,
+            "tsmear": self.tsmear,
+        }
 
     @staticmethod
     def from_dict(d):
@@ -540,16 +539,15 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
         for k in self:
             if k not in self._DEFAULT:
-                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
         return self.copy()
 
-    @pmg_serialize
     def as_dict(self):
         """Convert object to dict."""
-        return self.copy()
+        return {"@module": type(self).__module__, "@class": type(self).__name__, **self.copy()}
 
     @classmethod
     def from_dict(cls, d):
@@ -608,8 +606,8 @@ class Electrons(AbivarAble, MSONable):
     def as_dict(self):
         """json friendly dict representation"""
         d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["spin_mode"] = self.spin_mode.as_dict()
         d["smearing"] = self.smearing.as_dict()
         d["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
@@ -679,10 +677,10 @@ class KSampling(AbivarAble, MSONable):
         comment=None,
     ):
         """
-        Highly flexible constructor for KSampling objects.  The flexibility comes
+        Highly flexible constructor for KSampling objects. The flexibility comes
         at the cost of usability and in general, it is recommended that you use
         the default constructor only if you know exactly what you are doing and
-        requires the flexibility.  For most usage cases, the object be constructed
+        requires the flexibility. For most usage cases, the object be constructed
         far more easily using the convenience static constructors:
 
             #. gamma_only
@@ -760,7 +758,6 @@ class KSampling(AbivarAble, MSONable):
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
             kptbounds = np.reshape(kpts, (-1, 3))
-            # print("in path with kptbound: %s " % kptbounds)
 
             abivars.update(
                 {
@@ -793,7 +790,7 @@ class KSampling(AbivarAble, MSONable):
         # self.abivars["#comment"] = comment
 
     @property
-    def is_homogeneous(self):
+    def is_homogeneous(self) -> bool:
         """Homogeneous sampling."""
         return self.mode not in ["path"]
 
@@ -853,7 +850,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Monkhorst-Pack scheme with user-specified shiftk",
+            comment=comment or "Monkhorst-Pack scheme with user-specified shiftk",
         )
 
     @classmethod
@@ -891,7 +888,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment if comment else "Automatic Monkhorst-Pack scheme",
+            comment=comment or "Automatic Monkhorst-Pack scheme",
         )
 
     @classmethod
@@ -914,7 +911,7 @@ class KSampling(AbivarAble, MSONable):
 
             sp = HighSymmKpath(structure)
 
-            # Flat the array since "path" is a a list of lists!
+            # Flat the array since "path" is a list of lists!
             kpath_labels = []
             for labels in sp.kpath["path"]:
                 kpath_labels.extend(labels)
@@ -922,14 +919,13 @@ class KSampling(AbivarAble, MSONable):
             kpath_bounds = []
             for label in kpath_labels:
                 red_coord = sp.kpath["kpoints"][label]
-                # print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
         return cls(
             mode=KSamplingModes.path,
             num_kpts=ndivsm,
             kpts=kpath_bounds,
-            comment=comment if comment else "K-Path scheme",
+            comment=comment or "K-Path scheme",
         )
 
     @classmethod
@@ -979,7 +975,7 @@ class KSampling(AbivarAble, MSONable):
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + f"{kppa} / atom"
+        comment = f"pymatge.io.abinit generated KPOINTS with grid density = {kppa} / atom"
 
         return cls(
             mode="monkhorst",
@@ -1009,8 +1005,8 @@ class KSampling(AbivarAble, MSONable):
             "use_symmetries": self.use_symmetries,
             "use_time_reversal": self.use_time_reversal,
             "chksymbreak": self.chksymbreak,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -1070,13 +1066,11 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         for k in self.abivars:
             if k not in self._default_vars:
-                raise ValueError(f"{self.__class__.__name__}: No default value has been provided for key {k}")
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
 
         for k in self.abivars:
             if k is MANDATORY:
-                raise ValueError(
-                    f"{self.__class__.__name__}: No default value has been provided for the mandatory key {k}"
-                )
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for the mandatory key {k}")
 
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
@@ -1144,8 +1138,8 @@ class RelaxationMethod(AbivarAble, MSONable):
     def as_dict(self):
         """Convert object to dict."""
         d = dict(self._default_vars)
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         return d
 
     @classmethod
@@ -1211,9 +1205,12 @@ class PPModel(AbivarAble, MSONable):
         self.mode = mode
         self.plasmon_freq = plasmon_freq
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("mode", "plasmon_freq")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        other = cast(PPModel, other)
+
         if self.mode != other.mode:
             return False
 
@@ -1222,17 +1219,11 @@ class PPModel(AbivarAble, MSONable):
 
         return np.allclose(self.plasmon_freq, other.plasmon_freq)
 
-    def __ne__(self, other):
-        return not self == other
-
     def __bool__(self):
         return self.mode != PPModelModes.noppmodel
 
-    # py2 old version
-    __nonzero__ = __bool__
-
     def __repr__(self):
-        return f"<{self.__class__.__name__} at {id(self)}, mode = {str(self.mode)}>"
+        return f"<{type(self).__name__} at {id(self)}, mode = {str(self.mode)}>"
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
@@ -1250,8 +1241,8 @@ class PPModel(AbivarAble, MSONable):
         return {
             "mode": self.mode.name,
             "plasmon_freq": self.plasmon_freq,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @staticmethod

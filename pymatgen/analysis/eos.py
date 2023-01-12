@@ -8,6 +8,8 @@ Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
 """
 
+from __future__ import annotations
+
 import logging
 import warnings
 from abc import ABCMeta, abstractmethod
@@ -191,9 +193,9 @@ class EOSBase(metaclass=ABCMeta):
         plt = pretty_plot(width=width, height=height, plt=plt, dpi=dpi)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", f"{self.__class__.__name__} fit")
+        label = kwargs.get("label", f"{type(self).__name__} fit")
         lines = [
-            f"Equation of State: {self.__class__.__name__}",
+            f"Equation of State: {type(self).__name__}",
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
@@ -240,9 +242,9 @@ class EOSBase(metaclass=ABCMeta):
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         color = kwargs.get("color", "r")
-        label = kwargs.get("label", f"{self.__class__.__name__} fit")
+        label = kwargs.get("label", f"{type(self).__name__} fit")
         lines = [
-            f"Equation of State: {self.__class__.__name__}",
+            f"Equation of State: {type(self).__name__}",
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
@@ -596,8 +598,8 @@ class EOS:
         """
         if eos_name not in self.MODELS:
             raise EOSError(
-                "The equation of state '{}' is not supported. "
-                "Please choose one from the following list: {}".format(eos_name, list(self.MODELS.keys()))
+                f"The equation of state '{eos_name}' is not supported. "
+                f"Please choose one from the following list: {list(self.MODELS)}"
             )
         self._eos_name = eos_name
         self.model = self.MODELS[eos_name]

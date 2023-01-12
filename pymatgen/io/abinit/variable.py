@@ -1,5 +1,8 @@
 """Support for Abinit input variables."""
+from __future__ import annotations
+
 import collections
+import collections.abc
 import string
 
 import numpy as np
@@ -217,7 +220,7 @@ class InputVariable:
         return line.rstrip("\n")
 
 
-def is_iter(obj):
+def is_iter(obj) -> bool:
     """Return True if the argument is list-like."""
     return hasattr(obj, "__iter__")
 
@@ -234,7 +237,7 @@ def flatten(iterable):
                 return tuple(array)
             iterator = stack.pop()
         else:
-            if not isinstance(value, str) and isinstance(value, collections.Iterable):
+            if not isinstance(value, str) and isinstance(value, collections.abc.Iterable):
                 stack.append(iterator)
                 iterator = iter(value)
             else:

@@ -22,12 +22,14 @@ stipulated by the COD developers)::
 
     Grazulis, S., Chateigner, D., Downs, R. T., Yokochi, A. T., Quiros, M.,
     Lutterotti, L., Manakova, E., Butkus, J., Moeck, P. & Le Bail, A. (2009)
-    "Crystallography Open Database – an open-access collection of crystal
+    "Crystallography Open Database - an open-access collection of crystal
     structures". J. Appl. Cryst. 42, 726-729.
 
     Downs, R. T. & Hall-Wallace, M. (2003) "The American Mineralogist Crystal
     Structure Database". American Mineralogist 88, 247-250.
 """
+
+from __future__ import annotations
 
 import re
 import subprocess

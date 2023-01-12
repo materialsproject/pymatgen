@@ -5,11 +5,11 @@ https://www.nature.com/articles/s41598-019-45028-y
 https://www.nature.com/articles/s41524-020-0319-4
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 from pymatgen.io.vasp.outputs import Wavecar
-
-# from jarvis.io.vasp.outputs import Wavecar
 
 
 class SOCSpillage:
@@ -26,7 +26,6 @@ class SOCSpillage:
             wf_noso : WAVECAR without spin-orbit coupling
             wf_so : WAVECAR with spin-orbit coupling
         """
-
         self.wf_noso = wf_noso
         self.wf_so = wf_so
 
@@ -211,8 +210,7 @@ class SOCSpillage:
         kmax = kpoints[nkmax]
 
         print("------------------------------------")
-        print()
-        print("                   INDIRECT DIRECT      HOMO/LUMO (eV)")
+        print("\n                   INDIRECT DIRECT      HOMO/LUMO (eV)")
         print(
             "no spin-orbit gaps",
             f"{float(noso_lumo - noso_homo):+.3f}",

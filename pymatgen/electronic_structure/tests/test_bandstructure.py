@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -219,7 +221,7 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertIsNotNone(s)
 
     def test_old_format_load(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json"), encoding="utf-8") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json")) as f:
             d = json.load(f)
             bs_old = BandStructureSymmLine.from_dict(d)
             self.assertEqual(bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"], 0.0971)

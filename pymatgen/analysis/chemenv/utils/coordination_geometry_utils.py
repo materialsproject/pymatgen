@@ -5,6 +5,8 @@
 This module contains some utility functions and classes that are used in the chemenv package.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -563,7 +565,7 @@ def separation_in_list(separation_indices, separation_indices_list):
     return False
 
 
-def is_anion_cation_bond(valences, ii, jj):
+def is_anion_cation_bond(valences, ii, jj) -> bool:
     """
     Checks if two given sites are an anion and a cation.
     :param valences: list of site valences
@@ -681,7 +683,7 @@ class Plane:
         outs.append(f"          d = {self._coefficients[3]}")
         return "\n".join(outs)
 
-    def is_in_plane(self, pp, dist_tolerance):
+    def is_in_plane(self, pp, dist_tolerance) -> bool:
         """
         Determines if point pp is in the plane within the tolerance dist_tolerance
         :param pp: point to be tested
@@ -690,7 +692,7 @@ class Plane:
         """
         return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
 
-    def is_same_plane_as(self, plane):
+    def is_same_plane_as(self, plane) -> bool:
         """
         Checks whether the plane is identical to another Plane "plane"
         :param plane: Plane to be compared to
@@ -698,7 +700,7 @@ class Plane:
         """
         return np.allclose(self._coefficients, plane.coefficients)
 
-    def is_in_list(self, plane_list):
+    def is_in_list(self, plane_list) -> bool:
         """
         Checks whether the plane is identical to one of the Planes in the plane_list list of Planes
         :param plane_list: List of Planes to be compared to
@@ -1031,7 +1033,7 @@ class Plane:
         convex_hull = ConvexHull(points)
         heights = []
         ipoints_heights = []
-        for isimplex, simplex in enumerate(convex_hull.simplices):
+        for isimplex, _simplex in enumerate(convex_hull.simplices):
             cc = convex_hull.equations[isimplex]
             plane = Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3])
             distances = [plane.distance_to_point(pp) for pp in points]

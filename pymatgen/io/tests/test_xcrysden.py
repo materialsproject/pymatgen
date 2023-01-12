@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
@@ -66,7 +68,6 @@ PRIMCOORD
         even if the atomic symbol / number convention
         is different.
         """
-
         test_string = """
 CRYSTAL
 PRIMVEC

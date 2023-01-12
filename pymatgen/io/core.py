@@ -3,7 +3,7 @@
 
 """
 This module defines the abstract interface for reading and writing calculation
-inputs in pymatgen. The interface comprises a 3-tiered hierarchy of clases.
+inputs in pymatgen. The interface comprises a 3-tiered hierarchy of classes.
 
 1. An InputFile object represents the contents of a single input file, e.g.
    the INCAR. This class standardizes file read and write operations.
@@ -26,11 +26,12 @@ If you want to implement a new InputGenerator, please take note of the following
    ensures the as_dict and from_dict work correctly.
 """
 
+from __future__ import annotations
+
 import abc
 import os
 from collections.abc import MutableMapping
 from pathlib import Path
-from typing import Dict, Union
 from zipfile import ZipFile
 
 from monty.io import zopen
@@ -50,6 +51,9 @@ class InputFile(MSONable):
 
     All InputFile classes must implement a get_string method, which
     is called by write_file.
+
+    If InputFile classes implement an __init__ method, they must assign all
+    arguments to __init__ as attributes.
     """
 
     @abc.abstractmethod
@@ -58,7 +62,7 @@ class InputFile(MSONable):
         Return a string representation of an entire input file.
         """
 
-    def write_file(self, filename: Union[str, Path]) -> None:
+    def write_file(self, filename: str | Path) -> None:
         """
         Write the input file.
 
@@ -84,7 +88,7 @@ class InputFile(MSONable):
         """
 
     @classmethod
-    def from_file(cls, path: Union[str, Path]):
+    def from_file(cls, path: str | Path):
         """
         Creates an InputFile object from a file.
 
@@ -113,30 +117,35 @@ class InputSet(MSONable, MutableMapping):
     is optional.
     """
 
-    def __init__(self, inputs: Dict[Union[str, Path], Union[str, InputFile]] = {}, **kwargs):
+    def __init__(self, inputs: dict[str | Path, str | InputFile] | None = None, **kwargs):
         """
         Instantiate an InputSet.
 
         Args:
             inputs: The core mapping of filename: file contents that defines the InputSet data.
                 This should be a dict where keys are filenames and values are InputFile objects
-                or strings representing the entire contents of the file. This mapping will
+                or strings representing the entire contents of the file. If a value is not an
+                InputFile object nor a str, but has a __str__ method, this str representation
+                of the object will be written to the corresponding file. This mapping will
                 become the .inputs attribute of the InputSet.
             **kwargs: Any kwargs passed will be set as class attributes e.g.
                 InputSet(inputs={}, foo='bar') will make InputSet.foo == 'bar'.
         """
-        self.inputs = inputs
+        self.inputs = inputs or {}
+        self._kwargs = kwargs
         self.__dict__.update(**kwargs)
 
     def __getattr__(self, k):
         # allow accessing keys as attributes
-        return self.get(k)
+        if k in self._kwargs:
+            return self.get(k)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{k}'")
 
     def __len__(self):
-        return len(self.inputs.keys())
+        return len(self.inputs)
 
     def __iter__(self):
-        return iter(self.inputs.items())
+        return iter(self.inputs)
 
     def __getitem__(self, key):
         return self.inputs[key]
@@ -149,7 +158,7 @@ class InputSet(MSONable, MutableMapping):
 
     def write_input(
         self,
-        directory: Union[str, Path],
+        directory: str | Path,
         make_dir: bool = True,
         overwrite: bool = True,
         zip_inputs: bool = False,
@@ -179,16 +188,16 @@ class InputSet(MSONable, MutableMapping):
             file.touch()
 
             # write the file
-            if isinstance(contents, str):
-                with zopen(file, "wt") as f:
-                    f.write(contents)
-            else:
+            if isinstance(contents, InputFile):
                 contents.write_file(file)
+            else:
+                with zopen(file, "wt") as f:
+                    f.write(str(contents))
 
         if zip_inputs:
-            zipfilename = path / f"{self.__class__.__name__}.zip"
+            zipfilename = path / f"{type(self).__name__}.zip"
             with ZipFile(zipfilename, "w") as zip:
-                for fname, contents in self.inputs.items():
+                for fname in self.inputs:
                     file = path / fname
                     try:
                         zip.write(file)
@@ -197,7 +206,7 @@ class InputSet(MSONable, MutableMapping):
                         pass
 
     @classmethod
-    def from_directory(cls, directory: Union[str, Path]):
+    def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.
 

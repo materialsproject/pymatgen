@@ -36,7 +36,10 @@ Direct contributions to pymatgen main distribution
 
    Note that the entire Github repo is fairly large because of the presence of test files, but these are absolutely
    necessary for rigorous testing of the code.
-5. It is highly recommended you install all the optional dependencies as well.
+5. It is highly recommended you install all the optional dependencies as well::
+
+      pip install -e '.[dev,optional]'
+
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your code up to date. You need to add the main
    repository to the list of your remotes. Let's name the upstream repo as mpmaster (materialsproject master)::
 
@@ -65,7 +68,7 @@ Direct contributions to pymatgen main distribution
       local repo directory and fix all errors before continuing further.
    c. If you have `pre-commit <https://pre-commit.com/>`_ installed you can use
       the provided :code:`.pre-commit-config.yaml` file to perform automatic style checks
-      before publishing your code.  The pre-commit hooks can be installed using::
+      before publishing your code. The pre-commit hooks can be installed using::
 
             pre-commit install
 

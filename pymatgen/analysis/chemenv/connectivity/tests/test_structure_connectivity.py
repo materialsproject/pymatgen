@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+from __future__ import annotations
 
-
-__author__ = "waroquiers"
+import json
+import os
 
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
     ConnectivityFinder,
@@ -21,9 +21,9 @@ from pymatgen.util.testing import PymatgenTest
 try:
     import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
-    bson = None
-import json
-import os
+    bson = None  # type: ignore
+
+__author__ = "waroquiers"
 
 
 class StructureConnectivityTest(PymatgenTest):

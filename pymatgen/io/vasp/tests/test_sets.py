@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import glob
 import hashlib
 import os
@@ -12,14 +14,15 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import numpy as np
-import pytest  # type: ignore
-from _pytest.monkeypatch import MonkeyPatch  # type: ignore
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.core.units import FloatWithUnit
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
@@ -28,6 +31,7 @@ from pymatgen.io.vasp.sets import (
     MITMDSet,
     MITNEBSet,
     MITRelaxSet,
+    MPAbsorptionSet,
     MPHSEBSSet,
     MPMetalRelaxSet,
     MPNMRSet,
@@ -55,6 +59,9 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 dec = MontyDecoder()
 
+if SETTINGS.get("PMG_VASP_PSP_DIR") is None:
+    raise unittest.SkipTest(f"PMG_VASP_PSP_DIR is not set. Skipping tests in {__file__}.")
+
 
 class SetChangeCheckTest(PymatgenTest):
     def test_sets_changed(self):
@@ -79,6 +86,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
+            "MPAbsorptionSet.yaml": "e86e405a014a7af41490cc7b99609f99f2ddd5b0",
         }
 
         self.assertDictEqual(
@@ -366,7 +374,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         # test that NELECT does not get set when use_structure_charge = False
         mpr = MPRelaxSet(struct, use_structure_charge=False)
         self.assertFalse(
-            "NELECT" in mpr.incar.keys(),
+            "NELECT" in mpr.incar,
             "NELECT should not be set when use_structure_charge is False",
         )
 
@@ -926,7 +934,7 @@ class MVLNPTMDSetTest(PymatgenTest):
         self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
         enmax = max(npt_set.potcar[i].keywords["ENMAX"] for i in range(self.struct.ntypesp))
         self.assertAlmostEqual(incar["ENCUT"], 1.5 * enmax)
-        self.assertEqual(incar["IALGO"], 48)
+        self.assertEqual(incar["ALGO"], "Fast")
         self.assertEqual(incar["ISIF"], 3)
         self.assertEqual(incar["MDALGO"], 3)
         self.assertEqual(incar["SMASS"], 0)
@@ -1054,6 +1062,9 @@ class MPNMRSetTest(PymatgenTest):
         vis = MPNMRSet(structure, mode="efg")
         self.assertFalse(vis.incar.get("LCHIMAG", None))
         self.assertEqual(vis.incar.get("QUAD_EFG", None), [-0.808])
+        for q in vis.incar["QUAD_EFG"]:
+            self.assertTrue(isinstance(q, float))
+            self.assertFalse(isinstance(q, FloatWithUnit))
 
         vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
         self.assertFalse(vis.incar.get("LCHIMAG", None))
@@ -1690,6 +1701,58 @@ class LobsterSetTest(PymatgenTest):
         kpoints1 = lobsterset_new.kpoints
         self.assertTrue(kpoints1.comment.split(" ")[6], 6138)
         self.assertEqual(lobsterset_new.potcar_functional, "PBE_54")
+
+
+class MPAbsorptionSetTest(PymatgenTest):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        file_path = self.TEST_FILES_DIR / "absorption/static/POSCAR"
+        poscar = Poscar.from_file(file_path)
+        self.structure = poscar.structure
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
+        shutil.rmtree(self.tmp)
+
+    def test_ipa(self):
+        prev_run = self.TEST_FILES_DIR / "absorption/static"
+        absorptionipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
+        absorptionipa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertEqual(absorptionipa.incar["NBANDS"], 32)
+        self.assertEqual(absorptionipa.incar["ALGO"], "Exact")
+        self.assertTrue(absorptionipa.incar["LOPTICS"])
+
+        # test override_from_prev_calc
+        absorptionipa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="IPA")
+        absorptionipa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorptionipa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertEqual(absorptionipa.incar["NBANDS"], 32)
+        self.assertEqual(absorptionipa.incar["ALGO"], "Exact")
+        self.assertTrue(absorptionipa.incar["LOPTICS"])
+
+    def test_rpa(self):
+        prev_run = self.TEST_FILES_DIR / "absorption/ipa"
+        absorptionrpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
+        absorptionrpa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
+        self.assertEqual(absorptionrpa.incar["NOMEGA"], 1000)
+        self.assertEqual(absorptionrpa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionrpa.incar["ALGO"], "CHI")
+
+        # test override_from_prev_calc
+        prev_run = self.TEST_FILES_DIR / "absorption/ipa"
+        absorptionrpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
+        absorptionrpa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorptionrpa.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
+        self.assertEqual(absorptionrpa.incar["NOMEGA"], 1000)
+        self.assertEqual(absorptionrpa.incar["NBANDS"], 48)
+        self.assertEqual(absorptionrpa.incar["ALGO"], "CHI")
 
 
 _dummy_structure = Structure(

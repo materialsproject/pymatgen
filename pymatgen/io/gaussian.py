@@ -5,6 +5,8 @@
 This module implements input and output processing from Gaussian.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
 
@@ -129,7 +131,7 @@ class GaussianInput:
             route_parameters: Additional route parameters as a dict. For example,
                 {'SP':"", "SCF":"Tight"}
             input_parameters: Additional input parameters for run as a dict. Used
-                for example, in PCM calculations.  E.g., {"EPS":12}
+                for example, in PCM calculations. E.g., {"EPS":12}
             link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
             dieze_tag: # preceding the route line. E.g. "#p"
             gen_basis: allows a user-specified basis set to be used in a Gaussian
@@ -146,27 +148,27 @@ class GaussianInput:
                 self.spin_multiplicity = spin_multiplicity
                 if (nelectrons + spin_multiplicity) % 2 != 1:
                     raise ValueError(
-                        "Charge of {} and spin multiplicity of {} is"
-                        " not possible for this molecule".format(self.charge, spin_multiplicity)
+                        f"Charge of {self.charge} and spin multiplicity of {spin_multiplicity} is"
+                        " not possible for this molecule"
                     )
             else:
                 self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
             # Get a title from the molecule name
-            self.title = title if title else self._mol.composition.formula
+            self.title = title or self._mol.composition.formula
         else:
             self.charge = charge
             self.spin_multiplicity = spin_multiplicity
 
             # Set a title
-            self.title = title if title else "Restart"
+            self.title = title or "Restart"
 
         # Store the remaining settings
         self.functional = functional
         self.basis_set = basis_set
-        self.link0_parameters = link0_parameters if link0_parameters else {}
-        self.route_parameters = route_parameters if route_parameters else {}
-        self.input_parameters = input_parameters if input_parameters else {}
+        self.link0_parameters = link0_parameters or {}
+        self.route_parameters = route_parameters or {}
+        self.input_parameters = input_parameters or {}
         self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#" + dieze_tag
         self.gen_basis = gen_basis
         if gen_basis is not None:
@@ -302,20 +304,20 @@ class GaussianInput:
 
         link0_patt = re.compile(r"^(%.+)\s*=\s*(.+)")
         link0_dict = {}
-        for i, l in enumerate(lines):
-            if link0_patt.match(l):
-                m = link0_patt.match(l)
+        for line in lines:
+            if link0_patt.match(line):
+                m = link0_patt.match(line)
                 link0_dict[m.group(1).strip("=")] = m.group(2)
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
         route = ""
         route_index = None
-        for i, l in enumerate(lines):
-            if route_patt.match(l):
-                route += " " + l
-                route_index = i
+        for idx, line in enumerate(lines):
+            if route_patt.match(line):
+                route += " " + line
+                route_index = idx
             # This condition allows for route cards spanning multiple lines
-            elif (l == "" or l.isspace()) and route_index:
+            elif (line == "" or line.isspace()) and route_index:
                 break
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
@@ -420,8 +422,8 @@ class GaussianInput:
             return f"{x:0.6f}"
 
         outs = []
-        for i, site in enumerate(self._mol):
-            outs.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
+        for site in self._mol:
+            outs.append(" ".join(site.species_string, " ".join([to_s(j) for j in site.coords])))
         return "\n".join(outs)
 
     def __str__(self):
@@ -433,7 +435,6 @@ class GaussianInput:
 
         Option: when cart_coords is set to True return the Cartesian coordinates
                 instead of the z-matrix
-
         """
 
         def para_dict_to_string(para, joiner=" "):
@@ -500,8 +501,8 @@ class GaussianInput:
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "molecule": self.molecule.as_dict(),
             "functional": self.functional,
             "basis_set": self.basis_set,
@@ -520,7 +521,7 @@ class GaussianInput:
         :param d: dict
         :return: GaussianInput
         """
-        return GaussianInput(
+        return cls(
             mol=Molecule.from_dict(d["molecule"]),
             functional=d["functional"],
             basis_set=d["basis_set"],
@@ -871,7 +872,7 @@ class GaussianOutput:
                         if m.group(1) == "Zero-point":
                             self.corrections["Zero-point"] = float(m.group(3))
                         else:
-                            key = m.group(2).strip(" to ")
+                            key = m.group(2).replace(" to ", "")
                             self.corrections[key] = float(m.group(3))
 
                     if read_coord:
@@ -986,9 +987,9 @@ class GaussianOutput:
                         self.molecular_orbital = mo
 
                     elif parse_freq:
-                        while line.strip() != "":  #  blank line
+                        while line.strip() != "":  # blank line
                             ifreqs = [int(val) - 1 for val in line.split()]
-                            for ifreq in ifreqs:
+                            for _ in ifreqs:
                                 frequencies.append(
                                     {
                                         "frequency": None,
@@ -1063,7 +1064,7 @@ class GaussianOutput:
                         line = f.readline()
                         nat = len(input_structures[0])
                         matrix = []
-                        for iat in range(nat):
+                        for _ in range(nat):
                             line = f.readline()
                             matrix.append([float(v) for v in line.split()[2:]])
 
@@ -1145,7 +1146,7 @@ class GaussianOutput:
                             if line == "\n":
                                 break
                         resume.append(line)
-                        resume = "".join([r.strip() for r in resume])
+                        resume = "".join(r.strip() for r in resume)
                         self.resumes.append(resume)
                     elif bond_order_patt.search(line):
                         parse_bond_order = True
@@ -1195,7 +1196,7 @@ class GaussianOutput:
 
     def as_dict(self):
         """
-        Json-serializable dict representation.
+        JSON-serializable dict representation.
         """
         structure = self.final_structure
         d = {
@@ -1210,7 +1211,7 @@ class GaussianOutput:
         d["errors"] = self.errors
         d["Mulliken_charges"] = self.Mulliken_charges
 
-        unique_symbols = sorted(list(d["unit_cell_formula"].keys()))
+        unique_symbols = sorted(list(d["unit_cell_formula"]))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
         d["charge"] = self.charge
@@ -1238,8 +1239,8 @@ class GaussianOutput:
         }
 
         d["output"] = vout
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
 
         return d
 
@@ -1358,7 +1359,6 @@ class GaussianOutput:
             A list: A list of tuple for each transition such as
                     [(energie (eV), lambda (nm), oscillatory strength), ... ]
         """
-
         transitions = []
 
         # read in file

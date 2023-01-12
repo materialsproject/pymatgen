@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 import warnings
@@ -34,15 +36,15 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
 
         self.file = os.path.join(test_dir, "func_group_test.mol")
         self.mol = Molecule.from_file(self.file)
-        self.strat = OpenBabelNN()
-        self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strat)
+        self.strategy = OpenBabelNN()
+        self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strategy)
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def tearDown(self):
         warnings.simplefilter("default")
         del self.extractor
         del self.mg
-        del self.strat
+        del self.strategy
         del self.mol
         del self.file
 
@@ -128,8 +130,8 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         all_func = self.extractor.get_all_functional_groups()
         categorized = self.extractor.categorize_functional_groups(all_func)
 
-        self.assertTrue("O=C1C=CC(=O)[N]1" in categorized.keys())
-        self.assertTrue("[CH3]" in categorized.keys())
+        self.assertTrue("O=C1C=CC(=O)[N]1" in categorized)
+        self.assertTrue("[CH3]" in categorized)
 
         total_count = sum(c["count"] for c in categorized.values())
         self.assertEqual(total_count, 2)

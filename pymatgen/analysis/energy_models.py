@@ -7,6 +7,8 @@ implementations. Basically, an EnergyModel is any model that returns an
 "energy" for any given structure.
 """
 
+from __future__ import annotations
+
 import abc
 
 from monty.json import MSONable
@@ -87,8 +89,8 @@ class EwaldElectrostaticModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {
                 "real_space_cut": self.real_space_cut,
                 "recip_space_cut": self.recip_space_cut,
@@ -107,7 +109,7 @@ class SymmetryModel(EnergyModel):
     :class:`pymatgen.symmetry.finder.SpacegroupAnalyzer`.
     """
 
-    def __init__(self, symprec=0.1, angle_tolerance=5):
+    def __init__(self, symprec: float = 0.1, angle_tolerance=5):
         """
         Args:
             symprec (float): Symmetry tolerance. Defaults to 0.1.
@@ -130,8 +132,8 @@ class SymmetryModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {
                 "symprec": self.symprec,
                 "angle_tolerance": self.angle_tolerance,
@@ -172,8 +174,8 @@ class IsingModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {"j": self.j, "max_radius": self.max_radius},
         }
 
@@ -198,7 +200,7 @@ class NsitesModel(EnergyModel):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "init_args": {},
         }

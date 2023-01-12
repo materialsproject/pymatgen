@@ -6,6 +6,8 @@ This module provides plotting capabilities for battery related applications.
 """
 
 
+from __future__ import annotations
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -137,7 +139,6 @@ class VoltageProfilePlotter:
             **kwargs:
 
         Returns:
-
         """
         font_dict = dict(family="Arial", size=24, color="#000000") if font_dict is None else font_dict
         hover_temp = "Voltage : %{y:.2f} V"
@@ -149,7 +150,15 @@ class VoltageProfilePlotter:
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
-            data.append(go.Scatter(x=x, y=y, name=label, hovertemplate=hover_temp))
+            # add Nones to x and y so vertical connecting lines are not plotted
+            plot_x, plot_y = [x[0]], [y[0]]
+            for i in range(1, len(x)):
+                if x[i - 1] == x[i]:
+                    plot_x.append(None)
+                    plot_y.append(None)
+                plot_x.append(x[i])
+                plot_y.append(y[i])
+            data.append(go.Scatter(x=plot_x, y=plot_y, name=label, hovertemplate=hover_temp))
 
         fig = go.Figure(
             data=data,

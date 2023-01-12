@@ -15,7 +15,7 @@ import itertools
 import json
 import logging
 import re
-from typing import Iterable, List, Set
+from typing import Iterable, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
@@ -24,6 +24,7 @@ from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
+from pymatgen.entries import Entry
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
 logger = logging.getLogger(__name__)
@@ -38,17 +39,7 @@ def _get_host(structure, species_to_remove):
 
 
 def _perform_grouping(args):
-    (
-        entries_json,
-        hosts_json,
-        ltol,
-        stol,
-        angle_tol,
-        primitive_cell,
-        scale,
-        comparator,
-        groups,
-    ) = args
+    entries_json, hosts_json, ltol, stol, angle_tol, primitive_cell, scale, comparator, groups = args
 
     entries = json.loads(entries_json, cls=MontyDecoder)
     hosts = json.loads(hosts_json, cls=MontyDecoder)
@@ -88,7 +79,7 @@ def group_entries_by_structure(
     angle_tol=5,
     primitive_cell=True,
     scale=True,
-    comparator=SpeciesComparator(),
+    comparator=None,
     ncpus=None,
 ):
     """
@@ -117,6 +108,8 @@ def group_entries_by_structure(
         Sequence of sequence of entries by structural similarity. e.g,
         [[ entry1, entry2], [entry3, entry4, entry5]]
     """
+    if comparator is None:
+        comparator = SpeciesComparator()
     start = datetime.datetime.now()
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
@@ -244,7 +237,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         chemsys = set()
         for e in self.entries:
-            chemsys.update([el.symbol for el in e.composition.keys()])
+            chemsys.update([el.symbol for el in e.composition])
         return chemsys
 
     @property
@@ -292,18 +285,18 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             raise ValueError(f"{chem_sys} is not a subset of {self.chemsys}")
         subset = set()
         for e in self.entries:
-            elements = [sp.symbol for sp in e.composition.keys()]
+            elements = [sp.symbol for sp in e.composition]
             if chem_sys.issuperset(elements):
                 subset.add(e)
         return EntrySet(subset)
 
-    def as_dict(self):
+    def as_dict(self) -> dict[Literal["entries"], list[Entry]]:
         """
-        :return: MSONable dict
+        Returns MSONable dict.
         """
         return {"entries": list(self.entries)}
 
-    def to_csv(self, filename: str, latexify_names: bool = False):
+    def to_csv(self, filename: str, latexify_names: bool = False) -> None:
         """
         Exports PDEntries to a csv
 
@@ -313,8 +306,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             latexify_names: Format entry names to be LaTex compatible,
                 e.g., Li_{2}O
         """
-
-        els = set()  # type: Set[Element]
+        els: set[Element] = set()
         for entry in self.entries:
             els.update(entry.composition.elements)
         elements = sorted(list(els), key=lambda a: a.X)
@@ -327,8 +319,8 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             )
             writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
             for entry in self.entries:
-                row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
-                row.extend([entry.composition[el] for el in elements])
+                row: list[str] = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+                row.extend([str(entry.composition[el]) for el in elements])
                 row.append(str(entry.energy))
                 writer.writerow(row)
 
@@ -352,7 +344,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             )
             entries = []
             header_read = False
-            elements = []  # type: List[str]
+            elements: list[str] = []
             for row in reader:
                 if not header_read:
                     elements = row[1 : (len(row) - 1)]

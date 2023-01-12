@@ -6,6 +6,8 @@ This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.
 """
 
+from __future__ import annotations
+
 import math
 
 import numpy as np
@@ -32,7 +34,7 @@ class Stress(SquareTensor):
 
     def __new__(cls, stress_matrix):
         """
-        Create a Stress object.  Note that the constructor uses __new__
+        Create a Stress object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
@@ -102,7 +104,6 @@ class Stress(SquareTensor):
         Args:
             def_grad (3x3 array-like): rate of deformation tensor
         """
-
         def_grad = SquareTensor(def_grad)
         if not self.is_symmetric:
             raise ValueError(

@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import json
 import os
 import tempfile
@@ -72,7 +74,8 @@ class CohpcarTest(PymatgenTest):
             are_coops=True,
         )
         self.cobi = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster"), are_cobis=True
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster"),
+            are_cobis=True,
         )
 
     def test_attributes(self):
@@ -171,28 +174,28 @@ class CohpcarTest(PymatgenTest):
         }
 
         for data in [self.cohp_bise.cohp_data, self.coop_bise.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_bise[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_bise[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 241)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 241)
+                    self.assertEqual(val["length"], lengths_sites_bise[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_bise[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 241)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 241)
         for data in [self.cohp_fe.cohp_data, self.coop_fe.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_fe[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_fe[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 301)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 301)
+                    self.assertEqual(val["length"], lengths_sites_fe[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_fe[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 301)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 301)
 
         # Lobster 3.1
         for data in [self.cohp_KF.cohp_data, self.coop_KF.cohp_data]:
-            for bond in data:
+            for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(data[bond]["length"], lengths_sites_KF[bond][0])
-                    self.assertEqual(data[bond]["sites"], lengths_sites_KF[bond][1])
-                    self.assertEqual(len(data[bond]["COHP"][Spin.up]), 6)
-                    self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 6)
+                    self.assertEqual(val["length"], lengths_sites_KF[bond][0])
+                    self.assertEqual(val["sites"], lengths_sites_KF[bond][1])
+                    self.assertEqual(len(val["COHP"][Spin.up]), 6)
+                    self.assertEqual(len(val["ICOHP"][Spin.up]), 6)
 
     def test_orbital_resolved_cohp(self):
         orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4) for i in range(4)]
@@ -420,11 +423,13 @@ class IcohplistTest(unittest.TestCase):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.gz")
         )
         self.icoop_fe = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"), are_coops=True
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"),
+            are_coops=True,
         )
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"), are_cobis=True
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"),
+            are_cobis=True,
         )
         # TODO: test orbitalwise ICOHPs with and without spin polarization
 
@@ -434,6 +439,19 @@ class IcohplistTest(unittest.TestCase):
         )
         self.icobi_orbitalwise_spinpolarized = Icohplist(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized"),
+            are_cobis=True,
+        )
+        # make sure the correct line is read to check if this is a orbitalwise ICOBILIST
+        self.icobi_orbitalwise_add = Icohplist(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.additional_case"),
+            are_cobis=True,
+        )
+        self.icobi_orbitalwise_spinpolarized_add = Icohplist(
+            filename=os.path.join(
+                PymatgenTest.TEST_FILES_DIR,
+                "cohp",
+                "ICOBILIST.lobster.spinpolarized.additional_case",
+            ),
             are_cobis=True,
         )
 
@@ -463,6 +481,9 @@ class IcohplistTest(unittest.TestCase):
         self.assertFalse(self.icobi.orbitalwise)
 
         self.assertTrue(self.icobi_orbitalwise_spinpolarized.orbitalwise)
+
+        self.assertTrue(self.icobi_orbitalwise_add.orbitalwise)
+        self.assertTrue(self.icobi_orbitalwise_spinpolarized_add.orbitalwise)
 
     def test_values(self):
         icohplist_bise = {
@@ -617,13 +638,30 @@ class IcohplistTest(unittest.TestCase):
         }
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
+        self.assertEqual(-2.38796, self.icohp_bise.icohpcollection.extremum_icohpvalue())
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
+        self.assertEqual(-0.29919, self.icoop_fe.icohpcollection.extremum_icohpvalue())
+        self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
+        self.assertEqual(0.24714, self.icoop_bise.icohpcollection.extremum_icohpvalue())
         self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
         self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up], 0.58649 / 2, 3)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down], 0.58649 / 2, 3)
-        self.assertAlmostEqual(self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down], 0.58649 / 2, 3)
+        self.assertAlmostEqual(
+            self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up],
+            0.58649 / 2,
+            3,
+        )
+        self.assertAlmostEqual(
+            self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down],
+            0.58649 / 2,
+            3,
+        )
+        self.assertAlmostEqual(
+            self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down],
+            0.58649 / 2,
+            3,
+        )
+        self.assertEqual(0.58649, self.icobi.icohpcollection.extremum_icohpvalue())
 
 
 class DoscarTest(unittest.TestCase):
@@ -928,6 +966,9 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_cobi_madelung = Lobsterout(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung")
         )
+        self.lobsterout_doscar_lso = Lobsterout(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_doscar_lso")
+        )
 
         # TODO: implement skipping madelung/cobi
         self.lobsterout_skipping_cobi_madelung = Lobsterout(
@@ -956,14 +997,14 @@ class LobsteroutTest(PymatgenTest):
             ],
         )
         self.assertListEqual(self.lobsterout_normal.basis_type, ["pbeVaspFit2015"])
-        self.assertListEqual(self.lobsterout_normal.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_normal.dftprogram, "VASP")
+        self.assertListEqual(self.lobsterout_normal.charge_spilling, [0.0268])
+        self.assertEqual(self.lobsterout_normal.dft_program, "VASP")
         self.assertListEqual(self.lobsterout_normal.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_normal.has_CHARGE)
-        self.assertTrue(self.lobsterout_normal.has_COHPCAR)
-        self.assertTrue(self.lobsterout_normal.has_COOPCAR)
-        self.assertTrue(self.lobsterout_normal.has_DOSCAR)
-        self.assertFalse(self.lobsterout_normal.has_Projection)
+        self.assertTrue(self.lobsterout_normal.has_charge)
+        self.assertTrue(self.lobsterout_normal.has_cohpcar)
+        self.assertTrue(self.lobsterout_normal.has_coopcar)
+        self.assertTrue(self.lobsterout_normal.has_doscar)
+        self.assertFalse(self.lobsterout_normal.has_projection)
         self.assertTrue(self.lobsterout_normal.has_bandoverlaps)
         self.assertFalse(self.lobsterout_normal.has_density_of_energies)
         self.assertFalse(self.lobsterout_normal.has_fatbands)
@@ -987,14 +1028,14 @@ class LobsteroutTest(PymatgenTest):
         self.assertDictEqual(
             self.lobsterout_normal.timing,
             {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "702"},
-                "usertime": {"h": "0", "min": "0", "s": "20", "ms": "330"},
+                "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "702"},
+                "user_time": {"h": "0", "min": "0", "s": "20", "ms": "330"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
             },
         )
-        self.assertAlmostEqual(self.lobsterout_normal.totalspilling[0], [0.044000000000000004][0])
+        self.assertAlmostEqual(self.lobsterout_normal.total_spilling[0], [0.044000000000000004][0])
         self.assertListEqual(
-            self.lobsterout_normal.warninglines,
+            self.lobsterout_normal.warning_lines,
             [
                 "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
                 "Generally, this is not a critical error. But to help you analyze it,",
@@ -1025,14 +1066,14 @@ class LobsteroutTest(PymatgenTest):
             self.lobsterout_fatband_grosspop_densityofenergies.basis_type,
             ["pbeVaspFit2015"],
         )
-        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.dftprogram, "VASP")
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling, [0.0268])
+        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.dft_program, "VASP")
         self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_CHARGE)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_COHPCAR)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_COOPCAR)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_DOSCAR)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_Projection)
+        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_charge)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_cohpcar)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_coopcar)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_doscar)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_projection)
         self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_bandoverlaps)
         self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_density_of_energies)
         self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_fatbands)
@@ -1056,17 +1097,17 @@ class LobsteroutTest(PymatgenTest):
         self.assertDictEqual(
             self.lobsterout_fatband_grosspop_densityofenergies.timing,
             {
-                "walltime": {"h": "0", "min": "0", "s": "4", "ms": "136"},
-                "usertime": {"h": "0", "min": "0", "s": "18", "ms": "280"},
+                "wall_time": {"h": "0", "min": "0", "s": "4", "ms": "136"},
+                "user_time": {"h": "0", "min": "0", "s": "18", "ms": "280"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "290"},
             },
         )
         self.assertAlmostEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.totalspilling[0],
+            self.lobsterout_fatband_grosspop_densityofenergies.total_spilling[0],
             [0.044000000000000004][0],
         )
         self.assertListEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.warninglines,
+            self.lobsterout_fatband_grosspop_densityofenergies.warning_lines,
             [
                 "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
                 "Generally, this is not a critical error. But to help you analyze it,",
@@ -1094,14 +1135,14 @@ class LobsteroutTest(PymatgenTest):
             ],
         )
         self.assertListEqual(self.lobsterout_saveprojection.basis_type, ["pbeVaspFit2015"])
-        self.assertListEqual(self.lobsterout_saveprojection.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_saveprojection.dftprogram, "VASP")
+        self.assertListEqual(self.lobsterout_saveprojection.charge_spilling, [0.0268])
+        self.assertEqual(self.lobsterout_saveprojection.dft_program, "VASP")
         self.assertListEqual(self.lobsterout_saveprojection.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_saveprojection.has_CHARGE)
-        self.assertFalse(self.lobsterout_saveprojection.has_COHPCAR)
-        self.assertFalse(self.lobsterout_saveprojection.has_COOPCAR)
-        self.assertFalse(self.lobsterout_saveprojection.has_DOSCAR)
-        self.assertTrue(self.lobsterout_saveprojection.has_Projection)
+        self.assertTrue(self.lobsterout_saveprojection.has_charge)
+        self.assertFalse(self.lobsterout_saveprojection.has_cohpcar)
+        self.assertFalse(self.lobsterout_saveprojection.has_coopcar)
+        self.assertFalse(self.lobsterout_saveprojection.has_doscar)
+        self.assertTrue(self.lobsterout_saveprojection.has_projection)
         self.assertTrue(self.lobsterout_saveprojection.has_bandoverlaps)
         self.assertTrue(self.lobsterout_saveprojection.has_density_of_energies)
         self.assertFalse(self.lobsterout_saveprojection.has_fatbands)
@@ -1125,14 +1166,14 @@ class LobsteroutTest(PymatgenTest):
         self.assertDictEqual(
             self.lobsterout_saveprojection.timing,
             {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "574"},
-                "usertime": {"h": "0", "min": "0", "s": "18", "ms": "250"},
+                "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "574"},
+                "user_time": {"h": "0", "min": "0", "s": "18", "ms": "250"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
             },
         )
-        self.assertAlmostEqual(self.lobsterout_saveprojection.totalspilling[0], [0.044000000000000004][0])
+        self.assertAlmostEqual(self.lobsterout_saveprojection.total_spilling[0], [0.044000000000000004][0])
         self.assertListEqual(
-            self.lobsterout_saveprojection.warninglines,
+            self.lobsterout_saveprojection.warning_lines,
             [
                 "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
                 "Generally, this is not a critical error. But to help you analyze it,",
@@ -1160,19 +1201,19 @@ class LobsteroutTest(PymatgenTest):
             ],
         )
         self.assertListEqual(self.lobsterout_skipping_all.basis_type, ["pbeVaspFit2015"])
-        self.assertListEqual(self.lobsterout_skipping_all.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_skipping_all.dftprogram, "VASP")
+        self.assertListEqual(self.lobsterout_skipping_all.charge_spilling, [0.0268])
+        self.assertEqual(self.lobsterout_skipping_all.dft_program, "VASP")
         self.assertListEqual(self.lobsterout_skipping_all.elements, ["Ti"])
-        self.assertFalse(self.lobsterout_skipping_all.has_CHARGE)
-        self.assertFalse(self.lobsterout_skipping_all.has_COHPCAR)
-        self.assertFalse(self.lobsterout_skipping_all.has_COOPCAR)
-        self.assertFalse(self.lobsterout_skipping_all.has_DOSCAR)
-        self.assertFalse(self.lobsterout_skipping_all.has_Projection)
+        self.assertFalse(self.lobsterout_skipping_all.has_charge)
+        self.assertFalse(self.lobsterout_skipping_all.has_cohpcar)
+        self.assertFalse(self.lobsterout_skipping_all.has_coopcar)
+        self.assertFalse(self.lobsterout_skipping_all.has_doscar)
+        self.assertFalse(self.lobsterout_skipping_all.has_projection)
         self.assertTrue(self.lobsterout_skipping_all.has_bandoverlaps)
         self.assertFalse(self.lobsterout_skipping_all.has_density_of_energies)
         self.assertFalse(self.lobsterout_skipping_all.has_fatbands)
         self.assertFalse(self.lobsterout_skipping_all.has_grosspopulation)
-        self.assertFalse(self.lobsterout_skipping_all.has_COBICAR)
+        self.assertFalse(self.lobsterout_skipping_all.has_cobicar)
         self.assertFalse(self.lobsterout_skipping_all.has_madelung)
         self.assertListEqual(
             self.lobsterout_skipping_all.info_lines,
@@ -1193,14 +1234,14 @@ class LobsteroutTest(PymatgenTest):
         self.assertDictEqual(
             self.lobsterout_skipping_all.timing,
             {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "117"},
-                "usertime": {"h": "0", "min": "0", "s": "16", "ms": "79"},
+                "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "117"},
+                "user_time": {"h": "0", "min": "0", "s": "16", "ms": "79"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
             },
         )
-        self.assertAlmostEqual(self.lobsterout_skipping_all.totalspilling[0], [0.044000000000000004][0])
+        self.assertAlmostEqual(self.lobsterout_skipping_all.total_spilling[0], [0.044000000000000004][0])
         self.assertListEqual(
-            self.lobsterout_skipping_all.warninglines,
+            self.lobsterout_skipping_all.warning_lines,
             [
                 "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
                 "Generally, this is not a critical error. But to help you analyze it,",
@@ -1227,15 +1268,15 @@ class LobsteroutTest(PymatgenTest):
             ],
         )
         self.assertListEqual(self.lobsterout_twospins.basis_type, ["pbeVaspFit2015"])
-        self.assertAlmostEqual(self.lobsterout_twospins.chargespilling[0], 0.36619999999999997)
-        self.assertAlmostEqual(self.lobsterout_twospins.chargespilling[1], 0.36619999999999997)
-        self.assertEqual(self.lobsterout_twospins.dftprogram, "VASP")
+        self.assertAlmostEqual(self.lobsterout_twospins.charge_spilling[0], 0.36619999999999997)
+        self.assertAlmostEqual(self.lobsterout_twospins.charge_spilling[1], 0.36619999999999997)
+        self.assertEqual(self.lobsterout_twospins.dft_program, "VASP")
         self.assertListEqual(self.lobsterout_twospins.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_twospins.has_CHARGE)
-        self.assertTrue(self.lobsterout_twospins.has_COHPCAR)
-        self.assertTrue(self.lobsterout_twospins.has_COOPCAR)
-        self.assertTrue(self.lobsterout_twospins.has_DOSCAR)
-        self.assertFalse(self.lobsterout_twospins.has_Projection)
+        self.assertTrue(self.lobsterout_twospins.has_charge)
+        self.assertTrue(self.lobsterout_twospins.has_cohpcar)
+        self.assertTrue(self.lobsterout_twospins.has_coopcar)
+        self.assertTrue(self.lobsterout_twospins.has_doscar)
+        self.assertFalse(self.lobsterout_twospins.has_projection)
         self.assertTrue(self.lobsterout_twospins.has_bandoverlaps)
         self.assertFalse(self.lobsterout_twospins.has_density_of_energies)
         self.assertFalse(self.lobsterout_twospins.has_fatbands)
@@ -1259,15 +1300,15 @@ class LobsteroutTest(PymatgenTest):
         self.assertDictEqual(
             self.lobsterout_twospins.timing,
             {
-                "walltime": {"h": "0", "min": "0", "s": "3", "ms": "71"},
-                "usertime": {"h": "0", "min": "0", "s": "22", "ms": "660"},
+                "wall_time": {"h": "0", "min": "0", "s": "3", "ms": "71"},
+                "user_time": {"h": "0", "min": "0", "s": "22", "ms": "660"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
             },
         )
-        self.assertAlmostEqual(self.lobsterout_twospins.totalspilling[0], [0.2567][0])
-        self.assertAlmostEqual(self.lobsterout_twospins.totalspilling[1], [0.2567][0])
+        self.assertAlmostEqual(self.lobsterout_twospins.total_spilling[0], [0.2567][0])
+        self.assertAlmostEqual(self.lobsterout_twospins.total_spilling[1], [0.2567][0])
         self.assertListEqual(
-            self.lobsterout_twospins.warninglines,
+            self.lobsterout_twospins.warning_lines,
             [
                 "60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
                 "Generally, this is not a critical error. But to help you analyze it,",
@@ -1279,14 +1320,14 @@ class LobsteroutTest(PymatgenTest):
 
         self.assertListEqual(self.lobsterout_from_projection.basis_functions, [])
         self.assertListEqual(self.lobsterout_from_projection.basis_type, [])
-        self.assertAlmostEqual(self.lobsterout_from_projection.chargespilling[0], 0.0177)
-        self.assertEqual(self.lobsterout_from_projection.dftprogram, None)
+        self.assertAlmostEqual(self.lobsterout_from_projection.charge_spilling[0], 0.0177)
+        self.assertEqual(self.lobsterout_from_projection.dft_program, None)
         self.assertListEqual(self.lobsterout_from_projection.elements, [])
-        self.assertTrue(self.lobsterout_from_projection.has_CHARGE)
-        self.assertTrue(self.lobsterout_from_projection.has_COHPCAR)
-        self.assertTrue(self.lobsterout_from_projection.has_COOPCAR)
-        self.assertTrue(self.lobsterout_from_projection.has_DOSCAR)
-        self.assertFalse(self.lobsterout_from_projection.has_Projection)
+        self.assertTrue(self.lobsterout_from_projection.has_charge)
+        self.assertTrue(self.lobsterout_from_projection.has_cohpcar)
+        self.assertTrue(self.lobsterout_from_projection.has_coopcar)
+        self.assertTrue(self.lobsterout_from_projection.has_doscar)
+        self.assertFalse(self.lobsterout_from_projection.has_projection)
         self.assertFalse(self.lobsterout_from_projection.has_bandoverlaps)
         self.assertFalse(self.lobsterout_from_projection.has_density_of_energies)
         self.assertFalse(self.lobsterout_from_projection.has_fatbands)
@@ -1300,13 +1341,13 @@ class LobsteroutTest(PymatgenTest):
         self.assertDictEqual(
             self.lobsterout_from_projection.timing,
             {
-                "walltime": {"h": "0", "min": "2", "s": "1", "ms": "890"},
-                "usertime": {"h": "0", "min": "15", "s": "10", "ms": "530"},
+                "wall_time": {"h": "0", "min": "2", "s": "1", "ms": "890"},
+                "user_time": {"h": "0", "min": "15", "s": "10", "ms": "530"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "400"},
             },
         )
-        self.assertAlmostEqual(self.lobsterout_from_projection.totalspilling[0], [0.1543][0])
-        self.assertListEqual(self.lobsterout_from_projection.warninglines, [])
+        self.assertAlmostEqual(self.lobsterout_from_projection.total_spilling[0], [0.1543][0])
+        self.assertListEqual(self.lobsterout_from_projection.warning_lines, [])
 
         self.assertListEqual(
             self.lobsterout_GaAs.basis_functions,
@@ -1326,14 +1367,14 @@ class LobsteroutTest(PymatgenTest):
             ],
         )
         self.assertListEqual(self.lobsterout_GaAs.basis_type, ["Bunge", "Bunge"])
-        self.assertAlmostEqual(self.lobsterout_GaAs.chargespilling[0], 0.0089)
-        self.assertEqual(self.lobsterout_GaAs.dftprogram, "VASP")
+        self.assertAlmostEqual(self.lobsterout_GaAs.charge_spilling[0], 0.0089)
+        self.assertEqual(self.lobsterout_GaAs.dft_program, "VASP")
         self.assertListEqual(self.lobsterout_GaAs.elements, ["As", "Ga"])
-        self.assertTrue(self.lobsterout_GaAs.has_CHARGE)
-        self.assertTrue(self.lobsterout_GaAs.has_COHPCAR)
-        self.assertTrue(self.lobsterout_GaAs.has_COOPCAR)
-        self.assertTrue(self.lobsterout_GaAs.has_DOSCAR)
-        self.assertFalse(self.lobsterout_GaAs.has_Projection)
+        self.assertTrue(self.lobsterout_GaAs.has_charge)
+        self.assertTrue(self.lobsterout_GaAs.has_cohpcar)
+        self.assertTrue(self.lobsterout_GaAs.has_coopcar)
+        self.assertTrue(self.lobsterout_GaAs.has_doscar)
+        self.assertFalse(self.lobsterout_GaAs.has_projection)
         self.assertFalse(self.lobsterout_GaAs.has_bandoverlaps)
         self.assertFalse(self.lobsterout_GaAs.has_density_of_energies)
         self.assertFalse(self.lobsterout_GaAs.has_fatbands)
@@ -1354,20 +1395,23 @@ class LobsteroutTest(PymatgenTest):
         self.assertDictEqual(
             self.lobsterout_GaAs.timing,
             {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "726"},
-                "usertime": {"h": "0", "min": "0", "s": "12", "ms": "370"},
+                "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "726"},
+                "user_time": {"h": "0", "min": "0", "s": "12", "ms": "370"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "180"},
             },
         )
-        self.assertAlmostEqual(self.lobsterout_GaAs.totalspilling[0], [0.0859][0])
+        self.assertAlmostEqual(self.lobsterout_GaAs.total_spilling[0], [0.0859][0])
 
         self.assertEqual(self.lobsterout_onethread.number_of_threads, 1)
         # Test lobsterout of lobster-4.1.0
-        self.assertEqual(self.lobsterout_cobi_madelung.has_COBICAR, True)
-        self.assertEqual(self.lobsterout_cobi_madelung.has_COHPCAR, True)
+        self.assertEqual(self.lobsterout_cobi_madelung.has_cobicar, True)
+        self.assertEqual(self.lobsterout_cobi_madelung.has_cohpcar, True)
         self.assertEqual(self.lobsterout_cobi_madelung.has_madelung, True)
+        self.assertFalse(self.lobsterout_cobi_madelung.has_doscar_lso)
 
-        self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_COBICAR, False)
+        self.assertTrue(self.lobsterout_doscar_lso.has_doscar_lso)
+
+        self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_cobicar, False)
         self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_madelung, False)
 
     def test_get_doc(self):
@@ -1375,12 +1419,12 @@ class LobsteroutTest(PymatgenTest):
             "restart_from_projection": False,
             "lobster_version": "v3.1.0",
             "threads": 8,
-            "Dftprogram": "VASP",
-            "chargespilling": [0.0268],
-            "totalspilling": [0.044000000000000004],
+            "dft_program": "VASP",
+            "charge_spilling": [0.0268],
+            "total_spilling": [0.044000000000000004],
             "elements": ["Ti"],
-            "basistype": ["pbeVaspFit2015"],
-            "basisfunctions": [
+            "basis_type": ["pbeVaspFit2015"],
+            "basis_functions": [
                 [
                     "3s",
                     "4s",
@@ -1395,40 +1439,41 @@ class LobsteroutTest(PymatgenTest):
                 ]
             ],
             "timing": {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "702"},
-                "usertime": {"h": "0", "min": "0", "s": "20", "ms": "330"},
+                "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "702"},
+                "user_time": {"h": "0", "min": "0", "s": "20", "ms": "330"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
             },
-            "warnings": [
+            "warning_lines": [
                 "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
                 "Generally, this is not a critical error. But to help you analyze it,",
                 "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
                 "Please check how much they deviate from the identity matrix and decide to",
                 "use your results only, if you are sure that this is ok.",
             ],
-            "orthonormalization": ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
-            "infos": [
+            "info_orthonormalization": ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
+            "info_lines": [
                 "There are more PAW bands than local basis functions available.",
                 "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
                 "the PAW bands from 21 and upwards will be ignored.",
             ],
-            "hasDOSCAR": True,
-            "hasCOHPCAR": True,
-            "hasCOOPCAR": True,
-            "hasCHARGE": True,
-            "hasProjection": False,
-            "hasbandoverlaps": True,
-            "hasfatband": False,
-            "hasGrossPopuliation": False,
-            "hasDensityOfEnergies": False,
+            "has_doscar": True,
+            "has_doscar_lso": False,
+            "has_cohpcar": True,
+            "has_coopcar": True,
+            "has_charge": True,
+            "has_projection": False,
+            "has_bandoverlaps": True,
+            "has_fatbands": False,
+            "has_grosspopulation": False,
+            "has_density_of_energies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():
-            if key not in ["hasCOBICAR", "hasmadelung"]:
+            if key not in ["has_cobicar", "has_madelung"]:
                 if isinstance(item, str):
                     self.assertTrue(comparedict[key], item)
                 elif isinstance(item, int):
                     self.assertEqual(comparedict[key], item)
-                elif key in ("chargespilling", "totalspilling"):
+                elif key in ("charge_spilling", "total_spilling"):
                     self.assertAlmostEqual(item[0], comparedict[key][0])
                 elif isinstance(item, list):
                     self.assertListEqual(item, comparedict[key])
@@ -1895,7 +1940,14 @@ class LobsterinTest(unittest.TestCase):
                 self.assertEqual("skipcoop" not in lobsterin1, True)
             if option in ["standard_from_projection"]:
                 self.assertTrue(lobsterin1["loadProjectionFromFile"], True)
-            if option in ["onlyprojection", "onlycohp", "onlycoop", "onlycobi", "onlycohpcoop", "onlycohpcoopcobi"]:
+            if option in [
+                "onlyprojection",
+                "onlycohp",
+                "onlycoop",
+                "onlycobi",
+                "onlycohpcoop",
+                "onlycohpcoopcobi",
+            ]:
                 self.assertTrue(lobsterin1["skipdos"], True)
                 self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
                 self.assertTrue(lobsterin1["skipGrossPopulation"], True)
@@ -1950,6 +2002,19 @@ class LobsterinTest(unittest.TestCase):
                 option="standard_with_fatband",
             )
 
+    def test_standard_with_energy_range_from_vasprun(self):
+        # test standard_with_energy_range_from_vasprun
+        lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
+            os.path.join(test_dir_doscar, "POSCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "INCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "POTCAR.C2.gz"),
+            os.path.join(test_dir_doscar, "vasprun.xml.C2.gz"),
+            option="standard_with_energy_range_from_vasprun",
+        )
+        self.assertEqual(lobsterin_comp["COHPstartEnergy"], -28.3679)
+        self.assertEqual(lobsterin_comp["COHPendEnergy"], 32.8968)
+        self.assertEqual(lobsterin_comp["COHPSteps"], 301)
+
     def test_diff(self):
         # test diff
         self.assertDictEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"], {})
@@ -1959,14 +2024,14 @@ class LobsterinTest(unittest.TestCase):
         )
 
         # test diff in both directions
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys())
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys())
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys())
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys():
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys())
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]:
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"])
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"]:
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"])
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]:
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"])
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]:
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"])
 
         self.assertEqual(
             self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"],
@@ -2208,7 +2273,7 @@ class LobsterinTest(unittest.TestCase):
                 )
             )
 
-    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist):
+    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist) -> bool:
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
@@ -2274,7 +2339,10 @@ class BandoverlapsTest(unittest.TestCase):
             1.0,
         )
         self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][0][0], 1)
-        self.assertAlmostEqual(self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][0][0], 0.995849)
+        self.assertAlmostEqual(
+            self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][0][0],
+            0.995849,
+        )
 
         self.assertAlmostEqual(
             self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["maxDeviation"],
@@ -2748,7 +2816,10 @@ class SitePotentialsTest(PymatgenTest):
 
     def test_attributes(self):
         self.assertListEqual(self.sitepotential.sitepotentials_Loewdin, [-8.77, -17.08, 9.57, 9.57, 8.45])
-        self.assertListEqual(self.sitepotential.sitepotentials_Mulliken, [-11.38, -19.62, 11.18, 11.18, 10.09])
+        self.assertListEqual(
+            self.sitepotential.sitepotentials_Mulliken,
+            [-11.38, -19.62, 11.18, 11.18, 10.09],
+        )
         self.assertAlmostEqual(self.sitepotential.madelungenergies_Loewdin, -28.64)
         self.assertAlmostEqual(self.sitepotential.madelungenergies_Mulliken, -40.02)
         self.assertListEqual(self.sitepotential.atomlist, ["La1", "Ta2", "N3", "N4", "O5"])
@@ -2761,10 +2832,12 @@ class SitePotentialsTest(PymatgenTest):
             os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite")
         )
         self.assertListEqual(
-            structure.site_properties["Loewdin Site Potentials (eV)"], [-8.77, -17.08, 9.57, 9.57, 8.45]
+            structure.site_properties["Loewdin Site Potentials (eV)"],
+            [-8.77, -17.08, 9.57, 9.57, 8.45],
         )
         self.assertListEqual(
-            structure.site_properties["Mulliken Site Potentials (eV)"], [-11.38, -19.62, 11.18, 11.18, 10.09]
+            structure.site_properties["Mulliken Site Potentials (eV)"],
+            [-11.38, -19.62, 11.18, 11.18, 10.09],
         )
 
 

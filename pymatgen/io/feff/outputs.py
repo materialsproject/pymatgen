@@ -8,6 +8,8 @@ Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 """
 
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 
@@ -184,7 +186,7 @@ class LDos(MSONable):
                         if len(pot_dict) == 0:
                             pot_dict[0] = ele_name
                         elif len(pot_dict) > 0:
-                            pot_dict[max(pot_dict.keys()) + 1] = ele_name
+                            pot_dict[max(pot_dict) + 1] = ele_name
                         begin += 1
                         continue
                     if begin == 2:
@@ -195,7 +197,7 @@ class LDos(MSONable):
                         if len(pot_dict) == 0:
                             pot_dict[0] = ele_name
                         elif len(pot_dict) > 0:
-                            pot_dict[max(pot_dict.keys()) + 1] = ele_name
+                            pot_dict[max(pot_dict) + 1] = ele_name
                     if len(pot_readstart.findall(line)) > 0:
                         begin = 1
         else:

@@ -5,6 +5,8 @@
 Script to visualize the model coordination environments
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"
@@ -52,7 +54,7 @@ if __name__ == "__main__":
         for ialgo, algo in enumerate(cg.algorithms):
             print(f"Algorithm #{ialgo:d} :")
             print(algo)
-            print("")
+            print()
         # Visualize the separation plane of a given algorithm
         sepplane = False
         if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):

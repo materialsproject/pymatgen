@@ -2,6 +2,8 @@
 Environment nodes module.
 """
 
+from __future__ import annotations
+
 import abc
 
 from monty.json import MSONable
@@ -46,7 +48,9 @@ class AbstractEnvironmentNode(MSONable):
         """Simple hash function based on the hash function of the central site."""
         return self.central_site.__hash__()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, AbstractEnvironmentNode):
+            return NotImplemented
         # When relabelling nodes from a str or int to an EnvironmentNode in-place in a graph (e.g. in a
         # ConnectedComponent), the comparison should return False when comparing the already relabelled nodes (e.g. as
         # an EnvironmentNode) with those not yet relabelled (e.g. a str representing the isite). This is useful for
@@ -62,7 +66,7 @@ class AbstractEnvironmentNode(MSONable):
     def everything_equal(self, other):
         """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
         as well as the central site itself."""
-        return self.__eq__(other) and self.central_site == other.central_site
+        return self == other and self.central_site == other.central_site
 
     @property
     @abc.abstractmethod

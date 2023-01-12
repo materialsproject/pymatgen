@@ -5,6 +5,8 @@
 This module implements input and output processing from PWSCF.
 """
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 
@@ -74,7 +76,7 @@ class PWInput:
                 except KeyError:
                     raise PWInputError(f"Missing {site} in pseudo specification!")
         else:
-            for species in self.structure.composition.keys():
+            for species in self.structure.composition:
                 if str(species) not in pseudo:
                     raise PWInputError(f"Missing {species} in pseudo specification!")
         self.pseudo = pseudo
@@ -118,10 +120,10 @@ class PWInput:
             v1 = self.sections[k1]
             out.append(f"&{k1.upper()}")
             sub = []
-            for k2 in sorted(v1.keys()):
+            for k2 in sorted(v1):
                 if isinstance(v1[k2], list):
                     n = 1
-                    for l in v1[k2][: len(site_descriptions)]:
+                    for _ in v1[k2][: len(site_descriptions)]:
                         sub.append(f"  {k2}({n}) = {to_str(v1[k2][n - 1])}")
                         n += 1
                 else:
@@ -225,7 +227,7 @@ class PWInput:
             filename (str): The string filename to output to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @staticmethod
     def from_file(filename):

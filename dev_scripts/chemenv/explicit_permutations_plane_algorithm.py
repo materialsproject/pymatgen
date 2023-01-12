@@ -6,6 +6,8 @@ Development script of the ChemEnv utility to get the explicit permutations for c
 with the separation plane algorithms (typically with coordination numbers >= 6)
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 
@@ -146,6 +148,5 @@ if __name__ == "__main__":
     if test == "y":
         cg._algorithms = newalgos
         cg_dict = cg.as_dict()
-        f = open(f"../coordination_geometries_files_new/{cg_symbol}.json", "w")
-        json.dump(cg_dict, f)
-        f.close()
+        with open(f"../coordination_geometries_files_new/{cg_symbol}.json", "w") as f:
+            json.dump(cg_dict, f)

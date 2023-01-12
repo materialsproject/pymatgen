@@ -29,13 +29,15 @@ appropriate (e.g. the two nucleus critical points linked to
 If you use this module, please cite the following:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
-Comput. Phys. Commun. 185, 1007-1018 (2014)
+Comput. Phys. Communications 185, 1007-1018 (2014)
 (https://doi.org/10.1016/j.cpc.2013.10.026)
 
 A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and
-V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
+V. Luaña, Comput. Phys. Communications 180, 157-166 (2009)
 (https://doi.org/10.1016/j.cpc.2008.07.018)
 """
+
+from __future__ import annotations
 
 import glob
 import logging
@@ -54,6 +56,7 @@ from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecies
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 
@@ -77,7 +80,6 @@ class Critic2Caller:
 
         :param input_script: string defining the critic2 input
         """
-
         # store if examining the input script is useful,
         # not otherwise used
         self._input_script = input_script
@@ -176,7 +178,6 @@ class Critic2Caller:
         (ZVAL in VASP pseudopotential), with which to properly augment core regions
         and calculate charge transfer. Optional.
         """
-
         settings = {"CPEPS": 0.1, "SEED": ["WS", "PAIR DIST 10"]}
         if user_input_settings:
             settings.update(user_input_settings)
@@ -192,7 +193,7 @@ class Critic2Caller:
         if chgcar:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = " zpsp " + " ".join([f"{symbol} {int(zval)}" for symbol, zval in zpsp.items()])
+                zpsp_str = " zpsp " + " ".join(f"{symbol} {zval}" for symbol, zval in zpsp.items())
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
@@ -269,7 +270,6 @@ class Critic2Caller:
         :param zpsp: manually specify ZPSP if POTCAR not present
         :return:
         """
-
         chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
         chgcar_ref = None
@@ -425,7 +425,7 @@ class Critic2Analysis(MSONable):
     Class to process the standard output from critic2 into pymatgen-compatible objects.
     """
 
-    def __init__(self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
+    def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
         """
         This class is used to store results from the Critic2Caller.
 
@@ -462,7 +462,6 @@ class Critic2Analysis(MSONable):
         (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
         Optional.
         """
-
         self.structure = structure
 
         self._stdout = stdout
@@ -471,8 +470,8 @@ class Critic2Analysis(MSONable):
         self._yt = yt
         self._zpsp = zpsp
 
-        self.nodes = {}
-        self.edges = {}
+        self.nodes: dict[int, dict] = {}
+        self.edges: dict[int, dict] = {}
 
         if yt:
             self.structure = self._annotate_structure_with_yt(yt, structure, zpsp)
@@ -498,7 +497,6 @@ class Critic2Analysis(MSONable):
 
         Returns: a StructureGraph
         """
-
         structure = self.structure.copy()
 
         point_idx_to_struct_idx = {}
@@ -550,13 +548,8 @@ class Critic2Analysis(MSONable):
                                 "interested in rings/cages."
                             )
                             logger.debug(
-                                "Duplicate edge between points {} (unique point {})"
-                                "and {} ({}).".format(
-                                    idx,
-                                    self.nodes[idx]["unique_idx"],
-                                    idx2,
-                                    self.nodes[idx2]["unique_idx"],
-                                )
+                                f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
+                                f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
                             )
         # and remove any duplicate bonds present
         for idx in idx_to_delete:
@@ -611,10 +604,10 @@ class Critic2Analysis(MSONable):
 
         return sg
 
-    def get_critical_point_for_site(self, n):
+    def get_critical_point_for_site(self, n: int):
         """
         Args:
-            n: Site index n
+            n (int): Site index
 
         Returns: A CriticalPoint instance
         """
@@ -666,19 +659,19 @@ class Critic2Analysis(MSONable):
             for p in cpreport["critical_points"]["nonequivalent_cps"]
         ]
 
-        for idx, p in enumerate(cpreport["critical_points"]["cell_cps"]):
+        for point in cpreport["critical_points"]["cell_cps"]:
             self._add_node(
-                idx=p["id"] - 1,
-                unique_idx=p["nonequivalent_id"] - 1,
-                frac_coords=p["fractional_coordinates"],
+                idx=point["id"] - 1,
+                unique_idx=point["nonequivalent_id"] - 1,
+                frac_coords=point["fractional_coordinates"],
             )
-            if "attractors" in p:
+            if "attractors" in point:
                 self._add_edge(
-                    idx=p["id"] - 1,
-                    from_idx=int(p["attractors"][0]["cell_id"]) - 1,
-                    from_lvec=p["attractors"][0]["lvec"],
-                    to_idx=int(p["attractors"][1]["cell_id"]) - 1,
-                    to_lvec=p["attractors"][1]["lvec"],
+                    idx=point["id"] - 1,
+                    from_idx=int(point["attractors"][0]["cell_id"]) - 1,
+                    from_lvec=point["attractors"][0]["lvec"],
+                    to_idx=int(point["attractors"][1]["cell_id"]) - 1,
+                    to_lvec=point["attractors"][1]["lvec"],
                 )
 
     def _remap_indices(self):
@@ -686,7 +679,6 @@ class Critic2Analysis(MSONable):
         Re-maps indices on self.nodes and self.edges such that node indices match
         that of structure, and then sorts self.nodes by index.
         """
-
         # Order of nuclei provided by critic2 doesn't
         # necessarily match order of sites in Structure.
         # This is because critic2 performs a symmetrization step.
@@ -704,8 +696,8 @@ class Critic2Analysis(MSONable):
 
         if len(node_mapping) != len(self.structure):
             warnings.warn(
-                "Check that all sites in input structure ({}) have "
-                "been detected by critic2 ({}).".format(len(self.structure), len(node_mapping))
+                f"Check that all sites in input structure ({len(self.structure)}) have "
+                f"been detected by critic2 ({ len(node_mapping)})."
             )
 
         self.nodes = {node_mapping.get(idx, idx): node for idx, node in self.nodes.items()}
@@ -715,7 +707,7 @@ class Critic2Analysis(MSONable):
             edge["to_idx"] = node_mapping.get(edge["to_idx"], edge["to_idx"])
 
     @staticmethod
-    def _annotate_structure_with_yt(yt, structure, zpsp):
+    def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
 
         volume_idx = None
         charge_idx = None
@@ -742,9 +734,7 @@ class Critic2Analysis(MSONable):
         for idx, site in enumerate(yt["structure"]["cell_atoms"]):
             if not np.allclose(structure[idx].frac_coords, site["fractional_coordinates"]):
                 raise IndexError(
-                    "Site in structure doesn't seem to match site in YT integration:\n{}\n{}".format(
-                        structure[idx], site
-                    )
+                    f"Site in structure doesn't seem to match site in YT integration:\n{structure[idx]}\n{site}"
                 )
             volume, charge = get_volume_and_charge(site["nonequivalent_id"])
             volumes.append(volume)
@@ -754,9 +744,8 @@ class Critic2Analysis(MSONable):
                     charge_transfer.append(charge - zpsp[structure[idx].species_string])
                 else:
                     raise ValueError(
-                        "ZPSP argument does not seem compatible with species in structure ({}): {}".format(
-                            structure[idx].species_string, zpsp
-                        )
+                        f"ZPSP argument does not seem compatible with species in structure "
+                        f"({structure[idx].species_string}): {zpsp}"
                     )
 
         structure = structure.copy()

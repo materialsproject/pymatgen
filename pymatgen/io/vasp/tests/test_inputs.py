@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import pickle
 import unittest
@@ -8,9 +10,10 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-import pytest  # type: ignore
+import pytest
 import scipy.constants as const
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 
 from pymatgen.core import SETTINGS
@@ -37,7 +40,7 @@ class PoscarTest(PymatgenTest):
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
-        # Vasp 4 type with symbols at the end.
+        # VASP 4 type with symbols at the end.
         poscar_string = """Test1
 1.0
 3.840198 0.000000 0.000000
@@ -54,7 +57,7 @@ direct
         poscar_string = ""
         self.assertRaises(ValueError, Poscar.from_string, poscar_string)
 
-        # Vasp 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
 1.0
 3.840198 0.000000 0.000000
@@ -69,7 +72,7 @@ direct
             warnings.simplefilter("ignore")
             poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
-        # Vasp 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -196,14 +199,14 @@ cart
         poscar = Poscar(struct)
         expected_str = """Si2
 1.0
-3.84 0.00 0.00
-1.92 3.33 0.00
-0.00 -2.22 3.14
+   3.84    0.00    0.00
+   1.92    3.33    0.00
+   0.00   -2.22    3.14
 Si
 2
 direct
-0.00 0.00 0.00 Si
-0.75 0.50 0.75 Si
+   0.00    0.00    0.00 Si
+   0.75    0.50    0.75 Si
 """
 
         actual_str = poscar.get_string(significant_figures=2)
@@ -225,19 +228,19 @@ direct
         poscar = Poscar(struct)
         expected_str = """Si2
 1.0
-3.840198 0.000000 0.000000
-1.920099 3.325710 0.000000
-0.000000 -2.217138 3.135509
+   3.8401979336999998    0.0000000000000000    0.0000000000000000
+   1.9200989667999999    3.3257101909000002    0.0000000000000000
+   0.0000000000000000   -2.2171384942999999    3.1355090603000000
 Si
 2
 direct
-0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 Si
+   0.0000000000000000    0.0000000000000000    0.0000000000000000 Si
+   0.7500000000000000    0.5000000000000000    0.7500000000000000 Si
 """
 
         self.assertEqual(str(poscar), expected_str, "Wrong POSCAR output!")
 
-        # Vasp 4 type with symbols at the end.
+        # VASP 4 type with symbols at the end.
         poscar_string = """Test1
 1.0
 -3.840198 0.000000 0.000000
@@ -251,14 +254,14 @@ direct
 
         expected = """Test1
 1.0
-3.840198 -0.000000 -0.000000
--1.920099 -3.325710 -0.000000
--0.000000 2.217138 -3.135509
+   3.8401980000000000   -0.0000000000000000   -0.0000000000000000
+  -1.9200990000000000   -3.3257099999999999   -0.0000000000000000
+  -0.0000000000000000    2.2171379999999998   -3.1355089999999999
 Si F
 1 1
 direct
-0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 F
+   0.0000000000000000    0.0000000000000000    0.0000000000000000 Si
+   0.7500000000000000    0.5000000000000000    0.7500000000000000 F
 """
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(str(poscar), expected)
@@ -293,37 +296,37 @@ direct
         ans = """
         Fe4P4O16
 1.0
-10.411767 0.000000 0.000000
-0.000000 6.067172 0.000000
-0.000000 0.000000 4.759490
+  10.4117668699494264    0.0000000000000000    0.0000000000000000
+   0.0000000000000000    6.0671718799705294    0.0000000000000000
+   0.0000000000000000    0.0000000000000000    4.7594895399768813
 Fe P O
 4 4 16
 Selective dynamics
 direct
-0.218728 0.750000 0.474867 T F F Fe
-0.281272 0.250000 0.974867 T F F Fe
-0.718728 0.750000 0.025133 T F F Fe
-0.781272 0.250000 0.525133 T F F Fe
-0.094613 0.250000 0.418243 T F F P
-0.405387 0.750000 0.918243 T F F P
-0.594613 0.250000 0.081757 T F F P
-0.905387 0.750000 0.581757 T F F P
-0.043372 0.750000 0.707138 T F F O
-0.096642 0.250000 0.741320 T F F O
-0.165710 0.046072 0.285384 T F F O
-0.165710 0.453928 0.285384 T F F O
-0.334290 0.546072 0.785384 T F F O
-0.334290 0.953928 0.785384 T F F O
-0.403358 0.750000 0.241320 T F F O
-0.456628 0.250000 0.207138 T F F O
-0.543372 0.750000 0.792862 T F F O
-0.596642 0.250000 0.758680 T F F O
-0.665710 0.046072 0.214616 T F F O
-0.665710 0.453928 0.214616 T F F O
-0.834290 0.546072 0.714616 T F F O
-0.834290 0.953928 0.714616 T F F O
-0.903358 0.750000 0.258680 T F F O
-0.956628 0.250000 0.292862 T F F O"""
+   0.2187282200000000    0.7500000000000000    0.4748671100000000 T F F Fe
+   0.2812717800000000    0.2500000000000000    0.9748671100000000 T F F Fe
+   0.7187282200000000    0.7500000000000000    0.0251328900000000 T F F Fe
+   0.7812717800000000    0.2500000000000000    0.5251328900000000 T F F Fe
+   0.0946130900000000    0.2500000000000000    0.4182432700000000 T F F P
+   0.4053869100000000    0.7500000000000000    0.9182432699999999 T F F P
+   0.5946130900000000    0.2500000000000000    0.0817567300000000 T F F P
+   0.9053869100000000    0.7500000000000000    0.5817567300000001 T F F P
+   0.0433723100000000    0.7500000000000000    0.7071376700000001 T F F O
+   0.0966424400000000    0.2500000000000000    0.7413203500000000 T F F O
+   0.1657097400000000    0.0460723300000000    0.2853839400000000 T F F O
+   0.1657097400000000    0.4539276700000000    0.2853839400000000 T F F O
+   0.3342902600000000    0.5460723300000000    0.7853839400000000 T F F O
+   0.3342902600000000    0.9539276700000000    0.7853839400000000 T F F O
+   0.4033575600000000    0.7500000000000000    0.2413203500000000 T F F O
+   0.4566276900000000    0.2500000000000000    0.2071376700000000 T F F O
+   0.5433723100000000    0.7500000000000000    0.7928623299999999 T F F O
+   0.5966424400000000    0.2500000000000000    0.7586796500000000 T F F O
+   0.6657097400000000    0.0460723300000000    0.2146160600000000 T F F O
+   0.6657097400000000    0.4539276700000000    0.2146160600000000 T F F O
+   0.8342902600000000    0.5460723300000000    0.7146160600000000 T F F O
+   0.8342902600000000    0.9539276700000000    0.7146160600000000 T F F O
+   0.9033575600000000    0.7500000000000000    0.2586796500000000 T F F O
+   0.9566276900000000    0.2500000000000000    0.2928623300000000 T F F O"""
         self.assertEqual(str(poscar).strip(), ans.strip())
 
     def test_velocities(self):
@@ -881,6 +884,36 @@ class PotcarSingleTest(PymatgenTest):
         }
         self.assertEqual(self.psingle.keywords, data)
 
+    def test_psctr(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
+
+        psingle = PotcarSingle.from_file(filename)
+
+        data = {
+            "nentries": 9,
+            "Orbitals": (
+                (1, 0, 0.50, -6993.8440, 2.0000),
+                (2, 0, 0.50, -0814.6047, 2.0000),
+                (2, 1, 1.50, -0693.3689, 6.0000),
+                (3, 0, 0.50, -0089.4732, 2.0000),
+                (3, 1, 1.50, -0055.6373, 6.0000),
+                (3, 2, 2.50, -0003.8151, 7.0000),
+                (4, 0, 0.50, -0004.2551, 1.0000),
+                (4, 1, 1.50, -0003.4015, 0.0000),
+                (4, 3, 2.50, -0001.3606, 0.0000),
+            ),
+            "OrbitalDescriptions": (
+                (2, -3.8151135, 23, 2.300, None, None),
+                (2, -5.1756961, 23, 2.300, None, None),
+                (0, -4.2550963, 23, 2.300, None, None),
+                (0, 07.2035603, 23, 2.300, None, None),
+                (1, -2.7211652, 23, 2.300, None, None),
+                (1, 18.4316424, 23, 2.300, None, None),
+            ),
+        }
+        for k, v in data.items():
+            self.assertEqual(psingle.PSCTR[k], v)
+
     def test_nelectrons(self):
         self.assertEqual(self.psingle.nelectrons, 13)
 
@@ -938,20 +971,48 @@ class PotcarSingleTest(PymatgenTest):
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns(None):
-            psingle = PotcarSingle.from_file(filename)
+        psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
 
     def test_potcar_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="incomplete"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_header" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="following"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
             PotcarSingle.from_file(filename)
+
+    def test_verify_faulty_potcar_with_hash(self):
+        filename = (
+            PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
+        )
+        with pytest.raises(ValueError):
+            PotcarSingle.from_file(filename)
+
+    def test_verify_correct_potcar_with_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        metadata_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_pymatgen_hashes.json"))
+
+        psingle = PotcarSingle.from_file(filename)
+        assert psingle.hash in metadata_hash_db
+        assert psingle.file_hash in file_hash_db
+        assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+
+    def test_multi_potcar_with_and_without_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_O.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        potcars = Potcar.from_file(filename)
+        for psingle in potcars:
+            if hasattr(psingle, "hash_sha256_from_file"):
+                assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+            else:
+                assert psingle.file_hash in file_hash_db
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")

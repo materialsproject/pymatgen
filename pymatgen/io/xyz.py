@@ -5,6 +5,8 @@
 Module implementing an XYZ file object class.
 """
 
+from __future__ import annotations
+
 import re
 from io import StringIO
 
@@ -121,7 +123,6 @@ class XYZ:
 
         Returns:
             pandas.DataFrame
-
         """
         lines = str(self)
 
@@ -145,14 +146,14 @@ class XYZ:
         return "\n".join(output)
 
     def __str__(self):
-        return "\n".join([self._frame_str(mol) for mol in self._mols])
+        return "\n".join(self._frame_str(mol) for mol in self._mols)
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Writes XYZ to file.
 
         Args:
-            filename: File name of output file.
+            filename (str): File name of output file.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.__str__())
+            f.write(str(self))

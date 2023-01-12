@@ -6,6 +6,8 @@ This module provides classes for representing species substitution
 probabilities.
 """
 
+from __future__ import annotations
+
 import functools
 import itertools
 import json
@@ -158,11 +160,11 @@ class SubstitutionProbability:
         Returns: MSONAble dict
         """
         return {
-            "name": self.__class__.__name__,
+            "name": type(self).__name__,
             "version": __version__,
             "init_args": {"lambda_table": self._l, "alpha": self.alpha},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -267,7 +269,7 @@ class SubstitutionPredictor:
             will be from the list species. If false, the keys will be
             from that list.
         """
-        preds = self.list_prediction(list(composition.keys()), to_this_composition)
+        preds = self.list_prediction(list(composition), to_this_composition)
         output = []
         for p in preds:
             if to_this_composition:

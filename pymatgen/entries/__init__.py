@@ -12,7 +12,7 @@ and PDEntry inherit from this class.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Literal, Union
+from typing import Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -41,7 +41,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         self,
         composition: Composition | str | dict[str, float],
         energy: float,
-    ):
+    ) -> None:
         """
         Initializes an Entry.
 
@@ -78,6 +78,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         :return: the energy of the entry.
         """
+        raise NotImplementedError
 
     @property
     def energy_per_atom(self) -> float:
@@ -87,7 +88,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
-        return f"{self.__class__.__name__} : {self.composition} with energy = {self.energy:.4f}"
+        return f"{type(self).__name__} : {self.composition} with energy = {self.energy:.4f}"
 
     def __str__(self):
         return self.__repr__()
@@ -100,7 +101,6 @@ class Entry(MSONable, metaclass=ABCMeta):
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
         """
-
         factor = self._normalization_factor(mode)
         new_composition = self._composition / factor
         new_energy = self._energy / factor
@@ -129,13 +129,15 @@ class Entry(MSONable, metaclass=ABCMeta):
         :return: MSONable dict.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "energy": self._energy,
             "composition": self._composition.as_dict(),
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         # NOTE: Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately.
         if self is other:
@@ -153,4 +155,4 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __hash__(self):
         # NOTE truncate _energy to 8 dp to ensure same robustness
         # as np.allclose
-        return hash(f"{self.__class__.__name__}{self._composition.formula}{self._energy:.8f}")
+        return hash(f"{type(self).__name__}{self._composition.formula}{self._energy:.8f}")

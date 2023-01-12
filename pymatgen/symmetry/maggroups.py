@@ -5,6 +5,8 @@
 Magnetic space groups.
 """
 
+from __future__ import annotations
+
 import os
 import sqlite3
 import textwrap
@@ -14,6 +16,7 @@ from fractions import Fraction
 import numpy as np
 from monty.design_patterns import cached_class
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
@@ -52,13 +55,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         where G = magnetic space group, and F = parent crystallographic
         space group:
 
-        1.  G=F no time reversal, i.e. the same as corresponding
+        1. G=F no time reversal, i.e. the same as corresponding
             crystallographic group
-        2.  G=F+F1', "grey" groups, where avg. magnetic moment is zero,
+        2. G=F+F1', "grey" groups, where avg. magnetic moment is zero,
             e.g. a paramagnet in zero ext. mag. field
-        3.  G=D+(F-D)1', where D is an equi-translation subgroup of F of
+        3. G=D+(F-D)1', where D is an equi-translation subgroup of F of
             index 2, lattice translations do not include time reversal
-        4.  G=D+(F-D)1', where D is an equi-class subgroup of F of index 2
+        4. G=D+(F-D)1', where D is an equi-class subgroup of F of index 2
 
         There are two common settings for magnetic space groups, BNS
         and OG. In case 4, the BNS setting != OG setting, and so a
@@ -92,8 +95,8 @@ class MagneticSpaceGroup(SymmetryGroup):
         information on magnetic symmetry.
 
         :param id: BNS number supplied as list of 2 ints or BNS label as
-            str or index as int (1-1651) to iterate over all space groups"""
-
+            str or index as int (1-1651) to iterate over all space groups
+        """
         self._data = {}
 
         # Datafile is stored as sqlite3 database since (a) it can be easily
@@ -163,11 +166,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                     time_reversal=time_reversal,
                 )
                 # store string representation, e.g. (2x|1/2,1/2,1/2)'
-                seitz = "({}|{},{},{})".format(
-                    point_operator["symbol"],
-                    Fraction(translation_vec[0]),
-                    Fraction(translation_vec[1]),
-                    Fraction(translation_vec[2]),
+                seitz = (
+                    f"({point_operator['symbol']}|"
+                    f"{Fraction(translation_vec[0])},{Fraction(translation_vec[1])},{Fraction(translation_vec[2])})"
                 )
                 if time_reversal == -1:
                     seitz += "'"
@@ -208,9 +209,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                         [s[15], s[18], s[21]],
                     ]
                     # store string representation, e.g. (x,y,z;mx,my,mz)
-                    wyckoff_str = "({};{})".format(
-                        transformation_to_string(matrix, translation_vec),
-                        transformation_to_string(matrix_magmom, c="m"),
+                    wyckoff_str = (
+                        f"({transformation_to_string(matrix, translation_vec)};"
+                        f"{transformation_to_string(matrix_magmom, c='m')})"
                     )
                     sites.append(
                         {
@@ -223,7 +224,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
                 # only keeping string representation of Wyckoff sites for now
                 # could do something else with these in future
-                wyckoff_sites.append({"label": label, "str": " ".join([s["str"] for s in sites])})
+                wyckoff_sites.append({"label": label, "str": " ".join(s["str"] for s in sites)})
                 n += 1
                 o += m * 22 + 2
 
@@ -241,11 +242,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                 lattice.append(
                     {
                         "vector": [r[0] / r[3], r[1] / r[3], r[2] / r[3]],
-                        "str": "({},{},{})+".format(
-                            Fraction(r[0] / r[3]).limit_denominator(),
-                            Fraction(r[1] / r[3]).limit_denominator(),
-                            Fraction(r[2] / r[3]).limit_denominator(),
-                        ),
+                        "str": f"({Fraction(r[0] / r[3]).limit_denominator()},"
+                        f"{Fraction(r[1] / r[3]).limit_denominator()},"
+                        f"{Fraction(r[2] / r[3]).limit_denominator()})+",
                     }
                 )
 
@@ -261,10 +260,10 @@ class MagneticSpaceGroup(SymmetryGroup):
             p = [b[9] / b[12], b[10] / b[12], b[11] / b[12]]
             P = np.array(P).transpose()
             P_string = transformation_to_string(P, components=("a", "b", "c"))
-            p_string = "{},{},{}".format(
-                Fraction(p[0]).limit_denominator(),
-                Fraction(p[1]).limit_denominator(),
-                Fraction(p[2]).limit_denominator(),
+            p_string = (
+                f"{Fraction(p[0]).limit_denominator()},"
+                f"{Fraction(p[1]).limit_denominator()},"
+                f"{Fraction(p[2]).limit_denominator()}"
             )
             return P_string + ";" + p_string
 
@@ -294,7 +293,6 @@ class MagneticSpaceGroup(SymmetryGroup):
             or OG label as str
         :return:
         """
-
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
         if isinstance(id, str):
@@ -309,7 +307,9 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         return cls(bns_label)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self._data == other._data
 
     @property
@@ -369,7 +369,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         return ops
 
-    def get_orbit(self, p, m, tol=1e-5):
+    def get_orbit(self, p, magmom, tol: float = 1e-5):
         """
         Returns the orbit for a point and its associated magnetic moment.
 
@@ -382,21 +382,21 @@ class MagneticSpaceGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            (([array], [array])) Tuple of orbit for point and magnetic moments for orbit.
+            tuple[list, list]: orbit for point and magnetic moments for orbit.
         """
-        orbit = []
+        orbit: list[np.ndarray] = []
         orbit_magmoms = []
-        m = Magmom(m)
-        for o in self.symmetry_ops:
-            pp = o.operate(p)
+        magmom = Magmom(magmom)
+        for sym_op in self.symmetry_ops:
+            pp = sym_op.operate(p)
             pp = np.mod(np.round(pp, decimals=10), 1)
-            mm = o.operate_magmom(m)
+            mm = sym_op.operate_magmom(magmom)
             if not in_array_list(orbit, pp, tol=tol):
                 orbit.append(pp)
                 orbit_magmoms.append(mm)
         return orbit, orbit_magmoms
 
-    def is_compatible(self, lattice, tol=1e-5, angle_tol=5):
+    def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
         """
         Checks whether a particular lattice is compatible with the
         *conventional* unit cell.
@@ -406,6 +406,9 @@ class MagneticSpaceGroup(SymmetryGroup):
             tol (float): The tolerance to check for equality of lengths.
             angle_tol (float): The tolerance to check for equality of angles
                 in degrees.
+
+        Returns:
+            bool: True if the lattice is compatible with the conventional cell.
         """
         # function from pymatgen.symmetry.groups.SpaceGroup
         abc = lattice.lengths
@@ -438,7 +441,6 @@ class MagneticSpaceGroup(SymmetryGroup):
         Get description of all data, including information for OG setting.
         :return: str
         """
-
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
         # all stored data including OG setting
@@ -451,7 +453,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         # indicate if non-standard setting specified
         if self.jf != JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0"):
             description += "Non-standard setting: .....\n"
-            description += self.jf.__repr__()
+            description += repr(self.jf)
             description += "\n\nStandard setting information: \n"
 
         desc["magtype"] = self._data["magtype"]
@@ -462,10 +464,10 @@ class MagneticSpaceGroup(SymmetryGroup):
             if include_og
             else ""
         )
-        desc["bns_operators"] = " ".join([op_data["str"] for op_data in self._data["bns_operators"]])
+        desc["bns_operators"] = " ".join(op_data["str"] for op_data in self._data["bns_operators"])
 
         desc["bns_lattice"] = (
-            " ".join([lattice_data["str"] for lattice_data in self._data["bns_lattice"][3:]])
+            " ".join(lattice_data["str"] for lattice_data in self._data["bns_lattice"][3:])
             if len(self._data["bns_lattice"]) > 3
             else ""
         )  # don't show (1,0,0)+ (0,1,0)+ (0,0,1)+
@@ -509,11 +511,11 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         if desc["magtype"] == 4 and include_og:
 
-            desc["og_operators"] = " ".join([op_data["str"] for op_data in self._data["og_operators"]])
+            desc["og_operators"] = " ".join(op_data["str"] for op_data in self._data["og_operators"])
 
             # include all lattice vectors because (1,0,0)+ (0,1,0)+ (0,0,1)+
             # not always present in OG setting
-            desc["og_lattice"] = " ".join([lattice_data["str"] for lattice_data in self._data["og_lattice"]])
+            desc["og_lattice"] = " ".join(lattice_data["str"] for lattice_data in self._data["og_lattice"])
 
             desc["og_wyckoff"] = "\n".join(
                 [

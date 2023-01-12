@@ -12,7 +12,7 @@ from fractions import Fraction
 
 import numpy as np
 
-from pymatgen.core import Lattice
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
 
@@ -55,7 +55,7 @@ class JonesFaithfulTransformation:
         between magnetic and non-magnetic settings.
 
         See: International Tables for Crystallography (2016). Vol. A,
-        Chapter 1.5, pp. 75–106.
+        Chapter 1.5, pp. 75-106.
         """
         # using capital letters in violation of PEP8 to
         # be consistent with variables in supplied reference,
@@ -96,7 +96,7 @@ class JonesFaithfulTransformation:
             ValueError: When transformation string fails to parse.
 
         Returns:
-            Tuple[Union[List[List[float]], np.ndarray], List[float]]: transformation matrix & vector
+            tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
             a = np.array([1, 0, 0])
@@ -136,7 +136,6 @@ class JonesFaithfulTransformation:
     @property
     def p(self) -> list[float]:
         """
-
         :return: translation vector
         """
         return self._p
@@ -144,7 +143,6 @@ class JonesFaithfulTransformation:
     @property
     def inverse(self) -> JonesFaithfulTransformation:
         """
-
         :return: JonesFaithfulTransformation
         """
         Q = np.linalg.inv(self.P)
@@ -198,12 +196,11 @@ class JonesFaithfulTransformation:
         for x in coords:
             x = np.array(x)
             Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (x - self.p))  # type: ignore
+            x_ = np.matmul(Q, (x - self.p))
             new_coords.append(x_.tolist())
         return new_coords
 
-    def transform_lattice(self, lattice):
-        # type: (Lattice) -> Lattice
+    def transform_lattice(self, lattice: Lattice) -> Lattice:
         """
         Takes a Lattice object and transforms it.
         :param lattice: Lattice
@@ -211,7 +208,9 @@ class JonesFaithfulTransformation:
         """
         return Lattice(np.matmul(lattice.matrix, self.P))
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return np.allclose(self.P, other.P) and np.allclose(self.p, other.p)
 
     def __str__(self):

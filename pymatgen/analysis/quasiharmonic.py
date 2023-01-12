@@ -11,6 +11,8 @@ See the following papers for more info:
     https://doi.org/10.1103/PhysRevB.90.174107 (2014)
 """
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 

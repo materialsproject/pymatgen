@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import unittest
 
 import numpy as np
+import pytest
 
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.elasticity.stress import Stress
@@ -15,11 +18,10 @@ class StressTest(PymatgenTest):
 
     def test_properties(self):
         # mean_stress
-        self.assertEqual(
-            self.rand_stress.mean_stress,
-            1.0 / 3.0 * (self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2]),
+        assert self.rand_stress.mean_stress == 1.0 / 3.0 * (
+            self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2]
         )
-        self.assertAlmostEqual(self.symm_stress.mean_stress, 3.66)
+        assert self.symm_stress.mean_stress == pytest.approx(3.66)
         # deviator_stress
         self.assertArrayAlmostEqual(
             self.symm_stress.deviator_stress,
@@ -36,7 +38,7 @@ class StressTest(PymatgenTest):
         # deviator_principal_invariants
         self.assertArrayAlmostEqual(self.symm_stress.dev_principal_invariants, [0, 44.2563, 111.953628])
         # von_mises
-        self.assertAlmostEqual(self.symm_stress.von_mises, 11.52253878275)
+        assert self.symm_stress.von_mises == pytest.approx(11.52253878275)
         # piola_kirchoff 1, 2
         f = Deformation.from_index_amount((0, 1), 0.03)
         self.assertArrayAlmostEqual(

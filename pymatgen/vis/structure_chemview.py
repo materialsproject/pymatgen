@@ -2,6 +2,8 @@
 Visualization for structures using chemview.
 """
 
+from __future__ import annotations
+
 import numpy as np
 from monty.dev import requires
 
@@ -60,7 +62,7 @@ def quick_view(
                 max_d = CovalentRadius.radius[sym_i] + CovalentRadius.radius[sym_j] + bond_tol
                 if s.get_distance(i, j, np.array([0, 0, 0])) < max_d:
                     bonds.append((i, j))
-    bonds = bonds if bonds else None
+    bonds = bonds or None
 
     mv = MolecularViewer(s.cart_coords, topology={"atom_types": atom_types, "bonds": bonds})
 

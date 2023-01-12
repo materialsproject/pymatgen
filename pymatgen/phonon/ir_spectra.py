@@ -7,6 +7,8 @@ https://github.com/abinit/abipy
 where it was originally done by Guido Petretto and Matteo Giantomassi
 """
 
+from __future__ import annotations
+
 import numpy as np
 from monty.json import MSONable
 
@@ -67,11 +69,11 @@ class IRDielectricTensor(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of IRDielectricTensor.
+        JSON-serializable dict representation of IRDielectricTensor.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "oscillator_strength": self.oscillator_strength.tolist(),
             "ph_freqs_gamma": self.ph_freqs_gamma.tolist(),
             "structure": self.structure.as_dict(),
@@ -155,7 +157,7 @@ class IRDielectricTensor(MSONable):
         functions_map = {"re": lambda x: x.real, "im": lambda x: x.imag}
         reim_label = {"re": "Re", "im": "Im"}
         i, j = (directions_map[direction] for direction in component)
-        label = r"{}{{$\epsilon_{{{}{}}}$}}".format(reim_label[reim], "xyz"[i], "xyz"[j])
+        label = rf"{reim_label[reim]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
 
         frequencies, dielectric_tensor = self.get_ir_spectra(broad=broad, emin=emin, emax=emax, divs=divs)
         y = functions_map[reim](dielectric_tensor[:, i, j])
@@ -173,7 +175,6 @@ class IRDielectricTensor(MSONable):
             emin, emax: minimum and maximum energy in which to obtain the spectra
             divs: number of frequency samples between emin and emax
         """
-
         directions_map = {"x": 0, "y": 1, "z": 2, 0: 0, 1: 1, 2: 2}
         reim_label = {"re": "Re", "im": "Im"}
 
@@ -182,11 +183,7 @@ class IRDielectricTensor(MSONable):
             i, j = (directions_map[direction] for direction in component)
             for fstr in ("re", "im"):
                 if fstr in reim:
-                    label = r"{}{{$\epsilon_{{{}{}}}$}}".format(
-                        reim_label[fstr],
-                        "xyz"[i],
-                        "xyz"[j],
-                    )
+                    label = rf"{reim_label[fstr]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
                     spectrum = self.get_spectrum(component, fstr, broad=broad, emin=emin, emax=emax, divs=divs)
                     spectrum.XLABEL = r"Frequency (meV)"
                     spectrum.YLABEL = r"$\epsilon(\omega)$"

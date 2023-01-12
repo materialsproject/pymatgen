@@ -3,6 +3,8 @@
 """
 Parsers for XTB output files and directories
 """
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -35,7 +37,6 @@ class CRESTOutput(MSONable):
             path (str): Path to directory including output_filename and all
                 other xtb output files (crest_best.xyz, etc.)
         """
-
         self.path = path
         self.filename = output_filename
 
@@ -86,13 +87,13 @@ class CRESTOutput(MSONable):
                     self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
-        if "chrg" in self.cmd_options.keys():
+        if "chrg" in self.cmd_options:
             str_chg = self.cmd_options["chrg"]
             if "-" in str_chg:
                 chg = int(str_chg)
             else:
                 chg = int(str_chg[-1])
-        elif "c" in self.cmd_options.keys():
+        elif "c" in self.cmd_options:
             str_chg = self.cmd_options["c"]
             if "-" in str_chg:
                 chg = int(str_chg)

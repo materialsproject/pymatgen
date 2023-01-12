@@ -5,6 +5,8 @@
 This module provides classes for predicting new structures from existing ones.
 """
 
+from __future__ import annotations
+
 import functools
 import itertools
 import logging
@@ -38,7 +40,7 @@ class Substitutor(MSONable):
     Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h
     """
 
-    def __init__(self, threshold=1e-3, symprec=0.1, **kwargs):
+    def __init__(self, threshold=1e-3, symprec: float = 0.1, **kwargs):
         """
         This substitutor uses the substitution probability class to
         find good substitutions for a given chemistry or structure.
@@ -251,12 +253,12 @@ class Substitutor(MSONable):
         Returns: MSONable dict
         """
         return {
-            "name": self.__class__.__name__,
+            "name": type(self).__name__,
             "version": __version__,
             "kwargs": self._kwargs,
             "threshold": self._threshold,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod

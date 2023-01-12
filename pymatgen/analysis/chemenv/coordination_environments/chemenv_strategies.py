@@ -8,17 +8,10 @@ some others can identify the environment as a "mix" of several environments, eac
 fraction. The choice of the strategy depends on the purpose of the user.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import abc
 import os
-from typing import Dict, List, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -45,6 +38,14 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
@@ -54,12 +55,12 @@ ALLCG = AllCoordinationGeometries()
 class StrategyOption(MSONable, metaclass=abc.ABCMeta):
     """Abstract class for the options of the chemenv strategies."""
 
-    allowed_values = None  # type: Optional[str]
+    allowed_values: str | None = None
 
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of this strategy option.
+        A JSON-serializable dict representation of this strategy option.
         """
 
 
@@ -81,8 +82,8 @@ class DistanceCutoffFloat(float, StrategyOption):
     def as_dict(self):
         """MSONAble dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -111,8 +112,8 @@ class AngleCutoffFloat(float, StrategyOption):
     def as_dict(self):
         """MSONAble dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -142,8 +143,8 @@ class CSMFloat(float, StrategyOption):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -167,16 +168,16 @@ class AdditionalConditionInt(int, StrategyOption):
         """Special int representing additional conditions."""
         if str(int(integer)) != str(integer):
             raise ValueError(f"Additional condition {integer} is not an integer")
-        intger = int.__new__(cls, integer)
-        if intger not in AdditionalConditions.ALL:
+        integer = int.__new__(cls, integer)
+        if integer not in AdditionalConditions.ALL:
             raise ValueError(f"Additional condition {integer:d} is not allowed")
-        return intger
+        return integer
 
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "value": self,
         }
 
@@ -196,9 +197,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
-    STRATEGY_DESCRIPTION = None  # type: str
-    STRATEGY_INFO_FIELDS = []  # type: List
+    STRATEGY_OPTIONS: dict[str, dict] = {}
+    STRATEGY_DESCRIPTION: str | None = None
+    STRATEGY_INFO_FIELDS: list = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
     def __init__(
@@ -420,7 +421,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param option_value: Value for this option.
         :return: None
         """
-        self.__setattr__(option_name, option_value)
+        setattr(self, option_name, option_value)
 
     def setup_options(self, all_options_dict):
         """Set up options for this strategy based on a dict.
@@ -432,7 +433,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
             self.set_option(option_name, option_value)
 
     @abc.abstractmethod
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Equality method that should be implemented for any strategy
         :param other: strategy to be compared with the current one
@@ -441,13 +442,13 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def __str__(self):
-        out = f'  Chemenv Strategy "{self.__class__.__name__}"\n'
-        out += f"  {'=' * (19 + len(self.__class__.__name__))}\n\n"
+        out = f'  Chemenv Strategy "{type(self).__name__}"\n'
+        out += f"  {'=' * (19 + len(type(self).__name__))}\n\n"
         out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION
         out += "\n\n"
         out += f"  Options :\n  {'-' * 9}\n"
-        for option_name, option_dict in self.STRATEGY_OPTIONS.items():
+        for option_name in self.STRATEGY_OPTIONS:
             out += f"   - {option_name} : {getattr(self, option_name)}\n"
         return out
 
@@ -481,7 +482,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS: dict[str, dict] = {}
     STRATEGY_OPTIONS["distance_cutoff"] = {
         "type": DistanceCutoffFloat,
         "internal": "_distance_cutoff",
@@ -622,7 +623,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         eqsite_ps = nb_set.neighb_sites
 
         coordinated_neighbors = []
-        for ips, ps in enumerate(eqsite_ps):
+        for ps in eqsite_ps:
             coords = mysym.operate(ps.frac_coords + dequivsite) + dthissite
             ps_site = PeriodicSite(ps._species, coords, ps._lattice)
             coordinated_neighbors.append(ps_site)
@@ -820,10 +821,12 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         )
         subplot.plot(self._distance_cutoff, self._angle_cutoff, "x", linewidth=2, markersize=12)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            self.__class__.__name__ == other.__class__.__name__
-            and self._distance_cutoff == other._distance_cutoff
+            self._distance_cutoff == other._distance_cutoff
             and self._angle_cutoff == other._angle_cutoff
             and self._additional_condition == other._additional_condition
             and self._continuous_symmetry_measure_cutoff == other._continuous_symmetry_measure_cutoff
@@ -836,8 +839,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :return: Bson-serializable dict representation of the SimplestChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "distance_cutoff": float(self._distance_cutoff),
             "angle_cutoff": float(self._angle_cutoff),
             "additional_condition": int(self._additional_condition),
@@ -871,7 +874,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = {}  # type: Dict[str, Dict]
+    STRATEGY_OPTIONS: dict[str, dict] = {}
     STRATEGY_OPTIONS["additional_condition"] = {
         "type": AdditionalConditionInt,
         "internal": "_additional_condition",
@@ -920,7 +923,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         cn_map = self._get_map(isite)
         eqsite_ps = self.structure_environments.unique_coordinated_neighbors(isite, cn_map=cn_map)
         coordinated_neighbors = []
-        for ips, ps in enumerate(eqsite_ps):
+        for ps in eqsite_ps:
             coords = mysym.operate(ps.frac_coords + dequivsite) + dthissite
             ps_site = PeriodicSite(ps._species, coords, ps._lattice)
             coordinated_neighbors.append(ps_site)
@@ -1025,11 +1028,11 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
             max_dist=self.DEFAULT_MAX_DIST,
         )
 
-    def __eq__(self, other):
-        return (
-            self.__class__.__name__ == other.__class__.__name__
-            and self._additional_condition == other.additional_condition
-        )
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self._additional_condition == other.additional_condition  # type: ignore
 
     def as_dict(self):
         """
@@ -1037,8 +1040,8 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         :return: Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
         }
 
@@ -1086,8 +1089,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         :param max_csm:
         :param symmetry_measure_type:
         """
-        raise NotImplementedError("TargettedPenaltiedAbundanceChemenvStrategy not yet implemented")
-        SimpleAbundanceChemenvStrategy.__init__(
+        super.__init__(
             self,
             structure_environments,
             additional_condition=additional_condition,
@@ -1097,6 +1099,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         self.target_environments = target_environments
         self.target_penalty_type = target_penalty_type
         self.max_csm = max_csm
+        raise NotImplementedError("TargettedPenaltiedAbundanceChemenvStrategy not yet implemented")
 
     def get_site_coordination_environment(
         self,
@@ -1188,8 +1191,8 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         :return: Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
             "max_nabundant": self.max_nabundant,
             "target_environments": self.target_environments,
@@ -1197,10 +1200,12 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
             "max_csm": self.max_csm,
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            self.__class__.__name__ == other.__class__.__name__
-            and self._additional_condition == other.additional_condition
+            self.additional_condition == other.additional_condition
             and self.max_nabundant == other.max_nabundant
             and self.target_environments == other.target_environments
             and self.target_penalty_type == other.target_penalty_type
@@ -1230,7 +1235,7 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def as_dict(self):
         """
-        A JSON serializable dict representation of this neighbors set weight.
+        A JSON-serializable dict representation of this neighbors set weight.
         """
 
     @abc.abstractmethod
@@ -1289,17 +1294,16 @@ class AngleNbSetWeight(NbSetWeight):
         """
         return np.power(self.angle_sum(nb_set=nb_set), self.aa)
 
-    def __eq__(self, other):
-        return self.aa == other.aa
-
-    def __ne__(self, other):
-        return not self == other
+    def __eq__(self, other: object) -> bool:
+        if not hasattr(other, "aa"):
+            return NotImplemented
+        return self.aa == other.aa  # type: ignore
 
     def as_dict(self):
         """MSONAble dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "aa": self.aa,
         }
 
@@ -1358,17 +1362,18 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                 else:
                     self.fda = self.angninvndist
 
-    def __eq__(self, other):
-        return self.average_type == other.average_type and self.aa == other.aa and self.bb == other.bb
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("average_type", "aa", "bb")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
 
-    def __ne__(self, other):
-        return not self == other
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "average_type": self.average_type,
             "aa": self.aa,
             "bb": self.bb,
@@ -1616,21 +1621,21 @@ class SelfCSMNbSetWeight(NbSetWeight):
         )
         return weight
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
             self.effective_csm_estimator == other.effective_csm_estimator
             and self.weight_estimator == other.weight_estimator
             and self.symmetry_measure_type == other.symmetry_measure_type
         )
 
-    def __ne__(self, other):
-        return not self == other
-
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "effective_csm_estimator": self.effective_csm_estimator,
             "weight_estimator": self.weight_estimator,
             "symmetry_measure_type": self.symmetry_measure_type,
@@ -1788,16 +1793,16 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         )
         return nb_set_weight
 
-    def __eq__(self, other):
-        return (
-            self.effective_csm_estimator == other.effective_csm_estimator
-            and self.weight_estimator == other.weight_estimator
-            and self.delta_cn_weight_estimators == other.delta_cn_weight_estimators
-            and self.symmetry_measure_type == other.symmetry_measure_type
-        )
-
-    def __ne__(self, other):
-        return not self == other
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = [
+            "effective_csm_estimator",
+            "weight_estimator",
+            "delta_cn_weight_estimators",
+            "symmetry_measure_type",
+        ]
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     @classmethod
     def delta_cn_specifics(
@@ -1858,8 +1863,8 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         :return:
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "effective_csm_estimator": self.effective_csm_estimator,
             "weight_estimator": self.weight_estimator,
             "delta_cn_weight_estimators": self.delta_cn_weight_estimators,
@@ -1910,7 +1915,10 @@ class CNBiasNbSetWeight(NbSetWeight):
         """
         return self.cn_weights[len(nb_set)]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, NbSetWeight):
+            return NotImplemented
+
         return self.cn_weights == other.cn_weights and self.initialization_options == other.initialization_options
 
     def __ne__(self, other):
@@ -1919,8 +1927,8 @@ class CNBiasNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "cn_weights": {str(cn): cnw for cn, cnw in self.cn_weights.items()},
             "initialization_options": self.initialization_options,
         }
@@ -1979,7 +1987,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         :return: CNBiasNbSetWeight.
         """
         initialization_options = {"type": "explicit"}
-        if set(cn_weights.keys()) != set(range(1, 14)):
+        if set(cn_weights) != set(range(1, 14)):
             raise ValueError("Weights should be provided for CN 1 to 13")
         return cls(cn_weights=cn_weights, initialization_options=initialization_options)
 
@@ -2206,7 +2214,10 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             return True
         raise ValueError("Should not reach this point!")
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
             self.weight_type == other.weight_type
             and self.surface_definition == other.surface_definition
@@ -2221,8 +2232,8 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "weight_type": self.weight_type,
             "surface_definition": self.surface_definition,
             "nb_sets_from_hints": self.nb_sets_from_hints,
@@ -2281,8 +2292,8 @@ class DistancePlateauNbSetWeight(NbSetWeight):
         """
         return self.weight_rf.eval(nb_set.distance_plateau())
 
-    def __eq__(self, other):
-        return self.__class__ == other.__class__
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, type(self))
 
     def __ne__(self, other):
         return not self == other
@@ -2290,8 +2301,8 @@ class DistancePlateauNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "distance_function": self.distance_function,
             "weight_function": self.weight_function,
         }
@@ -2344,8 +2355,8 @@ class AnglePlateauNbSetWeight(NbSetWeight):
         """
         return self.weight_rf.eval(nb_set.angle_plateau())
 
-    def __eq__(self, other):
-        return self.__class__ == other.__class__
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, type(self))
 
     def __ne__(self, other):
         return not self == other
@@ -2353,8 +2364,8 @@ class AnglePlateauNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "angle_function": self.angle_function,
             "weight_function": self.weight_function,
         }
@@ -2407,7 +2418,7 @@ class DistanceNbSetWeight(NbSetWeight):
         if self.nbs_source == "nb_sets":
             all_nbs_voro_indices = set()
             for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
-                for inb_set2, nb_set2 in enumerate(nb_sets):
+                for nb_set2 in nb_sets:
                     if cn == cn2:
                         continue
                     all_nbs_voro_indices.update(nb_set2.site_voronoi_indices)
@@ -2415,14 +2426,14 @@ class DistanceNbSetWeight(NbSetWeight):
             all_nbs_voro_indices = set(range(len(voronoi)))
         else:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
-        all_nbs_indices_except_nb_set = all_nbs_voro_indices.difference(nb_set.site_voronoi_indices)
+        all_nbs_indices_except_nb_set = all_nbs_voro_indices - nb_set.site_voronoi_indices
         normalized_distances = [voronoi[inb]["normalized_distance"] for inb in all_nbs_indices_except_nb_set]
         if len(normalized_distances) == 0:
             return 1.0
         return self.weight_rf.eval(min(normalized_distances))
 
-    def __eq__(self, other):
-        return self.__class__ == other.__class__
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, type(self))
 
     def __ne__(self, other):
         return not self == other
@@ -2430,8 +2441,8 @@ class DistanceNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSOnable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "weight_function": self.weight_function,
             "nbs_source": self.nbs_source,
         }
@@ -2484,7 +2495,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         if self.nbs_source == "nb_sets":
             all_nbs_voro_indices = set()
             for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
-                for inb_set2, nb_set2 in enumerate(nb_sets):
+                for nb_set2 in nb_sets:
                     if cn == cn2:
                         continue
                     all_nbs_voro_indices.update(nb_set2.site_voronoi_indices)
@@ -2492,7 +2503,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
             all_nbs_voro_indices = set(range(len(voronoi)))
         else:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
-        all_nbs_indices_except_nb_set = all_nbs_voro_indices.difference(nb_set.site_voronoi_indices)
+        all_nbs_indices_except_nb_set = all_nbs_voro_indices - nb_set.site_voronoi_indices
         normalized_distances = [voronoi[inb]["normalized_distance"] for inb in all_nbs_indices_except_nb_set]
         if len(normalized_distances) == 0:
             return 1.0
@@ -2501,8 +2512,8 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         nb_set_max_normalized_distance = max(nb_set.normalized_distances)
         return self.weight_rf.eval(min(normalized_distances) - nb_set_max_normalized_distance)
 
-    def __eq__(self, other):
-        return self.__class__ == other.__class__
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, type(self))
 
     def __ne__(self, other):
         return not self == other
@@ -2510,8 +2521,8 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
     def as_dict(self):
         """MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "weight_function": self.weight_function,
             "nbs_source": self.nbs_source,
         }
@@ -2605,7 +2616,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             return None
         cn_maps = []
         for cn, nb_sets in site_nb_sets.items():
-            for inb_set, nb_set in enumerate(nb_sets):
+            for inb_set, _ in enumerate(nb_sets):
                 # CHECK THE ADDITIONAL CONDITION HERE ?
                 cn_maps.append((cn, inb_set))
         weights_additional_info = {"weights": {isite: {}}}
@@ -2785,10 +2796,12 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             )
         ]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, WeightedNbSetChemenvStrategy):
+            return NotImplemented
+
         return (
-            self.__class__.__name__ == other.__class__.__name__
-            and self._additional_condition == other._additional_condition
+            self._additional_condition == other._additional_condition
             and self.symmetry_measure_type == other.symmetry_measure_type
             and self.nb_set_weights == other.nb_set_weights
             and self.ce_estimator == other.ce_estimator
@@ -2803,8 +2816,8 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         :return: Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
             "symmetry_measure_type": self.symmetry_measure_type,
             "nb_set_weights": [nb_set_weight.as_dict() for nb_set_weight in self.nb_set_weights],
@@ -2842,7 +2855,6 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         "function": "power2_inverse_power2_decreasing",
         "options": {"max_csm": 8.0},
     }
-    DEFAULT_DIST_ANG_AREA_WEIGHT = {}  # type: Dict
 
     def __init__(
         self,
@@ -2948,10 +2960,12 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         """Whether this strategy uniquely determines coordination environments."""
         return False
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
         return (
-            self.__class__.__name__ == other.__class__.__name__
-            and self._additional_condition == other._additional_condition
+            self._additional_condition == other._additional_condition
             and self.symmetry_measure_type == other.symmetry_measure_type
             and self.dist_ang_area_weight == other.dist_ang_area_weight
             and self.self_csm_weight == other.self_csm_weight
@@ -2967,12 +2981,12 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
 
     def as_dict(self):
         """
-        Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
-        :return: Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
+        Returns:
+            Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
             "symmetry_measure_type": self.symmetry_measure_type,
             "dist_ang_area_weight": self.dist_ang_area_weight.as_dict()

@@ -4,6 +4,7 @@
 """
 This module provides classes to define everything related to band structures.
 """
+
 from __future__ import annotations
 
 import collections
@@ -126,15 +127,15 @@ class Kpoint(MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of a kpoint
+        JSON-serializable dict representation of a kpoint
         """
         return {
             "lattice": self.lattice.as_dict(),
             "fcoords": self.frac_coords.tolist(),
             "ccoords": self.cart_coords.tolist(),
             "label": self.label,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -148,7 +149,6 @@ class Kpoint(MSONable):
         Returns:
             A Kpoint object
         """
-
         return cls(
             coords=d["fcoords"],
             lattice=Lattice.from_dict(d["lattice"]),
@@ -208,8 +208,8 @@ class BandStructure:
         efermi: float,
         labels_dict=None,
         coords_are_cartesian: bool = False,
-        structure: Structure = None,
-        projections: dict[Spin, np.ndarray] = None,
+        structure: Structure | None = None,
+        projections: dict[Spin, np.ndarray] | None = None,
     ) -> None:
         """
         Args:
@@ -330,7 +330,7 @@ class BandStructure:
                             result[spin][i][j][str(sp)][o] += v[i][j][orb_i][k]
         return result
 
-    def is_metal(self, efermi_tol=1e-4):
+    def is_metal(self, efermi_tol=1e-4) -> bool:
         """
         Check if the band structure indicates a metal by looking if the fermi
         level crosses a band.
@@ -338,7 +338,7 @@ class BandStructure:
         Returns:
             True if a metal, False if not
         """
-        for spin, values in self.bands.items():
+        for values in self.bands.values():
             for i in range(self.nb_bands):
                 if np.any(values[i, :] - self.efermi < -efermi_tol) and np.any(values[i, :] - self.efermi > efermi_tol):
                     return True
@@ -377,10 +377,10 @@ class BandStructure:
         max_tmp = -float("inf")
         index = None
         kpointvbm = None
-        for spin, v in self.bands.items():
-            for i, j in zip(*np.where(v < self.efermi)):
-                if v[i, j] > max_tmp:
-                    max_tmp = float(v[i, j])
+        for value in self.bands.values():
+            for i, j in zip(*np.where(value < self.efermi)):
+                if value[i, j] > max_tmp:
+                    max_tmp = float(value[i, j])
                     index = j
                     kpointvbm = self.kpoints[j]
 
@@ -398,10 +398,10 @@ class BandStructure:
                 if math.fabs(self.bands[spin][i][index] - max_tmp) < 0.001:
                     list_ind_band[spin].append(i)
         proj = {}
-        for spin, v in self.projections.items():
+        for spin, value in self.projections.items():
             if len(list_ind_band[spin]) == 0:
                 continue
-            proj[spin] = v[list_ind_band[spin][0]][list_ind_kpts[0]]
+            proj[spin] = value[list_ind_band[spin][0]][list_ind_kpts[0]]
         return {
             "band_index": list_ind_band,
             "kpoint_index": list_ind_kpts,
@@ -444,10 +444,10 @@ class BandStructure:
 
         index = None
         kpointcbm = None
-        for spin, v in self.bands.items():
-            for i, j in zip(*np.where(v >= self.efermi)):
-                if v[i, j] < max_tmp:
-                    max_tmp = float(v[i, j])
+        for value in self.bands.values():
+            for i, j in zip(*np.where(value >= self.efermi)):
+                if value[i, j] < max_tmp:
+                    max_tmp = float(value[i, j])
                     index = j
                     kpointcbm = self.kpoints[j]
 
@@ -466,10 +466,10 @@ class BandStructure:
                 if math.fabs(self.bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
         proj = {}
-        for spin, v in self.projections.items():
+        for spin, value in self.projections.items():
             if len(list_index_band[spin]) == 0:
                 continue
-            proj[spin] = v[list_index_band[spin][0]][list_index_kpoints[0]]
+            proj[spin] = value[list_index_band[spin][0]][list_index_kpoints[0]]
 
         return {
             "band_index": list_index_band,
@@ -506,7 +506,7 @@ class BandStructure:
             [
                 str(c.label)
                 if c.label is not None
-                else "(" + ",".join([f"{c.frac_coords[i]:.3f}" for i in range(3)]) + ")"
+                else "(" + ",".join(f"{c.frac_coords[i]:.3f}" for i in range(3)) + ")"
                 for c in [vbm["kpoint"], cbm["kpoint"]]
             ]
         )
@@ -555,7 +555,7 @@ class BandStructure:
         dg = self.get_direct_band_gap_dict()
         return min(v["value"] for v in dg.values())
 
-    def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol=1e-2):
+    def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol: float = 1e-2):
         """
         Returns a list of unique symmetrically equivalent k-points.
 
@@ -581,7 +581,7 @@ class BandStructure:
                     break
         return np.delete(points, rm_list, axis=0)
 
-    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol=1e-2):
+    def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol: float = 1e-2):
         """
         Returns degeneracy of a given k-point based on structure symmetry
         Args:
@@ -599,11 +599,11 @@ class BandStructure:
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructure.
+        JSON-serializable dict representation of BandStructure.
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "efermi": self.efermi,
             "kpoints": [],
@@ -945,7 +945,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructureSymmLine.
+        JSON-serializable dict representation of BandStructureSymmLine.
         """
         d = super().as_dict()
         d["branches"] = self.branches
@@ -959,12 +959,11 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructureSymmLine.
+        JSON-serializable dict representation of BandStructureSymmLine.
         """
-
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "efermi": self.efermi,
             "kpoints": [],
@@ -1094,7 +1093,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             ]
             for i, j in itertools.product(range(self.nb_bands), range(len(self.kpoints))):
                 for key, item in v[i][j].items():
-                    for key2, item2 in item.items():
+                    for item2 in item.values():
                         specie = str(Element(re.split(r"[0-9]+", key)[0]))
                         result[spin][i][j][specie] += item2
         return result

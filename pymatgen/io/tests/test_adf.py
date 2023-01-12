@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import unittest
 from os.path import join
@@ -84,9 +86,8 @@ def readfile(file_object):
     if hasattr(file_object, "read"):
         return file_object.read()
     elif isinstance(file_object, str):
-        f = open(file_object)
-        content = f.read()
-        f.close()
+        with open(file_object) as f:
+            content = f.read()
         return content
     else:
         raise ValueError("``file_object`` must be a string or a file object!")

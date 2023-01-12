@@ -12,6 +12,8 @@ The implementation is based on an excellent python package called `rmsd` that
 you can find at https://github.com/charnley/rmsd.
 """
 
+from __future__ import annotations
+
 __author__ = "Xiaohui Qu, Adam Fekete"
 __version__ = "1.0"
 __email__ = "xhqu1981@gmail.com"
@@ -29,11 +31,11 @@ from monty.dev import requires
 from monty.json import MSONable
 
 try:
-    from openbabel import openbabel as ob
+    from openbabel import openbabel
 
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
-    ob = None
+    openbabel = None
 
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
@@ -103,8 +105,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             )
             if hasattr(mod, d["@class"]):
                 class_proxy = getattr(mod, d["@class"])
-                from_dict_proxy = getattr(class_proxy, "from_dict")
-                return from_dict_proxy(d)
+                return class_proxy.from_dict(d)
         raise ValueError("Invalid Comparator dict")
 
 
@@ -140,16 +141,16 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         if h1 != h2:
             return None, None
 
-        query = ob.CompileMoleculeQuery(obmol1)
-        isomapper = ob.OBIsomorphismMapper.GetInstance(query)
-        isomorph = ob.vvpairUIntUInt()
+        query = openbabel.CompileMoleculeQuery(obmol1)
+        isomapper = openbabel.OBIsomorphismMapper.GetInstance(query)
+        isomorph = openbabel.vvpairUIntUInt()
         isomapper.MapAll(obmol2, isomorph)
 
         sorted_isomorph = [sorted(x, key=lambda morp: morp[0]) for x in isomorph]
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = obmol1
-        aligner = ob.OBAlign(True, False)
+        aligner = openbabel.OBAlign(True, False)
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
@@ -161,7 +162,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             elements2 = InchiMolAtomMapper._get_elements(obmol2, label2)
             if elements1 != elements2:
                 continue
-            vmol2 = ob.OBMol()
+            vmol2 = openbabel.OBMol()
             for i in label2:
                 vmol2.AddAtom(obmol2.GetAtom(i))
             aligner.SetTargetMol(vmol2)
@@ -176,9 +177,9 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         """
         Return inchi as molecular hash
         """
-        obconv = ob.OBConversion()
+        obconv = openbabel.OBConversion()
         obconv.SetOutFormat("inchi")
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obconv.WriteString(mol)
         match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
@@ -190,8 +191,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -203,7 +204,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         Returns:
             IsomorphismMolAtomMapper
         """
-        return IsomorphismMolAtomMapper()
+        return cls()
 
 
 class InchiMolAtomMapper(AbstractMolAtomMapper):
@@ -226,8 +227,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "angle_tolerance": self._angle_tolerance,
         }
 
@@ -240,7 +241,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Returns:
             InchiMolAtomMapper
         """
-        return InchiMolAtomMapper(angle_tolerance=d["angle_tolerance"])
+        return cls(angle_tolerance=d["angle_tolerance"])
 
     @staticmethod
     def _inchi_labels(mol):
@@ -255,11 +256,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             original label
             List of equivalent atoms.
         """
-        obconv = ob.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("a", ob.OBConversion.OUTOPTIONS)
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obconv.WriteString(mol)
+        ob_conv = openbabel.OBConversion()
+        ob_conv.SetOutFormat("inchi")
+        ob_conv.AddOption("a", openbabel.OBConversion.OUTOPTIONS)
+        ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = ob_conv.WriteString(mol)
         match = re.search(
             r"InChI=(?P<inchi>.+)\nAuxInfo=.+" r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9," r";\(\)]*)/)?",
             inchi_text,
@@ -301,12 +302,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
     def _virtual_molecule(self, mol, ilabels, eq_atoms):
         """
-        Create a virtual molecule by unique atoms, the centriods of the
+        Create a virtual molecule by unique atoms, the centroids of the
         equivalent atoms
 
         Args:
             mol: The molecule. OpenBabel OBMol object
-            ilables: inchi label map
+            ilabels: inchi label map
             eq_atoms: equivalent atom labels
             farthest_group_idx: The equivalent atom group index in which
                 there is the farthest atom to the centroid
@@ -314,7 +315,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             The virtual molecule
         """
-        vmol = ob.OBMol()
+        vmol = openbabel.OBMol()
 
         non_unique_atoms = {a for g in eq_atoms for a in g}
         all_atoms = set(range(1, len(ilabels) + 1))
@@ -365,7 +366,6 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             corrected inchi labels of heavy atoms of the second molecule
         """
-
         nvirtual = vmol1.NumAtoms()
         nheavy = len(ilabel1)
 
@@ -380,20 +380,20 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             # used to align, but match by positions
             a2.SetVector(oa2.GetVector())
 
-        aligner = ob.OBAlign(False, False)
+        aligner = openbabel.OBAlign(False, False)
         aligner.SetRefMol(vmol1)
         aligner.SetTargetMol(vmol2)
         aligner.Align()
         aligner.UpdateCoords(vmol2)
 
-        canon_mol1 = ob.OBMol()
+        canon_mol1 = openbabel.OBMol()
         for i in ilabel1:
             oa1 = mol1.GetAtom(i)
             a1 = canon_mol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
 
-        aligned_mol2 = ob.OBMol()
+        aligned_mol2 = openbabel.OBMol()
         for i in range(nvirtual + 1, nvirtual + nheavy + 1):
             oa2 = vmol2.GetAtom(i)
             a2 = aligned_mol2.NewAtom()
@@ -447,20 +447,20 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         label1 = heavy_indices1 + tuple(hydrogen_atoms1)
         label2 = heavy_indices2 + tuple(hydrogen_atoms2)
 
-        cmol1 = ob.OBMol()
+        cmol1 = openbabel.OBMol()
         for i in label1:
             oa1 = mol1.GetAtom(i)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
-        cmol2 = ob.OBMol()
+        cmol2 = openbabel.OBMol()
         for i in label2:
             oa2 = mol2.GetAtom(i)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = ob.OBAlign(False, False)
+        aligner = openbabel.OBAlign(False, False)
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -494,7 +494,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     @staticmethod
     def _get_elements(mol, label):
         """
-        The the elements of the atoms in the specified order
+        The elements of the atoms in the specified order
 
         Args:
             mol: The molecule. OpenBabel OBMol object.
@@ -587,12 +587,12 @@ class MoleculeMatcher(MSONable):
     """
 
     @requires(
-        ob,
+        openbabel,
         "BabelMolAdaptor requires openbabel to be installed with "
         "Python bindings. Please get it at http://openbabel.org "
         "(version >=3.0.0).",
     )
-    def __init__(self, tolerance=0.01, mapper=InchiMolAtomMapper()):
+    def __init__(self, tolerance: float = 0.01, mapper=None) -> None:
         """
         Args:
             tolerance (float): RMSD difference threshold whether two molecules are
@@ -601,7 +601,7 @@ class MoleculeMatcher(MSONable):
                 molecule to uniform order
         """
         self._tolerance = tolerance
-        self._mapper = mapper
+        self._mapper = mapper or InchiMolAtomMapper()
 
     def fit(self, mol1, mol2):
         """
@@ -650,20 +650,20 @@ class MoleculeMatcher(MSONable):
         obmol1 = BabelMolAdaptor(mol1).openbabel_mol
         obmol2 = BabelMolAdaptor(mol2).openbabel_mol
 
-        cmol1 = ob.OBMol()
+        cmol1 = openbabel.OBMol()
         for i in clabel1:
             oa1 = obmol1.GetAtom(i)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
-        cmol2 = ob.OBMol()
+        cmol2 = openbabel.OBMol()
         for i in clabel2:
             oa2 = obmol2.GetAtom(i)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = ob.OBAlign(True, False)
+        aligner = openbabel.OBAlign(True, False)
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -719,8 +719,8 @@ class MoleculeMatcher(MSONable):
         """
         return {
             "version": __version__,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "tolerance": self._tolerance,
             "mapper": self._mapper.as_dict(),
         }
@@ -734,7 +734,7 @@ class MoleculeMatcher(MSONable):
         Returns:
             MoleculeMatcher
         """
-        return MoleculeMatcher(
+        return cls(
             tolerance=d["tolerance"],
             mapper=AbstractMolAtomMapper.from_dict(d["mapper"]),
         )
@@ -837,7 +837,6 @@ class KabschMatcher(MSONable):
         Returns:
             U: 3x3 rotation matrix
         """
-
         # Computation of the cross-covariance matrix
         C = np.dot(P.T, Q)
 
@@ -881,7 +880,6 @@ class BruteForceOrderMatcher(KabschMatcher):
             V: Translation vector
             rmsd: Root mean squared deviation between P and Q
         """
-
         q = self.target
 
         if sorted(p.atomic_numbers) != sorted(q.atomic_numbers):
@@ -894,8 +892,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         if not ignore_warning and total_permutations > 1_000_000:
             raise ValueError(
-                "The number of all possible permutations "
-                "({}) is not feasible to run this method!".format(total_permutations)
+                "The number of all possible permutations " f"({total_permutations}) is not feasible to run this method!"
             )
 
         p_coord, q_coord = p.cart_coords, q.cart_coords
@@ -948,7 +945,6 @@ class BruteForceOrderMatcher(KabschMatcher):
             p_prime: Rotated and translated of the `p` `Molecule` object
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-
         inds, U, V, rmsd = self.match(p, ignore_warning=ignore_warning)
 
         p_prime = Molecule.from_sites([p[i] for i in inds])
@@ -992,7 +988,6 @@ class HungarianOrderMatcher(KabschMatcher):
             V: Translation vector
             rmsd: Root mean squared deviation between P and Q
         """
-
         if sorted(p.atomic_numbers) != sorted(self.target.atomic_numbers):
             raise ValueError("The number of the same species aren't matching!")
 
@@ -1041,7 +1036,6 @@ class HungarianOrderMatcher(KabschMatcher):
             p_prime: Rotated and translated of the `p` `Molecule` object
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-
         inds, U, V, rmsd = self.match(p)
 
         # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
@@ -1133,7 +1127,6 @@ class HungarianOrderMatcher(KabschMatcher):
         Returns:
             Array of dim 3 containing the principal axis
         """
-
         Ixx = Iyy = Izz = Ixy = Ixz = Iyz = 0.0
 
         for (x, y, z), wt in zip(coords, weights):
@@ -1167,7 +1160,6 @@ class HungarianOrderMatcher(KabschMatcher):
         Returns:
             3x3 rotation matrix
         """
-
         if np.allclose(v1, v2):
             # same direction
             return np.eye(3)
@@ -1282,7 +1274,6 @@ class GeneticOrderMatcher(KabschMatcher):
         Returns:
             Array of index arrays
         """
-
         # caching atomic numbers and coordinates
         p_atoms, q_atoms = p.atomic_numbers, self.target.atomic_numbers
         p_coords, q_coords = p.cart_coords, self.target.cart_coords
@@ -1293,10 +1284,10 @@ class GeneticOrderMatcher(KabschMatcher):
         # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
 
-        for i in range(1, self.N):
+        for idx in range(1, self.N):
             # extending the target fragment with then next atom
-            f_coords = q_coords[: i + 1]
-            f_atom = q_atoms[i]
+            f_coords = q_coords[: idx + 1]
+            f_atom = q_atoms[idx]
 
             f_trans = f_coords.mean(axis=0)
             f_centroid = f_coords - f_trans
@@ -1304,17 +1295,17 @@ class GeneticOrderMatcher(KabschMatcher):
             matches = []
             for indices in partial_matches:
 
-                for j in range(self.N):
+                for jdx in range(self.N):
 
                     # skipping if the this index is already matched
-                    if j in indices:
+                    if jdx in indices:
                         continue
 
                     # skipping if they are different species
-                    if p_atoms[j] != f_atom:
+                    if p_atoms[jdx] != f_atom:
                         continue
 
-                    inds = indices + [j]
+                    inds = indices + [jdx]
                     P = p_coords[inds]
 
                     # Both sets of coordinates must be translated first, so that
@@ -1337,6 +1328,6 @@ class GeneticOrderMatcher(KabschMatcher):
 
             partial_matches = matches
 
-            logger.info(f"number of atom in the fragment: {i + 1}, number of possible matches: {len(matches)}")
+            logger.info(f"number of atom in the fragment: {idx + 1}, number of possible matches: {len(matches)}")
 
         return matches

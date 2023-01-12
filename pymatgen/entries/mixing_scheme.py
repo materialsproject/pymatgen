@@ -52,16 +52,16 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def __init__(
         self,
-        structure_matcher: StructureMatcher = StructureMatcher(),
+        structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
-        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),
+        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
     ):
         """
         Instantiate the mixing scheme. The init method creates a generator class that
-        contains relevant settings (e.g., StrutureMatcher instance, Compatibility settings
+        contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
         for each functional) for processing groups of entries.
 
         Args:
@@ -99,7 +99,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 match.
         """
         self.name = "MP DFT mixing scheme"
-        self.structure_matcher = structure_matcher
+        self.structure_matcher = structure_matcher or StructureMatcher()
         if run_type_1 == run_type_2:
             raise ValueError(
                 f"You specified the same run_type {run_type_1} for both run_type_1 and run_type_2. "
@@ -155,14 +155,14 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 ComputedStructureEntry in entries.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries. Entries in the original list which
             are not compatible are excluded.
         """
         processed_entry_list: list = []
 
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
-            warnings.warn(f"{self.__class__.__name__} cannot process single entries. Supply a list of entries.")
+            warnings.warn(f"{type(self).__name__} cannot process single entries. Supply a list of entries.")
             return processed_entry_list
 
         # if clean is True, remove all previous adjustments from the entry
@@ -220,17 +220,17 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             for ea in adjustments:
                 # Has this correction already been applied?
-                if (ea.name, ea.cls, ea.value) in [(ea.name, ea.cls, ea.value) for ea in entry.energy_adjustments]:
+                if (ea.name, ea.cls, ea.value) in [(ea2.name, ea2.cls, ea2.value) for ea2 in entry.energy_adjustments]:
                     # we already applied this exact correction. Do nothing.
                     pass
-                elif (ea.name, ea.cls) in [(ea.name, ea.cls) for ea in entry.energy_adjustments]:
+                elif (ea.name, ea.cls) in [(ea2.name, ea2.cls) for ea2 in entry.energy_adjustments]:
                     # we already applied a correction with the same name
                     # but a different value. Something is wrong.
                     ignore_entry = True
                     warnings.warn(
-                        "Entry {} already has an energy adjustment called {}, but its "
-                        "value differs from the value of {:.3f} calculated here. This "
-                        "Entry will be discarded.".format(entry.entry_id, ea.name, ea.value)
+                        f"Entry {entry.entry_id} already has an energy adjustment called {ea.name}, but its "
+                        f"value differs from the value of {ea.value:.3f} calculated here. This "
+                        "Entry will be discarded."
                     )
                 else:
                     # Add the correction to the energy_adjustments list
@@ -451,7 +451,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         else:
             raise CompatibilityError(
                 "WARNING! If you see this Exception it means you have encountered"
-                f"an edge case in {self.__class__.__name__}. Inspect your input carefully and post a bug report."
+                f"an edge case in {type(self).__name__}. Inspect your input carefully and post a bug report."
             )
 
     def get_mixing_state_data(self, entries: list[ComputedStructureEntry], verbose: bool = False):
@@ -488,9 +488,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         for entry in entries:
             if not isinstance(entry, ComputedStructureEntry):
                 warnings.warn(
-                    "Entry {} is not a ComputedStructureEntry and will be"
+                    f"Entry {entry.entry_id} is not a ComputedStructureEntry and will be"
                     "ignored. The DFT mixing scheme requires structures for"
-                    " all entries".format(entry.entry_id)
+                    " all entries"
                 )
                 continue
 
@@ -533,10 +533,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             "hull_energy_2",
         ]
 
-        def _get_sg(struc) -> int:
+        def _get_sg(struct) -> int:
             """helper function to get spacegroup with a loose tolerance"""
             try:
-                return struc.get_space_group_info(symprec=0.1)[1]
+                return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
                 return -1
 
@@ -589,8 +589,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             if not entry.parameters.get("run_type"):
                 warnings.warn(
-                    "Entry {} is missing parameters.run_type! This field"
-                    "is required. This entry will be ignored.".format(entry.entry_id)
+                    f"Entry {entry.entry_id} is missing parameters.run_type! This field"
+                    "is required. This entry will be ignored."
                 )
                 continue
 
@@ -634,7 +634,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
-                    f"{self.compat_1.__class__.__name__}"
+                    f"{type(self.compat_1).__name__}"
                 )
         entries_type_1 = EntrySet(entries_type_1)
 
@@ -643,7 +643,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
-                    f"{self.compat_2.__class__.__name__}"
+                    f"{type(self.compat_2).__name__}"
                 )
         entries_type_2 = EntrySet(entries_type_2)
 
@@ -742,20 +742,13 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             return None
 
         print(
-            "{:<12}{:<12}{:<12}{:<10}{:<8} {:<9} {:<9}".format(
-                "entry_id", "formula", "spacegroup", "run_type", "eV/atom", "corr/atom", "e_above_hull"
-            )
+            f"{'entry_id':<12}{'formula':<12}{'spacegroup':<12}{'run_type':<10}{'eV/atom':<8}"
+            f"{'corr/atom':<9} {'e_above_hull':<9}"
         )
         for e in entries:
             print(
-                "{:<12}{:<12}{:<12}{:<10}{:<8.3f} {:<9.3f} {:<9.3f}".format(
-                    e.entry_id,
-                    e.composition.reduced_formula,
-                    e.structure.get_space_group_info()[0],
-                    e.parameters["run_type"],
-                    e.energy_per_atom,
-                    e.correction / e.composition.num_atoms,
-                    pd.get_e_above_hull(e),
-                )
+                f"{e.entry_id:<12}{e.composition.reduced_formula:<12}{e.structure.get_space_group_info()[0]:<12}"
+                f"{e.parameters['run_type']:<10}{e.energy_per_atom:<8.3f}"
+                f"{e.correction / e.composition.num_atoms:<9.3f} {pd.get_e_above_hull(e):<9.3f}"
             )
         return None

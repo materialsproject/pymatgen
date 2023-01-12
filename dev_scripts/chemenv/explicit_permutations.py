@@ -6,6 +6,8 @@ Development script of the ChemEnv utility to get the explicit permutations for c
 with the explicit permutations algorithms (typically with coordination numbers <= 6)
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"
@@ -99,6 +101,5 @@ if __name__ == "__main__":
         newgeom_dir = "new_geometry_files"
         if not os.path.exists(newgeom_dir):
             os.makedirs(newgeom_dir)
-        f = open(f"{newgeom_dir}/{cg_symbol}.json", "w")
-        json.dump(cg.as_dict(), f)
-        f.close()
+        with open(f"{newgeom_dir}/{cg_symbol}.json", "w") as f:
+            json.dump(cg.as_dict(), f)

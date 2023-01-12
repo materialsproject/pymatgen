@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
+from __future__ import annotations
 
 import os
 import unittest
 
 import numpy as np
+import pytest
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     AllCoordinationGeometries,
@@ -16,7 +14,10 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     LocalGeometryFinder,
     symmetry_measure,
 )
+from pymatgen.core.structure import Lattice, Structure
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 json_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,
@@ -43,16 +44,15 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.0])
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="centroid")
         self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as exc_info:
             AbstractGeometry.from_cg(
                 cg=cg_ts3,
                 centering_type="central_site",
                 include_central_site_in_centroid=True,
             )
-        self.assertEqual(
-            str(cm.exception),
-            "The center is the central site, no calculation of the centroid, "
-            "variable include_central_site_in_centroid should be set to False",
+        assert (
+            str(exc_info.value) == "The center is the central site, no calculation of the centroid, "
+            "variable include_central_site_in_centroid should be set to False"
         )
         abstract_geom = AbstractGeometry.from_cg(
             cg=cg_ts3, centering_type="centroid", include_central_site_in_centroid=True
@@ -60,7 +60,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.25])
 
         # WHY ARE WE TESTING STRINGS????
-        # self.assertEqual(abstract_geom.__str__(),
+        # self.assertEqual(str(abstract_geom)),
         #                  '\nAbstract Geometry with 3 points :\n'
         #                  '  [-1.    0.   -0.25]\n'
         #                  '  [ 1.    0.   -0.25]\n'
@@ -69,43 +69,49 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         #                  '  [ 0.   0.   0.25]\n')
 
         symm_dict = symmetry_measure([[0.0, 0.0, 0.0]], [1.1, 2.2, 3.3])
-        self.assertAlmostEqual(symm_dict["symmetry_measure"], 0.0)
-        self.assertEqual(symm_dict["scaling_factor"], None)
-        self.assertEqual(symm_dict["rotation_matrix"], None)
+        assert symm_dict["symmetry_measure"] == pytest.approx(0.0)
+        assert symm_dict["scaling_factor"] is None
+        assert symm_dict["rotation_matrix"] is None
 
         tio2_struct = self.get_structure("TiO2")
 
         envs = self.lgf.compute_coordination_environments(structure=tio2_struct, indices=[0])
-        self.assertAlmostEqual(envs[0][0]["csm"], 1.5309987846957258)
-        self.assertAlmostEqual(envs[0][0]["ce_fraction"], 1.0)
-        self.assertEqual(envs[0][0]["ce_symbol"], "O:6")
-        self.assertEqual(sorted(envs[0][0]["permutation"]), sorted([0, 4, 1, 5, 2, 3]))
+        assert envs[0][0]["csm"] == pytest.approx(1.5309987846957258)
+        assert envs[0][0]["ce_fraction"] == pytest.approx(1.0)
+        assert envs[0][0]["ce_symbol"] == "O:6"
+        assert sorted(envs[0][0]["permutation"]) == sorted([0, 4, 1, 5, 2, 3])
 
         self.lgf.setup_random_structure(coordination=5)
-        self.assertEqual(len(self.lgf.structure), 6)
+        assert len(self.lgf.structure) == 6
 
         self.lgf.setup_random_indices_local_geometry(coordination=5)
-        self.assertEqual(self.lgf.icentral_site, 0)
-        self.assertEqual(len(self.lgf.indices), 5)
+        assert self.lgf.icentral_site == 0
+        assert len(self.lgf.indices) == 5
 
         self.lgf.setup_ordered_indices_local_geometry(coordination=5)
-        self.assertEqual(self.lgf.icentral_site, 0)
-        self.assertEqual(self.lgf.indices, list(range(1, 6)))
+        assert self.lgf.icentral_site == 0
+        assert self.lgf.indices == list(range(1, 6))
 
         self.lgf.setup_explicit_indices_local_geometry(explicit_indices=[3, 5, 2, 0, 1, 4])
-        self.assertEqual(self.lgf.icentral_site, 0)
-        self.assertEqual(self.lgf.indices, [4, 6, 3, 1, 2, 5])
+        assert self.lgf.icentral_site == 0
+        assert self.lgf.indices == [4, 6, 3, 1, 2, 5]
 
         LiFePO4_struct = self.get_structure("LiFePO4")
         isite = 10
         envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[isite])
-        self.assertAlmostEqual(envs_LiFePO4[isite][0]["csm"], 0.140355832317)
+        assert envs_LiFePO4[isite][0]["csm"] == pytest.approx(0.140355832317)
         nbs_coords = [
             np.array([6.16700437, -4.55194317, -5.89031356]),
             np.array([4.71588167, -4.54248093, -3.75553856]),
             np.array([6.88012571, -5.79877503, -3.73177541]),
             np.array([6.90041188, -3.32797839, -3.71812416]),
         ]
+
+        # test to check that one can pass voronoi_distance_cutoff
+        struct = Structure(Lattice.cubic(25), ["O", "C", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]])
+        self.lgf.setup_structure(structure=struct)
+        self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
+
         self.lgf.setup_structure(LiFePO4_struct)
         self.lgf.setup_local_geometry(isite, coords=nbs_coords)
 
@@ -124,7 +130,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             perfect2local_maps,
         ) = res
         for perm_csm_dict in permutations_symmetry_measures:
-            self.assertAlmostEqual(perm_csm_dict["symmetry_measure"], 0.140355832317)
+            assert perm_csm_dict["symmetry_measure"] == pytest.approx(0.140355832317)
 
     #
     # def _strategy_test(self, strategy):
@@ -135,9 +141,8 @@ class CoordinationGeometryFinderTest(PymatgenTest):
     #
     #     for ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             f = open("{}/{}".format(json_files_dir, json_file), 'r')
-    #             dd = json.load(f)
-    #             f.close()
+    #             with open("{}/{}".format(json_files_dir, json_file), 'r') as f:
+    #                 dd = json.load(f)
     #
     #             atom_indices = dd['atom_indices']
     #             expected_geoms = dd['expected_geoms']
@@ -205,12 +210,9 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                     max_cn=cg.coordination_number,
                     only_symbols=[mp_symbol],
                 )
-                self.assertAlmostEqual(
-                    se.get_csm(0, mp_symbol)["symmetry_measure"],
-                    0.0,
-                    delta=1e-8,
-                    msg=f"Failed to get perfect environment with mp_symbol {mp_symbol}",
-                )
+                assert (
+                    abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8
+                ), f"Failed to get perfect environment with mp_symbol {mp_symbol}"
 
     def test_disable_hints(self):
         allcg = AllCoordinationGeometries()
@@ -245,11 +247,11 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             only_symbols=mp_symbols,
             get_from_hints=True,
         )
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             abc = se_nohints.ce_list[0][12]
             abc.minimum_geometries()
-        self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
-        self.assertTrue(set(se_nohints.ce_list[0].keys()).issubset(set(se_hints.ce_list[0].keys())))
+        assert se_hints.ce_list[0][13][0] == se_nohints.ce_list[0][13][0]
+        assert set(se_nohints.ce_list[0]).issubset(set(se_hints.ce_list[0]))
 
 
 if __name__ == "__main__":
