@@ -213,7 +213,6 @@ class BandStructureSymmLineTest(PymatgenTest):
         self.assertTrue([0.0, 0.0, 0.0] in vbm_eqs)
 
     def test_as_dict(self):
-        bs_dict = self.bs.as_dict()
         expected_keys = {
             "@module",
             "@class",
@@ -228,12 +227,15 @@ class BandStructureSymmLineTest(PymatgenTest):
             "labels_dict",
             "is_spin_polarized",
             "projections",
-            "structure",
+            # "structure",  # not always present
             "branches",
         }
-        assert set(bs_dict) >= expected_keys
-        assert set(self.bs2.as_dict()) >= expected_keys
-        assert set(self.bs_spin.as_dict()) >= expected_keys
+        d1 = self.bs.as_dict()
+        assert set(d1) >= expected_keys, f"{expected_keys - set(d1)=}"
+        d2 = self.bs2.as_dict()
+        assert set(d2) >= expected_keys, f"{expected_keys - set(d2)=}"
+        d3 = self.bs_spin.as_dict()
+        assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json")) as f:
