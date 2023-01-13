@@ -655,10 +655,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             weight_dict (dict): {symbol: weight_fraction} dict.
         """
 
-        weight_sum = sum([val / Element(el).atomic_mass
-                          for el, val in weight_dict.items()])
-        comp_dict = {el: val / Element(el).atomic_mass / weight_sum
-                     for el, val in weight_dict.items()}
+        weight_sum = sum([val / Element(el).atomic_mass for el, val in weight_dict.items()])
+        comp_dict = {el: val / Element(el).atomic_mass / weight_sum for el, val in weight_dict.items()}
 
         return cls(comp_dict)
 
