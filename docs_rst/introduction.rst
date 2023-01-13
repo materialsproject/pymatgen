@@ -1,4 +1,4 @@
-.. image:: _static/pymatgen.png
+.. image:: _static/pymatgen.svg
    :width: 300 px
    :alt: pymatgen
    :align: center

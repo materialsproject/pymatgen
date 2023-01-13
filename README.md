@@ -1,5 +1,8 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.png" alt="Logo" height="70">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen-white.svg">
+    <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg" height="70">
+  </picture>
 </h1>
 
 <h4 align="center">
