@@ -70,7 +70,7 @@ class KpointTest(unittest.TestCase):
         self.assertEqual(kpoint.label, "X")
 
 
-class BandStructureSymmLine_test(PymatgenTest):
+class BandStructureSymmLineTest(PymatgenTest):
     def setUp(self):
         self.bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))
         self.bs2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json"))
@@ -213,12 +213,27 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertTrue([0.0, 0.0, 0.0] in vbm_eqs)
 
     def test_as_dict(self):
-        s = json.dumps(self.bs.as_dict())
-        self.assertIsNotNone(s)
-        s = json.dumps(self.bs2.as_dict())
-        self.assertIsNotNone(s)
-        s = json.dumps(self.bs_spin.as_dict())
-        self.assertIsNotNone(s)
+        bs_dict = self.bs.as_dict()
+        expected_keys = {
+            "@module",
+            "@class",
+            "lattice_rec",
+            "efermi",
+            "kpoints",
+            "bands",
+            "is_metal",
+            "vbm",
+            "cbm",
+            "band_gap",
+            "labels_dict",
+            "is_spin_polarized",
+            "projections",
+            "structure",
+            "branches",
+        }
+        assert set(bs_dict) >= expected_keys
+        assert set(self.bs2.as_dict()) >= expected_keys
+        assert set(self.bs_spin.as_dict()) >= expected_keys
 
     def test_old_format_load(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json")) as f:
@@ -252,7 +267,7 @@ class ReconstructBandStructureTest(PymatgenTest):
         bs.get_projection_on_elements()
 
 
-class LobsterBandStructureSymmLine_test(PymatgenTest):
+class LobsterBandStructureSymmLineTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         with open(
