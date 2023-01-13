@@ -643,6 +643,23 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return cls(d)
 
+    @classmethod
+    def from_weight_dict(cls, weight_dict) -> Composition:
+        """
+        Creates a Composition based on a dict of atomic fractions calculated
+        from a dict of weight fractions. Allows for quick creation of the class
+        from weight-based notations commonly used in the industry, such as
+        Ti6V4Al and Ni60Ti40.
+
+        Args:
+            weight_dict (dict): {symbol: weight_fraction} dict.
+        """
+
+        weight_sum = sum([val / Element(el).atomic_mass for el, val in weight_dict.items()])
+        comp_dict = {el: val / Element(el).atomic_mass / weight_sum for el, val in weight_dict.items()}
+
+        return cls(comp_dict)
+
     def get_el_amt_dict(self) -> dict[str, float]:
         """
         Returns:
@@ -673,6 +690,15 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             {"Fe": 2.0, "O":3.0}
         """
         return self.get_reduced_composition_and_factor()[0].as_dict()
+
+    @property
+    def to_weight_dict(self) -> dict:
+        """
+        Returns:
+            Dict with weight fraction of each component
+            {"Ti": 0.90, "V": 0.06, "Al": 0.04}
+        """
+        return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
     def to_data_dict(self) -> dict:
