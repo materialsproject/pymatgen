@@ -12,4 +12,5 @@ line-length = 120
 
 [tool.cibuildwheel.linux]
 archs = ["auto64"]
+skip = ["*musllinux*"]
 before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
