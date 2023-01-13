@@ -11,4 +11,5 @@ build-backend = "setuptools.build_meta"
 line-length = 120
 
 [tool.cibuildwheel.linux]
+archs = ["auto64"]
 before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
