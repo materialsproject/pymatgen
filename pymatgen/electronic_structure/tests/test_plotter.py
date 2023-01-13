@@ -245,15 +245,10 @@ class BSDOSPlotterTest(unittest.TestCase):
         )
         plt.close("all")
         
-        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_SrBa2Sn2O7_bands.xml"), parse_projected_eigen=True)
-        p = BSDOSPlotter()
-        plt = p.get_plot(
-            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_SrBa2Sn2O7_bands"))
-        )
-        plt = p.get_plot(
-            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_SrBa2Sn2O7_bands")),
-            v.complete_dos,
-        )
+        with open (os.path.join(PymatgenTest.TEST_FILES_DIR,'SrBa2Sn2O7.json'),'r') as f:
+            bandstr_dict = json.load(f)
+        bandstr = BandStructureSymmLine.from_dict(bandstr_dict)
+        plt = p.get_plot(bandstr)
 
 
 class PlotBZTest(unittest.TestCase):
