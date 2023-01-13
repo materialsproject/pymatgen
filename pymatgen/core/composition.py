@@ -694,6 +694,15 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return self.get_reduced_composition_and_factor()[0].as_dict()
 
     @property
+    def to_weight_dict(self) -> dict:
+        """
+        Returns:
+            Dict with weight fraction of each component
+            {"Ti": 0.90, "V": 0.06, "Al": 0.04}
+        """
+        return {str(el): self.get_wt_fraction(el) for el in self.elements}
+
+    @property
     def to_data_dict(self) -> dict:
         """
         Returns:
