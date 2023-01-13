@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import glob
 import hashlib
 import os
@@ -56,6 +58,9 @@ from pymatgen.util.testing import PymatgenTest
 MODULE_DIR = Path(__file__).resolve().parent
 
 dec = MontyDecoder()
+
+if SETTINGS.get("PMG_VASP_PSP_DIR") is None:
+    raise unittest.SkipTest(f"PMG_VASP_PSP_DIR is not set. Skipping tests in {__file__}.")
 
 
 class SetChangeCheckTest(PymatgenTest):

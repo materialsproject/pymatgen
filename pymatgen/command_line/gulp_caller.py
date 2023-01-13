@@ -7,13 +7,15 @@ http://projects.ivec.org
 WARNING: you need to have GULP installed on your system.
 """
 
+from __future__ import annotations
+
 __author__ = "Bharat Medasani, Wenhao Sun"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Bharat Medasani"
 __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
-__date__ = "$Jun 22, 2013M$"
+__date__ = "Jun 22, 2013M"
 
 import os
 import re
@@ -656,7 +658,7 @@ class GulpCaller:
             cmd: Command. Defaults to gulp.
         """
 
-        def is_exe(f):
+        def is_exe(f) -> bool:
             return os.path.isfile(f) and os.access(f, os.X_OK)
 
         fpath, fname = os.path.split(cmd)

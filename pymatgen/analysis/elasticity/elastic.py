@@ -97,7 +97,6 @@ class NthOrderElasticTensor(Tensor):
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
         """
-
         Args:
             strains ():
             stresses ():
@@ -106,7 +105,6 @@ class NthOrderElasticTensor(Tensor):
             tol ():
 
         Returns:
-
         """
         return cls(diff_fit(strains, stresses, eq_stress, order, tol)[order - 2])
 
@@ -125,7 +123,6 @@ def raise_error_if_unphysical(f):
             **kwargs ():
 
         Returns:
-
         """
         if self.k_vrh < 0 or self.g_vrh < 0:
             raise ValueError("Bulk or shear modulus is negative, property cannot be determined")
@@ -157,7 +154,6 @@ class ElasticTensor(NthOrderElasticTensor):
 
             tol (float): tolerance for initial symmetry test of tensor
         """
-
         obj = super().__new__(cls, input_array, check_rank=4, tol=tol)
         return obj.view(cls)
 
@@ -261,7 +257,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: transverse sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -282,7 +277,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: longitudinal sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -302,7 +296,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Snyder's acoustic sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -326,7 +319,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Snyder's optical sound velocity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -348,7 +340,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Snyder's total sound velocity (in SI units)
-
         """
         return self.snyder_ac(structure) + self.snyder_opt(structure)
 
@@ -361,7 +352,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Clarke's thermal conductivity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -381,7 +371,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: Cahill's thermal conductivity (in SI units)
-
         """
         nsites = structure.num_sites
         volume = structure.volume
@@ -398,7 +387,6 @@ class ElasticTensor(NthOrderElasticTensor):
             structure: pymatgen structure object
 
         Returns: debye temperature (in SI units)
-
         """
         v0 = structure.volume * 1e-30 / structure.num_sites
         vl, vt = self.long_v(structure), self.trans_v(structure)
@@ -1075,7 +1063,7 @@ def get_symbol_list(rank, dim=6):
     c_vec = np.zeros(len(indices), dtype=object)
     c_arr = np.zeros([dim] * rank, dtype=object)
     for n, idx in enumerate(indices):
-        c_vec[n] = sp.Symbol("c_" + "".join([str(i) for i in idx]))
+        c_vec[n] = sp.Symbol("c_" + "".join(map(str, idx)))
         for perm in itertools.permutations(idx):
             c_arr[perm] = c_vec[n]
     return c_vec, c_arr

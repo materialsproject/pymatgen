@@ -12,7 +12,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Sequence, Tuple, Union
 
 import numpy as np
 from monty.io import zopen
@@ -34,7 +34,7 @@ __date__ = "Jun 29, 2022"
 
 Vector3D = Tuple[float, float, float]
 Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
-SitePropsType = Union[List[Dict[Any, List[Any]]], Dict[Any, List[Any]]]
+SitePropsType = Union[List[Dict[Any, Sequence[Any]]], Dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
@@ -95,7 +95,7 @@ class Trajectory(MSONable):
                 `M=2`, the `frame_properties` can be [{'energy':1.0}, {'energy':2.0}].
             constant_lattice: Whether the lattice changes during the simulation.
                 Should be used together with `lattice`. See usage there.
-            time_step: Timestep of MD simulation in femto-seconds. Should be `None`
+            time_step: Time step of MD simulation in femto-seconds. Should be `None`
                 for relaxation trajectory.
             coords_are_displacement: Whether `frac_coords` are given in displacements
                 (True) or positions (False). Note, if this is `True`, `frac_coords`
@@ -107,7 +107,6 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `frac_coords` when `coords_are_displacement=False`.
         """
-
         if isinstance(lattice, Lattice):
             lattice = lattice.matrix
         elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
@@ -133,7 +132,7 @@ class Trajectory(MSONable):
                 )
             self.base_positions = base_positions
         else:
-            self.base_positions = frac_coords[0]
+            self.base_positions = frac_coords[0]  # type: ignore[assignment]
         self.coords_are_displacement = coords_are_displacement
 
         self.species = species
@@ -279,7 +278,6 @@ class Trajectory(MSONable):
         Return:
             Subset of trajectory
         """
-
         # Convert to position mode if not ready
         self.to_positions()
 
@@ -339,7 +337,7 @@ class Trajectory(MSONable):
     def write_Xdatcar(
         self,
         filename: str | Path = "XDATCAR",
-        system: str = None,
+        system: str | None = None,
         significant_figures: int = 6,
     ):
         """
@@ -355,7 +353,6 @@ class Trajectory(MSONable):
             system: Description of system (e.g. 2D MoS2).
             significant_figures: Significant figures in the output file.
         """
-
         # Ensure trajectory is in position form
         self.to_positions()
 
@@ -367,7 +364,7 @@ class Trajectory(MSONable):
         syms = [site.specie.symbol for site in self[0]]
         site_symbols = [a[0] for a in itertools.groupby(syms)]
         syms = [site.specie.symbol for site in self[0]]
-        natoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
+        n_atoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
         for si, frac_coords in enumerate(self.frac_coords):
             # Only print out the info block if
@@ -380,16 +377,16 @@ class Trajectory(MSONable):
                     _lattice = self.lattice[si]
 
                 for latt_vec in _lattice:
-                    lines.append(f'{" ".join([str(el) for el in latt_vec])}')
+                    lines.append(f'{" ".join(map(str, latt_vec))}')
 
                 lines.append(" ".join(site_symbols))
-                lines.append(" ".join([str(x) for x in natoms]))
+                lines.append(" ".join(map(str, n_atoms)))
 
             lines.append(f"Direct configuration=     {si + 1}")
 
             for (frac_coord, specie) in zip(frac_coords, self.species):
                 coords = frac_coord
-                line = f'{" ".join([format_str.format(c) for c in coords])} {specie}'
+                line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
                 lines.append(line)
 
         xdatcar_string = "\n".join(lines) + "\n"
@@ -435,11 +432,10 @@ class Trajectory(MSONable):
         Returns:
             A trajectory from the structures.
         """
-
         if constant_lattice:
             lattice = structures[0].lattice.matrix
         else:
-            lattice = [structure.lattice.matrix for structure in structures]
+            lattice = np.array([structure.lattice.matrix for structure in structures])
 
         species = structures[0].species
         frac_coords = [structure.frac_coords for structure in structures]
@@ -449,7 +445,7 @@ class Trajectory(MSONable):
             lattice,
             species,  # type: ignore
             frac_coords,
-            site_properties=site_properties,
+            site_properties=site_properties,  # type: ignore
             constant_lattice=constant_lattice,
             **kwargs,
         )
@@ -472,7 +468,6 @@ class Trajectory(MSONable):
         Returns:
             A trajectory from the file.
         """
-
         fname = Path(filename).expanduser().resolve().name
 
         if fnmatch(fname, "*XDATCAR*"):
@@ -508,20 +503,21 @@ class Trajectory(MSONable):
         return lat, constant_lat
 
     @staticmethod
-    def _combine_site_props(prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int):
+    def _combine_site_props(
+        prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int
+    ) -> SitePropsType | None:
         """
         Combine site properties.
 
         Either one of prop1 or prop2 can be None, dict, or a list of dict. All
         possibilities of combining them are considered.
         """
-
         # special cases
 
         if prop1 is None and prop2 is None:
             return None
 
-        if isinstance(prop1, dict) and isinstance(prop2, dict) and prop1 == prop2:
+        if isinstance(prop1, dict) and prop1 == prop2:
             return prop1
 
         # general case
@@ -539,8 +535,8 @@ class Trajectory(MSONable):
             "dict": [prop2] * len2,
             "list": prop2,
         }
-        p1_selected: list = p1_candidates[prop1.__class__.__name__]  # type: ignore
-        p2_selected: list = p2_candidates[prop2.__class__.__name__]  # type: ignore
+        p1_selected: list = p1_candidates[type(prop1).__name__]  # type: ignore
+        p2_selected: list = p2_candidates[type(prop2).__name__]  # type: ignore
 
         return p1_selected + p2_selected
 
@@ -594,7 +590,6 @@ class Trajectory(MSONable):
         """
         Slice site properties.
         """
-
         if self.site_properties is None:
             return None
         if isinstance(self.site_properties, dict):

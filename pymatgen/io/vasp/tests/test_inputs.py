@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import pickle
 import unittest
@@ -11,6 +13,7 @@ import numpy as np
 import pytest
 import scipy.constants as const
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 
 from pymatgen.core import SETTINGS
@@ -881,6 +884,36 @@ class PotcarSingleTest(PymatgenTest):
         }
         self.assertEqual(self.psingle.keywords, data)
 
+    def test_psctr(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
+
+        psingle = PotcarSingle.from_file(filename)
+
+        data = {
+            "nentries": 9,
+            "Orbitals": (
+                (1, 0, 0.50, -6993.8440, 2.0000),
+                (2, 0, 0.50, -0814.6047, 2.0000),
+                (2, 1, 1.50, -0693.3689, 6.0000),
+                (3, 0, 0.50, -0089.4732, 2.0000),
+                (3, 1, 1.50, -0055.6373, 6.0000),
+                (3, 2, 2.50, -0003.8151, 7.0000),
+                (4, 0, 0.50, -0004.2551, 1.0000),
+                (4, 1, 1.50, -0003.4015, 0.0000),
+                (4, 3, 2.50, -0001.3606, 0.0000),
+            ),
+            "OrbitalDescriptions": (
+                (2, -3.8151135, 23, 2.300, None, None),
+                (2, -5.1756961, 23, 2.300, None, None),
+                (0, -4.2550963, 23, 2.300, None, None),
+                (0, 07.2035603, 23, 2.300, None, None),
+                (1, -2.7211652, 23, 2.300, None, None),
+                (1, 18.4316424, 23, 2.300, None, None),
+            ),
+        }
+        for k, v in data.items():
+            self.assertEqual(psingle.PSCTR[k], v)
+
     def test_nelectrons(self):
         self.assertEqual(self.psingle.nelectrons, 13)
 
@@ -938,20 +971,48 @@ class PotcarSingleTest(PymatgenTest):
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns(None):
-            psingle = PotcarSingle.from_file(filename)
+        psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
 
     def test_potcar_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="incomplete"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_header" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="following"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
             PotcarSingle.from_file(filename)
+
+    def test_verify_faulty_potcar_with_hash(self):
+        filename = (
+            PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
+        )
+        with pytest.raises(ValueError):
+            PotcarSingle.from_file(filename)
+
+    def test_verify_correct_potcar_with_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        metadata_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_pymatgen_hashes.json"))
+
+        psingle = PotcarSingle.from_file(filename)
+        assert psingle.hash in metadata_hash_db
+        assert psingle.file_hash in file_hash_db
+        assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+
+    def test_multi_potcar_with_and_without_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_O.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        potcars = Potcar.from_file(filename)
+        for psingle in potcars:
+            if hasattr(psingle, "hash_sha256_from_file"):
+                assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+            else:
+                assert psingle.file_hash in file_hash_db
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")

@@ -5,13 +5,15 @@
 This module provides utilities for basic math operations.
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 
 def abs_cap(val, max_abs_val=1):
     """
     Returns the value with its absolute value capped at max_abs_val.
-    Particularly useful in passing values to trignometric functions where
+    Particularly useful in passing values to trigonometric functions where
     numerical errors may result in an argument > 1 being passed in.
 
     Args:
@@ -72,10 +74,9 @@ def non_decreasing(values):
 
 
 def monotonic(values, mode="<", atol=1.0e-8):
-    """
-    Returns False if values are not monotonic (decreasing|increasing).
+    """True if values are monotonically (decreasing|increasing).
     mode is "<" for a decreasing sequence, ">" for an increasing sequence.
-    Two numbers are considered equal if they differ less that atol.
+    Two numbers are considered equal if they differ less than atol.
 
     .. warning:
         Not very efficient for large data sets.

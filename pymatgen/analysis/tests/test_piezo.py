@@ -5,6 +5,8 @@
 Test for the piezo tensor class
 """
 
+from __future__ import annotations
+
 __author__ = "Shyam Dwaraknath"
 __version__ = "0.1"
 __maintainer__ = "Shyam Dwaraknath"
@@ -33,7 +35,7 @@ class PiezoTest(PymatgenTest):
         self.vasp_matrix = np.array(
             [
                 [0.0, 0.0, 0.0, 0.0, 0.0, 0.03839],
-                [0.0, 0.0, 0.0, 0.0, 0.03839, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.03839, 0.0],
                 [6.89822, 6.89822, 27.46280, 0.0, 0.0, 0.0],
             ]
         )

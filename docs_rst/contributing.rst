@@ -38,9 +38,7 @@ Direct contributions to pymatgen main distribution
    necessary for rigorous testing of the code.
 5. It is highly recommended you install all the optional dependencies as well::
 
-      pip install -r requirements.txt
-      pip install -r requirements-optional.txt
-      pip install -r requirements-dev.txt
+      pip install -e '.[dev,optional]'
 
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your code up to date. You need to add the main
    repository to the list of your remotes. Let's name the upstream repo as mpmaster (materialsproject master)::

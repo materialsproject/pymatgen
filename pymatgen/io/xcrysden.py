@@ -5,6 +5,8 @@
 Support for reading XCrysDen files.
 """
 
+from __future__ import annotations
+
 from pymatgen.core.periodic_table import Element
 
 __author__ = "Matteo Giantomassi"
@@ -66,7 +68,6 @@ class XSF:
             input_string: String with the structure in XSF format.
                 See http://www.xcrysden.org/doc/XSF.html
             cls_: Structure class to be created. default: pymatgen structure
-
         """
         # CRYSTAL                                        see (1)
         # these are primitive lattice vectors (in Angstroms)

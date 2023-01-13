@@ -5,6 +5,8 @@
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -726,7 +728,7 @@ class DetailedVoronoiContainer(MSONable):
             "angle_limits": ang_limits,
         }
 
-    def is_close_to(self, other, rtol=0.0, atol=1e-8):
+    def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:
         """
         Whether two DetailedVoronoiContainer objects are close to each other.
 

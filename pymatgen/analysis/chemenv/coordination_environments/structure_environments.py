@@ -11,8 +11,6 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
-from typing import cast
-
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
@@ -26,7 +24,7 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import PeriodicNeighbor, Structure
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -229,8 +227,6 @@ class StructureEnvironments(MSONable):
             """
             all_nbs_normalized_angles_sorted = sorted(nb["normalized_angle"] for nb in self.voronoi)
             minang = np.min(self.normalized_angles)
-            # print('minang', minang)
-            # print('all_nbs_normalized_angles_sorted', all_nbs_normalized_angles_sorted)
             for nb in self.voronoi:
                 print(nb)
             plateau = None
@@ -1270,12 +1266,9 @@ class StructureEnvironments(MSONable):
         return differences
 
     def __eq__(self, other: object) -> bool:
-        needed_attrs = ("ce_list", "voronoi", "valences", "sites_map", "equivalent_sites", "structure", "info")
 
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not isinstance(other, StructureEnvironments):
             return NotImplemented
-
-        other = cast(StructureEnvironments, other)
 
         if len(self.ce_list) != len(other.ce_list):
             return False
@@ -1506,8 +1499,10 @@ class LightStructureEnvironments(MSONable):
 
         def __eq__(self, other: object) -> bool:
             needed_attrs = ("isite", "all_nbs_sites_indices")
+
             if not all(hasattr(other, attr) for attr in needed_attrs):
                 return NotImplemented
+
             return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):
@@ -2066,11 +2061,8 @@ class LightStructureEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
-        needed_attrs = ("strategy", "structure", "coordination_environments", "valences", "neighbors_sets")
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not isinstance(other, LightStructureEnvironments):
             return NotImplemented
-
-        other = cast(LightStructureEnvironments, other)  # silence mypy warnings
 
         is_equal = (
             self.strategy == other.strategy
@@ -2099,7 +2091,14 @@ class LightStructureEnvironments(MSONable):
             "coordination_environments": self.coordination_environments,
             "all_nbs_sites": [
                 {
-                    "site": nb_site["site"].as_dict(),
+                    "site": PeriodicSite(
+                        species=nb_site["site"].species,
+                        coords=nb_site["site"].frac_coords,
+                        lattice=nb_site["site"].lattice,
+                        to_unit_cell=False,
+                        coords_are_cartesian=False,
+                        properties=nb_site["site"].properties,
+                    ).as_dict(),
                     "index": nb_site["index"],
                     "image_cell": [int(ii) for ii in nb_site["image_cell"]],
                 }
@@ -2128,7 +2127,13 @@ class LightStructureEnvironments(MSONable):
         structure = dec.process_decoded(d["structure"])
         all_nbs_sites = []
         for nb_site in d["all_nbs_sites"]:
-            site = dec.process_decoded(nb_site["site"])
+            periodic_site = dec.process_decoded(nb_site["site"])
+            site = PeriodicNeighbor(
+                species=periodic_site.species,
+                coords=periodic_site.frac_coords,
+                lattice=periodic_site.lattice,
+                properties=periodic_site.properties,
+            )
             if "image_cell" in nb_site:
                 image_cell = np.array(nb_site["image_cell"], int)
             else:
@@ -2339,7 +2344,7 @@ class ChemicalEnvironments(MSONable):
             out += f"       perfect2local : {str(self.coord_geoms[mp_symbol]['perfect2local_map'])}\n"
         return out
 
-    def is_close_to(self, other, rtol=0.0, atol=1e-8):
+    def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:
         """
         Whether this ChemicalEnvironments object is close to another one.
 
@@ -2385,11 +2390,8 @@ class ChemicalEnvironments(MSONable):
         Returns:
             True if both objects are equal, False otherwise.
         """
-        needed_attrs = ("coord_geoms",)
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not isinstance(other, ChemicalEnvironments):
             return NotImplemented
-
-        other = cast(ChemicalEnvironments, other)  # silence mypy warnings on other below
 
         if set(self.coord_geoms) != set(other.coord_geoms):
             return False

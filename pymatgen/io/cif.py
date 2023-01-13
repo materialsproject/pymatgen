@@ -5,6 +5,8 @@
 Wrapper classes for Cif input and output from Structures.
 """
 
+from __future__ import annotations
+
 import math
 import os
 import re
@@ -19,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.string import remove_non_ascii
 
 from pymatgen.core.composition import Composition
@@ -46,13 +49,9 @@ _COD_DATA = None
 
 def _get_cod_data():
     global _COD_DATA
+
     if _COD_DATA is None:
-        import pymatgen
-
-        with open(os.path.join(pymatgen.symmetry.__path__[0], "symm_ops.json")) as f:
-            import json
-
-            _COD_DATA = json.load(f)
+        _COD_DATA = loadfn(os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json"))
 
     return _COD_DATA
 
@@ -81,7 +80,9 @@ class CifBlock:
         # get an Exception
         self.header = header[:74]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CifBlock):
+            return NotImplemented
         return self.loops == other.loops and self.data == other.data and self.header == other.header
 
     def __getitem__(self, key):
@@ -313,7 +314,7 @@ class CifParser:
         self.feature_flags = {}
         self.warnings = []
 
-        def is_magcif():
+        def is_magcif() -> bool:
             """
             Checks to see if file appears to be a magCIF file (heuristic).
             """
@@ -333,7 +334,7 @@ class CifParser:
 
         self.feature_flags["magcif"] = is_magcif()
 
-        def is_magcif_incommensurate():
+        def is_magcif_incommensurate() -> bool:
             """
             Checks to see if file contains an incommensurate magnetic
             structure (heuristic).
@@ -385,13 +386,11 @@ class CifParser:
         :param data: CifBlock
         :return: data CifBlock
         """
-
         """
         This part of the code deals with handling formats of data as found in
         CIF files extracted from the Springer Materials/Pauling File
         databases, and that are different from standard ICSD formats.
         """
-
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
@@ -487,13 +486,11 @@ class CifParser:
                 data.data["_atom_site_fract_x"] += new_fract_x
                 data.data["_atom_site_fract_y"] += new_fract_y
                 data.data["_atom_site_fract_z"] += new_fract_z
-
         """
         This fixes inconsistencies in naming of several magCIF tags
         as a result of magCIF being in widespread use prior to
         specification being finalized (on advice of Branton Campbell).
         """
-
         if self.feature_flags["magcif"]:
 
             # CIF-1 style has all underscores, interim standard
@@ -617,12 +614,9 @@ class CifParser:
         """
         try:
 
-            lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
-            angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
-            if not lattice_type:
-                return Lattice.from_parameters(*lengths, *angles)
-
-            return getattr(Lattice, lattice_type)(*(lengths + angles))
+            return self.get_lattice_no_exception(
+                data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
+            )
 
         except KeyError:
             # Missing Key search for cell setting
@@ -646,6 +640,27 @@ class CifParser:
                 else:
                     return None
         return None
+
+    @staticmethod
+    def get_lattice_no_exception(
+        data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
+    ):
+        """
+        Generate the lattice from the provided lattice parameters.
+        Args:
+            data:
+            length_strings:
+            angle_strings:
+            lattice_type:
+
+        Returns:
+
+        """
+        lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
+        angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
+        if not lattice_type:
+            return Lattice.from_parameters(*lengths, *angles)
+        return getattr(Lattice, lattice_type)(*(lengths + angles))
 
     def get_symops(self, data):
         """
@@ -1065,9 +1080,9 @@ class CifParser:
 
             # rescale occupancies if necessary
             for i, species in enumerate(allspecies):
-                totaloccu = sum(species.values())
-                if 1 < totaloccu <= self._occupancy_tolerance:
-                    allspecies[i] = species / totaloccu
+                total_occu = sum(species.values())
+                if 1 < total_occu <= self._occupancy_tolerance:
+                    allspecies[i] = species / total_occu
 
         if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
             site_properties = {}
@@ -1127,7 +1142,6 @@ class CifParser:
         Returns:
             List of Structures.
         """
-
         if primitive and symmetrized:
             raise ValueError(
                 "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
@@ -1161,7 +1175,6 @@ class CifParser:
         :param data:
         :return: BibTeX string
         """
-
         try:
             from pybtex.database import BibliographyData, Entry
         except ImportError:
@@ -1274,7 +1287,6 @@ class CifWriter:
             refine_struct: Used only if symprec is not None. If True, get_refined_structure
                 is invoked to convert input structure from primitive to conventional.
         """
-
         if write_magmoms and symprec:
             warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
             symprec = None

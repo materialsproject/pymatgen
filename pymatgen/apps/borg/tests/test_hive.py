@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 import warnings
@@ -115,5 +117,4 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

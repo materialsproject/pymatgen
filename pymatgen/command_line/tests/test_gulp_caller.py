@@ -6,6 +6,8 @@ Created on Jan 22, 2013
 
 @author: Bharat Medasani
 """
+from __future__ import annotations
+
 import os
 import sys
 import unittest

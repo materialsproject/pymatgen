@@ -5,6 +5,8 @@
 Development script to test the algorithms of a given model coordination environments
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"
@@ -46,7 +48,8 @@ if __name__ == "__main__":
     myindices = range(cg.coordination_number)
 
     test = input(
-        'Enter if you want to test all possible permutations ("all" or "a") or a given number of random permutations (i.e. "25")'
+        'Enter if you want to test all possible permutations ("all" or "a") or a given number of '
+        'random permutations (i.e. "25")'
     )
 
     if test == "all" or test == "a":
@@ -58,7 +61,7 @@ if __name__ == "__main__":
         except Exception:
             raise ValueError(f"Could not turn {test} into integer ...")
         perms_iterator = []
-        for ii in range(nperms):
+        for _ in range(nperms):
             shuffle(myindices)
             perms_iterator.append(list(myindices))
 
@@ -94,8 +97,4 @@ if __name__ == "__main__":
         print("   => ", algos_results)
         iperm += 1
     t2 = time.clock()
-    print(
-        'Time to test {:d} permutations for geometry "{}" (symbol "{}") : {:.2f} seconds'.format(
-            nperms, cg.name, cg_symbol, t2 - t1
-        )
-    )
+    print(f'Time to test {nperms} permutations for geometry "{cg.name}" (symbol "{cg_symbol}") : {t2 - t1:.2f} seconds')

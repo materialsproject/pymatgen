@@ -52,16 +52,16 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def __init__(
         self,
-        structure_matcher: StructureMatcher = StructureMatcher(),
+        structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
-        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),
+        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
     ):
         """
         Instantiate the mixing scheme. The init method creates a generator class that
-        contains relevant settings (e.g., StrutureMatcher instance, Compatibility settings
+        contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
         for each functional) for processing groups of entries.
 
         Args:
@@ -99,7 +99,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 match.
         """
         self.name = "MP DFT mixing scheme"
-        self.structure_matcher = structure_matcher
+        self.structure_matcher = structure_matcher or StructureMatcher()
         if run_type_1 == run_type_2:
             raise ValueError(
                 f"You specified the same run_type {run_type_1} for both run_type_1 and run_type_2. "
@@ -533,10 +533,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             "hull_energy_2",
         ]
 
-        def _get_sg(struc) -> int:
+        def _get_sg(struct) -> int:
             """helper function to get spacegroup with a loose tolerance"""
             try:
-                return struc.get_space_group_info(symprec=0.1)[1]
+                return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
                 return -1
 
@@ -634,7 +634,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
-                    f"{self.compat_1.__class__.__name__}"
+                    f"{type(self.compat_1).__name__}"
                 )
         entries_type_1 = EntrySet(entries_type_1)
 
@@ -643,7 +643,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
-                    f"{self.compat_2.__class__.__name__}"
+                    f"{type(self.compat_2).__name__}"
                 )
         entries_type_2 = EntrySet(entries_type_2)
 

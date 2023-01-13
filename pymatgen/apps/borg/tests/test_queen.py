@@ -6,6 +6,8 @@ Created on Mar 18, 2012
 """
 
 
+from __future__ import annotations
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -33,7 +35,7 @@ class BorgQueenTest(unittest.TestCase):
         drone = VaspToComputedEntryDrone()
         self.queen = BorgQueen(drone, PymatgenTest.TEST_FILES_DIR, 1)
         data = self.queen.get_data()
-        self.assertEqual(len(data), 14)
+        self.assertEqual(len(data), 15)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

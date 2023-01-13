@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import unittest
 import warnings
 
@@ -416,7 +418,6 @@ loop_
         Test the _parse_symbol function with several potentially
         problematic examples of symbols and labels.
         """
-
         test_cases = {
             "MgT": "Mg",
             "MgT1": "Mg",

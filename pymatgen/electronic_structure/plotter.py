@@ -12,18 +12,13 @@ import logging
 import math
 import warnings
 from collections import Counter
-from typing import Literal, cast
+from typing import List, Literal, cast
 
 import matplotlib.lines as mlines
 import numpy as np
 import scipy.interpolate as scint
 from monty.dev import requires
 from monty.json import jsanitize
-
-try:
-    from mayavi import mlab
-except ImportError:
-    mlab = None
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -32,6 +27,11 @@ from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
 from pymatgen.util.typing import ArrayLike
+
+try:
+    from mayavi import mlab
+except ImportError:
+    mlab = None
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -62,7 +62,7 @@ class DosPlotter:
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
 
-    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float = None) -> None:
+    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float | None = None) -> None:
         """
         Args:
             zero_at_efermi (bool): Whether to shift all Dos to have zero energy at the
@@ -135,7 +135,6 @@ class DosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
 
@@ -263,7 +262,6 @@ class BSPlotter:
         Args:
             bs: A BandStructureSymmLine object.
         """
-
         self._bs: list[BandStructureSymmLine] = []
         self._nb_bands: list[int] = []
 
@@ -427,7 +425,6 @@ class BSPlotter:
             is_metal: True if the band structure is metallic (i.e., there is at
             least one band crossing the fermi level).
         """
-
         if bs is None:
             if isinstance(self._bs, list):
                 # if BSPlotter
@@ -528,7 +525,6 @@ class BSPlotter:
         number of branches (high symmetry lines) defined in the
         BandStructureSymmLine object (see BandStructureSymmLine._branches).
         """
-
         int_energies, int_distances = [], []
         smooth_k_orig = smooth_k
 
@@ -854,7 +850,6 @@ class BSPlotter:
 
         Returns:
             a matplotlib object with both band structures
-
         """
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
@@ -895,7 +890,6 @@ class BSPlotter:
         """
         plot the Brillouin zone
         """
-
         # get labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
@@ -1162,7 +1156,6 @@ class BSPlotterProjected(BSPlotter):
 
         Returns:
             a pylab object
-
         """
         band_linewidth = 3.0
         if len(self._bs.structure.composition.elements) > 3:
@@ -2370,7 +2363,7 @@ class BSDOSPlotter:
             left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
             right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
-            xlabel_distances.append(xlabel_distances[-1] + distance)
+            xlabel_distances.append(xlabel_distances[-1] + distance)  # type: ignore
 
             # add x-coordinates for kpoint data
             npts = branch["end_index"] - branch["start_index"]
@@ -2418,7 +2411,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(list[float], band)
+                    band = cast(List[float], band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level
@@ -2598,7 +2591,6 @@ class BSDOSPlotter:
             bs_projection: None for no projection, "elements" for element projection
 
         Returns:
-
         """
         contribs = {}
         if bs_projection and bs_projection.lower() == "elements":
@@ -2816,7 +2808,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         plt = pretty_plot(9, 7)
         for T in temps:
             sbk_mass = self._bz.get_seebeck_eff_mass(output=output, temp=T, Lambda=0.5)
@@ -3058,7 +3049,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             sbk = self._bz.get_seebeck(output="average")
         elif output == "eigs":
@@ -3113,7 +3103,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3169,7 +3158,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3224,7 +3212,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3278,7 +3265,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             em = self._bz.get_average_eff_mass(output="average")
         elif output == "eigs":
@@ -3331,7 +3317,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             sbk = self._bz.get_seebeck(output="average")
         elif output == "eigs":
@@ -3550,7 +3535,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             em = self._bz.get_average_eff_mass(output="average")
         elif output == "eigs":

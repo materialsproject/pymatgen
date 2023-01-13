@@ -7,6 +7,8 @@ populations (COHP) and integrated COHP (ICOHP), but can also be used
 for crystal orbital overlap populations (COOP).
 """
 
+from __future__ import annotations
+
 import re
 import sys
 import warnings
@@ -77,8 +79,8 @@ class Cohp(MSONable):
             if Spin.down in self.cohp:
                 header.append("I" + cohpstring + "Down")
                 data.append(self.icohp[Spin.down])
-        formatheader = "#" + " ".join(["{:15s}" for __ in header])
-        formatdata = " ".join(["{:.5f}" for __ in header])
+        formatheader = "#" + " ".join("{:15s}" for __ in header)
+        formatdata = " ".join("{:.5f}" for __ in header)
         stringarray = [formatheader.format(*header)]
         for i, __ in enumerate(self.energies):
             stringarray.append(formatdata.format(*(d[i] for d in data)))
@@ -159,7 +161,6 @@ class Cohp(MSONable):
         Returns dict indicating if there are antibonding states below the Fermi level depending on the spin
             spin: Spin
             limit: -COHP smaller -limit will be considered.
-
         """
         warnings.warn("This method has not been tested on many examples. Check the parameter limit, pls!")
 
@@ -193,7 +194,6 @@ class Cohp(MSONable):
     def from_dict(cls, d):
         """
         Returns a COHP object from a dict representation of the COHP.
-
         """
         if "ICOHP" in d:
             icohp = {Spin(int(key)): np.array(val) for key, val in d["ICOHP"].items()}
@@ -914,7 +914,7 @@ class IcohpValue(MSONable):
                 + str(self._icohp[Spin.up])
                 + " eV (Spin up)"
             )
-        if self._are_coops:
+        if self._are_coops and not self._are_cobis:
             if self._is_spin_polarized:
                 return (
                     "ICOOP "
@@ -944,7 +944,23 @@ class IcohpValue(MSONable):
                 + str(self._icohp[Spin.up])
                 + " (Spin up)"
             )
-        if self._is_spin_polarized:
+        if self._are_cobis and not self._are_coops:
+            if self._is_spin_polarized:
+                return (
+                    "ICOBI "
+                    + str(self._label)
+                    + " between "
+                    + str(self._atom1)
+                    + " and "
+                    + str(self._atom2)
+                    + " ("
+                    + str(self._translation)
+                    + "): "
+                    + str(self._icohp[Spin.up])
+                    + " (Spin up) and "
+                    + str(self._icohp[Spin.down])
+                    + " (Spin down)"
+                )
             return (
                 "ICOBI "
                 + str(self._label)
@@ -956,23 +972,8 @@ class IcohpValue(MSONable):
                 + str(self._translation)
                 + "): "
                 + str(self._icohp[Spin.up])
-                + " (Spin up) and "
-                + str(self._icohp[Spin.down])
-                + " (Spin down)"
+                + " (Spin up)"
             )
-        return (
-            "ICOBI "
-            + str(self._label)
-            + " between "
-            + str(self._atom1)
-            + " and "
-            + str(self._atom2)
-            + " ("
-            + str(self._translation)
-            + "): "
-            + str(self._icohp[Spin.up])
-            + " (Spin up)"
-        )
 
     @property
     def num_bonds(self):
@@ -984,7 +985,7 @@ class IcohpValue(MSONable):
         return self._num
 
     @property
-    def are_coops(self):
+    def are_coops(self) -> bool:
         """
         tells if ICOOPs or not
         Returns:
@@ -993,7 +994,7 @@ class IcohpValue(MSONable):
         return self._are_coops
 
     @property
-    def are_cobis(self):
+    def are_cobis(self) -> bool:
         """
         tells if ICOBIs or not
         Returns:
@@ -1002,12 +1003,11 @@ class IcohpValue(MSONable):
         return self._are_cobis
 
     @property
-    def is_spin_polarized(self):
+    def is_spin_polarized(self) -> bool:
         """
         tells if spin polarized calculation or not
         Returns:
             Boolean
-
         """
         return self._is_spin_polarized
 
@@ -1134,7 +1134,6 @@ class IcohpCollection(MSONable):
         Returns:
             float describing ICOHP/ICOOP value
         """
-
         icohp_here = self._icohplist[label]
         if icohp_here._is_spin_polarized:
             if summed_spin_channels:
@@ -1209,7 +1208,6 @@ class IcohpCollection(MSONable):
         Returns:
              dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
-
         newicohp_dict = {}
         for key, value in self._icohplist.items():
             atomnumber1 = int(re.split(r"(\d+)", value._atom1)[1]) - 1
@@ -1254,6 +1252,7 @@ class IcohpCollection(MSONable):
         """
         if self._are_coops or self._are_cobis:
             extremum = -sys.float_info.max
+
         else:
             extremum = sys.float_info.max
 
@@ -1284,21 +1283,21 @@ class IcohpCollection(MSONable):
         return extremum
 
     @property
-    def is_spin_polarized(self):
+    def is_spin_polarized(self) -> bool:
         """
         :return: Whether it is spin polarized.
         """
         return self._is_spin_polarized
 
     @property
-    def are_coops(self):
+    def are_coops(self) -> bool:
         """
         :return: Whether this is a coop.
         """
         return self._are_coops
 
     @property
-    def are_cobis(self):
+    def are_cobis(self) -> bool:
         """
         :return: Whether this a cobi.
         """

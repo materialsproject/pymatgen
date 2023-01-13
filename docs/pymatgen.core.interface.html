@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.core.interface module &mdash; pymatgen 2022.9.8 documentation</title>
+  <title>pymatgen.core.interface module &mdash; pymatgen 2023.1.9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,7 +15,6 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.9.8
+                2023.1.9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,7 +51,326 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">v2023.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-7">v2022.11.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-1">v2022.11.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-10-22">v2022.10.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-21">v2022.9.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-8">v2022.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-8-23">v2022.8.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-25">v2022.7.25</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24-1">v2022.7.24.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24">v2022.7.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-19">v2022.7.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-8">v2022.7.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-26">v2022.5.26</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-19">v2022.5.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18-1">v2022.5.18.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18">v2022.5.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-17">v2022.5.17</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-26">v2022.4.26</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-19">v2022.4.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-29">v2022.3.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-24">v2022.3.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-22">v2022.3.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-7">v2022.3.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-10">v2022.2.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-7">v2022.2.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-1">v2022.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-24">v2022.1.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-20">v2022.1.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-9">v2022.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-8">v2022.1.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-17">v2022.0.17</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-16">v2022.0.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-15">v2022.0.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-14">v2022.0.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-13">v2022.0.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-12">v2022.0.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-11">v2022.0.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-10">v2022.0.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-9">v2022.0.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-8">v2022.0.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-7">v2022.0.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-6">v2022.0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-5">v2022.0.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-3">v2022.0.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-2-yanked">v2022.0.2 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-1-yanked">v2022.0.1 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-0-yanked">v2022.0.0 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-5">v2021.3.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-4-yanked">v2021.3.4 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-3">v2021.3.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-16">v2021.2.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-14">v2021.2.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-12">v2021.2.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8-1">v2021.2.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8">v2021.2.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-1-28">v2021.1.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-31">v2020.12.31</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-18">v2020.12.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-3">v2020.12.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-11-11">v2020.11.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-20">v2020.10.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-9">v2020.10.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-9-14">v2020.9.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-13">v2020.8.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-3">v2020.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-18">v2020.7.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-16">v2020.7.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-14">v2020.7.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-10">v2020.7.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-3">v2020.7.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-6-8">v2020.6.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-29">v2020.4.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-2">v2020.4.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-13">v2020.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-2">v2020.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-28">v2020.1.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-10">v2020.1.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-22">v2019.12.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-3">v2019.12.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-11-11">v2019.11.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-16">v2019.10.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-4">v2019.10.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-3">v2019.10.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-2">v2019.10.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-16">v2019.9.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-12">v2019.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-8">v2019.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-7">v2019.9.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-23">v2019.8.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-14">v2019.8.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-30">v2019.7.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-21">v2019.7.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-2">v2019.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-20">v2019.6.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-5">v2019.6.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-28">v2019.5.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-8">v2019.5.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-1">v2019.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-4-11">v2019.4.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-27">v2019.3.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-13">v2019.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-28">v2019.2.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-24">v2019.2.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-4">v2019.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-24">v2019.1.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-13">v2019.1.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-12-12">v2018.12.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-30">v2018.11.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-6">v2018.11.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-10-18">v2018.10.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-30">v2018.9.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-19">v2018.9.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-12">v2018.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-10">v2018.8.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-7">v2018.8.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-7-15">v2018.7.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-27">v2018.6.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-11">v2018.6.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-22">v2018.5.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-21">v2018.5.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-14">v2018.5.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-3">v2018.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-20">v2018.4.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-6">v2018.4.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-22">v2018.3.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-14">v2018.3.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-13">v2018.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-2">v2018.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-2-13">v2018.2.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-29">v2018.1.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-19">v2018.1.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-30">v2017.12.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-16">v2017.12.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-15">v2017.12.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-8">v2017.12.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-6">v2017.12.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-30">v2017.11.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-27">v2017.11.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-9">v2017.11.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-6">v2017.11.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-10-16">v2017.10.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-29">v2017.9.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-23">v2017.9.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-3">v2017.9.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-1">v2017.9.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-21">v2017.8.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-20">v2017.8.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-16">v2017.8.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-14">v2017.8.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-4">v2017.8.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-21">v2017.7.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-4">v2017.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-24">v2017.6.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-22">v2017.6.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-8">v2017.6.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-7">v4.7.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-6">v4.7.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-5">v4.7.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-4">v4.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-3">v4.7.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-2">v4.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-1">v4.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-0">v4.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-2">v4.6.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-1">v4.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-0">v4.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-7">v4.5.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-6">v4.5.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-5">v4.5.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-4">v4.5.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-3">v4.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-2">v4.5.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-1">v4.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-0">v4.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-12">v4.4.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-11">v4.4.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-10">v4.4.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-9">v4.4.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-8">v4.4.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-7">v4.4.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-6">v4.4.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-5">v4.4.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-4">v4.4.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-3">v4.4.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-2">v4.4.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-1">v4.4.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-0">v4.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-2">v4.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-1">v4.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-0">v4.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-5">v4.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-4">v4.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-3">v4.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-2">v4.2.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-1">v4.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-0">v4.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-1">v4.1.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-0">v4.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-2">v4.0.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-1">v4.0.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-0">v4.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-1">v3.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-0">v3.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-1">v3.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-0">v3.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-3">v3.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-2">v3.5.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-1">v3.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-0">v3.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-4-0">v3.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-6">v3.3.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-5">v3.3.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-4">v3.3.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-3">v3.3.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-2">v3.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-1">v3.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-0">v3.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-10">v3.2.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-9">v3.2.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-8">v3.2.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-7">v3.2.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-6">v3.2.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-5">v3.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-4">v3.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-3">v3.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-1">v3.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-0">v3.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-9">v3.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-7">v3.1.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-6">v3.1.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-5">v3.1.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-4">v3.1.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-3">v3.1.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-2">v3.1.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-1">v3.1.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-0">v3.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-13">v3.0.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-11">v3.0.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-10">v3.0.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-9">v3.0.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-8">v3.0.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-7">v3.0.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-6">v3.0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-5">v3.0.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-4">v3.0.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-3">v3.0.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-2">v3.0.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-1">v3.0.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-0">v3.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-6">v2.10.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-5">v2.10.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-3">v2.10.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-2">v2.10.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-1">v2.10.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-0">v2.10.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-14">v2.9.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-13">v2.9.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-12">v2.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-11">v2.9.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-10">v2.9.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-9">v2.9.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-8">v2.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-7">v2.9.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-6">v2.9.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-5">v2.9.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-4">v2.9.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-3">v2.9.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-2">v2.9.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-1">v2.9.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-0">v2.9.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-10">v2.8.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-9">v2.8.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-8">v2.8.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-7">v2.8.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-6">v2.8.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-4">v2.8.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-3">v2.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-2">v2.8.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-1">v2.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-0">v2.8.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-9">v2.7.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-7">v2.7.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-6">v2.7.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-5">v2.7.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-4">v2.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-2">v2.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-1">v2.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-0">v2.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-6">v2.6.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-5">v2.6.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-4">v2.6.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-3">v2.6.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-2">v2.6.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-1">v2.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-5">v2.5.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-4">v2.5.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-3">v2.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-1">v2.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-0">v2.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-3">v2.4.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-0">v2.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-2">v2.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-1">v2.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-0">v2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-6">v2.2.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-4">v2.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-3">v2.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-2">v2.2.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-1">v2.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-0">v2.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-1-2">v2.1.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-0-0">v2.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-9-0">v1.9.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-3">v1.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-1">v1.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-0">v1.8.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-2">v1.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-0">v1.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-6-0">v1.6.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -100,11 +417,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.core.html">pymatgen.core package</a> &raquo;</li>
-      <li>pymatgen.core.interface module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.core.html">pymatgen.core package</a></li>
+      <li class="breadcrumb-item active">pymatgen.core.interface module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.core.interface.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -114,19 +431,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.core.interface">
-<span id="pymatgen-core-interface-module"></span><h1>pymatgen.core.interface module<a class="headerlink" href="#module-pymatgen.core.interface" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.core.interface">
+<span id="pymatgen-core-interface-module"></span><h1>pymatgen.core.interface module<a class="headerlink" href="#module-pymatgen.core.interface" title="Permalink to this headline"></a></h1>
 <p>This module provides classes to store, generate, and manipulate material interfaces.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_plane_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum_over_film</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L23-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_plane_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum_over_film</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L23-L450"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>This class stores data for defining an interface between two structures.
 It is a subclass of pymatgen.core.structure.Structure.</p>
 <p>Makes an interface structure, a structure object with additional information
 and methods pertaining to interfaces.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
 <a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
@@ -164,9 +481,9 @@ the original distance between substrate and film sites</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L305-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L303-L312"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict</p>
 </dd>
 </dl>
@@ -174,12 +491,12 @@ the original distance between substrate and film sites</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L199-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.copy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L198-L203"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.copy" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A copy of the Interface.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#pymatgen.core.interface.Interface" title="pymatgen.core.interface.Interface">Interface</a></p>
 </dd>
 </dl>
@@ -187,42 +504,42 @@ the original distance between substrate and film sites</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.film">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film" title="Permalink to this definition"></a></dt>
 <dd><p>A pymatgen Structure for just the film</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.film_indices">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_indices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_indices" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_indices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Site indices of the film sites</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.film_layers">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_layers" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_layers" title="Permalink to this definition"></a></dt>
 <dd><p>Number of layers of the minimum element in the film composition</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.film_sites">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><span class="pre">pymatgen.core.sites.Site</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_sites" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><span class="pre">pymatgen.core.sites.Site</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_sites" title="Permalink to this definition"></a></dt>
 <dd><p>Return the film sites of the interface.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.film_termination">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_termination</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_termination" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">film_termination</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_termination" title="Permalink to this definition"></a></dt>
 <dd><p>Label for the film termination chemistry</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L316-L338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L314-L336"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – dict</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Creates slab from dict.</p>
 </dd>
 </dl>
@@ -230,14 +547,14 @@ the original distance between substrate and film sites</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.from_slabs">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substrate_slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><span class="pre">Slab</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">film_slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><span class="pre">Slab</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_plane_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum_over_film</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.core.interface.Interface" title="pymatgen.core.interface.Interface"><span class="pre">Interface</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L340-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.from_slabs" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substrate_slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><span class="pre">pymatgen.core.surface.Slab</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">film_slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><span class="pre">pymatgen.core.surface.Slab</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_plane_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum_over_film</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.core.interface.Interface" title="pymatgen.core.interface.Interface"><span class="pre">pymatgen.core.interface.Interface</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L338-L450"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.from_slabs" title="Permalink to this definition"></a></dt>
 <dd><p>Makes an interface structure by merging a substrate and film slabs
 The film a- and b-vectors will be forced to be the substrate slab’s
 a- and b-vectors.</p>
 <p>For now, it’s suggested to use a factory method that will ensure the
 appropriate interface structure is already met.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sub_slab</strong> – slab for the substrate</p></li>
 <li><p><strong>film_slab</strong> – slab for the film</p></li>
@@ -254,16 +571,16 @@ for the film with respect to the substrate</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.gap">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.gap" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.gap" title="Permalink to this definition"></a></dt>
 <dd><p>The gap in Cartesian units between the film and the substrate</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.get_shifts_based_on_adsorbate_sites">
-<span class="sig-name descname"><span class="pre">get_shifts_based_on_adsorbate_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L224-L261"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.get_shifts_based_on_adsorbate_sites" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_shifts_based_on_adsorbate_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L222-L259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.get_shifts_based_on_adsorbate_sites" title="Permalink to this definition"></a></dt>
 <dd><p>Computes possible in-plane shifts based on an adsorbate site  algorithm</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tolerance</strong> – tolerance for “uniqueness” for shifts in Cartesian unit
 This is usually Angstroms.</p>
 </dd>
@@ -272,12 +589,12 @@ This is usually Angstroms.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.get_sorted_structure">
-<span class="sig-name descname"><span class="pre">get_sorted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L207-L222"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.get_sorted_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_sorted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L205-L220"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.get_sorted_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Get a sorted structure for the interface. The parameters have the same
 meaning as in list.sort. By default, sites are sorted by the
 electronegativity of the species.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – Specifies a function of one argument that is used to extract
 a comparison key from each list element: key=str.lower. The
@@ -291,44 +608,44 @@ as if each comparison were reversed.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.in_plane_offset">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_plane_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.in_plane_offset" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_plane_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.in_plane_offset" title="Permalink to this definition"></a></dt>
 <dd><p>The shift between the film and substrate in fractional
 coordinates</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.substrate">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate" title="Permalink to this definition"></a></dt>
 <dd><p>A pymatgen Structure for just the substrate</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.substrate_indices">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_indices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_indices" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_indices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Site indices for the substrate atoms</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.substrate_layers">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_layers" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_layers" title="Permalink to this definition"></a></dt>
 <dd><p>Number of layers of the minimum element in the substrate composition</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.substrate_sites">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><span class="pre">pymatgen.core.sites.Site</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_sites" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><span class="pre">pymatgen.core.sites.Site</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_sites" title="Permalink to this definition"></a></dt>
 <dd><p>The site objects in the substrate</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.substrate_termination">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_termination</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_termination" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substrate_termination</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_termination" title="Permalink to this definition"></a></dt>
 <dd><p>Label for the substrate termination chemistry</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.interface.Interface.vacuum_over_film">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vacuum_over_film</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.vacuum_over_film" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vacuum_over_film</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.vacuum_over_film" title="Permalink to this definition"></a></dt>
 <dd><p>The vacuum space over the film in Cartesian units</p>
 </dd></dl>
 
@@ -336,17 +653,17 @@ coordinates</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.interface.count_layers">
-<span class="sig-name descname"><span class="pre">count_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">el</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L497-L531"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.count_layers" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">count_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">el</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L495-L529"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.count_layers" title="Permalink to this definition"></a></dt>
 <dd><p>Counts the number of ‘layers’ along the c-axis</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.interface.label_termination">
-<span class="sig-name descname"><span class="pre">label_termination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/interface.py#L455-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.label_termination" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">label_termination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/interface.py#L453-L492"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.interface.label_termination" title="Permalink to this definition"></a></dt>
 <dd><p>Labels the slab surface termination</p>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

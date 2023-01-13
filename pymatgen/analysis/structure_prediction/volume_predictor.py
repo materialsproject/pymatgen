@@ -5,6 +5,8 @@
 Predict volumes of crystal structures.
 """
 
+from __future__ import annotations
+
 import os
 import warnings
 
@@ -63,7 +65,6 @@ class RLSVolumePredictor:
         Returns:
             a float value of the predicted volume
         """
-
         if self.check_isostructural:
             m = StructureMatcher()
             mapping = m.get_best_electronegativity_anonymous_mapping(structure, ref_structure)
@@ -179,7 +180,6 @@ class DLSVolumePredictor:
         Returns:
             a float value of the predicted volume.
         """
-
         # Get standard deviation of electronnegativity in the structure.
         std_x = np.std([site.specie.X for site in structure])
         # Sites that have atomic radii

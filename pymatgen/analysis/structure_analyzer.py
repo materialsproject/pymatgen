@@ -5,8 +5,7 @@
 This module provides classes to perform topological analyses of structures.
 """
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
-__copyright__ = "Copyright 2011, The Materials Project"
+from __future__ import annotations
 
 import collections
 import itertools
@@ -23,6 +22,9 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
+
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
+__copyright__ = "Copyright 2011, The Materials Project"
 
 
 def average_coordination_number(structures, freq=10):
@@ -272,11 +274,11 @@ class VoronoiConnectivity:
         Provides connectivity array.
 
         Returns:
-            connectivity: An array of shape [atomi, atomj, imagej]. atomi is
+            connectivity: An array of shape [atom_i, atom_j, image_j]. atom_i is
             the index of the atom in the input structure. Since the second
             atom can be outside of the unit cell, it must be described
             by both an atom index and an image index. Array data is the
-            solid angle of polygon between atomi and imagej of atomj
+            solid angle of polygon between atom_i and image_j of atom_j
         """
         # shape = [site, axis]
         cart_coords = np.array(self.s.cart_coords)
@@ -288,24 +290,24 @@ class VoronoiConnectivity:
         connectivity = np.zeros(cs)
         vts = np.array(vt.vertices)
         for (ki, kj), v in vt.ridge_dict.items():
-            atomi = ki // n_images
-            atomj = kj // n_images
+            atom_i = ki // n_images
+            atom_j = kj // n_images
 
-            imagei = ki % n_images
-            imagej = kj % n_images
+            image_i = ki % n_images
+            image_j = kj % n_images
 
-            if imagei != n_images // 2 and imagej != n_images // 2:
+            if image_i != n_images // 2 and image_j != n_images // 2:
                 continue
 
-            if imagei == n_images // 2:
-                # atomi is in original cell
+            if image_i == n_images // 2:
+                # atom_i is in original cell
                 val = solid_angle(vt.points[ki], vts[v])
-                connectivity[atomi, atomj, imagej] = val
+                connectivity[atom_i, atom_j, image_j] = val
 
-            if imagej == n_images // 2:
-                # atomj is in original cell
+            if image_j == n_images // 2:
+                # atom_j is in original cell
                 val = solid_angle(vt.points[kj], vts[v])
-                connectivity[atomj, atomi, imagei] = val
+                connectivity[atom_j, atom_i, image_i] = val
 
             if -10.101 in vts[v]:
                 warn("Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect")
@@ -314,9 +316,8 @@ class VoronoiConnectivity:
     @property
     def max_connectivity(self):
         """
-        returns the 2d array [sitei, sitej] that represents
-        the maximum connectivity of site i to any periodic
-        image of site j
+        Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
+        site i to any periodic image of site j
         """
         return np.max(self.connectivity_array, axis=2)
 
@@ -326,10 +327,10 @@ class VoronoiConnectivity:
         with their real-space distances.
         """
         con = []
-        maxconn = self.max_connectivity
-        for ii in range(0, maxconn.shape[0]):
-            for jj in range(0, maxconn.shape[1]):
-                if maxconn[ii][jj] != 0:
+        max_conn = self.max_connectivity
+        for ii in range(0, max_conn.shape[0]):
+            for jj in range(0, max_conn.shape[1]):
+                if max_conn[ii][jj] != 0:
                     dist = self.s.get_distance(ii, jj)
                     con.append([ii, jj, dist])
         return con
@@ -382,7 +383,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
 
     Args:
         structure: (structure)
-        el_radius_updates: (dict) symbol->float to update atomic radii
+        el_radius_updates: (dict) symbol->float to update atom_ic radii
 
     Returns: (dict) - (Element1, Element2) -> float. The two elements are
         ordered by Z.
@@ -434,15 +435,14 @@ class OxideType:
         self.relative_cutoff = relative_cutoff
         self.oxide_type, self.nbonds = self.parse_oxide()
 
-    def parse_oxide(self):
+    def parse_oxide(self) -> tuple[str, int]:
         """
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
             oxide_type (str): Type of oxide
             ozonide/peroxide/superoxide/hydroxide/None.
-            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in
-            structure.
+            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in structure.
         """
         structure = self.structure
         relative_cutoff = self.relative_cutoff
@@ -453,11 +453,11 @@ class OxideType:
         if isinstance(structure.composition.elements[0], Element):
             comp = structure.composition
         elif isinstance(structure.composition.elements[0], Species):
-            elmap = collections.defaultdict(float)
+            elem_map: dict[Element, float] = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
-                    elmap[species.element] += occu
-            comp = Composition(elmap)
+                    elem_map[species.element] += occu
+            comp = Composition(elem_map)
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
@@ -471,10 +471,7 @@ class OxideType:
         if h_sites_frac_coords:
             dist_matrix = lattice.get_all_distances(o_sites_frac_coords, h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return (
-                    "hydroxide",
-                    len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0,
-                )
+                return "hydroxide", int(len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2)
         dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
@@ -491,9 +488,9 @@ class OxideType:
                 is_superoxide = False
                 is_ozonide = True
         try:
-            nbonds = len(set(bond_atoms))
+            n_bonds = len(set(bond_atoms))
         except UnboundLocalError:
-            nbonds = 0.0
+            n_bonds = 0
         if is_ozonide:
             str_oxide = "ozonide"
         elif is_superoxide:
@@ -503,11 +500,13 @@ class OxideType:
         else:
             str_oxide = "oxide"
         if str_oxide == "oxide":
-            nbonds = comp["O"]
-        return str_oxide, nbonds
+            n_bonds = int(comp["O"])
+        return str_oxide, n_bonds
 
 
-def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
+def oxide_type(
+    structure: Structure, relative_cutoff: float = 1.1, return_nbonds: bool = False
+) -> str | tuple[str, int]:
     """
     Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
 
@@ -517,7 +516,6 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
             max distance two O atoms must be from each other.
         return_nbonds (bool): Should number of bonds be requested?
     """
-
     ox_obj = OxideType(structure, relative_cutoff)
     if return_nbonds:
         return ox_obj.oxide_type, ox_obj.nbonds

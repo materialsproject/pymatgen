@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import os
 import unittest
 
 import numpy as np
+import pytest
 
 from pymatgen.analysis.ferroelectricity.polarization import (
     EnergyTrend,
@@ -46,7 +49,7 @@ class UtilsTest(PymatgenTest):
 
     def test_zval_dict_from_potcar(self):
         zval_dict = zval_dict_from_potcar(self.potcar)
-        self.assertDictEqual(self.zval_dict, zval_dict)
+        assert self.zval_dict == zval_dict
 
     def test_get_total_ionic_dipole(self):
         p_ion = get_total_ionic_dipole(self.structures[-1], self.zval_dict)
@@ -220,7 +223,7 @@ class PolarizationTest(PymatgenTest):
 
     def test_get_polarization_change_norm(self):
         change_norm = self.polarization.get_polarization_change_norm(convert_to_muC_per_cm2=True, all_in_polar=False)
-        self.assertAlmostEqual(change_norm, self.change_norm)
+        assert change_norm == pytest.approx(self.change_norm)
         # Because nonpolar polarization is (0, 0, 0), all_in_polar should have no effect on polarization change norm
         change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=True)
         # No change up to 5 decimal
@@ -261,15 +264,15 @@ class EnergyTrendTest(PymatgenTest):
 
     def test_max_spline_jump(self):
         max_jump = self.energy_trend.max_spline_jump()
-        self.assertAlmostEqual(max_jump, self.max_jump)
+        assert max_jump == pytest.approx(self.max_jump)
 
     def test_smoothness(self):
         smoothness = self.energy_trend.smoothness()
-        self.assertAlmostEqual(smoothness, self.smoothness)
+        assert smoothness == pytest.approx(self.smoothness)
 
     def test_endpoints_minima(self):
         endpoints = self.energy_trend.endpoints_minima(slope_cutoff=1e-2)
-        self.assertDictEqual({"polar": True, "nonpolar": True}, endpoints)
+        assert {"polar": True, "nonpolar": True} == endpoints
 
 
 if __name__ == "__main__":

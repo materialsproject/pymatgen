@@ -6,6 +6,8 @@ This module contains some script utils that are used in the chemenv package.
 """
 
 
+from __future__ import annotations
+
 import re
 
 import numpy as np
@@ -25,7 +27,6 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import (
     NeighborsNotComputedChemenvError,
 )
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
 from pymatgen.ext.matproj import MPRester
@@ -205,26 +206,6 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     return vis
 
 
-def welcome(chemenv_config):
-    """
-    Show welcome message.
-    :param chemenv_config:
-    :return:
-    """
-    print("Chemical Environment package (ChemEnv)")
-    print(chemenv_citations())
-    print(chemenv_config.package_options_description())
-
-
-def thankyou():
-    """
-    Show thank you message.
-    :return:
-    """
-    print("Thank you for using the ChemEnv package")
-    print(chemenv_citations())
-
-
 def compute_environments(chemenv_configuration):
     """
     Compute the environments.
@@ -325,7 +306,7 @@ def compute_environments(chemenv_configuration):
                         for ce in ces:
                             cg = allcg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += f" - {cg.name} ({cg.mp_symbol}): {100.0 * ce[2]:.2f} % (csm : {csm:2f})\n"
+                            mystring += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
                     if test in ["d", "g"] and strategy.uniquely_determines_coordination_environments:
                         if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
                             mystring += "  <Continuous symmetry measures>  "

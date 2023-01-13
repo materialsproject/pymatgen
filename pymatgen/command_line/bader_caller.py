@@ -15,6 +15,8 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
+from __future__ import annotations
+
 import glob
 import os
 import shutil
@@ -27,7 +29,7 @@ from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
 
-from pymatgen.io.cube import Cube
+from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
@@ -151,7 +153,7 @@ class BaderAnalysis:
         else:
             fpath = os.path.abspath(cube_filename)
             self.is_vasp = False
-            self.cube = Cube(fpath)
+            self.cube = VolumetricData.from_cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
@@ -160,12 +162,12 @@ class BaderAnalysis:
         with ScratchDir("."):
             tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
             with zopen(fpath, "rt") as f_in:
-                with open(tmpfile, "wt") as f_out:
+                with open(tmpfile, "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             args = [BADEREXE, tmpfile]
             if chgref_filename:
                 with zopen(chgrefpath, "rt") as f_in:
-                    with open("CHGCAR_ref", "wt") as f_out:
+                    with open("CHGCAR_ref", "w") as f_out:
                         shutil.copyfileobj(f_in, f_out)
                 args += ["-ref", "CHGCAR_ref"]
             if parse_atomic_densities:
@@ -327,12 +329,11 @@ class BaderAnalysis:
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
-
         """
         charges = [-self.get_charge(i) for i in range(len(self.structure))]
-        struc = self.structure.copy()
-        struc.add_site_property("charge", charges)
-        return struc
+        struct = self.structure.copy()
+        struct.add_site_property("charge", charges)
+        return struct
 
     def get_oxidation_state_decorated_structure(self, nelects=None):
         """
@@ -343,9 +344,9 @@ class BaderAnalysis:
         with electron densities
         """
         charges = [self.get_partial_charge(i, None if not nelects else nelects[i]) for i in range(len(self.structure))]
-        struc = self.structure.copy()
-        struc.add_oxidation_state_by_site(charges)
-        return struc
+        struct = self.structure.copy()
+        struct.add_oxidation_state_by_site(charges)
+        return struct
 
     def get_decorated_structure(self, property_name, average=False):
         """
@@ -375,20 +376,19 @@ class BaderAnalysis:
             structure with site properties assigned via Bader Analysis
         """
         vals = [self.get_charge(i) for i in range(len(self.structure))]
-        struc = self.structure.copy()
+        struct = self.structure.copy()
         if average:
             vals = np.divide(vals, [d["atomic_vol"] for d in self.data])
-        struc.add_site_property(property_name, vals)
+        struct.add_site_property(property_name, vals)
         if property_name == "spin":
-            struc.add_spin_by_site(vals)
-        return struc
+            struct.add_spin_by_site(vals)
+        return struct
 
     @property
     def summary(self):
         """
         :return: Dict summary of key analysis, e.g., atomic volume, charge, etc.
         """
-
         summary = {
             "min_dist": [d["min_dist"] for d in self.data],
             "charge": [d["charge"] for d in self.data],
@@ -419,7 +419,6 @@ class BaderAnalysis:
                 stored.
             suffix (str): specific suffix to look for (e.g. '.relax1'
                 for 'CHGCAR.relax1.gz').
-
         """
 
         def _get_filepath(filename):

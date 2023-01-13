@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import unittest
 import warnings
@@ -84,7 +86,6 @@ class BaderAnalysisTest(unittest.TestCase):
         test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
 
         summary = bader_analysis_from_path(test_dir)
-
         """
         Reference summary dict (with bader 1.0)
         summary_ref = {
@@ -102,7 +103,6 @@ class BaderAnalysisTest(unittest.TestCase):
             'reference_used': True
         }
         """
-
         self.assertEqual(
             set(summary),
             {

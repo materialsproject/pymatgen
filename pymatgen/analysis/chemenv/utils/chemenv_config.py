@@ -5,6 +5,8 @@
 This module contains the classes for configuration of the chemenv package.
 """
 
+from __future__ import annotations
+
 import json
 from os import makedirs
 from os.path import exists, expanduser
@@ -48,8 +50,8 @@ class ChemEnvConfig:
         """
         :param package_options:
         """
-        if SETTINGS.get("PMG_MAPI_KEY", "") != "":
-            self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY", "")
+        if SETTINGS.get("PMG_MAPI_KEY"):
+            self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY")
         else:
             self.materials_project_configuration = None
 

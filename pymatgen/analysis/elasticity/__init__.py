@@ -5,6 +5,8 @@
 Package for analyzing elastic tensors and properties.
 """
 
+from __future__ import annotations
+
 from .elastic import (
     ComplianceTensor,
     ElasticTensor,

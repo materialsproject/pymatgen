@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -94,7 +96,6 @@ class WulffShapeTest(PymatgenTest):
 
         return (bool)
         """
-
         space_group_analyzer = SpacegroupAnalyzer(ucell)
         symm_ops = space_group_analyzer.get_point_group_operations(cartesian=True)
         for point in wulff_vertices:

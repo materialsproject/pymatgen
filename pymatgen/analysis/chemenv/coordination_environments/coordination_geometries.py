@@ -10,6 +10,8 @@ The module also contains descriptors of part of these geometries (plane of separ
 identification algorithms.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -769,7 +771,7 @@ class CoordinationGeometry:
         """
         return self.coordination
 
-    def is_implemented(self):
+    def is_implemented(self) -> bool:
         """
         Returns True if this coordination geometry is implemented.
         """
@@ -1207,7 +1209,9 @@ class AllCoordinationGeometries(dict):
                 return gg
         raise LookupError(f'No coordination geometry found with mp_symbol "{mp_symbol}"')
 
-    def is_a_valid_coordination_geometry(self, mp_symbol=None, IUPAC_symbol=None, IUCr_symbol=None, name=None, cn=None):
+    def is_a_valid_coordination_geometry(
+        self, mp_symbol=None, IUPAC_symbol=None, IUCr_symbol=None, name=None, cn=None
+    ) -> bool:
         """
         Checks whether a given coordination geometry is valid (exists) and whether the parameters are coherent with
         each other.

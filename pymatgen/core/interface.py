@@ -76,7 +76,6 @@ class Interface(Structure):
                 the original distance between substrate and film sites
             vacuum_over_film: vacuum space above the film in Angstroms
         """
-
         assert (
             "interface_label" in site_properties
         ), "Must provide labeling of substrate and film sites in site properties"
@@ -201,7 +200,6 @@ class Interface(Structure):
         Returns:
             Interface: A copy of the Interface.
         """
-
         return Interface.from_dict(self.as_dict())
 
     def get_sorted_structure(self, key=None, reverse=False) -> Structure:
@@ -494,19 +492,19 @@ def label_termination(slab: Structure) -> str:
     return f"{form}_{sp_symbol}_{len(top_plane)}"
 
 
-def count_layers(struc: Structure, el=None) -> int:
+def count_layers(struct: Structure, el=None) -> int:
     """
     Counts the number of 'layers' along the c-axis
     """
-    el = el or struc.composition.elements[0]
-    frac_coords = [site.frac_coords for site in struc if site.species_string == str(el)]
+    el = el or struct.composition.elements[0]
+    frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]
     n = len(frac_coords)
 
     if n == 1:
         return 1
 
     dist_matrix = np.zeros((n, n))
-    h = struc.lattice.c
+    h = struct.lattice.c
     # Projection of c lattice vector in
     # direction of surface normal.
     for i, j in combinations(list(range(n)), 2):
@@ -522,7 +520,7 @@ def count_layers(struc: Structure, el=None) -> int:
 
     clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
-        clustered_sites[c].append(struc[i])
+        clustered_sites[c].append(struct[i])
 
     plane_heights = {
         np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()

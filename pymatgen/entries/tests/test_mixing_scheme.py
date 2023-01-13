@@ -99,6 +99,8 @@ Implementation Notes
   in place, so tests could cross-contaminate one another if a fixture were not used.
 """
 
+from __future__ import annotations
+
 __author__ = "Ryan Kingsbury"
 __copyright__ = "Copyright 2019-2021, The Materials Project"
 __version__ = "1.0"

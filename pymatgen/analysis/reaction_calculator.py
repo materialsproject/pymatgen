@@ -182,9 +182,9 @@ class BalancedReaction(MSONable):
         """
         return self.normalized_repr_and_factor()[0]
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         for comp in self._all_comp:
             coeff2 = other.get_coeff(comp) if comp in other._all_comp else 0
             if abs(self.get_coeff(comp) - coeff2) > self.TOLERANCE:
@@ -480,7 +480,6 @@ class ComputedReaction(Reaction):
         Calculates the uncertainty in the reaction energy based on the uncertainty in the
         energies of the products and reactants
         """
-
         calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:

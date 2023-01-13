@@ -7,6 +7,8 @@ It has the same functionality as linear_assignment.pyx, but is much slower
 as it is vectorized in numpy rather than cython
 """
 
+from __future__ import annotations
+
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"

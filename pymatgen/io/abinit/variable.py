@@ -1,4 +1,6 @@
 """Support for Abinit input variables."""
+from __future__ import annotations
+
 import collections
 import collections.abc
 import string
@@ -218,7 +220,7 @@ class InputVariable:
         return line.rstrip("\n")
 
 
-def is_iter(obj):
+def is_iter(obj) -> bool:
     """Return True if the argument is list-like."""
     return hasattr(obj, "__iter__")
 

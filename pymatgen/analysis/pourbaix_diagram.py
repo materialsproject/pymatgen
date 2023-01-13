@@ -173,7 +173,6 @@ class PourbaixEntry(MSONable, Stringify):
 
         Returns:
             fraction of element / sum(all non-OH elements)
-
         """
         return self.composition.get(element) * self.normalization_factor
 
@@ -237,7 +236,7 @@ class PourbaixEntry(MSONable, Stringify):
             entry = MontyDecoder().process_decoded(d["entry"])
         entry_id = d["entry_id"]
         concentration = d["concentration"]
-        return PourbaixEntry(entry, entry_id, concentration)
+        return cls(entry, entry_id, concentration)
 
     @property
     def normalization_factor(self):
@@ -338,7 +337,7 @@ class MultiEntry(PourbaixEntry):
         """
         MultiEntry name, i. e. the name of each entry joined by ' + '
         """
-        return " + ".join([e.name for e in self.entry_list])
+        return " + ".join(e.name for e in self.entry_list)
 
     def __repr__(self):
         return (
@@ -405,7 +404,7 @@ class IonEntry(PDEntry):
         """
         Returns an IonEntry object from a dict.
         """
-        return IonEntry(Ion.from_dict(d["ion"]), d["energy"], d.get("name"), d.get("attribute"))
+        return cls(Ion.from_dict(d["ion"]), d["energy"], d.get("name"), d.get("attribute"))
 
     def as_dict(self):
         """
@@ -562,7 +561,6 @@ class PourbaixDiagram(MSONable):
         Returns:
             list of vectors, [[nph, nphi, e0, x1, x2, ..., xn-1]]
             corresponding to each entry in nph-nphi-composition space
-
         """
         vecs = [
             [entry.npH, entry.nPhi, entry.energy] + [entry.composition.get(elt) for elt in self.pbx_elts[:-1]]
@@ -586,7 +584,6 @@ class PourbaixDiagram(MSONable):
 
         Returns: list of entries and stable facets corresponding to that
             list of entries
-
         """
         ion_entries = [entry for entry in entries if entry.phase_type == "Ion"]
         solid_entries = [entry for entry in entries if entry.phase_type == "Solid"]
@@ -643,7 +640,6 @@ class PourbaixDiagram(MSONable):
 
         Returns:
             ([MultiEntry]) list of stable MultiEntry candidates
-
         """
         # Get composition
         tot_comp = Composition(self._elt_comp)
@@ -697,7 +693,6 @@ class PourbaixDiagram(MSONable):
             nproc (int): number of processes to be used in parallel
                 treatment of entry combos
         """
-
         N = len(self._elt_comp)  # No. of elements
         total_comp = Composition(self._elt_comp)
 
@@ -858,7 +853,6 @@ class PourbaixDiagram(MSONable):
             V (float): V to find stable entry
 
         Returns:
-
         """
         energies_at_conditions = [e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries]
         return self.stable_entries[np.argmin(energies_at_conditions)]
@@ -878,7 +872,6 @@ class PourbaixDiagram(MSONable):
             Decomposition energy for the entry, i. e. the energy above
                 the "Pourbaix hull" in eV/atom at the given conditions
         """
-
         # Check composition consistency between entry and Pourbaix diagram:
         pbx_comp = Composition(self._elt_comp).fractional_composition
         entry_pbx_comp = Composition(
@@ -906,7 +899,6 @@ class PourbaixDiagram(MSONable):
 
         Returns:
             (float or [float]) minimum Pourbaix energy at conditions
-
         """
         all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
         base = np.min(all_gs, axis=0)
@@ -924,7 +916,6 @@ class PourbaixDiagram(MSONable):
             (PourbaixEntry or MultiEntry): Pourbaix or multi-entry
                 corresponding ot the minimum energy entry at a given
                 pH, V condition
-
         """
         all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
         return self.stable_entries[np.argmin(all_gs)]
@@ -1120,7 +1111,6 @@ class PourbaixPlotter:
             **kwargs ():
 
         Returns:
-
         """
         if pH_range is None:
             pH_range = [-2, 16]
@@ -1169,7 +1159,7 @@ def generate_entry_label(entry):
         entry (PourbaixEntry or MultiEntry): entry to get a label for
     """
     if isinstance(entry, MultiEntry):
-        return " + ".join([e.name for e in entry.entry_list])
+        return " + ".join(e.name for e in entry.entry_list)
 
     # TODO - a more elegant solution could be added later to Stringify
     # for example, the pattern re.sub(r"([-+][\d\.]*)", r"$^{\1}$", )

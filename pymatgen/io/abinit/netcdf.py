@@ -28,7 +28,7 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
+__date__ = "Feb 21, 2013M"
 
 __all__ = [
     "as_ncreader",
@@ -108,7 +108,7 @@ class NetcdfReader:
 
         # Always return non-masked numpy arrays.
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
-        # because it can lead to unexpected behaviour in e.g. calls to np.matmul!
+        # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)
 
@@ -494,5 +494,5 @@ class AbinitHeader(AttrDict):
 
         s = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join([marquee(title, mark="="), s])
+            return "\n".join(marquee(title, mark="="), s)
         return s

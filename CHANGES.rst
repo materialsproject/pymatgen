@@ -1,5 +1,49 @@
 Change log
-==========
+QChem: translate DMSO name in smd_solvent
+
+v2023.1.9
+---------
+* PR #2792 from @JaGeo bug_fix
+* PR #2773 from @ab5424 cbar
+* PR #2776 from @MichaelWolloch master
+* PR #2762 from @MichaelWolloch master
+* PR #2774 from @dgaines2 fix-poscar
+* PR #2667 from @nwinner volumetric-data-patch
+* PR #2764 from @naik-aakash lobster_lsodos
+* PR #2215 from @rkingsbury cmirs
+* PR #2742 from @materialsproject pip-dependabot
+* PR #2741 from @materialsproject resurrect-req-txt
+* PR #2735 from @njzjz patch-1
+
+v2022.11.7
+----------
+* PR #2724 from @janosh: raise ValueError in ``SpacegroupAnalyzer.get_symmetrized_structure()`` if spglib returns no symmetries
+* PR #2720 by @utf: Fix tensor mapping
+* PR #2562 from @sudarshanv01: In case the Fock-matrix and eigenvalues are requested by the user (though the flags `scf_final_print` or `scf_print`), outputs.py now allows parsing both these quantities.
+
+v2022.11.1
+----------
+* Order of kwargs `fmt` and `filename` in `Structure.to()` swapped for ease of use (note: this can break codes that do not use these options as kwargs).
+* @yuzie007 Parse "Atomic configuration" in POTCAR (52 and 54). Useful for estimating a reasonable NBANDS value.
+* EnumerateStructureTransformation now supports `m3gnet_relax` or `m3gnet_static` options.
+
+v2022.10.22
+-----------
+* Allow env settings to override .pmgrc.yaml (@janosh)
+* Add EntryLike type (@janosh)
+* Update spglib to 2.0+.
+* @cnncnnzh Method to plot the atom-resolved phonon band structures.
+* @jmmshn More Flexible reproduction of VASP's optical code
+* @Ameyanagi Fix the sorting of the FEFF IO module to create ATOMS input.
+* @JaGeo Extend the ThermalDisplacementMatrices class to read cif files in P1 format.
+* @rkingsbury Changes to FEFF I/O to support the use of non-periodic input structures.
+* @jmmshn Merge Waverder and Wavederf
+* @jmmshn  Set the structure_charge while parsing Potcar
+
+v2022.9.21
+----------
+* @chunweizhu fix the bugs when running `TEMCalculator`
+* @munrojm Support for new MPRester.
 
 v2022.9.8
 ---------
@@ -91,7 +135,7 @@ v2022.5.26
 
 v2022.5.19
 ----------
-* Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
+* Added option for additional criteria to be passed to MPRester.get_entries_in_chemsys (@shyuep).
 
 v2022.5.18.1
 ------------
@@ -265,7 +309,7 @@ you are acknowledged appropriately by filling out the linked form.
 * General improvements to Phase Diagram code (@CompyRhys, #2263, #2264, #2268)
 * Improve appearance of periodic table heatmap (@penicillin0, #2272)
 * Small improvements to battery classes (@jmmshn, #2262)
-* Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
+* Fix for Composition.chemical_system to match expected behavior for compositions with oxidation states (@CompRhys, #2249)
 * Fix for bad param in OPTIMADE response fields (@ml-evs, #2244)
 * Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
 * Fix for Moladaptor (@orioncohen, #2269)
@@ -459,7 +503,7 @@ v2021.3.3
 * **Backwards incompatible**: pymatgen.loadfn and get_structure_from_mp have been
   removed since no one was using them.
 * critic2_caller has been refactored. (@samblau)
-* Improved hash for Compositon (@CompRhys)
+* Improved hash for Composition (@CompRhys)
 * Fixes Outcar parsing for VASP 6.2.0. (@MichaelWolloch)
 * Allow None for Gaussian functional, bset, charge and multiplicity (@eimrek)
 
@@ -709,7 +753,7 @@ v2019.10.4
 v2019.10.3
 ----------
 * Faster get_all_neighbors based on @chc273's improvements. get_all_neighbors
-  now returns a Site-like object with nn_distance, image and index attrbutes.
+  now returns a Site-like object with nn_distance, image and index attributes.
   Much easier to use.
 * Bug fix for XCrySDen parser (@stevetorr)
 * Added optional mid_struct to direct interpolation (@jmmshn)
@@ -878,12 +922,12 @@ v2019.3.13
                 user_kpoints_settings={"reciprocal_density": k_dens})
             vi = vis.get_vasp_input()
             kpoints = vi["KPOINTS"].kpts[0][0]
-            d = "Li2O_kpoints_%d" % kpoints
+            d = f"Li2O_kpoints_{kpoints}"
 
             # Directly run vasp.
             vi.run_vasp(d, vasp_cmd=VASP_CMD)
             # Use the final structure as the new initial structure to speed up calculations.
-            structure = Vasprun("%s/vasprun.xml" % d).final_structure
+            structure = Vasprun(f"{d}/vasprun.xml").final_structure
 
 
     if __name__ == "__main__":
@@ -1909,7 +1953,7 @@ v3.0.3
 * Lots of improvements to Gaussian support (Nicolas Dardenne) and Abinit IO
   (Matteo).
 * Lots of Py3k minor updates.
-* Updated doc for Diffusion anaylzer. Invert sq_disp_ions for more intuitive handling.
+* Updated doc for Diffusion analyzer. Invert sq_disp_ions for more intuitive handling.
 
 v3.0.2
 ------

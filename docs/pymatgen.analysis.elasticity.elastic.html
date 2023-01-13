@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.elasticity.elastic module &mdash; pymatgen 2022.9.8 documentation</title>
+  <title>pymatgen.analysis.elasticity.elastic module &mdash; pymatgen 2023.1.9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -16,7 +15,6 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.9.8
+                2023.1.9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,7 +51,326 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">v2023.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-7">v2022.11.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-1">v2022.11.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-10-22">v2022.10.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-21">v2022.9.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-8">v2022.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-8-23">v2022.8.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-25">v2022.7.25</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24-1">v2022.7.24.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24">v2022.7.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-19">v2022.7.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-8">v2022.7.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-26">v2022.5.26</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-19">v2022.5.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18-1">v2022.5.18.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18">v2022.5.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-17">v2022.5.17</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-26">v2022.4.26</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-19">v2022.4.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-29">v2022.3.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-24">v2022.3.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-22">v2022.3.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-7">v2022.3.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-10">v2022.2.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-7">v2022.2.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-1">v2022.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-24">v2022.1.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-20">v2022.1.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-9">v2022.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-8">v2022.1.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-17">v2022.0.17</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-16">v2022.0.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-15">v2022.0.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-14">v2022.0.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-13">v2022.0.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-12">v2022.0.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-11">v2022.0.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-10">v2022.0.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-9">v2022.0.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-8">v2022.0.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-7">v2022.0.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-6">v2022.0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-5">v2022.0.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-3">v2022.0.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-2-yanked">v2022.0.2 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-1-yanked">v2022.0.1 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-0-yanked">v2022.0.0 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-5">v2021.3.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-4-yanked">v2021.3.4 (Yanked)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-3">v2021.3.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-16">v2021.2.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-14">v2021.2.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-12">v2021.2.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8-1">v2021.2.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8">v2021.2.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-1-28">v2021.1.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-31">v2020.12.31</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-18">v2020.12.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-3">v2020.12.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-11-11">v2020.11.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-20">v2020.10.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-9">v2020.10.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-9-14">v2020.9.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-13">v2020.8.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-3">v2020.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-18">v2020.7.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-16">v2020.7.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-14">v2020.7.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-10">v2020.7.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-3">v2020.7.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-6-8">v2020.6.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-29">v2020.4.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-2">v2020.4.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-13">v2020.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-2">v2020.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-28">v2020.1.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-10">v2020.1.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-22">v2019.12.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-3">v2019.12.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-11-11">v2019.11.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-16">v2019.10.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-4">v2019.10.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-3">v2019.10.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-2">v2019.10.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-16">v2019.9.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-12">v2019.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-8">v2019.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-7">v2019.9.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-23">v2019.8.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-14">v2019.8.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-30">v2019.7.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-21">v2019.7.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-2">v2019.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-20">v2019.6.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-5">v2019.6.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-28">v2019.5.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-8">v2019.5.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-1">v2019.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-4-11">v2019.4.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-27">v2019.3.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-13">v2019.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-28">v2019.2.28</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-24">v2019.2.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-4">v2019.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-24">v2019.1.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-13">v2019.1.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-12-12">v2018.12.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-30">v2018.11.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-6">v2018.11.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-10-18">v2018.10.18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-30">v2018.9.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-19">v2018.9.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-12">v2018.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-10">v2018.8.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-7">v2018.8.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-7-15">v2018.7.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-27">v2018.6.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-11">v2018.6.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-22">v2018.5.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-21">v2018.5.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-14">v2018.5.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-3">v2018.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-20">v2018.4.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-6">v2018.4.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-22">v2018.3.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-14">v2018.3.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-13">v2018.3.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-2">v2018.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-2-13">v2018.2.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-29">v2018.1.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-19">v2018.1.19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-30">v2017.12.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-16">v2017.12.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-15">v2017.12.15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-8">v2017.12.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-6">v2017.12.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-30">v2017.11.30</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-27">v2017.11.27</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-9">v2017.11.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-6">v2017.11.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-10-16">v2017.10.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-29">v2017.9.29</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-23">v2017.9.23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-3">v2017.9.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-1">v2017.9.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-21">v2017.8.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-20">v2017.8.20</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-16">v2017.8.16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-14">v2017.8.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-4">v2017.8.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-21">v2017.7.21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-4">v2017.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-24">v2017.6.24</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-22">v2017.6.22</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-8">v2017.6.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-7">v4.7.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-6">v4.7.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-5">v4.7.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-4">v4.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-3">v4.7.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-2">v4.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-1">v4.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-0">v4.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-2">v4.6.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-1">v4.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-0">v4.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-7">v4.5.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-6">v4.5.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-5">v4.5.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-4">v4.5.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-3">v4.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-2">v4.5.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-1">v4.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-0">v4.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-12">v4.4.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-11">v4.4.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-10">v4.4.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-9">v4.4.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-8">v4.4.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-7">v4.4.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-6">v4.4.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-5">v4.4.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-4">v4.4.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-3">v4.4.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-2">v4.4.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-1">v4.4.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-0">v4.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-2">v4.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-1">v4.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-0">v4.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-5">v4.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-4">v4.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-3">v4.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-2">v4.2.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-1">v4.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-0">v4.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-1">v4.1.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-0">v4.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-2">v4.0.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-1">v4.0.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-0">v4.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-1">v3.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-0">v3.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-1">v3.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-0">v3.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-3">v3.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-2">v3.5.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-1">v3.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-0">v3.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-4-0">v3.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-6">v3.3.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-5">v3.3.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-4">v3.3.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-3">v3.3.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-2">v3.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-1">v3.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-0">v3.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-10">v3.2.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-9">v3.2.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-8">v3.2.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-7">v3.2.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-6">v3.2.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-5">v3.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-4">v3.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-3">v3.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-1">v3.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-0">v3.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-9">v3.1.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-7">v3.1.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-6">v3.1.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-5">v3.1.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-4">v3.1.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-3">v3.1.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-2">v3.1.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-1">v3.1.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-0">v3.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-13">v3.0.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-11">v3.0.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-10">v3.0.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-9">v3.0.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-8">v3.0.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-7">v3.0.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-6">v3.0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-5">v3.0.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-4">v3.0.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-3">v3.0.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-2">v3.0.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-1">v3.0.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-0">v3.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-6">v2.10.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-5">v2.10.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-3">v2.10.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-2">v2.10.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-1">v2.10.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-0">v2.10.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-14">v2.9.14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-13">v2.9.13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-12">v2.9.12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-11">v2.9.11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-10">v2.9.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-9">v2.9.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-8">v2.9.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-7">v2.9.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-6">v2.9.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-5">v2.9.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-4">v2.9.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-3">v2.9.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-2">v2.9.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-1">v2.9.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-0">v2.9.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-10">v2.8.10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-9">v2.8.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-8">v2.8.8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-7">v2.8.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-6">v2.8.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-4">v2.8.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-3">v2.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-2">v2.8.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-1">v2.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-0">v2.8.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-9">v2.7.9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-7">v2.7.7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-6">v2.7.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-5">v2.7.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-4">v2.7.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-2">v2.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-1">v2.7.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-0">v2.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-6">v2.6.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-5">v2.6.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-4">v2.6.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-3">v2.6.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-2">v2.6.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-1">v2.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-5">v2.5.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-4">v2.5.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-3">v2.5.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-1">v2.5.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-0">v2.5.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-3">v2.4.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-0">v2.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-2">v2.3.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-1">v2.3.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-0">v2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-6">v2.2.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-4">v2.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-3">v2.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-2">v2.2.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-1">v2.2.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-0">v2.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-1-2">v2.1.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-0-0">v2.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-9-0">v1.9.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-3">v1.8.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-1">v1.8.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-0">v1.8.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-2">v1.7.2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-0">v1.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-6-0">v1.6.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -100,12 +417,12 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.elasticity.html">pymatgen.analysis.elasticity package</a> &raquo;</li>
-      <li>pymatgen.analysis.elasticity.elastic module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.elasticity.html">pymatgen.analysis.elasticity package</a></li>
+      <li class="breadcrumb-item active">pymatgen.analysis.elasticity.elastic module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.elasticity.elastic.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -115,20 +432,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.analysis.elasticity.elastic">
-<span id="pymatgen-analysis-elasticity-elastic-module"></span><h1>pymatgen.analysis.elasticity.elastic module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.elastic" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.analysis.elasticity.elastic">
+<span id="pymatgen-analysis-elasticity-elastic-module"></span><h1>pymatgen.analysis.elasticity.elastic module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.elastic" title="Permalink to this headline"></a></h1>
 <p>This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
 stress-strain data</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ComplianceTensor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ComplianceTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_array</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L539-L555"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ComplianceTensor" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ComplianceTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_array</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L527-L543"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ComplianceTensor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>This class represents the compliance tensor, and exists
 primarily to keep the voigt-conversion scheme consistent
 since the compliance tensor has a unique vscale</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>s_array</em>) – </p>
 </dd>
 </dl>
@@ -136,8 +453,8 @@ since the compliance tensor has a unique vscale</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElasticTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L137-L536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">NthOrderElasticTensor</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElasticTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L134-L524"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor</span></code></a></p>
 <p>This class extends Tensor to describe the 3x3x3x3
 second-order elastic tensor, C_{ijkl}, with various
 methods for estimating other properties derived from
@@ -149,7 +466,7 @@ not satisfy standard symmetries. Note that the constructor uses
 __new__ rather than __init__ according to the standard method of
 subclassing numpy ndarrays.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_array</strong> (<em>3x3x3x3 array-like</em>) – the 3x3x3x3 array-like
 representing the elastic tensor</p></li>
@@ -159,9 +476,9 @@ representing the elastic tensor</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.cahill_thermalcond">
-<span class="sig-name descname"><span class="pre">cahill_thermalcond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.cahill_thermalcond" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cahill_thermalcond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.cahill_thermalcond" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -174,9 +491,9 @@ representing the elastic tensor</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.clarke_thermalcond">
-<span class="sig-name descname"><span class="pre">clarke_thermalcond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.clarke_thermalcond" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">clarke_thermalcond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.clarke_thermalcond" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -189,7 +506,7 @@ representing the elastic tensor</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.compliance_tensor">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compliance_tensor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.compliance_tensor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compliance_tensor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.compliance_tensor" title="Permalink to this definition"></a></dt>
 <dd><p>returns the Voigt-notation compliance tensor,
 which is the matrix inverse of the
 Voigt-notation elastic tensor</p>
@@ -197,9 +514,9 @@ Voigt-notation elastic tensor</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature">
-<span class="sig-name descname"><span class="pre">debye_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">debye_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -212,17 +529,17 @@ Voigt-notation elastic tensor</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_elastic_mod">
-<span class="sig-name descname"><span class="pre">directional_elastic_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L247-L252"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_elastic_mod" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">directional_elastic_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L243-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_elastic_mod" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates directional elastic modulus for a specific vector</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_poisson_ratio">
-<span class="sig-name descname"><span class="pre">directional_poisson_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L230-L245"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_poisson_ratio" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">directional_poisson_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L226-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_poisson_ratio" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the poisson ratio for a specific direction
 relative to a second, orthogonal direction</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n</strong> (<em>3-d vector</em>) – principal direction</p></li>
 <li><p><strong>m</strong> (<em>3-d vector</em>) – secondary direction orthogonal to n</p></li>
@@ -234,7 +551,7 @@ relative to a second, orthogonal direction</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_independent_strains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vasp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L506-L536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_independent_strains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vasp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L494-L524"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs the elastic tensor least-squares fit of independent strains
 :param strains: list of strain objects to fit
 :type strains: list of Strains
@@ -243,7 +560,7 @@ relative to a second, orthogonal direction</p>
 <div><p>corresponding to the list of strains</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eq_stress</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress" title="pymatgen.analysis.elasticity.stress.Stress"><em>Stress</em></a>) – equilibrium stress to use in fitting</p></li>
 <li><p><strong>vasp</strong> (<em>boolean</em>) – flag for whether the stress tensor should be
@@ -257,13 +574,13 @@ resulting tensor</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.from_pseudoinverse">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pseudoinverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L482-L504"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_pseudoinverse" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pseudoinverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L470-L492"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_pseudoinverse" title="Permalink to this definition"></a></dt>
 <dd><p>Class method to fit an elastic tensor from stress/strain
 data. Method uses Moore-Penrose pseudoinverse to invert
 the s = C*e equation with elastic tensor, stress, and
 strain in voigt notation</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stresses</strong> (<em>Nx3x3 array-like</em>) – list or array of stresses</p></li>
 <li><p><strong>strains</strong> (<em>Nx3x3 array-like</em>) – list or array of strains</p></li>
@@ -274,29 +591,29 @@ strain in voigt notation</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.g_reuss">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">g_reuss</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_reuss" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">g_reuss</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_reuss" title="Permalink to this definition"></a></dt>
 <dd><p>returns the G_r shear modulus</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.g_voigt">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">g_voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_voigt" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">g_voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_voigt" title="Permalink to this definition"></a></dt>
 <dd><p>returns the G_v shear modulus</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.g_vrh">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">g_vrh</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_vrh" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">g_vrh</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_vrh" title="Permalink to this definition"></a></dt>
 <dd><p>returns the G_vrh (Voigt-Reuss-Hill) average shear modulus</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.get_structure_property_dict">
-<span class="sig-name descname"><span class="pre">get_structure_property_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_base_props</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L447-L480"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.get_structure_property_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_structure_property_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_base_props</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L435-L468"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.get_structure_property_dict" title="Permalink to this definition"></a></dt>
 <dd><p>returns a dictionary of properties derived from the elastic tensor
 and an associated structure</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure object for which to calculate
 associated properties</p></li>
@@ -311,39 +628,39 @@ that depend on a physical tensor to None, defaults to False</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.green_kristoffel">
-<span class="sig-name descname"><span class="pre">green_kristoffel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L423-L427"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.green_kristoffel" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">green_kristoffel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L411-L415"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.green_kristoffel" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the Green-Kristoffel tensor for a second-order tensor</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.homogeneous_poisson">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">homogeneous_poisson</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.homogeneous_poisson" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">homogeneous_poisson</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.homogeneous_poisson" title="Permalink to this definition"></a></dt>
 <dd><p>returns the homogeneous poisson ratio</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.k_reuss">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_reuss</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_reuss" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_reuss</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_reuss" title="Permalink to this definition"></a></dt>
 <dd><p>returns the K_r bulk modulus</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.k_voigt">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_voigt" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_voigt</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_voigt" title="Permalink to this definition"></a></dt>
 <dd><p>returns the K_v bulk modulus</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.k_vrh">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_vrh</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_vrh" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_vrh</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_vrh" title="Permalink to this definition"></a></dt>
 <dd><p>returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.long_v">
-<span class="sig-name descname"><span class="pre">long_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.long_v" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">long_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.long_v" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -356,15 +673,15 @@ that depend on a physical tensor to None, defaults to False</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.property_dict">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">property_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.property_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">property_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.property_dict" title="Permalink to this definition"></a></dt>
 <dd><p>returns a dictionary of properties derived from the elastic tensor</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_ac">
-<span class="sig-name descname"><span class="pre">snyder_ac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_ac" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">snyder_ac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_ac" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -377,9 +694,9 @@ that depend on a physical tensor to None, defaults to False</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_opt">
-<span class="sig-name descname"><span class="pre">snyder_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_opt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">snyder_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_opt" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -392,9 +709,9 @@ that depend on a physical tensor to None, defaults to False</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_total">
-<span class="sig-name descname"><span class="pre">snyder_total</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_total" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">snyder_total</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_total" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -407,9 +724,9 @@ that depend on a physical tensor to None, defaults to False</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.trans_v">
-<span class="sig-name descname"><span class="pre">trans_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L120-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.trans_v" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">trans_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.trans_v" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -422,13 +739,13 @@ that depend on a physical tensor to None, defaults to False</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.universal_anisotropy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">universal_anisotropy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.universal_anisotropy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">universal_anisotropy</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.universal_anisotropy" title="Permalink to this definition"></a></dt>
 <dd><p>returns the universal anisotropy value</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensor.y_mod">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y_mod</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.y_mod" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y_mod</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.y_mod" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates Young’s modulus (in SI units) using the
 Voigt-Reuss-Hill averages of bulk and shear moduli</p>
 </dd></dl>
@@ -437,8 +754,8 @@ Voigt-Reuss-Hill averages of bulk and shear moduli</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElasticTensorExpansion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L558-L866"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.TensorCollection" title="pymatgen.core.tensors.TensorCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensorCollection</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElasticTensorExpansion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L546-L854"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.TensorCollection" title="pymatgen.core.tensors.TensorCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.TensorCollection</span></code></a></p>
 <p>This class is a sequence of elastic tensors corresponding
 to an elastic tensor expansion, which can be used to
 calculate stress and energy density and inherits all
@@ -446,7 +763,7 @@ of the list-based properties of TensorCollection
 (e. g. symmetrization, voigt conversion, etc.)</p>
 <p>Initialization method for ElasticTensorExpansion</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>c_list</strong> (<em>list</em><em> or </em><em>tuple</em>) – sequence of Tensor inputs
 or tensors from which the elastic tensor
 expansion is constructed.</p>
@@ -454,38 +771,38 @@ expansion is constructed.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.calculate_stress">
-<span class="sig-name descname"><span class="pre">calculate_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L596-L601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.calculate_stress" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L584-L589"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.calculate_stress" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate’s a given elastic tensor’s contribution to the
 stress using Einstein summation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.energy_density">
-<span class="sig-name descname"><span class="pre">energy_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_GPa_to_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L603-L607"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.energy_density" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">energy_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_GPa_to_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L591-L595"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.energy_density" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the elastic energy density due to a strain</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.from_diff_fit">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diff_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L579-L586"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.from_diff_fit" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diff_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L567-L574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.from_diff_fit" title="Permalink to this definition"></a></dt>
 <dd><p>Generates an elastic tensor expansion via the fitting function
 defined below in diff_fit</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_compliance_expansion">
-<span class="sig-name descname"><span class="pre">get_compliance_expansion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L754-L777"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_compliance_expansion" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_compliance_expansion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L742-L765"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_compliance_expansion" title="Permalink to this definition"></a></dt>
 <dd><p>Gets a compliance tensor expansion from the elastic
 tensor expansion.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_effective_ecs">
-<span class="sig-name descname"><span class="pre">get_effective_ecs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L791-L804"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_effective_ecs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_effective_ecs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L779-L792"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_effective_ecs" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the effective elastic constants
 from the elastic tensor expansion.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>strain</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain" title="pymatgen.analysis.elasticity.strain.Strain"><em>Strain</em></a><em> or </em><em>3x3 array-like</em>) – strain condition
 under which to calculate the effective constants</p></li>
@@ -497,11 +814,11 @@ under which to calculate the effective constants</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_ggt">
-<span class="sig-name descname"><span class="pre">get_ggt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L609-L622"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_ggt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_ggt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L597-L610"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_ggt" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the Generalized Gruneisen tensor for a given
 third-order elastic tensor expansion.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n</strong> (<em>3x1 array-like</em>) – normal mode direction</p></li>
 <li><p><strong>u</strong> (<em>3x1 array-like</em>) – polarization direction</p></li>
@@ -512,10 +829,10 @@ third-order elastic tensor expansion.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_gruneisen_parameter">
-<span class="sig-name descname"><span class="pre">get_gruneisen_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L663-L677"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_gruneisen_parameter" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_gruneisen_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L651-L665"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_gruneisen_parameter" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the single average gruneisen parameter from the TGT.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin, if not specified
 will return non-cv-normalized value</p></li>
@@ -532,11 +849,11 @@ to quadpy.sphere.Lebedev(19) as read from file</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity">
-<span class="sig-name descname"><span class="pre">get_heat_capacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L679-L701"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_heat_capacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L667-L689"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the directional heat capacity for a higher order tensor
 expansion as a function of direction and polarization.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin</p></li>
 <li><p><strong>structure</strong> (<em>float</em>) – Structure to be used in directional heat
@@ -553,12 +870,12 @@ if lower than this value, returns 0</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_stability_criteria">
-<span class="sig-name descname"><span class="pre">get_stability_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L838-L853"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_stability_criteria" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_stability_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L826-L841"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_stability_criteria" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the stability criteria from the symmetric
 Wallace tensor from an input vector and stress
 value.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>s</strong> (<em>float</em>) – Stress value at which to evaluate
 the stability criteria</p></li>
@@ -571,7 +888,7 @@ stress</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_strain_from_stress">
-<span class="sig-name descname"><span class="pre">get_strain_from_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L779-L789"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_strain_from_stress" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_strain_from_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L767-L777"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_strain_from_stress" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the strain from a stress state according
 to the compliance expansion corresponding to the
 tensor expansion.</p>
@@ -579,11 +896,11 @@ tensor expansion.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_symmetric_wallace_tensor">
-<span class="sig-name descname"><span class="pre">get_symmetric_wallace_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L826-L836"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_symmetric_wallace_tensor" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symmetric_wallace_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L814-L824"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_symmetric_wallace_tensor" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the symmetrized wallace tensor for determining
 yield strength criteria.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tau</strong> (<em>3x3 array-like</em>) – stress at which to evaluate
 the wallace tensor.</p>
 </dd>
@@ -592,7 +909,7 @@ the wallace tensor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_tgt">
-<span class="sig-name descname"><span class="pre">get_tgt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L624-L661"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_tgt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_tgt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L612-L649"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_tgt" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the thermodynamic Gruneisen tensor (TGT) by via an
 integration of the GGT weighted by the directional heat
 capacity.</p>
@@ -602,7 +919,7 @@ K. Brugger Phys. Rev. 137, A1826 (1965).</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin, if not specified
 will return non-cv-normalized value</p></li>
@@ -619,11 +936,11 @@ to quadpy.sphere.Lebedev(19) as read from file</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_wallace_tensor">
-<span class="sig-name descname"><span class="pre">get_wallace_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L806-L824"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_wallace_tensor" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_wallace_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L794-L812"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_wallace_tensor" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the Wallace Tensor for determining yield strength
 criteria.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tau</strong> (<em>3x3 array-like</em>) – stress at which to evaluate
 the wallace tensor</p>
 </dd>
@@ -632,10 +949,10 @@ the wallace tensor</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_yield_stress">
-<span class="sig-name descname"><span class="pre">get_yield_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L855-L866"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_yield_stress" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_yield_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L843-L854"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_yield_stress" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the yield stress for a given direction</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>n</strong> (<em>3x1 array-like</em>) – direction for which to find the
 yield stress</p>
 </dd>
@@ -644,11 +961,11 @@ yield stress</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.omega">
-<span class="sig-name descname"><span class="pre">omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L703-L720"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.omega" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L691-L708"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.omega" title="Permalink to this definition"></a></dt>
 <dd><p>Finds directional frequency contribution to the heat
 capacity from direction and polarization</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to be used in directional heat
 capacity determination</p></li>
@@ -662,17 +979,17 @@ no attempt for verification of eigenvectors is made</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.order">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">order</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.order" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">order</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.order" title="Permalink to this definition"></a></dt>
 <dd><p>Order of the elastic tensor expansion, i. e. the order of the
 highest included set of elastic constants</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff">
-<span class="sig-name descname"><span class="pre">thermal_expansion_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'debye'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L722-L752"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">thermal_expansion_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'debye'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L710-L740"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff" title="Permalink to this definition"></a></dt>
 <dd><p>Gets thermal expansion coefficient from third-order constants.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temperature</strong> (<em>float</em>) – Temperature in kelvin, if not specified
 will return non-cv-normalized value</p></li>
@@ -690,12 +1007,12 @@ current supported modes are ‘debye’ and ‘dulong-petit’</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NthOrderElasticTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L43-L111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NthOrderElasticTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L43-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>An object representing an nth-order tensor expansion
 of the stress-strain constitutive equations</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>tol</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -705,16 +1022,16 @@ of the stress-strain constitutive equations</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3">
-<span class="sig-name descname"><span class="pre">GPa_to_eV_A3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.006241509074460764</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GPa_to_eV_A3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.006241509074460764</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.calculate_stress">
-<span class="sig-name descname"><span class="pre">calculate_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L73-L86"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.calculate_stress" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L73-L86"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.calculate_stress" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate’s a given elastic tensor’s contribution to the
 stress using Einstein summation</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>strain</strong> (<em>3x3 array-like</em>) – matrix corresponding to strain</p>
 </dd>
 </dl>
@@ -722,15 +1039,15 @@ stress using Einstein summation</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.energy_density">
-<span class="sig-name descname"><span class="pre">energy_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_GPa_to_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L88-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.energy_density" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">energy_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_GPa_to_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L88-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.energy_density" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the elastic energy density due to a strain</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.from_diff_fit">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diff_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L97-L111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.from_diff_fit" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diff_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L97-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.from_diff_fit" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>tol</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
@@ -745,20 +1062,20 @@ stress using Einstein summation</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.order">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">order</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.order" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">order</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.order" title="Permalink to this definition"></a></dt>
 <dd><p>Order of the elastic tensor</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol">
-<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'C'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symbol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'C'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/analysis/elasticity/elastic.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.diff_fit">
-<span class="sig-name descname"><span class="pre">diff_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L870-L927"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.diff_fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">diff_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L858-L915"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.diff_fit" title="Permalink to this definition"></a></dt>
 <dd><p>nth order elastic constant fitting function based on
 central-difference derivatives with respect to distinct
 strain states. The algorithm is summarized as follows:</p>
@@ -780,7 +1097,7 @@ previous step.</p></li>
 constants appropriately.</p></li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>order</strong> (<em>int</em>) – order of the elastic tensor set to return</p></li>
 <li><p><strong>strains</strong> (<em>nx3x3 array-like</em>) – Array of 3x3 strains
@@ -796,7 +1113,7 @@ and strains. If not found, defaults to 0.</p></li>
 are ignored in identifying strain states.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Set of tensors corresponding to nth order expansion of
 the stress/strain relation</p>
 </dd>
@@ -805,10 +1122,10 @@ the stress/strain relation</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.find_eq_stress">
-<span class="sig-name descname"><span class="pre">find_eq_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L930-L955"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.find_eq_stress" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_eq_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L918-L943"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.find_eq_stress" title="Permalink to this definition"></a></dt>
 <dd><p>Finds stress corresponding to zero strain state in stress-strain list</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>strains</strong> (<em>Nx3x3 array-like</em>) – array corresponding to strains</p></li>
 <li><p><strong>stresses</strong> (<em>Nx3x3 array-like</em>) – array corresponding to stresses</p></li>
@@ -820,10 +1137,10 @@ the stress/strain relation</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.generate_pseudo">
-<span class="sig-name descname"><span class="pre">generate_pseudo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L1017-L1055"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.generate_pseudo" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_pseudo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strain_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L1005-L1043"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.generate_pseudo" title="Permalink to this definition"></a></dt>
 <dd><p>Generates the pseudoinverse for a given set of strains.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>strain_states</strong> (<em>6xN array like</em>) – a list of voigt-notation
 “strain-states”, i. e. perturbed indices of the strain
@@ -831,7 +1148,7 @@ as a function of the smallest strain e. g. (0, 1, 0, 0, 1, 0)</p></li>
 <li><p><strong>order</strong> (<em>int</em>) – order of pseudoinverse to calculate</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>pseudo inverses for each order tensor, these can</dt><dd><p>be multiplied by the central difference derivative
 of the stress with respect to the strain state</p>
@@ -841,7 +1158,7 @@ of the stress with respect to the strain state</p>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>mis</p>
 </dd>
 </dl>
@@ -849,11 +1166,11 @@ of the stress with respect to the strain state</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.get_diff_coeff">
-<span class="sig-name descname"><span class="pre">get_diff_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hvec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L1104-L1119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.get_diff_coeff" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_diff_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hvec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L1092-L1107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.get_diff_coeff" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function to find difference coefficients of an
 derivative on an arbitrary mesh.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hvec</strong> (<em>1D array-like</em>) – sampling stencil</p></li>
 <li><p><strong>n</strong> (<em>int</em>) – degree of derivative to find</p></li>
@@ -864,7 +1181,7 @@ derivative on an arbitrary mesh.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.get_strain_state_dict">
-<span class="sig-name descname"><span class="pre">get_strain_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L958-L1014"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.get_strain_state_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_strain_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_stress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L946-L1002"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.get_strain_state_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a dictionary of voigt-notation stress-strain sets
 keyed by “strain state”, i. e. a tuple corresponding to
 the non-zero entries in ratios to the lowest nonzero value,
@@ -872,7 +1189,7 @@ e.g. [0, 0.1, 0, 0.2, 0, 0] -&gt; (0,1,0,2,0,0)
 This allows strains to be collected in stencils as to
 evaluate parameterized finite difference derivatives</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>strains</strong> (<em>Nx3x3 array-like</em>) – strain matrices</p></li>
 <li><p><strong>stresses</strong> (<em>Nx3x3 array-like</em>) – stress matrices</p></li>
@@ -883,10 +1200,10 @@ to stress-strain sets for each strain state</p></li>
 <li><p><strong>sort</strong> (<em>bool</em>) – flag for whether to sort strain states</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>strain state keys and dictionaries with stress-strain data corresponding to strain state</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -894,19 +1211,19 @@ to stress-strain sets for each strain state</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.get_symbol_list">
-<span class="sig-name descname"><span class="pre">get_symbol_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L1058-L1081"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.get_symbol_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symbol_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L1046-L1069"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.get_symbol_list" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a symbolic representation of the voigt-notation
 tensor that places identical symbols for entries related
 by index transposition, i. e. C_1121 = C_1211 etc.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dim</strong> (<em>int</em>) – dimension of matrix/tensor, e. g. 6 for
 voigt notation and 3 for standard</p></li>
 <li><p><strong>rank</strong> (<em>int</em>) – rank of tensor, e. g. 3 for third-order ECs</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><p>array representing distinct indices
 c_arr (array): array representing tensor with equivalent</p>
 <blockquote>
@@ -914,7 +1231,7 @@ c_arr (array): array representing tensor with equivalent</p>
 </div></blockquote>
 </p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>c_vec (array)</p>
 </dd>
 </dl>
@@ -922,30 +1239,30 @@ c_arr (array): array representing tensor with equivalent</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.raise_error_if_unphysical">
-<span class="sig-name descname"><span class="pre">raise_error_if_unphysical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L114-L134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.raise_error_if_unphysical" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">raise_error_if_unphysical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L112-L131"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.raise_error_if_unphysical" title="Permalink to this definition"></a></dt>
 <dd><p>Wrapper for functions or properties that should raise an error
 if tensor is unphysical.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.elastic.subs">
-<span class="sig-name descname"><span class="pre">subs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.9.8/pymatgen/core/../analysis/elasticity/elastic.py#L1084-L1096"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.subs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">subs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../analysis/elasticity/elastic.py#L1072-L1084"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.subs" title="Permalink to this definition"></a></dt>
 <dd><p>Sympy substitution function, primarily for the purposes
 of numpy vectorization</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entry</strong> (<em>symbol</em><em> or </em><em>exp</em>) – sympy expr to undergo subs</p></li>
 <li><p><strong>cmap</strong> (<em>dict</em>) – map for symbols to values to use in subs</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Evaluated expression with substitution</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

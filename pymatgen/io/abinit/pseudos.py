@@ -5,6 +5,8 @@ This module provides objects describing the basic parameters of the
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
 """
 
+from __future__ import annotations
+
 import abc
 import collections
 import logging
@@ -26,7 +28,6 @@ from tabulate import tabulate
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
-from pymatgen.util.serialization import pmg_serialize
 
 logger = logging.getLogger(__name__)
 
@@ -250,21 +251,22 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         Base classes should provide a concrete implementation that computes this value.
         """
 
-    @pmg_serialize
     def as_dict(self, **kwargs):
         """Return dictionary for MSONable protocol."""
         # pylint: disable=E1101
-        return dict(
-            basename=self.basename,
-            type=self.type,
-            symbol=self.symbol,
-            Z=self.Z,
-            Z_val=self.Z_val,
-            l_max=self.l_max,
-            md5=self.md5,
-            filepath=self.filepath,
-            # xc=self.xc.as_dict(),
-        )
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "basename": self.basename,
+            "type": self.type,
+            "symbol": self.symbol,
+            "Z": self.Z,
+            "Z_val": self.Z_val,
+            "l_max": self.l_max,
+            "md5": self.md5,
+            "filepath": self.filepath,
+            # "xc": self.xc.as_dict(),
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -596,10 +598,14 @@ class Hint:
             return f"ecut: {self.ecut}, pawecutdg: {self.pawecutdg}"
         return f"ecut: {self.ecut}"
 
-    @pmg_serialize
     def as_dict(self):
         """Return dictionary for MSONable protocol."""
-        return dict(ecut=self.ecut, pawecutdg=self.pawecutdg)
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "ecut": self.ecut,
+            "pawecutdg": self.pawecutdg,
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -666,7 +672,7 @@ class AbinitHeader(dict):
 
     def __getattr__(self, name):
         try:
-            # Default behaviour
+            # Default behavior
             return super().__getattribute__(name)
         except AttributeError:
             try:
@@ -1562,7 +1568,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
+class PseudoTable(collections.abc.Sequence, MSONable):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.
@@ -1736,7 +1742,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
                 pseudos.append(dec.process_decoded(v))
         return cls(pseudos)
 
-    def is_complete(self, zmax=118):
+    def is_complete(self, zmax=118) -> bool:
         """
         True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
         """
@@ -1747,7 +1753,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
     def all_combinations_for_elements(self, element_symbols):
         """
-        Return a list with all the the possible combination of pseudos
+        Return a list with all the possible combination of pseudos
         for the given list of element_symbols.
         Each item is a list of pseudopotential objects.
 

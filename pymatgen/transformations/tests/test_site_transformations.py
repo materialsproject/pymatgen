@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import unittest
 from shutil import which
 
@@ -346,5 +348,4 @@ class RadialSiteDistortionTransformationTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

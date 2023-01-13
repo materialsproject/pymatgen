@@ -5,6 +5,8 @@
 Development script to test the algorithms of all the model coordination environments
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"
@@ -50,10 +52,11 @@ if __name__ == "__main__":
             else:
                 test = "all"
         elif perms_def == "ndefined":
-            test = nperms
+            test = nperms  # type: ignore[assignment]
         else:
             test = input(
-                'Enter if you want to test all possible permutations ("all" or "a") or a given number of random permutations (i.e. "25")'
+                "Enter if you want to test all possible permutations ('all' or 'a') or "
+                "a given number of random permutations (i.e. '25')"
             )
         myindices = range(coordination)
 
@@ -67,10 +70,10 @@ if __name__ == "__main__":
                 nperms = int(test)
             except Exception:
                 raise ValueError(f"Could not turn {test} into integer ...")
-            perms_iterator = []
-            for ii in range(nperms):
-                shuffle(myindices)
-                perms_iterator.append(list(myindices))
+            perms_iterator = []  # type: ignore[assignment]
+            for _ in range(nperms):
+                shuffle(myindices)  # type: ignore[arg-type]
+                perms_iterator.append(list(myindices))  # type: ignore[attr-defined]
 
         for cg_symbol, cg_name in symbol_name_mapping.items():
             cg = allcg[cg_symbol]

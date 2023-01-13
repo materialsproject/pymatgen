@@ -222,8 +222,7 @@ class Ion(Composition, MSONable, Stringify):
         Generates an ion object from a dict created by as_dict().
 
         Args:
-            d:
-                {symbol: amount} dict.
+            d: {symbol: amount} dict.
         """
         input = deepcopy(d)
         charge = input.pop("charge")
@@ -248,9 +247,9 @@ class Ion(Composition, MSONable, Stringify):
 
     def oxi_state_guesses(  # type: ignore
         self,
-        oxi_states_override: dict = None,
+        oxi_states_override: dict | None = None,
         all_oxi_states: bool = False,
-        max_sites: int = None,
+        max_sites: int | None = None,
     ) -> list[dict[str, float]]:
         """
         Checks if the composition is charge-balanced and returns back all
@@ -282,10 +281,11 @@ class Ion(Composition, MSONable, Stringify):
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-
         return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Ion):
+            return NotImplemented
         if self.composition != other.composition:
             return False
         if self.charge != other.charge:

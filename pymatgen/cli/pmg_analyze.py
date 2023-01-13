@@ -99,20 +99,20 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     return 0
 
 
-def get_magnetizations(mydir, ion_list):
+def get_magnetizations(dir: str, ion_list: list[int]):
     """
     Get magnetization info from OUTCARs.
 
     Args:
         mydir (str): Directory name
-        ion_list (List): List of ions to obtain magnetization information for.
+        ion_list (list[int]): List of ions to obtain magnetization information for.
 
     Returns:
-
+        int: 0 if successful.
     """
     data = []
     max_row = 0
-    for (parent, subdirs, files) in os.walk(mydir):
+    for (parent, _subdirs, files) in os.walk(dir):
         for f in files:
             if re.match(r"OUTCAR*", f):
                 try:

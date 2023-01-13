@@ -2,6 +2,8 @@
 This module contains some graph utils that are used in the chemenv package.
 """
 
+from __future__ import annotations
+
 import itertools
 import operator
 
@@ -252,7 +254,9 @@ class SimpleGraphCycle(MSONable):
         out.extend([str(node) for node in self.nodes])
         return "\n".join(out)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SimpleGraphCycle):
+            return NotImplemented
         if not self.ordered or not other.ordered:
             raise RuntimeError("Simple cycles should be ordered in order to be compared.")
         return self.nodes == other.nodes
@@ -460,7 +464,9 @@ class MultiGraphCycle(MSONable):
         out.extend(cycle)
         return "\n".join(out)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MultiGraphCycle):
+            return NotImplemented
         if not self.ordered or not other.ordered:
             raise RuntimeError("Multigraph cycles should be ordered in order to be compared.")
         return self.nodes == other.nodes and self.edge_indices == other.edge_indices

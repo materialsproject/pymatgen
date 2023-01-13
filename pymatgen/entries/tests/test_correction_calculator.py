@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import os
 import unittest
+
+import pytest
 
 from pymatgen.entries.correction_calculator import CorrectionCalculator
 from pymatgen.util.testing import PymatgenTest
@@ -106,51 +110,47 @@ class CorrectionCalculatorTest(unittest.TestCase):
         """
         Test that the values in MPCompatiblity.yaml are reproduced correctly.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
-        self.assertDictEqual(corrs, self.normal_corrections)
+        assert corrs == self.normal_corrections
 
     def test_warnings_options(self):
         """
         Test that compounds can be included/excluded using the allow_{warning} optional parameters.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator(max_error=1, exclude_polyanions=[], allow_unstable=True)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
-        self.assertDictEqual(corrs, self.warnings_allowed_corrections)
+        assert corrs == self.warnings_allowed_corrections
 
     def test_no_uncertainties(self):
         """
         Test that corrections can be calculated with no uncertainties.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
-        self.assertDictEqual(corrs, self.no_uncertainties_corrections)
+        assert corrs == self.no_uncertainties_corrections
 
     def test_missing_entry_response(self):
         """
         Test that correct error is raised (ValueError) if the input is missing a computed entry.
         """
-
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_missing_compounds.json.gz")
 
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             calculator.compute_from_files(exp_path, calc_path)
 
 
