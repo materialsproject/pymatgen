@@ -218,8 +218,8 @@ def process_parsed_fock_matrix(fock_matrix):
 
 def process_parsed_HESS(hess_data):
     """
-    the format of the machine-readable 132.0 file which can be printed
     Takes the information contained in a HESS file and converts it into
+    the format of the machine-readable 132.0 file which can be printed
     out to be read into subsequent optimizations.
     dim = int(hess_data[1].split()[1])
     """
@@ -237,8 +237,8 @@ def process_parsed_HESS(hess_data):
             split_line = line.split()
             for jj in range(len(split_line)):
                 num = float(split_line[jj])
-                if row == column:
                 hess[row][column] = num
+                if row == column:
                     row += 1
                     column = 0
                 else:
