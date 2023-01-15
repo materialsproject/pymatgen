@@ -264,7 +264,7 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
         pmg_structure (Structure): A pymatgen structure object.
         atom_disp (float): Atomic displacement. Default is 0.01 $\\AA$.
         supercell_matrix (3x3 array): Scaling matrix for supercell.
-        yaml_fname (string): If not None, it represents the full path to
+        yaml_fname (str): If not None, it represents the full path to
             the outputting displacement yaml file, e.g. disp.yaml.
         **kwargs: Parameters used in Phonopy.generate_displacement method.
 

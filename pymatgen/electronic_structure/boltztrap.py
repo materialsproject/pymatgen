@@ -997,7 +997,7 @@ class BoltztrapAnalyzer:
         of electron chemical potential values
 
         Args:
-            output (string): the type of output. 'tensor' give the full
+            output (str): the type of output. 'tensor' give the full
             3x3 tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
@@ -1029,7 +1029,7 @@ class BoltztrapAnalyzer:
         of electron chemical potential values
 
         Args:
-            output (string): the type of output. 'tensor' give the full
+            output (str): the type of output. 'tensor' give the full
             3x3 tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
@@ -1066,7 +1066,7 @@ class BoltztrapAnalyzer:
         electron chemical potential values
 
         Args:
-            output (string): the type of output. 'tensor' give the full 3x3
+            output (str): the type of output. 'tensor' give the full 3x3
             tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
@@ -1130,7 +1130,7 @@ class BoltztrapAnalyzer:
         electron chemical potential values
 
         Args:
-            output (string): the type of output. 'tensor' give the full 3x3
+            output (str): the type of output. 'tensor' give the full 3x3
             tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
@@ -1199,7 +1199,7 @@ class BoltztrapAnalyzer:
         lattice thermal conductivity
 
         Args:
-            output (string): the type of output. 'tensor' give the full 3x3
+            output (str): the type of output. 'tensor' give the full 3x3
             tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
             doping_levels (boolean): True for the results to be given at
@@ -1295,7 +1295,7 @@ class BoltztrapAnalyzer:
         its 3 eigenvalues or an average
 
         Args:
-            output (string): 'eigs' for eigenvalues, 'tensor' for the full
+            output (str): 'eigs' for eigenvalues, 'tensor' for the full
             tensor and 'average' for an average (trace/3)
             doping_levels (boolean): True for the results to be given at
             different doping levels, False for results

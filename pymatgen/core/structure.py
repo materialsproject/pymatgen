@@ -4224,7 +4224,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             if isinstance(site, Site):
                 self._sites[ii] = site
             else:
-                if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
+                if isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
                     self._sites[ii].species = site  # type: ignore
                 else:
                     self._sites[ii].species = site[0]  # type: ignore
@@ -4243,7 +4243,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
-    ):
+    ) -> Molecule:
         """
         Appends a site to the molecule.
 
@@ -4301,7 +4301,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
-    ):
+    ) -> Molecule:
         """
         Insert a site to the molecule.
 
@@ -4322,6 +4322,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
         self._sites.insert(i, new_site)
+
+        return self
 
     def remove_species(self, species: Sequence[SpeciesLike]):
         """

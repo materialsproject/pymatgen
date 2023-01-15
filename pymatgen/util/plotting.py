@@ -206,7 +206,7 @@ def periodic_table_heatmap(
             value assigned to it, e.g. surface energy and frequency, etc.
             Elements missing in the elemental_data will be grey by default
             in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
-         cbar_label (string): Label of the colorbar. Default is "".
+         cbar_label (str): Label of the colorbar. Default is "".
          cbar_label_size (float): Font size for the colorbar label. Default is 14.
          cmap_range (tuple): Minimum and maximum value of the colormap scale.
             If None, the colormap will automatically scale to the range of the
@@ -216,11 +216,11 @@ def periodic_table_heatmap(
             is shown. Example: "%.4f" shows float to four decimals.
          value_fontsize (float): Font size for values. Default is 10.
          symbol_fontsize (float): Font size for element symbols. Default is 14.
-         cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
+         cmap (str): Color scheme of the heatmap. Default is 'YlOrRd'.
             Refer to the matplotlib documentation for other options.
-         blank_color (string): Color assigned for the missing elements in
+         blank_color (str): Color assigned for the missing elements in
             elemental_data. Default is "grey".
-         edge_color (string): Color assigned for the edge of elements in the
+         edge_color (str): Color assigned for the edge of elements in the
             periodic table. Default is "white".
          max_row (integer): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers

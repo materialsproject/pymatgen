@@ -69,7 +69,7 @@ class HighSymmKpath(KPathBase):
                 direction along which magnetic moments given as scalars
                 should point. If all magnetic moments are provided as
                 vectors then this argument is not used.
-            path_type (string): Chooses which convention to use to generate
+            path_type (str): Chooses which convention to use to generate
                 the high symmetry path. Options are: 'setyawan_curtarolo', 'hinuma',
                 'latimer_munro' for the Setyawan & Curtarolo, Hinuma et al., and
                 Latimer & Munro conventions. Choosing 'all' will generate one path
