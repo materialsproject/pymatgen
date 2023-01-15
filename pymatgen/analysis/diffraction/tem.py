@@ -287,7 +287,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns all relevant TEM DP info in a pandas dataframe.
         Args:
             structure (Structure): The input structure.
-            scaled (boolean): Required value for inheritance, does nothing in TEM pattern
+            scaled (bool): Required value for inheritance, does nothing in TEM pattern
             two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
         Returns:
             PandasDataFrame

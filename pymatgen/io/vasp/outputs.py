@@ -5341,11 +5341,11 @@ class Waveder(MSONable):
         between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
 
         Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
-            kpoint (Integer): Index of k-point
-            spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of Cartesian direction (0,1,2)
+            band_i (int): Index of band i
+            band_j (int): Index of band j
+            kpoint (int): Index of k-point
+            spin   (int): Index of spin-channel (0 or 1)
+            cart_dir (int): Index of Cartesian direction (0,1,2)
 
         Returns:
             a float value

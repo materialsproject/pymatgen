@@ -204,7 +204,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         mask (boolean array): Mask of matches that are not allowed.
             i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
-        return_d2 (boolean): whether to also return the squared distances
+        return_d2 (bool): whether to also return the squared distances
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2

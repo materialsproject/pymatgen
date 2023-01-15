@@ -500,7 +500,7 @@ class ElasticTensor(NthOrderElasticTensor):
             stresses (list of Stresses): list of stress objects to use in fit
                 corresponding to the list of strains
             eq_stress (Stress): equilibrium stress to use in fitting
-            vasp (boolean): flag for whether the stress tensor should be
+            vasp (bool): flag for whether the stress tensor should be
                 converted based on vasp units/convention for stress
             tol (float): tolerance for removing near-zero elements of the
                 resulting tensor

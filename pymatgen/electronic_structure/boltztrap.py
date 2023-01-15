@@ -1000,7 +1000,7 @@ class BoltztrapAnalyzer:
             output (str): the type of output. 'tensor' give the full
             3x3 tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
-            doping_levels (boolean): True for the results to be given at
+            doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
 
@@ -1032,7 +1032,7 @@ class BoltztrapAnalyzer:
             output (str): the type of output. 'tensor' give the full
             3x3 tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
-            doping_levels (boolean): True for the results to be given at
+            doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
             relaxation_time (float): constant relaxation time in secs
@@ -1069,7 +1069,7 @@ class BoltztrapAnalyzer:
             output (str): the type of output. 'tensor' give the full 3x3
             tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
-            doping_levels (boolean): True for the results to be given at
+            doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
             relaxation_time (float): constant relaxation time in secs
@@ -1133,10 +1133,10 @@ class BoltztrapAnalyzer:
             output (str): the type of output. 'tensor' give the full 3x3
             tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
-            doping_levels (boolean): True for the results to be given at
+            doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
-            k_el (boolean): True for k_0-PF*T, False for k_0
+            k_el (bool): True for k_0-PF*T, False for k_0
             relaxation_time (float): constant relaxation time in secs
 
         Returns:
@@ -1202,7 +1202,7 @@ class BoltztrapAnalyzer:
             output (str): the type of output. 'tensor' give the full 3x3
             tensor, 'eigs' its 3 eigenvalues and
             'average' the average of the three eigenvalues
-            doping_levels (boolean): True for the results to be given at
+            doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
             relaxation_time (float): constant relaxation time in secs
@@ -1297,7 +1297,7 @@ class BoltztrapAnalyzer:
         Args:
             output (str): 'eigs' for eigenvalues, 'tensor' for the full
             tensor and 'average' for an average (trace/3)
-            doping_levels (boolean): True for the results to be given at
+            doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
         Returns:
