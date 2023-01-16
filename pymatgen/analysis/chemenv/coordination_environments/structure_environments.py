@@ -659,10 +659,10 @@ class StructureEnvironments(MSONable):
         """
         Returns the continuous symmetry measure(s) of site with index isite with respect to the
          perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
-         be available (if there is no voronoi parameters leading to a number of neighbours corresponding to
+         be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
          the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
-         lead to more than one csm (when two or more different voronoi parameters lead to different neighbours
-         but with same number of neighbours).
+         lead to more than one csm (when two or more different voronoi parameters lead to different neighbors
+         but with same number of neighbors).
 
         Args:
             isite: Index of the site.
@@ -2053,7 +2053,7 @@ class LightStructureEnvironments(MSONable):
         Equality method that checks if the LightStructureEnvironments object is equal to another
         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
         is the same, if the structure is the same, if the valences used in the strategies are the same, if the
-        coordination environments and the neighbours determined by the strategy are the same.
+        coordination environments and the neighbors determined by the strategy are the same.
 
         Args:
             other: LightStructureEnvironments object to compare with.
@@ -2165,7 +2165,7 @@ class LightStructureEnvironments(MSONable):
 class ChemicalEnvironments(MSONable):
     """
     Class used to store all the information about the chemical environment of a given site for a given list of
-    coordinated neighbours (internally called "cn_map").
+    coordinated neighbors (internally called "cn_map").
     """
 
     def __init__(self, coord_geoms=None):

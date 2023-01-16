@@ -194,7 +194,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
     """
 
-    def neighbours(comp_index):
+    def neighbors(comp_index):
         return [(s.index, s.jimage) for s in bonded_structure.get_connected_sites(comp_index)]
 
     def rank(vertices):
@@ -210,7 +210,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         rank1 = rank(seen | {candidate})
         return rank1 > rank0
 
-    connected_sites = {i: neighbours(i) for i in range(bonded_structure.structure.num_sites)}
+    connected_sites = {i: neighbors(i) for i in range(bonded_structure.structure.num_sites)}
 
     seen_vertices = set()
     seen_comp_vertices = defaultdict(set)
