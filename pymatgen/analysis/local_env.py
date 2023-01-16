@@ -498,7 +498,7 @@ class NearNeighbors:
             raise ValueError("Shell must be positive")
 
         # Append this site to the list of previously-visited sites
-        _previous_steps = _previous_steps.union({(site_idx, _cur_image)})
+        _previous_steps = _previous_steps | {(site_idx, _cur_image)}
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])

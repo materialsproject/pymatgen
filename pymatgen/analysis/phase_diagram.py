@@ -895,16 +895,15 @@ class PhaseDiagram(MSONable):
                 "additional unstable entries"
             )
 
-            reduced_space = (
-                set(competing_entries)
-                .difference(self._get_stable_entries_in_space(entry_elems))
-                .union(self.el_refs.values())
-            )
+            reduced_space = competing_entries - {self._get_stable_entries_in_space(entry_elems)} | {
+                self.el_refs.values()
+            }
+
             # NOTE calling PhaseDiagram is only reasonable if the composition has fewer than 5 elements
-            # TODO can we call PatchedPhaseDiagram in the here?
+            # TODO can we call PatchedPhaseDiagram here?
             inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = inner_hull.stable_entries.union(self._get_stable_entries_in_space(entry_elems))
+            competing_entries = inner_hull.stable_entries | {self._get_stable_entries_in_space(entry_elems)}
             competing_entries = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
 
         if len(competing_entries) > space_limit:
@@ -1593,7 +1592,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Add terminal elements as we may not have PD patches including them
         # NOTE add el_refs in case no multielement entries are present for el
         _stable_entries = {se for pd in self.pds.values() for se in pd._stable_entries}
-        self._stable_entries = tuple(_stable_entries.union(self.el_refs.values()))
+        self._stable_entries = tuple(_stable_entries | {*self.el_refs.values()})
         self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
 
     def __repr__(self):

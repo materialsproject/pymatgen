@@ -531,10 +531,10 @@ class OptimadeRester:
             A string of comma-separated OPTIMADE response fields.
         """
         if isinstance(additional_response_fields, str):
-            additional_response_fields = [additional_response_fields]
+            additional_response_fields = {additional_response_fields}
         if not additional_response_fields:
             additional_response_fields = set()
-        return ",".join(set(additional_response_fields).union(self.mandatory_response_fields))
+        return ",".join({additional_response_fields} | self.mandatory_response_fields)
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """

@@ -207,7 +207,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
 
     def rank_increase(seen, candidate):
         rank0 = len(seen) - 1
-        rank1 = rank(seen.union({candidate}))
+        rank1 = rank(seen | {candidate})
         return rank1 > rank0
 
     connected_sites = {i: neighbours(i) for i in range(bonded_structure.structure.num_sites)}
@@ -482,7 +482,7 @@ def find_clusters(struct, connected_matrix):
 
     def visit(atom, atom_cluster):
         visited[atom] = True
-        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]).union(atom_cluster)
+        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]) | {atom_cluster}
         atom_cluster = new_cluster
         for new_atom in atom_cluster:
             if not visited[new_atom]:

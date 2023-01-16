@@ -653,6 +653,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             weight_dict (dict): {symbol: weight_fraction} dict.
+
+        Returns:
+            Composition
         """
 
         weight_sum = sum([val / Element(el).atomic_mass for el, val in weight_dict.items()])
@@ -1275,13 +1278,13 @@ class ChemicalPotential(dict, MSONable):
 
     def __sub__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self).union(other)
+            els = {*self} | {other}
             return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0) for e in els})
         return NotImplemented
 
     def __add__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self).union(other)
+            els = {*self} | {other}
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0) for e in els})
         return NotImplemented
 

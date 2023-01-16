@@ -1376,9 +1376,10 @@ class StructureGraph(MSONable):
     def sort(self, key=None, reverse=False):
         """
         Same as Structure.sort(), also remaps nodes in graph.
-        :param key:
-        :param reverse:
-        :return:
+
+        Args:
+            key: key to sort by
+            reverse: reverse sort order
         """
         old_structure = self.structure.copy()
 
@@ -1490,7 +1491,7 @@ class StructureGraph(MSONable):
         if len(edges) == 0 and len(edges_other) == 0:
             jaccard_dist = 0  # by definition
         else:
-            jaccard_dist = 1 - len(edges.intersection(edges_other)) / len(edges.union(edges_other))
+            jaccard_dist = 1 - len(edges ^ edges_other) / len(edges | edges_other)
 
         return {
             "self": edges - edges_other,
@@ -2930,11 +2931,11 @@ class MoleculeGraph(MSONable):
         if len(edges) == 0 and len(edges_other) == 0:
             jaccard_dist = 0  # by definition
         else:
-            jaccard_dist = 1 - len(edges.intersection(edges_other)) / len(edges.union(edges_other))
+            jaccard_dist = 1 - len(edges ^ edges_other) / len(edges | edges_other)
 
         return {
             "self": edges - edges_other,
             "other": edges_other - edges,
-            "both": edges.intersection(edges_other),
+            "both": edges ^ edges_other,
             "dist": jaccard_dist,
         }

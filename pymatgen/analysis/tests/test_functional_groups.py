@@ -90,7 +90,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         heteroatoms = self.extractor.get_heteroatoms()
         special_cs = self.extractor.get_special_carbon()
 
-        link = self.extractor.link_marked_atoms(heteroatoms.union(special_cs))
+        link = self.extractor.link_marked_atoms(heteroatoms | special_cs)
 
         self.assertEqual(len(link), 1)
         self.assertEqual(len(link[0]), 9)
@@ -98,7 +98,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         # Exclude Oxygen-related functional groups
         heteroatoms_no_o = self.extractor.get_heteroatoms(elements=["N"])
         special_cs_no_o = self.extractor.get_special_carbon(elements=["N"])
-        all_marked = heteroatoms_no_o.union(special_cs_no_o)
+        all_marked = heteroatoms_no_o | special_cs_no_o
 
         link_no_o = self.extractor.link_marked_atoms(all_marked)
 
@@ -118,7 +118,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         heteroatoms = self.extractor.get_heteroatoms()
         special_cs = self.extractor.get_special_carbon()
 
-        link = self.extractor.link_marked_atoms(heteroatoms.union(special_cs))
+        link = self.extractor.link_marked_atoms(heteroatoms | special_cs)
         basics = self.extractor.get_basic_functional_groups()
 
         all_func = self.extractor.get_all_functional_groups()
