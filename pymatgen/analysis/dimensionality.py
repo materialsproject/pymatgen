@@ -482,7 +482,7 @@ def find_clusters(struct, connected_matrix):
 
     def visit(atom, atom_cluster):
         visited[atom] = True
-        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]) | {atom_cluster}
+        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]) | atom_cluster
         atom_cluster = new_cluster
         for new_atom in atom_cluster:
             if not visited[new_atom]:

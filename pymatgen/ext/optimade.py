@@ -275,7 +275,7 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
 
         Returns: Dict of Structures keyed by that database's id system
         """
@@ -296,7 +296,8 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
+            additional_response_fields: Any additional fields desired from the OPTIMADE API,
 
         Returns: Dict of Structures keyed by that database's id system
         """
@@ -534,7 +535,7 @@ class OptimadeRester:
             additional_response_fields = {additional_response_fields}
         if not additional_response_fields:
             additional_response_fields = set()
-        return ",".join({additional_response_fields} | self.mandatory_response_fields)
+        return ",".join({*additional_response_fields} | self.mandatory_response_fields)
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """
