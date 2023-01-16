@@ -1277,13 +1277,13 @@ class ChemicalPotential(dict, MSONable):
 
     def __sub__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self) | {other}
+            els = {*self} | {*other}
             return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0) for e in els})
         return NotImplemented
 
     def __add__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self) | {other}
+            els = {*self} | {*other}
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0) for e in els})
         return NotImplemented
 
