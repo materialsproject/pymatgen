@@ -886,8 +886,8 @@ class QCOutput(MSONable):
                     total[ii] = float(val[0])
                 self.data["dipoles"]["total"] = total
                 dipole = np.zeros(shape=(len(temp_dipole_total), 3))
-                for ii, entry in enumerate(temp_dipole):
-                    for jj, val in enumerate(temp_dipole[ii]):
+                for ii, _entry in enumerate(temp_dipole):
+                    for jj, _val in enumerate(temp_dipole[ii]):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
 
@@ -957,8 +957,8 @@ class QCOutput(MSONable):
                         RESP_total[ii] = float(val[0])
                     self.data["dipoles"]["RESP_total"] = RESP_total
                     RESP_dipole = np.zeros(shape=(len(temp_RESP_dipole_total), 3))
-                    for ii, entry in enumerate(temp_RESP_dipole):
-                        for jj, val in enumerate(temp_RESP_dipole[ii]):
+                    for ii, _entry in enumerate(temp_RESP_dipole):
+                        for jj, _val in enumerate(temp_RESP_dipole[ii]):
                             RESP_dipole[ii][jj] = temp_RESP_dipole[ii][jj]
                     self.data["dipoles"]["RESP_dipole"] = RESP_dipole
 

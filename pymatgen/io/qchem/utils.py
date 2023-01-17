@@ -216,13 +216,13 @@ def process_parsed_HESS(hess_data):
     Takes the information contained in a HESS file and converts it into
     the format of the machine-readable 132.0 file which can be printed
     out to be read into subsequent optimizations.
-    dim = int(hess_data[1].split()[1])
     """
+    dim = int(hess_data[1].split()[1])
     hess = []
     tmp_part = []
-    for ii in range(dim):
+    for _ii in range(dim):
         tmp_part.append(0.0)
-    for ii in range(dim):
+    for _ii in range(dim):
         hess.append(copy.deepcopy(tmp_part))
 
     row = 0
