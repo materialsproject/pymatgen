@@ -4,8 +4,8 @@ Utilities for Qchem io.
 
 from __future__ import annotations
 
-import re
 import copy
+import re
 from collections import defaultdict
 
 import numpy as np
@@ -228,7 +228,7 @@ def process_parsed_HESS(hess_data):
     row = 0
     column = 0
     for ii, line in enumerate(hess_data):
-        if ii not in [0, 1, len(hess_data)-1]:
+        if ii not in [0, 1, len(hess_data) - 1]:
             split_line = line.split()
             for jj in range(len(split_line)):
                 num = float(split_line[jj])

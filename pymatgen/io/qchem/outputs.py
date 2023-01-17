@@ -221,9 +221,9 @@ class QCOutput(MSONable):
                 self.text, {"key": r"    LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
             gap_info["LUMO"] = float(temp_LUMO[0][0])
-            temp_KSgap = read_pattern(
-                self.text, {"key": r"KS gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
-            ).get("key")
+            temp_KSgap = read_pattern(self.text, {"key": r"KS gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True).get(
+                "key"
+            )
             gap_info["KSgap"] = float(temp_KSgap[0][0])
             self.data["gap_info"] = gap_info
         else:
@@ -879,13 +879,13 @@ class QCOutput(MSONable):
                 dipole = np.zeros(3)
                 for ii, val in enumerate(temp_dipole[0]):
                     dipole[ii] = float(val)
-                self.data["dipoles"]["dipole"] = dipole 
+                self.data["dipoles"]["dipole"] = dipole
             else:
                 total = np.zeros(len(temp_dipole_total))
                 for ii, val in enumerate(temp_dipole_total):
                     total[ii] = float(val[0])
                 self.data["dipoles"]["total"] = total
-                dipole = np.zeros(shape=(len(temp_dipole_total),3))
+                dipole = np.zeros(shape=(len(temp_dipole_total), 3))
                 for ii, entry in enumerate(temp_dipole):
                     for jj, val in enumerate(temp_dipole[ii]):
                         dipole[ii][jj] = temp_dipole[ii][jj]
@@ -935,10 +935,14 @@ class QCOutput(MSONable):
                 real_esp_or_resp += [temp]
             self.data[esp_or_resp[0][0]] = real_esp_or_resp
             temp_RESP_dipole_total = read_pattern(
-                self.text, {"key": r"Related Dipole Moment =\s*([\d\-\.]+)\s*\(X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\)"}
+                self.text,
+                {"key": r"Related Dipole Moment =\s*([\d\-\.]+)\s*\(X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\)"},
             ).get("key")
             temp_RESP_dipole = read_pattern(
-                self.text, {"key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\)"}
+                self.text,
+                {
+                    "key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\)"
+                },
             ).get("key")
             if temp_RESP_dipole is not None:
                 if len(temp_RESP_dipole_total) == 1:
@@ -946,13 +950,13 @@ class QCOutput(MSONable):
                     RESP_dipole = np.zeros(3)
                     for ii, val in enumerate(temp_RESP_dipole[0]):
                         RESP_dipole[ii] = float(val)
-                    self.data["dipoles"]["RESP_dipole"] = RESP_dipole 
+                    self.data["dipoles"]["RESP_dipole"] = RESP_dipole
                 else:
                     RESP_total = np.zeros(len(temp_RESP_dipole_total))
                     for ii, val in enumerate(temp_RESP_dipole_total):
                         RESP_total[ii] = float(val[0])
                     self.data["dipoles"]["RESP_total"] = RESP_total
-                    RESP_dipole = np.zeros(shape=(len(temp_RESP_dipole_total),3))
+                    RESP_dipole = np.zeros(shape=(len(temp_RESP_dipole_total), 3))
                     for ii, entry in enumerate(temp_RESP_dipole):
                         for jj, val in enumerate(temp_RESP_dipole[ii]):
                             RESP_dipole[ii][jj] = temp_RESP_dipole[ii][jj]
@@ -1117,9 +1121,7 @@ class QCOutput(MSONable):
 
             # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
             if self.data.get("new_optimizer") is None:
-                header_pattern = (
-                    r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-                )
+                header_pattern = r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
                 table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 footer_pattern = r"\s+Z-matrix Print:"
             else:  # pylint: disable=line-too-long
@@ -2510,10 +2512,10 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         # for all other entries, which I believe would nontrivially
                         # increase the size of the data being stored, which is aleady
                         # very large. So, here we have saved info that should be labeled
-                        # "donor 3C 1", "donor 3C 2", and "donor 3C 3" in the 
-                        # "donor atom 1 symbol", "donor atom 1 number", and 
+                        # "donor 3C 1", "donor 3C 2", and "donor 3C 3" in the
+                        # "donor atom 1 symbol", "donor atom 1 number", and
                         # "donor atom 2 symbol" fields, and then put a reminder in the
-                        # "donor atom 2 number" field. 
+                        # "donor atom 2 number" field.
                         entry["donor atom 1 symbol"] = split[0]
                         entry["donor atom 1 number"] = split[1]
                         entry["donor atom 2 symbol"] = split[2]
@@ -2538,10 +2540,10 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         # for all other entries, which I believe would nontrivially
                         # increase the size of the data being stored, which is aleady
                         # very large. So, here we have saved info that should be labeled
-                        # "acceptor 3C 1", "acceptor 3C 2", and "acceptor 3C 3" in the 
-                        # "acceptor atom 1 symbol", "acceptor atom 1 number", and 
+                        # "acceptor 3C 1", "acceptor 3C 2", and "acceptor 3C 3" in the
+                        # "acceptor atom 1 symbol", "acceptor atom 1 number", and
                         # "acceptor atom 2 symbol" fields, and then put a reminder in the
-                        # "acceptor atom 2 number" field. 
+                        # "acceptor atom 2 number" field.
                         entry["acceptor atom 1 symbol"] = split[0]
                         entry["acceptor atom 1 number"] = split[1]
                         entry["acceptor atom 2 symbol"] = split[2]
