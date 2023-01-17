@@ -10,6 +10,8 @@ The module also contains descriptors of part of these geometries (plane of separ
 identification algorithms.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"

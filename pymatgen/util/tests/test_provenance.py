@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import datetime
 import unittest
 
@@ -109,7 +111,7 @@ class StructureNLCase(unittest.TestCase):
         StructureNL(self.s, self.hulk, references=self.unicode_title)
 
         # multi-line references should be OK
-        StructureNL(self.s, self.hulk, references="\n".join([self.matproj, self.pmg]))
+        StructureNL(self.s, self.hulk, references=f"{self.matproj}\n{self.pmg}")
 
         # super long references are bad
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk, references=self.superlong)

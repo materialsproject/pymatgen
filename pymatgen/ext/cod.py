@@ -29,6 +29,8 @@ stipulated by the COD developers)::
     Structure Database". American Mineralogist 88, 247-250.
 """
 
+from __future__ import annotations
+
 import re
 import subprocess
 from shutil import which

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode

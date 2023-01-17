@@ -5,6 +5,8 @@
 This module provides input and output from the CSSR file format.
 """
 
+from __future__ import annotations
+
 import re
 
 from monty.io import zopen

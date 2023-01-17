@@ -27,6 +27,8 @@ superstructures for systems with high configurational freedom," Comp. Mat.
 Sci. 136 144-149 (May 2017)
 """
 
+from __future__ import annotations
+
 import fractions
 import glob
 import itertools
@@ -197,7 +199,7 @@ class EnumlibAdaptor:
                         ind = index_species.index(sp)
                         sp_label.append(ind)
                         index_amounts[ind] += amt * len(sites)
-                sp_label = "/".join([f"{i}" for i in sorted(sp_label)])
+                sp_label = "/".join(f"{i}" for i in sorted(sp_label))
                 for site in sites:
                     coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
                 disordered_sites.append(sites)

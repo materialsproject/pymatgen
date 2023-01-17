@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -87,7 +89,7 @@ class WulffShapeTest(PymatgenTest):
         # the point group of its conventional unit cell
 
         Args:
-            ucell (string): Unit cell that the Wulff shape is based on.
+            ucell (str): Unit cell that the Wulff shape is based on.
             wulff_vertices (list): List of all vertices on the Wulff
                 shape. Use wulff.wulff_pt_list to obtain the list
                 (see wulff_generator.py).

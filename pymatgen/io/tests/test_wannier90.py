@@ -5,6 +5,8 @@
 Tests for pymatgen.io.wannier90
 """
 
+from __future__ import annotations
+
 import numpy as np
 from monty.tempfile import ScratchDir
 

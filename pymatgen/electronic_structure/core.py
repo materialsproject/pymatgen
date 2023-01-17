@@ -6,6 +6,8 @@ This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
 
+from __future__ import annotations
+
 from enum import Enum, unique
 
 import numpy as np

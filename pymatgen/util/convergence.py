@@ -17,6 +17,8 @@ returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true 
 for the best fit a gnuplot line is printed plotting the data, the function and the asymptotic value
 """
 
+from __future__ import annotations
+
 import random
 import string
 

@@ -5,6 +5,8 @@
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -130,11 +132,11 @@ class DetailedVoronoiContainer(MSONable):
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
-        Set up of the voronoi list of neighbours by calling qhull.
+        Set up of the voronoi list of neighbors by calling qhull.
 
         Args:
             indices: indices of the sites for which the Voronoi is needed.
-            voronoi_cutoff: Voronoi cutoff for the search of neighbours.
+            voronoi_cutoff: Voronoi cutoff for the search of neighbors.
 
         Raises:
             RuntimeError: If an infinite vertex is found in the voronoi construction.

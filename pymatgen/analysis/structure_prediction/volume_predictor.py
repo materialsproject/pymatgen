@@ -5,6 +5,8 @@
 Predict volumes of crystal structures.
 """
 
+from __future__ import annotations
+
 import os
 import warnings
 

@@ -6,6 +6,8 @@ This module implements a MolecularOrbital class to represent band character in
 solids. Useful for predicting PDOS character from structural information.
 """
 
+from __future__ import annotations
+
 from itertools import chain, combinations
 
 from pymatgen.core.composition import Composition

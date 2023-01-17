@@ -5,6 +5,8 @@
 Analysis classes for batteries
 """
 
+from __future__ import annotations
+
 import math
 from collections import defaultdict
 
@@ -186,7 +188,7 @@ class BatteryAnalyzer:
 
         numa = set()
         for oxid_el in oxid_els:
-            numa = numa.union(self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa))
+            numa = numa | self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa)
         # convert from num A in structure to num A removed
         num_working_ion = self.comp[Species(self.working_ion.symbol, self.working_ion_charge)]
         return {num_working_ion - a for a in numa}
@@ -233,13 +235,13 @@ class BatteryAnalyzer:
             spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.working_ion.symbol
         )
         a = max(0, -oxi_noA / self.working_ion_charge)
-        numa = numa.union({a})
+        numa = numa | {a}
 
         # recursively try the other oxidation states
         if a == 0:
             return numa
         for red in redox_els:
-            numa = numa.union(self._get_int_removals_helper(spec_amts_oxi.copy(), red, redox_els, numa))
+            numa = numa | self._get_int_removals_helper(spec_amts_oxi.copy(), red, redox_els, numa)
         return numa
 
 

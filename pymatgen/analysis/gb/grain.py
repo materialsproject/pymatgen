@@ -258,8 +258,8 @@ class GrainBoundary(Structure):
         def to_s(x, rjust=10):
             return (f"{x:0.6f}").rjust(rjust)
 
-        outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
+        outs.append("abc   : " + " ".join(to_s(i) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_s(i) for i in self.lattice.angles))
         outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
@@ -267,7 +267,7 @@ class GrainBoundary(Structure):
                     [
                         str(i + 1),
                         site.species_string,
-                        " ".join([to_s(j, 12) for j in site.frac_coords]),
+                        " ".join(to_s(j, 12) for j in site.frac_coords),
                     ]
                 )
             )
@@ -1328,7 +1328,7 @@ class GrainBoundaryGenerator:
         within a sigma value cutoff with known rotation axis in cubic system.
         The algorithm for this code is from reference, Acta Cryst, A40,108(1984)
         Args:
-            cutoff (integer): the cutoff of sigma values.
+            cutoff (int): the cutoff of sigma values.
             r_axis (list of three integers, e.g. u, v, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w].
         Returns:
@@ -1404,7 +1404,7 @@ class GrainBoundaryGenerator:
         The algorithm for this code is from reference, Acta Cryst, A38,550(1982)
 
         Args:
-            cutoff (integer): the cutoff of sigma values.
+            cutoff (int): the cutoff of sigma values.
             r_axis (list of three integers, e.g. u, v, w
                     or four integers, e.g. u, v, t, w):
                     the rotation axis of the grain boundary.
@@ -1524,7 +1524,7 @@ class GrainBoundaryGenerator:
         The algorithm for this code is from reference, Acta Cryst, A45,505(1989).
 
         Args:
-            cutoff (integer): the cutoff of sigma values.
+            cutoff (int): the cutoff of sigma values.
             r_axis (list of three integers, e.g. u, v, w
                     or four integers, e.g. u, v, t, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w]
@@ -1663,7 +1663,7 @@ class GrainBoundaryGenerator:
         The algorithm for this code is from reference, Acta Cryst, B46,117(1990)
 
         Args:
-            cutoff (integer): the cutoff of sigma values.
+            cutoff (int): the cutoff of sigma values.
             r_axis (list of three integers, e.g. u, v, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w].
             c2_a2_ratio (list of two integers, e.g. mu, mv):
@@ -1775,7 +1775,7 @@ class GrainBoundaryGenerator:
         The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992)
 
         Args:
-            cutoff (integer): the cutoff of sigma values.
+            cutoff (int): the cutoff of sigma values.
             r_axis (list of three integers, e.g. u, v, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w].
             c2_b2_a2_ratio (list of three integers, e.g. mu,lambda, mv):
@@ -1920,7 +1920,7 @@ class GrainBoundaryGenerator:
         'Symmetric tilt', 'Normal tilt', 'Mixed' GBs.
 
         Args:
-            plane_cutoff (integer): the cutoff of plane miller index.
+            plane_cutoff (int): the cutoff of plane miller index.
             r_axis (list of three integers, e.g. u, v, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w].
             r_angle (float): rotation angle of the GBs.
@@ -1985,7 +1985,7 @@ class GrainBoundaryGenerator:
         Find all possible rotation angle for the given sigma value.
 
         Args:
-            sigma (integer):
+            sigma (int):
                     sigma value provided
             r_axis (list of three integers, e.g. u, v, w
                     or four integers, e.g. u, v, t, w for hex/rho system only):
@@ -2290,7 +2290,7 @@ class GrainBoundaryGenerator:
 
         Args:
             mat (3 by 3 array): input matrix
-            mag (integer): reduce times for the determinant
+            mag (int): reduce times for the determinant
             r_matrix (3 by 3 array): rotation matrix
         Return:
             the reduced integer array

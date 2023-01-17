@@ -7,6 +7,8 @@ Implementation for `pmg plot` CLI.
 """
 
 
+from __future__ import annotations
+
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.plotter import DosPlotter

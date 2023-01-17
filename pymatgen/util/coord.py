@@ -67,7 +67,8 @@ def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     Doesn't use periodic boundary conditions
 
     Args:
-        subset, superset: List of coords
+        subset: List of coords
+        superset: List of coords
 
     Returns:
         True if all of subset is in superset.
@@ -76,7 +77,7 @@ def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     c2 = np.array(superset)
     is_close = np.all(np.abs(c1[:, None, :] - c2[None, :, :]) < atol, axis=-1)
     any_close = np.any(is_close, axis=-1)
-    return np.all(any_close)
+    return all(any_close)
 
 
 def coord_list_mapping(subset, superset, atol=1e-8):
@@ -203,7 +204,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         mask (boolean array): Mask of matches that are not allowed.
             i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
-        return_d2 (boolean): whether to also return the squared distances
+        return_d2 (bool): whether to also return the squared distances
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2

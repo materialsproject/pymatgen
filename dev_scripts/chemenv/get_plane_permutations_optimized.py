@@ -6,6 +6,8 @@ Development script of the ChemEnv utility to get the optimized explicit permutat
 identified with the separation plane algorithms (typically with coordination numbers >= 6)
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 import os

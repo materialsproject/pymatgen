@@ -7,6 +7,8 @@ populations (COHP) and integrated COHP (ICOHP), but can also be used
 for crystal orbital overlap populations (COOP).
 """
 
+from __future__ import annotations
+
 import re
 import sys
 import warnings
@@ -77,8 +79,8 @@ class Cohp(MSONable):
             if Spin.down in self.cohp:
                 header.append("I" + cohpstring + "Down")
                 data.append(self.icohp[Spin.down])
-        formatheader = "#" + " ".join(["{:15s}" for __ in header])
-        formatdata = " ".join(["{:.5f}" for __ in header])
+        formatheader = "#" + " ".join("{:15s}" for __ in header)
+        formatdata = " ".join("{:.5f}" for __ in header)
         stringarray = [formatheader.format(*header)]
         for i, __ in enumerate(self.energies):
             stringarray.append(formatdata.format(*(d[i] for d in data)))

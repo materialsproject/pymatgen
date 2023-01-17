@@ -111,7 +111,7 @@ class SymmOp(MSONable):
         Returns:
             Coordinates of point after operation.
         """
-        affine_point = np.array([point[0], point[1], point[2], 1])
+        affine_point = np.array([*point, 1])  # type: ignore
         return np.dot(self.affine_matrix, affine_point)[0:3]
 
     def operate_multi(self, points: ArrayLike) -> np.ndarray:
@@ -155,7 +155,7 @@ class SymmOp(MSONable):
         # Build einstein sum string
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]
-        einsum_string = ",".join([a + i for a, i in zip(*indices)])
+        einsum_string = ",".join(a + i for a, i in zip(*indices))
         einsum_string += f",{indices[::-1][0]}->{indices[::-1][1]}"
         einsum_args = [self.rotation_matrix] * rank + [tensor]
 
@@ -577,7 +577,7 @@ class MagSymmOp(SymmOp):
         return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
 
     @classmethod
-    def from_symmop(cls, symmop, time_reversal) -> MagSymmOp:
+    def from_symmop(cls, symmop: SymmOp, time_reversal) -> MagSymmOp:
         """
         Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
@@ -588,8 +588,8 @@ class MagSymmOp(SymmOp):
         Returns:
             MagSymmOp object
         """
-        magsymmop = cls(symmop.affine_matrix, time_reversal, symmop.tol)
-        return magsymmop
+        mag_symmop = cls(symmop.affine_matrix, time_reversal, symmop.tol)
+        return mag_symmop
 
     @staticmethod
     def from_rotation_and_translation_and_time_reversal(
@@ -611,10 +611,10 @@ class MagSymmOp(SymmOp):
         Returns:
             MagSymmOp object
         """
-        symmop = SymmOp.from_rotation_and_translation(
+        symm_op = SymmOp.from_rotation_and_translation(
             rotation_matrix=rotation_matrix, translation_vec=translation_vec, tol=tol
         )
-        return MagSymmOp.from_symmop(symmop, time_reversal)
+        return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     @staticmethod
     def from_xyzt_string(xyzt_string: str) -> MagSymmOp:
@@ -626,12 +626,12 @@ class MagSymmOp(SymmOp):
         Returns:
             MagSymmOp object
         """
-        symmop = SymmOp.from_xyz_string(xyzt_string.rsplit(",", 1)[0])
+        symm_op = SymmOp.from_xyz_string(xyzt_string.rsplit(",", 1)[0])
         try:
             time_reversal = int(xyzt_string.rsplit(",", 1)[1])
         except Exception:
             raise Exception("Time reversal operator could not be parsed.")
-        return MagSymmOp.from_symmop(symmop, time_reversal)
+        return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     def as_xyzt_string(self) -> str:
         """
