@@ -451,8 +451,8 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(data["solvent_data"]["cmirs"]["max_pos_field_e"], 0.0180445935)
 
     def test_NBO_hyperbonds(self):
-        self.assertEqual(len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()),2)
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "hyper.qout")).data
+        self.assertEqual(len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()),2)
         self.assertEqual(data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1],106)
         self.assertEqual(data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0],"C")
         self.assertEqual(data["nbo_data"]["hyperbonds"][0]["occ"][1],3.0802)
