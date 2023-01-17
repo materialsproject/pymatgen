@@ -4607,7 +4607,7 @@ class Wavecar:
             # read the header information
             recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
-                print(f"recl={recl}, spin={spin}, rtag={rtag}")
+                print(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
             self.spin = spin
 

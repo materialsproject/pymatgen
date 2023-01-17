@@ -597,7 +597,7 @@ class PhaseDiagram(MSONable):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
                 return f, s
 
-        raise RuntimeError(f"No facet found for comp = {comp}")
+        raise RuntimeError(f"No facet found for {comp = }")
 
     def _get_all_facets_and_simplexes(self, comp):
         """
@@ -613,7 +613,7 @@ class PhaseDiagram(MSONable):
         ]
 
         if not all_facets:
-            raise RuntimeError(f"No facets found for comp = {comp}")
+            raise RuntimeError(f"No facets found for {comp = }")
 
         return all_facets
 
@@ -1344,7 +1344,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         chempots = ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items())
 
         output = [
-            f"{chemsys} GrandPotentialPhaseDiagram with chempots = {chempots}",
+            f"{chemsys} GrandPotentialPhaseDiagram with {chempots = }",
             f"{len(self.stable_entries)} stable phases: ",
             ", ".join(entry.name for entry in self.stable_entries),
         ]

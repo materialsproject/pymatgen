@@ -1195,7 +1195,7 @@ class StructureEnvironments(MSONable):
                     continue
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "has_neighbors",
                         "self": "None",
                         "other": set(other_site_nb_sets),
@@ -1205,7 +1205,7 @@ class StructureEnvironments(MSONable):
             if other_site_nb_sets is None:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "has_neighbors",
                         "self": set(self_site_nb_sets),
                         "other": "None",
@@ -1217,7 +1217,7 @@ class StructureEnvironments(MSONable):
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "coordination_numbers",
                         "self": self_site_cns,
                         "other": other_site_cns,
@@ -1232,7 +1232,7 @@ class StructureEnvironments(MSONable):
                 if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
                     differences.append(
                         {
-                            "difference": f"neighbors_sets[isite={isite:d}][cn={cn:d}]",
+                            "difference": f"neighbors_sets[{isite=:d}][{cn=:d}]",
                             "comparison": "neighbors_sets",
                             "self": self_site_cn_nb_sets,
                             "other": other_site_cn_nb_sets,
@@ -1248,7 +1248,7 @@ class StructureEnvironments(MSONable):
                         if self_ce.is_close_to(other_ce):
                             differences.append(
                                 {
-                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "__eq__",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1257,7 +1257,7 @@ class StructureEnvironments(MSONable):
                         else:
                             differences.append(
                                 {
-                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "is_close_to",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1347,6 +1347,7 @@ class StructureEnvironments(MSONable):
 
         Args:
             d: dict representation of the StructureEnvironments object.
+
         Returns:
             StructureEnvironments object.
         """
@@ -1846,12 +1847,13 @@ class LightStructureEnvironments(MSONable):
                             fractions.append(ce_dict["ce_fraction"])
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
-    def get_site_info_for_specie_allces(self, specie, min_fraction=0.0):
+    def get_site_info_for_specie_allces(self, specie, min_fraction=0):
         """
         Get list of indices that have the given specie.
 
         Args:
             specie: Species to get.
+            min_fraction: Minimum fraction of the coordination environment.
 
         Returns: Dictionary with the list of coordination environments for the given species, the indices of the sites
             in which they appear, their fractions and continuous symmetry measures.
@@ -1972,12 +1974,14 @@ class LightStructureEnvironments(MSONable):
     def structure_has_clear_environments(self, conditions=None, skip_none=True, skip_empty=False):
         """
         Whether all sites in a structure have "clear" environments.
+
         Args:
             conditions: Conditions to be checked for an environment to be "clear".
             skip_none: Whether to skip sites for which no environments have been computed.
             skip_empty: Whether to skip sites for which no environments could be found.
 
-        Returns: True if all the sites in the structure have clear environments.
+        Returns:
+            bool: True if all the sites in the structure have clear environments.
         """
         for isite in range(len(self.structure)):
             if self.coordination_environments[isite] is None:
@@ -2079,9 +2083,8 @@ class LightStructureEnvironments(MSONable):
 
     def as_dict(self):
         """
-        Bson-serializable dict representation of the LightStructureEnvironments object.
         Returns:
-            Bson-serializable dict representation of the LightStructureEnvironments object.
+            dict: Bson-serializable representation of the LightStructureEnvironments object.
         """
         return {
             "@module": type(self).__module__,
