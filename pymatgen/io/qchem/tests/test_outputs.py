@@ -15,11 +15,8 @@ from pymatgen.util.testing import PymatgenTest
 
 try:
     from openbabel import openbabel
-
-    openbabel  # reference openbabel so it's not unused import
-    have_babel = True
 except ImportError:
-    have_babel = False
+    openbabel = None
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -124,7 +121,7 @@ property_list = {
     "gap_info",
 }
 
-if have_babel:
+if openbabel is not None:
     property_list.add("structure_change")
 
 single_job_out_names = {
@@ -269,7 +266,7 @@ class TestQCOutput(PymatgenTest):
                 except ValueError:
                     self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
-    @unittest.skipIf(not have_babel, "OpenBabel not installed.")
+    @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
     def test_all(self):
         self.maxDiff = None
         single_outs = {}
@@ -286,7 +283,7 @@ class TestQCOutput(PymatgenTest):
             print("Testing ", key)
             self._test_property(key, single_outs, multi_outs)
 
-    @unittest.skipIf((not have_babel), "OpenBabel not installed.")
+    @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
     def test_structural_change(self):
 
         t1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t1.xyz"))
