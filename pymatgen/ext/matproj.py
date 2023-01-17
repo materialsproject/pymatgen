@@ -1635,7 +1635,7 @@ class _MPResterLegacy:
         prefix = "https://nomad-lab.eu/prod/rae/api/raw/query?"
         if file_patterns is not None:
             for file_pattern in file_patterns:
-                prefix += f"{file_pattern=}&"
+                prefix += f"file_pattern={file_pattern}&"
         prefix += "external_id="
 
         urls = [prefix + tids for tids in nomad_exist_task_ids]

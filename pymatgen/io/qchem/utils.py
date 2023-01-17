@@ -14,8 +14,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
-    r"""
-    General pattern reading on an input string
+    r"""General pattern reading on an input string
 
     Args:
         text_str (str): the input string to search for patterns
@@ -33,7 +32,6 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
         results from regex and postprocess. Note that the returned values
         are lists of lists, because you can grep multiple items on one line.
     """
-
     compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
     matches = defaultdict(list)
     for key, pattern in compiled.items():
@@ -46,7 +44,6 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
 
 def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, postprocess=str):
     """Parse a matrix to get the quantities in a numpy array."""
-
     # Get the piece of text between the header and the footer
     header_regex = re.compile(header_pattern)
     footer_regex = re.compile(footer_pattern)
@@ -72,8 +69,7 @@ def read_table_pattern(
     attribute_name=None,
     last_one_only=False,
 ):
-    r"""
-    Parse table-like data. A table composes of three parts: header,
+    r"""Parse table-like data. A table composes of three parts: header,
     main body, footer. All the data matches "row pattern" in the main body
     will be returned.
 
@@ -106,7 +102,6 @@ def read_table_pattern(
         row_pattern, or a dict in case that named capturing groups are defined by
         row_pattern.
     """
-
     table_pattern_text = header_pattern + r"\s*(?P<table_body>(?:" + row_pattern + r")+)\s*" + footer_pattern
     table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
     rp = re.compile(row_pattern)
@@ -168,15 +163,14 @@ def lower_and_check_unique(dict_to_check):
             new_key = "job_type"
 
         if new_key in to_return and val != to_return[new_key]:
-            raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
+            raise ValueError(f"Multiple instances of key {new_key} found with different values! Exiting...")
 
         to_return[new_key] = val
     return to_return
 
 
 def process_parsed_coords(coords):
-    """
-    Takes a set of parsed coordinates, which come as an array of strings,
+    """Takes a set of parsed coordinates, which come as an array of strings,
     and returns a numpy array of floats.
     """
     geometry = np.zeros(shape=(len(coords), 3), dtype=float)
@@ -189,7 +183,8 @@ def process_parsed_coords(coords):
 def process_parsed_fock_matrix(fock_matrix):
     """The Fock matrix is parsed as a list, while it should actually be
     a square matrix, this function takes the list of finds the right dimensions
-    in order to reshape the matrix."""
+    in order to reshape the matrix.
+    """
     total_elements = len(fock_matrix)
     n_rows = int(np.sqrt(total_elements))
     n_cols = n_rows
