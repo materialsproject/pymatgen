@@ -597,7 +597,7 @@ class FermiDos(Dos, MSONable):
             step /= 10.0
 
         if min(relative_error) > rtol:
-            raise ValueError(f"Could not find fermi within {rtol:.1%} of concentration={concentration}")
+            raise ValueError(f"Could not find fermi within {rtol:.1%} of {concentration=}")
         return fermi
 
     @classmethod

@@ -78,7 +78,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=15.0,
                     lw=2,
                     alpha=alpha,
@@ -92,7 +92,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=10.0,
                     lw=2,
                     alpha=alpha,
@@ -106,7 +106,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                 patchA=n1,
                 patchB=n2,
                 arrowstyle="-|>",
-                connectionstyle=f"arc3,rad={rad}",
+                connectionstyle=f"arc3,{rad=}",
                 mutation_scale=10.0,
                 lw=2,
                 alpha=alpha,
@@ -540,15 +540,13 @@ class ConnectedComponent(MSONable):
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
 
-    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True):
+    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
         """
         Args:
             graph ():
             save_file ():
             drawing_type ():
             pltshow ():
-
-        Returns:
         """
         import matplotlib.pyplot as plt
 
@@ -689,6 +687,7 @@ class ConnectedComponent(MSONable):
             start_node ():
 
         Returns:
+            nx.MultiGraph: Elastic centered subgraph.
         """
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
