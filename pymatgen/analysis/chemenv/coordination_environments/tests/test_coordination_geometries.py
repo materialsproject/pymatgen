@@ -296,7 +296,7 @@ class CoordinationGeometriesTest(PymatgenTest):
         assert allcg.get_geometry_from_name("Octahedron").mp_symbol == cg_oct.mp_symbol
         with pytest.raises(LookupError) as exc_info:
             allcg.get_geometry_from_name("Octahedran")
-        assert str(exc_info.value) == 'No coordination geometry found with name "Octahedran"'
+        assert str(exc_info.value) == "No coordination geometry found with name 'Octahedran'"
 
         assert allcg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
         with pytest.raises(LookupError) as exc_info:
