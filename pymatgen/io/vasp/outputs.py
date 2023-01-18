@@ -693,6 +693,17 @@ class Vasprun(MSONable):
         return CompleteDos(self.final_structure, self.tdos, pdoss)
 
     @property
+    def complete_dos_normalized(self):
+        """
+        A complete dos object which incorporates the total dos and all
+        projected dos. Normalized by the volume of the unit cell.
+        The resulting dos is in units of states/eV/unit cell volume.
+        """
+        final_struct = self.final_structure
+        pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos_normalized)}
+        return CompleteDos(self.final_structure, self.tdos_normalized, pdoss, normalize=True)
+
+    @property
     def hubbards(self):
         """
         Hubbard U values used if a vasprun is a GGA+U run. {} otherwise.
