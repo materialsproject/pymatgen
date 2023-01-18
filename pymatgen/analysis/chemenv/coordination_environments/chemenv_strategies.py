@@ -442,7 +442,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def __str__(self):
-        out = f'  Chemenv Strategy "{type(self).__name__}"\n'
+        out = f"  Chemenv Strategy {type(self).__name__!r}\n"
         out += f"  {'=' * (19 + len(type(self).__name__))}\n\n"
         out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION

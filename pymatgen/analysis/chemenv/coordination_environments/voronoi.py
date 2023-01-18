@@ -705,7 +705,7 @@ class DetailedVoronoiContainer(MSONable):
             dist_limits = [0.0, 1.0]
         else:
             raise NotImplementedError(
-                f"Plotting type \"{plot_type['distance_parameter']}\" for the distance is not implemented"
+                f"Plotting type {plot_type['distance_parameter']!r} for the distance is not implemented"
             )
         if plot_type["angle_parameter"][0] == "initial_normalized":
             aa = [0.0]
@@ -718,7 +718,7 @@ class DetailedVoronoiContainer(MSONable):
             angle_bounds = np.array(aa)
         else:
             raise NotImplementedError(
-                f"Plotting type \"{plot_type['angle_parameter']}\" for the angle is not implemented"
+                f"Plotting type {plot_type['angle_parameter']!r} for the angle is not implemented"
             )
         ang_limits = [0.0, 1.0]
         return {
@@ -854,7 +854,7 @@ class DetailedVoronoiContainer(MSONable):
             for idist, dist in enumerate(mydists):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
-            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
+            raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
         subplot.plot(xx, yy)
 
         return fig
@@ -913,7 +913,7 @@ class DetailedVoronoiContainer(MSONable):
             for iang, ang in enumerate(myangs):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
-            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
+            raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
         subplot.plot(xx, yy)
 
         return fig

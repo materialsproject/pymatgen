@@ -1811,7 +1811,7 @@ class BSPlotterProjected(BSPlotter):
                 if len(dictio[elt][0]) > 1:
                     if elt in sum_morbs:
                         raise ValueError(
-                            f"You cannot sum projection over one individual orbital '{dictio[elt][0]}' of {elt!r}."
+                            f"You cannot sum projection over one individual orbital {dictio[elt][0]!r} of {elt!r}."
                         )
                 else:
                     if sum_morbs is None:
