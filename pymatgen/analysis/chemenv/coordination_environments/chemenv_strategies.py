@@ -1335,7 +1335,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         elif self.average_type == "arithmetic":
             self.eval = self.aweight
         else:
-            raise ValueError(f'Average type is {average_type!r} while it should be "geometric" or "arithmetic"')
+            raise ValueError(f"Average type is {average_type!r} while it should be 'geometric' or 'arithmetic'")
         self.aa = aa
         self.bb = bb
         if self.aa == 0:
