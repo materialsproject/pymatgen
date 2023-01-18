@@ -192,7 +192,9 @@ class Dos(MSONable):
         Fermi level
     """
 
-    def __init__(self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike], norm_vol: float = 1.0):
+    def __init__(
+        self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike], norm_vol: float | None = None
+    ):
         """
         Args:
             efermi: Fermi level energy
@@ -202,7 +204,9 @@ class Dos(MSONable):
         """
         self.efermi = efermi
         self.energies = np.array(energies)
-        self.densities = {k: np.array(d) / norm_vol for k, d in densities.items()}
+        self.norm_vol = norm_vol
+        vol = norm_vol or 1.0
+        self.densities = {k: np.array(d) / vol for k, d in densities.items()}
 
     def get_densities(self, spin: Spin | None = None):
         """

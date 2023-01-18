@@ -700,7 +700,7 @@ class Vasprun(MSONable):
         The resulting dos is in units of states/eV/unit cell volume.
         """
         final_struct = self.final_structure
-        pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos_normalized)}
+        pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
         return CompleteDos(self.final_structure, self.tdos_normalized, pdoss, normalize=True)
 
     @property
