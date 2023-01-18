@@ -39,12 +39,12 @@ def postprocessor(data: str) -> str | int | float | bool | None:
         try:
             return int(data)
         except ValueError as exc:
-            raise ValueError(f"Error parsing '{data}' as int in CP2K file.") from exc
+            raise ValueError(f"Error parsing {data!r} as int in CP2K file.") from exc
     if re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", data):
         try:
             return float(data)
         except ValueError as exc:
-            raise ValueError(f"Error parsing '{data}' as float in CP2K file.") from exc
+            raise ValueError(f"Error parsing {data!r} as float in CP2K file.") from exc
     if re.match(r"\*+", data):
         return np.NaN
     return data

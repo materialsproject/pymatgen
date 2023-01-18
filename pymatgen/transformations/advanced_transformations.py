@@ -149,12 +149,7 @@ class SuperTransformation(AbstractTransformation):
                     d["transformation"] = t
                     structures.append(d)
             else:
-                structures.append(
-                    {
-                        "transformation": t,
-                        "structure": t.apply_transformation(structure),
-                    }
-                )
+                structures.append({"transformation": t, "structure": t.apply_transformation(structure)})
         return structures
 
     def __str__(self):

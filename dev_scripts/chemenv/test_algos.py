@@ -97,4 +97,4 @@ if __name__ == "__main__":
         print("   => ", algos_results)
         iperm += 1
     t2 = time.clock()
-    print(f'Time to test {nperms} permutations for geometry "{cg.name}" (symbol "{cg_symbol}") : {t2 - t1:.2f} seconds')
+    print(f"Time to test {nperms} permutations for geometry {cg.name!r} (symbol {cg_symbol!r}) : {t2 - t1:.2f} seconds")

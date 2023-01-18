@@ -785,7 +785,7 @@ class LocalGeometryFinder:
                             # Get possibly missing neighbors sets
                             if cg.neighbors_sets_hints is None:
                                 continue
-                            logging.debug(f'       ... getting hints from cg with mp_symbol "{cg_symbol}" ...')
+                            logging.debug(f"       ... getting hints from cg with mp_symbol {cg_symbol!r} ...")
                             hints_info = {
                                 "csm": cg_dict["symmetry_measure"],
                                 "nb_set": nb_set,

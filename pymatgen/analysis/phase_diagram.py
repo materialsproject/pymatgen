@@ -3369,7 +3369,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     if (nameup not in ordering) or (nameright not in ordering) or (nameleft not in ordering):
         raise ValueError(
             "Error in ordering_phase_diagram :\n"
-            f"'{nameup}', '{nameleft}' and '{nameright}' should be in ordering : {ordering}"
+            f"{nameup!r}, {nameleft!r} and {nameright!r} should be in ordering : {ordering}"
         )
 
     cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float_)
