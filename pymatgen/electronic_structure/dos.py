@@ -192,16 +192,17 @@ class Dos(MSONable):
         Fermi level
     """
 
-    def __init__(self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike]):
+    def __init__(self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike], norm_vol: float = 1.0):
         """
         Args:
             efermi: Fermi level energy
             energies: A sequences of energies
             densities (dict[Spin: np.array]): representing the density of states for each Spin.
+            norm_vol: The volume used to normalize the densities. Defaults to 1.0.
         """
         self.efermi = efermi
         self.energies = np.array(energies)
-        self.densities = {k: np.array(d) for k, d in densities.items()}
+        self.densities = {k: np.array(d) / norm_vol for k, d in densities.items()}
 
     def get_densities(self, spin: Spin | None = None):
         """
@@ -648,6 +649,7 @@ class CompleteDos(Dos):
         structure: Structure,
         total_dos: Dos,
         pdoss: Mapping[PeriodicSite, Mapping[Orbital, Mapping[Spin, ArrayLike]]],
+        normalize: bool = False,
     ):
         """
         Args:
@@ -655,10 +657,12 @@ class CompleteDos(Dos):
             total_dos: total Dos for structure
             pdoss: The pdoss are supplied as an {Site: {Orbital: {Spin:Densities}}}
         """
+        vol = structure.volume if normalize else 1.0
         super().__init__(
             total_dos.efermi,
             energies=total_dos.energies,
             densities={k: np.array(d) for k, d in total_dos.densities.items()},
+            norm_vol=vol,
         )
         self.pdos = pdoss
         self.structure = structure
