@@ -198,6 +198,15 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(pdos0[Orbital.pz][Spin.down][16], 0.0012)
         self.assertEqual(pdos0[Orbital.s][Spin.up].shape, (301,))
 
+        pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
+        self.assertAlmostEqual(
+            pdos0_norm[Orbital.s][Spin.up][16], pdos0[Orbital.s][Spin.up][16] / vasprun.final_structure.volume
+        )
+        self.assertAlmostEqual(
+            pdos0_norm[Orbital.pz][Spin.down][16], pdos0[Orbital.pz][Spin.down][16] / vasprun.final_structure.volume
+        )
+        self.assertEqual(pdos0_norm[Orbital.s][Spin.up].shape, (301,))
+
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
         totalscsteps = sum(len(i["electronic_steps"]) for i in vasprun.ionic_steps)
