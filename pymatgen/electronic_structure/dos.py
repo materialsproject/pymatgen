@@ -661,7 +661,15 @@ class CompleteDos(Dos):
             total_dos: total Dos for structure
             pdoss: The pdoss are supplied as an {Site: {Orbital: {Spin:Densities}}}
         """
-        vol = structure.volume if normalize else 1.0
+        vol = None
+        if normalize:
+            # normalize all the pdos
+            vol = structure.volume
+            for site, pdos in pdoss.items():
+                for orb, pdos in pdos.items():
+                    for spin, pdos in pdos.items():
+                        pdoss[site][orb][spin] = pdos / vol
+
         super().__init__(
             total_dos.efermi,
             energies=total_dos.energies,
