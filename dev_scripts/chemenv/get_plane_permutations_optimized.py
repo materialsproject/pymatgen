@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
         cg = all_cg[cg_symbol]
 
-        print(f'Getting explicit permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
+        print(f'Getting explicit permutations for geometry "{cg.name}" (symbol : {cg_symbol!r})\n')
 
         # Setup of the local geometry finder
         lgf = LocalGeometryFinder()
@@ -275,7 +275,7 @@ if __name__ == "__main__":
         while True:
             test = input(
                 f'Get the explicit optimized permutations for geometry "{cg.name}" (symbol : '
-                f'"{cg_symbol}") ? ("y" to confirm, "q" to quit)\n'
+                f'{cg_symbol!r}) ? ("y" to confirm, "q" to quit)\n'
             )
             if test not in ["y", "q"]:
                 print("Wrong key, try again")
@@ -285,7 +285,7 @@ if __name__ == "__main__":
             elif test == "q":
                 exit()
         # 2. Optimization of the permutations
-        print(f'Getting explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
+        print(f'Getting explicit optimized permutations for geometry "{cg.name}" (symbol : {cg_symbol!r})\n')
         perms_used_algos = [dict() for algo in cg.algorithms]
 
         # Loop on algorithms
@@ -424,7 +424,7 @@ if __name__ == "__main__":
                 algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
 
         test = input(
-            f'Save coordination geometry "{cg.name}" (symbol "{cg_symbol}") and new explicit and optimized '
+            f'Save coordination geometry "{cg.name}" (symbol {cg_symbol!r}) and new explicit and optimized '
             'permutations ? ("y" to confirm)'
         )
         if test == "y":

@@ -76,6 +76,6 @@ class ConnectivityFinder:
         if multiple_environments_choice is not None:
             if multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
                 raise ValueError(
-                    f'Option "{multiple_environments_choice}" for multiple_environments_choice is not allowed'
+                    f"Option {multiple_environments_choice!r} for multiple_environments_choice is not allowed"
                 )
         self.multiple_environments_choice = multiple_environments_choice

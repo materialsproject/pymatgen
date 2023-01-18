@@ -148,7 +148,7 @@ class NwTask(MSONable):
     def __str__(self):
         bset_spec = []
         for el, bset in sorted(self.basis_set.items(), key=lambda x: x[0]):
-            bset_spec.append(f' {el} library "{bset}"')
+            bset_spec.append(f" {el} library {bset!r}")
         theory_spec = []
         if self.theory_directives:
             theory_spec.append(f"{self.theory}")

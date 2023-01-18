@@ -210,7 +210,7 @@ class PackmolBoxGen(InputGenerator):
             if " " in str(fname):
                 # NOTE - double quotes are deliberately used inside the f-string here, do not change
                 # fmt: off
-                file_contents += f'structure "{fname}"\n'
+                file_contents += f'structure {fname!r}\n'
                 # fmt: on
             else:
                 file_contents += f"structure {fname}\n"
