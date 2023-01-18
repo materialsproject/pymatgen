@@ -664,11 +664,14 @@ class CompleteDos(Dos):
         vol = None
         if normalize:
             # normalize all the pdos
+            scaled_pdoss: dict = {}
             vol = structure.volume
             for site, pdos in pdoss.items():
-                for orb, pdos in pdos.items():
-                    for spin, pdos in pdos.items():
-                        pdoss[site][orb][spin] = pdos / vol
+                scaled_pdoss[site] = {}
+                for orb, dos in pdos.items():
+                    scaled_pdoss[site][orb] = {}
+                    for spin, d in dos.items():
+                        scaled_pdoss[site][orb][spin] = d / vol
 
         super().__init__(
             total_dos.efermi,
