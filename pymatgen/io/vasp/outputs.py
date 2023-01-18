@@ -701,7 +701,7 @@ class Vasprun(MSONable):
         """
         final_struct = self.final_structure
         pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
-        return CompleteDos(self.final_structure, self.tdos_normalized, pdoss, normalize=True)
+        return CompleteDos(self.final_structure, self.tdos, pdoss, normalize=True)
 
     @property
     def hubbards(self):
