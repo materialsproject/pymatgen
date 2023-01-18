@@ -183,14 +183,14 @@ def publish(ctx):
 def set_ver(ctx, version):
     with open("pymatgen/core/__init__.py") as f:
         contents = f.read()
-        contents = re.sub(r"__version__ = .*\n", f'__version__ = "{version}"\n', contents)
+        contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
     with open("pymatgen/core/__init__.py", "wt") as f:
         f.write(contents)
 
     with open("setup.py") as f:
         contents = f.read()
-        contents = re.sub(r"version=([^,]+),", f'version="{version}",', contents)
+        contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
     with open("setup.py", "wt") as f:
         f.write(contents)

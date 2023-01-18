@@ -651,7 +651,7 @@ class StructureEnvironments(MSONable):
             raise ChemenvError(
                 "StructureEnvironments",
                 "get_csm",
-                f'Number of csms for site #{str(isite)} with mp_symbol "{mp_symbol}" = {str(len(csms))}',
+                f"Number of csms for site #{str(isite)} with mp_symbol {mp_symbol!r} = {str(len(csms))}",
             )
         return csms[0]
 
@@ -1968,7 +1968,7 @@ class LightStructureEnvironments(MSONable):
                 if ce[target] > condition["maxnumber"]:
                     return False
             else:
-                raise ValueError(f'Target "{target}" for condition of clear environment is not allowed')
+                raise ValueError(f"Target {target!r} for condition of clear environment is not allowed")
         return True
 
     def structure_has_clear_environments(self, conditions=None, skip_none=True, skip_empty=False):
@@ -2294,7 +2294,7 @@ class ChemicalEnvironments(MSONable):
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",
-                f'Coordination geometry with mp_symbol "{mp_symbol}" is not valid',
+                f"Coordination geometry with mp_symbol {mp_symbol!r} is not valid",
             )
         if mp_symbol in list(self.coord_geoms) and not override:
             raise ChemenvError(

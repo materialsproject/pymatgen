@@ -392,7 +392,7 @@ class CoordinationGeometry:
                     neighbors set could be found from a "cap hint".
             """
             if hints_type not in self.ALLOWED_HINTS_TYPES:
-                raise ValueError(f'Type "{type}" for NeighborsSetsHints is not allowed')
+                raise ValueError(f"Type {type!r} for NeighborsSetsHints is not allowed")
             self.hints_type = hints_type
             self.options = options
 
@@ -1171,7 +1171,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.name == name or name in gg.alternative_names:
                 return gg
-        raise LookupError(f'No coordination geometry found with name "{name}"')
+        raise LookupError(f"No coordination geometry found with name {name!r}")
 
     def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol):
         """
@@ -1183,7 +1183,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.IUPAC_symbol == IUPAC_symbol:
                 return gg
-        raise LookupError(f'No coordination geometry found with IUPAC symbol "{IUPAC_symbol}"')
+        raise LookupError(f"No coordination geometry found with IUPAC symbol {IUPAC_symbol!r}")
 
     def get_geometry_from_IUCr_symbol(self, IUCr_symbol):
         """
@@ -1195,7 +1195,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.IUCr_symbol == IUCr_symbol:
                 return gg
-        raise LookupError(f'No coordination geometry found with IUCr symbol "{IUCr_symbol}"')
+        raise LookupError(f"No coordination geometry found with IUCr symbol {IUCr_symbol!r}")
 
     def get_geometry_from_mp_symbol(self, mp_symbol):
         """
@@ -1207,7 +1207,7 @@ class AllCoordinationGeometries(dict):
         for gg in self.cg_list:
             if gg.mp_symbol == mp_symbol:
                 return gg
-        raise LookupError(f'No coordination geometry found with mp_symbol "{mp_symbol}"')
+        raise LookupError(f"No coordination geometry found with mp_symbol {mp_symbol!r}")
 
     def is_a_valid_coordination_geometry(
         self, mp_symbol=None, IUPAC_symbol=None, IUCr_symbol=None, name=None, cn=None

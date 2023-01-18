@@ -1800,7 +1800,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictio:
                         raise ValueError(
-                            f"You cannot sum projection over orbitals of atoms '{elt}' because they are not "
+                            f"You cannot sum projection over orbitals of atoms {elt!r} because they are not "
                             "mentioned in 'dictio'."
                         )
                 else:
@@ -1811,7 +1811,7 @@ class BSPlotterProjected(BSPlotter):
                 if len(dictio[elt][0]) > 1:
                     if elt in sum_morbs:
                         raise ValueError(
-                            f"You cannot sum projection over one individual orbital '{dictio[elt][0]}' of '{elt}'."
+                            f"You cannot sum projection over one individual orbital {dictio[elt][0]!r} of {elt!r}."
                         )
                 else:
                     if sum_morbs is None:
@@ -1824,10 +1824,10 @@ class BSPlotterProjected(BSPlotter):
                         if len(sum_morbs[elt]) > 1:
                             for orb in sum_morbs[elt]:
                                 if dictio[elt][0] not in orb:
-                                    raise ValueError(f"The invalid orbital '{orb}' was put into 'sum_morbs[{elt}]'.")
+                                    raise ValueError(f"The invalid orbital {orb!r} was put into 'sum_morbs[{elt}]'.")
                         else:
                             if orb == "s" or len(orb) > 1:
-                                raise ValueError(f"The invalid orbital '{orb}' was put into sum_orbs['{elt}'].")
+                                raise ValueError(f"The invalid orbital {orb!r} was put into sum_orbs[{elt!r}].")
                             sum_morbs[elt] = individual_orbs[dictio[elt][0]]
                             dictio[elt] = individual_orbs[dictio[elt][0]]
             else:
@@ -1896,7 +1896,7 @@ class BSPlotterProjected(BSPlotter):
                         if isinstance(number, str):
                             if number.lower() == "all":
                                 dictpa[elt] = indices
-                                print(f"You want to consider all '{elt}' atoms.")
+                                print(f"You want to consider all {elt!r} atoms.")
                                 break
 
                             raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
@@ -1917,10 +1917,10 @@ class BSPlotterProjected(BSPlotter):
             raise KeyError("The number of keys in 'dictio' and 'dictpa' are not the same.")
         for elt in dictio:
             if elt not in dictpa:
-                raise KeyError(f"The element '{elt}' is not in both dictpa and dictio.")
+                raise KeyError(f"The element {elt!r} is not in both dictpa and dictio.")
         for elt in dictpa:
             if elt not in dictio:
-                raise KeyError(f"The element '{elt}' in not in both dictpa and dictio.")
+                raise KeyError(f"The element {elt!r} in not in both dictpa and dictio.")
 
         if sum_atoms is None:
             print("You do not want to sum projection over atoms.")
@@ -1943,7 +1943,7 @@ class BSPlotterProjected(BSPlotter):
                             if isinstance(number, str):
                                 if number.lower() == "all":
                                     sum_atoms[elt] = indices
-                                    print(f"You want to sum projection over all '{elt}' atoms.")
+                                    print(f"You want to sum projection over all {elt!r} atoms.")
                                     break
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                             if isinstance(number, int):
@@ -1951,7 +1951,7 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                                 if number not in dictpa[elt]:
                                     raise ValueError(
-                                        f"You cannot sum projection with atom number '{number}' because it is not "
+                                        f"You cannot sum projection with atom number {number!r} because it is not "
                                         f"mentioned in dicpta[{elt}]"
                                     )
                             else:
@@ -1965,7 +1965,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictpa:
                         raise ValueError(
-                            f"You cannot sum projection over atoms '{elt}' because it is not mentioned in 'dictio'."
+                            f"You cannot sum projection over atoms {elt!r} because it is not mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_atoms' as a key: {elt}")
