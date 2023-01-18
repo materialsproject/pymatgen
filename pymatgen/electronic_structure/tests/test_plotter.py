@@ -245,7 +245,7 @@ class BSDOSPlotterTest(unittest.TestCase):
         )
         plt.close("all")
         
-        with open (os.path.join(PymatgenTest.TEST_FILES_DIR,'SrBa2Sn2O7.json'),'r') as f:
+        with open (os.path.join(PymatgenTest.TEST_FILES_DIR,'SrBa2Sn2O7_random.json'),'r') as f:
             bandstr_dict = json.load(f)
         bandstr = BandStructureSymmLine.from_dict(bandstr_dict)
         plt = p.get_plot(bandstr)
