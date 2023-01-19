@@ -7,10 +7,10 @@ Input sets for Qchem
 
 from __future__ import annotations
 
+import copy
 import logging
 import os
 import warnings
-import copy
 from typing import Literal
 
 from monty.io import zopen
