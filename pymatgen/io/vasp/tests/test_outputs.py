@@ -199,13 +199,12 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(pdos0[Orbital.s][Spin.up].shape, (301,))
 
         pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
-        self.assertAlmostEqual(
-            pdos0_norm[Orbital.s][Spin.up][16], pdos0[Orbital.s][Spin.up][16] / vasprun.final_structure.volume
-        )
-        self.assertAlmostEqual(
-            pdos0_norm[Orbital.pz][Spin.down][16], pdos0[Orbital.pz][Spin.down][16] / vasprun.final_structure.volume
-        )
+        self.assertAlmostEqual(pdos0_norm[Orbital.s][Spin.up][16], 0.0026)  # the site data should not change
         self.assertEqual(pdos0_norm[Orbital.s][Spin.up].shape, (301,))
+
+        cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
+        self.assertAlmostEqual(ratio, vasprun.final_structure.volume)  # the site data should not change
 
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)

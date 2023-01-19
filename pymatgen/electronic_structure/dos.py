@@ -200,7 +200,9 @@ class Dos(MSONable):
             efermi: Fermi level energy
             energies: A sequences of energies
             densities (dict[Spin: np.array]): representing the density of states for each Spin.
-            norm_vol: The volume used to normalize the densities. Defaults to 1.0.
+            norm_vol: The volume used to normalize the densities. Defaults to if None which will not perform any
+                normalization.  If not None, the resulting density will have units of states/eV/Angstrom^3, otherwise
+                the density will be in states/eV.
         """
         self.efermi = efermi
         self.energies = np.array(energies)
@@ -660,19 +662,11 @@ class CompleteDos(Dos):
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
             pdoss: The pdoss are supplied as an {Site: {Orbital: {Spin:Densities}}}
+            normalize: Whether to normalize the densities by the volume of the structure.
+                If True, the units of the densities are states/eV/Angstrom^3. Otherwise,
+                the units are states/eV.
         """
-        vol = None
-        if normalize:
-            # normalize all the pdos
-            scaled_pdoss: dict = {}
-            vol = structure.volume
-            for site, pdos in pdoss.items():
-                scaled_pdoss[site] = {}
-                for orb, dos in pdos.items():
-                    scaled_pdoss[site][orb] = {}
-                    for spin, d in dos.items():
-                        scaled_pdoss[site][orb][spin] = d / vol
-
+        vol = structure.volume if normalize else None
         super().__init__(
             total_dos.efermi,
             energies=total_dos.energies,
