@@ -6,11 +6,12 @@ from __future__ import annotations
 
 import logging
 import os
-import pytest
 import struct
 import unittest
 
+import pytest
 from monty.io import zopen
+
 from pymatgen.io.qchem.utils import lower_and_check_unique, process_parsed_HESS
 from pymatgen.util.testing import PymatgenTest
 
@@ -31,7 +32,7 @@ class UtilTest(PymatgenTest):
     def test_lower_and_check_unique(self):
         d = {"sVp": {"RHOISO": 0.0009}, "jobType": "SP"}
         d2 = lower_and_check_unique(d)
-        self.assertEqual(d2,{"svp": {"RHOISO": 0.0009}, "job_type": "sp"})
+        self.assertEqual(d2, {"svp": {"RHOISO": 0.0009}, "job_type": "sp"})
         d3 = lower_and_check_unique(d2["svp"])
         self.assertEqual(d3, {"rhoiso": "0.0009"})
         d4 = {"jobType": "SP", "JOBtype": "SP"}
@@ -46,8 +47,8 @@ class UtilTest(PymatgenTest):
         data_132 = []
         with zopen(os.path.join(test_dir, "parse_hess", "132.0"), mode="rb") as file:
             binary = file.read()
-            for ii in range(int(len(binary)/8)):
-                data_132.append(struct.unpack("d",binary[ii*8:(ii+1)*8])[0])
+            for ii in range(int(len(binary) / 8)):
+                data_132.append(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0])
 
         data_HESS = []
         with zopen(
