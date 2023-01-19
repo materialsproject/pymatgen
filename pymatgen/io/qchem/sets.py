@@ -426,21 +426,22 @@ class QChemDictSet(QCInput):
                     myrem["geom_opt2"] = "3"
                 elif self.qchem_version == 6 and not self.geom_opt:
                     tmp_geom_opt = {}
-                if "maxiter" in tmp_geom_opt:
-                    if tmp_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
-                        raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
-                else:
-                    tmp_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
-                if self.qchem_version == 6:
-                    if "coordinates" not in tmp_geom_opt:
-                        tmp_geom_opt["coordinates"] = "redundant"
-                    if "max_displacement" not in tmp_geom_opt:
-                        tmp_geom_opt["max_displacement"] = "0.1"
-                    if "optimization_restart" not in tmp_geom_opt:
-                        tmp_geom_opt["optimization_restart"] = "false"
-                my_geom_opt = {}
-                for key in tmp_geom_opt:
-                    my_geom_opt[key] = tmp_geom_opt[key]
+                if tmp_geom_opt:
+                    if "maxiter" in tmp_geom_opt:
+                        if tmp_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
+                            raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
+                    else:
+                        tmp_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
+                    if self.qchem_version == 6:
+                        if "coordinates" not in tmp_geom_opt:
+                            tmp_geom_opt["coordinates"] = "redundant"
+                        if "max_displacement" not in tmp_geom_opt:
+                            tmp_geom_opt["max_displacement"] = "0.1"
+                        if "optimization_restart" not in tmp_geom_opt:
+                            tmp_geom_opt["optimization_restart"] = "false"
+                    my_geom_opt = {}
+                    for key in tmp_geom_opt:
+                        my_geom_opt[key] = tmp_geom_opt[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
