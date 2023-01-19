@@ -783,8 +783,8 @@ class QCOutput(MSONable):
                 r"(?:\s*[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s"
                 r"+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
                 r"(?:\s*Resetting GDM\.)*(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+)*"
-                r"(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]"
-                r"+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
+                r"(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+"
+                r"[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
                 r"(?:\s*gdm_qls\: Orbitals will not converge further\.)*"
                 r"(?:(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::WARNING energy changes are now smaller than effective "
                 r"accuracy\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+calculation will continue, but THRESH s"
@@ -943,7 +943,7 @@ class QCOutput(MSONable):
             ).get("key")
             temp_RESP_dipole = read_pattern(
                 self.text,
-                {
+                {  # pylint: disable=line-too-long
                     "key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\)"
                 },
             ).get("key")
@@ -1123,7 +1123,7 @@ class QCOutput(MSONable):
                 )
 
             # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-            if self.data.get("new_optimizer") is None:
+            if self.data.get("new_optimizer") is None:  # pylint: disable=line-too-long
                 header_pattern = r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
                 table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 footer_pattern = r"\s+Z-matrix Print:"
