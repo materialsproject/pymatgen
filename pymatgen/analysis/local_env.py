@@ -2008,7 +2008,7 @@ def get_okeeffe_params(el_symbol):
     if el not in list(BV_PARAMS):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            f' "{el_symbol}" in "BV_PARAMS"dictionary'
+            f' {el_symbol!r} in "BV_PARAMS"dictionary'
             " provided by pymatgen"
         )
 

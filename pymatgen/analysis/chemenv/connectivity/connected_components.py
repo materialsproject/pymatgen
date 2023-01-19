@@ -210,7 +210,7 @@ class ConnectedComponent(MSONable):
         environments_data=None,
         links_data=None,
         graph=None,
-    ):
+    ) -> None:
         """
         Constructor for the ConnectedComponent object.
 
@@ -354,7 +354,7 @@ class ConnectedComponent(MSONable):
             elif coordination == "env:number":
                 cseq[0] = {source_node.coordination_environment: 1}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         while path_len < path_size:
             new_ends = []
             for current_node_end, current_delta_end in current_ends:
@@ -377,7 +377,7 @@ class ConnectedComponent(MSONable):
                 myenvs = [myend.coordination_environment for myend, _ in current_ends]
                 cseq[path_len] = {myenv: myenvs.count(myenv) for myenv in set(myenvs)}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         return cseq
 
     def __len__(self):
@@ -395,7 +395,7 @@ class ConnectedComponent(MSONable):
         elif algorithm == "cycle_basis":
             self.compute_periodicity_cycle_basis()
         else:
-            raise ValueError(f'Algorithm "{algorithm}" is not allowed to compute periodicity')
+            raise ValueError(f"Algorithm {algorithm!r} is not allowed to compute periodicity")
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
