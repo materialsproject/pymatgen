@@ -7,7 +7,6 @@ Input sets for Qchem
 
 from __future__ import annotations
 
-import copy
 import logging
 import os
 import warnings
@@ -419,15 +418,15 @@ class QChemDictSet(QCInput):
                 if key != "version":
                     mynbo[key] = self.nbo_params[key]
 
-        tmp_geom_opt = copy.deepcopy(self.geom_opt)
-        my_geom_opt = copy.deepcopy(self.geom_opt)
+        tmp_geom_opt = self.geom_opt
+        my_geom_opt = self.geom_opt
         if self.job_type.lower() in ["opt", "optimization"]:
             if self.qchem_version == 6 or (self.qchem_version == 5 and self.geom_opt is not None):
                 if self.qchem_version == 5:
                     myrem["geom_opt2"] = "3"
                 elif self.qchem_version == 6 and not self.geom_opt:
                     tmp_geom_opt = {}
-                if tmp_geom_opt:
+                if tmp_geom_opt is not None:
                     if "maxiter" in tmp_geom_opt:
                         if tmp_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
                             raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
