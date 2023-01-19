@@ -693,11 +693,11 @@ class Vasprun(MSONable):
         return CompleteDos(self.final_structure, self.tdos, pdoss)
 
     @property
-    def complete_dos_normalized(self):
+    def complete_dos_normalized(self) -> CompleteDos:
         """
-        A complete dos object which incorporates the total dos and all
-        projected dos. Normalized by the volume of the unit cell.
-        The resulting dos is in units of states/eV/unit cell volume.
+        A CompleteDos object which incorporates the total DOS and all
+        projected DOS. Normalized by the volume of the unit cell with
+        units of states/eV/unit cell volume.
         """
         final_struct = self.final_structure
         pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}

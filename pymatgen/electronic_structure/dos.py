@@ -194,20 +194,20 @@ class Dos(MSONable):
 
     def __init__(
         self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike], norm_vol: float | None = None
-    ):
+    ) -> None:
         """
         Args:
             efermi: Fermi level energy
             energies: A sequences of energies
             densities (dict[Spin: np.array]): representing the density of states for each Spin.
             norm_vol: The volume used to normalize the densities. Defaults to if None which will not perform any
-                normalization.  If not None, the resulting density will have units of states/eV/Angstrom^3, otherwise
+                normalization. If not None, the resulting density will have units of states/eV/Angstrom^3, otherwise
                 the density will be in states/eV.
         """
         self.efermi = efermi
         self.energies = np.array(energies)
         self.norm_vol = norm_vol
-        vol = norm_vol or 1.0
+        vol = norm_vol or 1
         self.densities = {k: np.array(d) / vol for k, d in densities.items()}
 
     def get_densities(self, spin: Spin | None = None):
@@ -656,7 +656,7 @@ class CompleteDos(Dos):
         total_dos: Dos,
         pdoss: Mapping[PeriodicSite, Mapping[Orbital, Mapping[Spin, ArrayLike]]],
         normalize: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             structure: Structure associated with this particular DOS.
