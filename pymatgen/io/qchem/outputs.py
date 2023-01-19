@@ -1123,11 +1123,11 @@ class QCOutput(MSONable):
                 )
 
             # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-            if self.data.get("new_optimizer") is None:  # pylint: disable=line-too-long
+            if self.data.get("new_optimizer") is None:  # pylint: disable-next=line-too-long
                 header_pattern = r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
                 table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 footer_pattern = r"\s+Z-matrix Print:"
-            else:  # pylint: disable=line-too-long
+            else:  # pylint: disable-next=line-too-long
                 header_pattern = r"(OPTIMIZATION|TRANSITION STATE)\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
                 table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
                 footer_pattern = r"\s*-+"
