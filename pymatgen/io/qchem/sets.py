@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import os
 import warnings
+import copy
 from typing import Literal
 
 from monty.io import zopen
