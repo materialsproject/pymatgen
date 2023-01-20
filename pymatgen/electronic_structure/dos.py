@@ -200,7 +200,7 @@ class Dos(MSONable):
             efermi: Fermi level energy
             energies: A sequences of energies
             densities (dict[Spin: np.array]): representing the density of states for each Spin.
-            norm_vol: The volume used to normalize the densities. Defaults to if None which will not perform any
+            norm_vol: The volume used to normalize the densities. Defaults to 1 if None which will not perform any
                 normalization. If not None, the resulting density will have units of states/eV/Angstrom^3, otherwise
                 the density will be in states/eV.
         """

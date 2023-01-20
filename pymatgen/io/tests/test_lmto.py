@@ -36,20 +36,17 @@ class CtrlTest(unittest.TestCase):
         os.chdir(this_dir)
 
     def test_dict(self):
-        self.assertEqual(self.ctrl_bise, LMTOCtrl.from_dict(self.ctrl_bise.as_dict()))
+        assert self.ctrl_bise == LMTOCtrl.from_dict(self.ctrl_bise.as_dict())
 
     def test_structure(self):
         bise_poscar = Structure.from_file("POSCAR.BiSe")
-        self.assertTrue(bise_poscar.matches(self.ctrl_bise.structure))
-        self.assertEqual(
-            self.ctrl_bise,
-            LMTOCtrl(self.ctrl_bise.structure, header="Bi6Se6, hexagonal"),
-        )
+        assert bise_poscar.matches(self.ctrl_bise.structure)
+        assert self.ctrl_bise == LMTOCtrl(self.ctrl_bise.structure, header="Bi6Se6, hexagonal")
 
     def test_read_write(self):
         self.ctrl_bise.write_file(filename="CTRL.tmp")
         ctrl_tmp = LMTOCtrl.from_file(filename="CTRL.tmp")
-        self.assertTrue(self.ctrl_bise.structure.matches(ctrl_tmp.structure))
+        assert self.ctrl_bise.structure.matches(ctrl_tmp.structure)
         os.remove("CTRL.tmp")
 
 
@@ -64,12 +61,12 @@ class CoplTest(PymatgenTest):
         os.chdir(this_dir)
 
     def test_attributes(self):
-        self.assertFalse(self.copl_bise.is_spin_polarized)
-        self.assertTrue(self.copl_fe.is_spin_polarized)
-        self.assertEqual(len(self.copl_bise.energies), 801)
-        self.assertEqual(len(self.copl_fe.energies), 801)
-        self.assertEqual(len(self.copl_bise.cohp_data), 7)
-        self.assertEqual(len(self.copl_fe.cohp_data), 8)
+        assert not self.copl_bise.is_spin_polarized
+        assert self.copl_fe.is_spin_polarized
+        assert len(self.copl_bise.energies) == 801
+        assert len(self.copl_fe.energies) == 801
+        assert len(self.copl_bise.cohp_data) == 7
+        assert len(self.copl_fe.cohp_data) == 8
 
     def test_cohp_data(self):
         lengths_sites_bise = {
@@ -82,18 +79,18 @@ class CoplTest(PymatgenTest):
             "Se7-Se8": (3.364, (6, 7)),
         }
         for bond in self.copl_bise.cohp_data:
-            self.assertEqual(self.copl_bise.cohp_data[bond]["length"], lengths_sites_bise[bond][0])
-            self.assertEqual(self.copl_bise.cohp_data[bond]["sites"], lengths_sites_bise[bond][1])
+            assert self.copl_bise.cohp_data[bond]["length"] == lengths_sites_bise[bond][0]
+            assert self.copl_bise.cohp_data[bond]["sites"] == lengths_sites_bise[bond][1]
         labels_fe = ["Fe1-Fe1"] + [f"Fe1-Fe1-{i}" for i in range(1, 8)]
-        self.assertEqual(sorted(self.copl_fe.cohp_data), labels_fe)
+        assert sorted(self.copl_fe.cohp_data) == labels_fe
         for bond in labels_fe:
-            self.assertEqual(self.copl_fe.cohp_data[bond]["length"], 2.482)
-            self.assertEqual(self.copl_fe.cohp_data[bond]["sites"], (0, 0))
+            assert self.copl_fe.cohp_data[bond]["length"] == 2.482
+            assert self.copl_fe.cohp_data[bond]["sites"] == (0, 0)
 
     def test_energies(self):
-        self.assertEqual(self.copl_bise.efermi, -0.17223)
-        self.assertEqual(self.copl_bise_eV.efermi, -2.3433)
-        self.assertEqual(self.copl_fe.efermi, -0.085683)
+        assert self.copl_bise.efermi == -0.17223
+        assert self.copl_bise_eV.efermi == -2.3433
+        assert self.copl_fe.efermi == -0.085683
         ener_eV = np.array(
             [round_to_sigfigs(energy, 5) for energy in self.copl_bise.energies * Ry_to_eV],
             dtype=float,

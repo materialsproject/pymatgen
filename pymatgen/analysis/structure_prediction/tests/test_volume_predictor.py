@@ -7,6 +7,9 @@ import os
 import unittest
 import warnings
 
+import pytest
+from pytest import approx
+
 from pymatgen.analysis.structure_prediction.volume_predictor import (
     DLSVolumePredictor,
     RLSVolumePredictor,
@@ -30,31 +33,31 @@ class RLSVolumePredictorTest(PymatgenTest):
         nacl.replace_species({"Cs": "Na"})
         nacl.scale_lattice(184.384551033)
         p = RLSVolumePredictor(radii_type="ionic")
-        self.assertAlmostEqual(p.predict(s, nacl), 342.84905395082535)
+        assert p.predict(s, nacl) == approx(342.84905395082535)
         p = RLSVolumePredictor(radii_type="atomic")
-        self.assertAlmostEqual(p.predict(s, nacl), 391.884366481)
+        assert p.predict(s, nacl) == approx(391.884366481)
         lif = PymatgenTest.get_structure("CsCl")
         lif.replace_species({"Cs": "Li", "Cl": "F"})
         p = RLSVolumePredictor(radii_type="ionic")
-        self.assertAlmostEqual(p.predict(lif, nacl), 74.268402413690467)
+        assert p.predict(lif, nacl) == approx(74.268402413690467)
         p = RLSVolumePredictor(radii_type="atomic")
-        self.assertAlmostEqual(p.predict(lif, nacl), 62.2808125839)
+        assert p.predict(lif, nacl) == approx(62.2808125839)
 
         lfpo = PymatgenTest.get_structure("LiFePO4")
         lmpo = PymatgenTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
         p = RLSVolumePredictor(radii_type="ionic")
-        self.assertAlmostEqual(p.predict(lmpo, lfpo), 310.08253254420134)
+        assert p.predict(lmpo, lfpo) == approx(310.08253254420134)
         p = RLSVolumePredictor(radii_type="atomic")
-        self.assertAlmostEqual(p.predict(lmpo, lfpo), 299.607967711)
+        assert p.predict(lmpo, lfpo) == approx(299.607967711)
 
         sto = PymatgenTest.get_structure("SrTiO3")
         scoo = PymatgenTest.get_structure("SrTiO3")
         scoo.replace_species({"Ti4+": "Co4+"})
         p = RLSVolumePredictor(radii_type="ionic")
-        self.assertAlmostEqual(p.predict(scoo, sto), 56.162534974936463)
+        assert p.predict(scoo, sto) == approx(56.162534974936463)
         p = RLSVolumePredictor(radii_type="atomic")
-        self.assertAlmostEqual(p.predict(scoo, sto), 57.4777835108)
+        assert p.predict(scoo, sto) == approx(57.4777835108)
 
         # Use Ag7P3S11 as a test case:
 
@@ -63,15 +66,15 @@ class RLSVolumePredictorTest(PymatgenTest):
         apo = Structure.from_file(os.path.join(dir_path, "Ag7P3S11_mp-683910_primitive.cif"))
         apo.replace_species({"S": "O"})
         p = RLSVolumePredictor(radii_type="atomic", check_isostructural=False)
-        self.assertAlmostEqual(p.predict(apo, aps), 1196.31384276)
+        assert p.predict(apo, aps) == approx(1196.31384276)
 
         # (ii) Oxidation states are assigned.
         apo.add_oxidation_state_by_element({"Ag": 1, "P": 5, "O": -2})
         aps.add_oxidation_state_by_element({"Ag": 1, "P": 5, "S": -2})
         p = RLSVolumePredictor(radii_type="ionic")
-        self.assertAlmostEqual(p.predict(apo, aps), 1165.23259079)
+        assert p.predict(apo, aps) == approx(1165.23259079)
         p = RLSVolumePredictor(radii_type="atomic")
-        self.assertAlmostEqual(p.predict(apo, aps), 1196.31384276)
+        assert p.predict(apo, aps) == approx(1196.31384276)
 
     def test_modes(self):
         s = PymatgenTest.get_structure("CsCl")
@@ -79,11 +82,12 @@ class RLSVolumePredictorTest(PymatgenTest):
         nacl.replace_species({"Cs": "Na"})
         nacl.scale_lattice(184.384551033)
         p = RLSVolumePredictor(radii_type="ionic", use_bv=False)
-        self.assertRaises(ValueError, p.predict, s, nacl)
+        with pytest.raises(ValueError):
+            p.predict(s, nacl)
         p = RLSVolumePredictor(radii_type="ionic-atomic", use_bv=False)
-        self.assertAlmostEqual(p.predict(s, nacl), 391.884366481)
+        assert p.predict(s, nacl) == approx(391.884366481)
         p = RLSVolumePredictor(radii_type="ionic-atomic", use_bv=True)
-        self.assertAlmostEqual(p.predict(s, nacl), 342.84905395082535)
+        assert p.predict(s, nacl) == approx(342.84905395082535)
 
 
 class DLSVolumePredictorTest(PymatgenTest):
@@ -94,28 +98,28 @@ class DLSVolumePredictorTest(PymatgenTest):
 
         fen = Structure.from_file(os.path.join(dir_path, "FeN_mp-6988.cif"))
 
-        self.assertAlmostEqual(p.predict(fen), 18.2252568873)
+        assert p.predict(fen) == approx(18.2252568873)
         fen.scale_lattice(fen.volume * 3.0)
-        self.assertAlmostEqual(p_nolimit.predict(fen), 18.2252568873)
-        self.assertAlmostEqual(p.predict(fen), fen.volume * 0.5)
+        assert p_nolimit.predict(fen) == approx(18.2252568873)
+        assert p.predict(fen) == approx(fen.volume * 0.5)
         fen.scale_lattice(fen.volume * 0.1)
-        self.assertAlmostEqual(p_nolimit.predict(fen), 18.2252568873)
-        self.assertAlmostEqual(p.predict(fen), fen.volume * 1.5)
-        self.assertAlmostEqual(p_fast.predict(fen), fen.volume * 1.5)
+        assert p_nolimit.predict(fen) == approx(18.2252568873)
+        assert p.predict(fen) == approx(fen.volume * 1.5)
+        assert p_fast.predict(fen) == approx(fen.volume * 1.5)
 
         lfpo = PymatgenTest.get_structure("LiFePO4")
 
         lfpo.scale_lattice(lfpo.volume * 3.0)
-        self.assertAlmostEqual(p_nolimit.predict(lfpo), 291.62094410192924)
-        self.assertAlmostEqual(p.predict(lfpo), lfpo.volume * 0.5)
+        assert p_nolimit.predict(lfpo) == approx(291.62094410192924)
+        assert p.predict(lfpo) == approx(lfpo.volume * 0.5)
         lfpo.scale_lattice(lfpo.volume * 0.1)
-        self.assertAlmostEqual(p_nolimit.predict(lfpo), 291.62094410192924)
-        self.assertAlmostEqual(p.predict(lfpo), lfpo.volume * 1.5)
-        self.assertAlmostEqual(p_fast.predict(lfpo), lfpo.volume * 1.5)
+        assert p_nolimit.predict(lfpo) == approx(291.62094410192924)
+        assert p.predict(lfpo) == approx(lfpo.volume * 1.5)
+        assert p_fast.predict(lfpo) == approx(lfpo.volume * 1.5)
 
         lmpo = PymatgenTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
-        self.assertAlmostEqual(p.predict(lmpo), 290.795329052)
+        assert p.predict(lmpo) == approx(290.795329052)
 
 
 if __name__ == "__main__":

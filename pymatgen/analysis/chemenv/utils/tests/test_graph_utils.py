@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-__author__ = "waroquiers"
-
 import numpy as np
 import pytest
 
@@ -12,6 +10,8 @@ from pymatgen.analysis.chemenv.utils.graph_utils import (
     get_delta,
 )
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 
 class FakeNode:

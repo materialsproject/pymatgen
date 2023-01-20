@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 import unittest
 
+from pytest import approx
+
 try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
@@ -32,14 +34,14 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
     def test_plot(self):
         plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
         plt = plotter.get_plot_gs()
-        self.assertEqual(str(type(plt)), "<class 'module'>")
+        assert str(type(plt)) == "<class 'module'>"
 
     def test_as_dict_from_dict(self):
         new_dict = self.bs_symm_line.as_dict()
         self.new_bs_symm_line = GruneisenPhononBandStructureSymmLine.from_dict(new_dict)
         plotter = GruneisenPhononBSPlotter(bs=self.new_bs_symm_line)
         plt = plotter.get_plot_gs()
-        self.assertEqual(str(type(plt)), "<class 'module'>")
+        assert str(type(plt)) == "<class 'module'>"
 
 
 @unittest.skipIf(TotalDos is None, "Phonopy not present")
@@ -61,55 +63,55 @@ class GruneisenParameterTest(PymatgenTest):
     def test_plot(self):
         plotter = GruneisenPlotter(self.gruneisen_obj)
         plt = plotter.get_plot(units="mev")
-        self.assertEqual(str(type(plt)), "<class 'module'>")
+        assert str(type(plt)) == "<class 'module'>"
 
     def test_fromdict_asdict(self):
         new_dict = self.gruneisen_obj.as_dict()
         self.gruneisen_obj2 = GruneisenParameter.from_dict(new_dict)
 
     def test_frequencies(self):
-        self.assertAlmostEqual(self.gruneisen_obj_small.frequencies[0], 0.1264214687)
-        self.assertAlmostEqual(self.gruneisen_obj_small.frequencies[1], 0.1264214687)
-        self.assertAlmostEqual(self.gruneisen_obj_small.frequencies[2], 0.2527200484)
-        self.assertAlmostEqual(self.gruneisen_obj_small.frequencies[3], 8.8520245263)
-        self.assertAlmostEqual(self.gruneisen_obj_small.frequencies[4], 8.8520245263)
-        self.assertAlmostEqual(self.gruneisen_obj_small.frequencies[5], 9.6601659578)
+        assert self.gruneisen_obj_small.frequencies[0] == approx(0.1264214687)
+        assert self.gruneisen_obj_small.frequencies[1] == approx(0.1264214687)
+        assert self.gruneisen_obj_small.frequencies[2] == approx(0.2527200484)
+        assert self.gruneisen_obj_small.frequencies[3] == approx(8.8520245263)
+        assert self.gruneisen_obj_small.frequencies[4] == approx(8.8520245263)
+        assert self.gruneisen_obj_small.frequencies[5] == approx(9.6601659578)
 
     def test_multi(self):
-        self.assertAlmostEqual(self.gruneisen_obj_small.multiplicities[0], 1)
-        self.assertAlmostEqual(self.gruneisen_obj.multiplicities[0], 2)
+        assert self.gruneisen_obj_small.multiplicities[0] == approx(1)
+        assert self.gruneisen_obj.multiplicities[0] == approx(2)
 
     def test_gruneisen(self):
-        self.assertAlmostEqual(self.gruneisen_obj_small.gruneisen[0], -0.6176464482)
-        self.assertAlmostEqual(self.gruneisen_obj_small.gruneisen[5], 1.7574050911)
+        assert self.gruneisen_obj_small.gruneisen[0] == approx(-0.6176464482)
+        assert self.gruneisen_obj_small.gruneisen[5] == approx(1.7574050911)
 
     def test_tdos(self):
         tdos = self.gruneisen_obj.tdos
-        self.assertEqual(type(tdos), phonopy.phonon.dos.TotalDos)
+        assert isinstance(tdos, phonopy.phonon.dos.TotalDos)
 
     def test_phdos(self):
-        self.assertAlmostEqual(self.gruneisen_obj.phdos.cv(298.15), 45.17772584681599)
+        assert self.gruneisen_obj.phdos.cv(298.15) == approx(45.17772584681599)
 
     def test_average_gruneisen(self):
-        self.assertAlmostEqual(self.gruneisen_obj.average_gruneisen(), 1.164231026696211)
-        self.assertAlmostEqual(self.gruneisen_obj.average_gruneisen(squared=False), 0.849759667411049)
-        self.assertAlmostEqual(self.gruneisen_obj.average_gruneisen(limit_frequencies="debye"), 0.848865124114612)
-        self.assertAlmostEqual(self.gruneisen_obj.average_gruneisen(limit_frequencies="acoustic"), 1.283180896570312)
-        self.assertAlmostEqual(self.gruneisen_obj_Si.average_gruneisen(), 1.1090815951892143)
+        assert self.gruneisen_obj.average_gruneisen() == approx(1.164231026696211)
+        assert self.gruneisen_obj.average_gruneisen(squared=False) == approx(0.849759667411049)
+        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="debye") == approx(0.848865124114612)
+        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="acoustic") == approx(1.283180896570312)
+        assert self.gruneisen_obj_Si.average_gruneisen() == approx(1.1090815951892143)
 
     def test_thermal_conductivity_slack(self):
-        self.assertAlmostEqual(self.gruneisen_obj.thermal_conductivity_slack(), 77.97582174520458)
-        self.assertAlmostEqual(self.gruneisen_obj.thermal_conductivity_slack(t=300), 88.94562145031158)
-        self.assertAlmostEqual(self.gruneisen_obj_Si.thermal_conductivity_slack(t=300), 127.69008331982265)
+        assert self.gruneisen_obj.thermal_conductivity_slack() == approx(77.97582174520458)
+        assert self.gruneisen_obj.thermal_conductivity_slack(t=300) == approx(88.94562145031158)
+        assert self.gruneisen_obj_Si.thermal_conductivity_slack(t=300) == approx(127.69008331982265)
 
     def test_debye_temp_phonopy(self):
         # This is the correct conversion when starting from THz in the debye_freq
-        self.assertAlmostEqual(self.gruneisen_obj_small.debye_temp_phonopy(), 473.31932718764284)
+        assert self.gruneisen_obj_small.debye_temp_phonopy() == approx(473.31932718764284)
 
     def test_acoustic_debye_temp(self):
-        self.assertAlmostEqual(self.gruneisen_obj_small.acoustic_debye_temp, 317.54811309631845)
-        self.assertAlmostEqual(self.gruneisen_obj.acoustic_debye_temp, 342.2046198151735)
-        self.assertAlmostEqual(self.gruneisen_obj_Si.acoustic_debye_temp, 526.0725636300882)
+        assert self.gruneisen_obj_small.acoustic_debye_temp == approx(317.54811309631845)
+        assert self.gruneisen_obj.acoustic_debye_temp == approx(342.2046198151735)
+        assert self.gruneisen_obj_Si.acoustic_debye_temp == approx(526.0725636300882)
 
 
 if __name__ == "__main__":

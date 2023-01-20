@@ -6,6 +6,8 @@ from __future__ import annotations
 import random
 import unittest
 
+import pytest
+
 from pymatgen.util.num import abs_cap, min_max_indexes, round_to_sigfigs
 
 __author__ = "Shyue Ping Ong"
@@ -18,20 +20,20 @@ __date__ = "9/25/14"
 
 class FuncTestCase(unittest.TestCase):
     def test_abs_cap(self):
-        self.assertEqual(abs_cap(1.000000001), 1.0)
-        self.assertEqual(abs_cap(-1.000000001), -1.0)
+        assert abs_cap(1.000000001) == 1.0
+        assert abs_cap(-1.000000001) == -1.0
 
         v = random.uniform(-1, 1)
-        self.assertEqual(abs_cap(v), v)
+        assert abs_cap(v) == v
 
-        self.assertEqual(abs_cap(1.000000001, 2), 1.000000001)
-        self.assertEqual(abs_cap(-2.000000001, 2), -2.0)
+        assert abs_cap(1.000000001, 2) == 1.000000001
+        assert abs_cap(-2.000000001, 2) == -2.0
 
     def test_min_max_indexes(self):
         val = ["b", "a", "m", "z", "y"]
         min_ind, max_ind = min_max_indexes(val)
-        self.assertEqual(min_ind, 1)
-        self.assertEqual(max_ind, 3)
+        assert min_ind == 1
+        assert max_ind == 3
 
     def test_round(self):
         vals = [424.2425, 2.3425356, 0.000042535636653, 0.23, 2.468e6, 0, -1.392156]
@@ -48,10 +50,10 @@ class FuncTestCase(unittest.TestCase):
 
         for v, val in enumerate(vals):
             for s, sig in enumerate(sigfigs):
-                self.assertEqual(round_to_sigfigs(val, sig), rounded_vals[v][s])
-        with self.assertRaises(ValueError):
+                assert round_to_sigfigs(val, sig) == rounded_vals[v][s]
+        with pytest.raises(ValueError):
             round_to_sigfigs(3.5, -2)
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             round_to_sigfigs(3.5, 3.5)
 
 
