@@ -319,11 +319,11 @@ class TestQCOutput(PymatgenTest):
 
     def test_NBO_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo.qout")).data
-        self.assertEqual(len(data["nbo_data"]["natural_populations"]), 3)
-        self.assertEqual(len(data["nbo_data"]["hybridization_character"]), 6)
-        self.assertEqual(len(data["nbo_data"]["perturbation_energy"]), 2)
-        self.assertEqual(data["nbo_data"]["natural_populations"][0]["Density"][5], -0.08624)
-        self.assertEqual(data["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][35], "-0.7059")
+        assert len(data["nbo_data"]["natural_populations"]) == 3
+        assert len(data["nbo_data"]["hybridization_character"]) == 6
+        assert len(data["nbo_data"]["perturbation_energy"]) == 2
+        assert data["nbo_data"]["natural_populations"][0]["Density"][5] == -0.08624
+        assert data["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][35] == "-0.7059"
         next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"])[-2]
         assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last] == 0.071
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
@@ -355,9 +355,10 @@ class TestQCOutput(PymatgenTest):
             data5["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
             == data7["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
         )
-        self.assertEqual(
-            data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9],
-            data7["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9],
+        assert (
+            data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
+            == data7["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
+        )
         assert (
             data5["nbo_data"]["hybridization_character"][0]["s"][0]
             == data7["nbo_data"]["hybridization_character"][0]["s"][0]
@@ -450,25 +451,25 @@ class TestQCOutput(PymatgenTest):
 
     def test_NBO_hyperbonds(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "hyper.qout")).data
-        self.assertEqual(len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()), 2)
-        self.assertEqual(data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1], 106)
-        self.assertEqual(data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0], "C")
-        self.assertEqual(data["nbo_data"]["hyperbonds"][0]["occ"][1], 3.0802)
+        assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()) == 2
+        assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
+        assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
+        assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
 
     def test_NBO_3C(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "3C.qout")).data
-        self.assertEqual(len(data["nbo_data"]["hybridization_character"]), 3)
-        self.assertEqual(data["nbo_data"]["hybridization_character"][2]["type"][0], "3C")
-        self.assertEqual(data["nbo_data"]["hybridization_character"][2]["type"][10], "3Cn")
-        self.assertEqual(data["nbo_data"]["hybridization_character"][2]["type"][20], "3C*")
-        self.assertEqual(data["nbo_data"]["hybridization_character"][2]["atom 3 pol coeff"][15], "0.3643")
-        self.assertEqual(data["nbo_data"]["hybridization_character"][2]["atom 3 polarization"][8], "56.72")
-        self.assertEqual(data["nbo_data"]["hybridization_character"][2]["atom 3 symbol"][3], "B")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2592], 36)
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["donor atom 2 symbol"][2125], "B12")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2593], "info_is_from_3C")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][723], "3C*")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][3209], 3.94)
+        assert len(data["nbo_data"]["hybridization_character"]) == 3
+        assert data["nbo_data"]["hybridization_character"][2]["type"][0] == "3C"
+        assert data["nbo_data"]["hybridization_character"][2]["type"][10] == "3Cn"
+        assert data["nbo_data"]["hybridization_character"][2]["type"][20] == "3C*"
+        assert data["nbo_data"]["hybridization_character"][2]["atom 3 pol coeff"][15] == "0.3643"
+        assert data["nbo_data"]["hybridization_character"][2]["atom 3 polarization"][8] == "56.72"
+        assert data["nbo_data"]["hybridization_character"][2]["atom 3 symbol"][3] == "B"
+        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2592] == 36
+        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 symbol"][2125] == "B12"
+        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2593] == "info_is_from_3C"
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][723] == "3C*"
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][3209] == 3.94
 
 
 if __name__ == "__main__":
