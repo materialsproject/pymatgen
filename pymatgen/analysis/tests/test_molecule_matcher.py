@@ -32,7 +32,7 @@ except (ImportError, RuntimeError):
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "molecule_matcher")
 
 
-obalign_missing = (ob is None) or ("OBAlign" not in dir(ob))
+obalign_missing = ob is None or "OBAlign" not in dir(ob)
 
 
 def rotate(mol, seed):

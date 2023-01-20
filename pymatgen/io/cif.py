@@ -542,7 +542,7 @@ class CifParser:
 
         # check for finite precision frac coordinates (e.g. 0.6667 instead of 0.6666666...7)
         # this can sometimes cause serious issues when applying symmetry operations
-        important_fracs = (1 / 3.0, 2 / 3.0)
+        important_fracs = (1 / 3, 2 / 3)
         fracs_to_change = {}
         for label in ("_atom_site_fract_x", "_atom_site_fract_y", "_atom_site_fract_z"):
             if label in data.data:
@@ -646,15 +646,16 @@ class CifParser:
         data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
     ):
         """
-        Generate the lattice from the provided lattice parameters.
+        Take a dictionary of CIF data and returns a pymatgen Lattice object
+
         Args:
-            data:
-            length_strings:
-            angle_strings:
-            lattice_type:
+            data: a dictionary of the CIF file
+            length_strings: The strings that are used to identify the length parameters in the CIF file.
+            angle_strings: The strings that are used to identify the angles in the CIF file.
+            lattice_type: The type of lattice.  This is a string, and can be any of the following:
 
         Returns:
-
+            The lattice object.
         """
         lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
         angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
@@ -1467,7 +1468,6 @@ def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
-
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
         # been modified to treat it as optional. Same logic applies to lists.

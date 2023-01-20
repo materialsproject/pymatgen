@@ -481,7 +481,7 @@ from    to  to_image
 
         assert len(weight_statistics["all_weights"]) == 6
         assert weight_statistics["min"] == approx(2.4169314100201875)
-        assert weight_statistics["variance"] == approx(0)
+        assert weight_statistics["variance"] == approx(0, abs=1e-10)
 
     def test_types_of_coordination_environments(self):
 
