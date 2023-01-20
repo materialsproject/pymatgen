@@ -75,6 +75,7 @@ class DosPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
+        self._norm_val = True
         self._doses: dict[
             str, dict[Literal["energies", "densities", "efermi"], float | ArrayLike | dict[Spin, ArrayLike]]
         ] = {}
@@ -84,11 +85,11 @@ class DosPlotter:
         Adds a dos for plotting.
 
         Args:
-            label:
-                label for the DOS. Must be unique.
-            dos:
-                Dos object
+            label: label for the DOS. Must be unique.
+            dos: Dos object
         """
+        if dos.norm_vol is None:
+            self._norm_val = False
         energies = dos.energies - dos.efermi if self.zero_at_efermi else dos.energies
         densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
         efermi = dos.efermi
@@ -215,7 +216,11 @@ class DosPlotter:
             plt.plot([0, 0], ylim, "k--", linewidth=2)
 
         plt.xlabel("Energies (eV)")
-        plt.ylabel("Density of states")
+
+        if self._norm_val:
+            plt.ylabel("Density of states (states/eV/Å³)")
+        else:
+            plt.ylabel("Density of states (states/eV)")
 
         plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
         plt.legend()
@@ -315,7 +320,7 @@ class BSPlotter:
 
     def _maketicks(self, plt):
         """
-        utility private method to add ticks to a band structure
+        Utility private method to add ticks to a band structure
         """
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -595,6 +600,7 @@ class BSPlotter:
             smooth (bool or list(bools)): interpolates the bands by a spline cubic.
                 A single bool values means to interpolate all the bandstructure objs.
                 A list of bools allows to select the bandstructure obs to interpolate.
+            vbm_cbm_marker (bool): if True, a marker is added to the vbm and cbm.
             smooth_tol (float) : tolerance for fitting spline to band data.
                 Default is None such that no tolerance will be used.
             smooth_k (int): degree of splines 1<k<5
@@ -752,6 +758,8 @@ class BSPlotter:
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
             ylim: Specifies the y-axis limits.
+            zero_to_efermi: Automatically the Fermi level as the origin.
+            smooth: Cubic spline interpolation of the bands.
         """
         plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
         plt.savefig(filename, format=img_format)
@@ -840,13 +848,14 @@ class BSPlotter:
 
     def plot_compare(self, other_plotter, legend=True):
         """
-        plot two band structure for comparison. One is in red the other in blue
+        Plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
         on the same symmetry lines! and the distance between symmetry lines is
         the one of the band structure used to build the BSPlotter
 
         Args:
-            another band structure object defined along the same symmetry lines
+            other_plotter: Another band structure object defined along the same symmetry lines
+            legend: True to add a legend to the plot
 
         Returns:
             a matplotlib object with both band structures
@@ -887,9 +896,7 @@ class BSPlotter:
         return plt
 
     def plot_brillouin(self):
-        """
-        plot the Brillouin zone
-        """
+        """Plot the Brillouin zone"""
         # get labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
@@ -1142,7 +1149,7 @@ class BSPlotterProjected(BSPlotter):
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """
-        returns a pylab plot object with one plot where the band structure
+        Returns a pylab plot object with one plot where the band structure
         line color depends on the character of the band (along different
         elements). Each element is associated with red, green or blue
         and the corresponding rgb color depending on the character of the band
@@ -2131,7 +2138,7 @@ class BSPlotterProjected(BSPlotter):
 
     def _maketicks_selected(self, plt, branches):
         """
-        utility private method to add ticks to a band structure with selected branches
+        Utility private method to add ticks to a band structure with selected branches
         """
         ticks = self.get_ticks()
         distance = []
@@ -2585,12 +2592,14 @@ class BSDOSPlotter:
     def _get_colordata(bs, elements, bs_projection):
         """
         Get color data, including projected band structures
+
         Args:
             bs: Bandstructure object
             elements: elements (in desired order) for setting to blue, red, green
             bs_projection: None for no projection, "elements" for element projection
 
         Returns:
+            Dictionary representation of color data.
         """
         contribs = {}
         if bs_projection and bs_projection.lower() == "elements":
@@ -2805,6 +2814,7 @@ class BoltztrapPlotter:
             temps:  list of temperatures of calculated seebeck.
             Lambda: fitting parameter used to model the scattering (0.5 means
                 constant relaxation time).
+
         Returns:
             a matplotlib object
         """
@@ -2865,6 +2875,7 @@ class BoltztrapPlotter:
             temps:  list of temperatures of calculated seebeck and conductivity.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
                     relaxation time).
+
         Returns:
             a matplotlib object
         """
@@ -2917,6 +2928,7 @@ class BoltztrapPlotter:
                 the temperature
             xlim:
                 a list of min and max fermi energy by default (0, and band gap)
+
         Returns:
             a matplotlib object
         """
@@ -3046,6 +3058,7 @@ class BoltztrapPlotter:
                      Specify a list of doping levels if you want to plot only some.
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
+
         Returns:
             a matplotlib object
         """
@@ -3576,8 +3589,7 @@ class BoltztrapPlotter:
         return plt
 
     def plot_dos(self, sigma=0.05):
-        """
-        plot dos
+        """Plot dos
 
         Args:
             sigma: a smearing
@@ -3935,6 +3947,7 @@ def plot_fermi_surface(
             If False a non interactive figure will be shown, but it is possible
             to plot other surfaces on the same figure. To make it interactive,
             run mlab.show().
+
     Returns:
         ((mayavi.mlab.figure, mayavi.mlab)): The mlab plotter and an interactive
             figure to control the plot.
@@ -4160,7 +4173,6 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs)
     Returns:
         matplotlib figure and matplotlib ax
     """
-
     ax, fig, plt = get_ax3d_fig_plt(ax)
 
     if "color" not in kwargs:
@@ -4234,7 +4246,6 @@ def fold_point(p, lattice, coords_are_cartesian=False):
     Returns:
         The Cartesian coordinates folded inside the first Brillouin zone
     """
-
     if coords_are_cartesian:
         p = lattice.get_fractional_coords(p)
     else:
@@ -4354,7 +4365,6 @@ def plot_brillouin_zone(
     Returns:
         matplotlib figure
     """
-
     fig, ax = plot_lattice_vectors(bz_lattice, ax=ax)
     plot_wigner_seitz(bz_lattice, ax=ax)
     if lines is not None:
@@ -4416,13 +4426,14 @@ def plot_ellipsoid(
         kwargs: kwargs passed to the matplotlib function 'plot_wireframe'.
                 Color defaults to blue, rstride and cstride
                 default to 4, alpha defaults to 0.2.
+
     Returns:
         matplotlib figure and matplotlib ax
+
     Example of use:
         fig,ax=plot_wigner_seitz(struct.reciprocal_lattice)
         plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)
     """
-
     if (not coords_are_cartesian) and lattice is None:
         raise ValueError("coords_are_cartesian False or fold True require the lattice")
 
