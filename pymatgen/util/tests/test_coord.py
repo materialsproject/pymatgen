@@ -49,9 +49,9 @@ class CoordUtilsTest(PymatgenTest):
         b = np.array([c3, c2, c1])
         inds = coord.coord_list_mapping(a, b)
         assert np.allclose(a, b[inds])
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             coord.coord_list_mapping([c1, c2], [c2, c3])
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             coord.coord_list_mapping([c2], [c2, c2])
 
     def test_coord_list_mapping_pbc(self):
@@ -67,12 +67,12 @@ class CoordUtilsTest(PymatgenTest):
         diff = a - b[inds]
         diff -= np.round(diff)
         assert np.allclose(diff, 0)
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             coord.coord_list_mapping_pbc([c1, c2], [c2, c3])
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             coord.coord_list_mapping_pbc([c2], [c2, c2])
         coord.coord_list_mapping_pbc([c1, c2], [c2, c1], pbc=(False, False, False))
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             coord.coord_list_mapping_pbc(a, b, pbc=(True, True, False))
 
     def test_find_in_coord_list(self):
