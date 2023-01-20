@@ -132,7 +132,7 @@ class StructureNLCase(unittest.TestCase):
         assert a.history[1].description == {"db2_id": 12424}
 
         # invalid nodes should not work
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError):
             StructureNL(self.s, self.hulk, history=[self.invalid_node])
 
         # too many nodes should not work
