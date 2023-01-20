@@ -72,25 +72,25 @@ class VasprunBSLoaderTest(unittest.TestCase):
 
     def test_properties(self):
         assert self.loader.is_spin_polarized is False
-        assert self.loader.fermi == approx(0.185266535678, 5)
-        assert self.loader.structure.lattice.a == approx(4.64303565932548, 5)
+        assert self.loader.fermi == approx(0.185266535678, abs=1e-5)
+        assert self.loader.structure.lattice.a == approx(4.64303565932548, abs=1e-5)
         assert self.loader.nelect_all == 20.0
         assert self.loader_sp.nelect_all == 10.0
 
         assert self.loader.ebands_all.shape == (20, 120)
-        assert self.loader.ebands_all[10, 100] == approx(0.2708057, 5)
+        assert self.loader.ebands_all[10, 100] == approx(0.2708057, abs=1e-5)
         assert len(self.loader.proj_all) == 1
         assert self.loader.proj_all[Spin.up].shape == (120, 20, 2, 9)
 
         assert self.loader_sp.is_spin_polarized is True
         assert self.loader_sp.ebands_all.shape == (24, 198)
-        assert self.loader_sp.ebands_all[10, 100] == approx(0.2543788, 4)
-        assert self.loader_sp.ebands_all[22, 100] == approx(0.2494617, 4)
+        assert self.loader_sp.ebands_all[10, 100] == approx(0.2543788, abs=1e-4)
+        assert self.loader_sp.ebands_all[22, 100] == approx(0.2494617, abs=1e-4)
         assert len(self.loader_sp.proj_all) == 2
         assert self.loader_sp.proj_all[Spin.down].shape == (198, 12, 2, 9)
 
     def test_get_volume(self):
-        assert self.loader.get_volume() == approx(477.6256714925874, 5)
+        assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
@@ -110,11 +110,11 @@ class BandstructureLoaderTest(unittest.TestCase):
 
     def test_properties(self):
         assert self.loader.ebands_all.shape == (20, 120)
-        assert self.loader.fermi == approx(0.185266535678, 5)
-        assert self.loader.structure.lattice.a == approx(4.64303565932548, 5)
+        assert self.loader.fermi == approx(0.185266535678, abs=1e-5)
+        assert self.loader.structure.lattice.a == approx(4.64303565932548, abs=1e-5)
 
     def test_get_volume(self):
-        assert self.loader.get_volume() == approx(477.6256714925874, 5)
+        assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
     # def test_set_upper_lower_bands(self):
     #     min_bnd = min(self.loader_sp_up.ebands.min(),
@@ -140,11 +140,11 @@ class VasprunLoaderTest(unittest.TestCase):
 
     def test_properties(self):
         assert self.loader.ebands.shape == (20, 120)
-        assert self.loader.fermi == approx(0.185266535678, 5)
-        assert self.loader.structure.lattice.a == approx(4.64303565932548, 5)
+        assert self.loader.fermi == approx(0.185266535678, abs=1e-5)
+        assert self.loader.structure.lattice.a == approx(4.64303565932548, abs=1e-5)
 
     def test_get_volume(self):
-        assert self.loader.get_volume() == approx(477.6256714925874, 5)
+        assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
     def test_from_file(self):
         self.loader = VasprunLoader().from_file(vrunfile)
@@ -211,28 +211,28 @@ class BztInterpolatorTest(unittest.TestCase):
         tot_dos = self.bztInterp.get_dos(T=200, npts_mu=100)
         assert tot_dos is not None
         assert len(tot_dos.energies) == 100
-        assert tot_dos.densities[Spin.up][0] == approx(1.35371715, 5)
+        assert tot_dos.densities[Spin.up][0] == approx(1.35371715, abs=1e-5)
 
         tot_dos = self.bztInterp_sp.get_dos(T=200, npts_mu=100)
         assert tot_dos is not None
         assert len(tot_dos.energies) == 100
-        assert tot_dos.densities[Spin.up][75] == approx(88.034456, 5)
-        assert tot_dos.densities[Spin.down][75] == approx(41.421367, 5)
+        assert tot_dos.densities[Spin.up][75] == approx(88.034456, abs=1e-5)
+        assert tot_dos.densities[Spin.down][75] == approx(41.421367, abs=1e-5)
 
     def test_tot_proj_dos(self):
         tot_proj_dos = self.bztInterp.get_dos(partial_dos=True, T=200, npts_mu=100)
         assert tot_proj_dos is not None
         assert len(tot_proj_dos.get_spd_dos().values()) == 3
         pdos = tot_proj_dos.get_spd_dos()[OrbitalType.s].densities[Spin.up][75]
-        assert pdos == approx(2490.169396, 5)
+        assert pdos == approx(2490.169396, abs=1e-5)
 
         tot_proj_dos = self.bztInterp_sp.get_dos(partial_dos=True, T=200, npts_mu=100)
         assert tot_proj_dos is not None
         assert len(tot_proj_dos.get_spd_dos().values()) == 3
         pdos = tot_proj_dos.get_spd_dos()[OrbitalType.s].densities[Spin.up][75]
-        assert pdos == approx(166.4933305, 5)
+        assert pdos == approx(166.4933305, abs=1e-5)
         pdos = tot_proj_dos.get_spd_dos()[OrbitalType.s].densities[Spin.down][75]
-        assert pdos == approx(272.194174, 5)
+        assert pdos == approx(272.194174, abs=1e-5)
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")

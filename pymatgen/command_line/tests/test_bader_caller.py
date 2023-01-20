@@ -37,7 +37,7 @@ class BaderAnalysisTest(unittest.TestCase):
             chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref"),
         )
         assert len(analysis.data) == 14
-        assert analysis.data[0]["charge"] == approx(6.6136782, 3)
+        assert analysis.data[0]["charge"] == approx(6.6136782, abs=1e-3)
         assert analysis.data[0]["charge"] == analysis.get_charge(0)
         assert analysis.nelectrons == approx(96)
         assert analysis.vacuum_charge == approx(0)
@@ -61,7 +61,7 @@ class BaderAnalysisTest(unittest.TestCase):
             assert ans[i] == approx(analysis.get_charge_transfer(i), 3)
         assert analysis.get_partial_charge(0) == -analysis.get_charge_transfer(0)
         s = analysis.get_oxidation_state_decorated_structure()
-        assert s[0].specie.oxi_state == approx(1.3863218, 3)
+        assert s[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
         analysis = BaderAnalysis(chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"))

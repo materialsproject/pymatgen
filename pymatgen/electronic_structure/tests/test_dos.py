@@ -33,13 +33,13 @@ class DosTest(unittest.TestCase):
 
     def test_get_gap(self):
         dos = self.dos
-        assert dos.get_gap() == approx(2.0589, 4)
+        assert dos.get_gap() == approx(2.0589, abs=1e-4)
         assert len(dos.energies) == 301
-        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, 7)
+        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
         assert dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
 
-        assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, 7)
-        assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, 7)
+        assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
+        assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(ValueError):
             dos.get_interpolated_value(1000)
 
@@ -89,13 +89,13 @@ class FermiDosTest(unittest.TestCase):
         assert old_vbm - new_vbm == approx((3.0 - old_gap) / 2.0)
         for i, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(0.47, 2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(0.47, abs=1e-2)
             else:
                 assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(-0.47, 2)
 
-        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.5108, 4)
+        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.5108, abs=1e-4)
         assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4182, 4)
-        assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(2.9071, 4)
+        assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(2.9071, abs=1e-4)
 
     def test_as_dict(self):
         dos_dict = self.dos.as_dict()
@@ -117,9 +117,9 @@ class CompleteDosTest(unittest.TestCase):
 
     def test_get_gap(self):
         dos = self.dos
-        assert dos.get_gap() == approx(2.0589, 4), "Wrong gap from dos!"
+        assert dos.get_gap() == approx(2.0589, abs=1e-4), "Wrong gap from dos!"
         assert len(dos.energies) == 301
-        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, 7)
+        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
         spd_dos = dos.get_spd_dos()
         assert len(spd_dos) == 3
         el_dos = dos.get_element_dos()
@@ -150,8 +150,8 @@ class CompleteDosTest(unittest.TestCase):
         assert sum(egt2g["t2g"].get_densities(Spin.up)) == approx(22.910399999999999)
         assert dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
 
-        assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, 7)
-        assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, 7)
+        assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
+        assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(ValueError):
             dos.get_interpolated_value(1000)
 
@@ -313,13 +313,13 @@ class DOSTest(PymatgenTest):
 
     def test_get_gap(self):
         dos = self.dos
-        assert dos.get_gap() == approx(2.0589, 4)
+        assert dos.get_gap() == approx(2.0589, abs=1e-4)
         assert len(dos.x) == 301
-        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, 7)
+        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
         self.assertArrayAlmostEqual(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
 
-        assert dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, 7)
-        assert dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, 7)
+        assert dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
+        assert dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(ValueError):
             dos.get_interpolated_value(1000)
 

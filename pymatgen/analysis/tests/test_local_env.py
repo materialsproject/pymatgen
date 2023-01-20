@@ -94,10 +94,10 @@ class VoronoiNNTest(PymatgenTest):
 
     def test_get_cn(self):
         site_0_coord_num = self.nn.get_cn(self.s, 0, use_weights=True, on_disorder="take_max_species")
-        assert site_0_coord_num == approx(5.809265748999465, 7)
+        assert site_0_coord_num == approx(5.809265748999465, abs=1e-7)
 
         site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take_max_species")
-        assert site_0_coord_num == approx(4.5381161643940668, 7)
+        assert site_0_coord_num == approx(4.5381161643940668, abs=1e-7)
 
     def test_get_coordinated_sites(self):
         assert len(self.nn.get_nn(self.s, 0)) == 8
@@ -329,10 +329,10 @@ class OpenBabelNNTest(PymatgenTest):
         c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
         h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
 
-        assert c_bonds[0]["weight"] == approx(1.41, 2)
-        assert h_bonds[0]["weight"] == approx(1.02, 2)
+        assert c_bonds[0]["weight"] == approx(1.41, abs=1e-2)
+        assert h_bonds[0]["weight"] == approx(1.02, abs=1e-2)
 
-        assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(1.19, 2)
+        assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(1.19, abs=1e-2)
 
     def tearDown(self):
         del self.benzene
@@ -352,7 +352,7 @@ class CovalentBondNNTest(PymatgenTest):
         assert acetylene[1]["weight"] == 1
 
         benzene = strategy.get_nn_info(self.benzene, 0)
-        assert benzene[0]["weight"] == approx(1.6596, 4)
+        assert benzene[0]["weight"] == approx(1.6596, abs=1e-4)
 
     def test_nn_length(self):
         strategy = CovalentBondNN(order=False)
@@ -362,11 +362,11 @@ class CovalentBondNNTest(PymatgenTest):
         c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
         h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
 
-        assert c_bonds[0]["weight"] == approx(1.41, 2)
-        assert h_bonds[0]["weight"] == approx(1.02, 2)
+        assert c_bonds[0]["weight"] == approx(1.41, abs=1e-2)
+        assert h_bonds[0]["weight"] == approx(1.02, abs=1e-2)
 
         acetylene = strategy.get_nn_info(self.acetylene, 0)
-        assert acetylene[0]["weight"] == approx(1.19, 2)
+        assert acetylene[0]["weight"] == approx(1.19, abs=1e-2)
 
     def test_bonded_structure(self):
         strategy = CovalentBondNN()
@@ -1327,11 +1327,11 @@ class CrystalNNTest(PymatgenTest):
 
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
-        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, 2)
+        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, abs=1e-2)
 
     def test_x_diff_weight(self):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
-        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, 2)
+        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, abs=1e-2)
 
     def test_noble_gas_material(self):
         cnn = CrystalNN()

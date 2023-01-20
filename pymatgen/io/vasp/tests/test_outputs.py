@@ -233,7 +233,7 @@ class VasprunTest(PymatgenTest):
         assert vasprun.kpoints is not None, "Kpoints cannot be read"
         assert vasprun.eigenvalues is not None, "Eigenvalues cannot be read"
         assert vasprun.final_energy == approx(-269.38319884, 7)
-        assert vasprun.tdos.get_gap() == approx(2.0589, 4)
+        assert vasprun.tdos.get_gap() == approx(2.0589, abs=1e-4)
         expectedans = (2.539, 4.0906, 1.5516, False)
         (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
         assert gap == approx(expectedans[0])
@@ -468,10 +468,10 @@ class VasprunTest(PymatgenTest):
             cbm = bs.get_cbm()
             vbm = bs.get_vbm()
             assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
-            assert cbm["energy"] == approx(6.2301, "wrong cbm energy")
+            assert cbm["energy"] == approx(6.2301), "wrong cbm energy"
             assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
             assert vbm["kpoint_index"] == [0, 63, 64]
-            assert vbm["energy"] == approx(5.6158, "wrong vbm energy")
+            assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
             assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
             assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
             assert cbm["kpoint"].label is None, "wrong cbm label"
@@ -751,12 +751,12 @@ class VasprunTest(PymatgenTest):
         props = eig.eigenvalue_band_properties
         eig2 = Vasprun(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=False)
         props2 = eig2.eigenvalue_band_properties
-        assert props[0][0] == approx(2.8772, 4)
-        assert props[0][1] == approx(1.2810, 4)
-        assert props[1][0] == approx(3.6741, 4)
-        assert props[1][1] == approx(1.6225, 4)
-        assert props[2][0] == approx(0.7969, 4)
-        assert props[2][1] == approx(0.3415, 4)
+        assert props[0][0] == approx(2.8772, abs=1e-4)
+        assert props[0][1] == approx(1.2810, abs=1e-4)
+        assert props[1][0] == approx(3.6741, abs=1e-4)
+        assert props[1][1] == approx(1.6225, abs=1e-4)
+        assert props[2][0] == approx(0.7969, abs=1e-4)
+        assert props[2][1] == approx(0.3415, abs=1e-4)
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), 4)
         assert props[3][0] is True
         assert props[3][1] is True
@@ -837,11 +837,11 @@ class OutcarTest(PymatgenTest):
             assert outcar.born[0][1][2] == approx(-0.385)
             assert outcar.born[1][2][0] == approx(0.36465)
             assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, 4)
-            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, 4)
-            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, 4)
-            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, 4)
+            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
+            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
             assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, 4)
-            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, 4)
+            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_stopped(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.stopped"
@@ -867,11 +867,11 @@ class OutcarTest(PymatgenTest):
             assert outcar.born[0][1][2] == approx(-0.385)
             assert outcar.born[1][2][0] == approx(0.36465)
             assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, 4)
-            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, 4)
-            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, 4)
-            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, 4)
+            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
+            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
             assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, 4)
-            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, 4)
+            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_soc(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.NiO_SOC.gz"
@@ -1531,10 +1531,10 @@ class BSVasprunTest(PymatgenTest):
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
-        assert cbm["energy"] == approx(6.2301, "wrong cbm energy")
+        assert cbm["energy"] == approx(6.2301), "wrong cbm energy"
         assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
         assert vbm["kpoint_index"] == [0, 63, 64]
-        assert vbm["energy"] == approx(5.6158, "wrong vbm energy")
+        assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
         assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
@@ -1556,9 +1556,9 @@ class LocpotTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "LOCPOT"
         locpot = Locpot.from_file(filepath)
         assert -217.05226954 == approx(sum(locpot.get_average_along_axis(0)))
-        assert locpot.get_axis_grid(0)[-1] == approx(2.87629, 2)
-        assert locpot.get_axis_grid(1)[-1] == approx(2.87629, 2)
-        assert locpot.get_axis_grid(2)[-1] == approx(2.87629, 2)
+        assert locpot.get_axis_grid(0)[-1] == approx(2.87629, abs=1e-2)
+        assert locpot.get_axis_grid(1)[-1] == approx(2.87629, abs=1e-2)
+        assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
 
 
 class ChgcarTest(PymatgenTest):
@@ -1618,7 +1618,7 @@ class ChgcarTest(PymatgenTest):
         # and that the net magnetization is about zero
         # note: we get ~ 0.08 here, seems a little high compared to
         # vasp output, but might be due to chgcar limitations?
-        assert self.chgcar_NiO_SOC.net_magnetization == approx(0.0, 0)
+        assert self.chgcar_NiO_SOC.net_magnetization == approx(0.0, abs=1e-0)
 
         self.chgcar_NiO_SOC.write_file("CHGCAR_pmg_soc")
         chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
@@ -2091,9 +2091,9 @@ class EigenvalTest(PymatgenTest):
     def test_eigenvalue_band_properties(self):
         eig = Eigenval(self.TEST_FILES_DIR / "EIGENVAL.gz")
         props = eig.eigenvalue_band_properties
-        assert props[0] == approx(6.4153, 4)
-        assert props[1] == approx(7.5587, 4)
-        assert props[2] == approx(1.1434, 4)
+        assert props[0] == approx(6.4153, abs=1e-4)
+        assert props[1] == approx(7.5587, abs=1e-4)
+        assert props[2] == approx(1.1434, abs=1e-4)
         assert props[3] is False
 
     def test_eigenvalue_band_properties_separate_spins(self):
@@ -2101,12 +2101,12 @@ class EigenvalTest(PymatgenTest):
         props = eig.eigenvalue_band_properties
         eig2 = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=False)
         props2 = eig2.eigenvalue_band_properties
-        assert props[0][0] == approx(2.8772, 4)
-        assert props[0][1] == approx(1.2810, 4)
-        assert props[1][0] == approx(3.6741, 4)
-        assert props[1][1] == approx(1.6225, 4)
-        assert props[2][0] == approx(0.7969, 4)
-        assert props[2][1] == approx(0.3415, 4)
+        assert props[0][0] == approx(2.8772, abs=1e-4)
+        assert props[0][1] == approx(1.2810, abs=1e-4)
+        assert props[1][0] == approx(3.6741, abs=1e-4)
+        assert props[1][1] == approx(1.6225, abs=1e-4)
+        assert props[2][0] == approx(0.7969, abs=1e-4)
+        assert props[2][1] == approx(0.3415, abs=1e-4)
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), 4)
         assert props[3][0] is True
         assert props[3][1] is True

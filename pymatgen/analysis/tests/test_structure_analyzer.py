@@ -103,7 +103,7 @@ class MiscFunctionTest(PymatgenTest):
             [3.874524708023352, 4.425301459451914, 2.771990305592935],
             [2.055778446743566, 4.437449313863041, 4.061046832034642],
         ]
-        assert solid_angle(center, coords) == approx(1.83570965938, 7), "Wrong result returned by solid_angle"
+        assert solid_angle(center, coords) == approx(1.83570965938, abs=1e-7), "Wrong result returned by solid_angle"
 
     def test_contains_peroxide(self):
 

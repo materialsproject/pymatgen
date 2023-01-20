@@ -226,7 +226,7 @@ class PourbaixDiagramTest(unittest.TestCase):
             filter_solids=True,
             comp_dict={"Na": 1, "Sn": 12, "C": 24},
         )
-        assert pbx.get_decomposition_energy(custom_ion_entry, 5, 2) == approx(2.1209002582, 1)
+        assert pbx.get_decomposition_energy(custom_ion_entry, 5, 2) == approx(2.1209002582, abs=1e-1)
 
     def test_get_stable_entry(self):
         entry = self.pbx.get_stable_entry(0, 0)

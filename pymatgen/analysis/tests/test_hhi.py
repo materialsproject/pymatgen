@@ -17,8 +17,8 @@ class HHIModelTest(unittest.TestCase):
         assert hhi.get_hhi_production("He") == 3200
         assert hhi.get_hhi_reserve("He") == 3900
 
-        assert hhi.get_hhi_production("Li2O") == approx(1614.96, 1)
-        assert hhi.get_hhi_reserve("Li2O") == approx(2218.90, 1)
+        assert hhi.get_hhi_production("Li2O") == approx(1614.96, abs=1e-1)
+        assert hhi.get_hhi_reserve("Li2O") == approx(2218.90, abs=1e-1)
 
         assert hhi.get_hhi_designation(1400) == "low"
         assert hhi.get_hhi_designation(1800) == "medium"

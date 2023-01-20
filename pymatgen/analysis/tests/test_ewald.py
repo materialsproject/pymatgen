@@ -32,11 +32,11 @@ class EwaldSummationTest(unittest.TestCase):
     def test_init(self):
         ham = EwaldSummation(self.s, compute_forces=True)
         assert ham.real_space_energy == approx(-502.23549897772602, 4)
-        assert ham.reciprocal_space_energy == approx(6.1541071599534654, 4)
+        assert ham.reciprocal_space_energy == approx(6.1541071599534654, abs=1e-4)
         assert ham.point_energy == approx(-620.22598358035918, 4)
         assert ham.total_energy == approx(-1123.00766, 1)
         assert ham.forces[0, 0] == approx(-1.98818620e-01, 4)
-        assert sum(sum(abs(ham.forces))) == approx(915.925354346, 4), "Forces incorrect"
+        assert sum(sum(abs(ham.forces))) == approx(915.925354346, abs=1e-4), "Forces incorrect"
         assert sum(sum(ham.real_space_energy_matrix)) == approx(ham.real_space_energy, 4)
         assert sum(sum(ham.reciprocal_space_energy_matrix)) == approx(ham.reciprocal_space_energy, 4)
         assert sum(ham.point_energy_matrix) == approx(ham.point_energy, 4)
@@ -116,7 +116,7 @@ class EwaldMinimizerTest(unittest.TestCase):
         e_min = EwaldMinimizer(matrix, m_list, 50)
 
         assert len(e_min.output_lists) == 15, "Wrong number of permutations returned"
-        assert e_min.minimized_sum == approx(111.63, 3), "Returned wrong minimum value"
+        assert e_min.minimized_sum == approx(111.63, abs=1e-3), "Returned wrong minimum value"
         assert len(e_min.best_m_list) == 6, "Returned wrong number of permutations"
 
     def test_site(self):

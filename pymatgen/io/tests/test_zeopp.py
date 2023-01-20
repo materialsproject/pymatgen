@@ -204,9 +204,9 @@ class GetFreeSphereParamsTest(unittest.TestCase):
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure, rad_dict=self.rad_dict)
         # Zeo results can change in future. Hence loose comparison
-        assert free_sph_params["inc_sph_max_dia"] == approx(2.58251, 1)
-        assert free_sph_params["free_sph_max_dia"] == approx(1.29452, 1)
-        assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, 1)
+        assert free_sph_params["inc_sph_max_dia"] == approx(2.58251, abs=1e-1)
+        assert free_sph_params["free_sph_max_dia"] == approx(1.29452, abs=1e-1)
+        assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")

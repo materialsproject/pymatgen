@@ -230,7 +230,7 @@ class EOSTest(PymatgenTest):
         assert mp153_known_v0_vinet == approx(fit.v0, 4)
 
         # expt. value 35.5, known fit 36.16
-        assert fit.b0_GPa == approx(36.16258687442761, 4)
+        assert fit.b0_GPa == approx(36.16258687442761, abs=1e-4)
 
         # Si
 
@@ -321,7 +321,7 @@ class EOSTest(PymatgenTest):
         assert mp149_known_v0_vinet == approx(fit.v0, 4)
 
         # expt. value 97.9, known fit 88.39
-        assert fit.b0_GPa == approx(88.38629337404822, 4)
+        assert fit.b0_GPa == approx(88.38629337404822, abs=1e-4)
 
         # Ti
 
@@ -412,7 +412,7 @@ class EOSTest(PymatgenTest):
         assert mp72_known_v0_vinet == approx(fit.v0, 4)
 
         # expt. value 107.3, known fit 112.63
-        assert fit.b0_GPa == approx(112.62927187296167, 4)
+        assert fit.b0_GPa == approx(112.62927187296167, abs=1e-4)
 
     def test_numerical_eoswrapper(self):
         # using numerical eos directly vs via EOS wrapper

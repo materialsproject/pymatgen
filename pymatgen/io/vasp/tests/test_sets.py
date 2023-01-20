@@ -1363,7 +1363,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
         scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=1.1)
         incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.3064757, 5)
+        assert incar["KSPACING"] == approx(0.3064757, abs=1e-5)
         assert incar["ISMEAR"] == -5
         assert incar["SIGMA"] == 0.05
 
@@ -1373,7 +1373,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
         scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=10)
         incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.44, 5)
+        assert incar["KSPACING"] == approx(0.44, abs=1e-5)
         assert incar["ISMEAR"] == -5
         assert incar["SIGMA"] == 0.05
 

@@ -25,7 +25,7 @@ class SolarTest(PymatgenTest):
         # JVASP-1044
         gamma_max = SOCSpillage(wf_noso=wf_noso, wf_so=wf_so).overlap_so_spinpol()
 
-        assert gamma_max == approx(1.3634111271008775, 5)
+        assert gamma_max == approx(1.3634111271008775, abs=1e-5)
 
 
 if __name__ == "__main__":

@@ -277,7 +277,7 @@ class KabschMatcherTest(unittest.TestCase):
 
         mm = KabschMatcher(mol1)
         _, _, rmsd = mm.match(mol2)
-        assert rmsd == approx(0.0028172956033732936, 6)
+        assert rmsd == approx(0.0028172956033732936, abs=1e-6)
 
     def test_to_and_from_dict(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -344,7 +344,7 @@ class KabschMatcherTest(unittest.TestCase):
         mm = KabschMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(0.0028172956033732936, 6)
+        assert rmsd == approx(0.0028172956033732936, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
@@ -362,7 +362,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(0.002825344731118855, 6)
+        assert rmsd == approx(0.002825344731118855, abs=1e-6)
 
     def test_to_and_from_dict(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -424,7 +424,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(0.002825344731118855, 6)
+        assert rmsd == approx(0.002825344731118855, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "j1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "j2.xyz"))
@@ -438,21 +438,21 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(0.00021150729609276233, 6)
+        assert rmsd == approx(0.00021150729609276233, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "toluene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "toluene2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(0.0001445787263551832, 6)
+        assert rmsd == approx(0.0001445787263551832, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "cyclohexane1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "cyclohexane2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(0.00012447269440740117, 6)
+        assert rmsd == approx(0.00012447269440740117, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
@@ -470,7 +470,7 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.3)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(0.0028172956033734615, 6)
+        assert rmsd == approx(0.0028172956033734615, abs=1e-6)
 
     def test_to_and_from_dict(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -532,7 +532,7 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(0.0028172956033734615, 6)
+        assert rmsd == approx(0.0028172956033734615, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "j1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "j2.xyz"))
@@ -546,21 +546,21 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(0.00019757961816426042, 6)
+        assert rmsd == approx(0.00019757961816426042, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "toluene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "toluene2.xyz"))
         mm = GeneticOrderMatcher(mol1, threshold=0.1)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(0.0001398867874149986, 6)
+        assert rmsd == approx(0.0001398867874149986, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "cyclohexane1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "cyclohexane2.xyz"))
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(0.00012190586696474853, 6)
+        assert rmsd == approx(0.00012190586696474853, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
@@ -594,14 +594,14 @@ class KabschMatcherSiTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(0.2232223954240079, 6)
+        assert rmsd == approx(0.2232223954240079, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         # This test shows very poor rmsd result, because the `KabschMatcher`
         # is not capable to handle arbitrary atom's order
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_permuted.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(2.7962454578966454, 6)
+        assert rmsd == approx(2.7962454578966454, abs=1e-6)
 
 
 class BruteForceOrderMatcherSiTest(unittest.TestCase):
@@ -643,12 +643,12 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
         # TODO: Checking the cause of the large deviation
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(1.025066171481399, 6)
+        assert rmsd == approx(1.025066171481399, abs=1e-6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(0.2232223954240077, 6)
+        assert rmsd == approx(0.2232223954240077, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_permuted.xyz"))
@@ -659,7 +659,7 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
         # TODO: Checking the cause of the large deviation
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(1.0177241485450828, 6)
+        assert rmsd == approx(1.0177241485450828, abs=1e-6)
 
 
 class GeneticOrderMatcherSiTest(unittest.TestCase):
@@ -686,7 +686,7 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
         res = self.mm.fit(mol2)
-        assert res[0][-1] == approx(0.2232223954240079, 6)
+        assert res[0][-1] == approx(0.2232223954240079, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_permuted.xyz"))
@@ -696,7 +696,7 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
     def test_random_match(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
         res = self.mm.fit(mol2)
-        assert res[0][-1] == approx(0.22163169511782, 6)
+        assert res[0][-1] == approx(0.22163169511782, abs=1e-6)
 
 
 class KabschMatcherSi2OTest(unittest.TestCase):
@@ -719,7 +719,7 @@ class KabschMatcherSi2OTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(0.24340452336622473, 6)
+        assert rmsd == approx(0.24340452336622473, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         # This task should fail, because `KabschMatcher` is not capable
@@ -748,7 +748,7 @@ class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(0.2434045087608993, 6)
+        assert rmsd == approx(0.2434045087608993, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
@@ -758,7 +758,7 @@ class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
     def test_random_match(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_2.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(0.23051587697194997, 6)
+        assert rmsd == approx(0.23051587697194997, abs=1e-6)
 
 
 class HungarianOrderMatcherSi2OTest(unittest.TestCase):
@@ -781,7 +781,7 @@ class HungarianOrderMatcherSi2OTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(0.24474957657894614, 6)
+        assert rmsd == approx(0.24474957657894614, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
@@ -791,7 +791,7 @@ class HungarianOrderMatcherSi2OTest(unittest.TestCase):
     def test_random_match(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_2.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        assert rmsd == approx(0.23231038877573124, 6)
+        assert rmsd == approx(0.23231038877573124, abs=1e-6)
 
 
 class GeneticOrderMatcherSi2OTest(unittest.TestCase):
@@ -814,7 +814,7 @@ class GeneticOrderMatcherSi2OTest(unittest.TestCase):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
         res = self.mm.fit(mol2)
         assert len(res) == 3
-        assert res[0][1] == approx(0.24340452336622473, 6)
+        assert res[0][1] == approx(0.24340452336622473, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
@@ -827,7 +827,7 @@ class GeneticOrderMatcherSi2OTest(unittest.TestCase):
         res = self.mm.match(mol2)
         assert len(res) == 3
         assert res[0][0] == [5, 0, 4, 1, 3, 2]
-        assert res[0][-1] == approx(0.2305159973457393, 6)
+        assert res[0][-1] == approx(0.2305159973457393, abs=1e-6)
 
 
 if __name__ == "__main__":

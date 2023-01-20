@@ -52,9 +52,9 @@ class SubstitutionProbabilityTest(unittest.TestCase):
         prob2 = sp.prob(sp2, sp4)
         assert prob2 == approx(4.7174906021e-05, 5), "probability isn't correct"
         corr = sp.pair_corr(Species("Cu", 2), Species("Fe", 2))
-        assert corr == approx(6.82496631637, 5), "probability isn't correct"
+        assert corr == approx(6.82496631637, abs=1e-5), "probability isn't correct"
         prob3 = sp.cond_prob_list([sp1, sp2], [sp3, sp4])
-        assert prob3 == approx(0.000300298841302, 6), "probability isn't correct"
+        assert prob3 == approx(0.000300298841302, abs=1e-6), "probability isn't correct"
 
     def test_mini_lambda_table(self):
         sp = SubstitutionProbability(lambda_table=get_table(), alpha=-5.0)
@@ -62,10 +62,10 @@ class SubstitutionProbabilityTest(unittest.TestCase):
         s2 = Species("S", -2)
         li1 = Species("Li", 1)
         na1 = Species("Na", 1)
-        assert sp.prob(s2, o2) == approx(0.124342317272, 5), "probability isn't correct"
-        assert sp.pair_corr(li1, na1) == approx(1.65425296864, 5), "correlation isn't correct"
+        assert sp.prob(s2, o2) == approx(0.124342317272, abs=1e-5), "probability isn't correct"
+        assert sp.pair_corr(li1, na1) == approx(1.65425296864, abs=1e-5), "correlation isn't correct"
         prob = sp.cond_prob_list([o2, li1], [na1, li1])
-        assert prob == approx(0.00102673915742, 5), "probability isn't correct"
+        assert prob == approx(0.00102673915742, abs=1e-5), "probability isn't correct"
 
 
 class SubstitutionPredictorTest(unittest.TestCase):
