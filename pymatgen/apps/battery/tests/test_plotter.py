@@ -34,23 +34,23 @@ class VoltageProfilePlotterTest(unittest.TestCase):
         plotter = VoltageProfilePlotter(xaxis="frac_x")
         plotter.add_electrode(self.ie_LTO, "LTO insertion")
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
-        self.assertIsNotNone(plotter.get_plot_data(self.ie_LTO))
-        self.assertIsNotNone(plotter.get_plot_data(self.ce_FF))
+        assert plotter.get_plot_data(self.ie_LTO) is not None
+        assert plotter.get_plot_data(self.ce_FF) is not None
 
     def testPlotly(self):
         plotter = VoltageProfilePlotter(xaxis="frac_x")
         plotter.add_electrode(self.ie_LTO, "LTO insertion")
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
         fig = plotter.get_plotly_figure()
-        self.assertEqual(fig.layout.xaxis.title.text, "Atomic Fraction of Li")
+        assert fig.layout.xaxis.title.text == "Atomic Fraction of Li"
         plotter = VoltageProfilePlotter(xaxis="x_form")
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
         fig = plotter.get_plotly_figure()
-        self.assertEqual(fig.layout.xaxis.title.text, "x in Li<sub>x</sub>FeF3")
+        assert fig.layout.xaxis.title.text == "x in Li<sub>x</sub>FeF3"
 
         plotter.add_electrode(self.ie_LTO, "LTO insertion")
         fig = plotter.get_plotly_figure()
-        self.assertEqual(fig.layout.xaxis.title.text, "x Workion Ion per Host F.U.")
+        assert fig.layout.xaxis.title.text == "x Workion Ion per Host F.U."
 
 
 if __name__ == "__main__":

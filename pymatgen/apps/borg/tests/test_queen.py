@@ -35,13 +35,13 @@ class BorgQueenTest(unittest.TestCase):
         drone = VaspToComputedEntryDrone()
         self.queen = BorgQueen(drone, PymatgenTest.TEST_FILES_DIR, 1)
         data = self.queen.get_data()
-        self.assertEqual(len(data), 15)
+        assert len(data) == 15
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()
         queen = BorgQueen(drone)
         queen.load_data(os.path.join(PymatgenTest.TEST_FILES_DIR, "assimilated.json"))
-        self.assertEqual(len(queen.get_data()), 1)
+        assert len(queen.get_data()) == 1
 
 
 if __name__ == "__main__":
