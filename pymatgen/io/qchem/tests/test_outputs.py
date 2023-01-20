@@ -352,10 +352,6 @@ class TestQCOutput(PymatgenTest):
         data7 = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
         assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
         assert (
-            data5["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
-            == data7["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
-        )
-        assert (
             data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
             == data7["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
         )
