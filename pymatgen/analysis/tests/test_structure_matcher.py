@@ -298,7 +298,7 @@ class StructureMatcherTest(PymatgenTest):
 
         s1 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s1.vasp")
         s2 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s2.vasp")
-        assert sm_coarse.fit(s1, s2) is True
+        assert sm_coarse.fit(s1, s2)
         assert sm_coarse.fit(s2, s1) is False
         assert sm_coarse.fit(s1, s2, symmetric=True) is False
         assert sm_coarse.fit(s2, s1, symmetric=True) is False
