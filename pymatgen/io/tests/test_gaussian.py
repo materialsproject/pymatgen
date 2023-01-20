@@ -390,7 +390,7 @@ class GaussianOutputTest(unittest.TestCase):
             [0.000000, 0.815522, -0.376673],
             [0.000000, -0.815522, -0.376673],
         ]
-        assert gau.opt_structures[-1].cart_coords.tolist() == approx(coords)
+        assert gau.opt_structures[-1].cart_coords.tolist() == coords
         d = gau.read_scan()
         assert -0.00523 == approx(d["energies"][-1])
         assert len(d["coords"]) == 3
@@ -411,7 +411,7 @@ class GaussianOutputTest(unittest.TestCase):
             [-13.642932, -0.715060, 0.000444],
             [-12.444202, 1.416837, 0.000325],
         ]
-        assert gau.opt_structures[-1].cart_coords[:3].tolist() == approx(coords)
+        assert gau.opt_structures[-1].cart_coords[:3].tolist() == coords
 
     def test_td(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_td.log"))
