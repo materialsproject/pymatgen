@@ -676,6 +676,19 @@ class CompleteDos(Dos):
         self.pdos = pdoss
         self.structure = structure
 
+    def get_normalized(self) -> CompleteDos:
+        """
+        Returns a normalized version of the CompleteDos.
+        """
+        if self.norm_vol is not None:
+            return self
+        return CompleteDos(
+            structure=self.structure,
+            total_dos=self,
+            pdoss=self.pdos,
+            normalize=True,
+        )
+
     def get_site_orbital_dos(self, site: PeriodicSite, orbital: Orbital) -> Dos:
         """
         Get the Dos for a particular orbital of a particular site.

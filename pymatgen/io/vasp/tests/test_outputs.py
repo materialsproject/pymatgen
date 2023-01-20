@@ -208,6 +208,24 @@ class VasprunTest(PymatgenTest):
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
         assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
 
+        # check you can normalize an existing DOS
+        cdos_norm2 = cdos.get_normalized()
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm2.densities[Spin.up])
+        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+
+        # but doing so twice should not change the data
+        cdos_norm3 = cdos_norm2.get_normalized()
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm3.densities[Spin.up])
+        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+
+        pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
+        self.assertAlmostEqual(pdos0_norm[Orbital.s][Spin.up][16], 0.0026)  # the site data should not change
+        self.assertEqual(pdos0_norm[Orbital.s][Spin.up].shape, (301,))
+
+        cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
+        self.assertAlmostEqual(ratio, vasprun.final_structure.volume)  # the site data should not change
+
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
         totalscsteps = sum(len(i["electronic_steps"]) for i in vasprun.ionic_steps)
