@@ -54,7 +54,7 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         Returns:
             Boolean indicating whether species are considered equal.
         """
-        return
+        return False
 
     @abc.abstractmethod
     def get_hash(self, composition):
