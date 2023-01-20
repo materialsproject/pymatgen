@@ -292,18 +292,21 @@ class CifParser:
     CifParser's errors attribute.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4):
+    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4, frac_tolerance=1e-4):
         """
         Args:
             filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
-            occupancy_tolerance (float): If total occupancy of a site is between 1
-                and occupancy_tolerance, the occupancies will be scaled down to 1.
-            site_tolerance (float): This tolerance is used to determine if two
-                sites are sitting in the same position, in which case they will be
-                combined to a single disordered site. Defaults to 1e-4.
+            occupancy_tolerance (float): If total occupancy of a site is between 1 and occupancy_tolerance, the
+                occupancies will be scaled down to 1.
+            site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
+                in which case they will be combined to a single disordered site. Defaults to 1e-4.
+            frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
+                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                However, for very large CIF files, this may need to be set to 0.
         """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
+        self._frac_tolerance = frac_tolerance
         if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
@@ -553,7 +556,7 @@ class CifParser:
                         # coordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac / comparison_frac) < 1e-4:
+                        if abs(1 - frac / comparison_frac) < self._frac_tolerance:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
@@ -655,7 +658,7 @@ class CifParser:
             lattice_type: The type of lattice.  This is a string, and can be any of the following:
 
         Returns:
-            The lattice object.
+            Lattice object
         """
         lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
         angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
