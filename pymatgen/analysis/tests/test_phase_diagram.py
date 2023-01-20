@@ -622,14 +622,15 @@ class PhaseDiagramTest(unittest.TestCase):
         with ScratchDir("."):
             dumpfn(self.pd, "pd.json")
             loadfn("pd.json")
-    
+
     def test_el_refs(self):
-        # load a pre_computed phase diagram, 
+        # load a pre_computed phase diagram,
         # which was retrieved via new API and serialized to the MSONable object
-        with open(module_dir / 'pre_computed_phase_diagram_Li-Fe-O.json', 'r') as pd:
+        with open(module_dir / "pre_computed_phase_diagram_Li-Fe-O.json") as pd:
             phaseDiagram = json.load(pd, cls=MontyDecoder)
         # check the keys in el_refs dict have been updated to Element object
         assert str not in [type(el) for el in phaseDiagram.el_refs.keys()]
+
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
