@@ -54,37 +54,37 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         extractor_mol = FunctionalGroupExtractor(self.mol)
         extractor_mg = self.extractor
 
-        self.assertEqual(extractor_str.molgraph, extractor_mol.molgraph)
-        self.assertEqual(extractor_str.molgraph, extractor_mg.molgraph)
-        self.assertEqual(extractor_str.species, extractor_mol.species)
-        self.assertEqual(extractor_str.species, extractor_mg.species)
+        assert extractor_str.molgraph == extractor_mol.molgraph
+        assert extractor_str.molgraph == extractor_mg.molgraph
+        assert extractor_str.species == extractor_mol.species
+        assert extractor_str.species == extractor_mg.species
 
         # Test optimization
         file_no_h = os.path.join(test_dir, "func_group_test_no_h.mol")
         extractor_no_h = FunctionalGroupExtractor(file_no_h, optimize=True)
 
-        self.assertEqual(len(extractor_no_h.molecule), len(extractor_mol.molecule))
-        self.assertEqual(extractor_no_h.species, extractor_mol.species)
+        assert len(extractor_no_h.molecule) == len(extractor_mol.molecule)
+        assert extractor_no_h.species == extractor_mol.species
 
     def test_get_heteroatoms(self):
         heteroatoms = self.extractor.get_heteroatoms()
         hetero_species = [self.extractor.species[x] for x in heteroatoms]
 
-        self.assertEqual(len(heteroatoms), 3)
-        self.assertEqual(sorted(hetero_species), ["N", "O", "O"])
+        assert len(heteroatoms) == 3
+        assert sorted(hetero_species) == ["N", "O", "O"]
 
         # Test with limitation
         hetero_no_o = self.extractor.get_heteroatoms(elements=["N"])
-        self.assertEqual(len(hetero_no_o), 1)
+        assert len(hetero_no_o) == 1
 
     def test_get_special_carbon(self):
         special_cs = self.extractor.get_special_carbon()
 
-        self.assertEqual(len(special_cs), 4)
+        assert len(special_cs) == 4
 
         # Test with limitation
         special_cs_no_o = self.extractor.get_special_carbon(elements=["N"])
-        self.assertEqual(len(special_cs_no_o), 2)
+        assert len(special_cs_no_o) == 2
 
     def test_link_marked_atoms(self):
         heteroatoms = self.extractor.get_heteroatoms()
@@ -92,8 +92,8 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
 
         link = self.extractor.link_marked_atoms(heteroatoms | special_cs)
 
-        self.assertEqual(len(link), 1)
-        self.assertEqual(len(link[0]), 9)
+        assert len(link) == 1
+        assert len(link[0]) == 9
 
         # Exclude Oxygen-related functional groups
         heteroatoms_no_o = self.extractor.get_heteroatoms(elements=["N"])
@@ -102,17 +102,17 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
 
         link_no_o = self.extractor.link_marked_atoms(all_marked)
 
-        self.assertEqual(len(link_no_o), 2)
+        assert len(link_no_o) == 2
 
     def test_get_basic_functional_groups(self):
         basics = self.extractor.get_basic_functional_groups()
 
         # Molecule has one methyl group which will be caught.
-        self.assertEqual(len(basics), 1)
-        self.assertEqual(len(basics[0]), 4)
+        assert len(basics) == 1
+        assert len(basics[0]) == 4
 
         basics_no_methyl = self.extractor.get_basic_functional_groups(func_groups=["phenyl"])
-        self.assertEqual(len(basics_no_methyl), 0)
+        assert len(basics_no_methyl) == 0
 
     def test_get_all_functional_groups(self):
         heteroatoms = self.extractor.get_heteroatoms()
@@ -123,18 +123,18 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
 
         all_func = self.extractor.get_all_functional_groups()
 
-        self.assertEqual(len(all_func), (len(link) + len(basics)))
-        self.assertEqual(sorted(all_func), sorted(link + basics))
+        assert len(all_func) == (len(link) + len(basics))
+        assert sorted(all_func) == sorted(link + basics)
 
     def test_categorize_functional_groups(self):
         all_func = self.extractor.get_all_functional_groups()
         categorized = self.extractor.categorize_functional_groups(all_func)
 
-        self.assertTrue("O=C1C=CC(=O)[N]1" in categorized)
-        self.assertTrue("[CH3]" in categorized)
+        assert "O=C1C=CC(=O)[N]1" in categorized
+        assert "[CH3]" in categorized
 
         total_count = sum(c["count"] for c in categorized.values())
-        self.assertEqual(total_count, 2)
+        assert total_count == 2
 
 
 if __name__ == "__main__":

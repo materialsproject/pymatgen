@@ -10,6 +10,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+import pytest
 
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.util.testing import PymatgenTest
@@ -49,20 +50,23 @@ class PiezoTest(PymatgenTest):
         pt = PiezoTensor(self.full_tensor_array)
         self.assertArrayAlmostEqual(pt, self.full_tensor_array)
         bad_dim_array = np.zeros((3, 3))
-        self.assertRaises(ValueError, PiezoTensor, bad_dim_array)
+        with pytest.raises(ValueError):
+            PiezoTensor(bad_dim_array)
 
     def test_from_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_voigt(self.voigt_matrix)
         self.assertArrayEqual(pt, self.full_tensor_array)
-        self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
+        with pytest.raises(ValueError):
+            PiezoTensor.from_voigt(bad_voigt)
         self.assertArrayEqual(self.voigt_matrix, pt.voigt)
 
     def test_from_vasp_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_vasp_voigt(self.vasp_matrix)
         self.assertArrayEqual(pt, self.full_tensor_array)
-        self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
+        with pytest.raises(ValueError):
+            PiezoTensor.from_voigt(bad_voigt)
         self.assertArrayEqual(self.voigt_matrix, pt.voigt)
 
 
