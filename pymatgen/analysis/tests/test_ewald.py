@@ -31,16 +31,16 @@ class EwaldSummationTest(unittest.TestCase):
 
     def test_init(self):
         ham = EwaldSummation(self.s, compute_forces=True)
-        assert ham.real_space_energy == approx(-502.23549897772602, 4)
+        assert ham.real_space_energy == approx(-502.23549897772602, abs=1e-4)
         assert ham.reciprocal_space_energy == approx(6.1541071599534654, abs=1e-4)
-        assert ham.point_energy == approx(-620.22598358035918, 4)
-        assert ham.total_energy == approx(-1123.00766, 1)
-        assert ham.forces[0, 0] == approx(-1.98818620e-01, 4)
+        assert ham.point_energy == approx(-620.22598358035918, abs=1e-4)
+        assert ham.total_energy == approx(-1123.00766, abs=1e-1)
+        assert ham.forces[0, 0] == approx(-1.98818620e-01, abs=1e-4)
         assert sum(sum(abs(ham.forces))) == approx(915.925354346, abs=1e-4), "Forces incorrect"
-        assert sum(sum(ham.real_space_energy_matrix)) == approx(ham.real_space_energy, 4)
-        assert sum(sum(ham.reciprocal_space_energy_matrix)) == approx(ham.reciprocal_space_energy, 4)
-        assert sum(ham.point_energy_matrix) == approx(ham.point_energy, 4)
-        assert sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy == approx(ham.total_energy, 2)
+        assert sum(sum(ham.real_space_energy_matrix)) == approx(ham.real_space_energy, abs=1e-4)
+        assert sum(sum(ham.reciprocal_space_energy_matrix)) == approx(ham.reciprocal_space_energy, abs=1e-4)
+        assert sum(ham.point_energy_matrix) == approx(ham.point_energy, abs=1e-4)
+        assert sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy == approx(ham.total_energy, abs=1e-2)
 
         with pytest.raises(ValueError):
             EwaldSummation(self.original_s)
@@ -58,7 +58,7 @@ class EwaldSummationTest(unittest.TestCase):
 
         self.original_s.add_site_property("charge", charges)
         ham2 = EwaldSummation(self.original_s)
-        assert ham2.real_space_energy == approx(-502.23549897772602, 4)
+        assert ham2.real_space_energy == approx(-502.23549897772602, abs=1e-4)
 
     def test_from_dict(self):
         ham = EwaldSummation(self.s, compute_forces=True)
@@ -69,7 +69,7 @@ class EwaldSummationTest(unittest.TestCase):
         assert not ham2._initialized
         assert np.array_equal(ham.total_energy_matrix, ham2.total_energy_matrix)
         # check lazy eval
-        assert ham.total_energy == approx(-1123.00766, 1)
+        assert ham.total_energy == approx(-1123.00766, abs=1e-1)
         assert ham._real is not None
         assert ham._initialized
         ham2 = EwaldSummation.from_dict(ham.as_dict())
@@ -129,9 +129,9 @@ class EwaldMinimizerTest(unittest.TestCase):
 
         # Comparison to LAMMPS result
         ham = EwaldSummation(s, compute_forces=True)
-        assert -1226.3335 == approx(ham.total_energy, 3)
-        assert -45.8338 == approx(ham.get_site_energy(0), 3)
-        assert -27.2978 == approx(ham.get_site_energy(8), 3)
+        assert -1226.3335 == approx(ham.total_energy, abs=1e-3)
+        assert -45.8338 == approx(ham.get_site_energy(0), abs=1e-3)
+        assert -27.2978 == approx(ham.get_site_energy(8), abs=1e-3)
 
 
 if __name__ == "__main__":

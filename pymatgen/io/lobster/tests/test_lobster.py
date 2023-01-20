@@ -131,21 +131,21 @@ class CohpcarTest(PymatgenTest):
         assert self.cohp_KF.efermi == efermi_KF
         assert self.coop_KF.efermi == efermi_KF
 
-        assert self.cohp_bise.energies[0] + self.cohp_bise.efermi == approx(elim_bise[0], 4)
-        assert self.cohp_bise.energies[-1] + self.cohp_bise.efermi == approx(elim_bise[1], 4)
-        assert self.coop_bise.energies[0] + self.coop_bise.efermi == approx(elim_bise[0], 4)
-        assert self.coop_bise.energies[-1] + self.coop_bise.efermi == approx(elim_bise[1], 4)
+        assert self.cohp_bise.energies[0] + self.cohp_bise.efermi == approx(elim_bise[0], abs=1e-4)
+        assert self.cohp_bise.energies[-1] + self.cohp_bise.efermi == approx(elim_bise[1], abs=1e-4)
+        assert self.coop_bise.energies[0] + self.coop_bise.efermi == approx(elim_bise[0], abs=1e-4)
+        assert self.coop_bise.energies[-1] + self.coop_bise.efermi == approx(elim_bise[1], abs=1e-4)
 
-        assert self.cohp_fe.energies[0] + self.cohp_fe.efermi == approx(elim_fe[0], 4)
-        assert self.cohp_fe.energies[-1] + self.cohp_fe.efermi == approx(elim_fe[1], 4)
-        assert self.coop_fe.energies[0] + self.coop_fe.efermi == approx(elim_fe[0], 4)
-        assert self.coop_fe.energies[-1] + self.coop_fe.efermi == approx(elim_fe[1], 4)
+        assert self.cohp_fe.energies[0] + self.cohp_fe.efermi == approx(elim_fe[0], abs=1e-4)
+        assert self.cohp_fe.energies[-1] + self.cohp_fe.efermi == approx(elim_fe[1], abs=1e-4)
+        assert self.coop_fe.energies[0] + self.coop_fe.efermi == approx(elim_fe[0], abs=1e-4)
+        assert self.coop_fe.energies[-1] + self.coop_fe.efermi == approx(elim_fe[1], abs=1e-4)
 
         # Lobster 3.1
-        assert self.cohp_KF.energies[0] + self.cohp_KF.efermi == approx(elim_KF[0], 4)
-        assert self.cohp_KF.energies[-1] + self.cohp_KF.efermi == approx(elim_KF[1], 4)
-        assert self.coop_KF.energies[0] + self.coop_KF.efermi == approx(elim_KF[0], 4)
-        assert self.coop_KF.energies[-1] + self.coop_KF.efermi == approx(elim_KF[1], 4)
+        assert self.cohp_KF.energies[0] + self.cohp_KF.efermi == approx(elim_KF[0], abs=1e-4)
+        assert self.cohp_KF.energies[-1] + self.cohp_KF.efermi == approx(elim_KF[1], abs=1e-4)
+        assert self.coop_KF.energies[0] + self.coop_KF.efermi == approx(elim_KF[0], abs=1e-4)
+        assert self.coop_KF.energies[-1] + self.coop_KF.efermi == approx(elim_KF[1], abs=1e-4)
 
     def test_cohp_data(self):
         lengths_sites_bise = {
@@ -648,9 +648,9 @@ class IcohplistTest(unittest.TestCase):
         assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, 3)
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, 3)
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, 3)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, abs=1e-3)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert 0.58649 == self.icobi.icohpcollection.extremum_icohpvalue()
 
 
@@ -1577,7 +1577,7 @@ class FatbandTest(PymatgenTest):
         assert bs_p.kpoints[50].cart_coords[0] == approx(self.bs_symmline2.kpoints[50].cart_coords[0])
         assert bs_p.kpoints[50].cart_coords[1] == approx(self.bs_symmline2.kpoints[50].cart_coords[1])
         assert bs_p.kpoints[50].cart_coords[2] == approx(self.bs_symmline2.kpoints[50].cart_coords[2])
-        assert bs_p.get_band_gap()["energy"] == approx(self.bs_symmline2.get_band_gap()["energy"], 2)
+        assert bs_p.get_band_gap()["energy"] == approx(self.bs_symmline2.get_band_gap()["energy"], abs=1e-2)
         assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
         assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(0.003)
         assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
@@ -1622,7 +1622,7 @@ class FatbandTest(PymatgenTest):
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
         bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
-        assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), 2)
+        assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
 class LobsterinTest(unittest.TestCase):
@@ -1639,7 +1639,7 @@ class LobsterinTest(unittest.TestCase):
         # test read from file
         assert self.Lobsterinfromfile["cohpstartenergy"] == approx(-15.0)
         assert self.Lobsterinfromfile["cohpendenergy"] == approx(5.0)
-        assert self.Lobsterinfromfile["basisset"] == approx("pbeVaspFit2015")
+        assert self.Lobsterinfromfile["basisset"] == "pbeVaspFit2015"
         assert self.Lobsterinfromfile["gaussiansmearingwidth"] == approx(0.1)
         assert self.Lobsterinfromfile["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert self.Lobsterinfromfile["basisfunctions"][1] == "Co 3d 4p 4s"
@@ -1679,7 +1679,7 @@ class LobsterinTest(unittest.TestCase):
         )
         assert lobsterin1["cohpstartenergy"] == approx(-15.0)
         assert lobsterin1["cohpendenergy"] == approx(5.0)
-        assert lobsterin1["basisset"] == approx("pbeVaspFit2015")
+        assert lobsterin1["basisset"] == "pbeVaspFit2015"
         assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
         assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert lobsterin1["basisfunctions"][1] == "Co 3d 4p 4s"
@@ -1717,7 +1717,7 @@ class LobsterinTest(unittest.TestCase):
             )
             assert lobsterin1["cohpstartenergy"] == approx(-35.0)
             assert lobsterin1["cohpendenergy"] == approx(5.0)
-            assert lobsterin1["basisset"] == approx("pbeVaspFit2015")
+            assert lobsterin1["basisset"] == "pbeVaspFit2015"
             assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
             assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s "
             assert lobsterin1["basisfunctions"][1] == "O 2p 2s "

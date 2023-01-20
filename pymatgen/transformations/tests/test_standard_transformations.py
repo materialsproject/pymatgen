@@ -268,7 +268,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         fast_opt_s = t.apply_transformation(struct)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = t.apply_transformation(struct)
-        assert EwaldSummation(fast_opt_s).total_energy == approx(EwaldSummation(slow_opt_s).total_energy, 4)
+        assert EwaldSummation(fast_opt_s).total_energy == approx(EwaldSummation(slow_opt_s).total_energy, abs=1e-4)
         assert fast_opt_s == slow_opt_s
 
     def test_apply_transformations_complete_ranking(self):
@@ -415,7 +415,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
             coords,
         )
         output = t.apply_transformation(struct, return_ranked_list=3)
-        assert output[0]["energy"] == approx(-234.57813667648315, 4)
+        assert output[0]["energy"] == approx(-234.57813667648315, abs=1e-4)
 
 
 class PrimitiveCellTransformationTest(unittest.TestCase):

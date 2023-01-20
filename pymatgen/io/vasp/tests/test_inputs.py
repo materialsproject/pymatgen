@@ -351,18 +351,18 @@ direct
         v = np.array(poscar.velocities)
 
         for x in np.sum(v, axis=0):
-            assert x == approx(0, 7)
+            assert x == approx(0, abs=1e-7)
 
         temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
-        assert temperature == approx(900, 4), "Temperature instantiated incorrectly"
+        assert temperature == approx(900, abs=1e-4), "Temperature instantiated incorrectly"
 
         poscar.set_temperature(700)
         v = np.array(poscar.velocities)
         for x in np.sum(v, axis=0):
-            assert x == approx(0, 7), "Velocities initialized with a net momentum"
+            assert x == approx(0, abs=1e-7), "Velocities initialized with a net momentum"
 
         temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
-        assert temperature == approx(700, 4), "Temperature instantiated incorrectly"
+        assert temperature == approx(700, abs=1e-4), "Temperature instantiated incorrectly"
 
     def test_write(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"

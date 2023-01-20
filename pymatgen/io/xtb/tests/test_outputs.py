@@ -96,7 +96,7 @@ class TestCRESTOutput(PymatgenTest):
             for j, r in enumerate(c):
                 if have_babel:
                     assert check_for_structure_changes(r[0], expected_sorted_structures[i][j]) == "no_change"
-                assert float(r[1]) == approx(float(expected_energies[i][j]), 4)
+                assert float(r[1]) == approx(float(expected_energies[i][j]), abs=1e-4)
 
         assert cout.properly_terminated is True
         if have_babel:

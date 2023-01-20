@@ -160,7 +160,7 @@ class VoronoiNNTest(PymatgenTest):
         # Weight of getting back on to own site
         #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
         #  Hex-hex hop: 8*7 options times 1 weight each
-        assert 60.4444 == approx(np.sum([x["weight"] for x in nns if x["site_index"] == 0]), 3)
+        assert 60.4444 == approx(np.sum([x["weight"] for x in nns if x["site_index"] == 0]), abs=1e-3)
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure

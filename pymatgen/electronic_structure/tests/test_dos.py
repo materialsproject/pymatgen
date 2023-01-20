@@ -78,7 +78,7 @@ class FermiDosTest(unittest.TestCase):
 
         calc_fermis = [self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings]
         for j, f_ref in enumerate(frange):
-            assert calc_fermis[j] == approx(f_ref, 4)
+            assert calc_fermis[j] == approx(f_ref, abs=1e-4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
         assert sci_dos.get_gap() == 3.0
@@ -91,10 +91,10 @@ class FermiDosTest(unittest.TestCase):
             if c_ref < 0:
                 assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(0.47, abs=1e-2)
             else:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(-0.47, 2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(-0.47, abs=1e-2)
 
         assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.5108, abs=1e-4)
-        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4182, 4)
+        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4182, abs=1e-4)
         assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(2.9071, abs=1e-4)
 
     def test_as_dict(self):

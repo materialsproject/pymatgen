@@ -33,8 +33,8 @@ class TestChemicalShieldingNotation(PymatgenTest):
         cs = ChemicalShielding.from_maryland_notation(195.0788, 68.1733, 0.8337)
         hae1 = cs.haeberlen_values
         assert hae1.sigma_iso == approx(195.0788, abs=1e-5)
-        assert hae1.delta_sigma_iso == approx(-65.33899505250002, 5)
-        assert hae1.zeta == approx(-43.559330035000016, 5)
+        assert hae1.delta_sigma_iso == approx(-65.33899505250002, abs=1e-5)
+        assert hae1.zeta == approx(-43.559330035000016, abs=1e-5)
         assert hae1.eta == approx(0.13013537835511454, abs=1e-5)
         meh1 = cs.mehring_values
         assert meh1.sigma_iso == approx(195.0788, abs=1e-5)
@@ -71,7 +71,7 @@ class TestElectricFieldGradient(PymatgenTest):
         efg = ElectricFieldGradient([[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]])
         assert efg.V_yy == approx(11.516, abs=1e-3)
         assert efg.V_xx == approx(4.204, abs=1e-3)
-        assert efg.V_zz == approx(-15.721, 3)
+        assert efg.V_zz == approx(-15.721, abs=1e-3)
         assert efg.asymmetry == approx(0.465, abs=1e-3)
         assert efg.coupling_constant("Al") == approx(5.573, abs=1e-3)
 

@@ -58,7 +58,7 @@ class BaderAnalysisTest(unittest.TestCase):
             1.024357,
         ]
         for i in range(14):
-            assert ans[i] == approx(analysis.get_charge_transfer(i), 3)
+            assert ans[i] == approx(analysis.get_charge_transfer(i), abs=1e-3)
         assert analysis.get_partial_charge(0) == -analysis.get_charge_transfer(0)
         s = analysis.get_oxidation_state_decorated_structure()
         assert s[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
@@ -115,7 +115,7 @@ class BaderAnalysisTest(unittest.TestCase):
             "reference_used",
         }
         assert summary["reference_used"]
-        assert sum(summary["magmom"]) == approx(28, 1)
+        assert sum(summary["magmom"]) == approx(28, abs=1e-1)
 
     def test_atom_parsing(self):
         # test with reference file

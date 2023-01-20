@@ -85,7 +85,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             p = self.expected_properties[f]
 
             for k, v in p.items():
-                assert getattr(c, "get_" + k)() == approx(v, 2)
+                assert getattr(c, "get_" + k)() == approx(v, abs=1e-2)
 
             assert c.get_summary_dict(True) is not None
 
@@ -100,7 +100,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             d = c.as_dict()
             electrode = ConversionElectrode.from_dict(d)
             for k, v in p.items():
-                assert getattr(electrode, "get_" + k)() == approx(v, 2)
+                assert getattr(electrode, "get_" + k)() == approx(v, abs=1e-2)
 
     def test_summary(self):
         kmap = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
@@ -110,7 +110,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             p = self.expected_properties[f]
             for k, v in p.items():
                 summary_key = kmap.get(k, k)
-                assert d[summary_key] == approx(v, 2)
+                assert d[summary_key] == approx(v, abs=1e-2)
 
     def test_composite(self):
         # check entries in charged/discharged state

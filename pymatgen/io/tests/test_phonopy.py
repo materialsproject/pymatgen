@@ -106,8 +106,8 @@ class StructureConversionTest(PymatgenTest):
         symbols_pmg = {e.symbol for e in s_pmg.composition}
         symbols_pmg2 = {e.symbol for e in s_pmg2.composition}
 
-        assert s_ph.get_cell()[1, 1] == approx(s_pmg.lattice._matrix[1, 1], 7)
-        assert s_pmg.lattice._matrix[1, 1] == approx(s_pmg2.lattice._matrix[1, 1], 7)
+        assert s_ph.get_cell()[1, 1] == approx(s_pmg.lattice._matrix[1, 1], abs=1e-7)
+        assert s_pmg.lattice._matrix[1, 1] == approx(s_pmg2.lattice._matrix[1, 1], abs=1e-7)
         assert symbols_pmg == set(s_ph.symbols)
         assert symbols_pmg == symbols_pmg2
         self.assertArrayAlmostEqual(coords_ph[3], s_pmg.frac_coords[3])

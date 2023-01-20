@@ -201,7 +201,7 @@ class ReactionTest(unittest.TestCase):
         rxn = Reaction(reactants, products)
         assert str(rxn) == "MgO + Al2O3 -> MgAl2O4"
         assert rxn.normalized_repr == "MgO + Al2O3 -> MgAl2O4"
-        assert rxn.calculate_energy(energies) == approx(-0.2, 5)
+        assert rxn.calculate_energy(energies) == approx(-0.2, abs=1e-5)
 
     def test_as_entry(self):
         reactants = [Composition("MgO"), Composition("Al2O3")]
@@ -214,7 +214,7 @@ class ReactionTest(unittest.TestCase):
         rxn = Reaction(reactants, products)
         entry = rxn.as_entry(energies)
         assert entry.name == "MgO + Al2O3 -> MgAl2O4"
-        assert entry.energy == approx(-0.2, 5)
+        assert entry.energy == approx(-0.2, abs=1e-5)
 
         products = [Composition("Fe"), Composition("O2")]
         reactants = [Composition("Fe2O3")]
@@ -226,7 +226,7 @@ class ReactionTest(unittest.TestCase):
         }
         entry = rxn.as_entry(energies)
         assert entry.composition == Composition("Fe1.0 O1.5")
-        assert entry.energy == approx(-0.25, 5)
+        assert entry.energy == approx(-0.25, abs=1e-5)
 
     def test_products_reactants(self):
         reactants = [
@@ -247,7 +247,7 @@ class ReactionTest(unittest.TestCase):
         assert Composition("Li3Fe2(PO4)3") in rxn.reactants, "Li3Fe2(PO4)4 not in reactants!"
         assert str(rxn) == "0.3333 Li3Fe2(PO4)3 + 0.1667 Fe2O3 -> 0.25 O2 + LiFePO4"
         assert rxn.normalized_repr == "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4"
-        assert rxn.calculate_energy(energies) == approx(-0.48333333, 5)
+        assert rxn.calculate_energy(energies) == approx(-0.48333333, abs=1e-5)
 
     def test_to_from_dict(self):
         reactants = [Composition("Fe"), Composition("O2")]

@@ -232,7 +232,7 @@ class VasprunTest(PymatgenTest):
         assert vasprun.incar is not None, "Incar cannot be read"
         assert vasprun.kpoints is not None, "Kpoints cannot be read"
         assert vasprun.eigenvalues is not None, "Eigenvalues cannot be read"
-        assert vasprun.final_energy == approx(-269.38319884, 7)
+        assert vasprun.final_energy == approx(-269.38319884, abs=1e-7)
         assert vasprun.tdos.get_gap() == approx(2.0589, abs=1e-4)
         expectedans = (2.539, 4.0906, 1.5516, False)
         (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
@@ -557,27 +557,27 @@ class VasprunTest(PymatgenTest):
         # branch 1 - E_fermi does not cross a band
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.LiF")
         smart_fermi = vrun.calculate_efermi()
-        assert smart_fermi == approx(vrun.efermi, 4)
+        assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi=smart_fermi).get_band_gap()["energy"]
-        assert bs_gap == approx(eigen_gap, 3)
+        assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 2 - E_fermi crosses a band but bandgap=0
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.Al")
         smart_fermi = vrun.calculate_efermi()
-        assert smart_fermi == approx(vrun.efermi, 4)
+        assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi=smart_fermi).get_band_gap()["energy"]
-        assert bs_gap == approx(eigen_gap, 3)
+        assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 3 - E_fermi crosses a band in an insulator
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.LiH_bad_efermi")
         smart_fermi = vrun.calculate_efermi()
-        assert smart_fermi != approx(vrun.efermi, 4)
+        assert smart_fermi != approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi="smart").get_band_gap()["energy"]
-        assert bs_gap == approx(eigen_gap, 3)
-        assert vrun.get_band_structure(efermi=None).get_band_gap()["energy"] != approx(eigen_gap, 3)
+        assert bs_gap == approx(eigen_gap, abs=1e-3)
+        assert vrun.get_band_structure(efermi=None).get_band_gap()["energy"] != approx(eigen_gap, abs=1e-3)
         assert bs_gap != 0
 
         # branch 4 - E_fermi incorrectly placed inside a band
@@ -757,7 +757,7 @@ class VasprunTest(PymatgenTest):
         assert props[1][1] == approx(1.6225, abs=1e-4)
         assert props[2][0] == approx(0.7969, abs=1e-4)
         assert props[2][1] == approx(0.3415, abs=1e-4)
-        assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), 4)
+        assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
         assert props[3][0] is True
         assert props[3][1] is True
 
@@ -788,8 +788,8 @@ class OutcarTest(PymatgenTest):
                 {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
             )
 
-            assert outcar.magnetization == approx(expected_mag, 5), "Wrong magnetization read from Outcar"
-            assert outcar.charge == approx(expected_chg, 5), "Wrong charge read from Outcar"
+            assert outcar.magnetization == approx(expected_mag, abs=1e-5), "Wrong magnetization read from Outcar"
+            assert outcar.charge == approx(expected_chg, abs=1e-5), "Wrong charge read from Outcar"
             assert not outcar.is_stopped
             assert outcar.run_stats == {
                 "System time (sec)": 0.938,
@@ -811,7 +811,7 @@ class OutcarTest(PymatgenTest):
             toten = 0
             for k in outcar.final_energy_contribs:
                 toten += outcar.final_energy_contribs[k]
-            assert toten == approx(outcar.final_energy, 6)
+            assert toten == approx(outcar.final_energy, abs=1e-6)
 
     def test_stopped_old(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.stopped"
@@ -836,11 +836,11 @@ class OutcarTest(PymatgenTest):
             assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
             assert outcar.born[0][1][2] == approx(-0.385)
             assert outcar.born[1][2][0] == approx(0.36465)
-            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, 4)
+            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
             assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
             assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
             assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, 4)
+            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
             assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_stopped(self):
@@ -866,11 +866,11 @@ class OutcarTest(PymatgenTest):
             assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
             assert outcar.born[0][1][2] == approx(-0.385)
             assert outcar.born[1][2][0] == approx(0.36465)
-            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, 4)
+            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
             assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
             assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
             assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, 4)
+            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
             assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_soc(self):
@@ -1175,7 +1175,7 @@ class OutcarTest(PymatgenTest):
         assert len(outcar.data["efg"][2:10]) == len(expected_efg)
         for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
             for k in e1:
-                assert e1[k] == approx(e2[k], 5)
+                assert e1[k] == approx(e2[k], abs=1e-5)
 
         exepected_tensors = [
             [[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]],
@@ -1820,7 +1820,7 @@ class WavecarTest(PymatgenTest):
         b = 2 * np.pi * b / vol
 
         assert w.filename == self.TEST_FILES_DIR / "WAVECAR.N2"
-        assert w.efermi == approx(-5.7232, 4)
+        assert w.efermi == approx(-5.7232, abs=1e-4)
         assert w.encut == 25.0
         assert w.nb == 9
         assert w.nk == 1
@@ -1868,7 +1868,7 @@ class WavecarTest(PymatgenTest):
     def test_n2_45210(self):
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.45210")
         assert w.filename == self.TEST_FILES_DIR / "WAVECAR.N2.45210"
-        assert w.efermi == approx(-5.7232, 4)
+        assert w.efermi == approx(-5.7232, abs=1e-4)
         assert w.encut == 25.0
         assert w.nb == 9
         assert w.nk == 1
@@ -1912,13 +1912,15 @@ class WavecarTest(PymatgenTest):
         self.w.Gpoints.append(np.array([0, 0, 0]))
         self.w.kpoints.append(np.array([0, 0, 0]))
         self.w.coeffs.append([[1 + 1j]])
-        assert self.w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), 4)
-        assert self.w.evaluate_wavefunc(0, 0, [0, 0, 0]) == approx(np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol), 4)
+        assert self.w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), abs=1e-4)
+        assert self.w.evaluate_wavefunc(0, 0, [0, 0, 0]) == approx(
+            np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol), abs=1e-4
+        )
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.spin")
         w.Gpoints.append(np.array([0, 0, 0]))
         w.kpoints.append(np.array([0, 0, 0]))
         w.coeffs[0].append([[1 + 1j]])
-        assert w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), 4)
+        assert w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), abs=1e-4)
 
     def test_fft_mesh_basic(self):
         mesh = self.w.fft_mesh(0, 5)
@@ -1966,20 +1968,20 @@ class WavecarTest(PymatgenTest):
         # check equality of FFT and slow FT for regular mesh (ratio, to account for normalization)
         v1 = self.wH2.evaluate_wavefunc(ik, ib, r1)
         v2 = self.wH2.evaluate_wavefunc(ik, ib, r2)
-        assert np.abs(mesh[p1]) / np.abs(mesh[p2]) == approx(np.abs(v1) / np.abs(v2), 6)
+        assert np.abs(mesh[p1]) / np.abs(mesh[p2]) == approx(np.abs(v1) / np.abs(v2), abs=1e-6)
 
         # spot check one value that we happen to know from reference run
-        assert v1 == approx(-0.01947068011502887 + 0.23340228099620275j, 8)
+        assert v1 == approx(-0.01947068011502887 + 0.23340228099620275j, abs=1e-8)
 
         # check equality of FFT and slow FT for gamma-only mesh (ratio again)
         v1_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r1)
         v2_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r2)
-        assert np.abs(mesh_gamma[p1]) / np.abs(mesh_gamma[p2]) == approx(np.abs(v1_gamma) / np.abs(v2_gamma), 6)
+        assert np.abs(mesh_gamma[p1]) / np.abs(mesh_gamma[p2]) == approx(np.abs(v1_gamma) / np.abs(v2_gamma), abs=1e-6)
 
         # check equality of FFT and slow FT for ncl mesh (ratio again)
         v1_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r1)
         v2_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r2)
-        assert np.abs(mesh_ncl[p1]) / np.abs(mesh_ncl[p2]) == approx(np.abs(v1_ncl) / np.abs(v2_ncl), 6)
+        assert np.abs(mesh_ncl[p1]) / np.abs(mesh_ncl[p2]) == approx(np.abs(v1_ncl) / np.abs(v2_ncl), abs=1e-6)
 
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / "POSCAR")
@@ -2107,7 +2109,7 @@ class EigenvalTest(PymatgenTest):
         assert props[1][1] == approx(1.6225, abs=1e-4)
         assert props[2][0] == approx(0.7969, abs=1e-4)
         assert props[2][1] == approx(0.3415, abs=1e-4)
-        assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), 4)
+        assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
         assert props[3][0] is True
         assert props[3][1] is True
 
@@ -2125,7 +2127,7 @@ class WavederTest(PymatgenTest):
         spin_index = 0
         cart_dir_index = 0
         cder = wder.get_orbital_derivative_between_states(band_i, band_j, kp_index, spin_index, cart_dir_index)
-        assert cder == approx(-1.33639226092e-103, 114)
+        assert cder == approx(-1.33639226092e-103, abs=1e-114)
 
     def test_consistency(self):
         wder_ref = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
@@ -2136,13 +2138,15 @@ class WavederTest(PymatgenTest):
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
             for i in range(10):
-                assert wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real == approx(wder_ref[i, 6], 10)
-                assert wder.cder[0, i, 0, 0, 0].real == approx(wder_ref[i, 6], 10)
-                assert wder.cder[0, i, 0, 0, 0].imag == approx(wder_ref[i, 7], 10)
-                assert wder.cder[0, i, 0, 0, 1].real == approx(wder_ref[i, 8], 10)
-                assert wder.cder[0, i, 0, 0, 1].imag == approx(wder_ref[i, 9], 10)
-                assert wder.cder[0, i, 0, 0, 2].real == approx(wder_ref[i, 10], 10)
-                assert wder.cder[0, i, 0, 0, 2].imag == approx(wder_ref[i, 11], 10)
+                assert wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real == approx(
+                    wder_ref[i, 6], abs=1e-10
+                )
+                assert wder.cder[0, i, 0, 0, 0].real == approx(wder_ref[i, 6], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 0].imag == approx(wder_ref[i, 7], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 1].real == approx(wder_ref[i, 8], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 1].imag == approx(wder_ref[i, 9], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 2].real == approx(wder_ref[i, 10], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 2].imag == approx(wder_ref[i, 11], abs=1e-10)
 
         wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER.Si")
         _check(wder)

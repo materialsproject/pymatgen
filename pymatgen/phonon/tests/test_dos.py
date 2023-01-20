@@ -39,7 +39,7 @@ class DosTest(PymatgenTest):
     def test_thermodynamic_functions(self):
         assert self.dos.cv(300, structure=self.structure) == approx(48.049366665412485, abs=1e-4)
         assert self.dos.internal_energy(300, structure=self.structure) == approx(15527.596956593827, abs=1e-4)
-        assert self.dos.helmholtz_free_energy(300, structure=self.structure) == approx(-6998.034212172695, 4)
+        assert self.dos.helmholtz_free_energy(300, structure=self.structure) == approx(-6998.034212172695, abs=1e-4)
         assert self.dos.entropy(300, structure=self.structure) == approx(75.08543723748751, abs=1e-4)
         assert self.dos.zero_point_energy(structure=self.structure) == approx(4847.462485708741, abs=1e-4)
 

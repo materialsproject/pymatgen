@@ -185,7 +185,7 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
 
-        assert s.charge == approx(0, 5)
+        assert s.charge == approx(0, abs=1e-5)
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")

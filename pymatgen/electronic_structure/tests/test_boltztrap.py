@@ -84,8 +84,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         assert self.bz.intrans["scissor"] == approx(0.0, abs=1e-1)
         assert self.bz._hall_doping["n"][700][-1][2][2][2] == approx(5.0136483e-26)
         assert self.bz.dos.efermi == approx(-0.0300005507057)
-        assert self.bz.dos.energies[0] == approx(-2.4497049391830448, 4)
-        assert self.bz.dos.energies[345] == approx(-0.72708823447130944, 4)
+        assert self.bz.dos.energies[0] == approx(-2.4497049391830448, abs=1e-4)
+        assert self.bz.dos.energies[345] == approx(-0.72708823447130944, abs=1e-4)
         assert self.bz.dos.energies[-1] == approx(3.7569398770153524, abs=1e-4)
         assert self.bz.dos.densities[Spin.up][400] == approx(118.70171)
         assert self.bz.dos.densities[Spin.up][200] == approx(179.58562)
@@ -96,7 +96,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         assert self.bz_up._dos_partial["0"]["pz"][2562] == approx(0.023862958)
         assert self.bz_dw._dos_partial["1"]["px"][3120] == approx(5.0192891)
         assert self.bz_fermi.fermi_surface_data.shape == approx((121, 121, 65))
-        assert self.bz_fermi.fermi_surface_data[21][79][19] == approx(-1.8831911809439161, 5)
+        assert self.bz_fermi.fermi_surface_data[21][79][19] == approx(-1.8831911809439161, abs=1e-5)
 
     @unittest.skipIf(not fdint, "No FDINT")
     def test_get_seebeck_eff_mass(self):
@@ -108,8 +108,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(output="average", doping_levels=True, temp=300)["n"][2]
 
         for i in range(0, 3):
-            assert sbk_mass_tens_mu[i] == approx(ref2[i], 1)
-            assert sbk_mass_tens_dop[i] == approx(ref[i], 4)
+            assert sbk_mass_tens_mu[i] == approx(ref2[i], abs=1e-1)
+            assert sbk_mass_tens_dop[i] == approx(ref[i], abs=1e-4)
 
         assert sbk_mass_avg_mu == approx(4361.4744008038842, abs=1e-1)
         assert sbk_mass_avg_dop == approx(1.661553842105382, abs=1e-4)
@@ -124,8 +124,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         sbk_mass_avg_dop = self.bz.get_complexity_factor(output="average", doping_levels=True, temp=300)["n"][2]
 
         for i in range(0, 3):
-            assert sbk_mass_tens_mu[i] == approx(ref2[i], 4)
-            assert sbk_mass_tens_dop[i] == approx(ref[i], 4)
+            assert sbk_mass_tens_mu[i] == approx(ref2[i], abs=1e-4)
+            assert sbk_mass_tens_dop[i] == approx(ref[i], abs=1e-4)
 
         assert sbk_mass_avg_mu == approx(0.00628677029221, abs=1e-4)
         assert sbk_mass_avg_dop == approx(1.12322832119, abs=1e-4)
@@ -194,7 +194,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         eigs = self.bz.get_zt(output="eigs", doping_levels=False)[700][65]
         ref_eigs = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
         for idx, val in enumerate(ref_eigs):
-            assert eigs[idx] == approx(val, 5)
+            assert eigs[idx] == approx(val, abs=1e-5)
 
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]
@@ -218,7 +218,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
 
         for i in range(0, 3):
             for j in range(0, 3):
-                assert self.bz.get_average_eff_mass(output="tensor")["p"][300][2][i][j] == approx(ref[i][j], 4)
+                assert self.bz.get_average_eff_mass(output="tensor")["p"][300][2][i][j] == approx(ref[i][j], abs=1e-4)
                 assert self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500][i][j] == approx(
                     ref2[i][j], 4
                 )
@@ -226,11 +226,11 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
 
     def test_get_carrier_concentration(self):
         assert self.bz.get_carrier_concentration()[300][39] / 1e22 == approx(6.4805156617179151, abs=1e-4)
-        assert self.bz.get_carrier_concentration()[300][693] / 1e15 == approx(-6.590800965604750, 4)
+        assert self.bz.get_carrier_concentration()[300][693] / 1e15 == approx(-6.590800965604750, abs=1e-4)
 
     def test_get_hall_carrier_concentration(self):
         assert self.bz.get_hall_carrier_concentration()[600][120] / 1e21 == approx(6.773394626767555, abs=1e-4)
-        assert self.bz.get_hall_carrier_concentration()[500][892] / 1e21 == approx(-9.136803845741777, 4)
+        assert self.bz.get_hall_carrier_concentration()[500][892] / 1e21 == approx(-9.136803845741777, abs=1e-4)
 
     def test_get_symm_bands(self):
         structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))

@@ -47,22 +47,22 @@ class BatteryAnalyzerTest(PymatgenTest):
         li3v2p3o12_cap_remove = 197.25339
         li3v2p3o12_cap_insert = 127.17129
 
-        assert self.lifepo4.get_max_capgrav() == approx(lifepo4_cap, 3)
+        assert self.lifepo4.get_max_capgrav() == approx(lifepo4_cap, abs=1e-3)
         assert self.lifepo4.get_max_capgrav(remove=False) == 0
-        assert self.lifepo4.get_max_capgrav(insert=False) == approx(lifepo4_cap, 3)
+        assert self.lifepo4.get_max_capgrav(insert=False) == approx(lifepo4_cap, abs=1e-3)
 
-        assert self.nafepo4.get_max_capgrav() == approx(nafepo4_cap, 3)
+        assert self.nafepo4.get_max_capgrav() == approx(nafepo4_cap, abs=1e-3)
         assert self.nafepo4.get_max_capgrav(remove=False) == 0
 
-        assert self.fepo4.get_max_capgrav() == approx(lifepo4_cap, 3)
+        assert self.fepo4.get_max_capgrav() == approx(lifepo4_cap, abs=1e-3)
         assert self.fepo4.get_max_capgrav(insert=False) == 0
 
-        assert self.la2coo4f.get_max_capgrav() == approx(la2coo4f_cap, 3)
-        assert self.la2coo4.get_max_capgrav() == approx(la2coo4f_cap, 3)
+        assert self.la2coo4f.get_max_capgrav() == approx(la2coo4f_cap, abs=1e-3)
+        assert self.la2coo4.get_max_capgrav() == approx(la2coo4f_cap, abs=1e-3)
         assert self.la2coo4.get_max_capgrav(insert=False) == 0
 
-        assert self.li3v2p3o12.get_max_capgrav(insert=False) == approx(li3v2p3o12_cap_remove, 3)
-        assert self.li3v2p3o12.get_max_capgrav(remove=False) == approx(li3v2p3o12_cap_insert, 3)
+        assert self.li3v2p3o12.get_max_capgrav(insert=False) == approx(li3v2p3o12_cap_remove, abs=1e-3)
+        assert self.li3v2p3o12.get_max_capgrav(remove=False) == approx(li3v2p3o12_cap_insert, abs=1e-3)
 
     def test_capacityvol_calculations(self):
         lifepo4_cap = 594.17518
@@ -70,20 +70,20 @@ class BatteryAnalyzerTest(PymatgenTest):
 
         fepo4_cap = 624.82289  # this is different than lifepo4 cap if lifepo4 volume not known
 
-        assert self.lifepo4.get_max_capvol() == approx(lifepo4_cap, 3)
+        assert self.lifepo4.get_max_capvol() == approx(lifepo4_cap, abs=1e-3)
         assert self.lifepo4.get_max_capvol(remove=False) == 0
-        assert self.lifepo4.get_max_capvol(insert=False) == approx(lifepo4_cap, 3)
+        assert self.lifepo4.get_max_capvol(insert=False) == approx(lifepo4_cap, abs=1e-3)
 
-        assert self.nafepo4.get_max_capvol() == approx(nafepo4_cap, 3)
+        assert self.nafepo4.get_max_capvol() == approx(nafepo4_cap, abs=1e-3)
         assert self.nafepo4.get_max_capvol(remove=False) == 0
-        assert self.nafepo4.get_max_capvol(insert=False) == approx(nafepo4_cap, 3)
+        assert self.nafepo4.get_max_capvol(insert=False) == approx(nafepo4_cap, abs=1e-3)
 
-        assert self.fepo4.get_max_capvol() == approx(fepo4_cap, 3)
-        assert self.fepo4.get_max_capvol(remove=False) == approx(fepo4_cap, 3)
+        assert self.fepo4.get_max_capvol() == approx(fepo4_cap, abs=1e-3)
+        assert self.fepo4.get_max_capvol(remove=False) == approx(fepo4_cap, abs=1e-3)
         assert self.fepo4.get_max_capvol(insert=False) == 0
 
         # give the lifepo4 volume, should get lifepo4 capacity
-        assert self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume) == approx(lifepo4_cap, 3)
+        assert self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume) == approx(lifepo4_cap, abs=1e-3)
 
     def test_ion_removal(self):
         assert self.lifemnpo4.get_removals_int_oxid() == {1.0, 2.0, 3.0, 4.0}

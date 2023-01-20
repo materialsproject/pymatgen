@@ -546,8 +546,8 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert sg.graph.get_edge_data(0, 1)[0]["ICOHP"] == approx(-0.56541)
         assert sg.graph.get_edge_data(0, 1)[0]["ICOBI"] == approx(0.08484)
         assert sg.graph.get_edge_data(0, 1)[0]["ICOOP"] == approx(0.02826)
-        assert sg.graph.get_edge_data(0, 1)[0]["bond_label"] == approx("21")
-        assert sg.graph.get_edge_data(0, 1)[5]["bond_label"] == approx("30")
+        assert sg.graph.get_edge_data(0, 1)[0]["bond_label"] == "21"
+        assert sg.graph.get_edge_data(0, 1)[5]["bond_label"] == "30"
         assert isinstance(sg, StructureGraph)
 
     def test_raises_extended_structure_graph(self):
@@ -604,14 +604,14 @@ class TestLobsterNeighbors(unittest.TestCase):
         results = self.chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])
         assert results[0] == approx(-33.26058)
         for bond in results[1]:
-            assert bond == approx(-5.54345, 3)
+            assert bond == approx(-5.54345, abs=1e-3)
         assert results[2] == approx(6)
         assert results[3] == approx(["27", "30", "48", "49", "64", "73"])
 
         results2 = self.chemenvlobster1.get_info_icohps_to_neighbors(isites=None)
         assert results2[0] == approx(-33.26058)
         for bond in results2[1]:
-            assert bond == approx(-5.54345, 3)
+            assert bond == approx(-5.54345, abs=1e-3)
         assert results2[2] == approx(6)
         assert results2[3] == approx(["27", "30", "48", "49", "64", "73"])
         assert results2[4] == approx(

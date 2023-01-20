@@ -46,11 +46,11 @@ class SubstitutionProbabilityTest(unittest.TestCase):
         sp1 = Species("Fe", 4)
         sp3 = Species("Mn", 3)
         prob1 = sp.prob(sp1, sp3)
-        assert prob1 == approx(1.69243954552e-05, 5), "probability isn't correct"
+        assert prob1 == approx(1.69243954552e-05, abs=1e-5), "probability isn't correct"
         sp2 = Species("Pt", 4)
         sp4 = Species("Pd", 4)
         prob2 = sp.prob(sp2, sp4)
-        assert prob2 == approx(4.7174906021e-05, 5), "probability isn't correct"
+        assert prob2 == approx(4.7174906021e-05, abs=1e-5), "probability isn't correct"
         corr = sp.pair_corr(Species("Cu", 2), Species("Fe", 2))
         assert corr == approx(6.82496631637, abs=1e-5), "probability isn't correct"
         prob3 = sp.cond_prob_list([sp1, sp2], [sp3, sp4])

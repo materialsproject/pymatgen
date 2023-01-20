@@ -65,7 +65,7 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
         assert self.bs.branches[0]["end_index"] == 50
         assert self.bs.branches[1]["start_index"] == 51
         assert self.bs.branches[2]["name"] == "Y-Gamma"
-        assert self.bs.get_branch(10)[0]["name"] == approx("Gamma-X")
+        assert self.bs.get_branch(10)[0]["name"] == "Gamma-X"
         assert len(self.bs.branches) == 4
 
     def test_dict_methods(self):

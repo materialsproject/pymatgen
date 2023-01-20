@@ -410,14 +410,14 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(1.4171601659148593e-05, 6)
+        assert rmsd == approx(1.4171601659148593e-05, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(9.479012116064961e-05, 6)
+        assert rmsd == approx(9.479012116064961e-05, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
@@ -431,7 +431,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(9.28245597473488e-05, 6)
+        assert rmsd == approx(9.28245597473488e-05, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "ethene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "ethene2.xyz"))
@@ -518,14 +518,14 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(7.061017534055039e-05, 6)
+        assert rmsd == approx(7.061017534055039e-05, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(9.459575146593829e-05, 6)
+        assert rmsd == approx(9.459575146593829e-05, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
@@ -539,7 +539,7 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(9.28245597473488e-05, 6)
+        assert rmsd == approx(9.28245597473488e-05, abs=1e-6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "ethene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "ethene2.xyz"))

@@ -58,7 +58,7 @@ class XASTest(PymatgenTest):
         scaled_spect2 = self.k_xanes * 3
         assert np.allclose(scaled_spect.y, 2 * self.k_xanes.y)
         assert np.allclose(scaled_spect2.y, 3 * self.k_xanes.y)
-        assert 0.274302 == approx(self.k_xanes.get_interpolated_value(7720.422), 3)
+        assert 0.274302 == approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3)
 
     def test_to_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
@@ -88,9 +88,9 @@ class XASTest(PymatgenTest):
         assert isinstance(xafs, XAS)
         assert "XAFS" == xafs.spectrum_type
         assert len(xafs.x) == 500
-        assert min(xafs.x) == approx(min(self.k_xanes.x), 2)
-        assert max(xafs.y) == approx(max(self.k_xanes.y), 2)
-        assert xafs.x[np.argmax(np.gradient(xafs.y) / np.gradient(xafs.x))] == approx(self.k_xanes.e0, 2)
+        assert min(xafs.x) == approx(min(self.k_xanes.x), abs=1e-2)
+        assert max(xafs.y) == approx(max(self.k_xanes.y), abs=1e-2)
+        assert xafs.x[np.argmax(np.gradient(xafs.y) / np.gradient(xafs.x))] == approx(self.k_xanes.e0, abs=1e-2)
         with pytest.raises(ValueError):
             XAS.stitch(self.k_xanes, self.l2_xanes, mode="XAFS")
         self.k_xanes.x = np.zeros(100)
@@ -112,8 +112,8 @@ class XASTest(PymatgenTest):
         l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
         assert isinstance(l23, XAS)
         assert "L23" == l23.edge
-        assert min(l23.x) == approx(min(self.l3_xanes.x), 3)
-        assert max(l23.x) == approx(max(self.l3_xanes.x), 3)
+        assert min(l23.x) == approx(min(self.l3_xanes.x), abs=1e-3)
+        assert max(l23.x) == approx(max(self.l3_xanes.x), abs=1e-3)
         assert np.greater_equal(l23.y, self.l2_xanes.y).all()
         assert len(l23.x) == 100
         self.l2_xanes.spectrum_type = "EXAFS"
@@ -130,7 +130,7 @@ class XASTest(PymatgenTest):
         assert isinstance(weighted_spectrum, XAS)
         assert len(weighted_spectrum.x), 500
         # The site multiplicities for site1 and site2 are 4 and 2, respectively.
-        assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, 2)
+        assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2)
         assert min(weighted_spectrum.x) == max(min(self.site1_xanes.x), min(self.site2_xanes.x))
         self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
         with pytest.raises(ValueError):

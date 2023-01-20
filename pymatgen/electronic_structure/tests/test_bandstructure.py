@@ -122,7 +122,7 @@ class BandStructureSymmLineTest(PymatgenTest):
         assert self.bs2.efermi == approx(2.6211967), "wrong fermi energy"
 
     def test_get_branch(self):
-        assert self.bs2.get_branch(110)[0]["name"] == approx("U-W")
+        assert self.bs2.get_branch(110)[0]["name"] == "U-W"
 
     def test_get_direct_band_gap_dict(self):
         direct_dict = self.bs_diff_spins.get_direct_band_gap_dict()
@@ -198,7 +198,7 @@ class BandStructureSymmLineTest(PymatgenTest):
         assert bg_spin["transition"] == "L-\\Gamma", "wrong kpoint transition"
         assert not bg_spin["direct"], "wrong nature of the gap"
         bg_cbm0 = self.bs_cbm0.get_band_gap()
-        assert bg_cbm0["energy"] == approx(0, 3), "wrong gap energy"
+        assert bg_cbm0["energy"] == approx(0, abs=1e-3), "wrong gap energy"
 
     def test_get_sym_eq_kpoints_and_degeneracy(self):
         bs = self.bs2

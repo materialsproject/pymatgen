@@ -144,7 +144,7 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
         c_vec1 = np.cross(lat_mat1[0], lat_mat1[1]) / np.linalg.norm(np.cross(lat_mat1[0], lat_mat1[1]))
         c_len1 = np.dot(lat_mat1[2], c_vec1)
         vol_ratio = gb_cu_123_prim1.volume / self.Cu_prim.volume
-        assert vol_ratio == approx(9 * 2 * 2, 8)
+        assert vol_ratio == approx(9 * 2 * 2, abs=1e-8)
         # test expand_times and vacuum layer
         gb_cu_123_prim2 = self.GB_Cu_prim.gb_from_parameters(
             [1, 2, 3], 123.74898859588858, expand_times=4, vacuum_thickness=1.5

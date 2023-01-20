@@ -226,8 +226,8 @@ class EOSTest(PymatgenTest):
 
         np.testing.assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
 
-        assert mp153_known_e0_vinet == approx(fit.e0, 4)
-        assert mp153_known_v0_vinet == approx(fit.v0, 4)
+        assert mp153_known_e0_vinet == approx(fit.e0, abs=1e-4)
+        assert mp153_known_v0_vinet == approx(fit.v0, abs=1e-4)
 
         # expt. value 35.5, known fit 36.16
         assert fit.b0_GPa == approx(36.16258687442761, abs=1e-4)
@@ -317,8 +317,8 @@ class EOSTest(PymatgenTest):
 
         np.testing.assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
 
-        assert mp149_known_e0_vinet == approx(fit.e0, 4)
-        assert mp149_known_v0_vinet == approx(fit.v0, 4)
+        assert mp149_known_e0_vinet == approx(fit.e0, abs=1e-4)
+        assert mp149_known_v0_vinet == approx(fit.v0, abs=1e-4)
 
         # expt. value 97.9, known fit 88.39
         assert fit.b0_GPa == approx(88.38629337404822, abs=1e-4)
@@ -408,8 +408,8 @@ class EOSTest(PymatgenTest):
 
         np.testing.assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
 
-        assert mp72_known_e0_vinet == approx(fit.e0, 4)
-        assert mp72_known_v0_vinet == approx(fit.v0, 4)
+        assert mp72_known_e0_vinet == approx(fit.e0, abs=1e-4)
+        assert mp72_known_v0_vinet == approx(fit.v0, abs=1e-4)
 
         # expt. value 107.3, known fit 112.63
         assert fit.b0_GPa == approx(112.62927187296167, abs=1e-4)
@@ -419,10 +419,10 @@ class EOSTest(PymatgenTest):
         numerical_eos = NumericalEOS(self.volumes, self.energies)
         numerical_eos.fit()
         assert len(numerical_eos.eos_params) > 3
-        assert float(numerical_eos.e0) == approx(self.num_eos_fit.e0, 3)
-        assert float(numerical_eos.v0) == approx(self.num_eos_fit.v0, 3)
-        assert float(numerical_eos.b0) == approx(self.num_eos_fit.b0, 3)
-        assert float(numerical_eos.b1) == approx(self.num_eos_fit.b1, 3)
+        assert float(numerical_eos.e0) == approx(self.num_eos_fit.e0, abs=1e-3)
+        assert float(numerical_eos.v0) == approx(self.num_eos_fit.v0, abs=1e-3)
+        assert float(numerical_eos.b0) == approx(self.num_eos_fit.b0, abs=1e-3)
+        assert float(numerical_eos.b1) == approx(self.num_eos_fit.b1, abs=1e-3)
         self.assertArrayAlmostEqual(numerical_eos.eos_params, self.num_eos_fit.eos_params)
 
     def test_numerical_eos_values(self):

@@ -63,8 +63,8 @@ class SlabEntryTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         ml = ads.get_unit_primitive_area
-                        assert ml == approx(4, 2)
-                        assert ads.get_monolayer == approx(1 / 4, 2)
+                        assert ml == approx(4, abs=1e-2)
+                        assert ads.get_monolayer == approx(1 / 4, abs=1e-2)
                         Nads = ads.Nads_in_slab
                         assert Nads == 1
                         assert ads.Nsurfs_ads_in_slab == 1
@@ -319,7 +319,7 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
 
     def test_shift(self):
         wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=-0.25, blength=3.7, **self.kwargs)
-        assert self.wf_analyzer.ave_bulk_p == approx(wf_analyzer_shift.ave_bulk_p, 0)
+        assert self.wf_analyzer.ave_bulk_p == approx(wf_analyzer_shift.ave_bulk_p, abs=1e-1)
 
     def test_is_converged(self):
         assert self.wf_analyzer.is_converged()
