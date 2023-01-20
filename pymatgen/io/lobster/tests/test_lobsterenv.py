@@ -229,7 +229,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             )
 
     def test_cation_anion_mode_without_ions(self):
-        with pytest.raises(ValueError) as err:
+        with pytest.raises(ValueError) as exc:
             _ = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
@@ -237,10 +237,8 @@ class TestLobsterNeighbors(unittest.TestCase):
                 valences_from_charges=False,
                 additional_condition=1,
             )
-        assert (
-            str(err.exception) == "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
-        )
-        with pytest.raises(ValueError) as err:
+        assert str(exc.value) == "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
+        with pytest.raises(ValueError) as exc:
             _ = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
@@ -249,9 +247,7 @@ class TestLobsterNeighbors(unittest.TestCase):
                 additional_condition=1,
                 valences=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             )
-        assert (
-            str(err.exception) == "All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work"
-        )
+        assert str(exc.value) == "All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work"
 
     def test_wrong_additional_correction(self):
         with pytest.raises(ValueError):
@@ -613,17 +609,15 @@ class TestLobsterNeighbors(unittest.TestCase):
         for bond in results2[1]:
             assert bond == approx(-5.54345, abs=1e-3)
         assert results2[2] == approx(6)
-        assert results2[3] == approx(["27", "30", "48", "49", "64", "73"])
-        assert results2[4] == approx(
-            [
-                ["Re1", "O2"],
-                ["Re1", "O2"],
-                ["Re1", "O3"],
-                ["Re1", "O3"],
-                ["Re1", "O4"],
-                ["Re1", "O4"],
-            ]
-        )
+        assert results2[3] == ["27", "30", "48", "49", "64", "73"]
+        assert results2[4] == [
+            ["Re1", "O2"],
+            ["Re1", "O2"],
+            ["Re1", "O3"],
+            ["Re1", "O3"],
+            ["Re1", "O4"],
+            ["Re1", "O4"],
+        ]
 
     def test_get_sum_icohps_between_neighbors_of_atom(self):
         # will only look at icohps between cations or anions
