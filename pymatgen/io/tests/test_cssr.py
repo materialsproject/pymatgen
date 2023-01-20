@@ -60,12 +60,12 @@ class CssrTest(unittest.TestCase):
 22 O 0.8343 0.9539 0.7146
 23 O 0.9034 0.7500 0.2587
 24 O 0.9566 0.2500 0.2929"""
-        self.assertEqual(str(self.cssr), expected_string)
+        assert str(self.cssr) == expected_string
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
         cssr = Cssr.from_file(filename)
-        self.assertIsInstance(cssr.structure, Structure)
+        assert isinstance(cssr.structure, Structure)
 
 
 if __name__ == "__main__":

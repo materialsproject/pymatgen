@@ -61,14 +61,14 @@ class XrTest(unittest.TestCase):
 10.4118 0.0000 0.0000
 0.0000 6.0672 0.0000
 0.0000 0.0000 4.7595"""
-        self.assertEqual(str(self.xr), expected_string)
+        assert str(self.xr) == expected_string
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.xr")
         xr = Xr.from_file(filename)
-        self.assertIsInstance(xr.structure, Structure)
+        assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)
-        self.assertIsInstance(xr2.structure, Structure)
+        assert isinstance(xr2.structure, Structure)
 
 
 if __name__ == "__main__":
