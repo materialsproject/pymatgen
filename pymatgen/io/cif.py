@@ -362,21 +362,19 @@ class CifParser:
             self._cif.data[k] = self._sanitize_data(self._cif.data[k])
 
     @staticmethod
-    def from_string(cif_string, occupancy_tolerance=1.0):
+    def from_string(cif_string, **kwargs):
         """
         Creates a CifParser from a string.
 
         Args:
             cif_string (str): String representation of a CIF.
-            occupancy_tolerance (float): If total occupancy of a site is
-                between 1 and occupancy_tolerance, the occupancies will be
-                scaled down to 1.
+            **kwargs: Passthrough of all kwargs supported by CifParser.
 
         Returns:
             CifParser
         """
         stream = StringIO(cif_string)
-        return CifParser(stream, occupancy_tolerance)
+        return CifParser(stream, **kwargs)
 
     def _sanitize_data(self, data):
         """
