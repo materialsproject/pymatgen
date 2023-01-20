@@ -366,6 +366,8 @@ class PhaseDiagram(MSONable):
             computed_data = self._compute()
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
+            # update keys to the Element object, in case they are the str object in pre-computed data
+            computed_data["el_refs"] = [(Element(el_str), entry) for (el_str, entry) in computed_data["el_refs"]]
         assert isinstance(computed_data, dict)  # mypy type narrowing
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
@@ -374,8 +376,6 @@ class PhaseDiagram(MSONable):
         self.qhull_data = computed_data["qhull_data"]
         self.dim = computed_data["dim"]
         self.el_refs = dict(computed_data["el_refs"])
-        # update keys to the Element object, in case they are the str object in pre-computed data
-        self.el_refs = {Element(el): entry for el, entry in self.el_refs.items() if isinstance(el, str)}
         self.qhull_entries = tuple(computed_data["qhull_entries"])
         self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
         self._stable_entries = tuple({self.qhull_entries[i] for i in set(itertools.chain(*self.facets))})
