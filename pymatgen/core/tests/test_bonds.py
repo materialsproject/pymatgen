@@ -64,11 +64,11 @@ class CovalentBondTest(unittest.TestCase):
 
 class FuncTest(unittest.TestCase):
     def test_get_bond_length(self):
-        assert pytest.approx(get_bond_length("C", "C", abs=1e-1) - 1.54) == 0
-        assert pytest.approx(get_bond_length("C", "C", abs=1e-2) - 1.34) == 0
-        assert pytest.approx(get_bond_length("C", "H", abs=1e-1) - 1.08) == 0
+        assert pytest.approx(get_bond_length("C", "C", 1) - 1.54) == 0
+        assert pytest.approx(get_bond_length("C", "C", 2) - 1.34) == 0
+        assert pytest.approx(get_bond_length("C", "H", 1) - 1.08) == 0
         assert get_bond_length("C", "H", 2) == 0.95
-        assert pytest.approx(get_bond_length("C", "Br", abs=1e-1) - 1.85) == 0
+        assert pytest.approx(get_bond_length("C", "Br", 1) - 1.85) == 0
 
     def test_obtain_all_bond_lengths(self):
         assert obtain_all_bond_lengths("C", "C") == {1.0: 1.54, 2.0: 1.34, 3.0: 1.2}
@@ -80,14 +80,14 @@ class FuncTest(unittest.TestCase):
         assert obtain_all_bond_lengths("C", "N") == {1.0: 1.47, 2.0: 1.3, 3.0: 1.16}
 
     def test_get_bond_order(self):
-        assert pytest.approx(get_bond_order("C", "C", abs=1e-1) - 3) == 0
+        assert pytest.approx(get_bond_order("C", "C", 1) - 3) == 0
         assert pytest.approx(get_bond_order("C", "C", 1.2) - 3) == 0
         assert pytest.approx(get_bond_order("C", "C", 1.25) - 2.642857142857143) == 0
         assert pytest.approx(get_bond_order("C", "C", 1.34) - 2) == 0
         assert pytest.approx(get_bond_order("C", "C", 1.4) - 1.7) == 0  # bond length in benzene
         assert pytest.approx(get_bond_order("C", "C", 1.54) - 1) == 0
         assert pytest.approx(get_bond_order("C", "C", 2.5) - 0) == 0
-        assert pytest.approx(get_bond_order("C", "C", abs=1e-9) - 0) == 0
+        assert pytest.approx(get_bond_order("C", "C", 9999) - 0) == 0
         assert pytest.approx(get_bond_order("C", "Br", 1.9, default_bl=1.9) - 1) == 0
         assert pytest.approx(get_bond_order("C", "Br", 2, default_bl=1.9) - 0.7368421052631575) == 0
         assert pytest.approx(get_bond_order("C", "Br", 1.9, tol=0.5, default_bl=1.9) - 1) == 0
