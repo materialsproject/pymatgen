@@ -4,13 +4,6 @@
 
 from __future__ import annotations
 
-__author__ = "Nils Edvin Richard Zimmermann"
-__copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Nils Edvin Richard Zimmermann"
-__email__ = "nils.e.r.zimmermann@gmail.com"
-__date__ = "June 23, 2016"
-
 import os
 import unittest
 
@@ -18,6 +11,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Nils Edvin Richard Zimmermann"
+__copyright__ = "Copyright 2016, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Nils Edvin Richard Zimmermann"
+__email__ = "nils.e.r.zimmermann@gmail.com"
+__date__ = "June 23, 2016"
 
 
 class XrTest(unittest.TestCase):

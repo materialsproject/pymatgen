@@ -8,15 +8,14 @@ A module to perform experimental thermochemical data analysis.
 
 from __future__ import annotations
 
+from pymatgen.core.composition import Composition
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jun 10, 2012"
-
-
-from pymatgen.core.composition import Composition
 
 STANDARD_TEMP = 298.0
 

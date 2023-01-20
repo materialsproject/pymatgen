@@ -1,10 +1,5 @@
 from __future__ import annotations
 
-__author__ = "Xiang-Guo Li"
-__copyright__ = "Copyright 2018, The Materials Virtual Lab"
-__email__ = "xil110@eng.ucsd.edu"
-__date__ = "07/30/18"
-
 import os
 import unittest
 import warnings
@@ -14,6 +9,11 @@ import numpy as np
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Xiang-Guo Li"
+__copyright__ = "Copyright 2018, The Materials Virtual Lab"
+__email__ = "xil110@eng.ucsd.edu"
+__date__ = "07/30/18"
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "grain_boundary")
 

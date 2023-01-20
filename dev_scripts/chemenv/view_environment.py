@@ -7,13 +7,6 @@ Script to visualize the model coordination environments
 
 from __future__ import annotations
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
 import numpy as np
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
@@ -22,6 +15,13 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 )
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 from pymatgen.analysis.chemenv.utils.scripts_utils import visualize
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 if __name__ == "__main__":
     print(

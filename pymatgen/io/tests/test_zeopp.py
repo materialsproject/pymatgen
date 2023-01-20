@@ -4,13 +4,6 @@
 
 from __future__ import annotations
 
-__author__ = "Bharat Medasani"
-__copyright__ = "Copyright 2013, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "bkmedasani@lbl.gov"
-__date__ = "Aug 2, 2013"
-
 import os
 import re
 import unittest
@@ -34,6 +27,13 @@ try:
     import zeo
 except ImportError:
     zeo = None
+
+__author__ = "Bharat Medasani"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "bkmedasani@lbl.gov"
+__date__ = "Aug 2, 2013"
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
