@@ -9,6 +9,7 @@ import warnings
 from shutil import which
 
 import pandas as pd
+from pytest import approx
 
 import pymatgen.command_line.vampire_caller as vampirecaller
 from pymatgen.core.structure import Structure
@@ -59,7 +60,7 @@ class VampireCallerTest(unittest.TestCase):
 
             voutput = vc.output
             critical_temp = voutput.critical_temp
-            self.assertAlmostEqual(400, critical_temp, delta=100)
+            assert 400 == approx(critical_temp)
 
         if os.path.exists("Mn3Al.mat"):
             os.remove("Mn3Al.mat")

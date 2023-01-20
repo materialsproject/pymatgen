@@ -2573,6 +2573,7 @@ class IStructure(SiteCollection, MSONable):
         primitive: bool = False,
         sort: bool = False,
         merge_tol: float = 0.0,
+        **kwargs,
     ) -> Structure | IStructure:
         """
         Reads a structure from a string.
@@ -2588,6 +2589,7 @@ class IStructure(SiteCollection, MSONable):
             merge_tol (float): If this is some positive number, sites that
                 are within merge_tol from each other will be merged. Usually
                 0.01 should be enough to deal with common numerical issues.
+            **kwargs: Passthrough to relevant parser.
 
         Returns:
             IStructure | Structure
@@ -2596,16 +2598,16 @@ class IStructure(SiteCollection, MSONable):
         if fmt_low == "cif":
             from pymatgen.io.cif import CifParser
 
-            parser = CifParser.from_string(input_string)
+            parser = CifParser.from_string(input_string, **kwargs)
             s = parser.get_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            s = Poscar.from_string(input_string, False, read_velocities=False).structure
+            s = Poscar.from_string(input_string, False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
-            cssr = Cssr.from_string(input_string)
+            cssr = Cssr.from_string(input_string, **kwargs)
             s = cssr.structure
         elif fmt_low == "json":
             d = json.loads(input_string)
@@ -2617,15 +2619,15 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            s = XSF.from_string(input_string).structure
+            s = XSF.from_string(input_string, **kwargs).structure
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
-            s = Mcsqs.structure_from_string(input_string)
+            s = Mcsqs.structure_from_string(input_string, **kwargs)
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=True).structure
+            s = FleurInput.from_string(input_string, inpgen_input=True, **kwargs).structure
         elif fmt == "fleur":
             from pymatgen.io.fleur import FleurInput
 
@@ -2633,7 +2635,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res":
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_str(input_string)
+            s = ResIO.structure_from_str(input_string, **kwargs)
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
@@ -2644,7 +2646,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0):
+    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -2653,12 +2655,12 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             filename (str): The filename to read from.
-            primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs. Defaults to False.
+            primitive (bool): Whether to convert to a primitive cell. Only available for cifs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
-            merge_tol (float): If this is some positive number, sites that
-                are within merge_tol from each other will be merged. Usually
-                0.01 should be enough to deal with common numerical issues.
+            merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
+                merged. Usually 0.01 should be enough to deal with common numerical issues.
+            **kwargs: Passthrough to relevant reader. E.g., if it is CIF, the kwargs will be passed through to
+                CifParser.
 
         Returns:
             Structure.
@@ -2681,66 +2683,36 @@ class IStructure(SiteCollection, MSONable):
         with zopen(filename, "rt") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
-            return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol)
+            return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
-            s = cls.from_str(
-                contents,
-                fmt="poscar",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            s = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
-            s = Chgcar.from_file(filename).structure
+            s = Chgcar.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "vasprun*.xml*"):
-            s = Vasprun(filename).final_structure
+            s = Vasprun(filename, **kwargs).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
-            return cls.from_str(
-                contents,
-                fmt="cssr",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="cssr", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return cls.from_str(
-                contents,
-                fmt="json",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="json", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
-            return cls.from_str(
-                contents,
-                fmt="yaml",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="yaml", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.xsf"):
-            return cls.from_str(contents, fmt="xsf", primitive=primitive, sort=sort, merge_tol=merge_tol)
+            return cls.from_str(contents, fmt="xsf", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "input*.xml"):
-            return ExcitingInput.from_file(fname).structure
+            return ExcitingInput.from_file(fname, **kwargs).structure
         elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
-            return cls.from_str(
-                contents,
-                fmt="mcsqs",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="mcsqs", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "CTRL*"):
-            return LMTOCtrl.from_file(filename=filename).structure
+            return LMTOCtrl.from_file(filename=filename, **kwargs).structure
         elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_file(filename).structure
+            s = FleurInput.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_file(filename)
+            s = ResIO.structure_from_file(filename, **kwargs)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:

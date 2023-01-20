@@ -9,14 +9,6 @@ WARNING: you need to have GULP installed on your system.
 
 from __future__ import annotations
 
-__author__ = "Bharat Medasani, Wenhao Sun"
-__copyright__ = "Copyright 2013, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Bharat Medasani"
-__email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
-__status__ = "Production"
-__date__ = "Jun 22, 2013M"
-
 import os
 import re
 import subprocess
@@ -28,6 +20,14 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+__author__ = "Bharat Medasani, Wenhao Sun"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Bharat Medasani"
+__email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
+__status__ = "Production"
+__date__ = "Jun 22, 2013M"
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(

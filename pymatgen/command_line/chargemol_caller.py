@@ -45,12 +45,6 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 """
 from __future__ import annotations
 
-__author__ = "Martin Siron, Andrew S. Rosen"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "01/18/21"
-
 import glob
 import os
 import shutil
@@ -65,6 +59,12 @@ from monty.tempfile import ScratchDir
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
+
+__author__ = "Martin Siron, Andrew S. Rosen"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "01/18/21"
 
 CHARGEMOLEXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
