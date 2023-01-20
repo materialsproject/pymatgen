@@ -7,14 +7,6 @@ This module contains the object used to describe the possible bonded atoms based
 
 from __future__ import annotations
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
 import logging
 import time
 
@@ -31,6 +23,14 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 
 def from_bson_voronoi_list2(bson_nb_voro_list2, structure):

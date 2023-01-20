@@ -68,8 +68,8 @@ thermo          100  # output thermo data every N steps
 # Actions
 run             10000
 """
-        self.assertEqual(md_script, script_string)
-        self.assertTrue(os.path.exists(os.path.join("md", "md.data")))
+        assert md_script == script_string
+        assert os.path.exists(os.path.join("md", "md.data"))
 
     @classmethod
     def tearDownClass(cls):
@@ -90,14 +90,14 @@ class FuncTest(unittest.TestCase):
             kappa_script = f.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled
-        self.assertEqual(fix_hot.group(1), "heat")
+        assert fix_hot.group(1) == "heat"
         fix_cold = re.search(r"fix\s+cold\s+all\s+([^\s]+)\s+", kappa_script)
-        self.assertEqual(fix_cold.group(1), "heat")
+        assert fix_cold.group(1) == "heat"
         lattice = re.search(r"lattice\s+fcc\s+(.*)\n", kappa_script)
         # parentheses not supposed to be filled
-        self.assertEqual(lattice.group(1), "${rho}")
+        assert lattice.group(1) == "${rho}"
         pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
-        self.assertEqual(pair_style.group(1), "${rc}")
+        assert pair_style.group(1) == "${rc}"
 
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide")) as f:
             peptide_script = f.read()
@@ -105,7 +105,7 @@ class FuncTest(unittest.TestCase):
         src = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz")
         write_lammps_inputs(output_dir="path", script_template=peptide_script, data=src)
         dst = os.path.join("path", "data.peptide")
-        self.assertTrue(filecmp.cmp(src, dst, shallow=False))
+        assert filecmp.cmp(src, dst, shallow=False)
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
         with pytest.warns(FutureWarning):

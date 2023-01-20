@@ -8,6 +8,8 @@ import os
 import unittest
 import warnings
 
+from pytest import approx
+
 from pymatgen.apps.borg.hive import (
     GaussianToComputedEntryDrone,
     SimpleVaspToComputedEntryDrone,
@@ -25,22 +27,22 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
     def test_get_valid_paths(self):
         for path in os.walk(PymatgenTest.TEST_FILES_DIR):
             if path[0] == PymatgenTest.TEST_FILES_DIR:
-                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+                assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             entry = self.drone.assimilate(PymatgenTest.TEST_FILES_DIR)
             for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
-                self.assertIn(p, entry.parameters)
-            self.assertAlmostEqual(entry.data["efermi"], -6.62148548)
-            self.assertEqual(entry.composition.reduced_formula, "Xe")
-            self.assertAlmostEqual(entry.energy, 0.5559329)
+                assert p in entry.parameters
+            assert entry.data["efermi"] == approx(-6.62148548)
+            assert entry.composition.reduced_formula == "Xe"
+            assert entry.energy == approx(0.5559329)
             entry = self.structure_drone.assimilate(PymatgenTest.TEST_FILES_DIR)
-            self.assertEqual(entry.composition.reduced_formula, "Xe")
-            self.assertAlmostEqual(entry.energy, 0.5559329)
-            self.assertIsInstance(entry, ComputedStructureEntry)
-            self.assertIsNotNone(entry.structure)
+            assert entry.composition.reduced_formula == "Xe"
+            assert entry.energy == approx(0.5559329)
+            assert isinstance(entry, ComputedStructureEntry)
+            assert entry.structure is not None
             # self.assertEqual(len(entry.parameters["history"]), 2)
 
     def tearDown(self):
@@ -49,7 +51,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()
         drone = VaspToComputedEntryDrone.from_dict(d)
-        self.assertEqual(type(drone), VaspToComputedEntryDrone)
+        assert isinstance(drone, VaspToComputedEntryDrone)
 
 
 class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
@@ -64,12 +66,12 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
     def test_get_valid_paths(self):
         for path in os.walk(PymatgenTest.TEST_FILES_DIR):
             if path[0] == PymatgenTest.TEST_FILES_DIR:
-                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+                assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()
         drone = SimpleVaspToComputedEntryDrone.from_dict(d)
-        self.assertEqual(type(drone), SimpleVaspToComputedEntryDrone)
+        assert isinstance(drone, SimpleVaspToComputedEntryDrone)
 
 
 class GaussianToComputedEntryDroneTest(unittest.TestCase):
@@ -84,7 +86,7 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
     def test_get_valid_paths(self):
         for path in os.walk(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")):
             if path[0] == os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules"):
-                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+                assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
         test_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "methane.log")
@@ -96,24 +98,24 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
             "spin_multiplicity",
             "route_parameters",
         ]:
-            self.assertIn(p, entry.parameters)
+            assert p in entry.parameters
         for p in ["corrections"]:
-            self.assertIn(p, entry.data)
+            assert p in entry.data
 
-        self.assertEqual(entry.composition.reduced_formula, "H4C")
-        self.assertAlmostEqual(entry.energy, -39.9768775602)
+        assert entry.composition.reduced_formula == "H4C"
+        assert entry.energy == approx(-39.9768775602)
         entry = self.structure_drone.assimilate(test_file)
-        self.assertEqual(entry.composition.reduced_formula, "H4C")
-        self.assertAlmostEqual(entry.energy, -39.9768775602)
-        self.assertIsInstance(entry, ComputedStructureEntry)
-        self.assertIsNotNone(entry.structure)
+        assert entry.composition.reduced_formula == "H4C"
+        assert entry.energy == approx(-39.9768775602)
+        assert isinstance(entry, ComputedStructureEntry)
+        assert entry.structure is not None
         for p in ["properly_terminated", "stationary_type"]:
-            self.assertIn(p, entry.data)
+            assert p in entry.data
 
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()
         drone = GaussianToComputedEntryDrone.from_dict(d)
-        self.assertEqual(type(drone), GaussianToComputedEntryDrone)
+        assert isinstance(drone, GaussianToComputedEntryDrone)
 
 
 if __name__ == "__main__":

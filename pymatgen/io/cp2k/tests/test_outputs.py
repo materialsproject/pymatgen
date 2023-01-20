@@ -6,6 +6,8 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
+from pytest import approx
+
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import PymatgenTest
 
@@ -18,47 +20,47 @@ class SetTest(PymatgenTest):
     def test_files(self):
         """Can find files successfully"""
         self.out.parse_files()
-        self.assertEqual(len(self.out.filenames["PDOS"]), 1)
-        self.assertEqual(len(self.out.filenames["PDOS"]), 1)
-        self.assertEqual(len(self.out.filenames["band_structure"]), 1)
-        self.assertEqual(len(self.out.filenames["hyperfine_tensor"]), 1)
-        self.assertEqual(len(self.out.filenames["chi_tensor"]), 1)
-        self.assertEqual(len(self.out.filenames["g_tensor"]), 1)
+        assert len(self.out.filenames["PDOS"]) == 1
+        assert len(self.out.filenames["PDOS"]) == 1
+        assert len(self.out.filenames["band_structure"]) == 1
+        assert len(self.out.filenames["hyperfine_tensor"]) == 1
+        assert len(self.out.filenames["chi_tensor"]) == 1
+        assert len(self.out.filenames["g_tensor"]) == 1
 
     def test_run_info(self):
         """Can extract run info from out file"""
-        self.assertEqual(self.out.spin_polarized, True)
-        self.assertEqual(self.out.completed, True)
-        self.assertEqual(self.out.num_warnings, [[2]])
-        self.assertEqual(self.out.charge, 0)
-        self.assertEqual(self.out.cp2k_version, "2022.1")
-        self.assertEqual(self.out.run_type.upper(), "ENERGY_FORCE")
+        assert self.out.spin_polarized is True
+        assert self.out.completed is True
+        assert self.out.num_warnings == [[2]]
+        assert self.out.charge == 0
+        assert self.out.cp2k_version == "2022.1"
+        assert self.out.run_type.upper() == "ENERGY_FORCE"
 
     def energy_force(self):
         """Can get energy and forces"""
-        self.assertEqual(self.out.final_energy, -197.40000341992783)
+        assert self.out.final_energy == -197.40000341992783
         self.assertArrayAlmostEqual(
             self.out.data["forces"][0], [[-0.00000001, -0.00000001, -0.00000001], [0.00000002, 0.00000002, 0.00000002]]
         )
 
     def test_band(self):
         """Can parse bandstructure files"""
-        self.assertTrue(self.out.band_structure)
-        self.assertEqual(self.out.band_structure.get_band_gap().get("energy"), 0.27940141999999923)
+        assert self.out.band_structure
+        assert self.out.band_structure.get_band_gap().get("energy") == 0.27940141999999923
 
     def test_dos(self):
         """Can parse dos files"""
-        self.assertAlmostEqual(self.out.data["pdos"]["Si_1"]["s"]["efermi"], -6.7370756409404455)
-        self.assertAlmostEqual(self.out.data["tdos"].energies[0], -6.781065751604123)
+        assert self.out.data["pdos"]["Si_1"]["s"]["efermi"] == approx(-6.7370756409404455)
+        assert self.out.data["tdos"].energies[0] == approx(-6.781065751604123)
 
     def test_chi(self):
         self.out.parse_chi_tensor()
-        self.assertEqual(len(self.out.data["chi_total"]), 1)
-        self.assertAlmostEqual(self.out.data["PV1"][0], 0.1587)
-        self.assertAlmostEqual(self.out.data["PV2"][0], 0.4582)
-        self.assertAlmostEqual(self.out.data["PV3"][0], 0.4582)
-        self.assertAlmostEqual(self.out.data["ISO"][0], 0.3584)
-        self.assertAlmostEqual(self.out.data["ANISO"][0], 0.1498)
+        assert len(self.out.data["chi_total"]) == 1
+        assert self.out.data["PV1"][0] == approx(0.1587)
+        assert self.out.data["PV2"][0] == approx(0.4582)
+        assert self.out.data["PV3"][0] == approx(0.4582)
+        assert self.out.data["ISO"][0] == approx(0.3584)
+        assert self.out.data["ANISO"][0] == approx(0.1498)
         self.assertArrayAlmostEqual(
             self.out.data["chi_soft"][0],
             [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
@@ -75,7 +77,7 @@ class SetTest(PymatgenTest):
 
     def test_gtensor(self):
         self.out.parse_gtensor()
-        self.assertEqual(len(self.out.data["gtensor_total"]), 1)
+        assert len(self.out.data["gtensor_total"]) == 1
         self.assertArrayAlmostEqual(self.out.data["gmatrix_zke"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
         self.assertArrayAlmostEqual(self.out.data["gmatrix_so"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
         self.assertArrayAlmostEqual(self.out.data["gmatrix_soo"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])

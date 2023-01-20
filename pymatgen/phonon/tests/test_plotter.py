@@ -19,16 +19,16 @@ class PhononDosPlotterTest(unittest.TestCase):
 
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
-        self.assertEqual(len(d), 0)
+        assert len(d) == 0
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
-        self.assertEqual(len(d), 2)
+        assert len(d) == 2
 
     def test_get_dos_dict(self):
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
         for el in ["Na", "Cl"]:
-            self.assertIn(el, d)
+            assert el in d
 
     def test_plot(self):
         # Disabling latex for testing.
@@ -58,23 +58,11 @@ class PhononBSPlotterTest(unittest.TestCase):
             self.plotter_sto = PhononBSPlotter(self.bs_sto)
 
     def test_bs_plot_data(self):
-        self.assertEqual(
-            len(self.plotter.bs_plot_data()["distances"][0]),
-            51,
-            "wrong number of distances in the first branch",
-        )
-        self.assertEqual(len(self.plotter.bs_plot_data()["distances"]), 4, "wrong number of branches")
-        self.assertEqual(
-            sum(len(e) for e in self.plotter.bs_plot_data()["distances"]),
-            204,
-            "wrong number of distances",
-        )
-        self.assertEqual(self.plotter.bs_plot_data()["ticks"]["label"][4], "Y", "wrong tick label")
-        self.assertEqual(
-            len(self.plotter.bs_plot_data()["ticks"]["label"]),
-            8,
-            "wrong number of tick labels",
-        )
+        assert len(self.plotter.bs_plot_data()["distances"][0]) == 51, "wrong number of distances in the first branch"
+        assert len(self.plotter.bs_plot_data()["distances"]) == 4, "wrong number of branches"
+        assert sum(len(e) for e in self.plotter.bs_plot_data()["distances"]) == 204, "wrong number of distances"
+        assert self.plotter.bs_plot_data()["ticks"]["label"][4] == "Y", "wrong tick label"
+        assert len(self.plotter.bs_plot_data()["ticks"]["label"]) == 8, "wrong number of tick labels"
 
     def test_plot(self):
         # Disabling latex for testing.
