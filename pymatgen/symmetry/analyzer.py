@@ -757,9 +757,9 @@ class SpacegroupAnalyzer:
                 ],
             ]
 
-            def is_all_acute_or_obtuse(m) -> bool:
-                recp_angles = np.array(Lattice(m).reciprocal_lattice.angles)
-                return np.all(recp_angles <= 90) or np.all(recp_angles > 90)
+            def is_all_acute_or_obtuse(matrix) -> bool:
+                recp_angles = np.array(Lattice(matrix).reciprocal_lattice.angles)
+                return all(recp_angles <= 90) or all(recp_angles > 90)
 
             if is_all_acute_or_obtuse(test_matrix):
                 transf = np.eye(3)

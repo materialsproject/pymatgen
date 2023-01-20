@@ -5,6 +5,8 @@ https://www.nature.com/articles/s41598-019-45028-y
 https://www.nature.com/articles/s41524-020-0319-4
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 from pymatgen.io.vasp.outputs import Wavecar

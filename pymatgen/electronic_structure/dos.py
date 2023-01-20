@@ -192,16 +192,23 @@ class Dos(MSONable):
         Fermi level
     """
 
-    def __init__(self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike]):
+    def __init__(
+        self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike], norm_vol: float | None = None
+    ) -> None:
         """
         Args:
             efermi: Fermi level energy
             energies: A sequences of energies
             densities (dict[Spin: np.array]): representing the density of states for each Spin.
+            norm_vol: The volume used to normalize the densities. Defaults to 1 if None which will not perform any
+                normalization. If not None, the resulting density will have units of states/eV/Angstrom^3, otherwise
+                the density will be in states/eV.
         """
         self.efermi = efermi
         self.energies = np.array(energies)
-        self.densities = {k: np.array(d) for k, d in densities.items()}
+        self.norm_vol = norm_vol
+        vol = norm_vol or 1
+        self.densities = {k: np.array(d) / vol for k, d in densities.items()}
 
     def get_densities(self, spin: Spin | None = None):
         """
@@ -597,7 +604,7 @@ class FermiDos(Dos, MSONable):
             step /= 10.0
 
         if min(relative_error) > rtol:
-            raise ValueError(f"Could not find fermi within {rtol:.1%} of concentration={concentration}")
+            raise ValueError(f"Could not find fermi within {rtol:.1%} of {concentration=}")
         return fermi
 
     @classmethod
@@ -648,17 +655,23 @@ class CompleteDos(Dos):
         structure: Structure,
         total_dos: Dos,
         pdoss: Mapping[PeriodicSite, Mapping[Orbital, Mapping[Spin, ArrayLike]]],
-    ):
+        normalize: bool = False,
+    ) -> None:
         """
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
             pdoss: The pdoss are supplied as an {Site: {Orbital: {Spin:Densities}}}
+            normalize: Whether to normalize the densities by the volume of the structure.
+                If True, the units of the densities are states/eV/Angstrom^3. Otherwise,
+                the units are states/eV.
         """
+        vol = structure.volume if normalize else None
         super().__init__(
             total_dos.efermi,
             energies=total_dos.energies,
             densities={k: np.array(d) for k, d in total_dos.densities.items()},
+            norm_vol=vol,
         )
         self.pdos = pdoss
         self.structure = structure

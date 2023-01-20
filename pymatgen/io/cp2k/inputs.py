@@ -237,7 +237,7 @@ class KeywordList(MSONable):
         """
         String representation of Keyword
         """
-        return " \n".join(["\t" * indent + str(k) for k in self.keywords])
+        return " \n".join("\t" * indent + str(k) for k in self.keywords)
 
     def verbosity(self, verbosity):
         """
@@ -676,7 +676,7 @@ class SectionList(MSONable):
 
     @staticmethod
     def _get_string(d, indent=0):
-        return " \n".join([s._get_string(s, indent) for s in d])
+        return " \n".join(s._get_string(s, indent) for s in d)
 
     def get_string(self):
         """

@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"

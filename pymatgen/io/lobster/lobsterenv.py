@@ -7,6 +7,8 @@ the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures based on
 bonding analysis with Lobster.
 """
+from __future__ import annotations
+
 import collections
 import copy
 import math
@@ -235,8 +237,8 @@ class LobsterNeighbors(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (integer): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
+            n (int): index of site for which to determine CN.
+            use_weights (bool): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).

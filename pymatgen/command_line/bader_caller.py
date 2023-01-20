@@ -15,6 +15,8 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
+from __future__ import annotations
+
 import glob
 import os
 import shutil

@@ -6,6 +6,8 @@
 A master convenience script with many tools for vasp and structure analysis.
 """
 
+from __future__ import annotations
+
 import argparse
 import itertools
 import sys
@@ -52,7 +54,7 @@ def diff_incar(args):
 
     def format_lists(v):
         if isinstance(v, (tuple, list)):
-            return " ".join([f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v)])
+            return " ".join(f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v))
         return v
 
     d = incar1.diff(incar2)

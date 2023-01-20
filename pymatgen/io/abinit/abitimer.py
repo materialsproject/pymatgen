@@ -5,6 +5,8 @@ This module provides objects for extracting timing data from the ABINIT output f
 It also provides tools to analyze and to visualize the parallel efficiency.
 """
 
+from __future__ import annotations
+
 import collections
 import logging
 import os
@@ -42,7 +44,6 @@ class AbinitTimerParser(collections.abc.Iterable):
     Assume the Abinit output files have been produced with `timopt -1`.
 
     Example:
-
         parser = AbinitTimerParser()
         parser.parse(list_of_files)
 
@@ -221,10 +222,10 @@ class AbinitTimerParser(collections.abc.Iterable):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
                 # check = section_names
-                # else:
-                #  new_set = set( [s.name for s in timer.order_sections(ordkey)])
-                #  section_names.intersection_update(new_set)
-                #  check = check.union(new_set)
+            # else:
+            #     new_set = {s.name for s in timer.order_sections(ordkey)}
+            #     section_names.intersection_update(new_set)
+            #     check = check | new_set
 
         # if check != section_names:
         #  print("sections", section_names)
@@ -465,7 +466,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             else:
                 rest += svals
 
-        names.append(f"others (nmax={nmax})")
+        names.append(f"others ({nmax=})")
         values.append(rest)
 
         # The dataset is stored in values. Now create the stacked histogram.

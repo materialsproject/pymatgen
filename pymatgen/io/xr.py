@@ -10,6 +10,8 @@ to remove shell positions from relaxations
 that employed core-shell models.
 """
 
+from __future__ import annotations
+
 import re
 from math import fabs
 

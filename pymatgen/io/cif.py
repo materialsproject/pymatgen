@@ -5,6 +5,8 @@
 Wrapper classes for Cif input and output from Structures.
 """
 
+from __future__ import annotations
+
 import math
 import os
 import re

@@ -1,5 +1,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+from __future__ import annotations
+
 import filecmp
 import os
 import re
@@ -24,7 +26,7 @@ class LammpsRunTest(unittest.TestCase):
     def test_md(self):
         s = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
         ld = LammpsData.from_structure(s, atom_style="atomic")
-        ff = "\n".join(["pair_style eam", "pair_coeff * * Cu_u3.eam"])
+        ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")
         with open(os.path.join("md", "in.md")) as f:

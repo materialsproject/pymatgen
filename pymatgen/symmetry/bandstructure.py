@@ -5,6 +5,8 @@ Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
+from __future__ import annotations
+
 import itertools
 from warnings import warn
 
@@ -57,7 +59,7 @@ class HighSymmKpath(KPathBase):
         """
         Args:
             structure (Structure): Structure object
-            has_magmoms (boolean): Whether the input structure contains
+            has_magmoms (bool): Whether the input structure contains
                 magnetic moments as site properties with the key 'magmom.'
                 Values may be in the form of 3-component vectors given in
                 the basis of the input lattice vectors, in
@@ -67,7 +69,7 @@ class HighSymmKpath(KPathBase):
                 direction along which magnetic moments given as scalars
                 should point. If all magnetic moments are provided as
                 vectors then this argument is not used.
-            path_type (string): Chooses which convention to use to generate
+            path_type (str): Chooses which convention to use to generate
                 the high symmetry path. Options are: 'setyawan_curtarolo', 'hinuma',
                 'latimer_munro' for the Setyawan & Curtarolo, Hinuma et al., and
                 Latimer & Munro conventions. Choosing 'all' will generate one path

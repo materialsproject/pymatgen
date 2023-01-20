@@ -15,6 +15,8 @@ Acta Cryst. B 2020, 76, pp 683-695,
 DOI: 10.1107/S2052520620007994
 """
 
+from __future__ import annotations
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -783,7 +785,7 @@ class LocalGeometryFinder:
                             # Get possibly missing neighbors sets
                             if cg.neighbors_sets_hints is None:
                                 continue
-                            logging.debug(f'       ... getting hints from cg with mp_symbol "{cg_symbol}" ...')
+                            logging.debug(f"       ... getting hints from cg with mp_symbol {cg_symbol!r} ...")
                             hints_info = {
                                 "csm": cg_dict["symmetry_measure"],
                                 "nb_set": nb_set,

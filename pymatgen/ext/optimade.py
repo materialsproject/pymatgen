@@ -174,7 +174,7 @@ class OptimadeRester:
         if elements:
             if isinstance(elements, str):
                 elements = [elements]
-            elements_str = ", ".join([f'"{el}"' for el in elements])
+            elements_str = ", ".join(f"{el!r}" for el in elements)
             filters.append(f"(elements HAS ALL {elements_str})")
 
         if nsites:
@@ -190,10 +190,10 @@ class OptimadeRester:
                 filters.append(f"({nelements=})")
 
         if chemical_formula_anonymous:
-            filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')
+            filters.append(f"(chemical_formula_anonymous={chemical_formula_anonymous!r})")
 
         if chemical_formula_hill:
-            filters.append(f'(chemical_formula_hill="{chemical_formula_anonymous}")')
+            filters.append(f"(chemical_formula_hill={chemical_formula_anonymous!r})")
 
         return " AND ".join(filters)
 
@@ -275,7 +275,7 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
 
         Returns: Dict of Structures keyed by that database's id system
         """
@@ -296,17 +296,18 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
+            additional_response_fields: Any additional fields desired from the OPTIMADE API,
 
         Returns: Dict of Structures keyed by that database's id system
         """
         all_snls = {}
 
-        fields = self._handle_response_fields(additional_response_fields)
+        response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
 
-            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&{response_fields=}")
 
             try:
 
@@ -531,10 +532,10 @@ class OptimadeRester:
             A string of comma-separated OPTIMADE response fields.
         """
         if isinstance(additional_response_fields, str):
-            additional_response_fields = [additional_response_fields]
+            additional_response_fields = {additional_response_fields}
         if not additional_response_fields:
             additional_response_fields = set()
-        return ",".join(set(additional_response_fields).union(self.mandatory_response_fields))
+        return ",".join({*additional_response_fields} | self.mandatory_response_fields)
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """

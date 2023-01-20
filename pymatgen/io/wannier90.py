@@ -5,6 +5,8 @@
 Modules for working with wannier90 input and output.
 """
 
+from __future__ import annotations
+
 from typing import Sequence
 
 import numpy as np

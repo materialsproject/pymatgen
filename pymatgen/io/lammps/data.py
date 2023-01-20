@@ -16,6 +16,8 @@ more info.
 
 """
 
+from __future__ import annotations
+
 import itertools
 import re
 import warnings
@@ -845,7 +847,7 @@ class LammpsData(MSONable):
             velos = np.array(s.site_properties["velocities"])
             rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
-            site_properties.update({"velocities": rot_velos})
+            site_properties.update({"velocities": rot_velos})  # type: ignore
         boxed_s = Structure(
             box.to_lattice(),
             s.species,

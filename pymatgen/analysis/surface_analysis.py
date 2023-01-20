@@ -35,6 +35,8 @@ TODO:
         user does not need to generate a dict
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 import random

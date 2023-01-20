@@ -8,6 +8,8 @@ classes to be simply called as pymatgen.io.vasp.Incar for example, to retain
 backwards compatibility.
 """
 
+from __future__ import annotations
+
 from .inputs import Incar, Kpoints, Poscar, Potcar, PotcarSingle, VaspInput
 from .outputs import (
     BSVasprun,

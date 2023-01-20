@@ -161,7 +161,7 @@ class Site(collections.abc.Hashable, MSONable):
         if self.is_ordered:
             return str(list(self.species)[0])
         sorted_species = sorted(self.species)
-        return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
+        return ", ".join(f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species)
 
     @property
     def specie(self) -> Element | Species | DummySpecies:

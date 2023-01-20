@@ -2,6 +2,8 @@
 Connected components.
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 
@@ -76,7 +78,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=15.0,
                     lw=2,
                     alpha=alpha,
@@ -90,7 +92,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=10.0,
                     lw=2,
                     alpha=alpha,
@@ -104,7 +106,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                 patchA=n1,
                 patchB=n2,
                 arrowstyle="-|>",
-                connectionstyle=f"arc3,rad={rad}",
+                connectionstyle=f"arc3,{rad=}",
                 mutation_scale=10.0,
                 lw=2,
                 alpha=alpha,
@@ -208,7 +210,7 @@ class ConnectedComponent(MSONable):
         environments_data=None,
         links_data=None,
         graph=None,
-    ):
+    ) -> None:
         """
         Constructor for the ConnectedComponent object.
 
@@ -222,7 +224,7 @@ class ConnectedComponent(MSONable):
         Returns:
             ConnectedComponent: Instance of this class
         """
-        self._periodicity_vectors = None
+        self._periodicity_vectors: list[list] | None = None
         self._primitive_reduced_connected_subgraph = None
         self._projected = False
         if graph is None:
@@ -352,7 +354,7 @@ class ConnectedComponent(MSONable):
             elif coordination == "env:number":
                 cseq[0] = {source_node.coordination_environment: 1}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         while path_len < path_size:
             new_ends = []
             for current_node_end, current_delta_end in current_ends:
@@ -375,7 +377,7 @@ class ConnectedComponent(MSONable):
                 myenvs = [myend.coordination_environment for myend, _ in current_ends]
                 cseq[path_len] = {myenv: myenvs.count(myenv) for myenv in set(myenvs)}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         return cseq
 
     def __len__(self):
@@ -393,7 +395,7 @@ class ConnectedComponent(MSONable):
         elif algorithm == "cycle_basis":
             self.compute_periodicity_cycle_basis()
         else:
-            raise ValueError(f'Algorithm "{algorithm}" is not allowed to compute periodicity')
+            raise ValueError(f"Algorithm {algorithm!r} is not allowed to compute periodicity")
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
@@ -420,7 +422,7 @@ class ConnectedComponent(MSONable):
             paths = []
             # TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
             test_node_neighbors = my_simple_graph.neighbors(test_node)
-            breaknodeloop = False
+            break_node_loop = False
             for test_node_neighbor in test_node_neighbors:
                 # Special case for two nodes
                 if len(self._connected_subgraph[test_node][test_node_neighbor]) > 1:
@@ -442,7 +444,7 @@ class ConnectedComponent(MSONable):
                     test_node_neighbor,
                     cutoff=len(self._connected_subgraph),
                 ):
-                    path_indices = [nodepath.isite for nodepath in path]
+                    path_indices = [node_path.isite for node_path in path]
                     if path_indices == [test_node.isite, test_node_neighbor.isite]:
                         continue
                     path_indices.append(test_node.isite)
@@ -465,9 +467,9 @@ class ConnectedComponent(MSONable):
                     this_node_cell_img_vectors.extend(this_path_deltas)
                     this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
                     if len(this_node_cell_img_vectors) == 3:
-                        breaknodeloop = True
+                        break_node_loop = True
                         break
-                if breaknodeloop:
+                if break_node_loop:
                     break
             this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
             independent_cell_img_vectors = this_node_cell_img_vectors
@@ -504,7 +506,6 @@ class ConnectedComponent(MSONable):
             all_deltas.extend(this_cycle_deltas)
             all_deltas = get_linearly_independent_vectors(all_deltas)
             if len(all_deltas) == 3:
-                self._periodicity_vectors = all_deltas
                 return
         # One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles)
         edges = my_simple_graph.edges()
@@ -539,15 +540,13 @@ class ConnectedComponent(MSONable):
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
 
-    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True):
+    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
         """
         Args:
             graph ():
             save_file ():
             drawing_type ():
             pltshow ():
-
-        Returns:
         """
         import matplotlib.pyplot as plt
 
@@ -603,6 +602,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 0
 
     @property
@@ -612,6 +612,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 1
 
     @property
@@ -621,6 +622,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 2
 
     @property
@@ -630,6 +632,7 @@ class ConnectedComponent(MSONable):
         """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
+        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
         return len(self._periodicity_vectors) == 3
 
     @staticmethod
@@ -684,6 +687,7 @@ class ConnectedComponent(MSONable):
             start_node ():
 
         Returns:
+            nx.MultiGraph: Elastic centered subgraph.
         """
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
@@ -735,7 +739,7 @@ class ConnectedComponent(MSONable):
                                     raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
                     logging.debug(
-                        "        ddeltas : " + ", ".join([f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas])
+                        "        ddeltas : " + ", ".join(f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas)
                     )
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError("Should not have more than one 000 delta ...")

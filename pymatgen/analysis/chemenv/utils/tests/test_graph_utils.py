@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __author__ = "waroquiers"
 
 import numpy as np
@@ -654,7 +656,7 @@ class GraphUtilsTest(PymatgenTest):
                 [FakeNodeWithEqLtMethods(inode) for inode in inodes],
                 edge_indices=[iedge for iedge in iedges],
             )
-            strnodes = ", ".join([str(i) for i in inodes])
+            strnodes = ", ".join(str(i) for i in inodes)
             assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in inodes])})"
             assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({strnodes})"
 

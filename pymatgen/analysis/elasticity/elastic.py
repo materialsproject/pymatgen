@@ -60,7 +60,7 @@ class NthOrderElasticTensor(Tensor):
         if obj.rank % 2 != 0:
             raise ValueError("ElasticTensor must have even rank")
         if not obj.is_voigt_symmetric(tol):
-            warnings.warn("Input elastic tensor does not satisfy standard voigt symmetries")
+            warnings.warn("Input elastic tensor does not satisfy standard Voigt symmetries")
         return obj.view(cls)
 
     @property
@@ -500,7 +500,7 @@ class ElasticTensor(NthOrderElasticTensor):
             stresses (list of Stresses): list of stress objects to use in fit
                 corresponding to the list of strains
             eq_stress (Stress): equilibrium stress to use in fitting
-            vasp (boolean): flag for whether the stress tensor should be
+            vasp (bool): flag for whether the stress tensor should be
                 converted based on vasp units/convention for stress
             tol (float): tolerance for removing near-zero elements of the
                 resulting tensor
@@ -717,7 +717,7 @@ class ElasticTensorExpansion(TensorCollection):
             structure (Structure): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            mode (string): mode for finding average heat-capacity,
+            mode (str): mode for finding average heat-capacity,
                 current supported modes are 'debye' and 'dulong-petit'
         """
         soec = ElasticTensor(self[0])

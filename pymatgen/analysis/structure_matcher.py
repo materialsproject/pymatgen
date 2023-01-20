@@ -75,7 +75,6 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         Returns:
             A hashable object. Examples can be string formulas, integers etc.
         """
-        return
 
     @classmethod
     def from_dict(cls, d):

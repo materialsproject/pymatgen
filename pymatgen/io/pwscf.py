@@ -5,6 +5,8 @@
 This module implements input and output processing from PWSCF.
 """
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 
@@ -105,7 +107,7 @@ class PWInput:
 
         def to_str(v):
             if isinstance(v, str):
-                return f"'{v}'"
+                return f"{v!r}"
             if isinstance(v, float):
                 return f"{str(v).replace('e', 'd')}"
             if isinstance(v, bool):
