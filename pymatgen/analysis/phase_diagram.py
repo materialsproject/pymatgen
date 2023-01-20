@@ -364,11 +364,12 @@ class PhaseDiagram(MSONable):
         self.entries = entries
         if computed_data is None:
             computed_data = self._compute()
+            assert isinstance(computed_data, dict)  # mypy type narrowing
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
+            assert isinstance(computed_data, dict)
             # update keys to the Element object, in case they are the str object in pre-computed data
             computed_data["el_refs"] = [(Element(el_str), entry) for (el_str, entry) in computed_data["el_refs"]]
-        assert isinstance(computed_data, dict)  # mypy type narrowing
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
