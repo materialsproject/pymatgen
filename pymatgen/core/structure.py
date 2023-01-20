@@ -2573,6 +2573,7 @@ class IStructure(SiteCollection, MSONable):
         primitive: bool = False,
         sort: bool = False,
         merge_tol: float = 0.0,
+        frac_tol: float = 1e-4,
         **kwargs,
     ) -> Structure | IStructure:
         """
@@ -2589,6 +2590,9 @@ class IStructure(SiteCollection, MSONable):
             merge_tol (float): If this is some positive number, sites that
                 are within merge_tol from each other will be merged. Usually
                 0.01 should be enough to deal with common numerical issues.
+            frac_tol (float): This tolerance is used to determine if a coordinate should be rounded to an ideal
+                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                However, for very large CIF files, this may need to be set to 0.
             **kwargs: Passthrough to relevant parser.
 
         Returns:
@@ -2598,7 +2602,7 @@ class IStructure(SiteCollection, MSONable):
         if fmt_low == "cif":
             from pymatgen.io.cif import CifParser
 
-            parser = CifParser.from_string(input_string, **kwargs)
+            parser = CifParser.from_string(input_string, frac_tolerance = frac_tol, **kwargs)
             s = parser.get_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
@@ -2646,7 +2650,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs):
+    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, frac_tolerance=1e-4, **kwargs):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -2659,6 +2663,9 @@ class IStructure(SiteCollection, MSONable):
             sort (bool): Whether to sort sites. Default to False.
             merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
                 merged. Usually 0.01 should be enough to deal with common numerical issues.
+            frac_tol (float): This tolerance is used to determine if a coordinate should be rounded to an ideal
+                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                However, for very large CIF files, this may need to be set to 0.
             **kwargs: Passthrough to relevant reader. E.g., if it is CIF, the kwargs will be passed through to
                 CifParser.
 
@@ -2683,7 +2690,7 @@ class IStructure(SiteCollection, MSONable):
         with zopen(filename, "rt") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
-            return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol,frac_tolerance=frac_tolerance, **kwargs)
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
             s = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
 
@@ -2692,17 +2699,17 @@ class IStructure(SiteCollection, MSONable):
         elif fnmatch(fname, "vasprun*.xml*"):
             s = Vasprun(filename, **kwargs).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
-            return cls.from_str(contents, fmt="cssr", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(contents, fmt="cssr", primitive=primitive, sort=sort, merge_tol=merge_tol,frac_tolerance=frac_tolerance, **kwargs)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return cls.from_str(contents, fmt="json", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(contents, fmt="json", primitive=primitive, sort=sort, merge_tol=merge_tol,frac_tolerance=frac_tolerance, **kwargs)
         elif fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
-            return cls.from_str(contents, fmt="yaml", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(contents, fmt="yaml", primitive=primitive, sort=sort, merge_tol=merge_tol,frac_tolerance=frac_tolerance, **kwargs)
         elif fnmatch(fname, "*.xsf"):
-            return cls.from_str(contents, fmt="xsf", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(contents, fmt="xsf", primitive=primitive, sort=sort, merge_tol=merge_tol,frac_tolerance=frac_tolerance, **kwargs)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname, **kwargs).structure
         elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
-            return cls.from_str(contents, fmt="mcsqs", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(contents, fmt="mcsqs", primitive=primitive, sort=sort, merge_tol=merge_tol,frac_tolerance=frac_tolerance, **kwargs)
         elif fnmatch(fname, "CTRL*"):
             return LMTOCtrl.from_file(filename=filename, **kwargs).structure
         elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
