@@ -622,14 +622,13 @@ class PhaseDiagramTest(unittest.TestCase):
             loadfn("pd.json")
 
     def test_el_refs(self):
-        # Creat an imitation of pre_computed phase diagram, which currently exists an issue
-        # that el_refs is dict[str, PDEntry] object, instead of dict[Element, PDEntry].
-        computed_data_imitation = self.pd.computed_data
-        el_refs_imitation = [(str(el), entry) for el, entry in self.pd.el_refs.items()]
-        computed_data_imitation.update({"el_refs": el_refs_imitation})
-        phase_diagram_imitation = PhaseDiagram(self.entries, computed_data=computed_data_imitation)
+        # Create an imitation of pre_computed phase diagram with el_refs keys being
+        # tuple[str, PDEntry] instead of tuple[Element, PDEntry].
+        mock_el_refs = [(str(el), entry) for el, entry in self.pd.el_refs.items()]
+        mock_computed_data = {**self.pd.computed_data, "el_refs": mock_el_refs}
+        pd = PhaseDiagram(self.entries, computed_data=mock_computed_data)
         # Check the keys in el_refs dict have been updated to Element object via PhaseDiagram class.
-        assert all(isinstance(el, Element) for el in phase_diagram_imitation.el_refs)
+        assert all(isinstance(el, Element) for el in pd.el_refs)
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
