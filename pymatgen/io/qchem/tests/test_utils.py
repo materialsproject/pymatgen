@@ -32,12 +32,12 @@ class UtilTest(PymatgenTest):
     def test_lower_and_check_unique(self):
         d = {"sVp": {"RHOISO": 0.0009}, "jobType": "SP"}
         d2 = lower_and_check_unique(d)
-        self.assertEqual(d2, {"svp": {"RHOISO": 0.0009}, "job_type": "sp"})
+        assert d2 == {"svp": {"RHOISO": 0.0009}, "job_type": "sp"}
         d3 = lower_and_check_unique(d2["svp"])
-        self.assertEqual(d3, {"rhoiso": "0.0009"})
+        assert d3 == {"rhoiso": "0.0009"}
         d4 = {"jobType": "SP", "JOBtype": "SP"}
         # should not raise an exception
-        self.assertEqual(lower_and_check_unique(d4), {"job_type": "sp"})
+        assert lower_and_check_unique(d4) == {"job_type": "sp"}
         d4.update({"jobType": "opt"})
         with pytest.raises(ValueError, match="Multiple instances of key"):
             lower_and_check_unique(d4)
@@ -60,10 +60,10 @@ class UtilTest(PymatgenTest):
 
         processed_data_HESS = process_parsed_HESS(data_HESS)
 
-        self.assertEqual(len(data_132), len(processed_data_HESS))
+        assert len(data_132) == len(processed_data_HESS)
         for ii, val in enumerate(data_132):
             diff = abs(val - processed_data_HESS[ii])
-            self.assertTrue(diff < 1e-15)
+            assert diff < 1e-15
 
 
 if __name__ == "__main__":

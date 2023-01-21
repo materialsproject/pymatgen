@@ -1868,6 +1868,10 @@ class QCOutput(MSONable):
             "key"
         ) == [[]]:
             self.data["errors"] += ["mem_static_too_small"]
+        elif read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True,).get(
+            "key"
+        ) == [[]]:
+            self.data["errors"] += ["mem_static_too_small"]
         elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True,).get(
             "key"
         ) == [[]]:
