@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import collections
-import json
 import os
 import unittest
 import warnings
@@ -623,14 +622,15 @@ class PhaseDiagramTest(unittest.TestCase):
             loadfn("pd.json")
 
     def test_el_refs(self):
-        # Creat an imitation of pre_computed phase diagram, which currently exists an issue 
+        # Creat an imitation of pre_computed phase diagram, which currently exists an issue
         # that el_refs is dict[str, PDEntry] object, instead of dict[Element, PDEntry].
         computed_data_imitation = self.pd.computed_data
         el_refs_imitation = [(str(el), entry) for el, entry in self.pd.el_refs.items()]
-        computed_data_imitation.update({'el_refs': el_refs_imitation})
+        computed_data_imitation.update({"el_refs": el_refs_imitation})
         phase_diagram_imitation = PhaseDiagram(self.entries, computed_data=computed_data_imitation)
         # Check the keys in el_refs dict have been updated to Element object via PhaseDiagram class.
         assert all(isinstance(el, Element) for el in phase_diagram_imitation.el_refs)
+
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
