@@ -366,7 +366,9 @@ class PhaseDiagram(MSONable):
             computed_data = self._compute()
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
-        assert isinstance(computed_data, dict)  # mypy type narrowing
+            assert isinstance(computed_data, dict)
+            # update keys to be Element objects in case they are strings in pre-computed data
+            computed_data["el_refs"] = [(Element(el_str), entry) for el_str, entry in computed_data["el_refs"]]
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
@@ -406,7 +408,7 @@ class PhaseDiagram(MSONable):
         computed_data = d.get("computed_data")
         return cls(entries, elements, computed_data=computed_data)
 
-    def _compute(self):
+    def _compute(self) -> dict[str, Any]:
         if self.elements == ():
             self.elements = sorted({els for e in self.entries for els in e.composition.elements})
 
@@ -415,23 +417,21 @@ class PhaseDiagram(MSONable):
 
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs = {}
-        min_entries = []
-        all_entries = []
-        for composition, group in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
-            group = list(group)
+        el_refs: dict[Element, PDEntry] = {}
+        min_entries: list[PDEntry] = []
+        all_entries: list[PDEntry] = []
+        for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
+            group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
             if composition.is_element:
                 el_refs[composition.elements[0]] = min_entry
             min_entries.append(min_entry)
             all_entries.extend(group)
 
-        if len(el_refs) < dim:
-            missing = set(elements) - set(el_refs)
+        if missing := set(elements) - set(el_refs):
             raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
-        if len(el_refs) > dim:
-            extra = set(el_refs) - set(elements)
-            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
+        if extra := set(el_refs) - set(elements):
+            raise ValueError(f"There are more terminal elements than dimensions: {sorted(map(str, extra))}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
