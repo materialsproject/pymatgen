@@ -13,7 +13,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 
@@ -624,13 +623,14 @@ class PhaseDiagramTest(unittest.TestCase):
             loadfn("pd.json")
 
     def test_el_refs(self):
-        # load a pre_computed phase diagram,
-        # which was retrieved via new API and serialized to the MSONable object
-        with open(module_dir / "pre_computed_phase_diagram_Li-Fe-O.json") as pd:
-            phaseDiagram = json.load(pd, cls=MontyDecoder)
-        # check the keys in el_refs dict have been updated to Element object
-        assert str not in [type(el) for el in phaseDiagram.el_refs.keys()]
-
+        # Creat an imitation of pre_computed phase diagram, which currently exists an issue 
+        # that el_refs is dict[str, PDEntry] object, instead of dict[Element, PDEntry].
+        computed_data_imitation = self.pd.computed_data
+        el_refs_imitation = [(str(el), entry) for el, entry in self.pd.el_refs.items()]
+        computed_data_imitation.update({'el_refs': el_refs_imitation})
+        phase_diagram_imitation = PhaseDiagram(self.entries, computed_data=computed_data_imitation)
+        # Check the keys in el_refs dict have been updated to Element object via PhaseDiagram class.
+        assert all(isinstance(el, Element) for el in phase_diagram_imitation.el_refs)
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
