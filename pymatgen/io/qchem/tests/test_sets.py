@@ -41,20 +41,20 @@ class QChemDictSetTest(PymatgenTest):
             scf_algorithm="diis",
         )
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "basis": "6-31g*",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "geom_opt_max_cycles": "200",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "basis": "6-31g*",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "geom_opt_max_cycles": "200",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_DictSet.rem == ref_dict
         assert test_DictSet.pcm == {}
         assert test_DictSet.solvent == {}
@@ -74,30 +74,30 @@ class QChemDictSetTest(PymatgenTest):
             max_scf_cycles=35,
         )
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "basis": "6-31g*",
-                "max_scf_cycles": "35",
-                "method": "b97-d3",
-                "dft_d": "d3_bj",
-                "geom_opt_max_cycles": "200",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "pcm",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "basis": "6-31g*",
+            "max_scf_cycles": "35",
+            "method": "b97-d3",
+            "dft_d": "d3_bj",
+            "geom_opt_max_cycles": "200",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "pcm",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_DictSet.rem == ref_dict
         ref_dict = {
-                "heavypoints": "194",
-                "hpoints": "194",
-                "radii": "uff",
-                "theory": "cpcm",
-                "vdwscale": "1.1",
-            }
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1",
+        }
         assert test_DictSet.pcm == ref_dict
         assert test_DictSet.solvent == {"dielectric": "10.0"}
         assert test_DictSet.molecule == test_molecule
@@ -112,23 +112,23 @@ class QChemDictSetTest(PymatgenTest):
             max_scf_cycles=35,
         )
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "basis": "6-31g*",
-                "max_scf_cycles": "35",
-                "method": "b97-d3",
-                "dft_d": "d3_bj",
-                "geom_opt_max_cycles": "200",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "basis": "6-31g*",
+            "max_scf_cycles": "35",
+            "method": "b97-d3",
+            "dft_d": "d3_bj",
+            "geom_opt_max_cycles": "200",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_DictSet.rem == ref_dict
         assert test_DictSet.smx == {"solvent": "water"}
 
@@ -463,19 +463,19 @@ class SinglePointSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule)
         ref_dict = {
-                "job_type": "sp",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "sp",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_SPSet.rem == ref_dict
         assert test_SPSet.pcm == {}
         assert test_SPSet.solvent == {}
@@ -485,21 +485,21 @@ class SinglePointSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, extra_scf_print=True)
         ref_dict = {
-                "job_type": "sp",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-                "scf_convergence": "8",
-                "scf_final_print": "3",
-            }
+            "job_type": "sp",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+            "scf_convergence": "8",
+            "scf_final_print": "3",
+        }
         assert test_SPSet.rem == ref_dict
         assert test_SPSet.pcm == {}
         assert test_SPSet.solvent == {}
@@ -509,28 +509,28 @@ class SinglePointSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
-                "job_type": "sp",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "pcm",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "sp",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "pcm",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_SPSet.rem == ref_dict
         ref_dict = {
-                "heavypoints": "194",
-                "hpoints": "194",
-                "radii": "uff",
-                "theory": "cpcm",
-                "vdwscale": "1.1",
-            }
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1",
+        }
         assert test_SPSet.pcm == ref_dict
         assert test_SPSet.solvent == {"dielectric": "10.0"}
         assert test_SPSet.molecule == test_molecule
@@ -539,20 +539,20 @@ class SinglePointSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, isosvp_dielectric=10.0)
         ref_dict = {
-                "job_type": "sp",
-                "gen_scfman": "false",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "isosvp",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "sp",
+            "gen_scfman": "false",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "isosvp",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_SPSet.rem == ref_dict
         ref_dict = {"dielst": "10.0", "rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
         assert test_SPSet.svp == ref_dict
@@ -562,21 +562,21 @@ class SinglePointSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
-                "job_type": "sp",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "sp",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_SPSet.rem == ref_dict
         assert test_SPSet.smx == {"solvent": "water"}
         assert test_SPSet.molecule == test_molecule
@@ -587,41 +587,41 @@ class SinglePointSetTest(PymatgenTest):
             molecule=test_molecule, cmirs_solvent="benzene", overwrite_inputs={"svp": {"RHOISO": 0.0005}}
         )
         ref_dict = {
-                "job_type": "sp",
-                "gen_scfman": "false",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "isosvp",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "sp",
+            "gen_scfman": "false",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "isosvp",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_SPSet.rem == ref_dict
         ref_dict = {
-                "dielst": "2.28",
-                "rhoiso": "0.0005",
-                "nptleb": "1202",
-                "itrngr": "2",
-                "irotgr": "2",
-                "ipnrf": "1",
-                "idefesr": "1",
-            }
+            "dielst": "2.28",
+            "rhoiso": "0.0005",
+            "nptleb": "1202",
+            "itrngr": "2",
+            "irotgr": "2",
+            "ipnrf": "1",
+            "idefesr": "1",
+        }
         assert test_SPSet.svp == ref_dict
         ref_dict = {
-                "a": "-0.00572",
-                "b": "0.01116",
-                "c": None,
-                "d": None,
-                "gamma": None,
-                "solvrho": "0.0421",
-                "gaulag_n": "40",
-                "delta": "7",
-            }
+            "a": "-0.00572",
+            "b": "0.01116",
+            "c": None,
+            "d": None,
+            "gamma": None,
+            "solvrho": "0.0421",
+            "gaulag_n": "40",
+            "delta": "7",
+        }
         assert test_SPSet.pcm_nonels == ref_dict
         assert test_SPSet.molecule == test_molecule
 
@@ -629,23 +629,23 @@ class SinglePointSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water", plot_cubes=True)
         ref_dict = {
-                "job_type": "sp",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-                "plots": "true",
-                "make_cube_files": "true",
-            }
+            "job_type": "sp",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+            "plots": "true",
+            "make_cube_files": "true",
+        }
         assert test_SPSet.rem == ref_dict
         assert test_SPSet.plots == {"grid_spacing": "0.05", "total_density": "0"}
         assert test_SPSet.smx == {"solvent": "water"}
@@ -657,20 +657,20 @@ class OptSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule)
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "geom_opt_max_cycles": "200",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "geom_opt_max_cycles": "200",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_OptSet.rem == ref_dict
         assert test_OptSet.pcm == {}
         assert test_OptSet.solvent == {}
@@ -681,29 +681,29 @@ class OptSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "geom_opt_max_cycles": "200",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "pcm",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "pcm",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_OptSet.rem == ref_dict
         ref_dict = {
-                "heavypoints": "194",
-                "hpoints": "194",
-                "radii": "uff",
-                "theory": "cpcm",
-                "vdwscale": "1.1",
-            }
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1",
+        }
         assert test_OptSet.pcm == ref_dict
         assert test_OptSet.solvent == {"dielectric": "10.0"}
         assert test_OptSet.molecule == test_molecule
@@ -712,22 +712,22 @@ class OptSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "geom_opt_max_cycles": "200",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_OptSet.rem == ref_dict
         assert test_OptSet.smx == {"solvent": "water"}
         assert test_OptSet.molecule == test_molecule
@@ -743,21 +743,21 @@ class OptSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule, nbo_params={})
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "geom_opt_max_cycles": "200",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-                "nbo": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "200",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+            "nbo": "true",
+        }
         assert test_OptSet.rem == ref_dict
         assert test_OptSet.nbo == {}
         assert test_OptSet.molecule == test_molecule
@@ -766,43 +766,48 @@ class OptSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         v5_OptSet = OptSet(molecule=test_molecule, qchem_version=5, basis_set="def2-tzvpd", geom_opt={})
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "geom_opt_max_cycles": "200",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-                "geom_opt2": "3",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "200",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+            "geom_opt2": "3",
+        }
         assert v5_OptSet.rem == ref_dict
         assert v5_OptSet.geom_opt == {"maxiter": "200"}
         assert v5_OptSet.molecule == test_molecule
 
         v6_OptSet = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={})
         ref_dict = {
-                "job_type": "opt",
-                "gen_scfman": "true",
-                "geom_opt_max_cycles": "200",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "opt",
+            "gen_scfman": "true",
+            "geom_opt_max_cycles": "200",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert v6_OptSet.rem == ref_dict
-        ref_dict = {"maxiter": "200", "coordinates": "redundant", "max_displacement": "0.1", "optimization_restart": "false"}
+        ref_dict = {
+            "maxiter": "200",
+            "coordinates": "redundant",
+            "max_displacement": "0.1",
+            "optimization_restart": "false",
+        }
         assert v6_OptSet.geom_opt == ref_dict
         assert v6_OptSet.molecule == test_molecule
 
@@ -813,12 +818,12 @@ class OptSetTest(PymatgenTest):
             geom_opt={"coordinates": "delocalized", "initial_hessian": "read"},
         )
         ref_dict = {
-                "maxiter": "200",
-                "coordinates": "delocalized",
-                "max_displacement": "0.1",
-                "initial_hessian": "read",
-                "optimization_restart": "false",
-            }
+            "maxiter": "200",
+            "coordinates": "delocalized",
+            "max_displacement": "0.1",
+            "initial_hessian": "read",
+            "optimization_restart": "false",
+        }
         assert v6_OptSet_modified.geom_opt == ref_dict
 
 
@@ -827,20 +832,20 @@ class TransitionStateSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_TSSet = TransitionStateSet(molecule=test_molecule)
         ref_dict = {
-                "job_type": "ts",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "geom_opt_max_cycles": "200",
-                "resp_charges": "true",
-                "sym_ignore": "true",
-                "symmetry": "false",
-            }
+            "job_type": "ts",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "geom_opt_max_cycles": "200",
+            "resp_charges": "true",
+            "sym_ignore": "true",
+            "symmetry": "false",
+        }
         assert test_TSSet.rem == ref_dict
         assert test_TSSet.pcm == {}
         assert test_TSSet.solvent == {}
@@ -851,21 +856,21 @@ class TransitionStateSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_TSSet = TransitionStateSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
-                "job_type": "ts",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "geom_opt_max_cycles": "200",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "pcm",
-                "resp_charges": "true",
-                "sym_ignore": "true",
-                "symmetry": "false",
-            }
+            "job_type": "ts",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "pcm",
+            "resp_charges": "true",
+            "sym_ignore": "true",
+            "symmetry": "false",
+        }
         assert test_TSSet.rem == ref_dict
         ref_dict = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
         assert test_TSSet.pcm == ref_dict
@@ -876,22 +881,22 @@ class TransitionStateSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_TSSet = TransitionStateSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
-                "job_type": "ts",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "geom_opt_max_cycles": "200",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "resp_charges": "true",
-                "sym_ignore": "true",
-                "symmetry": "false",
-            }
+            "job_type": "ts",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "geom_opt_max_cycles": "200",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "resp_charges": "true",
+            "sym_ignore": "true",
+            "symmetry": "false",
+        }
         assert test_TSSet.rem == ref_dict
         assert test_TSSet.smx == {"solvent": "water"}
         assert test_TSSet.molecule == test_molecule
@@ -902,19 +907,19 @@ class ForceSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_forceset = ForceSet(molecule=test_molecule)
         ref_dict = {
-                "job_type": "force",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "force",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_forceset.rem == ref_dict
         assert test_forceset.pcm == {}
         assert test_forceset.solvent == {}
@@ -924,20 +929,20 @@ class ForceSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_forceset = ForceSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
-                "job_type": "force",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "pcm",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "force",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "pcm",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_forceset.rem == ref_dict
         ref_dict = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
         assert test_forceset.pcm == ref_dict
@@ -948,21 +953,21 @@ class ForceSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_forceset = ForceSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
-                "job_type": "force",
-                "gen_scfman": "true",
-                "basis": "def2-tzvpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "force",
+            "gen_scfman": "true",
+            "basis": "def2-tzvpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_forceset.rem == ref_dict
         assert test_forceset.smx, {"solvent": "water"}
         assert test_forceset.molecule == test_molecule
@@ -974,20 +979,20 @@ class PESScanSetTest(PymatgenTest):
 
         test_pes_scan = PESScanSet(molecule=test_molecule, scan_variables={"stre": ["3 6 1.5 1.9 0.01"]})
         ref_dict = {
-                "job_type": "pes_scan",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "geom_opt_max_cycles": "200",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "resp_charges": "true",
-                "sym_ignore": "true",
-                "symmetry": "false",
-            }
+            "job_type": "pes_scan",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "geom_opt_max_cycles": "200",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "resp_charges": "true",
+            "sym_ignore": "true",
+            "symmetry": "false",
+        }
         assert test_pes_scan.rem == ref_dict
         assert test_pes_scan.pcm == dict()
         assert test_pes_scan.solvent == dict()
@@ -1001,21 +1006,21 @@ class PESScanSetTest(PymatgenTest):
             molecule=test_molecule, pcm_dielectric=10.0, scan_variables={"stre": ["3 6 1.5 1.9 0.01"]}
         )
         ref_dict = {
-                "job_type": "pes_scan",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "geom_opt_max_cycles": "200",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "pcm",
-                "resp_charges": "true",
-                "sym_ignore": "true",
-                "symmetry": "false",
-            }
+            "job_type": "pes_scan",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "geom_opt_max_cycles": "200",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "pcm",
+            "resp_charges": "true",
+            "sym_ignore": "true",
+            "symmetry": "false",
+        }
         assert test_pes_scan.rem == ref_dict
         ref_dict = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
         assert test_pes_scan.pcm == ref_dict
@@ -1029,22 +1034,22 @@ class PESScanSetTest(PymatgenTest):
             molecule=test_molecule, smd_solvent="water", scan_variables={"stre": ["3 6 1.5 1.9 0.01"]}
         )
         ref_dict = {
-                "job_type": "pes_scan",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "geom_opt_max_cycles": "200",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "resp_charges": "true",
-                "sym_ignore": "true",
-                "symmetry": "false",
-            }
+            "job_type": "pes_scan",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "geom_opt_max_cycles": "200",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "resp_charges": "true",
+            "sym_ignore": "true",
+            "symmetry": "false",
+        }
         assert test_pes_scan.rem == ref_dict
         assert test_pes_scan.smx == {"solvent": "water"}
         assert test_pes_scan.scan == {"stre": ["3 6 1.5 1.9 0.01"]}
@@ -1056,19 +1061,19 @@ class FreqSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_FreqSet = FreqSet(molecule=test_molecule)
         ref_dict = {
-                "job_type": "freq",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "freq",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_FreqSet.rem == ref_dict
         assert test_FreqSet.pcm == {}
         assert test_FreqSet.solvent == {}
@@ -1078,28 +1083,28 @@ class FreqSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_FreqSet = FreqSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
-                "job_type": "freq",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "pcm",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "freq",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "pcm",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_FreqSet.rem == ref_dict
         ref_dict = {
-                "heavypoints": "194",
-                "hpoints": "194",
-                "radii": "uff",
-                "theory": "cpcm",
-                "vdwscale": "1.1",
-            }
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1",
+        }
         assert test_FreqSet.pcm == ref_dict
         assert test_FreqSet.solvent == {"dielectric": "10.0"}
         assert test_FreqSet.molecule == test_molecule
@@ -1108,21 +1113,21 @@ class FreqSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_FreqSet = FreqSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
-                "job_type": "freq",
-                "gen_scfman": "true",
-                "basis": "def2-svpd",
-                "max_scf_cycles": "100",
-                "method": "wb97mv",
-                "scf_algorithm": "diis",
-                "xc_grid": "3",
-                "thresh": "14",
-                "s2thresh": "16",
-                "solvent_method": "smd",
-                "ideriv": "1",
-                "symmetry": "false",
-                "sym_ignore": "true",
-                "resp_charges": "true",
-            }
+            "job_type": "freq",
+            "gen_scfman": "true",
+            "basis": "def2-svpd",
+            "max_scf_cycles": "100",
+            "method": "wb97mv",
+            "scf_algorithm": "diis",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "solvent_method": "smd",
+            "ideriv": "1",
+            "symmetry": "false",
+            "sym_ignore": "true",
+            "resp_charges": "true",
+        }
         assert test_FreqSet.rem == ref_dict
         assert test_FreqSet.smx == {"solvent": "water"}
         assert test_FreqSet.molecule == test_molecule
