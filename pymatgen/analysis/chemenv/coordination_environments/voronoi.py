@@ -7,14 +7,6 @@ This module contains the object used to describe the possible bonded atoms based
 
 from __future__ import annotations
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
 import logging
 import time
 
@@ -31,6 +23,14 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 
 def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
@@ -132,11 +132,11 @@ class DetailedVoronoiContainer(MSONable):
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
-        Set up of the voronoi list of neighbours by calling qhull.
+        Set up of the voronoi list of neighbors by calling qhull.
 
         Args:
             indices: indices of the sites for which the Voronoi is needed.
-            voronoi_cutoff: Voronoi cutoff for the search of neighbours.
+            voronoi_cutoff: Voronoi cutoff for the search of neighbors.
 
         Raises:
             RuntimeError: If an infinite vertex is found in the voronoi construction.
@@ -475,7 +475,7 @@ class DetailedVoronoiContainer(MSONable):
             }
         else:
             raise ValueError(
-                f'Type "{surface_calculation_options["type"]}" for the surface calculation in DetailedVoronoiContainer '
+                f'Type {surface_calculation_options["type"]!r} for the surface calculation in DetailedVoronoiContainer '
                 "is invalid"
             )
         max_dist = surface_calculation_options["distance_bounds"]["upper"] + 0.1
@@ -705,7 +705,7 @@ class DetailedVoronoiContainer(MSONable):
             dist_limits = [0.0, 1.0]
         else:
             raise NotImplementedError(
-                f"Plotting type \"{plot_type['distance_parameter']}\" for the distance is not implemented"
+                f"Plotting type {plot_type['distance_parameter']!r} for the distance is not implemented"
             )
         if plot_type["angle_parameter"][0] == "initial_normalized":
             aa = [0.0]
@@ -718,7 +718,7 @@ class DetailedVoronoiContainer(MSONable):
             angle_bounds = np.array(aa)
         else:
             raise NotImplementedError(
-                f"Plotting type \"{plot_type['angle_parameter']}\" for the angle is not implemented"
+                f"Plotting type {plot_type['angle_parameter']!r} for the angle is not implemented"
             )
         ang_limits = [0.0, 1.0]
         return {
@@ -854,7 +854,7 @@ class DetailedVoronoiContainer(MSONable):
             for idist, dist in enumerate(mydists):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
-            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
+            raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
         subplot.plot(xx, yy)
 
         return fig
@@ -913,7 +913,7 @@ class DetailedVoronoiContainer(MSONable):
             for iang, ang in enumerate(myangs):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
-            raise ValueError(f"Step function of type \"{step_function['type']}\" is not allowed")
+            raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
         subplot.plot(xx, yy)
 
         return fig

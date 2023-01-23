@@ -693,6 +693,17 @@ class Vasprun(MSONable):
         return CompleteDos(self.final_structure, self.tdos, pdoss)
 
     @property
+    def complete_dos_normalized(self) -> CompleteDos:
+        """
+        A CompleteDos object which incorporates the total DOS and all
+        projected DOS. Normalized by the volume of the unit cell with
+        units of states/eV/unit cell volume.
+        """
+        final_struct = self.final_structure
+        pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
+        return CompleteDos(self.final_structure, self.tdos, pdoss, normalize=True)
+
+    @property
     def hubbards(self):
         """
         Hubbard U values used if a vasprun is a GGA+U run. {} otherwise.
@@ -4607,7 +4618,7 @@ class Wavecar:
             # read the header information
             recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
-                print(f"recl={recl}, spin={spin}, rtag={rtag}")
+                print(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
             self.spin = spin
 
@@ -4980,7 +4991,7 @@ class Wavecar:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
         if phase and not np.all(self.kpoints[kpoint] == 0.0):
-            warnings.warn("phase == True should only be used for the Gamma kpoint! I hope you know what you're doing!")
+            warnings.warn("phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!")
 
         # scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
@@ -5341,11 +5352,11 @@ class Waveder(MSONable):
         between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
 
         Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
-            kpoint (Integer): Index of k-point
-            spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of Cartesian direction (0,1,2)
+            band_i (int): Index of band i
+            band_j (int): Index of band j
+            kpoint (int): Index of k-point
+            spin   (int): Index of spin-channel (0 or 1)
+            cart_dir (int): Index of Cartesian direction (0,1,2)
 
         Returns:
             a float value

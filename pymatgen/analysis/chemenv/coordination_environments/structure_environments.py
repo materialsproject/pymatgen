@@ -651,7 +651,7 @@ class StructureEnvironments(MSONable):
             raise ChemenvError(
                 "StructureEnvironments",
                 "get_csm",
-                f'Number of csms for site #{str(isite)} with mp_symbol "{mp_symbol}" = {str(len(csms))}',
+                f"Number of csms for site #{str(isite)} with mp_symbol {mp_symbol!r} = {str(len(csms))}",
             )
         return csms[0]
 
@@ -659,10 +659,10 @@ class StructureEnvironments(MSONable):
         """
         Returns the continuous symmetry measure(s) of site with index isite with respect to the
          perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
-         be available (if there is no voronoi parameters leading to a number of neighbours corresponding to
+         be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
          the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
-         lead to more than one csm (when two or more different voronoi parameters lead to different neighbours
-         but with same number of neighbours).
+         lead to more than one csm (when two or more different voronoi parameters lead to different neighbors
+         but with same number of neighbors).
 
         Args:
             isite: Index of the site.
@@ -1195,7 +1195,7 @@ class StructureEnvironments(MSONable):
                     continue
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "has_neighbors",
                         "self": "None",
                         "other": set(other_site_nb_sets),
@@ -1205,7 +1205,7 @@ class StructureEnvironments(MSONable):
             if other_site_nb_sets is None:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "has_neighbors",
                         "self": set(self_site_nb_sets),
                         "other": "None",
@@ -1217,7 +1217,7 @@ class StructureEnvironments(MSONable):
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "coordination_numbers",
                         "self": self_site_cns,
                         "other": other_site_cns,
@@ -1232,7 +1232,7 @@ class StructureEnvironments(MSONable):
                 if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
                     differences.append(
                         {
-                            "difference": f"neighbors_sets[isite={isite:d}][cn={cn:d}]",
+                            "difference": f"neighbors_sets[{isite=:d}][{cn=:d}]",
                             "comparison": "neighbors_sets",
                             "self": self_site_cn_nb_sets,
                             "other": other_site_cn_nb_sets,
@@ -1248,7 +1248,7 @@ class StructureEnvironments(MSONable):
                         if self_ce.is_close_to(other_ce):
                             differences.append(
                                 {
-                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "__eq__",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1257,7 +1257,7 @@ class StructureEnvironments(MSONable):
                         else:
                             differences.append(
                                 {
-                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "is_close_to",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1347,6 +1347,7 @@ class StructureEnvironments(MSONable):
 
         Args:
             d: dict representation of the StructureEnvironments object.
+
         Returns:
             StructureEnvironments object.
         """
@@ -1846,12 +1847,13 @@ class LightStructureEnvironments(MSONable):
                             fractions.append(ce_dict["ce_fraction"])
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
-    def get_site_info_for_specie_allces(self, specie, min_fraction=0.0):
+    def get_site_info_for_specie_allces(self, specie, min_fraction=0):
         """
         Get list of indices that have the given specie.
 
         Args:
             specie: Species to get.
+            min_fraction: Minimum fraction of the coordination environment.
 
         Returns: Dictionary with the list of coordination environments for the given species, the indices of the sites
             in which they appear, their fractions and continuous symmetry measures.
@@ -1966,18 +1968,20 @@ class LightStructureEnvironments(MSONable):
                 if ce[target] > condition["maxnumber"]:
                     return False
             else:
-                raise ValueError(f'Target "{target}" for condition of clear environment is not allowed')
+                raise ValueError(f"Target {target!r} for condition of clear environment is not allowed")
         return True
 
     def structure_has_clear_environments(self, conditions=None, skip_none=True, skip_empty=False):
         """
         Whether all sites in a structure have "clear" environments.
+
         Args:
             conditions: Conditions to be checked for an environment to be "clear".
             skip_none: Whether to skip sites for which no environments have been computed.
             skip_empty: Whether to skip sites for which no environments could be found.
 
-        Returns: True if all the sites in the structure have clear environments.
+        Returns:
+            bool: True if all the sites in the structure have clear environments.
         """
         for isite in range(len(self.structure)):
             if self.coordination_environments[isite] is None:
@@ -2053,7 +2057,7 @@ class LightStructureEnvironments(MSONable):
         Equality method that checks if the LightStructureEnvironments object is equal to another
         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
         is the same, if the structure is the same, if the valences used in the strategies are the same, if the
-        coordination environments and the neighbours determined by the strategy are the same.
+        coordination environments and the neighbors determined by the strategy are the same.
 
         Args:
             other: LightStructureEnvironments object to compare with.
@@ -2079,9 +2083,8 @@ class LightStructureEnvironments(MSONable):
 
     def as_dict(self):
         """
-        Bson-serializable dict representation of the LightStructureEnvironments object.
         Returns:
-            Bson-serializable dict representation of the LightStructureEnvironments object.
+            dict: Bson-serializable representation of the LightStructureEnvironments object.
         """
         return {
             "@module": type(self).__module__,
@@ -2165,7 +2168,7 @@ class LightStructureEnvironments(MSONable):
 class ChemicalEnvironments(MSONable):
     """
     Class used to store all the information about the chemical environment of a given site for a given list of
-    coordinated neighbours (internally called "cn_map").
+    coordinated neighbors (internally called "cn_map").
     """
 
     def __init__(self, coord_geoms=None):
@@ -2291,7 +2294,7 @@ class ChemicalEnvironments(MSONable):
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",
-                f'Coordination geometry with mp_symbol "{mp_symbol}" is not valid',
+                f"Coordination geometry with mp_symbol {mp_symbol!r} is not valid",
             )
         if mp_symbol in list(self.coord_geoms) and not override:
             raise ChemenvError(

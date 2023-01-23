@@ -32,5 +32,5 @@ class UtilTest(PymatgenTest):
         # should not raise an exception
         assert lower_and_check_unique(d4) == {"job_type": "sp"}
         d4.update({"jobType": "opt"})
-        with pytest.raises(Exception, match="Multiple instances of key"):
+        with pytest.raises(ValueError, match="Multiple instances of key"):
             lower_and_check_unique(d4)

@@ -1,4 +1,4 @@
-.. image:: _static/pymatgen.png
+.. image:: _static/pymatgen.svg
    :width: 300 px
    :alt: pymatgen
    :align: center
@@ -48,7 +48,7 @@ reports. The following are resources for pymatgen:
 * Code contributions via `pull requests <https://github.com/materialsproject/pymatgen/pulls>`_ welcome.
 * For help with usage that are unrelated to bugs or feature requests, please use the pymatgen `Discourse page
   <https://discuss.matsci.org/c/pymatgen>`_.
-* `matgenb <http://matgenb.materialsvirtuallab.org>`_ provides some Jupyter notebooks demonstrating functionality.
+* `matgenb <https://github.com/materialsvirtuallab/matgenb#introduction>`_ provides some Jupyter notebooks demonstrating functionality.
 * Follow us on `Twitter <http://twitter.com/pymatgen>`_ to get news and tips.
 
     *The code is mightier than the pen.*

@@ -78,7 +78,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=15.0,
                     lw=2,
                     alpha=alpha,
@@ -92,7 +92,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=10.0,
                     lw=2,
                     alpha=alpha,
@@ -106,7 +106,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                 patchA=n1,
                 patchB=n2,
                 arrowstyle="-|>",
-                connectionstyle=f"arc3,rad={rad}",
+                connectionstyle=f"arc3,{rad=}",
                 mutation_scale=10.0,
                 lw=2,
                 alpha=alpha,
@@ -210,7 +210,7 @@ class ConnectedComponent(MSONable):
         environments_data=None,
         links_data=None,
         graph=None,
-    ):
+    ) -> None:
         """
         Constructor for the ConnectedComponent object.
 
@@ -354,7 +354,7 @@ class ConnectedComponent(MSONable):
             elif coordination == "env:number":
                 cseq[0] = {source_node.coordination_environment: 1}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         while path_len < path_size:
             new_ends = []
             for current_node_end, current_delta_end in current_ends:
@@ -377,7 +377,7 @@ class ConnectedComponent(MSONable):
                 myenvs = [myend.coordination_environment for myend, _ in current_ends]
                 cseq[path_len] = {myenv: myenvs.count(myenv) for myenv in set(myenvs)}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         return cseq
 
     def __len__(self):
@@ -395,7 +395,7 @@ class ConnectedComponent(MSONable):
         elif algorithm == "cycle_basis":
             self.compute_periodicity_cycle_basis()
         else:
-            raise ValueError(f'Algorithm "{algorithm}" is not allowed to compute periodicity')
+            raise ValueError(f"Algorithm {algorithm!r} is not allowed to compute periodicity")
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
@@ -540,15 +540,13 @@ class ConnectedComponent(MSONable):
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
 
-    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True):
+    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
         """
         Args:
             graph ():
             save_file ():
             drawing_type ():
             pltshow ():
-
-        Returns:
         """
         import matplotlib.pyplot as plt
 
@@ -689,6 +687,7 @@ class ConnectedComponent(MSONable):
             start_node ():
 
         Returns:
+            nx.MultiGraph: Elastic centered subgraph.
         """
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken

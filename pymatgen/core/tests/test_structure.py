@@ -44,10 +44,10 @@ class NeighborTest(PymatgenTest):
     def test_msonable(self):
         s = PymatgenTest.get_structure("Li2O")
         nn = s.get_neighbors(s[0], r=3)
-        self.assertIsInstance(nn[0], PeriodicNeighbor)
+        assert isinstance(nn[0], PeriodicNeighbor)
         str_ = json.dumps(nn, cls=MontyEncoder)
         nn = json.loads(str_, cls=MontyDecoder)
-        self.assertIsInstance(nn[0], PeriodicNeighbor)
+        assert isinstance(nn[0], PeriodicNeighbor)
 
 
 class IStructureTest(PymatgenTest):

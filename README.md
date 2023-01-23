@@ -1,14 +1,16 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.png" alt="Logo" height="70">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen-white.svg">
+    <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg" height="70">
+  </picture>
 </h1>
 
 <h4 align="center">
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
+[![Coveralls](https://img.shields.io/coveralls/github/materialsproject/pymatgen?logo=coveralls&label=Coverage)](https://coveralls.io/github/materialsproject/pymatgen?branch=master)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Coveralls](https://img.shields.io/coveralls/github/materialsproject/pymatgen?logo=coveralls&label=Coverage)](https://coveralls.io/github/materialsproject/pymatgen?branch=master)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/materialsproject/pymatgen/master.svg)](https://results.pre-commit.ci/latest/github/materialsproject/pymatgen/master)
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 
 </h4>
@@ -28,7 +30,7 @@ Pymatgen is free to use. However, we also welcome your help to improve this libr
 - Bug reports or feature requests: Please submit a [GitHub Issue](https://github.com/materialsproject/pymatgen/issues).
 - Code contributions via [pull requests](https://github.com/materialsproject/pymatgen/pulls) are welcome.
 - For help with usage that is unrelated to bugs or feature requests, please use the `pymatgen` [MatSci page](https://discuss.matsci.org/c/pymatgen).
-- [`matgenb`](https://matgenb.materialsvirtuallab.org) provides some Jupyter notebooks demonstrating functionality.
+- [`matgenb`](https://github.com/materialsvirtuallab/matgenb#introduction) provides some Jupyter notebooks demonstrating functionality.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 ## Why use pymatgen?

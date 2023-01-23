@@ -139,7 +139,7 @@ class InputSet(MSONable, MutableMapping):
         # allow accessing keys as attributes
         if k in self._kwargs:
             return self.get(k)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{k}'")
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute {k!r}")
 
     def __len__(self):
         return len(self.inputs)

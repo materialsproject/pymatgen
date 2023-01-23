@@ -4,6 +4,8 @@ import os
 import unittest
 import warnings
 
+from pytest import approx
+
 from pymatgen.analysis.topological.spillage import SOCSpillage
 from pymatgen.util.testing import PymatgenTest
 
@@ -23,7 +25,7 @@ class SolarTest(PymatgenTest):
         # JVASP-1044
         gamma_max = SOCSpillage(wf_noso=wf_noso, wf_so=wf_so).overlap_so_spinpol()
 
-        self.assertAlmostEqual(gamma_max, 1.3634111271008775, places=5)
+        assert gamma_max == approx(1.3634111271008775, abs=1e-5)
 
 
 if __name__ == "__main__":

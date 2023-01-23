@@ -292,18 +292,21 @@ class CifParser:
     CifParser's errors attribute.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4):
+    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4, frac_tolerance=1e-4):
         """
         Args:
             filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
-            occupancy_tolerance (float): If total occupancy of a site is between 1
-                and occupancy_tolerance, the occupancies will be scaled down to 1.
-            site_tolerance (float): This tolerance is used to determine if two
-                sites are sitting in the same position, in which case they will be
-                combined to a single disordered site. Defaults to 1e-4.
+            occupancy_tolerance (float): If total occupancy of a site is between 1 and occupancy_tolerance, the
+                occupancies will be scaled down to 1.
+            site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
+                in which case they will be combined to a single disordered site. Defaults to 1e-4.
+            frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
+                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                However, for very large CIF files, this may need to be set to 0.
         """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
+        self._frac_tolerance = frac_tolerance
         if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
@@ -359,21 +362,19 @@ class CifParser:
             self._cif.data[k] = self._sanitize_data(self._cif.data[k])
 
     @staticmethod
-    def from_string(cif_string, occupancy_tolerance=1.0):
+    def from_string(cif_string, **kwargs):
         """
         Creates a CifParser from a string.
 
         Args:
             cif_string (str): String representation of a CIF.
-            occupancy_tolerance (float): If total occupancy of a site is
-                between 1 and occupancy_tolerance, the occupancies will be
-                scaled down to 1.
+            **kwargs: Passthrough of all kwargs supported by CifParser.
 
         Returns:
             CifParser
         """
         stream = StringIO(cif_string)
-        return CifParser(stream, occupancy_tolerance)
+        return CifParser(stream, **kwargs)
 
     def _sanitize_data(self, data):
         """
@@ -542,7 +543,7 @@ class CifParser:
 
         # check for finite precision frac coordinates (e.g. 0.6667 instead of 0.6666666...7)
         # this can sometimes cause serious issues when applying symmetry operations
-        important_fracs = (1 / 3.0, 2 / 3.0)
+        important_fracs = (1 / 3, 2 / 3)
         fracs_to_change = {}
         for label in ("_atom_site_fract_x", "_atom_site_fract_y", "_atom_site_fract_z"):
             if label in data.data:
@@ -553,7 +554,7 @@ class CifParser:
                         # coordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac / comparison_frac) < 1e-4:
+                        if abs(1 - frac / comparison_frac) < self._frac_tolerance:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
@@ -646,15 +647,16 @@ class CifParser:
         data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
     ):
         """
-        Generate the lattice from the provided lattice parameters.
+        Take a dictionary of CIF data and returns a pymatgen Lattice object
+
         Args:
-            data:
-            length_strings:
-            angle_strings:
-            lattice_type:
+            data: a dictionary of the CIF file
+            length_strings: The strings that are used to identify the length parameters in the CIF file.
+            angle_strings: The strings that are used to identify the angles in the CIF file.
+            lattice_type: The type of lattice.  This is a string, and can be any of the following:
 
         Returns:
-
+            Lattice object
         """
         lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
         angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
@@ -1467,7 +1469,6 @@ def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
-
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
         # been modified to treat it as optional. Same logic applies to lists.

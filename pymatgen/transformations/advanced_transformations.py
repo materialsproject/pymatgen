@@ -149,12 +149,7 @@ class SuperTransformation(AbstractTransformation):
                     d["transformation"] = t
                     structures.append(d)
             else:
-                structures.append(
-                    {
-                        "transformation": t,
-                        "structure": t.apply_transformation(structure),
-                    }
-                )
+                structures.append({"transformation": t, "structure": t.apply_transformation(structure)})
         return structures
 
     def __str__(self):
@@ -433,7 +428,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 if structures:
                     break
             except EnumError:
-                warnings.warn(f"Unable to enumerate for max_cell_size = {max_cell_size}")
+                warnings.warn(f"Unable to enumerate for {max_cell_size = }")
 
         if structures is None:
             raise ValueError("Unable to enumerate")

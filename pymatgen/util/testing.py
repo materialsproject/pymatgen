@@ -182,7 +182,7 @@ class PymatgenTest(unittest.TestCase):
             # Test for equality
             if test_eq:
                 for old_obj, new_obj in zip(objects, new_objects):
-                    self.assertEqual(old_obj, new_obj)
+                    assert old_obj == new_obj
 
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(new_objects)
@@ -204,6 +204,6 @@ class PymatgenTest(unittest.TestCase):
         This check can be deactivated by setting test_if_subclass to False.
         """
         if test_if_subclass:
-            self.assertIsInstance(obj, MSONable)
-        self.assertDictEqual(obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict())
+            assert isinstance(obj, MSONable)
+        assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
         json.loads(obj.to_json(), cls=MontyDecoder)

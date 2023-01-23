@@ -7,6 +7,8 @@ from __future__ import annotations
 import os
 import unittest
 
+from pytest import approx
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import check_for_structure_changes
 from pymatgen.io.xtb.outputs import CRESTOutput
@@ -93,13 +95,13 @@ class TestCRESTOutput(PymatgenTest):
         for i, c in enumerate(cout.sorted_structures_energies):
             for j, r in enumerate(c):
                 if have_babel:
-                    self.assertEqual(check_for_structure_changes(r[0], expected_sorted_structures[i][j]), "no_change")
-                self.assertAlmostEqual(float(r[1]), float(expected_energies[i][j]), 4)
+                    assert check_for_structure_changes(r[0], expected_sorted_structures[i][j]) == "no_change"
+                assert float(r[1]) == approx(float(expected_energies[i][j]), abs=1e-4)
 
-        self.assertEqual(cout.properly_terminated, True)
+        assert cout.properly_terminated is True
         if have_babel:
-            self.assertEqual(check_for_structure_changes(cout.lowest_energy_structure, exp_best), "no_change")
-        self.assertDictEqual(cout.cmd_options, expected_cmd_options)
+            assert check_for_structure_changes(cout.lowest_energy_structure, exp_best) == "no_change"
+        assert cout.cmd_options == expected_cmd_options
 
 
 if __name__ == "__main__":
