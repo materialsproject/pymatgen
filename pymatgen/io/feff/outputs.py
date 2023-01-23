@@ -8,6 +8,8 @@ Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 """
 
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 

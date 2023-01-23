@@ -616,7 +616,7 @@ class InterfacialReactivity(MSONable):
         """
         products = set()
         for _, _, _, react, _ in self.get_kinks():
-            products = products.union({k.reduced_formula for k in react.products})
+            products = products | {k.reduced_formula for k in react.products}
         return list(products)
 
 

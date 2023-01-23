@@ -1,10 +1,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import unittest
 
 import numpy as np
+import pytest
+from pytest import approx
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
@@ -13,13 +17,12 @@ from pymatgen.util.testing import PymatgenTest
 class PWInputTest(PymatgenTest):
     def test_init(self):
         s = self.get_structure("Li2O")
-        self.assertRaises(
-            PWInputError,
-            PWInput,
-            s,
-            control={"calculation": "scf", "pseudo_dir": "./"},
-            pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"},
-        )
+        with pytest.raises(PWInputError):
+            PWInput(
+                s,
+                control={"calculation": "scf", "pseudo_dir": "./"},
+                pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"},
+            )
 
     def test_str_mixed_oxidation(self):
         s = self.get_structure("Li2O")
@@ -66,7 +69,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == ans.strip()
 
     def test_str_without_oxidation(self):
         s = self.get_structure("Li2O")
@@ -110,7 +113,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == ans.strip()
 
     def test_str_with_oxidation(self):
         s = self.get_structure("Li2O")
@@ -154,7 +157,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == ans.strip()
 
     def test_write_str_with_kpoints(self):
         s = self.get_structure("Li2O")
@@ -207,7 +210,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == ans.strip()
 
     def test_read_str(self):
         string = """
@@ -372,12 +375,12 @@ class PWOuputTest(PymatgenTest):
         self.pwout = PWOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.pwscf.out"))
 
     def test_properties(self):
-        self.assertAlmostEqual(self.pwout.final_energy, -93.45259708)
+        assert self.pwout.final_energy == approx(-93.45259708)
 
     def test_get_celldm(self):
-        self.assertAlmostEqual(self.pwout.get_celldm(1), 10.323)
+        assert self.pwout.get_celldm(1) == approx(10.323)
         for i in range(2, 7):
-            self.assertAlmostEqual(self.pwout.get_celldm(i), 0)
+            assert self.pwout.get_celldm(i) == approx(0)
 
 
 if __name__ == "__main__":

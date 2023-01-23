@@ -5,6 +5,8 @@ Developer script to convert yaml periodic table to json format.
 Created on Nov 15, 2011
 """
 
+from __future__ import annotations
+
 import json
 import re
 from itertools import product

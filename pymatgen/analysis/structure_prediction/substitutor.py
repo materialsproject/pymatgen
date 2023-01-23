@@ -5,6 +5,8 @@
 This module provides classes for predicting new structures from existing ones.
 """
 
+from __future__ import annotations
+
 import functools
 import itertools
 import logging

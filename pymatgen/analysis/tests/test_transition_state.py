@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -45,12 +47,12 @@ class NEBAnalysisTest(PymatgenTest):
         self.assertArrayAlmostEqual(neb_analysis1.r, neb_analysis1_from_dict.r)
         self.assertArrayAlmostEqual(neb_analysis1.energies, neb_analysis1_from_dict.energies)
         self.assertArrayAlmostEqual(neb_analysis1.forces, neb_analysis1_from_dict.forces)
-        self.assertEqual(neb_analysis1.structures, neb_analysis1_from_dict.structures)
+        assert neb_analysis1.structures == neb_analysis1_from_dict.structures
 
         self.assertArrayAlmostEqual(neb_analysis1.r, neb_analysis1_from_json_data.r)
         self.assertArrayAlmostEqual(neb_analysis1.energies, neb_analysis1_from_json_data.energies)
         self.assertArrayAlmostEqual(neb_analysis1.forces, neb_analysis1_from_json_data.forces)
-        self.assertEqual(neb_analysis1.structures, neb_analysis1_from_json_data.structures)
+        assert neb_analysis1.structures == neb_analysis1_from_json_data.structures
 
         self.assertArrayAlmostEqual(neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20043063935128))
 

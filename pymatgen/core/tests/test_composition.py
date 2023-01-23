@@ -6,6 +6,8 @@ Created on Nov 10, 2012
 @author: Shyue Ping Ong
 """
 
+from __future__ import annotations
+
 import random
 import unittest
 
@@ -303,6 +305,22 @@ class CompositionTest(PymatgenTest):
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "O2-": 8})
         comp2 = Composition.from_dict(comp.as_dict())
         assert comp == comp2
+
+    def test_from_weight_dict(self):
+        weight_dict_list = [{"Ti": 90, "V": 6, "Al": 4}, {"Ni": 60, "Ti": 40}, {"H": 0.1119, "O": 0.8881}]
+        formula_list = ["Ti87.6 V5.5 Al6.9", "Ti44.98 Ni55.02", "H2O"]
+
+        for weight_dict, formula in zip(weight_dict_list, formula_list):
+            c1 = Composition(formula).fractional_composition
+            c2 = Composition.from_weight_dict(weight_dict).fractional_composition
+            assert set(c1.elements) == set(c2.elements)
+            for el in c1.elements:
+                assert c1[el] == pytest.approx(c2[el], abs=1e-3)
+
+    def test_tofrom_weight_dict(self):
+        for c in self.comp:
+            c2 = Composition().from_weight_dict(c.to_weight_dict)
+            c.almost_equals(c2)
 
     def test_as_dict(self):
         c = Composition.from_dict({"Fe": 4, "O": 6})

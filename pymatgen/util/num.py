@@ -5,6 +5,8 @@
 This module provides utilities for basic math operations.
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 

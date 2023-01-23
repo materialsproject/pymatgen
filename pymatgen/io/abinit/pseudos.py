@@ -5,6 +5,8 @@ This module provides objects describing the basic parameters of the
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
 """
 
+from __future__ import annotations
+
 import abc
 import collections
 import logging
@@ -85,7 +87,7 @@ def l2str(l):
     try:
         return _l2str[l]
     except KeyError:
-        return f"Unknown angular momentum, received l = {l}"
+        return f"Unknown angular momentum, received {l = }"
 
 
 def str2l(s):
@@ -634,8 +636,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         key_nums = list(key_nums)
 
     if len(lines) != len(key_nums):
-        err_msg = f"lines = {lines}\n key_num =  {key_nums}"
-        raise ValueError(err_msg)
+        raise ValueError(f"{lines = }\n{key_nums = }")
 
     kwargs = Namespace()
 
@@ -1740,7 +1741,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                 pseudos.append(dec.process_decoded(v))
         return cls(pseudos)
 
-    def is_complete(self, zmax=118):
+    def is_complete(self, zmax=118) -> bool:
         """
         True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
         """
@@ -1901,14 +1902,15 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """Return a new :class:`PseudoTable` with pseudos sorted by Z"""
         return self.__class__(sorted(self, key=lambda p: p.Z))
 
-    def select(self, condition):
-        """
-        Select only those pseudopotentials for which condition is True.
-        Return new class:`PseudoTable` object.
+    def select(self, condition) -> PseudoTable:
+        """Select only those pseudopotentials for which condition is True.
 
         Args:
             condition:
                 Function that accepts a :class:`Pseudo` object and returns True or False.
+
+        Returns:
+            PseudoTable: New PseudoTable instance with pseudos for which condition is True.
         """
         return self.__class__([p for p in self if condition(p)])
 

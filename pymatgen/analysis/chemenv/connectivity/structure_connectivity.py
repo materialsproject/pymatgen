@@ -2,6 +2,8 @@
 Structure connectivity class.
 """
 
+from __future__ import annotations
+
 import collections
 import logging
 

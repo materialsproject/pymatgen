@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 # pymatgen.entries needs to be imported before pymatgen.util.typing

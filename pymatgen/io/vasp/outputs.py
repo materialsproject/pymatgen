@@ -693,6 +693,17 @@ class Vasprun(MSONable):
         return CompleteDos(self.final_structure, self.tdos, pdoss)
 
     @property
+    def complete_dos_normalized(self) -> CompleteDos:
+        """
+        A CompleteDos object which incorporates the total DOS and all
+        projected DOS. Normalized by the volume of the unit cell with
+        units of states/eV/unit cell volume.
+        """
+        final_struct = self.final_structure
+        pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
+        return CompleteDos(self.final_structure, self.tdos, pdoss, normalize=True)
+
+    @property
     def hubbards(self):
         """
         Hubbard U values used if a vasprun is a GGA+U run. {} otherwise.
@@ -795,7 +806,7 @@ class Vasprun(MSONable):
         return rt
 
     @property
-    def is_hubbard(self):
+    def is_hubbard(self) -> bool:
         """
         True if run is a DFT+U run.
         """
@@ -804,7 +815,7 @@ class Vasprun(MSONable):
         return sum(self.hubbards.values()) > 1e-8
 
     @property
-    def is_spin(self):
+    def is_spin(self) -> bool:
         """
         True if run is spin-polarized.
         """
@@ -3621,8 +3632,8 @@ class VolumetricData(BaseVolumetricData):
             for vec in self.structure.lattice.matrix:
                 lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
             if not vasp4_compatible:
-                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
-            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
+                lines += "".join(f"{s:5}" for s in p.site_symbols) + "\n"
+            lines += "".join(f"{x:6}" for x in p.natoms) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 a, b, c = site.frac_coords
@@ -4339,7 +4350,7 @@ class Xdatcar:
             latt = Lattice(-latt.matrix)
         lines = [self.comment, "1.0", str(latt)]
         lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join([str(x) for x in self.natoms]))
+        lines.append(" ".join(str(x) for x in self.natoms))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
@@ -4350,7 +4361,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             else:
@@ -4358,7 +4369,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
         return "\n".join(lines) + "\n"
@@ -4612,7 +4623,7 @@ class Wavecar:
             # read the header information
             recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
-                print(f"recl={recl}, spin={spin}, rtag={rtag}")
+                print(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
             self.spin = spin
 
@@ -4985,7 +4996,7 @@ class Wavecar:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
         if phase and not np.all(self.kpoints[kpoint] == 0.0):
-            warnings.warn("phase == True should only be used for the Gamma kpoint! I hope you know what you're doing!")
+            warnings.warn("phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!")
 
         # scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
@@ -5346,11 +5357,11 @@ class Waveder(MSONable):
         between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
 
         Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
-            kpoint (Integer): Index of k-point
-            spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of Cartesian direction (0,1,2)
+            band_i (int): Index of band i
+            band_j (int): Index of band j
+            kpoint (int): Index of k-point
+            spin   (int): Index of spin-channel (0 or 1)
+            cart_dir (int): Index of Cartesian direction (0,1,2)
 
         Returns:
             a float value

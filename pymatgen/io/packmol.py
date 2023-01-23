@@ -63,7 +63,7 @@ class PackmolSet(InputSet):
         try:
             os.chdir(path)
             p = subprocess.run(
-                f"packmol < '{self.inputfile}'",
+                f"packmol < {self.inputfile!r}",
                 check=True,
                 shell=True,
                 timeout=timeout,
@@ -172,7 +172,7 @@ class PackmolBoxGen(InputGenerator):
         if " " in str(self.outputfile):
             # NOTE - double quotes are deliberately used inside the f-string here, do not change
             # fmt: off
-            file_contents += f'output "{self.outputfile}"\n\n'
+            file_contents += f'output {self.outputfile!r}\n\n'
             # fmt: on
         else:
             file_contents += f"output {self.outputfile}\n\n"
@@ -210,7 +210,7 @@ class PackmolBoxGen(InputGenerator):
             if " " in str(fname):
                 # NOTE - double quotes are deliberately used inside the f-string here, do not change
                 # fmt: off
-                file_contents += f'structure "{fname}"\n'
+                file_contents += f'structure {fname!r}\n'
                 # fmt: on
             else:
                 file_contents += f"structure {fname}\n"

@@ -7,6 +7,8 @@ https://github.com/abinit/abipy
 where it was originally done by Guido Petretto and Matteo Giantomassi
 """
 
+from __future__ import annotations
+
 import numpy as np
 from monty.json import MSONable
 

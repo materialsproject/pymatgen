@@ -8,6 +8,8 @@ classes to be simply called as pymatgen.io.lobster.Lobsterin for example, to ret
 backwards compatibility.
 """
 
+from __future__ import annotations
+
 from .inputs import Lobsterin
 from .outputs import (
     Bandoverlaps,

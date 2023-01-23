@@ -6,11 +6,13 @@
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
 
+from __future__ import annotations
+
 import abc
 import collections
 from enum import Enum
 from pprint import pformat
-from typing import List, cast
+from typing import cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -169,7 +171,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     )
 
 
-def species_by_znucl(structure: Structure) -> List[Species]:
+def species_by_znucl(structure: Structure) -> list[Species]:
     """
     Return list of unique specie found in structure **ordered according to sites**.
 
@@ -788,7 +790,7 @@ class KSampling(AbivarAble, MSONable):
         # self.abivars["#comment"] = comment
 
     @property
-    def is_homogeneous(self):
+    def is_homogeneous(self) -> bool:
         """Homogeneous sampling."""
         return self.mode not in ["path"]
 

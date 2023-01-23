@@ -4,6 +4,8 @@
 """
 This module provides classes for the Piezoelectric tensor
 """
+from __future__ import annotations
+
 import warnings
 
 import numpy as np

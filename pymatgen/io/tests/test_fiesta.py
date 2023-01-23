@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import unittest
 
@@ -44,7 +46,7 @@ class FiestaInputTest(PymatgenTest):
     def test_init(self):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords)
         cellin = FiestaInput(mol)
-        self.assertEqual(cellin.molecule.spin_multiplicity, 1)
+        assert cellin.molecule.spin_multiplicity == 1
 
     def test_str_and_from_string(self):
         ans = (
@@ -62,10 +64,10 @@ class FiestaInputTest(PymatgenTest):
             " 0.0 0.0 1.089 2\n 1.026719 0.0 -0.363 2\n -0.51336 -0.889165 -0.363 2\n -0.51336 0.889165 -0.363 2"
             "\n            "
         )
-        self.assertEqual(str(self.cellin), ans)
+        assert str(self.cellin) == ans
         cellin = FiestaInput.from_string(ans)
-        self.assertEqual(cellin.GW_options["nc_corr"], "10")
-        self.assertEqual(cellin.COHSEX_options["eigMethod"], "C")
+        assert cellin.GW_options["nc_corr"] == "10"
+        assert cellin.COHSEX_options["eigMethod"] == "C"
 
 
 class FiestaOutputTest(PymatgenTest):
@@ -74,21 +76,18 @@ class FiestaOutputTest(PymatgenTest):
 
     def test_props(self):
         out = self.logfiesta
-        self.assertEqual(out.data[0]["Gaps"]["Egap_QP_Linear"], "10.4135")
-        self.assertEqual(
-            out.data[0]["HOMO"],
-            {
-                "band": "HOMO",
-                "eKS": "-7.3029",
-                "eQP_Linear": "-9.5142",
-                "eQP_SCF": "-8.9264",
-                "eQP_old": "-7.7188",
-                "eXX": "-15.9483",
-                "sigma_c_Linear": "-0.4587",
-                "sigma_c_SCF": "0.3900",
-                "z": "0.87",
-            },
-        )
+        assert out.data[0]["Gaps"]["Egap_QP_Linear"] == "10.4135"
+        assert out.data[0]["HOMO"] == {
+            "band": "HOMO",
+            "eKS": "-7.3029",
+            "eQP_Linear": "-9.5142",
+            "eQP_SCF": "-8.9264",
+            "eQP_old": "-7.7188",
+            "eXX": "-15.9483",
+            "sigma_c_Linear": "-0.4587",
+            "sigma_c_SCF": "0.3900",
+            "z": "0.87",
+        }
 
 
 if __name__ == "__main__":

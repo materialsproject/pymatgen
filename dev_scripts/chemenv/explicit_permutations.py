@@ -6,12 +6,7 @@ Development script of the ChemEnv utility to get the explicit permutations for c
 with the explicit permutations algorithms (typically with coordination numbers <= 6)
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import itertools
 import json
@@ -27,6 +22,13 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     AbstractGeometry,
     LocalGeometryFinder,
 )
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 
 class Algo:

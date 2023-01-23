@@ -43,11 +43,7 @@ and Non-Periodic Materials,” J. Chem. Theory Comput. 8 (2012) 2844-2867.
 Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theory Comput. 6
 (2010) 2455-2468.
 """
-__author__ = "Martin Siron, Andrew S. Rosen"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "01/18/21"
+from __future__ import annotations
 
 import glob
 import os
@@ -63,6 +59,12 @@ from monty.tempfile import ScratchDir
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
+
+__author__ = "Martin Siron, Andrew S. Rosen"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "01/18/21"
 
 CHARGEMOLEXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")

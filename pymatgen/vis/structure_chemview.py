@@ -2,6 +2,8 @@
 Visualization for structures using chemview.
 """
 
+from __future__ import annotations
+
 import numpy as np
 from monty.dev import requires
 

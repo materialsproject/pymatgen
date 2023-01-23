@@ -5,6 +5,8 @@
 Unit tests for TEM calculator.
 """
 
+from __future__ import annotations
+
 import unittest
 
 import numpy as np

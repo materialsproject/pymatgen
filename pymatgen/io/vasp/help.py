@@ -2,6 +2,8 @@
 Get help with VASP parameters from VASP wiki.
 """
 
+from __future__ import annotations
+
 import re
 
 import requests

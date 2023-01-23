@@ -3,6 +3,8 @@ This module provides conversion between the JARVIS
 Atoms object and pymatgen Structure objects.
 """
 
+from __future__ import annotations
+
 from pymatgen.core.structure import Structure
 
 try:

@@ -12,10 +12,7 @@ The implementation is based on an excellent python package called `rmsd` that
 you can find at https://github.com/charnley/rmsd.
 """
 
-__author__ = "Xiaohui Qu, Adam Fekete"
-__version__ = "1.0"
-__email__ = "xhqu1981@gmail.com"
-
+from __future__ import annotations
 
 import abc
 import copy
@@ -39,6 +36,10 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
 from pymatgen.core.structure import Molecule  # pylint: disable=ungrouped-imports
+
+__author__ = "Xiaohui Qu, Adam Fekete"
+__version__ = "1.0"
+__email__ = "xhqu1981@gmail.com"
 
 logger = logging.getLogger(__name__)
 

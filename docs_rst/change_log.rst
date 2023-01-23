@@ -1,6 +1,31 @@
 Change log
 ==========
 
+v2023.1.20
+----------
+* Passthrough kwargs support for Structure.from_file and Structure.from_str
+* Allow the `frac_tolerance` to be specified for rounding coordinates in CifParser.
+* PR #2803 from @amkrajewski add_weightbasedfunctions
+    When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
+    - Composition class method to initialize it from a dictionary of weight fractions
+    - Composition property giving a dictionary of weight fractions
+    - concise tests for the two above were added
+QChem: translate DMSO name in smd_solvent
+
+v2023.1.9
+---------
+* PR #2792 from @JaGeo bug_fix
+* PR #2773 from @ab5424 cbar
+* PR #2776 from @MichaelWolloch master
+* PR #2762 from @MichaelWolloch master
+* PR #2774 from @dgaines2 fix-poscar
+* PR #2667 from @nwinner volumetric-data-patch
+* PR #2764 from @naik-aakash lobster_lsodos
+* PR #2215 from @rkingsbury cmirs
+* PR #2742 from @materialsproject pip-dependabot
+* PR #2741 from @materialsproject resurrect-req-txt
+* PR #2735 from @njzjz patch-1
+
 v2022.11.7
 ----------
 * PR #2724 from @janosh: raise ValueError in ``SpacegroupAnalyzer.get_symmetrized_structure()`` if spglib returns no symmetries

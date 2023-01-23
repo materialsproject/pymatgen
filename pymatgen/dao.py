@@ -2,6 +2,8 @@
 The dao for pymatgen.
 """
 
+from __future__ import annotations
+
 print(
     """
 The 道 of Pymatgen
