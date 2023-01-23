@@ -418,7 +418,7 @@ class PhaseDiagram(MSONable):
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_composition)
         if len(entries) == 0:
             raise ValueError("Unable to build phase diagram without entries.")
-        
+
         el_refs: dict[Element, PDEntry] = {}
         min_entries: list[PDEntry] = []
         all_entries: list[PDEntry] = []
