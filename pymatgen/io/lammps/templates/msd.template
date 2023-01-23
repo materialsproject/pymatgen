@@ -10,7 +10,7 @@ neigh_modify every 1 delay 5 check yes
 group AtId type $type
 
 # 3) Simulation settings
-read_data $read_potential
+$force_field
 
 # 4) MSD
 thermo $ndump

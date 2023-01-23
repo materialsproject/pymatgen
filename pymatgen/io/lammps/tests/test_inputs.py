@@ -25,7 +25,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 
 
-class LammpsInputFileTest(unittest.TestCase):
+class LammpsInputFileTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.filename = os.path.join(test_dir, "lgps.in")
@@ -164,6 +164,20 @@ write_data run.data"""
                 "Stage 6",
             ],
         )
+
+    def test_get_nstages(self):
+        lmp_input = LammpsInputFile().from_file(self.filename)
+        self.assertEqual(lmp_input.get_nstages(), 1)
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        self.assertEqual(lmp_input.get_nstages(), 6)
+
+    def test_get_ncomments(self):
+        lmp_input = LammpsInputFile().from_file(self.filename)
+        self.assertEqual(lmp_input.get_ncomments(), 3)
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        self.assertEqual(lmp_input.get_ncomments(), 1)
 
     def test_get_args(self):
         lmp_input = LammpsInputFile().from_file(self.filename)

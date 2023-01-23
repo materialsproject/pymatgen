@@ -9,7 +9,7 @@ read_data $read_structure
 neigh_modify every 1 delay 5 check yes
 
 # 3) Simulation settings
-read_data $read_potential
+$force_field
 
 # 4) Thermalization
 thermo 100
