@@ -512,19 +512,19 @@ class LammpsDataTest(unittest.TestCase):
         peptide = self.peptide
         charges = {1: 0.8803}
         peptide.set_charge_atom(charges)
-        self.assertAlmostEqual(peptide.atoms.loc[1, "q"], 0.8803)
-        self.assertAlmostEqual(peptide.atoms.loc[2, "q"], -0.270)
+        assert peptide.atoms.loc[1, "q"] == 0.8803
+        assert peptide.atoms.loc[2, "q"] == -0.270
 
     def test_set_charge_atom_type(self):
         peptide = self.peptide
         charges = {1: 0.8803}
         peptide.set_charge_atom_type(charges)
-        self.assertAlmostEqual(peptide.atoms.loc[1, "q"], 0.8803)
-        self.assertAlmostEqual(peptide.atoms.loc[2, "q"], -0.270)
+        assert peptide.atoms.loc[1, "q"] == 0.8803
+        assert peptide.atoms.loc[2, "q"] == -0.270
         peptide.set_charge_atom_type({4: 2.345})
-        self.assertAlmostEqual(peptide.atoms.loc[4, "q"], 2.345)
-        self.assertAlmostEqual(peptide.atoms.loc[5, "q"], 2.345)
-        self.assertAlmostEqual(peptide.atoms.loc[2004, "q"], 0.4170)
+        assert peptide.atoms.loc[4, "q"] == 2.345
+        assert peptide.atoms.loc[5, "q"] == 2.345
+        assert peptide.atoms.loc[2004, "q"] == 0.4170
 
     def test_json_dict(self):
         encoded = json.dumps(self.ethane.as_dict(), cls=MontyEncoder)

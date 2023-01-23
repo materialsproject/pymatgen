@@ -58,10 +58,9 @@ class LammpsInputFile(InputFile):
         Args:
             input_settings: list of LAMMPS input settings.
         """
-        self.nstages = 0
-        self.ncomments = 0
         self.input_settings = input_settings if input_settings else []
         self.nstages = self.get_nstages()
+        self.ncomments = self.get_ncomments()
 
     @property
     def stages_names(self) -> list:

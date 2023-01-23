@@ -34,66 +34,61 @@ class LammpsInputFileTest(PymatgenTest):
 
     def test_from_file(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
-        self.assertEqual(lmp_input.ncomments, 3)
-        self.assertEqual(lmp_input.nstages, 1)
-        self.assertListEqual(lmp_input.stages_names, ["Stage 1"])
-        self.assertEqual(lmp_input.input_settings[0][1][0][1], "metal")
-        self.assertListEqual(
-            lmp_input.input_settings,
+        assert lmp_input.ncomments == 3
+        assert lmp_input.nstages == 1
+        assert lmp_input.stages_names == ["Stage 1"]
+        assert lmp_input.input_settings[0][1][0][1] == "metal"
+        assert lmp_input.input_settings == [
             [
+                "Stage 1",
                 [
-                    "Stage 1",
-                    [
-                        ["units", "metal"],
-                        ["atom_style", "full"],
-                        ["dimension", "3"],
-                        ["pair_style", "hybrid/overlay morse 15 coul/long 15"],
-                        ["kspace_style", "ewald 1e-4"],
-                        ["boundary", "p p p"],
-                        ["#", " 2) System definition"],
-                        ["read_data", "run_init.data"],
-                        ["set", "type 1 charge 0.8803"],
-                        ["set", "type 2 charge 1.2570"],
-                        ["set", "type 3 charge 1.2580"],
-                        ["set", "type 4 charge -1.048"],
-                        ["neigh_modify", "every 1 delay 5 check yes"],
-                        ["#", " 3) Simulation settings"],
-                        ["pair_coeff", "1 1 morse 0.0580 3.987 3.404"],
-                        ["pair_coeff", "1 4 morse 0.0408 1.399 3.204"],
-                        ["pair_coeff", "2 4 morse 0.3147 2.257 2.409"],
-                        ["pair_coeff", "3 4 morse 0.4104 2.329 2.200"],
-                        ["pair_coeff", "4 4 morse 0.0241 1.359 4.284"],
-                        ["pair_coeff", "* * coul/long"],
-                        ["#", " Part A : energy minimization"],
-                        ["thermo", "1"],
-                        ["thermo_style", "custom step lx ly lz press pxx pyy pzz pe"],
-                        ["dump", "dmp all atom 5 run.dump"],
-                        ["min_style", "cg"],
-                        ["fix", "1 all box/relax iso 0.0 vmax 0.001"],
-                        ["minimize", "1.0e-16 1.0e-16 5000 10000"],
-                        ["write_data", "run.data"],
-                    ],
-                ]
-            ],
-        )
+                    ["units", "metal"],
+                    ["atom_style", "full"],
+                    ["dimension", "3"],
+                    ["pair_style", "hybrid/overlay morse 15 coul/long 15"],
+                    ["kspace_style", "ewald 1e-4"],
+                    ["boundary", "p p p"],
+                    ["#", " 2) System definition"],
+                    ["read_data", "run_init.data"],
+                    ["set", "type 1 charge 0.8803"],
+                    ["set", "type 2 charge 1.2570"],
+                    ["set", "type 3 charge 1.2580"],
+                    ["set", "type 4 charge -1.048"],
+                    ["neigh_modify", "every 1 delay 5 check yes"],
+                    ["#", " 3) Simulation settings"],
+                    ["pair_coeff", "1 1 morse 0.0580 3.987 3.404"],
+                    ["pair_coeff", "1 4 morse 0.0408 1.399 3.204"],
+                    ["pair_coeff", "2 4 morse 0.3147 2.257 2.409"],
+                    ["pair_coeff", "3 4 morse 0.4104 2.329 2.200"],
+                    ["pair_coeff", "4 4 morse 0.0241 1.359 4.284"],
+                    ["pair_coeff", "* * coul/long"],
+                    ["#", " Part A : energy minimization"],
+                    ["thermo", "1"],
+                    ["thermo_style", "custom step lx ly lz press pxx pyy pzz pe"],
+                    ["dump", "dmp all atom 5 run.dump"],
+                    ["min_style", "cg"],
+                    ["fix", "1 all box/relax iso 0.0 vmax 0.001"],
+                    ["minimize", "1.0e-16 1.0e-16 5000 10000"],
+                    ["write_data", "run.data"],
+                ],
+            ]
+        ]
 
     def test_get_string(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
         string = lmp_input.get_string()
-        self.assertIn("# LAMMPS input generated from LammpsInputFile\n\n", string)
-        self.assertIn(
-            "\nunits metal\natom_style full\ndimension 3\npair_style hybrid/overlay morse 15 coul/long", string
-        )
-        self.assertIn("15\nkspace_style ewald 1e-4\nboundary p p p\n# 2) System definition", string)
-        self.assertIn("\nread_data run_init.data\nset type 1 charge 0.8803\nset type 2 charge", string)
-        self.assertIn("1.2570\nset type 3 charge 1.2580\nset type 4 charge -1.048\nneigh_modify", string)
-        self.assertIn("every 1 delay 5 check yes\n# 3) Simulation settings\npair_coeff 1 1", string)
-        self.assertIn("morse 0.0580 3.987 3.404\npair_coeff 1 4 morse 0.0408 1.399 3.204\npair_coeff", string)
-        self.assertIn("2 4 morse 0.3147 2.257 2.409\npair_coeff 3 4 morse 0.4104 2.329 2.200\npair_coeff", string)
-        self.assertIn("4 4 morse 0.0241 1.359 4.284\npair_coeff * * coul/long\n# Part A : energy", string)
-        self.assertIn("minimization\nthermo 1\nthermo_style custom step lx ly lz press pxx pyy pzz", string)
-        self.assertIn("pe\ndump dmp all atom 5 run.dump\nmin_style cg\nfix 1 all", string)
-        self.assertIn("box/relax iso 0.0 vmax 0.001\nminimize 1.0e-16 1.0e-16 5000 10000\nwrite_data run.data", string)
+        assert "# LAMMPS input generated from LammpsInputFile\n\n" in string
+        assert "\nunits metal\natom_style full\ndimension 3\npair_style hybrid/overlay morse 15 coul/long" in string
+        assert "15\nkspace_style ewald 1e-4\nboundary p p p\n# 2) System definition" in string
+        assert "\nread_data run_init.data\nset type 1 charge 0.8803\nset type 2 charge" in string
+        assert "1.2570\nset type 3 charge 1.2580\nset type 4 charge -1.048\nneigh_modify" in string
+        assert "every 1 delay 5 check yes\n# 3) Simulation settings\npair_coeff 1 1" in string
+        assert "morse 0.0580 3.987 3.404\npair_coeff 1 4 morse 0.0408 1.399 3.204\npair_coeff" in string
+        assert "2 4 morse 0.3147 2.257 2.409\npair_coeff 3 4 morse 0.4104 2.329 2.200\npair_coeff" in string
+        assert "4 4 morse 0.0241 1.359 4.284\npair_coeff * * coul/long\n# Part A : energy" in string
+        assert "minimization\nthermo 1\nthermo_style custom step lx ly lz press pxx pyy pzz" in string
+        assert "pe\ndump dmp all atom 5 run.dump\nmin_style cg\nfix 1 all" in string
+        assert "box/relax iso 0.0 vmax 0.001\nminimize 1.0e-16 1.0e-16 5000 10000\nwrite_data run.data" in string
 
     def test_from_string(self):
         string = """# LGPS
@@ -134,130 +129,114 @@ minimize 1.0e-16 1.0e-16 5000 10000
 write_data run.data"""
 
         lmp_input = LammpsInputFile().from_string(string)
-        self.assertListEqual(lmp_input.input_settings, LammpsInputFile().from_file(self.filename).input_settings)
+        assert lmp_input.input_settings == LammpsInputFile().from_file(self.filename).input_settings
 
     def test_stages_names(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
-        self.assertListEqual(lmp_input.stages_names, ["Stage 1"])
+        assert lmp_input.stages_names == ["Stage 1"]
 
         lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
-        self.assertListEqual(
-            lmp_input.stages_names,
-            [
-                "Comment 1",
-                "1) Initialization",
-                "2) System definition",
-                "3) Simulation settings",
-                "Part A : energy minimization",
-                "Stage 5",
-            ],
-        )
+        assert lmp_input.stages_names == [
+            "Comment 1",
+            "1) Initialization",
+            "2) System definition",
+            "3) Simulation settings",
+            "Part A : energy minimization",
+            "Stage 5",
+        ]
 
         lmp_input.add_stage(command="units metal")
-        self.assertListEqual(
-            lmp_input.stages_names,
-            [
-                "Comment 1",
-                "1) Initialization",
-                "2) System definition",
-                "3) Simulation settings",
-                "Part A : energy minimization",
-                "Stage 5",
-                "Stage 6",
-            ],
-        )
+        assert lmp_input.stages_names == [
+            "Comment 1",
+            "1) Initialization",
+            "2) System definition",
+            "3) Simulation settings",
+            "Part A : energy minimization",
+            "Stage 5",
+            "Stage 6",
+        ]
 
     def test_get_nstages(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
-        self.assertEqual(lmp_input.get_nstages(), 1)
+        assert lmp_input.get_nstages() == 1
 
         lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
-        self.assertEqual(lmp_input.get_nstages(), 6)
+        assert lmp_input.get_nstages() == 6
 
     def test_get_ncomments(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
-        self.assertEqual(lmp_input.get_ncomments(), 3)
+        assert lmp_input.get_ncomments() == 3
 
         lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
-        self.assertEqual(lmp_input.get_ncomments(), 1)
+        assert lmp_input.get_ncomments() == 1
 
     def test_get_args(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
         units = lmp_input.get_args("units")
-        self.assertEqual(units, "metal")
+        assert units == "metal"
 
         sets = lmp_input.get_args("set")
-        self.assertEqual(
-            sets, ["type 1 charge 0.8803", "type 2 charge 1.2570", "type 3 charge 1.2580", "type 4 charge -1.048"]
-        )
+        assert sets == ["type 1 charge 0.8803", "type 2 charge 1.2570", "type 3 charge 1.2580", "type 4 charge -1.048"]
 
         lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
         set1 = lmp_input.get_args("set", stage_name="2) System definition")
-        self.assertEqual(set1[1], "type 2 charge 1.2570")
+        assert set1[1] == "type 2 charge 1.2570"
 
     def test_set_args(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
         lmp_input.set_args(command="units", argument="atomic")
-        self.assertEqual(lmp_input.get_args("units"), "atomic")
+        assert lmp_input.get_args("units") == "atomic"
 
         lmp_input2 = lmp_input
         lmp_input2.set_args(command="set", argument="new set 2", how=2, stage_name="Stage 1")
-        self.assertListEqual(lmp_input.input_settings, lmp_input2.input_settings)
+        assert lmp_input.input_settings == lmp_input2.input_settings
         lmp_input2.set_args(command="set", argument="new set", how="first")
-        self.assertEqual(lmp_input.get_args("set")[0], "new set")
-        self.assertEqual(lmp_input.get_args("set")[1], "type 2 charge 1.2570")
+        assert lmp_input.get_args("set")[0] == "new set"
+        assert lmp_input.get_args("set")[1] == "type 2 charge 1.2570"
 
         lmp_input3 = LammpsInputFile().from_file(self.filename, keep_stages=True)
         lmp_input4 = LammpsInputFile().from_file(self.filename, keep_stages=True)
         lmp_input4.set_args(command="set", argument="new set 2", how=2, stage_name="Stage 1")
-        self.assertListEqual(lmp_input3.input_settings, lmp_input4.input_settings)
+        assert lmp_input3.input_settings == lmp_input4.input_settings
         lmp_input4.set_args(command="set", argument="new set 2", how="first", stage_name="2) System definition")
-        self.assertEqual(lmp_input4.get_args("set", stage_name="2) System definition")[0], "new set 2")
-        self.assertEqual(lmp_input4.get_args("set", stage_name="2) System definition")[1], "type 2 charge 1.2570")
+        assert lmp_input4.get_args("set", stage_name="2) System definition")[0] == "new set 2"
+        assert lmp_input4.get_args("set", stage_name="2) System definition")[1] == "type 2 charge 1.2570"
 
     def test_add_stage(self):
         lmp_input = LammpsInputFile()
         lmp_input.add_stage(command="units metal")
-        self.assertListEqual(lmp_input.input_settings, [["Stage 1", [["units", "metal"]]]])
+        assert lmp_input.input_settings == [["Stage 1", [["units", "metal"]]]]
         lmp_input.add_stage(command={"pair_style": "eam"}, stage_name="Pair style")
-        self.assertListEqual(
-            lmp_input.input_settings, [["Stage 1", [["units", "metal"]]], ["Pair style", [["pair_style", "eam"]]]]
-        )
+        assert lmp_input.input_settings == [["Stage 1", [["units", "metal"]]], ["Pair style", [["pair_style", "eam"]]]]
         lmp_input.add_stage(command=["boundary p p p", "atom_style full"], stage_name="Cell")
-        self.assertListEqual(
-            lmp_input.input_settings,
-            [
-                ["Stage 1", [["units", "metal"]]],
-                ["Pair style", [["pair_style", "eam"]]],
-                ["Cell", [["boundary", "p p p"], ["atom_style", "full"]]],
-            ],
-        )
+        assert lmp_input.input_settings == [
+            ["Stage 1", [["units", "metal"]]],
+            ["Pair style", [["pair_style", "eam"]]],
+            ["Cell", [["boundary", "p p p"], ["atom_style", "full"]]],
+        ]
 
     def test_add_command(self):
         lmp_input = LammpsInputFile()
         lmp_input.add_stage(command="units metal", stage_name="Init")
         lmp_input.add_command(stage_name="Init", command="boundary p p p")
-        self.assertListEqual(lmp_input.input_settings, [["Init", [["units", "metal"], ["boundary", "p p p"]]]])
+        assert lmp_input.input_settings == [["Init", [["units", "metal"], ["boundary", "p p p"]]]]
         lmp_input.add_command(stage_name="Init", command="atom_style", args="full")
-        self.assertListEqual(
-            lmp_input.input_settings, [["Init", [["units", "metal"], ["boundary", "p p p"], ["atom_style", "full"]]]]
-        )
+        assert lmp_input.input_settings == [
+            ["Init", [["units", "metal"], ["boundary", "p p p"], ["atom_style", "full"]]]
+        ]
 
     def test_add_comment(self):
         lmp_input = LammpsInputFile()
         lmp_input.add_comment(comment="First comment")
-        self.assertListEqual(lmp_input.input_settings, [["Comment 1", [["#", "First comment"]]]])
+        assert lmp_input.input_settings == [["Comment 1", [["#", "First comment"]]]]
         lmp_input.add_comment(comment="Sub comment", stage_name="Comment 1")
-        self.assertListEqual(lmp_input.input_settings, [["Comment 1", [["#", "First comment"], ["#", "Sub comment"]]]])
+        assert lmp_input.input_settings == [["Comment 1", [["#", "First comment"], ["#", "Sub comment"]]]]
         lmp_input.add_stage(command="units metal", stage_name="Init")
         lmp_input.add_comment(comment="Inline comment", stage_name="Init")
-        self.assertListEqual(
-            lmp_input.input_settings,
-            [
-                ["Comment 1", [["#", "First comment"], ["#", "Sub comment"]]],
-                ["Init", [["units", "metal"], ["#", "Inline comment"]]],
-            ],
-        )
+        assert lmp_input.input_settings == [
+            ["Comment 1", [["#", "First comment"], ["#", "Sub comment"]]],
+            ["Init", [["units", "metal"], ["#", "Inline comment"]]],
+        ]
 
 
 class LammpsRunTest(unittest.TestCase):
