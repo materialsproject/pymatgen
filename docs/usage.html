@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; pymatgen 2023.1.9 documentation</title>
+  <title>Usage &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,9 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.9
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -51,326 +51,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">v2023.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-7">v2022.11.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-1">v2022.11.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-10-22">v2022.10.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-21">v2022.9.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-8">v2022.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-8-23">v2022.8.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-25">v2022.7.25</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24-1">v2022.7.24.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24">v2022.7.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-19">v2022.7.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-8">v2022.7.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-26">v2022.5.26</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-19">v2022.5.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18-1">v2022.5.18.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18">v2022.5.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-17">v2022.5.17</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-26">v2022.4.26</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-19">v2022.4.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-29">v2022.3.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-24">v2022.3.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-22">v2022.3.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-7">v2022.3.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-10">v2022.2.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-7">v2022.2.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-1">v2022.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-24">v2022.1.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-20">v2022.1.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-9">v2022.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-8">v2022.1.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-17">v2022.0.17</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-16">v2022.0.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-15">v2022.0.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-14">v2022.0.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-13">v2022.0.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-12">v2022.0.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-11">v2022.0.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-10">v2022.0.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-9">v2022.0.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-8">v2022.0.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-7">v2022.0.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-6">v2022.0.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-5">v2022.0.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-3">v2022.0.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-2-yanked">v2022.0.2 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-1-yanked">v2022.0.1 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-0-yanked">v2022.0.0 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-5">v2021.3.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-4-yanked">v2021.3.4 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-3">v2021.3.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-16">v2021.2.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-14">v2021.2.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-12">v2021.2.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8-1">v2021.2.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8">v2021.2.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-1-28">v2021.1.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-31">v2020.12.31</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-18">v2020.12.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-3">v2020.12.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-11-11">v2020.11.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-20">v2020.10.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-9">v2020.10.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-9-14">v2020.9.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-13">v2020.8.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-3">v2020.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-18">v2020.7.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-16">v2020.7.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-14">v2020.7.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-10">v2020.7.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-3">v2020.7.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-6-8">v2020.6.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-29">v2020.4.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-2">v2020.4.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-13">v2020.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-2">v2020.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-28">v2020.1.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-10">v2020.1.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-22">v2019.12.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-3">v2019.12.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-11-11">v2019.11.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-16">v2019.10.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-4">v2019.10.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-3">v2019.10.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-2">v2019.10.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-16">v2019.9.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-12">v2019.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-8">v2019.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-7">v2019.9.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-23">v2019.8.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-14">v2019.8.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-30">v2019.7.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-21">v2019.7.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-2">v2019.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-20">v2019.6.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-5">v2019.6.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-28">v2019.5.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-8">v2019.5.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-1">v2019.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-4-11">v2019.4.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-27">v2019.3.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-13">v2019.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-28">v2019.2.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-24">v2019.2.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-4">v2019.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-24">v2019.1.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-13">v2019.1.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-12-12">v2018.12.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-30">v2018.11.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-6">v2018.11.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-10-18">v2018.10.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-30">v2018.9.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-19">v2018.9.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-12">v2018.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-10">v2018.8.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-7">v2018.8.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-7-15">v2018.7.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-27">v2018.6.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-11">v2018.6.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-22">v2018.5.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-21">v2018.5.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-14">v2018.5.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-3">v2018.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-20">v2018.4.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-6">v2018.4.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-22">v2018.3.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-14">v2018.3.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-13">v2018.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-2">v2018.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-2-13">v2018.2.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-29">v2018.1.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-19">v2018.1.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-30">v2017.12.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-16">v2017.12.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-15">v2017.12.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-8">v2017.12.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-6">v2017.12.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-30">v2017.11.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-27">v2017.11.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-9">v2017.11.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-6">v2017.11.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-10-16">v2017.10.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-29">v2017.9.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-23">v2017.9.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-3">v2017.9.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-1">v2017.9.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-21">v2017.8.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-20">v2017.8.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-16">v2017.8.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-14">v2017.8.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-4">v2017.8.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-21">v2017.7.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-4">v2017.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-24">v2017.6.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-22">v2017.6.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-8">v2017.6.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-7">v4.7.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-6">v4.7.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-5">v4.7.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-4">v4.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-3">v4.7.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-2">v4.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-1">v4.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-0">v4.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-2">v4.6.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-1">v4.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-0">v4.6.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-7">v4.5.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-6">v4.5.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-5">v4.5.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-4">v4.5.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-3">v4.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-2">v4.5.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-1">v4.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-0">v4.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-12">v4.4.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-11">v4.4.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-10">v4.4.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-9">v4.4.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-8">v4.4.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-7">v4.4.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-6">v4.4.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-5">v4.4.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-4">v4.4.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-3">v4.4.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-2">v4.4.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-1">v4.4.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-0">v4.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-2">v4.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-1">v4.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-0">v4.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-5">v4.2.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-4">v4.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-3">v4.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-2">v4.2.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-1">v4.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-0">v4.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-1">v4.1.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-0">v4.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-2">v4.0.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-1">v4.0.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-0">v4.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-1">v3.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-0">v3.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-1">v3.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-0">v3.6.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-3">v3.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-2">v3.5.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-1">v3.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-0">v3.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-4-0">v3.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-6">v3.3.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-5">v3.3.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-4">v3.3.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-3">v3.3.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-2">v3.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-1">v3.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-0">v3.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-10">v3.2.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-9">v3.2.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-8">v3.2.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-7">v3.2.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-6">v3.2.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-5">v3.2.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-4">v3.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-3">v3.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-1">v3.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-0">v3.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-9">v3.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-7">v3.1.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-6">v3.1.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-5">v3.1.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-4">v3.1.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-3">v3.1.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-2">v3.1.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-1">v3.1.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-0">v3.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-13">v3.0.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-11">v3.0.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-10">v3.0.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-9">v3.0.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-8">v3.0.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-7">v3.0.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-6">v3.0.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-5">v3.0.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-4">v3.0.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-3">v3.0.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-2">v3.0.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-1">v3.0.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-0">v3.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-6">v2.10.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-5">v2.10.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-3">v2.10.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-2">v2.10.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-1">v2.10.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-0">v2.10.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-14">v2.9.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-13">v2.9.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-12">v2.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-11">v2.9.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-10">v2.9.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-9">v2.9.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-8">v2.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-7">v2.9.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-6">v2.9.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-5">v2.9.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-4">v2.9.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-3">v2.9.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-2">v2.9.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-1">v2.9.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-0">v2.9.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-10">v2.8.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-9">v2.8.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-8">v2.8.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-7">v2.8.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-6">v2.8.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-4">v2.8.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-3">v2.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-2">v2.8.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-1">v2.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-0">v2.8.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-9">v2.7.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-7">v2.7.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-6">v2.7.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-5">v2.7.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-4">v2.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-2">v2.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-1">v2.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-0">v2.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-6">v2.6.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-5">v2.6.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-4">v2.6.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-3">v2.6.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-2">v2.6.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-1">v2.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-5">v2.5.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-4">v2.5.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-3">v2.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-1">v2.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-0">v2.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-3">v2.4.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-0">v2.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-2">v2.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-1">v2.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-0">v2.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-6">v2.2.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-4">v2.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-3">v2.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-2">v2.2.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-1">v2.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-0">v2.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-1-2">v2.1.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-0-0">v2.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-9-0">v1.9.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-3">v1.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-1">v1.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-0">v1.8.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-2">v1.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-0">v1.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-6-0">v1.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
@@ -435,8 +116,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
 <p>This page provides new users of the pymatgen code base with a quick overview of
 the pymatgen code base. It should also be pointed out that there is an
 <span class="xref std std-doc">examples page</span> with many ipython notebook examples with
@@ -473,8 +154,8 @@ Element/Specie to amounts.</p></li>
 angstroms for lengths, eV for energies, etc. However, most objects do not
 assume any units per se and it should be perfectly fine for the most part no
 matter what units are being used, as long as they are used consistently.</p>
-<div class="section" id="side-note-as-dict-from-dict">
-<h2>Side-note : as_dict / from_dict<a class="headerlink" href="#side-note-as-dict-from-dict" title="Permalink to this headline"></a></h2>
+<section id="side-note-as-dict-from-dict">
+<h2>Side-note : as_dict / from_dict<a class="headerlink" href="#side-note-as-dict-from-dict" title="Permalink to this heading"></a></h2>
 <p>As you explore the code, you may notice that many of the objects have an as_dict
 method and a from_dict static method implemented. For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for
@@ -504,8 +185,8 @@ to create a yaml file instead. There are certain tradeoffs between the two
 choices. JSON is much more efficient as a format, with extremely fast
 read/write speed, but is much less readable. YAML is an order of magnitude
 or more slower in terms of parsing, but is more human readable.</p>
-<div class="section" id="montyencoder-decoder">
-<h3>MontyEncoder/Decoder<a class="headerlink" href="#montyencoder-decoder" title="Permalink to this headline"></a></h3>
+<section id="montyencoder-decoder">
+<h3>MontyEncoder/Decoder<a class="headerlink" href="#montyencoder-decoder" title="Permalink to this heading"></a></h3>
 <p>Extensions of the standard Python JSONEncoder and JSONDecoder has been
 implemented to support pymatgen objects. The MontyEncoder uses the as_dict
 API of pymatgen to generate the necessary dict for converting into json. To
@@ -534,14 +215,14 @@ pymatgen objects. When going through the nesting hirerachy, the decoder will
 look for the highest level module/class names specified and convert those to
 pymatgen objects.</p>
 <p>The MontyEncoder/Decoder also supports datetime and numpy arrays out of box.</p>
-</div>
-</div>
-<div class="section" id="structures-and-molecules">
-<h2>Structures and Molecules<a class="headerlink" href="#structures-and-molecules" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+<section id="structures-and-molecules">
+<h2>Structures and Molecules<a class="headerlink" href="#structures-and-molecules" title="Permalink to this heading"></a></h2>
 <p>For most applications, you will be creating and manipulating
 Structure/Molecule objects. There are several ways to create these objects:</p>
-<div class="section" id="creating-a-structure-manually">
-<h3>Creating a Structure manually<a class="headerlink" href="#creating-a-structure-manually" title="Permalink to this headline"></a></h3>
+<section id="creating-a-structure-manually">
+<h3>Creating a Structure manually<a class="headerlink" href="#creating-a-structure-manually" title="Permalink to this heading"></a></h3>
 <p>This is generally the most painful method. Though sometimes necessary, it is
 seldom the method you would use. An example of creating the basic silicon
 crystal is provided below:</p>
@@ -562,9 +243,9 @@ crystal is provided below:</p>
 </div>
 <p>Note that both elements and species (elements with oxidation states) are
 supported. So both “Fe” and “Fe2+” are valid specifications.</p>
-</div>
-<div class="section" id="reading-and-writing-structures-molecules">
-<h3>Reading and writing Structures/Molecules<a class="headerlink" href="#reading-and-writing-structures-molecules" title="Permalink to this headline"></a></h3>
+</section>
+<section id="reading-and-writing-structures-molecules">
+<h3>Reading and writing Structures/Molecules<a class="headerlink" href="#reading-and-writing-structures-molecules" title="Permalink to this heading"></a></h3>
 <p>More often, you would already have the Structure/Molecule in one of many
 typical formats used (e.g., the Cystallographic Information Format (CIF),
 electronic structure code input / output, xyz, mol, etc.).</p>
@@ -622,9 +303,9 @@ output files via the <a class="reference internal" href="pymatgen.io.xyz.html#mo
 <p>There is also support for more than 100 file types via the OpenBabel
 interface. But that requires you to install openbabel with Python bindings.
 Please see the <a class="reference internal" href="installation.html"><span class="doc">installation guide</span></a>.</p>
-</div>
-<div class="section" id="things-you-can-do-with-structures">
-<h3>Things you can do with Structures<a class="headerlink" href="#things-you-can-do-with-structures" title="Permalink to this headline"></a></h3>
+</section>
+<section id="things-you-can-do-with-structures">
+<h3>Things you can do with Structures<a class="headerlink" href="#things-you-can-do-with-structures" title="Permalink to this heading"></a></h3>
 <p>This section is a work in progress. But just to give an overview of the kind of
 analysis you can do:</p>
 <ol class="arabic simple">
@@ -639,8 +320,8 @@ fact, they are the most basic mutable units (everything below in the class
 hierarchy such as Element, Specie, Site, PeriodicSite, Lattice are immutable).
 If you need guarantees of immutability for Structure/Molecule,
 you should use the IStructure and IMolecule classes instead.</p>
-<div class="section" id="modifying-structures-or-molecules">
-<h4>Modifying Structures or Molecules<a class="headerlink" href="#modifying-structures-or-molecules" title="Permalink to this headline"></a></h4>
+<section id="modifying-structures-or-molecules">
+<h4>Modifying Structures or Molecules<a class="headerlink" href="#modifying-structures-or-molecules" title="Permalink to this heading"></a></h4>
 <p>Pymatgen supports a highly Pythonic interface for modifying Structures and
 Molecules. For example, you can change any site simply with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change the specie at site position 1 to a fluorine atom.</span>
@@ -676,11 +357,11 @@ some examples:</p>
 </div>
 <p>The above is just some examples of typical use cases. A lot more is possible
 and you may explore the actual API doc for the structure and molecule classes.</p>
-</div>
-</div>
-</div>
-<div class="section" id="entries-basic-analysis-unit">
-<span id="entries"></span><h2>Entries - Basic analysis unit<a class="headerlink" href="#entries-basic-analysis-unit" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+</section>
+<section id="entries-basic-analysis-unit">
+<span id="entries"></span><h2>Entries - Basic analysis unit<a class="headerlink" href="#entries-basic-analysis-unit" title="Permalink to this heading"></a></h2>
 <p>Beyond the core Element, Site and Structure objects, most analyses within in
 pymatgen (e.g., creating a PhaseDiagram) are performed using Entry objects. An
 Entry in its most basic form contains a calculated energy and a composition,
@@ -689,8 +370,8 @@ you will use the ComputedEntry or ComputedStructureEntry objects defined in
 <a class="reference internal" href="pymatgen.entries.computed_entries.html#module-pymatgen.entries.computed_entries" title="pymatgen.entries.computed_entries"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries</span></code></a>. ComputedEntry objects can be created
 by either manually parsing calculated data calculations, or by using the
 <a class="reference internal" href="pymatgen.apps.borg.html#module-pymatgen.apps.borg" title="pymatgen.apps.borg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg</span></code></a> package.</p>
-<div class="section" id="compatibility-mixing-gga-and-gga-u-runs">
-<span id="compatibility"></span><h3>Compatibility - Mixing GGA and GGA+U runs<a class="headerlink" href="#compatibility-mixing-gga-and-gga-u-runs" title="Permalink to this headline"></a></h3>
+<section id="compatibility-mixing-gga-and-gga-u-runs">
+<span id="compatibility"></span><h3>Compatibility - Mixing GGA and GGA+U runs<a class="headerlink" href="#compatibility-mixing-gga-and-gga-u-runs" title="Permalink to this heading"></a></h3>
 <p>The Ceder group has developed a scheme where by GGA and GGA+U calculations can
 be “mixed” such that analyses may be performed using the type of calculation
 most appropriate for each entry. For instance, to generate a Fe-P-O phase
@@ -720,10 +401,10 @@ he should use the following procedure:</p>
 <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="pymatgen-io-managing-calculation-inputs-and-outputs">
-<h2>pymatgen.io - Managing calculation inputs and outputs<a class="headerlink" href="#pymatgen-io-managing-calculation-inputs-and-outputs" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+<section id="pymatgen-io-managing-calculation-inputs-and-outputs">
+<h2>pymatgen.io - Managing calculation inputs and outputs<a class="headerlink" href="#pymatgen-io-managing-calculation-inputs-and-outputs" title="Permalink to this heading"></a></h2>
 <p>The <a class="reference internal" href="pymatgen.io.html#module-pymatgen.io" title="pymatgen.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io</span></code></a> module contains classes to facilitate writing input files
 and parsing output files from a variety of computational codes, including VASP,
 Q-Chem, LAMMPS, CP2K, AbInit, and many more.</p>
@@ -755,9 +436,9 @@ writing individual files.</p>
 <p>Use of <code class="xref py py-class docutils literal notranslate"><span class="pre">InputFile</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code> classes is
 not yet fully implemented by all codes supported by pymatgen, so please refer to the
 respective module documentation for each code for more details.</p>
-</div>
-<div class="section" id="pymatgen-borg-high-throughput-data-assimilation">
-<h2>pymatgen.borg - High-throughput data assimilation<a class="headerlink" href="#pymatgen-borg-high-throughput-data-assimilation" title="Permalink to this headline"></a></h2>
+</section>
+<section id="pymatgen-borg-high-throughput-data-assimilation">
+<h2>pymatgen.borg - High-throughput data assimilation<a class="headerlink" href="#pymatgen-borg-high-throughput-data-assimilation" title="Permalink to this heading"></a></h2>
 <p>The borg package is still a work in progress, but a lot can already be done with
 it. The basic concept is to provide a convenient means to
 assimilate large quantities of data in a directory structure. For now, the main
@@ -774,8 +455,8 @@ into ComputedEntry.</p></li>
 to assimilate an entire subdirectory structure. Parallel processing is
 used where possible to speed up the process.</p></li>
 </ol>
-<div class="section" id="simple-example-making-a-phase-diagram">
-<h3>Simple example - Making a phase diagram<a class="headerlink" href="#simple-example-making-a-phase-diagram" title="Permalink to this headline"></a></h3>
+<section id="simple-example-making-a-phase-diagram">
+<h3>Simple example - Making a phase diagram<a class="headerlink" href="#simple-example-making-a-phase-diagram" title="Permalink to this heading"></a></h3>
 <p>Let’s say you want to make the Li-O phase diagram. You have calculated all
 Li, O, and Li-O compounds you are interested in and the runs are in the
 directory “Li-O_runs”. You can then generate the phase diagram using the
@@ -806,9 +487,9 @@ making a phase diagram from a mix of GGA and GGA+U entries, you may need to
 post-process the assimilated entries with a Compatibility object before
 running the phase diagram code. See earlier section on <a class="reference internal" href="#entries">entries</a> and
 <a class="reference internal" href="#compatibility">compatibility</a>.</p>
-</div>
-<div class="section" id="another-example-calculating-reaction-energies">
-<h3>Another example - Calculating reaction energies<a class="headerlink" href="#another-example-calculating-reaction-energies" title="Permalink to this headline"></a></h3>
+</section>
+<section id="another-example-calculating-reaction-energies">
+<h3>Another example - Calculating reaction energies<a class="headerlink" href="#another-example-calculating-reaction-energies" title="Permalink to this heading"></a></h3>
 <p>Another example of a cool thing you can do with the loaded entries is to
 calculate reaction energies. For example, reusing the Li-O data we have saved
 in the above step:</p>
@@ -830,10 +511,10 @@ in the above step:</p>
 <span class="nb">print</span> <span class="n">rxn</span><span class="o">.</span><span class="n">calculated_reaction_energy</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="pymatgen-transformations">
-<h2>pymatgen.transformations<a class="headerlink" href="#pymatgen-transformations" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+<section id="pymatgen-transformations">
+<h2>pymatgen.transformations<a class="headerlink" href="#pymatgen-transformations" title="Permalink to this heading"></a></h2>
 <p>The <a class="reference internal" href="pymatgen.transformations.html#module-pymatgen.transformations" title="pymatgen.transformations"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.transformations</span></code></a> package is the standard package for
 performing transformations on structures. Many transformations are already
 supported today, from simple transformations such as adding and removing
@@ -852,9 +533,9 @@ classes follow a strict API. A typical usage is as follows:</p>
 <span class="n">modified_structure</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pymatgen-alchemy-high-throughput-transformations">
-<h2>pymatgen.alchemy - High-throughput transformations<a class="headerlink" href="#pymatgen-alchemy-high-throughput-transformations" title="Permalink to this headline"></a></h2>
+</section>
+<section id="pymatgen-alchemy-high-throughput-transformations">
+<h2>pymatgen.alchemy - High-throughput transformations<a class="headerlink" href="#pymatgen-alchemy-high-throughput-transformations" title="Permalink to this heading"></a></h2>
 <p>The <a class="reference internal" href="pymatgen.alchemy.html#module-pymatgen.alchemy" title="pymatgen.alchemy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.alchemy</span></code></a> package is a framework for performing
 high-throughput (HT) structure transformations. For example, it allows a user
 to define a series of transformations to be applied to a set of structures,
@@ -880,9 +561,9 @@ of transformations on all of them.</p></li>
 <span class="n">structures</span> <span class="o">=</span> <span class="n">transmuter</span><span class="o">.</span><span class="n">transformed_structures</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">
-<h2>pymatgen.matproj.rest - Integration with the Materials Project REST API<a class="headerlink" href="#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api" title="Permalink to this headline"></a></h2>
+</section>
+<section id="pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">
+<h2>pymatgen.matproj.rest - Integration with the Materials Project REST API<a class="headerlink" href="#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api" title="Permalink to this heading"></a></h2>
 <p>In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful
 tools yet - an adaptor to the Materials Project REST API. The Materials Project
 REST API (simply Materials API) was introduced to provide a means for
@@ -955,8 +636,8 @@ a new calculated material can be determined:</p>
 <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="section" id="the-query-method">
-<h3>The query method<a class="headerlink" href="#the-query-method" title="Permalink to this headline"></a></h3>
+<section id="the-query-method">
+<h3>The query method<a class="headerlink" href="#the-query-method" title="Permalink to this heading"></a></h3>
 <p>For the most flexibility, you can also use the query method of the MPRester.
 This method allows any kind of mongo query to be performed on the Materials
 Project database. It also supports a simple string syntax with wild cards.
@@ -980,9 +661,9 @@ Examples are given below:</p>
 <a class="reference external" href="http://bit.ly/materialsapi">http://bit.ly/materialsapi</a>, which provides a comprehensive explanation of the
 document schema used in the Materials Project and how best to query for the
 relevant information you need.</p>
-</div>
-<div class="section" id="setting-the-pmg-mapi-key-in-the-config-file">
-<h3>Setting the PMG_MAPI_KEY in the config file<a class="headerlink" href="#setting-the-pmg-mapi-key-in-the-config-file" title="Permalink to this headline"></a></h3>
+</section>
+<section id="setting-the-pmg-mapi-key-in-the-config-file">
+<h3>Setting the PMG_MAPI_KEY in the config file<a class="headerlink" href="#setting-the-pmg-mapi-key-in-the-config-file" title="Permalink to this heading"></a></h3>
 <p>MPRester can also read the API key via the pymatgen config file. Simply run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">PMG_MAPI_KEY</span> <span class="o">&lt;</span><span class="n">USER_API_KEY</span><span class="o">&gt;</span>
 </pre></div>
@@ -990,9 +671,9 @@ relevant information you need.</p>
 <p>to add this to the <cite>.pmgrc.yaml</cite>, and you can now call MPRester without any
 arguments. This makes it much easier for heavy users of the Materials API to
 use MPRester without having to constantly insert their API key in the scripts.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

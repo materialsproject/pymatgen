@@ -8,13 +8,6 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
-__author__ = "Shyue Ping Ong, Andrew S. Rosen"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 8, 2012"
-
 import warnings
 
 import numpy as np
@@ -31,6 +24,13 @@ except ImportError:
 if ase_loaded:
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
+
+__author__ = "Shyue Ping Ong, Andrew S. Rosen"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 8, 2012"
 
 
 class AseAtomsAdaptor:
