@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.abinit package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.io.abinit package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
-      <li>pymatgen.io.abinit package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.io.abinit package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.abinit.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,12 +123,351 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html">pymatgen.io.abinit.abiobjects module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html">pymatgen.io.abinit.abitimer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.inputs.html">pymatgen.io.abinit.inputs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html">pymatgen.io.abinit.netcdf module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html">pymatgen.io.abinit.pseudos module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.variable.html">pymatgen.io.abinit.variable module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html">pymatgen.io.abinit.abiobjects module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.AbivarAble"><code class="docutils literal notranslate"><span class="pre">AbivarAble</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.AbivarAble.to_abivars"><code class="docutils literal notranslate"><span class="pre">AbivarAble.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Constraints"><code class="docutils literal notranslate"><span class="pre">Constraints</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Constraints.to_abivars"><code class="docutils literal notranslate"><span class="pre">Constraints.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons"><code class="docutils literal notranslate"><span class="pre">Electrons</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.as_dict"><code class="docutils literal notranslate"><span class="pre">Electrons.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.from_dict"><code class="docutils literal notranslate"><span class="pre">Electrons.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.nspden"><code class="docutils literal notranslate"><span class="pre">Electrons.nspden</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.nspinor"><code class="docutils literal notranslate"><span class="pre">Electrons.nspinor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.nsppol"><code class="docutils literal notranslate"><span class="pre">Electrons.nsppol</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons.to_abivars"><code class="docutils literal notranslate"><span class="pre">Electrons.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm"><code class="docutils literal notranslate"><span class="pre">ElectronsAlgorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict"><code class="docutils literal notranslate"><span class="pre">ElectronsAlgorithm.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict"><code class="docutils literal notranslate"><span class="pre">ElectronsAlgorithm.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars"><code class="docutils literal notranslate"><span class="pre">ElectronsAlgorithm.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ExcHamiltonian"><code class="docutils literal notranslate"><span class="pre">ExcHamiltonian</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ExcHamiltonian.inclvkb"><code class="docutils literal notranslate"><span class="pre">ExcHamiltonian.inclvkb</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ExcHamiltonian.to_abivars"><code class="docutils literal notranslate"><span class="pre">ExcHamiltonian.to_abivars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_cg"><code class="docutils literal notranslate"><span class="pre">ExcHamiltonian.use_cg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_direct_diago"><code class="docutils literal notranslate"><span class="pre">ExcHamiltonian.use_direct_diago</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_haydock"><code class="docutils literal notranslate"><span class="pre">ExcHamiltonian.use_haydock</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.HilbertTransform"><code class="docutils literal notranslate"><span class="pre">HilbertTransform</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars"><code class="docutils literal notranslate"><span class="pre">HilbertTransform.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling"><code class="docutils literal notranslate"><span class="pre">KSampling</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.as_dict"><code class="docutils literal notranslate"><span class="pre">KSampling.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.automatic_density"><code class="docutils literal notranslate"><span class="pre">KSampling.automatic_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.explicit_path"><code class="docutils literal notranslate"><span class="pre">KSampling.explicit_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.from_dict"><code class="docutils literal notranslate"><span class="pre">KSampling.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered"><code class="docutils literal notranslate"><span class="pre">KSampling.gamma_centered()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_only"><code class="docutils literal notranslate"><span class="pre">KSampling.gamma_only()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.is_homogeneous"><code class="docutils literal notranslate"><span class="pre">KSampling.is_homogeneous</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.monkhorst"><code class="docutils literal notranslate"><span class="pre">KSampling.monkhorst()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic"><code class="docutils literal notranslate"><span class="pre">KSampling.monkhorst_automatic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.path_from_structure"><code class="docutils literal notranslate"><span class="pre">KSampling.path_from_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.to_abivars"><code class="docutils literal notranslate"><span class="pre">KSampling.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSamplingModes"><code class="docutils literal notranslate"><span class="pre">KSamplingModes</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSamplingModes.automatic"><code class="docutils literal notranslate"><span class="pre">KSamplingModes.automatic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSamplingModes.monkhorst"><code class="docutils literal notranslate"><span class="pre">KSamplingModes.monkhorst</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSamplingModes.path"><code class="docutils literal notranslate"><span class="pre">KSamplingModes.path</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ModelDielectricFunction"><code class="docutils literal notranslate"><span class="pre">ModelDielectricFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars"><code class="docutils literal notranslate"><span class="pre">ModelDielectricFunction.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel"><code class="docutils literal notranslate"><span class="pre">PPModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.as_dict"><code class="docutils literal notranslate"><span class="pre">PPModel.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel"><code class="docutils literal notranslate"><span class="pre">PPModel.as_ppmodel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.from_dict"><code class="docutils literal notranslate"><span class="pre">PPModel.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.get_noppmodel"><code class="docutils literal notranslate"><span class="pre">PPModel.get_noppmodel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModel.to_abivars"><code class="docutils literal notranslate"><span class="pre">PPModel.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModelModes"><code class="docutils literal notranslate"><span class="pre">PPModelModes</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModelModes.farid"><code class="docutils literal notranslate"><span class="pre">PPModelModes.farid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModelModes.godby"><code class="docutils literal notranslate"><span class="pre">PPModelModes.godby</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModelModes.hybersten"><code class="docutils literal notranslate"><span class="pre">PPModelModes.hybersten</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModelModes.linden"><code class="docutils literal notranslate"><span class="pre">PPModelModes.linden</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.PPModelModes.noppmodel"><code class="docutils literal notranslate"><span class="pre">PPModelModes.noppmodel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.IONMOV_DEFAULT"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.IONMOV_DEFAULT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.OPTCELL_DEFAULT"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.OPTCELL_DEFAULT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.as_dict"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.atoms_and_cell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_only"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.atoms_only()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.from_dict"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_atoms"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.move_atoms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_cell"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.move_cell</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.RelaxationMethod.to_abivars"><code class="docutils literal notranslate"><span class="pre">RelaxationMethod.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Screening"><code class="docutils literal notranslate"><span class="pre">Screening</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Screening.to_abivars"><code class="docutils literal notranslate"><span class="pre">Screening.to_abivars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Screening.use_hilbert"><code class="docutils literal notranslate"><span class="pre">Screening.use_hilbert</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SelfEnergy"><code class="docutils literal notranslate"><span class="pre">SelfEnergy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp"><code class="docutils literal notranslate"><span class="pre">SelfEnergy.gwcalctyp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SelfEnergy.symsigma"><code class="docutils literal notranslate"><span class="pre">SelfEnergy.symsigma</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SelfEnergy.to_abivars"><code class="docutils literal notranslate"><span class="pre">SelfEnergy.to_abivars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SelfEnergy.use_ppmodel"><code class="docutils literal notranslate"><span class="pre">SelfEnergy.use_ppmodel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing"><code class="docutils literal notranslate"><span class="pre">Smearing</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.as_dict"><code class="docutils literal notranslate"><span class="pre">Smearing.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.as_smearing"><code class="docutils literal notranslate"><span class="pre">Smearing.as_smearing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.from_dict"><code class="docutils literal notranslate"><span class="pre">Smearing.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.mode"><code class="docutils literal notranslate"><span class="pre">Smearing.mode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.nosmearing"><code class="docutils literal notranslate"><span class="pre">Smearing.nosmearing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.to_abivars"><code class="docutils literal notranslate"><span class="pre">Smearing.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode"><code class="docutils literal notranslate"><span class="pre">SpinMode</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.as_dict"><code class="docutils literal notranslate"><span class="pre">SpinMode.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode"><code class="docutils literal notranslate"><span class="pre">SpinMode.as_spinmode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.from_dict"><code class="docutils literal notranslate"><span class="pre">SpinMode.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.to_abivars"><code class="docutils literal notranslate"><span class="pre">SpinMode.to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.contract"><code class="docutils literal notranslate"><span class="pre">contract()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.lattice_from_abivars"><code class="docutils literal notranslate"><span class="pre">lattice_from_abivars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.species_by_znucl"><code class="docutils literal notranslate"><span class="pre">species_by_znucl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.structure_from_abivars"><code class="docutils literal notranslate"><span class="pre">structure_from_abivars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.structure_to_abivars"><code class="docutils literal notranslate"><span class="pre">structure_to_abivars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html">pymatgen.io.abinit.abitimer module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer"><code class="docutils literal notranslate"><span class="pre">AbinitTimer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.cpuwall_histogram()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.get_dataframe"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.get_dataframe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.get_section"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.get_section()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.get_values"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.get_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.names_and_values"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.names_and_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.ncpus"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.ncpus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.order_sections"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.order_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.pie"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.pie()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.scatter_hist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.sum_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.to_csv"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.to_csv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.to_table"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.to_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.totable"><code class="docutils literal notranslate"><span class="pre">AbinitTimer.totable()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.BEGIN_TAG</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.END_TAG"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.END_TAG</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.Error"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.Error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.filenames"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.filenames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.get_sections"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.get_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.parse"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.parse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.pefficiency"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.pefficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_all"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.plot_all()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.plot_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.plot_pie()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.plot_stacked_hist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.section_names"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.section_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.summarize"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.summarize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.timers"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.timers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.walk"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParser.walk()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParserError"><code class="docutils literal notranslate"><span class="pre">AbinitTimerParserError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection.FIELDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.NUMERIC_FIELDS"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection.NUMERIC_FIELDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.STR_FIELDS"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection.STR_FIELDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.fake"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection.fake()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection.to_csvline()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection.to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple"><code class="docutils literal notranslate"><span class="pre">AbinitTimerSection.to_tuple()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency"><code class="docutils literal notranslate"><span class="pre">ParallelEfficiency</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections"><code class="docutils literal notranslate"><span class="pre">ParallelEfficiency.bad_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections"><code class="docutils literal notranslate"><span class="pre">ParallelEfficiency.good_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency.totable"><code class="docutils literal notranslate"><span class="pre">ParallelEfficiency.totable()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.alternate"><code class="docutils literal notranslate"><span class="pre">alternate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.inputs.html">pymatgen.io.abinit.inputs module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput"><code class="docutils literal notranslate"><span class="pre">AbstractInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.deepcopy"><code class="docutils literal notranslate"><span class="pre">AbstractInput.deepcopy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.pop_vars"><code class="docutils literal notranslate"><span class="pre">AbstractInput.pop_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.remove_vars"><code class="docutils literal notranslate"><span class="pre">AbstractInput.remove_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.set_vars"><code class="docutils literal notranslate"><span class="pre">AbstractInput.set_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.set_vars_ifnotin"><code class="docutils literal notranslate"><span class="pre">AbstractInput.set_vars_ifnotin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.to_string"><code class="docutils literal notranslate"><span class="pre">AbstractInput.to_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.vars"><code class="docutils literal notranslate"><span class="pre">AbstractInput.vars</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.write"><code class="docutils literal notranslate"><span class="pre">AbstractInput.write()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.Error"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.Error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.add_abiobjects"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.add_abiobjects()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.as_dict"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.comment"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.comment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.from_dict"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.isnc"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.isnc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.ispaw"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.ispaw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.new_with_vars"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.new_with_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_irdvars"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.pop_irdvars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_tolerances"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.pop_tolerances()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.pseudos"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.pseudos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_comment"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.set_comment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_gamma_sampling"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.set_gamma_sampling()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kmesh"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.set_kmesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kpath"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.set_kpath()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_spin_mode"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.set_spin_mode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_structure"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.set_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.structure"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.structure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.to_string"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.to_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.vars"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInput.vars</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInputError"><code class="docutils literal notranslate"><span class="pre">BasicAbinitInputError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.Error"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.Error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.addnew_from"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.addnew_from()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.append"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.append()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.deepcopy"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.deepcopy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.extend"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.extend()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.from_inputs"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.from_inputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.has_same_structures"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.has_same_structures</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.isnc"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.isnc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.ispaw"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.ispaw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.ndtset"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.ndtset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.pseudos"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.pseudos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.replicate_input"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.replicate_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.split_datasets"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.split_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.to_string"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.to_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.write"><code class="docutils literal notranslate"><span class="pre">BasicMultiDataset.write()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode"><code class="docutils literal notranslate"><span class="pre">ShiftMode</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode.GammaCentered"><code class="docutils literal notranslate"><span class="pre">ShiftMode.GammaCentered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode.MonkhorstPack"><code class="docutils literal notranslate"><span class="pre">ShiftMode.MonkhorstPack</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode.OneSymmetric"><code class="docutils literal notranslate"><span class="pre">ShiftMode.OneSymmetric</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode.Symmetric"><code class="docutils literal notranslate"><span class="pre">ShiftMode.Symmetric</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode.from_object"><code class="docutils literal notranslate"><span class="pre">ShiftMode.from_object()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.as_structure"><code class="docutils literal notranslate"><span class="pre">as_structure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.calc_shiftk"><code class="docutils literal notranslate"><span class="pre">calc_shiftk()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ebands_input"><code class="docutils literal notranslate"><span class="pre">ebands_input()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.gs_input"><code class="docutils literal notranslate"><span class="pre">gs_input()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ion_ioncell_relax_input"><code class="docutils literal notranslate"><span class="pre">ion_ioncell_relax_input()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.num_valence_electrons"><code class="docutils literal notranslate"><span class="pre">num_valence_electrons()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html">pymatgen.io.abinit.netcdf module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader"><code class="docutils literal notranslate"><span class="pre">ETSF_Reader</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols"><code class="docutils literal notranslate"><span class="pre">ETSF_Reader.chemical_symbols()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr"><code class="docutils literal notranslate"><span class="pre">ETSF_Reader.read_abinit_hdr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc"><code class="docutils literal notranslate"><span class="pre">ETSF_Reader.read_abinit_xcfunc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure"><code class="docutils literal notranslate"><span class="pre">ETSF_Reader.read_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol"><code class="docutils literal notranslate"><span class="pre">ETSF_Reader.typeidx_from_symbol()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NO_DEFAULT"><code class="docutils literal notranslate"><span class="pre">NO_DEFAULT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader"><code class="docutils literal notranslate"><span class="pre">NetcdfReader</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.Error"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.Error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.close"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.print_tree"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.print_tree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.read_dimvalue()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.read_keys()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_value"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.read_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.read_variable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.read_varnames()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree"><code class="docutils literal notranslate"><span class="pre">NetcdfReader.walk_tree()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.as_etsfreader"><code class="docutils literal notranslate"><span class="pre">as_etsfreader()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.as_ncreader"><code class="docutils literal notranslate"><span class="pre">as_ncreader()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.structure_from_ncdata"><code class="docutils literal notranslate"><span class="pre">structure_from_ncdata()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html">pymatgen.io.abinit.pseudos module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo"><code class="docutils literal notranslate"><span class="pre">Pseudo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.Z"><code class="docutils literal notranslate"><span class="pre">Pseudo.Z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.Z_val"><code class="docutils literal notranslate"><span class="pre">Pseudo.Z_val</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_dict"><code class="docutils literal notranslate"><span class="pre">Pseudo.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_pseudo"><code class="docutils literal notranslate"><span class="pre">Pseudo.as_pseudo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_tmpfile"><code class="docutils literal notranslate"><span class="pre">Pseudo.as_tmpfile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.basename"><code class="docutils literal notranslate"><span class="pre">Pseudo.basename</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.compute_md5"><code class="docutils literal notranslate"><span class="pre">Pseudo.compute_md5()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.djrepo_path"><code class="docutils literal notranslate"><span class="pre">Pseudo.djrepo_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.element"><code class="docutils literal notranslate"><span class="pre">Pseudo.element</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.filepath"><code class="docutils literal notranslate"><span class="pre">Pseudo.filepath</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_dict"><code class="docutils literal notranslate"><span class="pre">Pseudo.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_file"><code class="docutils literal notranslate"><span class="pre">Pseudo.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.has_dojo_report"><code class="docutils literal notranslate"><span class="pre">Pseudo.has_dojo_report</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.has_hints"><code class="docutils literal notranslate"><span class="pre">Pseudo.has_hints</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.hint_for_accuracy"><code class="docutils literal notranslate"><span class="pre">Pseudo.hint_for_accuracy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.isnc"><code class="docutils literal notranslate"><span class="pre">Pseudo.isnc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.ispaw"><code class="docutils literal notranslate"><span class="pre">Pseudo.ispaw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.l_local"><code class="docutils literal notranslate"><span class="pre">Pseudo.l_local</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.l_max"><code class="docutils literal notranslate"><span class="pre">Pseudo.l_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.md5"><code class="docutils literal notranslate"><span class="pre">Pseudo.md5()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.open_pspsfile"><code class="docutils literal notranslate"><span class="pre">Pseudo.open_pspsfile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.summary"><code class="docutils literal notranslate"><span class="pre">Pseudo.summary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.supports_soc"><code class="docutils literal notranslate"><span class="pre">Pseudo.supports_soc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.symbol"><code class="docutils literal notranslate"><span class="pre">Pseudo.symbol</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.to_string"><code class="docutils literal notranslate"><span class="pre">Pseudo.to_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.type"><code class="docutils literal notranslate"><span class="pre">Pseudo.type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable"><code class="docutils literal notranslate"><span class="pre">PseudoTable</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.all_combinations_for_elements"><code class="docutils literal notranslate"><span class="pre">PseudoTable.all_combinations_for_elements()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.allnc"><code class="docutils literal notranslate"><span class="pre">PseudoTable.allnc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.allpaw"><code class="docutils literal notranslate"><span class="pre">PseudoTable.allpaw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.as_dict"><code class="docutils literal notranslate"><span class="pre">PseudoTable.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.as_table"><code class="docutils literal notranslate"><span class="pre">PseudoTable.as_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dict"><code class="docutils literal notranslate"><span class="pre">PseudoTable.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dir"><code class="docutils literal notranslate"><span class="pre">PseudoTable.from_dir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.get_pseudos_for_structure"><code class="docutils literal notranslate"><span class="pre">PseudoTable.get_pseudos_for_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.is_complete"><code class="docutils literal notranslate"><span class="pre">PseudoTable.is_complete()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.print_table"><code class="docutils literal notranslate"><span class="pre">PseudoTable.print_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.pseudo_with_symbol"><code class="docutils literal notranslate"><span class="pre">PseudoTable.pseudo_with_symbol()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.pseudos_with_symbols"><code class="docutils literal notranslate"><span class="pre">PseudoTable.pseudos_with_symbols()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.select"><code class="docutils literal notranslate"><span class="pre">PseudoTable.select()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.select_family"><code class="docutils literal notranslate"><span class="pre">PseudoTable.select_family()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.select_rows"><code class="docutils literal notranslate"><span class="pre">PseudoTable.select_rows()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.select_symbols"><code class="docutils literal notranslate"><span class="pre">PseudoTable.select_symbols()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.sort_by_z"><code class="docutils literal notranslate"><span class="pre">PseudoTable.sort_by_z()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.sorted"><code class="docutils literal notranslate"><span class="pre">PseudoTable.sorted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.to_table"><code class="docutils literal notranslate"><span class="pre">PseudoTable.to_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.with_dojo_report"><code class="docutils literal notranslate"><span class="pre">PseudoTable.with_dojo_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.zlist"><code class="docutils literal notranslate"><span class="pre">PseudoTable.zlist</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinit.variable.html">pymatgen.io.abinit.variable module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable"><code class="docutils literal notranslate"><span class="pre">InputVariable</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.basename"><code class="docutils literal notranslate"><span class="pre">InputVariable.basename</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.dataset"><code class="docutils literal notranslate"><span class="pre">InputVariable.dataset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.format_list"><code class="docutils literal notranslate"><span class="pre">InputVariable.format_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.format_list2d"><code class="docutils literal notranslate"><span class="pre">InputVariable.format_list2d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.format_scalar"><code class="docutils literal notranslate"><span class="pre">InputVariable.format_scalar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.get_value"><code class="docutils literal notranslate"><span class="pre">InputVariable.get_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.name"><code class="docutils literal notranslate"><span class="pre">InputVariable.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.abinit.variable.html#pymatgen.io.abinit.variable.InputVariable.units"><code class="docutils literal notranslate"><span class="pre">InputVariable.units</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

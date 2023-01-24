@@ -5,6 +5,8 @@
 This module provides classes to identify optimal substrates for film growth
 """
 
+from __future__ import annotations
+
 import warnings
 
 from pymatgen.analysis.interfaces import SubstrateAnalyzer, ZSLGenerator  # noqa

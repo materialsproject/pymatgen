@@ -6,6 +6,8 @@
 Implementation for `pmg structure` CLI.
 """
 
+from __future__ import annotations
+
 import sys
 
 from tabulate import tabulate
@@ -74,7 +76,7 @@ def analyze_localenv(args):
                     dists = [
                         d for nn, d in s.get_neighbors(site, dist) if species[1] in [sp.symbol for sp in nn.species]
                     ]
-                    dists = ", ".join([f"{d:.3f}" for d in sorted(dists)])
+                    dists = ", ".join(f"{d:.3f}" for d in sorted(dists))
                     data.append([i, species[0], species[1], dists])
         print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
 

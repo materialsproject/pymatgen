@@ -5,6 +5,8 @@
 This module defines filters for Transmuter object.
 """
 
+from __future__ import annotations
+
 import abc
 from collections import defaultdict
 
@@ -12,6 +14,7 @@ from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
@@ -190,20 +193,22 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     This filter removes exact duplicate structures from the transmuter.
     """
 
-    def __init__(self, structure_matcher=None, symprec=None):
+    def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float = None) -> None:
         """
         Remove duplicate structures based on the structure matcher
         and symmetry (if symprec is given).
 
         Args:
-            structure_matcher: Provides a structure matcher to be used for
+            structure_matcher (dict | StructureMatcher, optional): Provides a structure matcher to be used for
                 structure comparison.
-            symprec: The precision in the symmetry finder algorithm if None (
+            symprec (float, optional): The precision in the symmetry finder algorithm if None (
                 default value), no symmetry check is performed and only the
                 structure matcher is used. A recommended value is 1e-5.
         """
         self.symprec = symprec
-        self.structure_list = defaultdict(list)
+        self.structure_list: dict[str, list[Structure]] = defaultdict(list)
+        if not isinstance(structure_matcher, (dict, StructureMatcher, type(None))):
+            raise ValueError(f"structure_matcher must be a dict, StructureMatcher or None, got {structure_matcher}")
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
@@ -216,21 +221,21 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
 
         Returns: True if structure is not in list.
         """
-        h = self.structure_matcher._comparator.get_hash(structure.composition)
-        if not self.structure_list[h]:
-            self.structure_list[h].append(structure)
+        hash = self.structure_matcher._comparator.get_hash(structure.composition)
+        if not self.structure_list[hash]:
+            self.structure_list[hash].append(structure)
             return True
 
-        def get_sg(s):
-            finder = SpacegroupAnalyzer(s, symprec=self.symprec)
+        def get_spg_num(struct: structure) -> int:
+            finder = SpacegroupAnalyzer(struct, symprec=self.symprec)
             return finder.get_space_group_number()
 
-        for s in self.structure_list[h]:
-            if self.symprec is None or get_sg(s) == get_sg(structure):
+        for s in self.structure_list[hash]:
+            if self.symprec is None or get_spg_num(s) == get_spg_num(structure):
                 if self.structure_matcher.fit(s, structure):
                     return False
 
-        self.structure_list[h].append(structure)
+        self.structure_list[hash].append(structure)
         return True
 
 

@@ -30,9 +30,9 @@ Submodules
    pymatgen.io.atat
    pymatgen.io.babel
    pymatgen.io.cif
+   pymatgen.io.common
    pymatgen.io.core
    pymatgen.io.cssr
-   pymatgen.io.cube
    pymatgen.io.fiesta
    pymatgen.io.gaussian
    pymatgen.io.jarvis
@@ -42,6 +42,7 @@ Submodules
    pymatgen.io.phonopy
    pymatgen.io.prismatic
    pymatgen.io.pwscf
+   pymatgen.io.res
    pymatgen.io.shengbte
    pymatgen.io.template
    pymatgen.io.wannier90

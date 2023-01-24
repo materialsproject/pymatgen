@@ -5,11 +5,14 @@
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
+from __future__ import annotations
+
 import itertools
 import math
 import os
 import subprocess
 import time
+from typing import Sequence
 
 import numpy as np
 
@@ -55,7 +58,7 @@ class StructureVis:
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
                 123,0), ....} If None is specified, a default based on
-                Jmol"s color scheme is used.
+                Jmol's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
             show_bonds: Set to True to show bonds. Defaults to True.
@@ -137,12 +140,9 @@ class StructureVis:
         Save render window to an image.
 
         Arguments:
-            filename:
-                filename to save to. Defaults to image.png.
-            magnification:
-                magnification. Use it to render high res images.
-            image_format:
-                choose between jpeg, png. Png is the default.
+            filename: file to save to. Defaults to image.png.
+            magnification: Use it to render high res images.
+            image_format: choose between jpeg, png. Defaults to 'png'.
         """
         render_large = vtk.vtkRenderLargeImage()
         render_large.SetInput(self.ren)
@@ -288,7 +288,7 @@ class StructureVis:
                     if self.show_bonds:
                         self.add_bonds(nn_sites, site)
                     if self.show_polyhedron:
-                        color = [i / 255 for i in color]
+                        color = np.array([i / 255 for i in color])
                         self.add_polyhedron(nn_sites, site, color)
 
         if self.show_help:
@@ -534,7 +534,7 @@ class StructureVis:
         Adds a triangular surface between three atoms.
 
         Args:
-            atoms: Atoms between which a triangle will be drawn.
+            neighbors: Atoms between which a triangle will be drawn.
             color: Color for triangle as RGB.
             center: The "central atom" of the triangle
             opacity: opacity of the triangle
@@ -741,8 +741,8 @@ class StructureVis:
                     for site in self.mapper_map[mapper]:
                         row = [
                             f"{site.species_string} - ",
-                            ", ".join([f"{c:.3f}" for c in site.frac_coords]),
-                            "[" + ", ".join([f"{c:.3f}" for c in site.coords]) + "]",
+                            ", ".join(f"{c:.3f}" for c in site.frac_coords),
+                            "[" + ", ".join(f"{c:.3f}" for c in site.coords) + "]",
                         ]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
@@ -782,7 +782,7 @@ class StructureVis:
                     site = self.mapper_map[mapper]
                     output = [
                         site.species_string,
-                        "Frac. coords: " + " ".join([f"{c:.4f}" for c in site.frac_coords]),
+                        "Frac. coords: " + " ".join(f"{c:.4f}" for c in site.frac_coords),
                     ]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
@@ -967,7 +967,7 @@ class MultiStructuresVis(StructureVis):
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
                 123,0), ....} If None is specified, a default based on
-                Jmol"s color scheme is used.
+                Jmol's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
             show_bonds: Set to True to show bonds. Defaults to True.
@@ -1001,12 +1001,12 @@ class MultiStructuresVis(StructureVis):
         self.current_structure = None
         self.set_animated_movie_options(animated_movie_options=animated_movie_options)
 
-    def set_structures(self, structures, tags=None):
+    def set_structures(self, structures: Sequence[Structure], tags=None):
         """
         Add list of structures to the visualizer.
 
         Args:
-            structures (List of Structures):
+            structures (list[Structures]): structures to be visualized.
             tags (): List of tags.
         """
         self.structures = structures

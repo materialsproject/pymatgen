@@ -3,6 +3,8 @@
 """
 Parsers for XTB output files and directories
 """
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -35,7 +37,6 @@ class CRESTOutput(MSONable):
             path (str): Path to directory including output_filename and all
                 other xtb output files (crest_best.xyz, etc.)
         """
-
         self.path = path
         self.filename = output_filename
 

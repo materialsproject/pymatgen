@@ -39,7 +39,6 @@ class JahnTellerAnalyzer:
         """
         Init for JahnTellerAnalyzer.
         """
-
         self.spin_configs = {
             "oct": {  # key is number of d electrons
                 0: {"high": {"e_g": 0, "t_2g": 0}, "default": "high"},
@@ -110,9 +109,7 @@ class JahnTellerAnalyzer:
         Returns:
             analysis of structure, with key 'strength' which may be 'none', 'strong',
             'weak', or 'unknown' (Default value = 0.1) and decorated structure
-
         """
-
         structure = structure.get_primitive_structure()
 
         if calculate_valences:
@@ -290,7 +287,6 @@ class JahnTellerAnalyzer:
         Returns:
             boolean, True if might be Jahn-Teller active, False if not
         """
-
         active = False
 
         try:
@@ -330,7 +326,6 @@ class JahnTellerAnalyzer:
 
         Returns:
             Decorated Structure, will be in primitive setting.
-
         """
         try:
             analysis, structure = self.get_analysis_and_structure(
@@ -360,7 +355,6 @@ class JahnTellerAnalyzer:
 
         Returns: Number of d electrons.
         """
-
         # TODO: replace with more generic Hund's rule algorithm?
 
         # taken from get_crystal_field_spin
@@ -383,9 +377,7 @@ class JahnTellerAnalyzer:
           motif: "oct" or "tet"
 
         Returns: "none", "weak" or "strong
-
         """
-
         magnitude = "none"
 
         sp = get_el_sp(species)

@@ -106,8 +106,8 @@ class SymmetrizedStructure(Structure):
         def to_s(x):
             return f"{x:0.6f}"
 
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
         if self._charge:
             if self._charge >= 0:
                 outs.append(f"Overall Charge: +{self._charge}")
@@ -151,7 +151,7 @@ class SymmetrizedStructure(Structure):
         :param d: Dict representation
         :return: SymmetrizedStructure
         """
-        return SymmetrizedStructure(
+        return cls(
             Structure.from_dict(d["structure"]),
             spacegroup=d["spacegroup"],
             equivalent_positions=d["equivalent_positions"],

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.transformations package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.transformations package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,10 +98,10 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-      <li>pymatgen.transformations package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.transformations package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.transformations.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -124,10 +122,273 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html">pymatgen.transformations.advanced_transformations module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.site_transformations.html">pymatgen.transformations.site_transformations module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html">pymatgen.transformations.standard_transformations module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html">pymatgen.transformations.transformation_abc module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html">pymatgen.transformations.advanced_transformations module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation"><code class="docutils literal notranslate"><span class="pre">DopingTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DopingTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DopingTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DopingTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint"><code class="docutils literal notranslate"><span class="pre">MagOrderParameterConstraint</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint.satisfies_constraint"><code class="docutils literal notranslate"><span class="pre">MagOrderParameterConstraint.satisfies_constraint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.determine_min_cell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation"><code class="docutils literal notranslate"><span class="pre">SQSTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SQSTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SQSTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SQSTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation"><code class="docutils literal notranslate"><span class="pre">SlabTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SlabTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SlabTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SlabTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation"><code class="docutils literal notranslate"><span class="pre">SuperTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SuperTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SuperTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SuperTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.site_transformations.html">pymatgen.transformations.site_transformations module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_BEST_FIRST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_BEST_FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_COMPLETE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_COMPLETE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_ENUMERATE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_ENUMERATE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_FAST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_FAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.is_one_to_many</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.use_multiprocessing"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.use_multiprocessing</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.as_dict"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html">pymatgen.transformations.standard_transformations module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.ALGO_BEST_FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.ALGO_COMPLETE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.ALGO_FAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.is_one_to_many</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.lowest_energy_structure</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_BEST_FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_COMPLETE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_ENUMERATE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_FAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation"><code class="docutils literal notranslate"><span class="pre">RotationTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RotationTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RotationTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RotationTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.from_scaling_factors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html">pymatgen.transformations.transformation_abc module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.is_one_to_many</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.use_multiprocessing"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.use_multiprocessing</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

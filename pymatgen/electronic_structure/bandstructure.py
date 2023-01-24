@@ -149,7 +149,6 @@ class Kpoint(MSONable):
         Returns:
             A Kpoint object
         """
-
         return cls(
             coords=d["fcoords"],
             lattice=Lattice.from_dict(d["lattice"]),
@@ -209,8 +208,8 @@ class BandStructure:
         efermi: float,
         labels_dict=None,
         coords_are_cartesian: bool = False,
-        structure: Structure = None,
-        projections: dict[Spin, np.ndarray] = None,
+        structure: Structure | None = None,
+        projections: dict[Spin, np.ndarray] | None = None,
     ) -> None:
         """
         Args:
@@ -331,7 +330,7 @@ class BandStructure:
                             result[spin][i][j][str(sp)][o] += v[i][j][orb_i][k]
         return result
 
-    def is_metal(self, efermi_tol=1e-4):
+    def is_metal(self, efermi_tol=1e-4) -> bool:
         """
         Check if the band structure indicates a metal by looking if the fermi
         level crosses a band.
@@ -507,7 +506,7 @@ class BandStructure:
             [
                 str(c.label)
                 if c.label is not None
-                else "(" + ",".join([f"{c.frac_coords[i]:.3f}" for i in range(3)]) + ")"
+                else "(" + ",".join(f"{c.frac_coords[i]:.3f}" for i in range(3)) + ")"
                 for c in [vbm["kpoint"], cbm["kpoint"]]
             ]
         )
@@ -962,7 +961,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         """
         JSON-serializable dict representation of BandStructureSymmLine.
         """
-
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

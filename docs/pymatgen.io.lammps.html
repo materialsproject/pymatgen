@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lammps package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.io.lammps package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
-      <li>pymatgen.io.lammps package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.io.lammps package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.lammps.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,10 +123,84 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.data.html">pymatgen.io.lammps.data module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.inputs.html">pymatgen.io.lammps.inputs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.outputs.html">pymatgen.io.lammps.outputs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.utils.html">pymatgen.io.lammps.utils module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.data.html">pymatgen.io.lammps.data module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData"><code class="docutils literal notranslate"><span class="pre">CombinedData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.as_lammpsdata"><code class="docutils literal notranslate"><span class="pre">CombinedData.as_lammpsdata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.disassemble"><code class="docutils literal notranslate"><span class="pre">CombinedData.disassemble()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.from_ff_and_topologies"><code class="docutils literal notranslate"><span class="pre">CombinedData.from_ff_and_topologies()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.from_files"><code class="docutils literal notranslate"><span class="pre">CombinedData.from_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.from_lammpsdata"><code class="docutils literal notranslate"><span class="pre">CombinedData.from_lammpsdata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.from_structure"><code class="docutils literal notranslate"><span class="pre">CombinedData.from_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.get_string"><code class="docutils literal notranslate"><span class="pre">CombinedData.get_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.parse_xyz"><code class="docutils literal notranslate"><span class="pre">CombinedData.parse_xyz()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData.structure"><code class="docutils literal notranslate"><span class="pre">CombinedData.structure</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField"><code class="docutils literal notranslate"><span class="pre">ForceField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField.masses"><code class="docutils literal notranslate"><span class="pre">ForceField.masses</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField.force_field"><code class="docutils literal notranslate"><span class="pre">ForceField.force_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField.maps"><code class="docutils literal notranslate"><span class="pre">ForceField.maps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField.from_dict"><code class="docutils literal notranslate"><span class="pre">ForceField.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField.from_file"><code class="docutils literal notranslate"><span class="pre">ForceField.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.ForceField.to_file"><code class="docutils literal notranslate"><span class="pre">ForceField.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsBox"><code class="docutils literal notranslate"><span class="pre">LammpsBox</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsBox.get_box_shift"><code class="docutils literal notranslate"><span class="pre">LammpsBox.get_box_shift()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsBox.get_string"><code class="docutils literal notranslate"><span class="pre">LammpsBox.get_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsBox.to_lattice"><code class="docutils literal notranslate"><span class="pre">LammpsBox.to_lattice()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsBox.volume"><code class="docutils literal notranslate"><span class="pre">LammpsBox.volume</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData"><code class="docutils literal notranslate"><span class="pre">LammpsData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.disassemble"><code class="docutils literal notranslate"><span class="pre">LammpsData.disassemble()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_ff_and_topologies"><code class="docutils literal notranslate"><span class="pre">LammpsData.from_ff_and_topologies()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_file"><code class="docutils literal notranslate"><span class="pre">LammpsData.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.from_structure"><code class="docutils literal notranslate"><span class="pre">LammpsData.from_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.get_string"><code class="docutils literal notranslate"><span class="pre">LammpsData.get_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.structure"><code class="docutils literal notranslate"><span class="pre">LammpsData.structure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData.write_file"><code class="docutils literal notranslate"><span class="pre">LammpsData.write_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.Topology"><code class="docutils literal notranslate"><span class="pre">Topology</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.Topology.from_bonding"><code class="docutils literal notranslate"><span class="pre">Topology.from_bonding()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.lattice_2_lmpbox"><code class="docutils literal notranslate"><span class="pre">lattice_2_lmpbox()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.inputs.html">pymatgen.io.lammps.inputs module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsRun"><code class="docutils literal notranslate"><span class="pre">LammpsRun</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsRun.md"><code class="docutils literal notranslate"><span class="pre">LammpsRun.md()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsRun.template_dir"><code class="docutils literal notranslate"><span class="pre">LammpsRun.template_dir</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsRun.write_inputs"><code class="docutils literal notranslate"><span class="pre">LammpsRun.write_inputs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsTemplateGen"><code class="docutils literal notranslate"><span class="pre">LammpsTemplateGen</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsTemplateGen.get_input_set"><code class="docutils literal notranslate"><span class="pre">LammpsTemplateGen.get_input_set()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.outputs.html">pymatgen.io.lammps.outputs module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.LammpsDump"><code class="docutils literal notranslate"><span class="pre">LammpsDump</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.LammpsDump.as_dict"><code class="docutils literal notranslate"><span class="pre">LammpsDump.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.LammpsDump.from_dict"><code class="docutils literal notranslate"><span class="pre">LammpsDump.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.LammpsDump.from_string"><code class="docutils literal notranslate"><span class="pre">LammpsDump.from_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.parse_lammps_dumps"><code class="docutils literal notranslate"><span class="pre">parse_lammps_dumps()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.parse_lammps_log"><code class="docutils literal notranslate"><span class="pre">parse_lammps_log()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lammps.utils.html">pymatgen.io.lammps.utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.LammpsRunner"><code class="docutils literal notranslate"><span class="pre">LammpsRunner</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.LammpsRunner.run"><code class="docutils literal notranslate"><span class="pre">LammpsRunner.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.Polymer"><code class="docutils literal notranslate"><span class="pre">Polymer</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

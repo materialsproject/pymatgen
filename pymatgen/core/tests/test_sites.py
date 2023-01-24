@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import pickle
 
 import numpy as np
@@ -122,10 +124,10 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_distance_and_image(self):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
-        (distance, image) = self.site.distance_and_image(other_site)
+        distance, image = self.site.distance_and_image(other_site)
         assert round(abs(distance - 6.22494979899), 5) == 0
         assert ([-1, -1, -1] == image).all()
-        (distance, image) = self.site.distance_and_image(other_site, [1, 0, 0])
+        distance, image = self.site.distance_and_image(other_site, [1, 0, 0])
         assert round(abs(distance - 19.461500456028563), 5) == 0
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
@@ -138,8 +140,8 @@ class PeriodicSiteTest(PymatgenTest):
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] > site1.distance_and_image(site2)[0]
         site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
-        (dist_old, jimage_old) = get_distance_and_image_old(site1, site2)
-        (dist_new, jimage_new) = site1.distance_and_image(site2)
+        dist_old, jimage_old = get_distance_and_image_old(site1, site2)
+        dist_new, jimage_new = site1.distance_and_image(site2)
         assert dist_old - dist_new > -1e-8, "New distance algo should give smaller answers!"
         assert (
             not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all()
@@ -147,7 +149,7 @@ class PeriodicSiteTest(PymatgenTest):
         latt = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
         site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
         site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
-        (dist, img) = site.distance_and_image(site2)
+        dist, img = site.distance_and_image(site2)
         assert round(abs(dist - 0.15495358379511573), 7) == 0
         assert list(img) == [-11, 6, 0]
 
@@ -160,10 +162,8 @@ class PeriodicSiteTest(PymatgenTest):
         assert not self.site.is_periodic_image(other), "Different lattices should not be periodic images."
 
     def test_equality(self):
-        other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         assert self.site == self.site
-        assert not other_site == self.site
-        assert not self.site != self.site
+        other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         assert other_site != self.site
 
     def test_as_from_dict(self):

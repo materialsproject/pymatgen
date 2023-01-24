@@ -216,7 +216,7 @@ class Spectrum(MSONable):
         Returns a string containing values and labels of spectrum object for
         plotting.
         """
-        return "\n".join([type(self).__name__, f"{self.XLABEL}: {self.x}", f"{self.YLABEL}: {self.y}"])
+        return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
     def __repr__(self):
         """

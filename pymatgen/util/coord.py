@@ -7,15 +7,20 @@ boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
 
+from __future__ import annotations
+
 import itertools
 import math
-from typing import Tuple
+import typing
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.util import coord_cython as cuc
-from pymatgen.util.typing import ArrayLike
+
+if typing.TYPE_CHECKING:
+    from pymatgen.util.typing import ArrayLike
+
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
@@ -56,13 +61,14 @@ def in_coord_list(coord_list, coord, atol=1e-8):
     return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
 
-def is_coord_subset(subset, superset, atol=1e-8):
+def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     """
     Tests if all coords in subset are contained in superset.
     Doesn't use periodic boundary conditions
 
     Args:
-        subset, superset: List of coords
+        subset: List of coords
+        superset: List of coords
 
     Returns:
         True if all of subset is in superset.
@@ -71,7 +77,7 @@ def is_coord_subset(subset, superset, atol=1e-8):
     c2 = np.array(superset)
     is_close = np.all(np.abs(c1[:, None, :] - c2[None, :, :]) < atol, axis=-1)
     any_close = np.any(is_close, axis=-1)
-    return np.all(any_close)
+    return all(any_close)
 
 
 def coord_list_mapping(subset, superset, atol=1e-8):
@@ -111,7 +117,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
         list of indices such that superset[indices] = subset
     """
     # pylint: disable=I1101
-    atol = np.array([1.0, 1.0, 1.0]) * atol
+    atol = np.ones(3) * atol
     return cuc.coord_list_mapping_pbc(subset, superset, atol, pbc)
 
 
@@ -161,7 +167,7 @@ def all_distances(coords1, coords2):
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: Tuple[bool, bool, bool] = (True, True, True)):
+def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """
     Returns the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
@@ -198,7 +204,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         mask (boolean array): Mask of matches that are not allowed.
             i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
-        return_d2 (boolean): whether to also return the squared distances
+        return_d2 (bool): whether to also return the squared distances
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2
@@ -474,7 +480,9 @@ class Simplex(MSONable):
         assert len(barys) < 3
         return [self.point_from_bary_coords(b) for b in barys]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Simplex):
+            return NotImplemented
         for p in itertools.permutations(self._coords):
             if np.allclose(p, other.coords):
                 return True

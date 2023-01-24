@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -73,8 +71,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Change log</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Change log</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/latest_changes.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -86,11 +84,21 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
-<section id="v2022-7-25">
-<h2>v2022.7.25<a class="headerlink" href="#v2022-7-25" title="Permalink to this heading"></a></h2>
+<section id="v2023-1-20">
+<h2>v2023.1.20<a class="headerlink" href="#v2023-1-20" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Implemented sufficient methods for new MPRester to cover about 70-80% of common use cases.</p></li>
+<li><p>Passthrough kwargs support for Structure.from_file and Structure.from_str</p></li>
+<li><p>Allow the <cite>frac_tolerance</cite> to be specified for rounding coordinates in CifParser.</p></li>
+<li><dl class="simple">
+<dt>PR #2803 from &#64;amkrajewski add_weightbasedfunctions</dt><dd><p>When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
+- Composition class method to initialize it from a dictionary of weight fractions
+- Composition property giving a dictionary of weight fractions
+- concise tests for the two above were added</p>
+</dd>
+</dl>
+</li>
 </ul>
+<p>QChem: translate DMSO name in smd_solvent</p>
 </section>
 </section>
 

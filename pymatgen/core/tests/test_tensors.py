@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import os
 import unittest
@@ -303,6 +305,10 @@ class TensorTest(PymatgenTest):
         # Test empty initialization
         empty = TensorMapping()
         assert empty._tensor_list == []
+
+        # test adding to empty tensor mapping
+        empty[tkey] = 1
+        assert empty[tkey] == 1
 
     def test_populate(self):
         test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json"))

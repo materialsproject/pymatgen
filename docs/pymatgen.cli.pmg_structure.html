@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.cli.pmg_structure module &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.cli.pmg_structure module &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.cli.html">pymatgen.cli package</a> &raquo;</li>
-      <li>pymatgen.cli.pmg_structure module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.cli.html">pymatgen.cli package</a></li>
+      <li class="breadcrumb-item active">pymatgen.cli.pmg_structure module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.cli.pmg_structure.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -119,7 +117,7 @@
 <p>Implementation for <cite>pmg structure</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.analyze_localenv">
-<span class="sig-name descname"><span class="pre">analyze_localenv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_structure.py#L55-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_localenv" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">analyze_localenv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../cli/pmg_structure.py#L57-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_localenv" title="Permalink to this definition"></a></dt>
 <dd><p>Analyze local env of structures in files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -130,7 +128,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.analyze_structures">
-<span class="sig-name descname"><span class="pre">analyze_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_structure.py#L110-L124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">analyze_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../cli/pmg_structure.py#L110-L124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Master function to handle which operation to perform.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -141,7 +139,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.analyze_symmetry">
-<span class="sig-name descname"><span class="pre">analyze_symmetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_structure.py#L38-L52"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_symmetry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">analyze_symmetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../cli/pmg_structure.py#L40-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_symmetry" title="Permalink to this definition"></a></dt>
 <dd><p>Analyze symmetry of structures in files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -152,7 +150,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.compare_structures">
-<span class="sig-name descname"><span class="pre">compare_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_structure.py#L84-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.compare_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compare_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../cli/pmg_structure.py#L84-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.compare_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Compare structures in files for similarity using structure matcher.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -163,7 +161,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.convert_fmt">
-<span class="sig-name descname"><span class="pre">convert_fmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../cli/pmg_structure.py#L25-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.convert_fmt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">convert_fmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../cli/pmg_structure.py#L27-L37"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.convert_fmt" title="Permalink to this definition"></a></dt>
 <dd><p>Convert files from one format to another</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

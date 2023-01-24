@@ -1,39 +1,31 @@
 name: Linting
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  lint:
     # prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        python-version: [3.9]
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.8'
           cache: pip
-          cache-dependency-path: requirements-dev.txt
+          cache-dependency-path: setup.py
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt --quiet
-      - name: mypy
-        run: |
-          mypy --version
-          rm -rf .mypy_cache
-          mypy pymatgen
-      - name: pydocstyle
-        run: |
-          pydocstyle --count pymatgen
+          pip install --upgrade pip
+          pip install -e '.[dev]'
       - name: pylint
         run: |
           pylint pymatgen
@@ -47,3 +39,8 @@ jobs:
           flake8 --count --show-source --statistics pymatgen
           # exit-zero treats all errors as warnings.
           flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+      - name: mypy
+        run: |
+          mypy --version
+          rm -rf .mypy_cache
+          mypy pymatgen

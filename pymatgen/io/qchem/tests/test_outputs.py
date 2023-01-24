@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 
@@ -19,9 +21,8 @@ try:
 except ImportError:
     have_babel = False
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 
 single_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "single_job.json"))
 multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "multi_job.json"))
@@ -98,6 +99,22 @@ property_list = {
     "ccsd_total_energy",
     "ccsd(t)_correlation_energy",
     "ccsd(t)_total_energy",
+    "alpha_fock_matrix",
+    "beta_fock_matrix",
+    "alpha_eigenvalues",
+    "beta_eigenvalues",
+    "alpha_coeff_matrix",
+    "beta_coeff_matrix",
+    "final_soln_phase_e",
+    "solute_internal_e",
+    "total_solvation_free_e",
+    "change_solute_internal_e",
+    "reaction_field_free_e",
+    "isosvp_dielectric",
+    "dispersion_e",
+    "exchange_e",
+    "min_neg_field_e",
+    "max_pos_field_e",
 }
 
 if have_babel:
@@ -165,6 +182,12 @@ single_job_out_names = {
     "new_qchem_files/ts.out",
     "new_qchem_files/ccsd.qout",
     "new_qchem_files/ccsdt.qout",
+    "extra_scf_print.qcout",
+    "new_qchem_files/cmirs_benzene_single.qcout",
+    "new_qchem_files/cmirs_dielst10_single.qcout",
+    "new_qchem_files/cmirs_water_single.qcout",
+    "new_qchem_files/isosvp_water_single.qcout",
+    "new_qchem_files/isosvp_dielst10_single.qcout",
 }
 
 multi_job_out_names = {
@@ -178,6 +201,10 @@ multi_job_out_names = {
     "killed.qcout",
     "aux_mpi_time_mol.qcout",
     "new_qchem_files/VCLi_solv_eps10.qcout",
+    "new_qchem_files/cmirs_benzene.qcout",
+    "new_qchem_files/cmirs_dielst10.qcout",
+    "new_qchem_files/isosvp_water.qcout",
+    "new_qchem_files/isosvp_dielst10.qcout",
 }
 
 
@@ -211,13 +238,13 @@ class TestQCOutput(PymatgenTest):
     def _test_property(self, key, single_outs, multi_outs):
         for name, outdata in single_outs.items():
             try:
-                self.assertEqual(outdata.get(key), single_job_dict[name].get(key))
+                assert outdata.get(key) == single_job_dict[name].get(key)
             except ValueError:
                 self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
         for name, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
-                    self.assertEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
+                    assert sub_output.data.get(key) == multi_job_dict[name][ii].get(key)
                 except ValueError:
                     self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
@@ -263,65 +290,142 @@ class TestQCOutput(PymatgenTest):
             )
         )
 
-        self.assertEqual(check_for_structure_changes(t1, t1), "no_change")
-        self.assertEqual(check_for_structure_changes(t2, t3), "no_change")
-        self.assertEqual(check_for_structure_changes(t1, t2), "fewer_bonds")
-        self.assertEqual(check_for_structure_changes(t2, t1), "more_bonds")
+        assert check_for_structure_changes(t1, t1) == "no_change"
+        assert check_for_structure_changes(t2, t3) == "no_change"
+        assert check_for_structure_changes(t1, t2) == "fewer_bonds"
+        assert check_for_structure_changes(t2, t1) == "more_bonds"
 
-        self.assertEqual(check_for_structure_changes(thio_1, thio_2), "unconnected_fragments")
+        assert check_for_structure_changes(thio_1, thio_2) == "unconnected_fragments"
 
-        self.assertEqual(check_for_structure_changes(frag_1, frag_2), "bond_change")
+        assert check_for_structure_changes(frag_1, frag_2) == "bond_change"
 
     def test_NBO_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo.qout")).data
-        self.assertEqual(len(data["nbo_data"]["natural_populations"]), 3)
-        self.assertEqual(len(data["nbo_data"]["hybridization_character"]), 4)
-        self.assertEqual(len(data["nbo_data"]["perturbation_energy"]), 2)
-        self.assertEqual(data["nbo_data"]["natural_populations"][0]["Density"][5], -0.08624)
-        self.assertEqual(data["nbo_data"]["hybridization_character"][-1]["atom 2 pol coeff"][35], "-0.7059")
+        assert len(data["nbo_data"]["natural_populations"]) == 3
+        assert len(data["nbo_data"]["hybridization_character"]) == 4
+        assert len(data["nbo_data"]["perturbation_energy"]) == 2
+        assert data["nbo_data"]["natural_populations"][0]["Density"][5] == -0.08624
+        assert data["nbo_data"]["hybridization_character"][-1]["atom 2 pol coeff"][35] == "-0.7059"
         next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"])[-2]
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last], 0.071)
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0], "RY*")
+        assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last] == 0.071
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
 
     def test_NBO7_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9], 15.73)
-        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]), 84)
-        self.assertEqual(len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]), 29)
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == 15.73
+        assert len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]) == 84
+        assert len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]) == 29
 
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_2.qout")).data
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13], 32.93)
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13], "LV")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12], "RY")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12], "Mg")
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 32.93
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "LV"
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12] == "RY"
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12] == "Mg"
 
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_3.qout")).data
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13], 34.54)
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13], "BD*")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13], "B")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13], "Mg")
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13], 3)
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 34.54
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "BD*"
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13] == "B"
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13] == "Mg"
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13] == 3
 
     def test_NBO5_vs_NBO7_hybridization_character(self):
         data5 = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo5_1.qout")).data
         data7 = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
-        self.assertEqual(
-            len(data5["nbo_data"]["hybridization_character"]), len(data7["nbo_data"]["hybridization_character"])
+        assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
+        assert (
+            data5["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
+            == data7["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
         )
-        self.assertEqual(
-            data5["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9],
-            data7["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9],
+        assert (
+            data5["nbo_data"]["hybridization_character"][0]["s"][0]
+            == data7["nbo_data"]["hybridization_character"][0]["s"][0]
         )
-        self.assertEqual(
-            data5["nbo_data"]["hybridization_character"][0]["s"][0],
-            data7["nbo_data"]["hybridization_character"][0]["s"][0],
-        )
-        self.assertEqual(data5["nbo_data"]["hybridization_character"][1]["bond index"][7], "149")
-        self.assertEqual(data7["nbo_data"]["hybridization_character"][1]["bond index"][7], "21")
+        assert data5["nbo_data"]["hybridization_character"][1]["bond index"][7] == "149"
+        assert data7["nbo_data"]["hybridization_character"][1]["bond index"][7] == "21"
 
     def test_NBO7_infinite_e2pert(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_inf.qout")).data
-        self.assertEqual(data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0], float("inf"))
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0] == float("inf")
+
+    def test_isosvp_water(self):
+        data = QCOutput(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "isosvp_water_single.qcout")
+        ).data
+        assert data["solvent_method"] == "ISOSVP"
+
+        # ISOSVP parameters
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == -40.4850599393
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == -40.4846329762
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == 0.0000121967
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == -0.0004269631
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == -0.0004147664
+
+        # CMIRS parameters
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
+
+    def test_isosvp_dielst10(self):
+        data = QCOutput(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "isosvp_dielst10_single.qcout")
+        ).data
+        assert data["solvent_method"] == "ISOSVP"
+
+        # ISOSVP parameters
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == -40.4850012952
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == -40.4846362547
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == 0.0000089182
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == -0.0003650405
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == -0.0003561223
+
+        # CMIRS parameters
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
+
+    def test_cmirs_benzene(self):
+        data = QCOutput(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_benzene_single.qcout")
+        ).data
+        assert data["solvent_method"] == "ISOSVP"
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 2.28
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is True
+        assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6955542829
+        assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2654553686
+        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0006019665
+        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0178177740
+
+    def test_cmirs_dielst10(self):
+        data = QCOutput(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_dielst10_single.qcout")
+        ).data
+        assert data["solvent_method"] == "ISOSVP"
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is True
+        assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6955550107
+        assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2652679507
+        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0005235850
+        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0179866718
+
+    def test_cmirs_water(self):
+        data = QCOutput(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_water_single.qcout")
+        ).data
+        assert data["solvent_method"] == "ISOSVP"
+
+        # ISOSVP parameters
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == -40.4752415075
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == -40.4748535587
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == 0.0000122982
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == -0.0003879488
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == 0.0037602703
+
+        # CMIRS parameters
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is True
+        assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6722278965
+        assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2652032616
+        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0004967767
+        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0180445935
 
 
 if __name__ == "__main__":

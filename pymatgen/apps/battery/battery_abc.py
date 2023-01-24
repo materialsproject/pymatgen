@@ -9,9 +9,10 @@ can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
 
+from __future__ import annotations
+
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Tuple
 
 from monty.json import MSONable
 from scipy.constants import N_A
@@ -58,7 +59,7 @@ class AbstractVoltagePair(MSONable):
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
-        # ensure the the frame work is a reduced composition
+        # ensure the frame work is a reduced composition
         self.framework_formula = self.framework.reduced_formula
 
     @property
@@ -135,12 +136,12 @@ class AbstractElectrode(Sequence, MSONable):
         framework_formula: The compositions of one formula unit of the host material
     """
 
-    voltage_pairs: Tuple[AbstractVoltagePair, ...]
+    voltage_pairs: tuple[AbstractVoltagePair, ...]
     working_ion_entry: ComputedEntry
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
-        # ensure the the frame work is a reduced composition
+        # ensure the frame work is a reduced composition
         self.framework_formula = self.framework.reduced_formula
 
     def __getitem__(self, index):
@@ -400,9 +401,8 @@ class AbstractElectrode(Sequence, MSONable):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
-
         d = {
             "average_voltage": self.get_average_voltage(),
             "max_voltage": self.max_voltage,

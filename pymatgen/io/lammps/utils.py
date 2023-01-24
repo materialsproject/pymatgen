@@ -5,6 +5,8 @@
 This module defines utility classes and functions.
 """
 
+from __future__ import annotations
+
 import os
 import tempfile
 from shutil import which
@@ -185,7 +187,7 @@ class PackmolRunner:
         input_file="pack.inp",
         tolerance=2.0,
         filetype="xyz",
-        control_params={"maxit": 20, "nloop": 600},
+        control_params=None,
         auto_box=True,
         output_file="packed.xyz",
         bin="packmol",
@@ -224,7 +226,7 @@ class PackmolRunner:
         self.param_list = param_list
         self.input_file = input_file
         self.boxit = auto_box
-        self.control_params = control_params
+        self.control_params = control_params or {"maxit": 20, "nloop": 600}
         if not self.control_params.get("tolerance"):
             self.control_params["tolerance"] = tolerance
         if not self.control_params.get("filetype"):
@@ -259,7 +261,7 @@ class PackmolRunner:
             length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
             net_volume += (length**3.0) * float(self.param_list[idx]["number"])
         length = net_volume ** (1.0 / 3.0)
-        for idx, mol in enumerate(self.mols):
+        for idx, _mol in enumerate(self.mols):
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"
 
     def _write_input(self, input_dir="."):
@@ -267,9 +269,9 @@ class PackmolRunner:
         Write the packmol input file to the input directory.
 
         Args:
-            input_dir (string): path to the input directory
+            input_dir (str): path to the input directory
         """
-        with open(os.path.join(input_dir, self.input_file), "wt", encoding="utf-8") as inp:
+        with open(os.path.join(input_dir, self.input_file), "w", encoding="utf-8") as inp:
             for k, v in self.control_params.items():
                 inp.write(f"{k} {self._format_param_val(v)}\n")
             # write the structures of the constituent molecules to file and set
@@ -328,7 +330,6 @@ class PackmolRunner:
         """
         dump the molecule into pdb file with custom residue name and number.
         """
-
         # ugly hack to get around the openbabel issues with inconsistent
         # residue labelling.
         scratch = tempfile.gettempdir()
@@ -341,7 +342,7 @@ class PackmolRunner:
 
         # bma = BabelMolAdaptor(mol)
         pbm = pb.Molecule(bma._obmol)
-        for i, x in enumerate(pbm.residues):
+        for x in pbm.residues:
             x.OBResidue.SetName(name)
             x.OBResidue.SetNum(num)
 
@@ -372,7 +373,6 @@ class PackmolRunner:
         Returns:
             Molecule object
         """
-
         restore_site_props = residue_name is not None
 
         if restore_site_props and not hasattr(self, "map_residue_to_mol"):
@@ -416,7 +416,6 @@ class PackmolRunner:
         Returns:
             Molecule
         """
-
         # only for pdb
         if not self.control_params["filetype"] == "pdb":
             raise ValueError()
@@ -449,8 +448,8 @@ class LammpsRunner:
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         Args:
-            input_filename (string): input file name
-            bin (string): command to run, excluding the input file name
+            input_filename (str): input file name
+            bin (str): command to run, excluding the input file name
         """
         self.lammps_bin = bin.split()
         if not which(self.lammps_bin[-1]):

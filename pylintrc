@@ -56,7 +56,13 @@ ignore-patterns=^\.#
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis). It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=
+ignored-modules=scipy.special
+# reason: scipy.special is a C extension, causes:
+# pymatgen/io/vasp/optics.py:266:8: E1101: Module 'scipy.special' has no 'eval_hermite' member (no-member)
+# pymatgen/io/vasp/optics.py:278:8: E1101: Module 'scipy.special' has no 'eval_hermite' member (no-member)
+# pymatgen/io/vasp/optics.py:279:18: E1101: Module 'scipy.special' has no 'erf' member (no-member)
+# pymatgen/io/vasp/optics.py:300:27: E1101: Module 'scipy.special' has no 'erf' member (no-member)
+
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -150,10 +156,12 @@ disable=raw-checker-failed,
         useless-suppression,
         deprecated-pragma,
         use-symbolic-message-instead,
+        use-implicit-booleaness-not-comparison,
         C0103,
         W,
         R,
         E1120,
+	E1121,
         E1123,
         C0201,
         E0401,
@@ -162,6 +170,7 @@ disable=raw-checker-failed,
         C0114,
         C0115,
         C0116,
+        C0414,
         C0302,
        # C0209
 

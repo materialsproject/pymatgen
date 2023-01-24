@@ -5,6 +5,8 @@
 This module define the various drones used to assimilate data.
 """
 
+from __future__ import annotations
+
 import abc
 import glob
 import json
@@ -37,7 +39,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
     def assimilate(self, path):
         """
         Assimilate data in a directory path into a pymatgen object. Because of
-        the quirky nature of Python"s multiprocessing, the object must support
+        the quirky nature of Python's multiprocessing, the object must support
         pymatgen's as_dict() for parallel processing.
 
         Args:
@@ -334,12 +336,12 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the GaussianOutput object. See
                 :class:`pymatgen.io.gaussianio GaussianOutput`. The parameters
-                have to be one of python"s primitive types, i.e., list, dict of
+                have to be one of python's primitive types, i.e., list, dict of
                 strings and integers. If parameters is None, a default set of
                 parameters will be set.
             data (list): Output data to include. Has to be one of the properties
                 supported by the GaussianOutput object. The parameters have to
-                be one of python"s primitive types, i.e. list, dict of strings
+                be one of python's primitive types, i.e. list, dict of strings
                 and integers. If data is None, a default set will be set.
             file_extensions (list):
                 File extensions to be considered as Gaussian output files.

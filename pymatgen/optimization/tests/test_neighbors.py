@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -40,7 +42,7 @@ class NeighborsTestCase(PymatgenTest):
             lattice=np.array(lattice.matrix),
             tol=1e-8,
         )
-        self.assertEqual(len(nns[0]), 2)  # two neighbors
+        assert len(nns[0]) == 2  # two neighbors
 
         nns = find_points_in_spheres(
             all_coords=np.array(points),
@@ -49,7 +51,7 @@ class NeighborsTestCase(PymatgenTest):
             pbc=np.array([1, 1, 1], dtype=int),
             lattice=np.array(lattice.matrix),
         )
-        self.assertEqual(len(nns[0]), 12)
+        assert len(nns[0]) == 12
 
         nns = find_points_in_spheres(
             all_coords=np.array(points),
@@ -58,7 +60,7 @@ class NeighborsTestCase(PymatgenTest):
             pbc=np.array([True, False, False], dtype=int),
             lattice=np.array(lattice.matrix),
         )
-        self.assertEqual(len(nns[0]), 4)
+        assert len(nns[0]) == 4
 
 
 if __name__ == "__main__":

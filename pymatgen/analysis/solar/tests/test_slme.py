@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import os
 import unittest
 import warnings
+
+import pytest
 
 from pymatgen.analysis.solar.slme import optics, slme
 from pymatgen.util.testing import PymatgenTest
@@ -20,7 +24,7 @@ class SolarTest(PymatgenTest):
         en, abz, dirgap, indirgap = optics(path)
         abz = abz * 100.0
         eff = slme(en, abz, indirgap, indirgap, plot_current_voltage=False)
-        self.assertAlmostEqual(eff, 27.728998512472298, places=5)
+        assert eff == pytest.approx(27.728998512)
 
 
 if __name__ == "__main__":

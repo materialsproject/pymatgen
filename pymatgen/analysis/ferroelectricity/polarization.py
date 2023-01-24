@@ -47,6 +47,8 @@ determine the spontaneous polarization because it serves as a reference point.
 """
 
 
+from __future__ import annotations
+
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -208,7 +210,6 @@ class Polarization:
         convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb
             per centimeter**2
         """
-
         if not convert_to_muC_per_cm2:
             return self.p_elecs, self.p_ions
 
@@ -269,7 +270,6 @@ class Polarization:
             microCoulomb per centimeter**2
         all_in_polar: convert polarization to be in polar (final structure) polarization lattice
         """
-
         p_elec, p_ion = self.get_pelecs_and_pions()
         p_tot = p_elec + p_ion
         p_tot = np.array(p_tot)

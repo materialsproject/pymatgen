@@ -47,7 +47,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
         structure (Structure): Structure object.
@@ -57,7 +57,6 @@ class KPathBase(metaclass=abc.ABCMeta):
             and determine symmetric equivalence of points and lines
             in the BZ.
         """
-
         self._structure = structure
         self._latt = self._structure.lattice
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
@@ -153,7 +152,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     are returned for the reciprocal cell basis defined in the paper.
     """
 
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
         structure (Structure): Structure object.
@@ -952,7 +951,7 @@ class KPathSeek(KPathBase):
         get_path is not None,
         "SeeK-path needs to be installed to use the convention of Hinuma et al. (2015)",
     )
-    def __init__(self, structure: Structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
             structure (Structure): Structure object
@@ -960,10 +959,9 @@ class KPathSeek(KPathBase):
             angle_tolerance (float): Angle tolerance for symmetry finding.
             atol (float): Absolute tolerance used to determine edge cases
                 for settings of structures.
-            system_is_tri (boolean): Indicates if the system is time-reversal
+            system_is_tri (bool): Indicates if the system is time-reversal
                 invariant.
         """
-
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         positions = structure.frac_coords
@@ -1093,7 +1091,7 @@ class KPathLatimerMunro(KPathBase):
         """
         Args:
             structure (Structure): Structure object
-            has_magmoms (boolean): Whether the input structure contains
+            has_magmoms (bool): Whether the input structure contains
                 magnetic moments as site properties with the key 'magmom.'
                 Values may be in the form of 3-component vectors given in
                 the basis of the input lattice vectors, or as scalars, in
@@ -2288,7 +2286,6 @@ class KPathLatimerMunro(KPathBase):
         """
         Axes used in generating labels for Latimer-Munro convention
         """
-
         points = [
             [1, 0, 0],
             [0, 1, 0],
@@ -2325,7 +2322,6 @@ class KPathLatimerMunro(KPathBase):
         """
         Letters used in generating labels for the Latimer-Munro convention
         """
-
         symbols = [
             "a",
             "b",

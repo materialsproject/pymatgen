@@ -13,7 +13,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from functools import lru_cache
-from typing import cast
+from typing import List, Tuple, cast
 
 import numpy as np
 import pandas as pd
@@ -47,11 +47,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     def __init__(
         self,
-        symprec: float = None,
+        symprec: float | None = None,
         voltage: float = 200,
         beam_direction: tuple[int, int, int] = (0, 0, 1),
         camera_length: int = 160,
-        debye_waller_factors: dict[str, float] = None,
+        debye_waller_factors: dict[str, float] | None = None,
         cs: float = 1,
     ) -> None:
         """
@@ -131,7 +131,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        result_tuples = cast(list[tuple[int, int, int]], [tuple(x) for x in result.tolist()])
+        result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
         return result_tuples
 
     def get_interplanar_spacings(
@@ -280,14 +280,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def get_pattern(
         self,
         structure: Structure,
-        scaled: bool = None,
-        two_theta_range: tuple[float, float] = None,
+        scaled: bool | None = None,
+        two_theta_range: tuple[float, float] | None = None,
     ) -> pd.DataFrame:
         """
         Returns all relevant TEM DP info in a pandas dataframe.
         Args:
             structure (Structure): The input structure.
-            scaled (boolean): Required value for inheritance, does nothing in TEM pattern
+            scaled (bool): Required value for inheritance, does nothing in TEM pattern
             two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
         Returns:
             PandasDataFrame
@@ -307,10 +307,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         rows_list = []
         for dot in tem_dots:
             dict1 = {
-                "Pos": dot.position,
+                "Position": dot.position,
                 "(hkl)": dot.hkl,
-                "Intnsty (norm)": dot.intensity,
-                "Film rad": dot.film_radius,
+                "Intensity (norm)": dot.intensity,
+                "Film radius": dot.film_radius,
                 "Interplanar Spacing": dot.d_spacing,
             }
             rows_list.append(dict1)

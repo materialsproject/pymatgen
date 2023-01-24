@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -9,6 +11,7 @@ import warnings
 from shutil import which
 
 from monty.serialization import loadfn
+from pytest import approx
 
 from pymatgen.electronic_structure.bandstructure import BandStructure
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
@@ -53,47 +56,47 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_properties(self):
-        self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
+        assert self.bz.gap == approx(1.6644932121620404, abs=1e-4)
         array = self.bz._cond[300][102]
-        self.assertAlmostEqual(array[0][0] / 1e19, 7.5756518, 4)
-        self.assertAlmostEqual(array[0][2], -11.14679)
-        self.assertAlmostEqual(array[1][0], -88.203286)
-        self.assertAlmostEqual(array[2][2], 1.7133249e19)
+        assert array[0][0] / 1e19 == approx(7.5756518, abs=1e-4)
+        assert array[0][2] == approx(-11.14679)
+        assert array[1][0] == approx(-88.203286)
+        assert array[2][2] == approx(1.7133249e19)
         array = self.bz._seebeck[300][22]
-        self.assertAlmostEqual(array[0][1], 6.4546074e-22)
-        self.assertAlmostEqual(array[1][1], -0.00032073711)
-        self.assertAlmostEqual(array[1][2], -2.9868424e-24)
-        self.assertAlmostEqual(array[2][2], -0.0003126543)
+        assert array[0][1] == approx(6.4546074e-22)
+        assert array[1][1] == approx(-0.00032073711)
+        assert array[1][2] == approx(-2.9868424e-24)
+        assert array[2][2] == approx(-0.0003126543)
         array = self.bz._kappa[500][300]
-        self.assertAlmostEqual(array[0][1], 0.00014524309)
-        self.assertAlmostEqual(array[1][1], 328834400000000.0)
-        self.assertAlmostEqual(array[1][2], 3.7758069e-05)
-        self.assertAlmostEqual(array[2][2], 193943750000000.0)
-        self.assertAlmostEqual(self.bz._hall[400][800][1][0][0], 9.5623749e-28)
-        self.assertAlmostEqual(self.bz._hall[400][68][1][2][2], 6.5106975e-10)
-        self.assertAlmostEqual(self.bz.doping["p"][3], 1e18)
-        self.assertAlmostEqual(self.bz.mu_doping["p"][300][2], 0.1553770018406)
-        self.assertAlmostEqual(self.bz.mu_doping["n"][300][-1], 1.6486017632924719, 4)
-        self.assertAlmostEqual(self.bz._cond_doping["n"][800][3][1][1] / 1e16, 1.5564085, 4)
-        self.assertAlmostEqual(self.bz._seebeck_doping["p"][600][2][0][1] / 1e-23, 3.2860613, 4)
-        self.assertAlmostEqual(self.bz._carrier_conc[500][67], 38.22832002)
-        self.assertAlmostEqual(self.bz.vol, 612.97557323964838, 4)
-        self.assertAlmostEqual(self.bz.intrans["scissor"], 0.0, 1)
-        self.assertAlmostEqual(self.bz._hall_doping["n"][700][-1][2][2][2], 5.0136483e-26)
-        self.assertAlmostEqual(self.bz.dos.efermi, -0.0300005507057)
-        self.assertAlmostEqual(self.bz.dos.energies[0], -2.4497049391830448, 4)
-        self.assertAlmostEqual(self.bz.dos.energies[345], -0.72708823447130944, 4)
-        self.assertAlmostEqual(self.bz.dos.energies[-1], 3.7569398770153524, 4)
-        self.assertAlmostEqual(self.bz.dos.densities[Spin.up][400], 118.70171)
-        self.assertAlmostEqual(self.bz.dos.densities[Spin.up][200], 179.58562)
-        self.assertAlmostEqual(self.bz.dos.densities[Spin.up][300], 289.43945)
+        assert array[0][1] == approx(0.00014524309)
+        assert array[1][1] == approx(328834400000000.0)
+        assert array[1][2] == approx(3.7758069e-05)
+        assert array[2][2] == approx(193943750000000.0)
+        assert self.bz._hall[400][800][1][0][0] == approx(9.5623749e-28)
+        assert self.bz._hall[400][68][1][2][2] == approx(6.5106975e-10)
+        assert self.bz.doping["p"][3] == approx(1e18)
+        assert self.bz.mu_doping["p"][300][2] == approx(0.1553770018406)
+        assert self.bz.mu_doping["n"][300][-1] == approx(1.6486017632924719, abs=1e-4)
+        assert self.bz._cond_doping["n"][800][3][1][1] / 1e16 == approx(1.5564085, abs=1e-4)
+        assert self.bz._seebeck_doping["p"][600][2][0][1] / 1e-23 == approx(3.2860613, abs=1e-4)
+        assert self.bz._carrier_conc[500][67] == approx(38.22832002)
+        assert self.bz.vol == approx(612.97557323964838, abs=1e-4)
+        assert self.bz.intrans["scissor"] == approx(0.0, abs=1e-1)
+        assert self.bz._hall_doping["n"][700][-1][2][2][2] == approx(5.0136483e-26)
+        assert self.bz.dos.efermi == approx(-0.0300005507057)
+        assert self.bz.dos.energies[0] == approx(-2.4497049391830448, abs=1e-4)
+        assert self.bz.dos.energies[345] == approx(-0.72708823447130944, abs=1e-4)
+        assert self.bz.dos.energies[-1] == approx(3.7569398770153524, abs=1e-4)
+        assert self.bz.dos.densities[Spin.up][400] == approx(118.70171)
+        assert self.bz.dos.densities[Spin.up][200] == approx(179.58562)
+        assert self.bz.dos.densities[Spin.up][300] == approx(289.43945)
 
-        self.assertAlmostEqual(self.bz_bands._bz_bands.shape, (1316, 20))
-        self.assertAlmostEqual(self.bz_bands._bz_kpoints.shape, (1316, 3))
-        self.assertAlmostEqual(self.bz_up._dos_partial["0"]["pz"][2562], 0.023862958)
-        self.assertAlmostEqual(self.bz_dw._dos_partial["1"]["px"][3120], 5.0192891)
-        self.assertAlmostEqual(self.bz_fermi.fermi_surface_data.shape, (121, 121, 65))
-        self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[21][79][19], -1.8831911809439161, 5)
+        assert self.bz_bands._bz_bands.shape == approx((1316, 20))
+        assert self.bz_bands._bz_kpoints.shape == approx((1316, 3))
+        assert self.bz_up._dos_partial["0"]["pz"][2562] == approx(0.023862958)
+        assert self.bz_dw._dos_partial["1"]["px"][3120] == approx(5.0192891)
+        assert self.bz_fermi.fermi_surface_data.shape == approx((121, 121, 65))
+        assert self.bz_fermi.fermi_surface_data[21][79][19] == approx(-1.8831911809439161, abs=1e-5)
 
     @unittest.skipIf(not fdint, "No FDINT")
     def test_get_seebeck_eff_mass(self):
@@ -105,11 +108,11 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(output="average", doping_levels=True, temp=300)["n"][2]
 
         for i in range(0, 3):
-            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 1)
-            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
+            assert sbk_mass_tens_mu[i] == approx(ref2[i], abs=1e-1)
+            assert sbk_mass_tens_dop[i] == approx(ref[i], abs=1e-4)
 
-        self.assertAlmostEqual(sbk_mass_avg_mu, 4361.4744008038842, 1)
-        self.assertAlmostEqual(sbk_mass_avg_dop, 1.661553842105382, 4)
+        assert sbk_mass_avg_mu == approx(4361.4744008038842, abs=1e-1)
+        assert sbk_mass_avg_dop == approx(1.661553842105382, abs=1e-4)
 
     @unittest.skipIf(not fdint, "No FDINT")
     def test_get_complexity_factor(self):
@@ -121,105 +124,87 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         sbk_mass_avg_dop = self.bz.get_complexity_factor(output="average", doping_levels=True, temp=300)["n"][2]
 
         for i in range(0, 3):
-            self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 4)
-            self.assertAlmostEqual(sbk_mass_tens_dop[i], ref[i], 4)
+            assert sbk_mass_tens_mu[i] == approx(ref2[i], abs=1e-4)
+            assert sbk_mass_tens_dop[i] == approx(ref[i], abs=1e-4)
 
-        self.assertAlmostEqual(sbk_mass_avg_mu, 0.00628677029221, 4)
-        self.assertAlmostEqual(sbk_mass_avg_dop, 1.12322832119, 4)
+        assert sbk_mass_avg_mu == approx(0.00628677029221, abs=1e-4)
+        assert sbk_mass_avg_dop == approx(1.12322832119, abs=1e-4)
 
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_seebeck()["n"][800][3][i], ref[i])
-        self.assertAlmostEqual(self.bz.get_seebeck(output="average")["p"][800][3], 697.608936667)
-        self.assertAlmostEqual(
-            self.bz.get_seebeck(output="average", doping_levels=False)[500][520],
-            1266.7056,
-        )
-        self.assertAlmostEqual(
-            self.bz.get_seebeck(output="average", doping_levels=False)[300][65],
-            -36.2459389333,
+            assert self.bz.get_seebeck()["n"][800][3][i] == approx(ref[i])
+        assert self.bz.get_seebeck(output="average")["p"][800][3] == approx(697.608936667)
+        assert self.bz.get_seebeck(output="average", doping_levels=False)[500][520] == approx(1266.7056)
+        assert self.bz.get_seebeck(output="average", doping_levels=False)[300][65] == approx(
+            -36.2459389333
         )  # TODO: this was originally "eigs"
 
     def test_get_conductivity(self):
         ref = [5.9043185000000022, 17.855599000000002, 26.462935000000002]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_conductivity()["p"][600][2][i], ref[i])
-        self.assertAlmostEqual(self.bz.get_conductivity(output="average")["n"][700][1], 1.58736609667)
-        self.assertAlmostEqual(
-            self.bz.get_conductivity(output="average", doping_levels=False)[300][457],
-            2.87163566667,
-        )
-        self.assertAlmostEqual(
-            self.bz.get_conductivity(
-                output="average",
-                doping_levels=False,
-                # TODO: this was originally "eigs"
-                relaxation_time=1e-15,
-            )[200][63],
-            16573.0536667,
-        )
+            assert self.bz.get_conductivity()["p"][600][2][i] == approx(ref[i])
+        assert self.bz.get_conductivity(output="average")["n"][700][1] == approx(1.58736609667)
+        assert self.bz.get_conductivity(output="average", doping_levels=False)[300][457] == approx(2.87163566667)
+        assert self.bz.get_conductivity(
+            output="average",
+            doping_levels=False,
+            # TODO: this was originally "eigs"
+            relaxation_time=1e-15,
+        )[200][63] == approx(16573.0536667)
 
     def test_get_power_factor(self):
         ref = [6.2736602345523362, 17.900184232304138, 26.158282220458144]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_power_factor()["p"][200][2][i], ref[i])
-        self.assertAlmostEqual(self.bz.get_power_factor(output="average")["n"][600][4], 411.230962976)
-        self.assertAlmostEqual(
-            self.bz.get_power_factor(output="average", doping_levels=False, relaxation_time=1e-15)[500][459],
-            6.59277148467,
-        )
-        self.assertAlmostEqual(
-            self.bz.get_power_factor(output="average", doping_levels=False)[800][61],
-            2022.67064134,
+            assert self.bz.get_power_factor()["p"][200][2][i] == approx(ref[i])
+        assert self.bz.get_power_factor(output="average")["n"][600][4] == approx(411.230962976)
+        assert self.bz.get_power_factor(output="average", doping_levels=False, relaxation_time=1e-15)[500][
+            459
+        ] == approx(6.59277148467)
+        assert self.bz.get_power_factor(output="average", doping_levels=False)[800][61] == approx(
+            2022.67064134
         )  # TODO: this was originally "eigs"
 
     def test_get_thermal_conductivity(self):
         ref = [2.7719565628862623e-05, 0.00010048046886793946, 0.00015874549392499391]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_thermal_conductivity()["p"][300][2][i], ref[i])
-        self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(output="average", relaxation_time=1e-15)["n"][500][0],
-            1.74466575612e-07,
+            assert self.bz.get_thermal_conductivity()["p"][300][2][i] == approx(ref[i])
+        assert self.bz.get_thermal_conductivity(output="average", relaxation_time=1e-15)["n"][500][0] == approx(
+            1.74466575612e-07
         )
-        self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(output="average", doping_levels=False)[800][874],
-            8.08066254813,
+        assert self.bz.get_thermal_conductivity(output="average", doping_levels=False)[800][874] == approx(
+            8.08066254813
         )
-        self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(output="average", doping_levels=False)[200][32],
-            # TODO: this was originally "eigs"
-            0.0738961845832,
+        assert self.bz.get_thermal_conductivity(output="average", doping_levels=False)[200][32] == approx(
+            0.0738961845832
         )
-        self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(k_el=False, output="average", doping_levels=False)[200][32],
-            0.19429052,
+        assert self.bz.get_thermal_conductivity(k_el=False, output="average", doping_levels=False)[200][32] == approx(
+            0.19429052
         )
 
     def test_get_zt(self):
         ref = [0.097408810215, 0.29335112354, 0.614673998089]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_zt()["n"][800][4][i], ref[i])
-        self.assertAlmostEqual(self.bz.get_zt(output="average", kl=0.5)["p"][700][2], 0.0170001879916)
-        self.assertAlmostEqual(
-            self.bz.get_zt(output="average", doping_levels=False, relaxation_time=1e-15)[300][240],
-            0.0041923533238348342,
+            assert self.bz.get_zt()["n"][800][4][i] == approx(ref[i])
+        assert self.bz.get_zt(output="average", kl=0.5)["p"][700][2] == approx(0.0170001879916)
+        assert self.bz.get_zt(output="average", doping_levels=False, relaxation_time=1e-15)[300][240] == approx(
+            0.0041923533238348342
         )
 
         eigs = self.bz.get_zt(output="eigs", doping_levels=False)[700][65]
         ref_eigs = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
         for idx, val in enumerate(ref_eigs):
-            self.assertAlmostEqual(eigs[idx], val, 5)
+            assert eigs[idx] == approx(val, abs=1e-5)
 
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_average_eff_mass()["p"][300][2][i], ref[i])
+            assert self.bz.get_average_eff_mass()["p"][300][2][i] == approx(ref[i])
         ref = [1.1295783824744523, 1.3898454041924351, 5.2459984671977935]
         ref2 = [6.6648842712692078, 31.492540105738343, 37.986369302138954]
         for i in range(0, 3):
-            self.assertAlmostEqual(self.bz.get_average_eff_mass()["n"][600][1][i], ref[i])
-            self.assertAlmostEqual(self.bz.get_average_eff_mass(doping_levels=False)[300][200][i], ref2[i])
+            assert self.bz.get_average_eff_mass()["n"][600][1][i] == approx(ref[i])
+            assert self.bz.get_average_eff_mass(doping_levels=False)[300][200][i] == approx(ref2[i])
         ref = [
             [9.61811430e-01, -8.25159596e-19, -4.70319444e-19],
             [-8.25159596e-19, 2.94284288e00, 3.00368916e-18],
@@ -233,37 +218,19 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
 
         for i in range(0, 3):
             for j in range(0, 3):
-                self.assertAlmostEqual(
-                    self.bz.get_average_eff_mass(output="tensor")["p"][300][2][i][j],
-                    ref[i][j],
-                    4,
+                assert self.bz.get_average_eff_mass(output="tensor")["p"][300][2][i][j] == approx(ref[i][j], abs=1e-4)
+                assert self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500][i][j] == approx(
+                    ref2[i][j], 4
                 )
-                self.assertAlmostEqual(
-                    self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500][i][j],
-                    ref2[i][j],
-                    4,
-                )
-        self.assertAlmostEqual(
-            self.bz.get_average_eff_mass(output="average")["n"][300][2],
-            1.53769093989,
-            4,
-        )
+        assert self.bz.get_average_eff_mass(output="average")["n"][300][2] == approx(1.53769093989, abs=1e-4)
 
     def test_get_carrier_concentration(self):
-        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][39] / 1e22, 6.4805156617179151, 4)
-        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][693] / 1e15, -6.590800965604750, 4)
+        assert self.bz.get_carrier_concentration()[300][39] / 1e22 == approx(6.4805156617179151, abs=1e-4)
+        assert self.bz.get_carrier_concentration()[300][693] / 1e15 == approx(-6.590800965604750, abs=1e-4)
 
     def test_get_hall_carrier_concentration(self):
-        self.assertAlmostEqual(
-            self.bz.get_hall_carrier_concentration()[600][120] / 1e21,
-            6.773394626767555,
-            4,
-        )
-        self.assertAlmostEqual(
-            self.bz.get_hall_carrier_concentration()[500][892] / 1e21,
-            -9.136803845741777,
-            4,
-        )
+        assert self.bz.get_hall_carrier_concentration()[600][120] / 1e21 == approx(6.773394626767555, abs=1e-4)
+        assert self.bz.get_hall_carrier_concentration()[500][892] / 1e21 == approx(-9.136803845741777, abs=1e-4)
 
     def test_get_symm_bands(self):
         structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))
@@ -272,8 +239,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
         for kpt_line, label_dict in zip([None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]):
             sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548, kpt_line=kpt_line, labels_dict=label_dict)
-            self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up]), 20)
-            self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up][1]), 143)
+            assert len(sbs_bzt.bands[Spin.up]) == approx(20)
+            assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
     # def test_check_acc_bzt_bands(self):
     #     structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR,'boltztrap/structure_mp-12103.json'))
@@ -289,35 +256,29 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))
         cdos = self.bz_up.get_complete_dos(structure, self.bz_dw)
         spins = list(cdos.densities)
-        self.assertIn(Spin.down, spins)
-        self.assertIn(Spin.up, spins)
-        self.assertAlmostEqual(
-            cdos.get_spd_dos()[OrbitalType.p].densities[Spin.up][3134],
-            43.839230100999991,
-        )
-        self.assertAlmostEqual(
-            cdos.get_spd_dos()[OrbitalType.s].densities[Spin.down][716],
-            6.5383268000000001,
-        )
+        assert Spin.down in spins
+        assert Spin.up in spins
+        assert cdos.get_spd_dos()[OrbitalType.p].densities[Spin.up][3134] == approx(43.839230100999991)
+        assert cdos.get_spd_dos()[OrbitalType.s].densities[Spin.down][716] == approx(6.5383268000000001)
 
     def test_extreme(self):
         x = self.bz.get_extreme("seebeck")
-        self.assertEqual(x["best"]["carrier_type"], "n")
-        self.assertAlmostEqual(x["p"]["value"], 1255.365, 2)
-        self.assertEqual(x["n"]["isotropic"], True)
-        self.assertEqual(x["n"]["temperature"], 600)
+        assert x["best"]["carrier_type"] == "n"
+        assert x["p"]["value"] == approx(1255.365, abs=1e-2)
+        assert x["n"]["isotropic"] is True
+        assert x["n"]["temperature"] == 600
 
         x = self.bz.get_extreme("kappa", maximize=False, min_temp=400, min_doping=1e20)
-        self.assertAlmostEqual(x["best"]["value"], 0.105, 2)
-        self.assertAlmostEqual(x["n"]["value"], 0.139, 2)
-        self.assertEqual(x["p"]["temperature"], 400)
-        self.assertEqual(x["n"]["isotropic"], False)
+        assert x["best"]["value"] == approx(0.105, abs=1e-2)
+        assert x["n"]["value"] == approx(0.139, abs=1e-2)
+        assert x["p"]["temperature"] == 400
+        assert x["n"]["isotropic"] is False
 
     def test_to_from_dict(self):
         btr_dict = self.btr.as_dict()
         s = json.dumps(btr_dict)
-        self.assertIsNotNone(s)
-        self.assertIsNotNone(btr_dict["bs"])
+        assert s is not None
+        assert btr_dict["bs"] is not None
 
 
 if __name__ == "__main__":

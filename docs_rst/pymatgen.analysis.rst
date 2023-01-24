@@ -10,7 +10,6 @@ Subpackages
    :maxdepth: 7
 
    pymatgen.analysis.chemenv
-   pymatgen.analysis.defects
    pymatgen.analysis.diffraction
    pymatgen.analysis.elasticity
    pymatgen.analysis.ferroelectricity
@@ -34,6 +33,7 @@ Submodules
    pymatgen.analysis.chempot_diagram
    pymatgen.analysis.cost
    pymatgen.analysis.dimensionality
+   pymatgen.analysis.disorder
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald

@@ -18,10 +18,8 @@ from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
-__email__ = "b.wood@berkeley.edu"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
@@ -50,6 +48,8 @@ class QCInput(InputFile):
         plots: dict | None = None,
         nbo: dict | None = None,
         geom_opt: dict | None = None,
+        svp: dict | None = None,
+        pcm_nonels: dict | None = None,
     ):
         """
         Args:
@@ -97,7 +97,6 @@ class QCInput(InputFile):
             geom_opt (dict):
                     A dictionary of input parameters for the geom_opt section of the QChem input file.
                     This section is required when using the new libopt3 geometry optimizer.
-
         """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
@@ -111,6 +110,8 @@ class QCInput(InputFile):
         self.plots = lower_and_check_unique(plots)
         self.nbo = lower_and_check_unique(nbo)
         self.geom_opt = lower_and_check_unique(geom_opt)
+        self.svp = lower_and_check_unique(svp)
+        self.pcm_nonels = lower_and_check_unique(pcm_nonels)
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -195,6 +196,13 @@ class QCInput(InputFile):
         if self.geom_opt is not None:
             combined_list.append(self.geom_opt_template(self.geom_opt))
             combined_list.append("")
+        # svp section
+        if self.svp:
+            combined_list.append(self.svp_template(self.svp))
+            combined_list.append("")
+        # pcm_nonels section
+        if self.pcm_nonels:
+            combined_list.append(self.pcm_nonels_template(self.pcm_nonels))
         return "\n".join(combined_list)
 
     @staticmethod
@@ -239,6 +247,8 @@ class QCInput(InputFile):
         plots = None
         nbo = None
         geom_opt = None
+        svp = None
+        pcm_nonels = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -257,6 +267,10 @@ class QCInput(InputFile):
             nbo = cls.read_nbo(string)
         if "geom_opt" in sections:
             geom_opt = cls.read_geom_opt(string)
+        if "svp" in sections:
+            svp = cls.read_svp(string)
+        if "pcm_nonels" in sections:
+            pcm_nonels = cls.read_pcm_nonels(string)
         return cls(
             molecule,
             rem,
@@ -270,6 +284,8 @@ class QCInput(InputFile):
             plots=plots,
             nbo=nbo,
             geom_opt=geom_opt,
+            svp=svp,
+            pcm_nonels=pcm_nonels,
         )
 
     @staticmethod
@@ -430,6 +446,9 @@ class QCInput(InputFile):
         for key, value in smx.items():
             if value == "tetrahydrofuran":
                 smx_list.append(f"   {key} thf")
+            # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
+            elif value == "dimethyl sulfoxide":
+                smx_list.append(f"   {key} dmso")
             else:
                 smx_list.append(f"   {key} {value}")
         smx_list.append("$end")
@@ -521,13 +540,34 @@ class QCInput(InputFile):
         return "\n".join(nbo_list)
 
     @staticmethod
+    def svp_template(svp: dict) -> str:
+        """
+        Template for the $svp section.
+
+        Args:
+            svp: dict of SVP parameters, e.g.
+            {"rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
+
+        Returns:
+            str: the $svp section. Note that all parameters will be concatenated onto
+                 a single line formatted as a FORTRAN namelist. This is necessary
+                 because the isodensity SS(V)PE model in Q-Chem calls a secondary code.
+        """
+        svp_list = []
+        svp_list.append("$svp")
+        param_list = [f"{_key}={value}" for _key, value in svp.items()]
+        svp_list.append(", ".join(param_list))
+        svp_list.append("$end")
+        return "\n".join(svp_list)
+
+    @staticmethod
     def geom_opt_template(geom_opt: dict) -> str:
         """
         Args:
             geom_opt ():
 
         Returns:
-            (str)
+            (str) geom_opt parameters.
         """
         geom_opt_list = []
         geom_opt_list.append("$geom_opt")
@@ -535,6 +575,36 @@ class QCInput(InputFile):
             geom_opt_list.append(f"   {key} = {value}")
         geom_opt_list.append("$end")
         return "\n".join(geom_opt_list)
+
+    @staticmethod
+    def pcm_nonels_template(pcm_nonels: dict) -> str:
+        """
+        Template for the $pcm_nonels section.
+
+        Arg
+            pcm_nonels: dict of CMIRS parameters, e.g.
+            {
+                "a": "-0.006736",
+                "b": "0.032698",
+                "c": "-1249.6",
+                "d": "-21.405",
+                "gamma": "3.7",
+                "solvrho": "0.05",
+                "delta": 7,
+                "gaulag_n": 40,
+            }
+
+        Returns:
+            (str)
+        """
+        pcm_nonels_list = []
+        pcm_nonels_list.append("$pcm_nonels")
+        for key, value in pcm_nonels.items():
+            # if the value is None, don't write it to output
+            if value is not None:
+                pcm_nonels_list.append(f"   {key} {value}")
+        pcm_nonels_list.append("$end")
+        return "\n".join(pcm_nonels_list)
 
     @staticmethod
     def find_sections(string: str) -> list:
@@ -768,6 +838,9 @@ class QCInput(InputFile):
             smx[key] = val
         if smx["solvent"] == "tetrahydrofuran":
             smx["solvent"] = "thf"
+        # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
+        elif smx["solvent"] == "dimethyl sulfoxide":
+            smx["solvent"] = "dmso"
         return smx
 
     @staticmethod
@@ -873,3 +946,45 @@ class QCInput(InputFile):
         for key, val in geom_opt_table[0]:
             geom_opt[key] = val
         return geom_opt
+
+    @staticmethod
+    def read_svp(string: str) -> dict:
+        """
+        Read svp parameters from string.
+        """
+        header = r"^\s*\$svp"
+        row = r"(\w.*)\n"
+        footer = r"^\s*\$end"
+        svp_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if svp_table == []:
+            print("No valid svp inputs found.")
+            return {}
+        svp_list = svp_table[0][0][0].split(", ")
+        svp_dict = {}
+        for s in svp_list:
+            svp_dict[s.split("=")[0]] = s.split("=")[1]
+        return svp_dict
+
+    @staticmethod
+    def read_pcm_nonels(string: str) -> dict:
+        """
+        Read pcm_nonels parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) PCM parameters
+        """
+        header = r"^\s*\$pcm_nonels"
+        row = r"\s*([a-zA-Z\_]+)\s+(.+)"
+        footer = r"^\s*\$end"
+        pcm_nonels_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if not pcm_nonels_table:
+            print(
+                "No valid $pcm_nonels inputs found. Note that there should be no '=' "
+                "characters in $pcm_nonels input lines."
+            )
+            return {}
+
+        return dict(pcm_nonels_table[0])

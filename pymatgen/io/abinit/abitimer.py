@@ -5,6 +5,8 @@ This module provides objects for extracting timing data from the ABINIT output f
 It also provides tools to analyze and to visualize the parallel efficiency.
 """
 
+from __future__ import annotations
+
 import collections
 import logging
 import os
@@ -42,7 +44,6 @@ class AbinitTimerParser(collections.abc.Iterable):
     Assume the Abinit output files have been produced with `timopt -1`.
 
     Example:
-
         parser = AbinitTimerParser()
         parser.parse(list_of_files)
 
@@ -71,7 +72,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             (okfiles == paths) if all files have been parsed.
         """
         paths = []
-        for root, dirs, files in os.walk(top):
+        for root, _dirs, files in os.walk(top):
             for f in files:
                 if f.endswith(ext):
                     paths.append(os.path.join(root, f))
@@ -221,10 +222,10 @@ class AbinitTimerParser(collections.abc.Iterable):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
                 # check = section_names
-                # else:
-                #  new_set = set( [s.name for s in timer.order_sections(ordkey)])
-                #  section_names.intersection_update(new_set)
-                #  check = check.union(new_set)
+            # else:
+            #     new_set = {s.name for s in timer.order_sections(ordkey)}
+            #     section_names.intersection_update(new_set)
+            #     check = check | new_set
 
         # if check != section_names:
         #  print("sections", section_names)
@@ -315,7 +316,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ]
 
         frame = pd.DataFrame(columns=colnames)
-        for i, timer in enumerate(self.timers()):
+        for timer in self.timers():
             frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
 
@@ -465,7 +466,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             else:
                 rest += svals
 
-        names.append(f"others (nmax={nmax})")
+        names.append(f"others ({nmax=})")
         values.append(rest)
 
         # The dataset is stored in values. Now create the stacked histogram.
@@ -644,7 +645,7 @@ class AbinitTimerSection:
         """String representation."""
         string = ""
         for a in AbinitTimerSection.FIELDS:
-            string += a + " = " + self.__dict__[a] + ","
+            string = f"{a} = {self.__dict__[a]},"
         return string[:-1]
 
 
@@ -708,16 +709,14 @@ class AbinitTimer:
 
     def to_table(self, sort_key="wall_time", stop=None):
         """Return a table (list of lists) with timer data"""
-        table = [
-            list(AbinitTimerSection.FIELDS),
-        ]
+        table = [list(AbinitTimerSection.FIELDS)]
         ord_sections = self.order_sections(sort_key)
 
         if stop is not None:
             ord_sections = ord_sections[:stop]
 
         for osect in ord_sections:
-            row = [str(item) for item in osect.to_tuple()]
+            row = list(map(str, osect.to_tuple()))
             table.append(row)
 
         return table

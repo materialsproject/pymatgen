@@ -6,17 +6,18 @@ This module provides plotting capabilities for battery related applications.
 """
 
 
+from __future__ import annotations
+
+import plotly.graph_objects as go
+
+from pymatgen.util.plotting import pretty_plot
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 12, 2012"
-
-
-import plotly.graph_objects as go
-
-from pymatgen.util.plotting import pretty_plot
 
 
 class VoltageProfilePlotter:
@@ -137,7 +138,6 @@ class VoltageProfilePlotter:
             **kwargs:
 
         Returns:
-
         """
         font_dict = dict(family="Arial", size=24, color="#000000") if font_dict is None else font_dict
         hover_temp = "Voltage : %{y:.2f} V"

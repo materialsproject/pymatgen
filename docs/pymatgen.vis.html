@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.vis package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.vis package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,10 +98,10 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-      <li>pymatgen.vis package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.vis package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.vis.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -124,9 +122,71 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.vis.plotters.html">pymatgen.vis.plotters module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.vis.structure_chemview.html">pymatgen.vis.structure_chemview module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.vis.structure_vtk.html">pymatgen.vis.structure_vtk module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.vis.plotters.html">pymatgen.vis.plotters module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.vis.plotters.html#pymatgen.vis.plotters.SpectrumPlotter"><code class="docutils literal notranslate"><span class="pre">SpectrumPlotter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.plotters.html#pymatgen.vis.plotters.SpectrumPlotter.add_spectra"><code class="docutils literal notranslate"><span class="pre">SpectrumPlotter.add_spectra()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.plotters.html#pymatgen.vis.plotters.SpectrumPlotter.add_spectrum"><code class="docutils literal notranslate"><span class="pre">SpectrumPlotter.add_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.plotters.html#pymatgen.vis.plotters.SpectrumPlotter.get_plot"><code class="docutils literal notranslate"><span class="pre">SpectrumPlotter.get_plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.plotters.html#pymatgen.vis.plotters.SpectrumPlotter.save_plot"><code class="docutils literal notranslate"><span class="pre">SpectrumPlotter.save_plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.plotters.html#pymatgen.vis.plotters.SpectrumPlotter.show"><code class="docutils literal notranslate"><span class="pre">SpectrumPlotter.show()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.vis.structure_chemview.html">pymatgen.vis.structure_chemview module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.vis.structure_chemview.html#pymatgen.vis.structure_chemview.quick_view"><code class="docutils literal notranslate"><span class="pre">quick_view()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.vis.structure_vtk.html">pymatgen.vis.structure_vtk module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle"><code class="docutils literal notranslate"><span class="pre">MultiStructuresInteractorStyle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent"><code class="docutils literal notranslate"><span class="pre">MultiStructuresInteractorStyle.keyPressEvent()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.apply_tags()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.display_help"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.display_help()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.display_info"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.display_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.display_warning()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.erase_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.erase_warning()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.set_animated_movie_options()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.set_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures"><code class="docutils literal notranslate"><span class="pre">MultiStructuresVis.set_structures()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle"><code class="docutils literal notranslate"><span class="pre">StructureInteractorStyle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent"><code class="docutils literal notranslate"><span class="pre">StructureInteractorStyle.keyPressEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent"><code class="docutils literal notranslate"><span class="pre">StructureInteractorStyle.leftButtonPressEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent"><code class="docutils literal notranslate"><span class="pre">StructureInteractorStyle.leftButtonReleaseEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent"><code class="docutils literal notranslate"><span class="pre">StructureInteractorStyle.mouseMoveEvent()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis"><code class="docutils literal notranslate"><span class="pre">StructureVis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_bonds"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_bonds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_edges"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_faces"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_faces()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_line"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_line()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_partial_sphere()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_picker"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_picker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_picker_fixed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_polyhedron()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_site"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_site()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_text"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_triangle"><code class="docutils literal notranslate"><span class="pre">StructureVis.add_triangle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.display_help"><code class="docutils literal notranslate"><span class="pre">StructureVis.display_help()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure"><code class="docutils literal notranslate"><span class="pre">StructureVis.orthongonalize_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.redraw"><code class="docutils literal notranslate"><span class="pre">StructureVis.redraw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.rotate_view"><code class="docutils literal notranslate"><span class="pre">StructureVis.rotate_view()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.set_structure"><code class="docutils literal notranslate"><span class="pre">StructureVis.set_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.show"><code class="docutils literal notranslate"><span class="pre">StructureVis.show()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.write_image"><code class="docutils literal notranslate"><span class="pre">StructureVis.write_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.zoom"><code class="docutils literal notranslate"><span class="pre">StructureVis.zoom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.make_movie"><code class="docutils literal notranslate"><span class="pre">make_movie()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

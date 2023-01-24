@@ -5,6 +5,14 @@
 This module contains some math utils that are used in the chemenv package.
 """
 
+from __future__ import annotations
+
+from functools import reduce
+from math import sqrt
+
+import numpy as np
+from scipy.special import erf
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -12,12 +20,6 @@ __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
-
-from functools import reduce
-from math import sqrt
-
-import numpy as np
-from scipy.special import erf
 
 ##############################################################
 # Cartesian product of lists ##################################

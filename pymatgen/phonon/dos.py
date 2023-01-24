@@ -5,6 +5,8 @@
 This module defines classes to represent the phonon density of states, etc.
 """
 
+from __future__ import annotations
+
 import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
@@ -56,7 +58,6 @@ class PhononDos(MSONable):
         Returns:
             Gaussian-smeared densities.
         """
-
         from scipy.ndimage.filters import gaussian_filter1d
 
         diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
@@ -91,7 +92,6 @@ class PhononDos(MSONable):
         Returns:
             Sum of the two DOSs.
         """
-
         return self.__add__(other)
 
     def get_interpolated_value(self, frequency):
@@ -170,7 +170,6 @@ class PhononDos(MSONable):
         Returns:
             Constant volume specific heat C_v
         """
-
         if t == 0:
             return 0
 
@@ -206,7 +205,6 @@ class PhononDos(MSONable):
         Returns:
             Vibrational entropy
         """
-
         if t == 0:
             return 0
 
@@ -240,7 +238,6 @@ class PhononDos(MSONable):
         Returns:
             Phonon contribution to the internal energy
         """
-
         if t == 0:
             return self.zero_point_energy(structure=structure)
 
@@ -274,7 +271,6 @@ class PhononDos(MSONable):
         Returns:
             Phonon contribution to the Helmholtz free energy
         """
-
         if t == 0:
             return self.zero_point_energy(structure=structure)
 
@@ -294,7 +290,7 @@ class PhononDos(MSONable):
 
     def zero_point_energy(self, structure=None):
         """
-        Zero point energy energy of the system. Only positive frequencies will be used.
+        Zero point energy of the system. Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
@@ -306,7 +302,6 @@ class PhononDos(MSONable):
         Returns:
             Phonon contribution to the internal energy
         """
-
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
@@ -359,7 +354,6 @@ class CompletePhononDos(PhononDos):
         Returns:
             dict of {Element: Dos}
         """
-
         el_dos = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie

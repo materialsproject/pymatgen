@@ -3,7 +3,7 @@
 
 """
 This module defines the abstract interface for reading and writing calculation
-inputs in pymatgen. The interface comprises a 3-tiered hierarchy of clases.
+inputs in pymatgen. The interface comprises a 3-tiered hierarchy of classes.
 
 1. An InputFile object represents the contents of a single input file, e.g.
    the INCAR. This class standardizes file read and write operations.
@@ -117,7 +117,7 @@ class InputSet(MSONable, MutableMapping):
     is optional.
     """
 
-    def __init__(self, inputs: dict[str | Path, str | InputFile] = None, **kwargs):
+    def __init__(self, inputs: dict[str | Path, str | InputFile] | None = None, **kwargs):
         """
         Instantiate an InputSet.
 
@@ -139,7 +139,7 @@ class InputSet(MSONable, MutableMapping):
         # allow accessing keys as attributes
         if k in self._kwargs:
             return self.get(k)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{k}'")
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute {k!r}")
 
     def __len__(self):
         return len(self.inputs)
@@ -155,9 +155,6 @@ class InputSet(MSONable, MutableMapping):
 
     def __delitem__(self, key):
         del self.inputs[key]
-
-    def __eq__(self, other):
-        return (self.inputs == other.inputs) and (self.__dict__ == other.__dict__)
 
     def write_input(
         self,

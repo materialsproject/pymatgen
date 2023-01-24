@@ -11,11 +11,13 @@ tries to fit multiple functions to the x, y data
 
 calculates which function fits best
 for tol < 0
-returns the x value for which y is converged within tol of the assymtotic value
+returns the x value for which y is converged within tol of the asymptotic value
 for tol > 0
 returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists
-for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value
+for the best fit a gnuplot line is printed plotting the data, the function and the asymptotic value
 """
+
+from __future__ import annotations
 
 import random
 import string
@@ -23,7 +25,6 @@ import string
 import numpy as np
 
 __author__ = "Michiel van Setten"
-__copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
@@ -480,7 +481,7 @@ def multi_reciprocal_extra(xs, ys, noise=False):
     return fit_results[best[2]]["popt"], fit_results[best[2]]["pcov"], best
 
 
-def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
+def print_plot_line(function, popt, xs, ys, name, tol: float = 0.05, extra=""):
     """
     print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
     """
@@ -516,7 +517,7 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
         f.write("pause -1 \n")
 
 
-def determine_convergence(xs, ys, name, tol=0.0001, extra="", verbose=False, mode="extra", plots=True):
+def determine_convergence(xs, ys, name, tol: float = 0.0001, extra="", verbose=False, mode="extra", plots=True):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -539,7 +540,7 @@ def determine_convergence(xs, ys, name, tol=0.0001, extra="", verbose=False, mod
                         popt, pcov, func = multi_reciprocal_extra(xs, ys)
                     else:
                         print(xs, ys)
-                        popt, pcov = None, None
+                        popt, pcov = None, None  # type: ignore
                 elif mode == "extra_noise":
                     popt, pcov, func = multi_reciprocal_extra(xs, ys, noise=True)
                 else:
@@ -565,7 +566,7 @@ def determine_convergence(xs, ys, name, tol=0.0001, extra="", verbose=False, mod
                     print_plot_line(func[0], popt, xs, ys, name, tol=tol, extra=extra)
 
         except ImportError:
-            popt, pcov = None, None
+            popt, pcov = None, None  # type: ignore
         for n in range(0, len(ds), 1):
             if verbose:
                 print(n, ys[n])

@@ -3,6 +3,8 @@
 """
 Utilities for generating nicer plots.
 """
+from __future__ import annotations
+
 import math
 from typing import Literal
 
@@ -29,7 +31,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
     Returns:
         Matplotlib plot object with properly sized fonts.
     """
-    ticksize = int(width * 2.5)
+    tick_size = int(width * 2.5)
 
     golden_ratio = (math.sqrt(5) - 1) / 2
 
@@ -51,16 +53,16 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
-    plt.xticks(fontsize=ticksize)
-    plt.yticks(fontsize=ticksize)
+    plt.xticks(fontsize=tick_size)
+    plt.yticks(fontsize=tick_size)
 
     ax = plt.gca()
     ax.set_title(ax.get_title(), size=width * 4)
 
-    labelsize = int(width * 3)
+    label_size = int(width * 3)
 
-    ax.set_xlabel(ax.get_xlabel(), size=labelsize)
-    ax.set_ylabel(ax.get_ylabel(), size=labelsize)
+    ax.set_xlabel(ax.get_xlabel(), size=label_size)
+    ax.set_ylabel(ax.get_ylabel(), size=label_size)
 
     return plt
 
@@ -204,28 +206,28 @@ def periodic_table_heatmap(
             value assigned to it, e.g. surface energy and frequency, etc.
             Elements missing in the elemental_data will be grey by default
             in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
-         cbar_label (string): Label of the colorbar. Default is "".
-         cbar_label_size (float): Font size for the colorbar label. Default is 14.
-         cmap_range (tuple): Minimum and maximum value of the colormap scale.
-            If None, the colormap will automatically scale to the range of the
+         cbar_label (str): Label of the color bar. Default is "".
+         cbar_label_size (float): Font size for the color bar label. Default is 14.
+         cmap_range (tuple): Minimum and maximum value of the color map scale.
+            If None, the color map will automatically scale to the range of the
             data.
          show_plot (bool): Whether to show the heatmap. Default is False.
          value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
          value_fontsize (float): Font size for values. Default is 10.
          symbol_fontsize (float): Font size for element symbols. Default is 14.
-         cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
+         cmap (str): Color scheme of the heatmap. Default is 'YlOrRd'.
             Refer to the matplotlib documentation for other options.
-         blank_color (string): Color assigned for the missing elements in
+         blank_color (str): Color assigned for the missing elements in
             elemental_data. Default is "grey".
-         edge_color (string): Color assigned for the edge of elements in the
+         edge_color (str): Color assigned for the edge of elements in the
             periodic table. Default is "white".
-         max_row (integer): Maximum number of rows of the periodic table to be
+         max_row (int): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
             the standard 7 rows of the periodic table + 2 rows for the lanthanides
             and actinides. Use a value of max_row = 7 to exclude the lanthanides and
             actinides.
-         readable_fontcolor (bool): Whether to use readable fontcolor depending
+         readable_fontcolor (bool): Whether to use readable font color depending
             on background color. Default is False.
     """
 
@@ -513,7 +515,7 @@ def get_ax_fig_plt(ax=None, **kwargs):
 
     if ax is None:
         fig = plt.figure(**kwargs)
-        ax = fig.add_subplot(1, 1, 1)
+        ax = fig.gca()
     else:
         fig = plt.gcf()
 

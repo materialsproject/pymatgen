@@ -8,6 +8,8 @@ installed. Please consult the
 `openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
 """
 
+from __future__ import annotations
+
 import copy
 import warnings
 
@@ -44,7 +46,7 @@ class BabelMolAdaptor:
     )
     def __init__(self, mol):
         """
-        Initializes with pymatgen Molecule or OpenBabel"s OBMol.
+        Initializes with pymatgen Molecule or OpenBabel's OBMol.
 
         Args:
             mol: pymatgen's Molecule/IMolecule or OpenBabel OBMol

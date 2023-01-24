@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.diffraction package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.analysis.diffraction package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,15 +14,13 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.diffraction.core module" href="pymatgen.analysis.diffraction.core.html" />
-    <link rel="prev" title="pymatgen.analysis.defects.utils module" href="pymatgen.analysis.defects.utils.html" />
+    <link rel="prev" title="pymatgen.analysis.chemenv.utils.scripts_utils module" href="pymatgen.analysis.chemenv.utils.scripts_utils.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-      <li>pymatgen.analysis.diffraction package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.analysis.diffraction package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.diffraction.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,10 +123,65 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html">pymatgen.analysis.diffraction.core module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.neutron.html">pymatgen.analysis.diffraction.neutron module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html">pymatgen.analysis.diffraction.tem module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.xrd.html">pymatgen.analysis.diffraction.xrd module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html">pymatgen.analysis.diffraction.core module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator"><code class="docutils literal notranslate"><span class="pre">AbstractDiffractionPatternCalculator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL"><code class="docutils literal notranslate"><span class="pre">AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.TWO_THETA_TOL"><code class="docutils literal notranslate"><span class="pre">AbstractDiffractionPatternCalculator.TWO_THETA_TOL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern"><code class="docutils literal notranslate"><span class="pre">AbstractDiffractionPatternCalculator.get_pattern()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot"><code class="docutils literal notranslate"><span class="pre">AbstractDiffractionPatternCalculator.get_plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures"><code class="docutils literal notranslate"><span class="pre">AbstractDiffractionPatternCalculator.plot_structures()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot"><code class="docutils literal notranslate"><span class="pre">AbstractDiffractionPatternCalculator.show_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPattern"><code class="docutils literal notranslate"><span class="pre">DiffractionPattern</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPattern.XLABEL"><code class="docutils literal notranslate"><span class="pre">DiffractionPattern.XLABEL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPattern.YLABEL"><code class="docutils literal notranslate"><span class="pre">DiffractionPattern.YLABEL</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.get_unique_families"><code class="docutils literal notranslate"><span class="pre">get_unique_families()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.neutron.html">pymatgen.analysis.diffraction.neutron module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffraction.neutron.html#pymatgen.analysis.diffraction.neutron.NDCalculator"><code class="docutils literal notranslate"><span class="pre">NDCalculator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.neutron.html#pymatgen.analysis.diffraction.neutron.NDCalculator.get_pattern"><code class="docutils literal notranslate"><span class="pre">NDCalculator.get_pattern()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html">pymatgen.analysis.diffraction.tem module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator"><code class="docutils literal notranslate"><span class="pre">TEMCalculator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.bragg_angles"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.bragg_angles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.cell_intensity"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.cell_intensity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.cell_scattering_factors"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.cell_scattering_factors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.electron_scattering_factors"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.electron_scattering_factors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.generate_points"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.generate_points()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_first_point"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_first_point()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_interplanar_angle"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_interplanar_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_interplanar_spacings"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_interplanar_spacings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_pattern"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_pattern()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_2d"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_plot_2d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_2d_concise"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_plot_2d_concise()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_coeffs"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_plot_coeffs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_positions"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_positions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.get_s2"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.get_s2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.is_parallel"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.is_parallel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.normalized_cell_intensity"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.normalized_cell_intensity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.tem_dots"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.tem_dots()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.wavelength_rel"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.wavelength_rel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.x_ray_factors"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.x_ray_factors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.tem.html#pymatgen.analysis.diffraction.tem.TEMCalculator.zone_axis_filter"><code class="docutils literal notranslate"><span class="pre">TEMCalculator.zone_axis_filter()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffraction.xrd.html">pymatgen.analysis.diffraction.xrd module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffraction.xrd.html#pymatgen.analysis.diffraction.xrd.XRDCalculator"><code class="docutils literal notranslate"><span class="pre">XRDCalculator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.xrd.html#pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.AVAILABLE_RADIATION</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffraction.xrd.html#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.get_pattern()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

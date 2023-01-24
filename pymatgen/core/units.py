@@ -10,6 +10,8 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
 
+from __future__ import annotations
+
 import collections
 import numbers
 from functools import partial
@@ -131,14 +133,14 @@ DERIVED_UNITS = {
     "cross_section": {"barn": {"m": 2, 1e-28: 1}, "mbarn": {"m": 2, 1e-31: 1}},
 }
 
-ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))  # type: ignore
+ALL_UNITS = {**BASE_UNITS, **DERIVED_UNITS}  # type: ignore
 SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}  # type: ignore
 for utype, d in ALL_UNITS.items():
-    assert not set(d).intersection(_UNAME2UTYPE)
-    _UNAME2UTYPE.update({uname: utype for uname in d})
+    assert not set(d).intersection(_UNAME2UTYPE)  # type: ignore
+    _UNAME2UTYPE.update({uname: utype for uname in d})  # type: ignore
 del utype, d
 
 
@@ -183,7 +185,6 @@ class Unit(collections.abc.Mapping):
                 format uses "^" as the power operator and all units must be
                 space-separated.
         """
-
         if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
             import re

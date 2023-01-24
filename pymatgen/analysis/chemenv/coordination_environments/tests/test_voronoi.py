@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
+from __future__ import annotations
 
 import os
 import random
@@ -16,6 +13,8 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 json_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,
@@ -59,15 +58,15 @@ class VoronoiContainerTest(PymatgenTest):
                 normalized_distance_tolerance=0.0100001,
                 isites=[0],
             )
-            self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+            assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
             neighbors = detailed_voronoi_container.neighbors(0, 1.0, 0.5, True)
-            self.assertEqual(len(neighbors), 6)
+            assert len(neighbors) == 6
             neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
-            self.assertEqual(len(neighbors), 6)
+            assert len(neighbors) == 6
             neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
-            self.assertEqual(len(neighbors), 6)
+            assert len(neighbors) == 6
             neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
-            self.assertEqual(len(neighbors), 6)
+            assert len(neighbors) == 6
 
             # First fake structure with a given normalized_distance_tolerance of 0.001
             detailed_voronoi_container = DetailedVoronoiContainer(
@@ -76,24 +75,24 @@ class VoronoiContainerTest(PymatgenTest):
                 normalized_distance_tolerance=0.001,
                 isites=[0],
             )
-            self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+            assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
             neighbors = detailed_voronoi_container.neighbors(0, 1.0, 0.5, True)
-            self.assertEqual(len(neighbors), 1)
-            self.assertEqual(neighbors[0]["site"], fake_structure[sorted[0]])
+            assert len(neighbors) == 1
+            assert neighbors[0]["site"] == fake_structure[sorted[0]]
             neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
             nbs = [nb["site"] for nb in neighbors]
-            self.assertEqual(len(neighbors), 3)
-            self.assertTrue(fake_structure[sorted[0]] in nbs)
-            self.assertTrue(fake_structure[sorted[1]] in nbs)
-            self.assertTrue(fake_structure[sorted[2]] in nbs)
+            assert len(neighbors) == 3
+            assert fake_structure[sorted[0]] in nbs
+            assert fake_structure[sorted[1]] in nbs
+            assert fake_structure[sorted[2]] in nbs
             neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
             nbs = [nb["site"] for nb in neighbors]
-            self.assertEqual(len(neighbors), 3)
-            self.assertTrue(fake_structure[sorted[0]] in nbs)
-            self.assertTrue(fake_structure[sorted[1]] in nbs)
-            self.assertTrue(fake_structure[sorted[2]] in nbs)
+            assert len(neighbors) == 3
+            assert fake_structure[sorted[0]] in nbs
+            assert fake_structure[sorted[1]] in nbs
+            assert fake_structure[sorted[2]] in nbs
             neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
-            self.assertEqual(len(neighbors), 6)
+            assert len(neighbors) == 6
 
             # Second fake structure
             coords2 = [[5.0, 5.0, 5.0]]
@@ -117,27 +116,27 @@ class VoronoiContainerTest(PymatgenTest):
                 normalized_distance_tolerance=0.0100001,
                 isites=[0],
             )
-            self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+            assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
             neighbors = detailed_voronoi_container.neighbors(0, 1.0, 0.5, True)
             nbs = [nb["site"] for nb in neighbors]
-            self.assertEqual(len(neighbors), 3)
-            self.assertTrue(fake_structure2[sorted[0]] in nbs)
-            self.assertTrue(fake_structure2[sorted[1]] in nbs)
-            self.assertTrue(fake_structure2[sorted[2]] in nbs)
+            assert len(neighbors) == 3
+            assert fake_structure2[sorted[0]] in nbs
+            assert fake_structure2[sorted[1]] in nbs
+            assert fake_structure2[sorted[2]] in nbs
             neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
             nbs = [nb["site"] for nb in neighbors]
-            self.assertEqual(len(neighbors), 3)
-            self.assertTrue(fake_structure2[sorted[0]] in nbs)
-            self.assertTrue(fake_structure2[sorted[1]] in nbs)
-            self.assertTrue(fake_structure2[sorted[2]] in nbs)
+            assert len(neighbors) == 3
+            assert fake_structure2[sorted[0]] in nbs
+            assert fake_structure2[sorted[1]] in nbs
+            assert fake_structure2[sorted[2]] in nbs
             neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
             nbs = [nb["site"] for nb in neighbors]
-            self.assertEqual(len(neighbors), 3)
-            self.assertTrue(fake_structure2[sorted[0]] in nbs)
-            self.assertTrue(fake_structure2[sorted[1]] in nbs)
-            self.assertTrue(fake_structure2[sorted[2]] in nbs)
+            assert len(neighbors) == 3
+            assert fake_structure2[sorted[0]] in nbs
+            assert fake_structure2[sorted[1]] in nbs
+            assert fake_structure2[sorted[2]] in nbs
             neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
-            self.assertEqual(len(neighbors), 6)
+            assert len(neighbors) == 6
 
             species = ["Cu", "Cu", "O", "O", "O", "Cu", "O"]
             valences = [2, 2, -2, -2, -2, 2, -2]
@@ -160,20 +159,20 @@ class VoronoiContainerTest(PymatgenTest):
                 isites=[0],
                 additional_conditions=[DetailedVoronoiContainer.AC.ONLY_ACB],
             )
-            self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
+            assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
             neighbors = detailed_voronoi_container.neighbors(0, 1.01, 0.5, True)
             nbs = [nb["site"] for nb in neighbors]
-            self.assertEqual(len(neighbors), 6)
-            self.assertTrue(fake_structure3[1] in nbs)
-            self.assertTrue(fake_structure3[2] in nbs)
-            self.assertTrue(fake_structure3[3] in nbs)
-            self.assertTrue(fake_structure3[4] in nbs)
-            self.assertTrue(fake_structure3[5] in nbs)
-            self.assertTrue(fake_structure3[6] in nbs)
+            assert len(neighbors) == 6
+            assert fake_structure3[1] in nbs
+            assert fake_structure3[2] in nbs
+            assert fake_structure3[3] in nbs
+            assert fake_structure3[4] in nbs
+            assert fake_structure3[5] in nbs
+            assert fake_structure3[6] in nbs
 
             # Test of the as_dict() and from_dict() methods as well as __eq__ method
             other_detailed_voronoi_container = DetailedVoronoiContainer.from_dict(detailed_voronoi_container.as_dict())
-            self.assertTrue(detailed_voronoi_container, other_detailed_voronoi_container)
+            assert detailed_voronoi_container, other_detailed_voronoi_container
 
     def test_get_vertices_dist_ang_indices(self):
         with ScratchDir("."):
@@ -209,12 +208,12 @@ class VoronoiContainerTest(PymatgenTest):
                     fake_parameter_indices_list.append((ii, jj))
 
             points = detailed_voronoi_container._get_vertices_dist_ang_indices(fake_parameter_indices_list)
-            self.assertEqual(points[0], (2, 7))
-            self.assertEqual(points[1], (4, 7))
-            self.assertEqual(points[2], (4, 10))
-            self.assertEqual(points[3], (6, 10))
-            self.assertEqual(points[4], (6, 13))
-            self.assertEqual(points[5], (2, 13))
+            assert points[0] == (2, 7)
+            assert points[1] == (4, 7)
+            assert points[2] == (4, 10)
+            assert points[3] == (6, 10)
+            assert points[4] == (6, 13)
+            assert points[5] == (2, 13)
 
 
 if __name__ == "__main__":

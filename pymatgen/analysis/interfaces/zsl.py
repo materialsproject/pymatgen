@@ -101,7 +101,7 @@ class ZSLGenerator(MSONable):
         self.max_angle_tol = max_angle_tol
         self.bidirectional = bidirectional
 
-    def is_same_vectors(self, vec_set1, vec_set2):
+    def is_same_vectors(self, vec_set1, vec_set2) -> bool:
         """
         Determine if two sets of vectors are the same within length and angle
         tolerances
@@ -152,7 +152,6 @@ class ZSLGenerator(MSONable):
                 2.) the transformation matrices for the substrate to create
                 a super lattice of area j*film area
         """
-
         transformation_indices = [
             (i, j)
             for i in range(1, int(self.max_area / film_area))
@@ -187,7 +186,6 @@ class ZSLGenerator(MSONable):
             substrate_vectors(array): substrate vectors to generate super
                 lattices
         """
-
         for (film_transformations, substrate_transformations) in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
             films = [reduce_vectors(*np.dot(f, film_vectors)) for f in film_transformations]
@@ -207,7 +205,6 @@ class ZSLGenerator(MSONable):
         Runs the ZSL algorithm to generate all possible matching
         :return:
         """
-
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)
 

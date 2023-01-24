@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lobster package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.io.lobster package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
-      <li>pymatgen.io.lobster package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.io.lobster package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.lobster.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,9 +123,111 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.inputs.html">pymatgen.io.lobster.inputs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html">pymatgen.io.lobster.lobsterenv module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.outputs.html">pymatgen.io.lobster.outputs module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.inputs.html">pymatgen.io.lobster.inputs module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin"><code class="docutils literal notranslate"><span class="pre">Lobsterin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.AVAILABLEKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.AVAILABLEKEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.BOOLEANKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.BOOLEANKEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.FLOATKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.FLOATKEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.LISTKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.LISTKEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.STRINGKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.STRINGKEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.as_dict"><code class="docutils literal notranslate"><span class="pre">Lobsterin.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.diff"><code class="docutils literal notranslate"><span class="pre">Lobsterin.diff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.from_dict"><code class="docutils literal notranslate"><span class="pre">Lobsterin.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.from_file"><code class="docutils literal notranslate"><span class="pre">Lobsterin.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.get_all_possible_basis_functions"><code class="docutils literal notranslate"><span class="pre">Lobsterin.get_all_possible_basis_functions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.get_basis"><code class="docutils literal notranslate"><span class="pre">Lobsterin.get_basis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.standard_calculations_from_vasp_files"><code class="docutils literal notranslate"><span class="pre">Lobsterin.standard_calculations_from_vasp_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.write_INCAR"><code class="docutils literal notranslate"><span class="pre">Lobsterin.write_INCAR()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.write_KPOINTS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.write_KPOINTS()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.write_POSCAR_with_standard_primitive"><code class="docutils literal notranslate"><span class="pre">Lobsterin.write_POSCAR_with_standard_primitive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.write_lobsterin"><code class="docutils literal notranslate"><span class="pre">Lobsterin.write_lobsterin()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.get_all_possible_basis_combinations"><code class="docutils literal notranslate"><span class="pre">get_all_possible_basis_combinations()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html">pymatgen.io.lobster.lobsterenv module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments"><code class="docutils literal notranslate"><span class="pre">LobsterLightStructureEnvironments</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.as_dict"><code class="docutils literal notranslate"><span class="pre">LobsterLightStructureEnvironments.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.from_Lobster"><code class="docutils literal notranslate"><span class="pre">LobsterLightStructureEnvironments.from_Lobster()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.uniquely_determines_coordination_environments"><code class="docutils literal notranslate"><span class="pre">LobsterLightStructureEnvironments.uniquely_determines_coordination_environments</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_anion_types"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_anion_types()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_cohps_to_neighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_info_cohps_to_neighbors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_between_neighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_info_icohps_between_neighbors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_to_neighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_info_icohps_to_neighbors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_light_structure_environment"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_light_structure_environment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_nn_info"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_nn_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.molecules_allowed"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.molecules_allowed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.plot_cohps_of_neighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.plot_cohps_of_neighbors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.structures_allowed"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.structures_allowed</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.outputs.html">pymatgen.io.lobster.outputs module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Bandoverlaps"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_check_occupied_bands"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps.has_good_quality_check_occupied_bands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_maxDeviation"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps.has_good_quality_maxDeviation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Charge"><code class="docutils literal notranslate"><span class="pre">Charge</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Charge.get_structure_with_charges"><code class="docutils literal notranslate"><span class="pre">Charge.get_structure_with_charges()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Cohpcar"><code class="docutils literal notranslate"><span class="pre">Cohpcar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar"><code class="docutils literal notranslate"><span class="pre">Doscar</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.completedos"><code class="docutils literal notranslate"><span class="pre">Doscar.completedos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.pdos"><code class="docutils literal notranslate"><span class="pre">Doscar.pdos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.tdos"><code class="docutils literal notranslate"><span class="pre">Doscar.tdos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.energies"><code class="docutils literal notranslate"><span class="pre">Doscar.energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.tdensities"><code class="docutils literal notranslate"><span class="pre">Doscar.tdensities</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id0"><code class="docutils literal notranslate"><span class="pre">Doscar.energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id1"><code class="docutils literal notranslate"><span class="pre">Doscar.energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.is_spin_polarized"><code class="docutils literal notranslate"><span class="pre">Doscar.is_spin_polarized</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id2"><code class="docutils literal notranslate"><span class="pre">Doscar.completedos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id3"><code class="docutils literal notranslate"><span class="pre">Doscar.energies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id4"><code class="docutils literal notranslate"><span class="pre">Doscar.is_spin_polarized</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Doscar.itdensities"><code class="docutils literal notranslate"><span class="pre">Doscar.itdensities</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id5"><code class="docutils literal notranslate"><span class="pre">Doscar.pdos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id6"><code class="docutils literal notranslate"><span class="pre">Doscar.tdensities</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#id7"><code class="docutils literal notranslate"><span class="pre">Doscar.tdos</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Fatband"><code class="docutils literal notranslate"><span class="pre">Fatband</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Fatband.get_bandstructure"><code class="docutils literal notranslate"><span class="pre">Fatband.get_bandstructure()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Grosspop"><code class="docutils literal notranslate"><span class="pre">Grosspop</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Grosspop.get_structure_with_total_grosspop"><code class="docutils literal notranslate"><span class="pre">Grosspop.get_structure_with_total_grosspop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Icohplist"><code class="docutils literal notranslate"><span class="pre">Icohplist</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Icohplist.icohpcollection"><code class="docutils literal notranslate"><span class="pre">Icohplist.icohpcollection</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Icohplist.icohplist"><code class="docutils literal notranslate"><span class="pre">Icohplist.icohplist</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Lobsterout"><code class="docutils literal notranslate"><span class="pre">Lobsterout</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Lobsterout.get_doc"><code class="docutils literal notranslate"><span class="pre">Lobsterout.get_doc()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.MadelungEnergies"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.SitePotential"><code class="docutils literal notranslate"><span class="pre">SitePotential</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.SitePotential.get_structure_with_site_potentials"><code class="docutils literal notranslate"><span class="pre">SitePotential.get_structure_with_site_potentials()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Wavefunction"><code class="docutils literal notranslate"><span class="pre">Wavefunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_density"><code class="docutils literal notranslate"><span class="pre">Wavefunction.get_volumetricdata_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_imaginary"><code class="docutils literal notranslate"><span class="pre">Wavefunction.get_volumetricdata_imaginary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Wavefunction.get_volumetricdata_real"><code class="docutils literal notranslate"><span class="pre">Wavefunction.get_volumetricdata_real()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Wavefunction.set_volumetric_data"><code class="docutils literal notranslate"><span class="pre">Wavefunction.set_volumetric_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.outputs.html#pymatgen.io.lobster.outputs.Wavefunction.write_file"><code class="docutils literal notranslate"><span class="pre">Wavefunction.write_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

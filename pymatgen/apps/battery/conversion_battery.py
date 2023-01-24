@@ -146,7 +146,6 @@ class ConversionElectrode(AbstractElectrode):
         Returns:
             A list of ConversionElectrode objects
         """
-
         # voltage_pairs = vpairs, working_ion_entry = working_ion_entry,
         # _initial_comp_formula = comp.reduced_formula, framework_formula = framework.reduced_formula
         if adjacent_only:
@@ -172,7 +171,7 @@ class ConversionElectrode(AbstractElectrode):
                 )
         return sub_electrodes
 
-    def is_super_electrode(self, conversion_electrode):
+    def is_super_electrode(self, conversion_electrode) -> bool:
         """
         Checks if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in
@@ -248,9 +247,8 @@ class ConversionElectrode(AbstractElectrode):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
-
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
         d["reactions"] = []
         d["reactant_compositions"] = []

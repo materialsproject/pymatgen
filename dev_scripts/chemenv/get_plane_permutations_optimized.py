@@ -6,12 +6,7 @@ Development script of the ChemEnv utility to get the optimized explicit permutat
 identified with the separation plane algorithms (typically with coordination numbers >= 6)
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import itertools
 import json
@@ -33,6 +28,13 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 )
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 # Printing functions depending on the printing volume option
 def prt1(string, printing_volume):
@@ -46,8 +48,15 @@ def prt2(string, printing_volume):
 
 
 # Iterator function for the random permutations
-def random_permutations_iterator(initial_permutation, npermutations):
-    for ii in range(npermutations):
+def random_permutations_iterator(initial_permutation, n_permutations):
+    """
+    It takes a list and returns an iterator that yields random permutations of that list
+
+    Args:
+        initial_permutation: the initial permutation of the data
+        n_permutations: the number of permutations to generate
+    """
+    for _ in range(n_permutations):
         shuffle(initial_permutation)
         yield initial_permutation
 
@@ -113,34 +122,34 @@ if __name__ == "__main__":
             raise ValueError("Wrong command line option for permutations_setup")
 
     # Class containing all the coordination geometries
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
 
-    sepplane_cgs = []
+    sep_plane_cgs = []
     for coordination in range(1, 21):
-        symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
-        for symbol, name in symbol_name_mapping.items():
-            cg = allcg[symbol]
+        symbol_name_mapping = all_cg.get_symbol_name_mapping(coordination=coordination)
+        for symbol in symbol_name_mapping:
+            cg = all_cg[symbol]
             if cg.points is None:
                 continue
             if cg.algorithms[0].algorithm_type != "EXPLICIT_PERMUTATIONS":
-                sepplane_cgs.append(symbol)
+                sep_plane_cgs.append(symbol)
                 continue
     ncols = 5
-    nlines = int(np.ceil(float(len(sepplane_cgs)) / ncols))
-    sepplane_cgs_grid = []
-    for iline in range(nlines):
-        sepplane_cgs_grid.append([""] * ncols)
+    nlines = int(np.ceil(float(len(sep_plane_cgs)) / ncols))
+    sep_plane_cgs_grid = []
+    for _ in range(nlines):
+        sep_plane_cgs_grid.append([""] * ncols)
     for iline in range(nlines):
         for icol in range(ncols):
             ii = iline * ncols + icol
-            if ii >= len(sepplane_cgs):
+            if ii >= len(sep_plane_cgs):
                 break
-            sepplane_cgs_grid[iline][icol] = sepplane_cgs[ii]
+            sep_plane_cgs_grid[iline][icol] = sep_plane_cgs[ii]
 
     while True:
         # Printing all symbols
         print("Coordination geometries using a separation plane algorithm :")
-        print(tabulate.tabulate(sepplane_cgs_grid, tablefmt="grid"))
+        print(tabulate.tabulate(sep_plane_cgs_grid, tablefmt="grid"))
         print()
 
         # Define the coordination geometry
@@ -149,13 +158,13 @@ if __name__ == "__main__":
         )
         if cg_symbol == "q":
             break
-        if cg_symbol not in sepplane_cgs:
+        if cg_symbol not in sep_plane_cgs:
             print("Wrong geometry, try again ...")
             continue
 
-        cg = allcg[cg_symbol]
+        cg = all_cg[cg_symbol]
 
-        print(f'Getting explicit permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
+        print(f"Getting explicit permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
 
         # Setup of the local geometry finder
         lgf = LocalGeometryFinder()
@@ -182,14 +191,15 @@ if __name__ == "__main__":
                 eop = str(len(algo.explicit_optimized_permutations))
             print(
                 f"For ialgo {ialgo,:d}, plane_points are "
-                f"[{', '.join([str(pp) for pp in algo.plane_points])}], "
-                f"side_0 is [{', '.join([str(pp) for pp in algo.point_groups[0]])}] and "
-                f"side_1 is [{', '.join([str(pp) for pp in algo.point_groups[1]])}]."
+                f"[{', '.join(map(str, algo.plane_points))}], "
+                f"side_0 is [{', '.join(map(str, algo.point_groups[0]))}] and "
+                f"side_1 is [{', '.join(map(str, algo.point_groups[1]))}]."
             )
             original_nexplicit_perms.append(len(algo.explicit_permutations))
             original_nexplicit_optimized_perms.append(eop)
             print(
-                f"  For this algorithm, there are {eop} optimized permutations and {len(algo.explicit_permutations):d} explicit permutations"
+                f"  For this algorithm, there are {eop} optimized permutations and "
+                f"{len(algo.explicit_permutations):d} explicit permutations"
             )
             if algo.other_plane_points is None:
                 input("Multiplicity and other plane points is not defined for this algorithm !")
@@ -220,7 +230,7 @@ if __name__ == "__main__":
                 # Actual test of the permutations
                 csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(
                     coordination_geometry=cg,
-                    sepplane=algo,
+                    sep_plane=algo,
                     local_plane=local_plane,
                     plane_separations=[],
                     dist_tolerances=[0.05, 0.1, 0.2, 0.3, 0.5],
@@ -241,9 +251,7 @@ if __name__ == "__main__":
                             break
                     if not found:
                         prt1(
-                            string=" permutation {} : {}".format(
-                                "-".join([str(ii) for ii in sep_perms[icsm]]), str(csm["symmetry_measure"])
-                            ),
+                            string=f" permutation {'-'.join(map(str, sep_perms[icsm]))} : {csm['symmetry_measure']}",
                             printing_volume=printing_volume,
                         )
                         csms_with_recorded_permutation.append(csm)
@@ -273,7 +281,8 @@ if __name__ == "__main__":
 
         while True:
             test = input(
-                f'Get the explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}") ? ("y" to confirm, "q" to quit)\n'
+                f"Get the explicit optimized permutations for geometry {cg.name!r} (symbol : "
+                f'{cg_symbol!r}) ? ("y" to confirm, "q" to quit)\n'
             )
             if test not in ["y", "q"]:
                 print("Wrong key, try again")
@@ -283,7 +292,7 @@ if __name__ == "__main__":
             elif test == "q":
                 exit()
         # 2. Optimization of the permutations
-        print(f'Getting explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
+        print(f"Getting explicit optimized permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
         perms_used_algos = [dict() for algo in cg.algorithms]
 
         # Loop on algorithms
@@ -291,9 +300,9 @@ if __name__ == "__main__":
             perms_used = {}
             print(
                 f"In ialgo {ialgo:d} (plane_points : "
-                f"[{', '.join([str(pp) for pp in algo.plane_points])}], "
-                f"side_0 : [{', '.join([str(pp) for pp in algo.point_groups[0]])}] and "
-                f"side_1 : [{', '.join([str(pp) for pp in algo.point_groups[1]])}])"
+                f"[{', '.join(map(str, algo.plane_points))}], "
+                f"side_0 : [{', '.join(map(str, algo.point_groups[0]))}] and "
+                f"side_1 : [{', '.join(map(str, algo.point_groups[1]))}])"
             )
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
                 raise ValueError("Do something for the explicit ones ... (these should anyway be by far ok!)")
@@ -337,7 +346,7 @@ if __name__ == "__main__":
 
                 prt1(
                     string=f"Perm # {iperm:d}/{npermutations:d} : "
-                    f"{'-'.join([str(ii) for ii in indices_perm])} "
+                    f"{'-'.join(map(str, indices_perm))} "
                     f"(est. rem. time : {timeleft} sec)",
                     printing_volume=printing_volume,
                 )
@@ -365,7 +374,7 @@ if __name__ == "__main__":
                     # Get the results for this algorithm and plane
                     csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(
                         coordination_geometry=cg,
-                        sepplane=algo,
+                        sep_plane=algo,
                         local_plane=local_plane,
                         plane_separations=[],
                         dist_tolerances=[0.05, 0.1, 0.2, 0.3, 0.5],
@@ -385,9 +394,7 @@ if __name__ == "__main__":
                             mincsm_indices.append(icsm)
                     this_plane_sep_perm = tuple(sep_perms[imin])
                     prt2(
-                        string="  permutation {} gives csm={:.6f}".format(
-                            "-".join(str(pp) for pp in this_plane_sep_perm), mycsms[imin]
-                        ),
+                        string=f"  permutation {'-'.join(map(str, this_plane_sep_perm))} gives csm={mycsms[imin]:.6f}",
                         printing_volume=printing_volume,
                     )
 
@@ -402,31 +409,17 @@ if __name__ == "__main__":
                 timeleft = f"{timeleft:.1f}"
                 iperm += 1
             print(
-                "Optimized permutations {:d}/{:d}"
-                "(old : {}/{}) : ".format(
-                    len(perms_used),
-                    len(algo.permutations),
-                    str(original_nexplicit_optimized_perms[ialgo]),
-                    str(original_nexplicit_perms[ialgo]),
-                )
+                f"Optimized permutations {len(perms_used):d}/{len(algo.permutations):d}"
+                f"(old : {original_nexplicit_optimized_perms[ialgo]}/{original_nexplicit_perms[ialgo]}) : "
             )
             for perm, number in perms_used.items():
-                print(f" - permutation {'-'.join([str(pp) for pp in perm])} : {number:d}")
+                print(f" - permutation {'-'.join(map(str, perm))} : {number:d}")
             print(
-                "For ialgo {:d} (plane_points : {}, "
-                "side_0 : {} and "
-                "side_1 : {}),\n"
-                "Optimized perturbations {:d}/{:d} (old : {}/{}) "
-                "are :".format(
-                    ialgo,
-                    "[{}]".format(", ".join([str(pp) for pp in algo.plane_points])),
-                    "[{}]".format(", ".join([str(pp) for pp in algo.point_groups[0]])),
-                    f"[{', '.join([str(pp) for pp in algo.point_groups[1]])}]",
-                    len(perms_used),
-                    len(algo.permutations),
-                    str(original_nexplicit_optimized_perms[ialgo]),
-                    str(original_nexplicit_perms[ialgo]),
-                )
+                f"For ialgo {ialgo} (plane_points : [{', '.join(map(str, algo.plane_points))}], "
+                f"side_0 : [{', '.join(map(str, algo.point_groups[0]))}] and "
+                f"side_1 : [{', '.join(map(str, algo.point_groups[1]))}]),\n"
+                f"Optimized perturbations {len(perms_used)}/{len(algo.permutations)} (old : "
+                f"{original_nexplicit_optimized_perms[ialgo]}/{original_nexplicit_perms[ialgo]}) are :"
             )
             # print('Optimized permutations ({:d}/{:d}) : '.format(len(perms_used), len(algo.permutations)))
             explicit_optimized_permutations = [list(perm) for perm in perms_used]
@@ -438,8 +431,8 @@ if __name__ == "__main__":
                 algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
 
         test = input(
-            'Save coordination geometry "{}" (symbol "{}") and new explicit and optimized permutations ? '
-            '("y" to confirm)'.format(cg.name, cg_symbol)
+            f"Save coordination geometry {cg.name!r} (symbol {cg_symbol!r}) and new explicit and optimized "
+            'permutations ? ("y" to confirm)'
         )
         if test == "y":
             newgeom_dir = "new_geometry_files"

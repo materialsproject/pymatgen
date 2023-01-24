@@ -2,16 +2,17 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module provides classes used to define a MD trajectory.
+This module provides classes to define a simulation trajectory, which could come from
+either relaxation or molecular dynamics.
 """
 
 from __future__ import annotations
 
 import itertools
-import os
 import warnings
 from fnmatch import fnmatch
-from typing import Sequence
+from pathlib import Path
+from typing import Any, Dict, List, Sequence, Tuple, Union
 
 import numpy as np
 from monty.io import zopen
@@ -27,105 +28,143 @@ from pymatgen.core.structure import (
 )
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
-__author__ = "Eric Sivonxay, Shyam Dwaraknath"
-__version__ = "0.0"
-__date__ = "Jan 25, 2019"
+__author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen"
+__version__ = "0.1"
+__date__ = "Jun 29, 2022"
+
+Vector3D = Tuple[float, float, float]
+Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
+SitePropsType = Union[List[Dict[Any, Sequence[Any]]], Dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
     """
-    Trajectory object that stores structural information related to a MD simulation.
-    Provides basic functions such as slicing trajectory or obtaining displacements.
+    Trajectory of a relaxation or molecular dynamics simulation.
+
+    Provides basic functions such as slicing trajectory, combining trajectories, and
+    obtaining displacements.
     """
 
     def __init__(
         self,
-        lattice: Sequence[float] | Sequence[Sequence[float]] | np.ndarray | Lattice,
+        lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray,
         species: list[str | Element | Species | DummySpecies | Composition],
-        frac_coords: list[Sequence[Sequence[float]]] | np.ndarray,
-        time_step: float = 2,
-        site_properties: dict = None,
-        frame_properties: dict = None,
+        frac_coords: list[list[Vector3D]] | np.ndarray,
+        *,
+        site_properties: SitePropsType | None = None,
+        frame_properties: list[dict] | None = None,
         constant_lattice: bool = True,
+        time_step: int | float | None = None,
         coords_are_displacement: bool = False,
-        base_positions: Sequence[Sequence[float]] = None,
+        base_positions: list[list[Vector3D]] | np.ndarray | None = None,
     ):
         """
-        Create a trajectory object
+        In below, `N` denotes the number of sites in the structure, and `M` denotes the
+        number of frames in the trajectory.
+
         Args:
-            lattice: The lattice as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species: List of species on each site. Can take in flexible input,
-                including:
+            lattice: shape (3, 3) or (M, 3, 3). Lattice of the structures in the
+                trajectory; should be used together with `constant_lattice`.
+                If `constant_lattice=True`, this should be a single lattice that is
+                common for all structures in the trajectory (e.g. in an NVT run).
+                If `constant_lattice=False`, this should be a list of lattices,
+                each for one structure in the trajectory (e.g. in an NPT run or a
+                relaxation that allows changing the cell size).
+            species: shape (N,). List of species on each site. Can take in flexible
+                input, including:
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Species objects.
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            frac_coords (MxNx3 array): list of fractional coordinates of
-                each species
-            time_step (int, float): Timestep of simulation in femtoseconds. Defaults to 2fs.
-            site_properties (list): Properties associated with the sites as a list of
-                dicts of sequences, e.g., [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}]. The sequences
-                have to be the same length as the atomic species and fractional_coords. Number of supplied
-                dicts should match number of frames in trajectory
-                Defaults to None for no properties.
-            frame_properties (dict): Properties of the trajectory such as energy, pressure, etc. each property should
-                have a length equal to the trajectory length. eg: {'energy': [#, #, #, #], 'pressure': [0, 0.1, 0 0.02]}
-            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD simulation.
-            coords_are_displacement (bool): Whether supplied coordinates are given in displacements (True) or
-                positions (False)
-            base_positions (Nx3 array): The starting positions of all atoms in trajectory. Used to reconstruct positions
-                when converting from displacements to positions. Only needs to be specified if
-                coords_are_displacement=True. Defaults to first index of frac_coords if coords_are_displacement=False.
+            frac_coords: shape (M, N, 3). fractional coordinates of the sites.
+            site_properties: Properties associated with the sites. This should be a
+                list of `M` dicts for a single dict. If a list of dicts, each provides
+                the site properties for a frame. Each value in a dict should be a
+                sequence of length `N`, giving the properties of the `N` sites.
+                For example, for a trajectory with `M=2` and `N=4`, the
+                `site_properties` can be: [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
+                If a single dict, the site properties in the dict apply to all frames
+                in the trajectory. For example, for a trajectory with `M=2` and `N=4`,
+                {"magmom":[2,2,2,2]} means that, through the entire trajectory,
+                the magmom are kept constant at 2 for all four atoms.
+            frame_properties: Properties associated with the structure (e.g. total
+                energy). This should be a sequence of `M` dicts, with each dict
+                providing the properties for a frame. For example, for a trajectory with
+                `M=2`, the `frame_properties` can be [{'energy':1.0}, {'energy':2.0}].
+            constant_lattice: Whether the lattice changes during the simulation.
+                Should be used together with `lattice`. See usage there.
+            time_step: Time step of MD simulation in femto-seconds. Should be `None`
+                for relaxation trajectory.
+            coords_are_displacement: Whether `frac_coords` are given in displacements
+                (True) or positions (False). Note, if this is `True`, `frac_coords`
+                of a frame (say i) should be relative to the previous frame (i.e.
+                i-1), but not relative to the `base_position`.
+            base_positions: shape (N, 3). The starting positions of all atoms in the
+                trajectory. Used to reconstruct positions when converting from
+                displacements to positions. Only needs to be specified if
+                `coords_are_displacement=True`. Defaults to the first index of
+                `frac_coords` when `coords_are_displacement=False`.
         """
-        # To support from_dict and as_dict
-        if isinstance(frac_coords, list):
-            frac_coords = np.array(frac_coords)
-
         if isinstance(lattice, Lattice):
             lattice = lattice.matrix
+        elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
+            lattice = [x.matrix for x in lattice]  # type: ignore
+        lattice = np.asarray(lattice)
 
-        if isinstance(lattice, list):
-            lattice = np.array(lattice)
+        if not constant_lattice and lattice.shape == (3, 3):
+            self.lattice = np.tile(lattice, (len(frac_coords), 1, 1))
+            warnings.warn(
+                "Get `constant_lattice=False`, but only get a single `lattice`. "
+                "Use this single `lattice` as the lattice for all frames."
+            )
+        else:
+            self.lattice = lattice
 
-        self.frac_coords = frac_coords
+        self.constant_lattice = constant_lattice
+
         if coords_are_displacement:
             if base_positions is None:
                 warnings.warn(
-                    "Without providing an array of starting positions, \
-                               the positions for each time step will not be available"
+                    "Without providing an array of starting positions, the positions "
+                    "for each time step will not be available."
                 )
             self.base_positions = base_positions
         else:
-            self.base_positions = frac_coords[0]
+            self.base_positions = frac_coords[0]  # type: ignore[assignment]
         self.coords_are_displacement = coords_are_displacement
 
-        if not constant_lattice and np.shape(lattice) == (3, 3):
-            self.lattice = [lattice for i in range(np.shape(self.frac_coords)[0])]
-        else:
-            self.lattice = lattice  # type: ignore
-        self.constant_lattice = constant_lattice
         self.species = species
-        self.site_properties = site_properties
-        self.frame_properties = frame_properties
+        self.frac_coords = np.asarray(frac_coords)
         self.time_step = time_step
 
-    def get_structure(self, i):
+        self._check_site_props(site_properties)
+        self.site_properties = site_properties
+
+        self._check_frame_props(frame_properties)
+        self.frame_properties = frame_properties
+
+    def get_structure(self, i: int) -> Structure:
         """
-        Returns structure at specified index
+        Get structure at specified index.
+
         Args:
-            i (int): Index of structure
+            i: Index of structure.
+
         Returns:
-            (Structure) pymatgen structure object
+            A pymatgen Structure object.
         """
         return self[i]
 
     def to_positions(self):
         """
-        Converts fractional coordinates of trajectory into positions
+        Convert displacements between consecutive frames into positions.
+
+        `base_positions` and `frac_coords` should both be in fractional coords or
+        absolute coords.
+
+        This is the opposite operation of `to_displacements()`.
         """
         if self.coords_are_displacement:
             cumulative_displacements = np.cumsum(self.frac_coords, axis=0)
@@ -135,28 +174,53 @@ class Trajectory(MSONable):
 
     def to_displacements(self):
         """
-        Converts position coordinates of trajectory into displacements between consecutive frames
+        Converts positions of trajectory into displacements between consecutive frames.
+
+        `base_positions` and `frac_coords` should both be in fractional coords. Does
+        not work for absolute coords because the atoms are to be wrapped into the
+        simulation box.
+
+        This is the opposite operation of `to_positions()`.
         """
         if not self.coords_are_displacement:
-            displacements = np.subtract(self.frac_coords, np.roll(self.frac_coords, 1, axis=0))
+
+            displacements = np.subtract(
+                self.frac_coords,
+                np.roll(self.frac_coords, 1, axis=0),
+            )
             displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
-            # Deal with PBC
-            displacements = [np.subtract(item, np.round(item)) for item in displacements]
+
+            # Deal with PBC.
+            # For example - If in one frame an atom has fractional coordinates of
+            # [0, 0, 0.98] and in the next its coordinates are [0, 0, 0.01], this atom
+            # will have moved 0.03*c, but if we only subtract the positions, we would
+            # get a displacement vector of [0, 0, -0.97]. Therefore, we can correct for
+            # this by adding or subtracting 1 from the value.
+            displacements = [np.subtract(d, np.around(d)) for d in displacements]
 
             self.frac_coords = displacements
             self.coords_are_displacement = True
 
-    def extend(self, trajectory):
+    def extend(self, trajectory: Trajectory):
         """
-        Concatenate another trajectory
+        Append a trajectory to the current one.
+
+        The lattice, coords, and all other properties are combined.
+
         Args:
-            trajectory (Trajectory): Trajectory to add
+            trajectory: Trajectory to append.
         """
         if self.time_step != trajectory.time_step:
-            raise ValueError("Trajectory not extended: Time steps of trajectories is incompatible")
+            raise ValueError(
+                "Cannot extend trajectory. Time steps of the trajectories are "
+                f"incompatible: {self.time_step} and {trajectory.time_step}."
+            )
 
-        if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
-            raise ValueError("Trajectory not extended: species in trajectory do not match")
+        if self.species != trajectory.species:
+            raise ValueError(
+                "Cannot extend trajectory. Species in the trajectories are "
+                f"incompatible: {self.species} and {trajectory.species}."
+            )
 
         # Ensure both trajectories are in positions before combining
         self.to_positions()
@@ -165,329 +229,130 @@ class Trajectory(MSONable):
         self.site_properties = self._combine_site_props(
             self.site_properties,
             trajectory.site_properties,
-            np.shape(self.frac_coords)[0],
-            np.shape(trajectory.frac_coords)[0],
+            len(self),
+            len(trajectory),
         )
+
         self.frame_properties = self._combine_frame_props(
             self.frame_properties,
             trajectory.frame_properties,
-            np.shape(self.frac_coords)[0],
-            np.shape(trajectory.frac_coords)[0],
+            len(self),
+            len(trajectory),
         )
 
-        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
         self.lattice, self.constant_lattice = self._combine_lattice(
             self.lattice,
             trajectory.lattice,
-            np.shape(self.frac_coords)[0],
-            np.shape(trajectory.frac_coords)[0],
+            len(self),
+            len(trajectory),
         )
 
+        # Note, this should be after the other self._combine... method calls, since
+        # len(self) is used there.
+        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords))
+
     def __iter__(self):
-        for i in range(np.shape(self.frac_coords)[0]):
+        """
+        Iterator of the trajectory, yielding a pymatgen structure for each frame.
+        """
+        for i in range(len(self)):
             yield self[i]
 
     def __len__(self):
-        return np.shape(self.frac_coords)[0]
-
-    def __getitem__(self, frames):
         """
-        Gets a subset of the trajectory if a slice is given, if an int is given, return a structure
+        Number of frames in the trajectory.
+        """
+        return len(self.frac_coords)
+
+    def __getitem__(self, frames: int | slice | list[int]) -> Structure | Trajectory:
+        """
+        Get a subset of the trajectory.
+
+        The output depends on the type of the input `frames`. If an int is given, return
+        a pymatgen Structure at the specified frame. If a list or a slice, return a new
+        trajectory with a subset of frames.
+
         Args:
-            frames (int, slice): int or slice of trajectory to return
-        Return:
-            (Trajectory, Structure) Subset of trajectory
-        """
-        # If trajectory is in displacement mode, return the displacements at that frame
-        if self.coords_are_displacement:
-            if isinstance(frames, int):
-                if frames >= np.shape(self.frac_coords)[0]:
-                    raise ValueError("Selected frame exceeds trajectory length")
-                # For integer input, return the displacements at that timestep
-                return self.frac_coords[frames]
-            if isinstance(frames, slice):
-                # For slice input, return a list of the displacements
-                start, stop, step = frames.indices(len(self))
-                return [self.frac_coords[i] for i in range(start, stop, step)]
-            if isinstance(frames, (list, np.ndarray)):
-                # For list input, return a list of the displacements
-                pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
-                if len(pruned_frames) < len(frames):
-                    warnings.warn("Some or all selected frames exceed trajectory length")
-                return [self.frac_coords[i] for i in pruned_frames]
-            raise Exception("Given accessor is not of type int, slice, list, or array")
+            frames: Indices of the trajectory to return.
 
-        # If trajectory is in positions mode, return a structure for the given frame or trajectory for the given frames
+        Return:
+            Subset of trajectory
+        """
+        # Convert to position mode if not ready
+        self.to_positions()
+
+        # For integer input, return the structure at that frame
         if isinstance(frames, int):
-            if frames >= np.shape(self.frac_coords)[0]:
-                raise ValueError("Selected frame exceeds trajectory length")
-            # For integer input, return the structure at that timestep
+
+            if frames >= len(self):
+                raise IndexError(f"Frame index {frames} out of range.")
+
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
-            site_properties = self.site_properties[frames] if self.site_properties else None
-            site_properties = self.site_properties[frames] if self.site_properties else None
+
             return Structure(
                 Lattice(lattice),
                 self.species,
                 self.frac_coords[frames],
-                site_properties=site_properties,
+                site_properties=self._get_site_props(frames),  # type: ignore
                 to_unit_cell=True,
             )
-        if isinstance(frames, slice):
-            # For slice input, return a trajectory of the sliced time
-            start, stop, step = frames.indices(len(self))
-            pruned_frames = range(start, stop, step)
-            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
-            frac_coords = [self.frac_coords[i] for i in pruned_frames]
-            if self.site_properties is not None:
-                site_properties = [self.site_properties[i] for i in pruned_frames]
+
+        # For slice input, return a trajectory
+        if isinstance(frames, (slice, list, np.ndarray)):
+
+            if isinstance(frames, slice):
+                start, stop, step = frames.indices(len(self))
+                selected = list(range(start, stop, step))
             else:
-                site_properties = None
+                # Get rid of frames that exceed trajectory length
+                selected = [i for i in frames if i < len(self)]
+
+                if len(selected) < len(frames):
+                    bad_frames = [i for i in frames if i > len(self)]
+                    raise IndexError(f"Frame index {bad_frames} out of range.")
+
+            lattice = self.lattice if self.constant_lattice else self.lattice[selected]
+            frac_coords = self.frac_coords[selected]
+
             if self.frame_properties is not None:
-                frame_properties = {}
-                for key, item in self.frame_properties.items():
-                    frame_properties[key] = [item[i] for i in pruned_frames]
+                frame_properties = [self.frame_properties[i] for i in selected]
             else:
                 frame_properties = None
+
             return Trajectory(
                 lattice,
                 self.species,
                 frac_coords,
-                time_step=self.time_step,
-                site_properties=site_properties,
+                site_properties=self._get_site_props(selected),
                 frame_properties=frame_properties,
                 constant_lattice=self.constant_lattice,
+                time_step=self.time_step,
                 coords_are_displacement=False,
                 base_positions=self.base_positions,
             )
-        if isinstance(frames, (list, np.ndarray)):
-            # For list input, return a trajectory of the specified times
-            pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
-            if len(pruned_frames) < len(frames):
-                warnings.warn("Some or all selected frames exceed trajectory length")
-            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
-            frac_coords = [self.frac_coords[i] for i in pruned_frames]
-            if self.site_properties is not None:
-                site_properties = [self.site_properties[i] for i in pruned_frames]
-            else:
-                site_properties = None
-            if self.frame_properties is not None:
-                frame_properties = {}
-                for key, item in self.frame_properties.items():
-                    frame_properties[key] = [item[i] for i in pruned_frames]
-            else:
-                frame_properties = None
-            return Trajectory(
-                lattice,
-                self.species,
-                frac_coords,
-                time_step=self.time_step,
-                site_properties=site_properties,
-                frame_properties=frame_properties,
-                constant_lattice=self.constant_lattice,
-                coords_are_displacement=False,
-                base_positions=self.base_positions,
-            )
-        raise Exception("Given accessor is not of type int, slice, tuple, list, or array")
 
-    def copy(self):
-        """
-        :return: Copy of Trajectory.
-        """
-        return Trajectory(
-            self.lattice,
-            self.species,
-            self.frac_coords,
-            time_step=self.time_step,
-            site_properties=self.site_properties,
-            frame_properties=self.frame_properties,
-            constant_lattice=self.constant_lattice,
-            coords_are_displacement=False,
-            base_positions=self.base_positions,
-        )
+        supported = [int, slice, list or np.ndarray]
+        raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
 
-    @classmethod
-    def from_structures(cls, structures, constant_lattice=True, **kwargs):
+    def write_Xdatcar(
+        self,
+        filename: str | Path = "XDATCAR",
+        system: str | None = None,
+        significant_figures: int = 6,
+    ):
         """
-        Convenience constructor to obtain trajectory from a list of structures.
-        Note: Assumes no atoms removed during simulation
+        Writes to Xdatcar file.
+
+        The supported kwargs are the same as those for the
+        Xdatcar_from_structs.get_string method and are passed through directly.
 
         Args:
-            structures (list): list of pymatgen Structure objects.
-            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
-                simulation. True results in
-        Returns:
-            (Trajectory)
+            filename: Name of file to write.  It's prudent to end the filename with
+                'XDATCAR', as most visualization and analysis software require this
+                for autodetection.
+            system: Description of system (e.g. 2D MoS2).
+            significant_figures: Significant figures in the output file.
         """
-        frac_coords = [structure.frac_coords for structure in structures]
-        if constant_lattice:
-            lattice = structures[0].lattice.matrix
-        else:
-            lattice = [structure.lattice.matrix for structure in structures]
-        site_properties = {}
-
-        site_properties = [structure.site_properties for structure in structures]
-        return cls(
-            lattice,
-            structures[0].species,
-            frac_coords,
-            site_properties=site_properties,
-            constant_lattice=constant_lattice,
-            **kwargs,
-        )
-
-    @classmethod
-    def from_file(cls, filename, constant_lattice=True, **kwargs):
-        """
-        Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file
-        Args:
-            filename (str): The filename to read from.
-            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
-                simulation. True results in
-        Returns:
-            (Trajectory)
-        """
-        # TODO: Support other filetypes
-
-        fname = os.path.basename(filename)
-        if fnmatch(fname, "*XDATCAR*"):
-            structures = Xdatcar(filename).structures
-        elif fnmatch(fname, "vasprun*.xml*"):
-            structures = Vasprun(filename).structures
-        else:
-            raise ValueError("Unsupported file")
-
-        return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
-
-    def as_dict(self):
-        """
-        :return: MSONAble dict.
-        """
-        d = {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-            "species": self.species,
-            "time_step": self.time_step,
-            "site_properties": self.site_properties,
-            "frame_properties": self.frame_properties,
-            "constant_lattice": self.constant_lattice,
-            "coords_are_displacement": self.coords_are_displacement,
-            "base_positions": self.base_positions,
-        }
-        d["lattice"] = self.lattice.tolist()
-        d["frac_coords"] = self.frac_coords.tolist()
-
-        return d
-
-    @staticmethod
-    def _combine_lattice(attr_1, attr_2, len_1, len_2):
-        """
-        Helper function to combine trajectory properties such as site_properties or lattice
-        """
-        if np.shape(attr_1) == (3, 3) and np.shape(attr_2) == (3, 3):
-            attribute = attr_1
-            attribute_constant = True
-        elif np.shape(attr_1) == 3 and np.shape(attr_2) == 3:
-            attribute = np.concatenate((attr_1, attr_2), axis=0)
-            attribute_constant = False
-        else:
-            attribute = [attr_1.copy()] * len_1 if isinstance(attr_1, list) else attr_1.copy()
-            attribute.extend([attr_2.copy()] * len_2 if isinstance(attr_2, list) else attr_2.copy())
-            attribute_constant = False
-        return attribute, attribute_constant
-
-    @staticmethod
-    def _combine_site_props(attr_1, attr_2, len_1, len_2):
-        """
-        Helper function to combine site properties of 2 trajectories
-        """
-        if attr_1 is None and attr_2 is None:
-            return None
-        if attr_1 is None or attr_2 is None:
-            new_site_properties = []
-            if attr_1 is None:
-                new_site_properties.extend([None for i in range(len_1)])
-            elif len(attr_1) == 1:
-                new_site_properties.extend([attr_1[0] for i in range(len_1)])
-            elif len(attr_1) > 1:
-                new_site_properties.extend(attr_1)
-
-            if attr_2 is None:
-                new_site_properties.extend([None for i in range(len_2)])
-            elif len(attr_2) == 1:
-                new_site_properties.extend([attr_2[0] for i in range(len_2)])
-            elif len(attr_2) > 1:
-                new_site_properties.extend(attr_2)
-
-            return new_site_properties
-        if len(attr_1) == 1 and len(attr_2) == 1:
-            # If both properties lists are do not change within their respective trajectory
-            if attr_1 == attr_2:
-                # If both site_properties are the same, only store one
-                return attr_1
-            new_site_properties = [attr_1[0] for i in range(len_1)]
-            new_site_properties.extend([attr_2[0] for i in range(len_2)])
-            return new_site_properties
-        if len(attr_1) > 1 and len(attr_2) > 1:
-            # Both properties have site properties that change within the trajectory, concat both together
-            return [*attr_1, *attr_2]
-
-        new_site_properties = []
-        if attr_1 is None:
-            new_site_properties.extend([None for i in range(len_1)])
-        elif len(attr_1) == 1:
-            new_site_properties.extend([attr_1[0] for i in range(len_1)])
-        elif len(attr_1) > 1:
-            new_site_properties.extend(attr_1)
-
-        if attr_2 is None:
-            new_site_properties.extend([None for i in range(len_2)])
-        elif len(attr_2) == 1:
-            new_site_properties.extend([attr_2[0] for i in range(len_2)])
-        elif len(attr_2) > 1:
-            new_site_properties.extend(attr_2)
-
-        return new_site_properties
-
-    @staticmethod
-    def _combine_frame_props(attr_1, attr_2, len_1, len_2):
-        """
-        Helper function to combine frame properties such as energy or pressure
-        """
-        if attr_1 is None and attr_2 is None:
-            return None
-
-        # Find all common keys
-        all_keys = set(attr_1).union(set(attr_2))
-
-        # Initialize dict with the common keys
-        new_frame_props = dict(zip(all_keys, [[] for i in all_keys]))
-        for key in all_keys:
-            if key in attr_1:
-                new_frame_props[key].extend(attr_1[key])
-            else:
-                # If key doesn't exist in the first trajectory, append None for each index
-                new_frame_props[key].extend([None for i in range(len_1)])
-
-            if key in attr_2:
-                new_frame_props[key].extend(attr_2[key])
-            else:
-                # If key doesn't exist in the second trajectory, append None for each index
-                new_frame_props[key].extend([None for i in range(len_2)])
-
-        return new_frame_props
-
-    def write_Xdatcar(self, filename="XDATCAR", system=None, significant_figures=6):
-        """
-        Writes Xdatcar to a file. The supported kwargs are the same as those for
-        the Xdatcar_from_structs.get_string method and are passed through directly.
-
-        Args:
-            filename (str): name of file (It's prudent to end the filename with 'XDATCAR',
-                as most visualization and analysis software require this for autodetection)
-            system (str): Description of system
-            significant_figures (int): Significant figures in the output file
-        """
-
         # Ensure trajectory is in position form
         self.to_positions()
 
@@ -499,7 +364,7 @@ class Trajectory(MSONable):
         syms = [site.specie.symbol for site in self[0]]
         site_symbols = [a[0] for a in itertools.groupby(syms)]
         syms = [site.specie.symbol for site in self[0]]
-        natoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
+        n_atoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
         for si, frac_coords in enumerate(self.frac_coords):
             # Only print out the info block if
@@ -512,19 +377,227 @@ class Trajectory(MSONable):
                     _lattice = self.lattice[si]
 
                 for latt_vec in _lattice:
-                    lines.append(f'{" ".join([str(el) for el in latt_vec])}')
+                    lines.append(f'{" ".join(map(str, latt_vec))}')
 
                 lines.append(" ".join(site_symbols))
-                lines.append(" ".join([str(x) for x in natoms]))
+                lines.append(" ".join(map(str, n_atoms)))
 
             lines.append(f"Direct configuration=     {si + 1}")
 
             for (frac_coord, specie) in zip(frac_coords, self.species):
                 coords = frac_coord
-                line = f'{" ".join([format_str.format(c) for c in coords])} {specie}'
+                line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
                 lines.append(line)
 
         xdatcar_string = "\n".join(lines) + "\n"
 
         with zopen(filename, "wt") as f:
             f.write(xdatcar_string)
+
+    def as_dict(self) -> dict:
+        """
+        Return the trajectory as a MSONAble dict.
+        """
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "lattice": self.lattice.tolist(),
+            "species": self.species,
+            "frac_coords": self.frac_coords.tolist(),
+            "site_properties": self.site_properties,
+            "frame_properties": self.frame_properties,
+            "constant_lattice": self.constant_lattice,
+            "time_step": self.time_step,
+            "coords_are_displacement": self.coords_are_displacement,
+            "base_positions": self.base_positions,
+        }
+
+    @classmethod
+    def from_structures(
+        cls,
+        structures: list[Structure],
+        constant_lattice: bool = True,
+        **kwargs,
+    ) -> Trajectory:
+        """
+        Create trajectory from a list of structures.
+
+        Note: Assumes no atoms removed during simulation.
+
+        Args:
+            structures: pymatgen Structure objects.
+            constant_lattice: Whether the lattice changes during the simulation,
+                such as in an NPT MD simulation.
+
+        Returns:
+            A trajectory from the structures.
+        """
+        if constant_lattice:
+            lattice = structures[0].lattice.matrix
+        else:
+            lattice = np.array([structure.lattice.matrix for structure in structures])
+
+        species = structures[0].species
+        frac_coords = [structure.frac_coords for structure in structures]
+        site_properties = [structure.site_properties for structure in structures]
+
+        return cls(
+            lattice,
+            species,  # type: ignore
+            frac_coords,
+            site_properties=site_properties,  # type: ignore
+            constant_lattice=constant_lattice,
+            **kwargs,
+        )
+
+    @classmethod
+    def from_file(
+        cls,
+        filename: str | Path,
+        constant_lattice: bool = True,
+        **kwargs,
+    ) -> Trajectory:
+        """
+        Create trajectory from XDATCAR or vasprun.xml file.
+
+        Args:
+            filename: Path to the file to read from.
+            constant_lattice: Whether the lattice changes during the simulation,
+                such as in an NPT MD simulation.
+
+        Returns:
+            A trajectory from the file.
+        """
+        fname = Path(filename).expanduser().resolve().name
+
+        if fnmatch(fname, "*XDATCAR*"):
+            structures = Xdatcar(filename).structures
+        elif fnmatch(fname, "vasprun*.xml*"):
+            structures = Vasprun(filename).structures
+        else:
+            supported = ("XDATCAR", "vasprun.xml")
+            raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
+
+        return cls.from_structures(
+            structures,
+            constant_lattice=constant_lattice,
+            **kwargs,
+        )
+
+    @staticmethod
+    def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
+        """
+        Helper function to combine trajectory lattice.
+        """
+        if lat1.ndim == lat2.ndim == 2:
+            constant_lat = True
+            lat = lat1
+        else:
+            constant_lat = False
+            if lat1.ndim == 2:
+                lat1 = np.tile(lat1, (len1, 1, 1))
+            if lat2.ndim == 2:
+                lat2 = np.tile(lat2, (len2, 1, 1))
+            lat = np.concatenate((lat1, lat2))
+
+        return lat, constant_lat
+
+    @staticmethod
+    def _combine_site_props(
+        prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int
+    ) -> SitePropsType | None:
+        """
+        Combine site properties.
+
+        Either one of prop1 or prop2 can be None, dict, or a list of dict. All
+        possibilities of combining them are considered.
+        """
+        # special cases
+
+        if prop1 is None and prop2 is None:
+            return None
+
+        if isinstance(prop1, dict) and prop1 == prop2:
+            return prop1
+
+        # general case
+
+        assert prop1 is None or isinstance(prop1, (list, dict))
+        assert prop2 is None or isinstance(prop2, (list, dict))
+
+        p1_candidates = {
+            "NoneType": [None] * len1,
+            "dict": [prop1] * len1,
+            "list": prop1,
+        }
+        p2_candidates = {
+            "NoneType": [None] * len2,
+            "dict": [prop2] * len2,
+            "list": prop2,
+        }
+        p1_selected: list = p1_candidates[type(prop1).__name__]  # type: ignore
+        p2_selected: list = p2_candidates[type(prop2).__name__]  # type: ignore
+
+        return p1_selected + p2_selected
+
+    @staticmethod
+    def _combine_frame_props(prop1: list[dict] | None, prop2: list[dict] | None, len1: int, len2: int) -> list | None:
+        """
+        Combine frame properties.
+        """
+        if prop1 is None and prop2 is None:
+            return None
+        if prop1 is None:
+            return [None] * len1 + list(prop2)  # type: ignore
+        if prop2 is None:
+            return list(prop1) + [None] * len2  # type: ignore
+        return list(prop1) + list(prop2)  # type:ignore
+
+    def _check_site_props(self, site_props: SitePropsType | None):
+        """
+        Check data shape of site properties.
+        """
+        if site_props is None:
+            return
+
+        if isinstance(site_props, dict):
+            site_props = [site_props]
+        else:
+            assert len(site_props) == len(
+                self
+            ), f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}."
+
+        num_sites = len(self.frac_coords[0])
+        for d in site_props:
+            for k, v in d.items():
+                assert len(v) == num_sites, (
+                    f"Size of site property {k} {len(v)}) does not equal to the "
+                    f"number of sites in the structure {num_sites}."
+                )
+
+    def _check_frame_props(self, frame_props: list[dict] | None):
+        """
+        Check data shape of site properties.
+        """
+        if frame_props is None:
+            return
+
+        assert len(frame_props) == len(
+            self
+        ), f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}."
+
+    def _get_site_props(self, frames: int | list[int]) -> SitePropsType | None:
+        """
+        Slice site properties.
+        """
+        if self.site_properties is None:
+            return None
+        if isinstance(self.site_properties, dict):
+            return self.site_properties
+        if isinstance(self.site_properties, list):
+            if isinstance(frames, int):
+                return self.site_properties[frames]
+            if isinstance(frames, list):
+                return [self.site_properties[i] for i in frames]
+            raise ValueError("Unexpected frames type.")
+        raise ValueError("Unexpected site_properties type.")

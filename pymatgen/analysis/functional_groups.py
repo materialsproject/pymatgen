@@ -6,6 +6,8 @@ Determine functional groups present in a Molecule.
 """
 
 
+from __future__ import annotations
+
 import copy
 
 from pymatgen.analysis.graphs import MoleculeGraph
@@ -45,7 +47,6 @@ class FunctionalGroupExtractor:
             modified, adding Hydrogens, performing a simple conformer search,
             etc.
         """
-
         self.molgraph = None
 
         if isinstance(molecule, str):
@@ -108,7 +109,6 @@ class FunctionalGroupExtractor:
             functional groups are of interest).
         :return: set of ints representing node indices
         """
-
         heteroatoms = set()
 
         for node in self.molgraph.graph.nodes():
@@ -139,7 +139,6 @@ class FunctionalGroupExtractor:
             Default None.
         :return: set of ints representing node indices
         """
-
         specials = set()
 
         # For this function, only carbons are considered
@@ -205,14 +204,13 @@ class FunctionalGroupExtractor:
             using other functions in this class.
         :return: list of sets of ints, representing groups of connected atoms
         """
-
         # We will add hydrogens to functional groups
         hydrogens = {n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"}
 
         # Graph representation of only marked atoms
         subgraph = self.molgraph.graph.subgraph(list(atoms)).to_undirected()
 
-        func_grps = []
+        func_groups = []
         for func_grp in nx.connected_components(subgraph):
             grp_hs = set()
             for node in func_grp:
@@ -221,11 +219,11 @@ class FunctionalGroupExtractor:
                     # Add all associated hydrogens into the functional group
                     if neighbor in hydrogens:
                         grp_hs.add(neighbor)
-            func_grp = func_grp.union(grp_hs)
+            func_grp = func_grp | grp_hs
 
-            func_grps.append(func_grp)
+            func_groups.append(func_grp)
 
-        return func_grps
+        return func_groups
 
     def get_basic_functional_groups(self, func_groups=None):
         """
@@ -241,7 +239,6 @@ class FunctionalGroupExtractor:
             defined in this function will be sought.
         :return: list of sets of ints, representing groups of connected atoms
         """
-
         strat = OpenBabelNN()
 
         hydrogens = {n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"}
@@ -306,10 +303,9 @@ class FunctionalGroupExtractor:
             other methods
         :return: list of sets of ints, representing groups of connected atoms
         """
-
         heteroatoms = self.get_heteroatoms(elements=elements)
         special_cs = self.get_special_carbon(elements=elements)
-        groups = self.link_marked_atoms(heteroatoms.union(special_cs))
+        groups = self.link_marked_atoms(heteroatoms | special_cs)
 
         if catch_basic:
             groups += self.get_basic_functional_groups(func_groups=func_groups)
@@ -325,7 +321,6 @@ class FunctionalGroupExtractor:
             where the group occurs in the MoleculeGraph, and how many of each
             type of group there is.
         """
-
         categories = {}
 
         em = iso.numerical_edge_match("weight", 1)  # pylint: disable=E1102

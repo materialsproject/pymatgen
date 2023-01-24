@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.command_line package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.command_line package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,10 +98,10 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-      <li>pymatgen.command_line package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.command_line package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.command_line.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -124,13 +122,114 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.bader_caller.html">pymatgen.command_line.bader_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html">pymatgen.command_line.chargemol_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html">pymatgen.command_line.critic2_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.enumlib_caller.html">pymatgen.command_line.enumlib_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html">pymatgen.command_line.gulp_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html">pymatgen.command_line.mcsqs_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html">pymatgen.command_line.vampire_caller module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.bader_caller.html">pymatgen.command_line.bader_caller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.from_path"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.from_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.get_charge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_decorated_structure"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.get_charge_decorated_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.get_charge_transfer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_decorated_structure"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.get_decorated_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.get_oxidation_state_decorated_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.get_partial_charge"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.get_partial_charge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.summary"><code class="docutils literal notranslate"><span class="pre">BaderAnalysis.summary</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.bader_analysis_from_objects"><code class="docutils literal notranslate"><span class="pre">bader_analysis_from_objects()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.bader_analysis_from_path"><code class="docutils literal notranslate"><span class="pre">bader_analysis_from_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html">pymatgen.command_line.chargemol_caller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html#pymatgen.command_line.chargemol_caller.ChargemolAnalysis"><code class="docutils literal notranslate"><span class="pre">ChargemolAnalysis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_bond_order"><code class="docutils literal notranslate"><span class="pre">ChargemolAnalysis.get_bond_order()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge"><code class="docutils literal notranslate"><span class="pre">ChargemolAnalysis.get_charge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge_transfer"><code class="docutils literal notranslate"><span class="pre">ChargemolAnalysis.get_charge_transfer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_partial_charge"><code class="docutils literal notranslate"><span class="pre">ChargemolAnalysis.get_partial_charge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_property_decorated_structure"><code class="docutils literal notranslate"><span class="pre">ChargemolAnalysis.get_property_decorated_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.summary"><code class="docutils literal notranslate"><span class="pre">ChargemolAnalysis.summary</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html">pymatgen.command_line.critic2_caller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Analysis"><code class="docutils literal notranslate"><span class="pre">Critic2Analysis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Analysis.get_critical_point_for_site"><code class="docutils literal notranslate"><span class="pre">Critic2Analysis.get_critical_point_for_site()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Analysis.get_volume_and_charge_for_site"><code class="docutils literal notranslate"><span class="pre">Critic2Analysis.get_volume_and_charge_for_site()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Analysis.structure_graph"><code class="docutils literal notranslate"><span class="pre">Critic2Analysis.structure_graph()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller"><code class="docutils literal notranslate"><span class="pre">Critic2Caller</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller.from_chgcar"><code class="docutils literal notranslate"><span class="pre">Critic2Caller.from_chgcar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller.from_path"><code class="docutils literal notranslate"><span class="pre">Critic2Caller.from_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPoint"><code class="docutils literal notranslate"><span class="pre">CriticalPoint</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPoint.ellipticity"><code class="docutils literal notranslate"><span class="pre">CriticalPoint.ellipticity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPoint.laplacian"><code class="docutils literal notranslate"><span class="pre">CriticalPoint.laplacian</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPoint.type"><code class="docutils literal notranslate"><span class="pre">CriticalPoint.type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType"><code class="docutils literal notranslate"><span class="pre">CriticalPointType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType.bond"><code class="docutils literal notranslate"><span class="pre">CriticalPointType.bond</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType.cage"><code class="docutils literal notranslate"><span class="pre">CriticalPointType.cage</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType.nnattr"><code class="docutils literal notranslate"><span class="pre">CriticalPointType.nnattr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType.nucleus"><code class="docutils literal notranslate"><span class="pre">CriticalPointType.nucleus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType.ring"><code class="docutils literal notranslate"><span class="pre">CriticalPointType.ring</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.get_filepath"><code class="docutils literal notranslate"><span class="pre">get_filepath()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.enumlib_caller.html">pymatgen.command_line.enumlib_caller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.enumlib_caller.html#pymatgen.command_line.enumlib_caller.EnumError"><code class="docutils literal notranslate"><span class="pre">EnumError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html">pymatgen.command_line.gulp_caller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.BuckinghamPotential"><code class="docutils literal notranslate"><span class="pre">BuckinghamPotential</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpCaller"><code class="docutils literal notranslate"><span class="pre">GulpCaller</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpCaller.run"><code class="docutils literal notranslate"><span class="pre">GulpCaller.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpConvergenceError"><code class="docutils literal notranslate"><span class="pre">GulpConvergenceError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpError"><code class="docutils literal notranslate"><span class="pre">GulpError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO"><code class="docutils literal notranslate"><span class="pre">GulpIO</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.buckingham_input"><code class="docutils literal notranslate"><span class="pre">GulpIO.buckingham_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential"><code class="docutils literal notranslate"><span class="pre">GulpIO.buckingham_potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.get_energy"><code class="docutils literal notranslate"><span class="pre">GulpIO.get_energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure"><code class="docutils literal notranslate"><span class="pre">GulpIO.get_relaxed_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.keyword_line"><code class="docutils literal notranslate"><span class="pre">GulpIO.keyword_line()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.library_line"><code class="docutils literal notranslate"><span class="pre">GulpIO.library_line()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines"><code class="docutils literal notranslate"><span class="pre">GulpIO.specie_potential_lines()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.structure_lines"><code class="docutils literal notranslate"><span class="pre">GulpIO.structure_lines()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.tersoff_input"><code class="docutils literal notranslate"><span class="pre">GulpIO.tersoff_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential"><code class="docutils literal notranslate"><span class="pre">GulpIO.tersoff_potential()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.TersoffPotential"><code class="docutils literal notranslate"><span class="pre">TersoffPotential</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.get_energy_buckingham"><code class="docutils literal notranslate"><span class="pre">get_energy_buckingham()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham"><code class="docutils literal notranslate"><span class="pre">get_energy_relax_structure_buckingham()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.get_energy_tersoff"><code class="docutils literal notranslate"><span class="pre">get_energy_tersoff()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html">pymatgen.command_line.mcsqs_caller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html#pymatgen.command_line.mcsqs_caller.Sqs"><code class="docutils literal notranslate"><span class="pre">Sqs</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html#pymatgen.command_line.mcsqs_caller.Sqs.allsqs"><code class="docutils literal notranslate"><span class="pre">Sqs.allsqs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html#pymatgen.command_line.mcsqs_caller.Sqs.bestsqs"><code class="docutils literal notranslate"><span class="pre">Sqs.bestsqs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html#pymatgen.command_line.mcsqs_caller.Sqs.clusters"><code class="docutils literal notranslate"><span class="pre">Sqs.clusters</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html#pymatgen.command_line.mcsqs_caller.Sqs.directory"><code class="docutils literal notranslate"><span class="pre">Sqs.directory</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html#pymatgen.command_line.mcsqs_caller.Sqs.objective_function"><code class="docutils literal notranslate"><span class="pre">Sqs.objective_function</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html#pymatgen.command_line.mcsqs_caller.run_mcsqs"><code class="docutils literal notranslate"><span class="pre">run_mcsqs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html">pymatgen.command_line.vampire_caller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireCaller"><code class="docutils literal notranslate"><span class="pre">VampireCaller</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout"><code class="docutils literal notranslate"><span class="pre">VampireCaller.parse_stdout()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireOutput"><code class="docutils literal notranslate"><span class="pre">VampireOutput</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

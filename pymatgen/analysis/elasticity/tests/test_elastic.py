@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import random
@@ -6,6 +8,7 @@ import warnings
 from copy import deepcopy
 
 import numpy as np
+import pytest
 from scipy.misc import central_diff_weights
 
 from pymatgen.analysis.elasticity.elastic import (
@@ -76,34 +79,33 @@ class ElasticTensorTest(PymatgenTest):
         ct = ComplianceTensor.from_voigt(np.linalg.inv(self.elastic_tensor_1.voigt))
         self.assertArrayAlmostEqual(ct, self.elastic_tensor_1.compliance_tensor)
         # KG average properties
-        self.assertAlmostEqual(38.49111111111, self.elastic_tensor_1.k_voigt)
-        self.assertAlmostEqual(22.05866666666, self.elastic_tensor_1.g_voigt)
-        self.assertAlmostEqual(38.49110945133, self.elastic_tensor_1.k_reuss)
-        self.assertAlmostEqual(20.67146635306, self.elastic_tensor_1.g_reuss)
-        self.assertAlmostEqual(38.49111028122, self.elastic_tensor_1.k_vrh)
-        self.assertAlmostEqual(21.36506650986, self.elastic_tensor_1.g_vrh)
+        assert self.elastic_tensor_1.k_voigt == pytest.approx(38.49111111111)
+        assert self.elastic_tensor_1.g_voigt == pytest.approx(22.05866666666)
+        assert self.elastic_tensor_1.k_reuss == pytest.approx(38.49110945133)
+        assert self.elastic_tensor_1.g_reuss == pytest.approx(20.67146635306)
+        assert self.elastic_tensor_1.k_vrh == pytest.approx(38.49111028122)
+        assert self.elastic_tensor_1.g_vrh == pytest.approx(21.36506650986)
 
         # universal anisotropy
-        self.assertAlmostEqual(0.33553509658699, self.elastic_tensor_1.universal_anisotropy)
-        # homogeneous poisson
-        self.assertAlmostEqual(0.26579965576472, self.elastic_tensor_1.homogeneous_poisson)
+        assert self.elastic_tensor_1.universal_anisotropy == pytest.approx(0.33553509658699)
+        # homogeneous Poisson
+        assert self.elastic_tensor_1.homogeneous_poisson == pytest.approx(0.26579965576472)
         # voigt notation tensor
         self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt, self.voigt_1)
         # young's modulus
-        self.assertAlmostEqual(54087787667.160583, self.elastic_tensor_1.y_mod)
+        assert self.elastic_tensor_1.y_mod == pytest.approx(54087787667.160583)
 
         # prop dict
         prop_dict = self.elastic_tensor_1.property_dict
-        self.assertAlmostEqual(prop_dict["homogeneous_poisson"], 0.26579965576)
+        assert prop_dict["homogeneous_poisson"] == pytest.approx(0.26579965576)
         for k, v in prop_dict.items():
-            self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
+            assert getattr(self.elastic_tensor_1, k) == pytest.approx(v)
 
     def test_directional_elastic_mod(self):
-        self.assertAlmostEqual(
-            self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]),
-            self.elastic_tensor_1.voigt[0, 0],
+        assert self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]) == pytest.approx(
+            self.elastic_tensor_1.voigt[0, 0]
         )
-        self.assertAlmostEqual(self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]), 73.624444444)
+        assert self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]) == pytest.approx(73.624444444)
 
     def test_compliance_tensor(self):
         stress = self.elastic_tensor_1.calculate_stress([0.01] + [0] * 5)
@@ -113,42 +115,42 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_directional_poisson_ratio(self):
         v_12 = self.elastic_tensor_1.directional_poisson_ratio([1, 0, 0], [0, 1, 0])
-        self.assertAlmostEqual(v_12, 0.321, places=3)
+        assert v_12 == pytest.approx(0.321388)
 
     def test_structure_based_methods(self):
         # trans_velocity
-        self.assertAlmostEqual(1996.35019877, self.elastic_tensor_1.trans_v(self.structure))
+        assert self.elastic_tensor_1.trans_v(self.structure) == pytest.approx(1996.35019877)
         # long_velocity
-        self.assertAlmostEqual(3534.68123832, self.elastic_tensor_1.long_v(self.structure))
+        assert self.elastic_tensor_1.long_v(self.structure) == pytest.approx(3534.68123832)
         # Snyder properties
-        self.assertAlmostEqual(18.06127074, self.elastic_tensor_1.snyder_ac(self.structure))
-        self.assertAlmostEqual(0.18937465, self.elastic_tensor_1.snyder_opt(self.structure))
-        self.assertAlmostEqual(18.25064540, self.elastic_tensor_1.snyder_total(self.structure))
+        assert self.elastic_tensor_1.snyder_ac(self.structure) == pytest.approx(18.06127074)
+        assert self.elastic_tensor_1.snyder_opt(self.structure) == pytest.approx(0.18937465)
+        assert self.elastic_tensor_1.snyder_total(self.structure) == pytest.approx(18.25064540)
         # Clarke
-        self.assertAlmostEqual(0.3450307, self.elastic_tensor_1.clarke_thermalcond(self.structure))
+        assert self.elastic_tensor_1.clarke_thermalcond(self.structure) == pytest.approx(0.3450307)
         # Cahill
-        self.assertAlmostEqual(0.37896275, self.elastic_tensor_1.cahill_thermalcond(self.structure))
+        assert self.elastic_tensor_1.cahill_thermalcond(self.structure) == pytest.approx(0.37896275)
         # Debye
-        self.assertAlmostEqual(198.8037985019, self.elastic_tensor_1.debye_temperature(self.structure))
+        assert self.elastic_tensor_1.debye_temperature(self.structure) == pytest.approx(198.8037985019)
 
         # structure-property dict
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)
-        self.assertAlmostEqual(sprop_dict["long_v"], 3534.68123832)
+        assert sprop_dict["long_v"] == pytest.approx(3534.68123832)
         for val in sprop_dict.values():
-            self.assertFalse(isinstance(val, FloatWithUnit))
+            assert not isinstance(val, FloatWithUnit)
         for k, v in sprop_dict.items():
             if k == "structure":
-                self.assertEqual(v, self.structure)
+                assert v == self.structure
             else:
                 f = getattr(self.elastic_tensor_1, k)
                 if callable(f):
-                    self.assertAlmostEqual(getattr(self.elastic_tensor_1, k)(self.structure), v)
+                    assert getattr(self.elastic_tensor_1, k)(self.structure) == pytest.approx(v)
                 else:
-                    self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
+                    assert getattr(self.elastic_tensor_1, k) == pytest.approx(v)
 
         # Test other sprop dict modes
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure, include_base_props=False)
-        self.assertFalse("k_vrh" in sprop_dict)
+        assert "k_vrh" not in sprop_dict
 
         # Test ValueError being raised for structure properties
         test_et = deepcopy(self.elastic_tensor_1)
@@ -156,10 +158,12 @@ class ElasticTensorTest(PymatgenTest):
         prop_dict = test_et.property_dict
         for attr_name in sprop_dict:
             if attr_name not in (list(prop_dict) + ["structure"]):
-                self.assertRaises(ValueError, getattr(test_et, attr_name), self.structure)
-        self.assertRaises(ValueError, test_et.get_structure_property_dict, self.structure)
+                with pytest.raises(ValueError):
+                    getattr(test_et, attr_name)(self.structure)
+        with pytest.raises(ValueError):
+            test_et.get_structure_property_dict(self.structure)
         noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
-        self.assertIsNone(noval_sprop_dict["snyder_ac"])
+        assert noval_sprop_dict["snyder_ac"] is None
 
     def test_new(self):
         self.assertArrayAlmostEqual(self.elastic_tensor_1, ElasticTensor(self.ft))
@@ -167,11 +171,13 @@ class ElasticTensorTest(PymatgenTest):
         nonsymm[0, 1, 2, 2] += 1.0
         with warnings.catch_warnings(record=True) as w:
             ElasticTensor(nonsymm)
-            self.assertEqual(len(w), 1)
+            assert len(w) == 1
         badtensor1 = np.zeros((3, 3, 3))
         badtensor2 = np.zeros((3, 3, 3, 2))
-        self.assertRaises(ValueError, ElasticTensor, badtensor1)
-        self.assertRaises(ValueError, ElasticTensor, badtensor2)
+        with pytest.raises(ValueError):
+            ElasticTensor(badtensor1)
+        with pytest.raises(ValueError):
+            ElasticTensor(badtensor2)
 
     def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
@@ -218,7 +224,7 @@ class ElasticTensorTest(PymatgenTest):
             ]
         )
 
-        self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain), 0.00125664672793)
+        assert film_elac.energy_density(dfm.green_lagrange_strain) == pytest.approx(0.00125664672793)
 
         film_elac.energy_density(
             Strain.from_deformation(
@@ -264,7 +270,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
         cijklmn = Tensor.from_voigt(self.c3)
         exp = ElasticTensorExpansion([cijkl, cijklmn])
         ElasticTensorExpansion.from_voigt([self.c2, self.c3])
-        self.assertEqual(exp.order, 3)
+        assert exp.order == 3
 
     def test_from_diff_fit(self):
         ElasticTensorExpansion.from_diff_fit(self.strains, self.pk_stresses)
@@ -274,8 +280,8 @@ class ElasticTensorExpansionTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.pk_stresses[0], calc_stress, decimal=2)
 
     def test_energy_density(self):
-        edensity = self.exp.energy_density(self.strains[0])
-        self.assertAlmostEqual(edensity, 1.36363099e-4)
+        e_density = self.exp.energy_density(self.strains[0])
+        assert e_density == pytest.approx(1.36363099e-4)
 
     def test_gruneisen(self):
         # Get GGT
@@ -287,13 +293,13 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
         # Get heat capacity
         c0 = self.exp_cu.get_heat_capacity(0, self.cu, [1, 0, 0], [0, 1, 0])
-        self.assertEqual(c0, 0.0)
+        assert c0 == 0.0
         c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
-        self.assertAlmostEqual(c, 8.285611958)
+        assert c == pytest.approx(8.285611958)
 
         # Get Gruneisen parameter
         gp = self.exp_cu.get_gruneisen_parameter()
-        self.assertAlmostEqual(gp, 2.59631832)
+        assert gp == pytest.approx(2.59631832)
         _ = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
 
     def test_thermal_expansion_coeff(self):
@@ -354,8 +360,9 @@ class NthOrderElasticTensorTest(PymatgenTest):
         c3 = NthOrderElasticTensor(self.c3.tolist())
         c4 = NthOrderElasticTensor(np.zeros([3] * 8))
         for n, c in enumerate([c2, c3, c4]):
-            self.assertEqual(c.order, n + 2)
-        self.assertRaises(ValueError, NthOrderElasticTensor, np.zeros([3] * 5))
+            assert c.order == n + 2
+        with pytest.raises(ValueError):
+            NthOrderElasticTensor(np.zeros([3] * 5))
 
     def test_from_diff_fit(self):
         c3 = NthOrderElasticTensor.from_diff_fit(
@@ -406,9 +413,9 @@ class DiffFitTest(PymatgenTest):
         strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
-        self.assertEqual(len(strain_inds), len(ss_dict))
+        assert len(strain_inds) == len(ss_dict)
         # Check sets of strain states are correct
-        self.assertEqual(set(strain_states), set(ss_dict))
+        assert set(strain_states) == set(ss_dict)
         for data in ss_dict.values():
             # Check correspondence of strains/stresses
             for strain, stress in zip(data["strains"], data["stresses"]):

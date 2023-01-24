@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-
 """
 TODO: Modify module doc.
 """
+
+from __future__ import annotations
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

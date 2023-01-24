@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.gb package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.analysis.gb package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-      <li>pymatgen.analysis.gb package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.analysis.gb package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.gb.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,7 +123,39 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.gb.grain.html">pymatgen.analysis.gb.grain module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.gb.grain.html">pymatgen.analysis.gb.grain module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary"><code class="docutils literal notranslate"><span class="pre">GrainBoundary</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.as_dict"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.bottom_grain"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.bottom_grain</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.coincidents"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.coincidents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.copy"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.copy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.from_dict"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.get_sorted_structure"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.get_sorted_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.sigma"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.sigma</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.sigma_from_site_prop"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.sigma_from_site_prop</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.top_grain"><code class="docutils literal notranslate"><span class="pre">GrainBoundary.top_grain</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_possible_plane_cubic"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.enum_possible_plane_cubic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_cubic"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.enum_sigma_cubic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_hex"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.enum_sigma_hex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_ort"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.enum_sigma_ort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.enum_sigma_rho()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.enum_sigma_tet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.gb_from_parameters"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.gb_from_parameters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_ratio"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.get_ratio()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_rotation_angle_from_sigma"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.get_rotation_angle_from_sigma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_trans_mat"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.get_trans_mat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.reduce_mat"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.reduce_mat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.slab_from_csl"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.slab_from_csl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.vec_to_surface"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryGenerator.vec_to_surface()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.fix_pbc"><code class="docutils literal notranslate"><span class="pre">fix_pbc()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.symm_group_cubic"><code class="docutils literal notranslate"><span class="pre">symm_group_cubic()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

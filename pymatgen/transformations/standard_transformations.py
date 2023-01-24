@@ -84,7 +84,7 @@ class RotationTransformation(AbstractTransformation):
         return RotationTransformation(self.axis, -self.angle, self.angle_in_radians)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: False"""
         return False
 
@@ -124,7 +124,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -184,7 +184,7 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -223,7 +223,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -290,7 +290,7 @@ class SupercellTransformation(AbstractTransformation):
         raise NotImplementedError()
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -360,7 +360,7 @@ class SubstitutionTransformation(AbstractTransformation):
         return SubstitutionTransformation(inverse_map)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -408,7 +408,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -474,7 +474,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return trans.apply_transformation(structure, return_ranked_list)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: True
         """
@@ -572,7 +572,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
-
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
@@ -583,7 +582,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
-                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}
+                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore
 
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
@@ -690,7 +689,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: True
         """
@@ -748,7 +747,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -760,7 +759,7 @@ class ConventionalCellTransformation(AbstractTransformation):
     This class finds the conventional cell of the input structure.
     """
 
-    def __init__(self, symprec=0.01, angle_tolerance=5, international_monoclinic=True):
+    def __init__(self, symprec: float = 0.01, angle_tolerance=5, international_monoclinic=True):
         """
         Args:
             symprec (float): tolerance as in SpacegroupAnalyzer
@@ -799,7 +798,7 @@ class ConventionalCellTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -825,7 +824,6 @@ class PerturbStructureTransformation(AbstractTransformation):
             min_distance: if None, all displacements will be equidistant. If int
                 or float, perturb each site a distance drawn from the uniform
                 distribution between 'min_distance' and 'distance'.
-
         """
         self.distance = distance
         self.min_distance = min_distance
@@ -858,7 +856,7 @@ class PerturbStructureTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -905,7 +903,7 @@ class DeformStructureTransformation(AbstractTransformation):
         return DeformStructureTransformation(self._deform.inv)
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -919,7 +917,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     transformations.
     """
 
-    def __init__(self, max_denominator=5, tol: float = None, fix_denominator=False):
+    def __init__(self, max_denominator=5, tol: float | None = None, fix_denominator=False):
         """
         Args:
             max_denominator:
@@ -980,7 +978,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -1029,7 +1027,7 @@ class ChargedCellTransformation(AbstractTransformation):
         raise NotImplementedError()
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """
@@ -1083,7 +1081,6 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
         """
-
         if self.species_map is None:
             match = StructureMatcher()
             s_map = match.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure, structure)
@@ -1114,7 +1111,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """

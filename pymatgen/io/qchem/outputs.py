@@ -26,21 +26,20 @@ from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
 from pymatgen.io.qchem.utils import (
     process_parsed_coords,
+    process_parsed_fock_matrix,
+    read_matrix_pattern,
     read_pattern,
     read_table_pattern,
 )
 
 try:
-
-    have_babel = True
+    from openbabel import openbabel
 except ImportError:
     openbabel = None
-    have_babel = False
 
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 __credits__ = "Gabe Gomes"
 
 logger = logging.getLogger(__name__)
@@ -111,6 +110,17 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key")
 
+        # Get the value of scf_final_print in the output file
+        scf_final_print = read_pattern(
+            self.text,
+            {"key": r"scf_final_print\s*=\s*(\d+)"},
+            terminate_on_match=True,
+        ).get("key")
+        if scf_final_print is not None:
+            self.data["scf_final_print"] = int(scf_final_print[0][0])
+        else:
+            self.data["scf_final_print"] = 0
+
         # Check if calculation uses GEN_SCFMAN, multiple potential output formats
         self.data["using_GEN_SCFMAN"] = read_pattern(
             self.text,
@@ -140,14 +150,58 @@ class QCOutput(MSONable):
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
         self.data["solvent_data"] = None
+
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "PCM"
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*smd"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "SMD"
+        if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*isosvp"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
+            self.data["solvent_method"] = "ISOSVP"
+
+        # if solvent_method is not None, populate solvent_data with None values for all possible keys
+        # ISOSVP and CMIRS data are nested under respective keys
+        # TODO - nest PCM and SMD data under respective keys in a future PR
+        pcm_keys = [
+            "PCM_dielectric",
+            "g_electrostatic",
+            "g_cavitation",
+            "g_dispersion",
+            "g_repulsion",
+            "total_contribution_pcm",
+            "solute_internal_energy",
+        ]
+        smd_keys = ["SMD_solvent", "smd0", "smd3", "smd4", "smd6", "smd9"]
+        isosvp_keys = [
+            "isosvp_dielectric",
+            "final_soln_phase_e",
+            "solute_internal_e",
+            "total_solvation_free_e",
+            "change_solute_internal_e",
+            "reaction_field_free_e",
+        ]
+        cmirs_keys = [
+            "CMIRS_enabled",
+            "dispersion_e",
+            "exchange_e",
+            "min_neg_field_e",
+            "max_pos_field_e",
+        ]
+
+        if self.data["solvent_method"] is not None:
+            self.data["solvent_data"] = {}
+            for key in pcm_keys + smd_keys:
+                self.data["solvent_data"][key] = None
+            self.data["solvent_data"]["isosvp"] = {}
+            for key in isosvp_keys:
+                self.data["solvent_data"]["isosvp"][key] = None
+            self.data["solvent_data"]["cmirs"] = {}
+            for key in cmirs_keys:
+                self.data["solvent_data"]["cmirs"][key] = None
 
         # Parse information specific to a solvent model
         if self.data["solvent_method"] == "PCM":
-            self.data["solvent_data"] = {}
             temp_dielectric = read_pattern(
                 self.text, {"key": r"dielectric\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
@@ -159,7 +213,6 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["unrecognized_solvent"]
                 else:
                     self.data["warnings"]["unrecognized_solvent"] = True
-            self.data["solvent_data"] = {}
             temp_solvent = read_pattern(self.text, {"key": r"\s[Ss]olvent:? ([a-zA-Z]+)"}).get("key")
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
@@ -173,6 +226,24 @@ class QCOutput(MSONable):
                             self.data["warnings"]["questionable_SMD_parsing"] = True
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
+        elif self.data["solvent_method"] == "ISOSVP":
+            self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = False
+            self._read_isosvp_information()
+            if read_pattern(
+                self.text,
+                {"cmirs": r"DEFESR calculation with single-center isodensity surface"},
+                terminate_on_match=True,
+            ).get("cmirs") == [[]]:
+                # this is a CMIRS calc
+                # note that all other outputs follow the same format as ISOSVP
+                self._read_cmirs_information()
+                # TODO - would it make more sense to set solvent_method = 'cmirs'?
+                # but in the QChem input file, solvent_method is still 'isosvp'
+                self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = True
+
+                # TODO - parsing to identify the CMIRS solvent?
+                # this would require parsing the $pcm_nonels section of input and comparing
+                # parameters to the contents of CMIRS_SETTINGS in pymatgen.io.qchem.sets
 
         # Parse the final energy
         temp_final_energy = read_pattern(self.text, {"key": r"Final\senergy\sis\s+([\d\-\.]+)"}).get("key")
@@ -337,6 +408,15 @@ class QCOutput(MSONable):
         if self.data.get("force_job", []):
             self._read_force_data()
 
+        # Read in the eigenvalues from the output file
+        if self.data["scf_final_print"] >= 1:
+            self._read_eigenvalues()
+
+        # Read the Fock matrix from the output file
+        if self.data["scf_final_print"] >= 3:
+            self._read_fock_matrix()
+            self._read_coefficient_matrix()
+
         # Check if the calculation is a PES scan. If so, parse the relevant output
         self.data["scan_job"] = read_pattern(
             self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*pes_scan"}, terminate_on_match=True
@@ -378,6 +458,120 @@ class QCOutput(MSONable):
             if not keep_sub_files:
                 os.remove(filename + "." + str(i))
         return to_return
+
+    def _read_eigenvalues(self):
+        """Parse the orbital energies from the output file. An array of the
+        dimensions of the number of orbitals used in the calculation is stored."""
+
+        # Find the pattern corresponding to the "Final Alpha MO Eigenvalues" section
+        header_pattern = r"Final Alpha MO Eigenvalues"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers.
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            # Since this is a spin-paired calculation, there will be
+            # only a single list of orbital energies (denoted as alpha)
+            # in the input file. The footer will then correspond
+            # to the next section, which is the MO coefficients.
+            footer_pattern = r"Final Alpha MO Coefficients+\s*"
+        else:
+            spin_unrestricted = True
+            # It is an unrestricted calculation, so there will be two sets
+            # of eigenvalues. First parse the alpha eigenvalues.
+            footer_pattern = r"Final Beta MO Eigenvalues"
+        # Common for both spin restricted and unrestricted calculations is the alpha eigenvalues.
+        alpha_eigenvalues = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        # The beta eigenvalues are only present if this is a spin-unrestricted calculation.
+        if spin_unrestricted:
+            header_pattern = r"Final Beta MO Eigenvalues"
+            footer_pattern = r"Final Alpha MO Coefficients+\s*"
+            beta_eigenvalues = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        self.data["alpha_eigenvalues"] = alpha_eigenvalues
+
+        if spin_unrestricted:
+            self.data["beta_eigenvalues"] = beta_eigenvalues
+
+    def _read_fock_matrix(self):
+        """Parses the Fock matrix. The matrix is read in whole
+        from the output file and then transformed into the right dimensions."""
+
+        # The header is the same for both spin-restricted and spin-unrestricted calculations.
+        header_pattern = r"Final Alpha Fock Matrix"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            footer_pattern = "SCF time:"
+        else:
+            spin_unrestricted = True
+            footer_pattern = "Final Beta Fock Matrix"
+        # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
+        alpha_fock_matrix = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        # The beta Fock matrix is only present if this is a spin-unrestricted calculation.
+        if spin_unrestricted:
+            header_pattern = r"Final Beta Fock Matrix"
+            footer_pattern = "SCF time:"
+            beta_fock_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        # Convert the matrices to the right dimension. Right now they are simply
+        # one massive list of numbers, but we need to split them into a matrix. The
+        # Fock matrix must always be a square matrix and as a result, we have to
+        # modify the dimensions.
+        alpha_fock_matrix = process_parsed_fock_matrix(alpha_fock_matrix)
+        self.data["alpha_fock_matrix"] = alpha_fock_matrix
+
+        if spin_unrestricted:
+            # Perform the same transformation for the beta Fock matrix.
+            beta_fock_matrix = process_parsed_fock_matrix(beta_fock_matrix)
+            self.data["beta_fock_matrix"] = beta_fock_matrix
+
+    def _read_coefficient_matrix(self):
+        """Parses the coefficient matrix from the output file. Done is much
+        the same was as the Fock matrix."""
+        # The header is the same for both spin-restricted and spin-unrestricted calculations.
+        header_pattern = r"Final Alpha MO Coefficients"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            footer_pattern = "Final Alpha Density Matrix"
+        else:
+            spin_unrestricted = True
+            footer_pattern = "Final Beta MO Coefficients"
+        # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
+        alpha_coeff_matrix = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        if spin_unrestricted:
+            header_pattern = r"Final Beta MO Coefficients"
+            footer_pattern = "Final Alpha Density Matrix"
+            beta_coeff_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        # Convert the matrices to the right dimension. Right now they are simply
+        # one massive list of numbers, but we need to split them into a matrix. The
+        # Fock matrix must always be a square matrix and as a result, we have to
+        # modify the dimensions.
+        alpha_coeff_matrix = process_parsed_fock_matrix(alpha_coeff_matrix)
+        self.data["alpha_coeff_matrix"] = alpha_coeff_matrix
+
+        if spin_unrestricted:
+            # Perform the same transformation for the beta Fock matrix.
+            beta_coeff_matrix = process_parsed_fock_matrix(beta_coeff_matrix)
+            self.data["beta_coeff_matrix"] = beta_coeff_matrix
 
     def _read_charge_and_multiplicity(self):
         """
@@ -813,7 +1007,6 @@ class QCOutput(MSONable):
         """
         Parses all gradients obtained during an optimization trajectory
         """
-
         grad_header_pattern = r"Gradient of (?:SCF)?(?:MP2)? Energy(?: \(in au\.\))?"
         footer_pattern = r"(?:Max gradient component|Gradient time)"
 
@@ -894,14 +1087,14 @@ class QCOutput(MSONable):
                 real_energy_trajectory[ii] = float(entry[0])
             self.data["energy_trajectory"] = real_energy_trajectory
             self._read_geometries()
-            if have_babel:
+            if openbabel is not None:
                 self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"],
                 )
             self._read_gradients()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
-            # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
+            # identified, check to see if the optimization failed to converge or if Lambda wasn't able
             # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0
@@ -1145,7 +1338,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
 
         self._read_geometries()
-        if have_babel:
+        if openbabel is not None:
             self.data["structure_change"] = check_for_structure_changes(
                 self.data["initial_molecule"],
                 self.data["molecule_from_last_geometry"],
@@ -1249,7 +1442,6 @@ class QCOutput(MSONable):
         """
         Parses information from PCM solvent calculations.
         """
-
         temp_dict = read_pattern(
             self.text,
             {
@@ -1273,15 +1465,10 @@ class QCOutput(MSONable):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
 
-        smd_keys = ["smd0", "smd3", "smd4", "smd6", "smd9"]
-        for key in smd_keys:
-            self.data["solvent_data"][key] = None
-
     def _read_smd_information(self):
         """
         Parses information from SMD solvent calculations.
         """
-
         temp_dict = read_pattern(
             self.text,
             {
@@ -1304,16 +1491,94 @@ class QCOutput(MSONable):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
 
-        pcm_keys = [
-            "g_electrostatic",
-            "g_cavitation",
-            "g_dispersion",
-            "g_repulsion",
-            "total_contribution_pcm",
-            "solute_internal_energy",
-        ]
-        for key in pcm_keys:
-            self.data["solvent_data"][key] = None
+    def _read_isosvp_information(self):
+        """
+        Parses information from ISOSVP solvent calculations.
+
+        There are 5 energies output, as in the example below
+
+        --------------------------------------------------------------------------------
+        The Final SS(V)PE energies and Properties
+        --------------------------------------------------------------------------------
+
+        Energies
+        --------------------
+        The Final Solution-Phase Energy =     -40.4850599390
+        The Solute Internal Energy =          -40.4846329759
+        The Change in Solute Internal Energy =  0.0000121970  (   0.00765 KCAL/MOL)
+        The Reaction Field Free Energy =       -0.0004269631  (  -0.26792 KCAL/MOL)
+        The Total Solvation Free Energy =      -0.0004147661  (  -0.26027 KCAL/MOL)
+
+        In addition, we need to parse the DIELST fortran variable to get the dielectric
+        constant used.
+        """
+        temp_dict = read_pattern(
+            self.text,
+            {
+                "final_soln_phase_e": r"\s*The Final Solution-Phase Energy\s+=\s+([\d\-\.]+)\s*",
+                "solute_internal_e": r"\s*The Solute Internal Energy\s+=\s+([\d\-\.]+)\s*",
+                "total_solvation_free_e": r"\s*The Total Solvation Free Energy\s+=\s+([\d\-\.]+)\s*",
+                "change_solute_internal_e": r"\s*The Change in Solute Internal Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "reaction_field_free_e": r"\s*The Reaction Field Free Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "isosvp_dielectric": r"\s*DIELST=\s+(\s+[\d\-\.]+)\s*",
+            },
+        )
+
+        for key, _v in temp_dict.items():
+            if temp_dict.get(key) is None:
+                self.data["solvent_data"]["isosvp"][key] = None
+            elif len(temp_dict.get(key)) == 1:
+                self.data["solvent_data"]["isosvp"][key] = float(temp_dict.get(key)[0][0])
+            else:
+                temp_result = np.zeros(len(temp_dict.get(key)))
+                for ii, entry in enumerate(temp_dict.get(key)):
+                    temp_result[ii] = float(entry[0])
+                self.data["solvent_data"]["isosvp"][key] = temp_result
+
+    def _read_cmirs_information(self):
+        """
+        Parses information from CMIRS solvent calculations.
+
+        In addition to the 5 energies returned by ISOSVP (and read separately in
+        _read_isosvp_information), there are 4 additional energies reported, as shown
+        in the example below
+
+        --------------------------------------------------------------------------------
+        The Final SS(V)PE energies and Properties
+        --------------------------------------------------------------------------------
+
+        Energies
+        --------------------
+        The Final Solution-Phase Energy =     -40.4751881546
+        The Solute Internal Energy =          -40.4748568841
+        The Change in Solute Internal Energy =  0.0000089729  (   0.00563 KCAL/MOL)
+        The Reaction Field Free Energy =       -0.0003312705  (  -0.20788 KCAL/MOL)
+        The Dispersion Energy =                 0.6955550107  (  -2.27836 KCAL/MOL)
+        The Exchange Energy =                   0.2652679507  (   2.15397 KCAL/MOL)
+        Min. Negative Field Energy =            0.0005235850  (   0.00000 KCAL/MOL)
+        Max. Positive Field Energy =            0.0179866718  (   0.00000 KCAL/MOL)
+        The Total Solvation Free Energy =      -0.0005205275  (  -0.32664 KCAL/MOL)
+        """
+        temp_dict = read_pattern(
+            self.text,
+            {
+                "dispersion_e": r"\s*The Dispersion Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "exchange_e": r"\s*The Exchange Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "min_neg_field_e": r"\s*Min. Negative Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "max_pos_field_e": r"\s*Max. Positive Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+            },
+        )
+
+        for key, _v in temp_dict.items():
+            if temp_dict.get(key) is None:
+                self.data["solvent_data"]["cmirs"][key] = None
+            elif len(temp_dict.get(key)) == 1:
+                self.data["solvent_data"]["cmirs"][key] = float(temp_dict.get(key)[0][0])
+            else:
+                temp_result = np.zeros(len(temp_dict.get(key)))
+                for ii, entry in enumerate(temp_dict.get(key)):
+                    temp_result[ii] = float(entry[0])
+                self.data["solvent_data"]["cmirs"][key] = temp_result
 
     def _read_nbo_data(self):
         """

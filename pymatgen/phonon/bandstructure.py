@@ -162,7 +162,6 @@ class PhononBandStructure(MSONable):
         """
         True if imaginary frequencies are present in the BS.
         """
-
         return self.min_freq()[1] + tol < 0
 
     @property
@@ -225,7 +224,6 @@ class PhononBandStructure(MSONable):
         identified or eigendisplacements are missing the first 3 modes will be used
         (indices [0:3]).
         """
-
         for i in range(self.nb_qpoints):
             if np.allclose(self.qpoints[i].frac_coords, (0, 0, 0)):
 
@@ -348,7 +346,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 associated with the band structure. This is needed if we
                 provide projections to the band structure
         """
-
         super().__init__(
             qpoints=qpoints,
             frequencies=frequencies,
@@ -419,8 +416,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                         if self.has_eigendisplacements:
                             nac_eigendisplacements.append((direction, eigendisplacements[:, i]))
 
-            self.nac_frequencies = np.array(naf)
-            self.nac_eigendisplacements = np.array(nac_eigendisplacements)
+            self.nac_frequencies = np.array(naf, dtype=object)
+            self.nac_eigendisplacements = np.array(nac_eigendisplacements, dtype=object)
 
     def get_equivalent_qpoints(self, index):
         """
@@ -600,9 +597,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def as_dict(self):
         """
-
         Returns: MSONable dict
-
         """
         d = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
@@ -615,12 +610,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     @classmethod
     def from_dict(cls, d):
         """
-
         Args:
             d: Dict representation
 
         Returns: PhononBandStructureSummLine
-
         """
         lattice_rec = Lattice(d["lattice_rec"]["matrix"])
         eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j

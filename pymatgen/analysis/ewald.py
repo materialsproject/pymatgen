@@ -210,7 +210,7 @@ class EwaldSummation(MSONable):
     @property
     def real_space_energy(self):
         """
-        The real space space energy.
+        The real space energy.
         """
         if not self._initialized:
             self._calc_ewald_terms()
@@ -453,7 +453,6 @@ class EwaldSummation(MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details.
         """
-
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -472,7 +471,7 @@ class EwaldSummation(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any], fmt: str = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, d: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
@@ -570,7 +569,7 @@ class EwaldMinimizer:
             raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
         self._output_lists = []
-        # Tag that the recurse function looks at at each level. If a method
+        # Tag that the recurse function looks at each level. If a method
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False
 

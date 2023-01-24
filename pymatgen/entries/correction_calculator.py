@@ -20,15 +20,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 
 
-def _func(x, *m):
-    """
-    Helper function for curve_fit.
-    """
-    return np.dot(x, m)
-
-
 class CorrectionCalculator:
-
     """
     A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
 
@@ -46,54 +38,10 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species: list[str] = [
-            "oxide",
-            "peroxide",
-            "superoxide",
-            "S",
-            "F",
-            "Cl",
-            "Br",
-            "I",
-            "N",
-            "Se",
-            "Si",
-            "Sb",
-            "Te",
-            "V",
-            "Cr",
-            "Mn",
-            "Fe",
-            "Co",
-            "Ni",
-            "W",
-            "Mo",
-            "H",
-        ],
+        species: list[str] | None = None,
         max_error: float = 0.1,
         allow_unstable: float | bool = 0.1,
-        exclude_polyanions: list[str] = [
-            "SO4",
-            "SO3",
-            "CO3",
-            "NO3",
-            "NO2",
-            "OCl3",
-            "ClO3",
-            "ClO4",
-            "HO",
-            "ClO",
-            "SeO3",
-            "TiO3",
-            "TiO4",
-            "WO4",
-            "SiO3",
-            "SiO4",
-            "Si2O5",
-            "PO3",
-            "PO4",
-            "P2O7",
-        ],
+        exclude_polyanions: list[str] | None = None,
     ) -> None:
         """
         Initializes a CorrectionCalculator.
@@ -101,24 +49,27 @@ class CorrectionCalculator:
         Args:
             species: list of species to calculate corrections for
             max_error: maximum tolerable relative uncertainty in experimental energy.
-                    Compounds with relative uncertainty greater than this value will be excluded from the fit
+                Compounds with relative uncertainty greater than this value will be excluded from the fit
             allow_unstable: whether unstable entries are to be included in the fit. If True, all compounds will
-                            be included regardless of their energy above hull. If False or a float, compounds with
-                            energy above hull greater than the given value (defaults to 0.1 eV/atom) will be
-                            excluded
+                be included regardless of their energy above hull. If False or a float, compounds with
+                energy above hull greater than the given value (defaults to 0.1 eV/atom) will be
+                excluded
             exclude_polyanions: a list of polyanions that contain additional sources of error that may negatively
-                                influence the quality of the fitted corrections. Compounds with these polyanions
-                                will be excluded from the fit
-
+                influence the quality of the fitted corrections. Compounds with these polyanions
+                will be excluded from the fit
         """
+        self.species = species or "oxide peroxide superoxide S F Cl Br I N Se Si Sb Te V Cr Mn Fe Co Ni W Mo H".split()
 
-        self.species = species
         self.max_error = max_error
         if not allow_unstable:
             self.allow_unstable = 0.1
         else:
             self.allow_unstable = allow_unstable
-        self.exclude_polyanions = exclude_polyanions
+        self.exclude_polyanions = (
+            exclude_polyanions
+            if exclude_polyanions is not None
+            else "SO4 SO3 CO3 NO3 NO2 OCl3 ClO3 ClO4 HO ClO SeO3 TiO3 TiO4 WO4 SiO3 SiO4 Si2O5 PO3 PO4 P2O7".split()
+        )
 
         self.corrections: list[float] = []
         self.corrections_std_error: list[float] = []
@@ -144,7 +95,6 @@ class CorrectionCalculator:
             comp_gz: name of .json.gz file that contains computed entries
                     data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}
         """
-
         exp_entries = loadfn(exp_gz)
         calc_entries = loadfn(comp_gz)
 
@@ -163,7 +113,6 @@ class CorrectionCalculator:
         Raises:
             ValueError: calc_compounds is missing an entry
         """
-
         self.exp_compounds = exp_entries
         self.calc_compounds = calc_entries
 
@@ -194,7 +143,7 @@ class CorrectionCalculator:
                 allow = False
                 warnings.warn(
                     f"Compound {name} is excluded from the fit due to high experimental "
-                    f"uncertainty ({relative_uncertainty}%)"
+                    f"uncertainty ({relative_uncertainty:.1%})"
                 )
 
             # filter out compounds containing certain polyanions
@@ -289,10 +238,12 @@ class CorrectionCalculator:
 
         if np.isnan(mean_uncer):
             # no uncertainty values for any compounds, don't try to weight
-            popt, self.pcov = curve_fit(_func, self.coeff_mat, self.diffs, p0=np.ones(len(self.species)))
+            popt, self.pcov = curve_fit(
+                lambda x, *m: np.dot(x, m), self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
+            )
         else:
             popt, self.pcov = curve_fit(
-                _func,
+                lambda x, *m: np.dot(x, m),
                 self.coeff_mat,
                 self.diffs,
                 p0=np.ones(len(self.species)),
@@ -317,7 +268,6 @@ class CorrectionCalculator:
         """
         Graphs the residual errors for all compounds after applying computed corrections.
         """
-
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
@@ -360,7 +310,6 @@ class CorrectionCalculator:
         Raises:
             ValueError: the specie is not a valid specie that this class fits corrections for
         """
-
         if specie not in self.species:
             raise ValueError("not a valid specie")
 
@@ -430,12 +379,11 @@ class CorrectionCalculator:
             dir: str, directory in which to save the file. Pass None (default) to
                 save the file in the current working directory.
         """
-
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
         # elements with U values
-        ggaucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
+        ggau_correction_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
         comp_corr: dict[str, float] = {}
         o: dict[str, float] = {}
@@ -446,7 +394,7 @@ class CorrectionCalculator:
         f_error: dict[str, float] = {}
 
         for specie in list(self.species) + ["ozonide"]:
-            if specie in ggaucorrection_species:
+            if specie in ggau_correction_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
 

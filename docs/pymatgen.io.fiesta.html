@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.fiesta module &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.io.fiesta module &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,15 +14,13 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.gaussian module" href="pymatgen.io.gaussian.html" />
-    <link rel="prev" title="pymatgen.io.cube module" href="pymatgen.io.cube.html" />
+    <link rel="prev" title="pymatgen.io.cssr module" href="pymatgen.io.cssr.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
-      <li>pymatgen.io.fiesta module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.io.fiesta module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.fiesta.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -123,7 +121,7 @@
 -Localised Basis set reader</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.BSEOutput">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BSEOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L844-L906"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BSEOutput" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BSEOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L835-L897"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BSEOutput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A bse output file parser. The start…</p>
 <p>All energies are in eV.</p>
@@ -136,7 +134,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.BasisSetReader">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BasisSetReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L202-L304"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BasisSetReader" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BasisSetReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L201-L302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BasisSetReader" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A basis set reader.
 Basis set are stored in data as a dict:
@@ -149,13 +147,13 @@ in l_zeta orbital</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.BasisSetReader.infos_on_basis_set">
-<span class="sig-name descname"><span class="pre">infos_on_basis_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L290-L304"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BasisSetReader.infos_on_basis_set" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">infos_on_basis_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L288-L302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BasisSetReader.infos_on_basis_set" title="Permalink to this definition"></a></dt>
 <dd><p>infos on the basis set as in Fiesta log</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.BasisSetReader.set_n_nlmo">
-<span class="sig-name descname"><span class="pre">set_n_nlmo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L272-L288"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BasisSetReader.set_n_nlmo" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_n_nlmo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L271-L286"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.BasisSetReader.set_n_nlmo" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the number of nlm orbitals for the basis set</p>
@@ -167,7 +165,7 @@ in l_zeta orbital</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FiestaInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'dE_grid':</span> <span class="pre">'0.500',</span> <span class="pre">'n_grid':</span> <span class="pre">'14'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Exc_DFT_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'rdVxcpsi':</span> <span class="pre">'1'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">COHSEX_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'eigMethod':</span> <span class="pre">'C',</span> <span class="pre">'mix_cohsex':</span> <span class="pre">'0.500',</span> <span class="pre">'nc_cohsex':</span> <span class="pre">'0',</span> <span class="pre">'nit_cohsex':</span> <span class="pre">'0',</span> <span class="pre">'nv_cohsex':</span> <span class="pre">'0',</span> <span class="pre">'resMethod':</span> <span class="pre">'V',</span> <span class="pre">'scf_cohsex_wf':</span> <span class="pre">'0'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GW_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'nc_corr':</span> <span class="pre">'10',</span> <span class="pre">'nit_gw':</span> <span class="pre">'3',</span> <span class="pre">'nv_corr':</span> <span class="pre">'10'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BSE_TDDFT_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'do_bse':</span> <span class="pre">'1',</span> <span class="pre">'do_tddft':</span> <span class="pre">'0',</span> <span class="pre">'nc_bse':</span> <span class="pre">'382',</span> <span class="pre">'nit_bse':</span> <span class="pre">'50',</span> <span class="pre">'npsi_bse':</span> <span class="pre">'1',</span> <span class="pre">'nv_bse':</span> <span class="pre">'21'}</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L307-L743"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FiestaInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Exc_DFT_option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">COHSEX_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GW_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BSE_TDDFT_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L305-L734"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Input File for Fiesta called “cell.in” by default (mandatory in Fiesta for now)</p>
 <dl class="field-list simple">
@@ -184,7 +182,7 @@ in l_zeta orbital</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L567-L578"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L559-L570"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
@@ -194,7 +192,7 @@ in l_zeta orbital</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run">
-<span class="sig-name descname"><span class="pre">dump_BSE_data_in_GW_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">BSE_dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L401-L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dump_BSE_data_in_GW_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">BSE_dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L395-L403"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>BSE_dump</strong> – boolean</p>
@@ -207,7 +205,7 @@ in l_zeta orbital</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.dump_TDDFT_data_in_GW_run">
-<span class="sig-name descname"><span class="pre">dump_TDDFT_data_in_GW_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TDDFT_dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L412-L420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.dump_TDDFT_data_in_GW_run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dump_TDDFT_data_in_GW_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TDDFT_dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L405-L413"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.dump_TDDFT_data_in_GW_run" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>TDDFT_dump</strong> – boolean</p>
@@ -220,7 +218,7 @@ in l_zeta orbital</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L580-L593"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L572-L585"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
@@ -233,7 +231,7 @@ in l_zeta orbital</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L730-L743"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L721-L734"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Read an Fiesta input from a file. Currently tested to work with
 files generated from this class itself.</p>
 <dl class="field-list simple">
@@ -248,7 +246,7 @@ files generated from this class itself.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.from_string">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_input</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L595-L728"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_string" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_input</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L587-L719"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Read an FiestaInput from a string. Currently tested to work with
 files generated from this class itself.</p>
 <dl class="field-list simple">
@@ -263,25 +261,25 @@ files generated from this class itself.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.infos_on_system">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infos_on_system</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/fiesta.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.infos_on_system" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infos_on_system</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/fiesta.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.infos_on_system" title="Permalink to this definition"></a></dt>
 <dd><p>Returns infos on initial parameters as in the log file of Fiesta</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.make_FULL_BSE_Densities_folder">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_FULL_BSE_Densities_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L379-L389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.make_FULL_BSE_Densities_folder" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_FULL_BSE_Densities_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L374-L383"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.make_FULL_BSE_Densities_folder" title="Permalink to this definition"></a></dt>
 <dd><p>mkdir “FULL_BSE_Densities” folder (needed for bse run) in the desired folder</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.molecule">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">molecule</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/io/fiesta.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.molecule" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">molecule</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/fiesta.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.molecule" title="Permalink to this definition"></a></dt>
 <dd><p>Returns molecule associated with this FiestaInput.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.set_BSE_options">
-<span class="sig-name descname"><span class="pre">set_BSE_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_excitations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nit_bse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L391-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_BSE_options" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_BSE_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_excitations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nit_bse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L385-L393"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_BSE_options" title="Permalink to this definition"></a></dt>
 <dd><p>Set parameters in cell.in for a BSE computation
 :param nv_bse: number of valence bands
 :param nc_bse: number of conduction bands
@@ -291,7 +289,7 @@ files generated from this class itself.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.set_GW_options">
-<span class="sig-name descname"><span class="pre">set_GW_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nv_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nc_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dE_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L367-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_GW_options" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_GW_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nv_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nc_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dE_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L363-L372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_GW_options" title="Permalink to this definition"></a></dt>
 <dd><p>Set parameters in cell.in for a GW computation
 :param nv__band: number of valence bands to correct with GW
 :param nc_band: number of conduction bands to correct with GW
@@ -301,7 +299,7 @@ files generated from this class itself.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set">
-<span class="sig-name descname"><span class="pre">set_auxiliary_basis_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auxiliary_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auxiliary_basis_set_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'aug_cc_pvtz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L352-L365"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_auxiliary_basis_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auxiliary_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auxiliary_basis_set_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'aug_cc_pvtz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L349-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set" title="Permalink to this definition"></a></dt>
 <dd><p>copy in the desired folder the needed auxiliary basis set “X2.ion” where X is a specie.
 :param auxiliary_folder: folder where the auxiliary basis sets are stored
 :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must</p>
@@ -312,7 +310,7 @@ files generated from this class itself.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaInput.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L559-L565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.write_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L551-L557"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.write_file" title="Permalink to this definition"></a></dt>
 <dd><p>Write FiestaInput to a file
 :param filename: Filename</p>
 </dd></dl>
@@ -321,7 +319,7 @@ files generated from this class itself.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaOutput">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FiestaOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L746-L841"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaOutput" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FiestaOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L737-L832"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaOutput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Fiesta output file parser.</p>
 <p>All energies are in eV.</p>
@@ -334,7 +332,7 @@ files generated from this class itself.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaRun">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FiestaRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/Users/shyue/repos/pymatgen/docs_rst'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[2,</span> <span class="pre">2,</span> <span class="pre">2]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L98-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FiestaRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(2,</span> <span class="pre">2,</span> <span class="pre">2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'log'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L97-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <dl class="simple">
 <dt>To run FIESTA inside python:</dt><dd><p>if grid is [x,x] then bse runs
@@ -353,7 +351,7 @@ otherwise it breaks</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaRun.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L181-L191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L180-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
@@ -363,13 +361,13 @@ otherwise it breaks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaRun.bse_run">
-<span class="sig-name descname"><span class="pre">bse_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L156-L179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.bse_run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bse_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L156-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.bse_run" title="Permalink to this definition"></a></dt>
 <dd><p>Performs BSE run</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaRun.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L193-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L192-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
@@ -382,7 +380,7 @@ otherwise it breaks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.FiestaRun.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L117-L128"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L118-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaRun.run" title="Permalink to this definition"></a></dt>
 <dd><p>Performs FIESTA (gw) run.</p>
 </dd></dl>
 
@@ -390,7 +388,7 @@ otherwise it breaks</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.Nwchem2Fiesta">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Nwchem2Fiesta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nwchem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log_n2f'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L29-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Nwchem2Fiesta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nwchem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log_n2f'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L31-L94"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>To run NWCHEM2FIESTA inside python:</p>
 <p>If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
@@ -402,7 +400,7 @@ logfile: logfile of NWCHEM2FIESTA</p>
 <p>the run method launches NWCHEM2FIESTA</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.Nwchem2Fiesta.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L78-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L77-L86"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
@@ -412,7 +410,7 @@ logfile: logfile of NWCHEM2FIESTA</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.Nwchem2Fiesta.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L89-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L88-L94"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
@@ -425,7 +423,7 @@ logfile: logfile of NWCHEM2FIESTA</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.fiesta.Nwchem2Fiesta.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../io/fiesta.py#L57-L76"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/fiesta.py#L57-L75"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta.run" title="Permalink to this definition"></a></dt>
 <dd><p>Performs actual NWCHEM2FIESTA run</p>
 </dd></dl>
 

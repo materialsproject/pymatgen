@@ -5,6 +5,8 @@
 This module defines generic plotters.
 """
 
+from __future__ import annotations
+
 import importlib
 
 from pymatgen.util.plotting import pretty_plot
@@ -92,7 +94,6 @@ class SpectrumPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-
         plt = pretty_plot(12, 8)
         base = 0.0
         i = 0

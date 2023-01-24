@@ -1,10 +1,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import json
 import os
 import unittest
 import warnings
+
+import pytest
 
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
@@ -30,8 +34,8 @@ class TransformedStructureTest(PymatgenTest):
     def test_append_transformation(self):
         t = SubstitutionTransformation({"Fe": "Mn"})
         self.trans.append_transformation(t)
-        self.assertEqual("NaMnPO4", self.trans.final_structure.composition.reduced_formula)
-        self.assertEqual(len(self.trans.structures), 3)
+        assert "NaMnPO4" == self.trans.final_structure.composition.reduced_formula
+        assert len(self.trans.structures) == 3
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
@@ -47,7 +51,7 @@ class TransformedStructureTest(PymatgenTest):
             PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
             5,
         )
-        self.assertEqual(len(alt), 2)
+        assert len(alt) == 2
 
     def test_append_filter(self):
         f3 = ContainsSpecieFilter(["O2-"], strict_compare=True, AND=False)
@@ -56,11 +60,11 @@ class TransformedStructureTest(PymatgenTest):
     def test_get_vasp_input(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = PymatgenTest.TEST_FILES_DIR
         potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
-        self.assertEqual("Na_pv\nFe_pv\nP\nO", "\n".join([p.symbol for p in potcar]))
-        self.assertEqual(len(self.trans.structures), 2)
+        assert "Na_pv\nFe_pv\nP\nO" == "\n".join(p.symbol for p in potcar)
+        assert len(self.trans.structures) == 2
 
     def test_final_structure(self):
-        self.assertEqual("NaFePO4", self.trans.final_structure.composition.reduced_formula)
+        assert "NaFePO4" == self.trans.final_structure.composition.reduced_formula
 
     def test_from_dict(self):
         d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")))
@@ -68,8 +72,8 @@ class TransformedStructureTest(PymatgenTest):
         ts = TransformedStructure.from_dict(d)
         ts.other_parameters["author"] = "Will"
         ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
-        self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)
-        self.assertEqual(ts.other_parameters, {"author": "Will", "tags": ["test"]})
+        assert "MnPO4" == ts.final_structure.composition.reduced_formula
+        assert ts.other_parameters == {"author": "Will", "tags": ["test"]}
 
     def test_undo_and_redo_last_change(self):
         trans = [
@@ -77,17 +81,19 @@ class TransformedStructureTest(PymatgenTest):
             SubstitutionTransformation({"Fe": "Mn"}),
         ]
         ts = TransformedStructure(self.structure, trans)
-        self.assertEqual("NaMnPO4", ts.final_structure.composition.reduced_formula)
+        assert "NaMnPO4" == ts.final_structure.composition.reduced_formula
         ts.undo_last_change()
-        self.assertEqual("NaFePO4", ts.final_structure.composition.reduced_formula)
+        assert "NaFePO4" == ts.final_structure.composition.reduced_formula
         ts.undo_last_change()
-        self.assertEqual("LiFePO4", ts.final_structure.composition.reduced_formula)
-        self.assertRaises(IndexError, ts.undo_last_change)
+        assert "LiFePO4" == ts.final_structure.composition.reduced_formula
+        with pytest.raises(IndexError):
+            ts.undo_last_change()
         ts.redo_next_change()
-        self.assertEqual("NaFePO4", ts.final_structure.composition.reduced_formula)
+        assert "NaFePO4" == ts.final_structure.composition.reduced_formula
         ts.redo_next_change()
-        self.assertEqual("NaMnPO4", ts.final_structure.composition.reduced_formula)
-        self.assertRaises(IndexError, ts.redo_next_change)
+        assert "NaMnPO4" == ts.final_structure.composition.reduced_formula
+        with pytest.raises(IndexError):
+            ts.redo_next_change()
         # Make sure that this works with filters.
         f3 = ContainsSpecieFilter(["O2-"], strict_compare=True, AND=False)
         ts.append_filter(f3)
@@ -97,31 +103,26 @@ class TransformedStructureTest(PymatgenTest):
     def test_as_dict(self):
         self.trans.set_parameter("author", "will")
         d = self.trans.as_dict()
-        self.assertIn("last_modified", d)
-        self.assertIn("history", d)
-        self.assertIn("author", d["other_parameters"])
-        self.assertEqual(Structure.from_dict(d).formula, "Na4 Fe4 P4 O16")
+        assert "last_modified" in d
+        assert "history" in d
+        assert "author" in d["other_parameters"]
+        assert Structure.from_dict(d).formula == "Na4 Fe4 P4 O16"
 
     def test_snl(self):
         self.trans.set_parameter("author", "will")
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             snl = self.trans.to_snl([("will", "will@test.com")])
-            self.assertEqual(
-                len(w),
-                1,
-                "Warning not raised on type conversion with other_parameters",
-            )
+            assert len(w) == 1, "Warning not raised on type conversion with other_parameters"
         ts = TransformedStructure.from_snl(snl)
-        self.assertEqual(ts.history[-1]["@class"], "SubstitutionTransformation")
+        assert ts.history[-1]["@class"] == "SubstitutionTransformation"
 
         h = ("testname", "testURL", {"test": "testing"})
         snl = StructureNL(ts.final_structure, [("will", "will@test.com")], history=[h])
         snl = TransformedStructure.from_snl(snl).to_snl([("notwill", "notwill@test.com")])
-        self.assertEqual(snl.history, [h])
-        self.assertEqual(snl.authors, [("notwill", "notwill@test.com")])
+        assert snl.history == [h]
+        assert snl.authors == [("notwill", "notwill@test.com")]
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

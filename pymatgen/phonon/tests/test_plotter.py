@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -17,16 +19,16 @@ class PhononDosPlotterTest(unittest.TestCase):
 
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
-        self.assertEqual(len(d), 0)
+        assert len(d) == 0
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
-        self.assertEqual(len(d), 2)
+        assert len(d) == 2
 
     def test_get_dos_dict(self):
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
         for el in ["Na", "Cl"]:
-            self.assertIn(el, d)
+            assert el in d
 
     def test_plot(self):
         # Disabling latex for testing.
@@ -50,25 +52,17 @@ class PhononBSPlotterTest(unittest.TestCase):
             d = json.loads(f.read())
             self.bs = PhononBandStructureSymmLine.from_dict(d)
             self.plotter = PhononBSPlotter(self.bs)
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "SrTiO3_phonon_bandstructure.json")) as f:
+            d = json.loads(f.read())
+            self.bs_sto = PhononBandStructureSymmLine.from_dict(d)
+            self.plotter_sto = PhononBSPlotter(self.bs_sto)
 
     def test_bs_plot_data(self):
-        self.assertEqual(
-            len(self.plotter.bs_plot_data()["distances"][0]),
-            51,
-            "wrong number of distances in the first branch",
-        )
-        self.assertEqual(len(self.plotter.bs_plot_data()["distances"]), 4, "wrong number of branches")
-        self.assertEqual(
-            sum(len(e) for e in self.plotter.bs_plot_data()["distances"]),
-            204,
-            "wrong number of distances",
-        )
-        self.assertEqual(self.plotter.bs_plot_data()["ticks"]["label"][4], "Y", "wrong tick label")
-        self.assertEqual(
-            len(self.plotter.bs_plot_data()["ticks"]["label"]),
-            8,
-            "wrong number of tick labels",
-        )
+        assert len(self.plotter.bs_plot_data()["distances"][0]) == 51, "wrong number of distances in the first branch"
+        assert len(self.plotter.bs_plot_data()["distances"]) == 4, "wrong number of branches"
+        assert sum(len(e) for e in self.plotter.bs_plot_data()["distances"]) == 204, "wrong number of distances"
+        assert self.plotter.bs_plot_data()["ticks"]["label"][4] == "Y", "wrong tick label"
+        assert len(self.plotter.bs_plot_data()["ticks"]["label"]) == 8, "wrong number of tick labels"
 
     def test_plot(self):
         # Disabling latex for testing.
@@ -76,6 +70,21 @@ class PhononBSPlotterTest(unittest.TestCase):
 
         rc("text", usetex=False)
         self.plotter.get_plot(units="mev")
+
+    def test_proj_plot(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+
+        rc("text", usetex=False)
+        self.plotter.get_proj_plot(units="mev")
+        self.plotter.get_proj_plot(units="mev", ylim=(15, 30), rgb_labels=("NA", "CL"))
+        self.plotter.get_proj_plot(units="mev", site_comb=[[0], [1]])
+        self.plotter.get_proj_plot(units="mev", site_comb=[[0], [1]])
+
+        self.plotter_sto.get_proj_plot()
+        self.plotter_sto.get_proj_plot(ylim=(-2.5, 5), site_comb=[[0], [1], [2, 3, 4]])
+        self.plotter_sto.get_proj_plot(site_comb=[[0], [1], [2, 3, 4]], rgb_labels=("SR", "TI", "O"))
+        self.plotter_sto.get_proj_plot(site_comb=[[0], [1], [2], [3, 4]])
 
     def test_plot_compare(self):
         # Disabling latex for testing.

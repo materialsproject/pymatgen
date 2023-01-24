@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.apps.borg package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.apps.borg package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.apps.html">pymatgen.apps package</a> &raquo;</li>
-      <li>pymatgen.apps.borg package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.apps.html">pymatgen.apps package</a></li>
+      <li class="breadcrumb-item active">pymatgen.apps.borg package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.apps.borg.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,8 +123,46 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.apps.borg.hive.html">pymatgen.apps.borg.hive module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.apps.borg.queen.html">pymatgen.apps.borg.queen module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.apps.borg.hive.html">pymatgen.apps.borg.hive module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.AbstractDrone"><code class="docutils literal notranslate"><span class="pre">AbstractDrone</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.AbstractDrone.assimilate"><code class="docutils literal notranslate"><span class="pre">AbstractDrone.assimilate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths"><code class="docutils literal notranslate"><span class="pre">AbstractDrone.get_valid_paths()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone"><code class="docutils literal notranslate"><span class="pre">GaussianToComputedEntryDrone</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict"><code class="docutils literal notranslate"><span class="pre">GaussianToComputedEntryDrone.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate"><code class="docutils literal notranslate"><span class="pre">GaussianToComputedEntryDrone.assimilate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict"><code class="docutils literal notranslate"><span class="pre">GaussianToComputedEntryDrone.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths"><code class="docutils literal notranslate"><span class="pre">GaussianToComputedEntryDrone.get_valid_paths()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone"><code class="docutils literal notranslate"><span class="pre">SimpleVaspToComputedEntryDrone</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict"><code class="docutils literal notranslate"><span class="pre">SimpleVaspToComputedEntryDrone.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate"><code class="docutils literal notranslate"><span class="pre">SimpleVaspToComputedEntryDrone.assimilate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict"><code class="docutils literal notranslate"><span class="pre">SimpleVaspToComputedEntryDrone.from_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone"><code class="docutils literal notranslate"><span class="pre">VaspToComputedEntryDrone</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict"><code class="docutils literal notranslate"><span class="pre">VaspToComputedEntryDrone.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate"><code class="docutils literal notranslate"><span class="pre">VaspToComputedEntryDrone.assimilate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict"><code class="docutils literal notranslate"><span class="pre">VaspToComputedEntryDrone.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths"><code class="docutils literal notranslate"><span class="pre">VaspToComputedEntryDrone.get_valid_paths()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.apps.borg.queen.html">pymatgen.apps.borg.queen module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.apps.borg.queen.html#pymatgen.apps.borg.queen.BorgQueen"><code class="docutils literal notranslate"><span class="pre">BorgQueen</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.queen.html#pymatgen.apps.borg.queen.BorgQueen.get_data"><code class="docutils literal notranslate"><span class="pre">BorgQueen.get_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.queen.html#pymatgen.apps.borg.queen.BorgQueen.load_data"><code class="docutils literal notranslate"><span class="pre">BorgQueen.load_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.queen.html#pymatgen.apps.borg.queen.BorgQueen.parallel_assimilate"><code class="docutils literal notranslate"><span class="pre">BorgQueen.parallel_assimilate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.queen.html#pymatgen.apps.borg.queen.BorgQueen.save_data"><code class="docutils literal notranslate"><span class="pre">BorgQueen.save_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.apps.borg.queen.html#pymatgen.apps.borg.queen.BorgQueen.serial_assimilate"><code class="docutils literal notranslate"><span class="pre">BorgQueen.serial_assimilate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.apps.borg.queen.html#pymatgen.apps.borg.queen.order_assimilation"><code class="docutils literal notranslate"><span class="pre">order_assimilation()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

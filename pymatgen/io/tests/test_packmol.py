@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import tempfile
 from pathlib import Path
@@ -14,7 +16,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "packmol")
 
 
 # Just skip this whole test for now since packmol is problematic.
-if True:  # which("packmol") is None:
+if True:  # if which("packmol") is None:
     pytest.skip("packmol executable not present", allow_module_level=True)
 
 

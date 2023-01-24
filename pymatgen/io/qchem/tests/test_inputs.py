@@ -2,20 +2,21 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import logging
 import os
 import unittest
 
+import pytest
 from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
-__email__ = "b.wood@berkeley.edu"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ class TestQCInput(PymatgenTest):
  O     -7.5827400000      0.5127000000     -0.0000000000
 $end"""
 
-        self.assertEqual(molecule_actual, molecule_test)
+        assert molecule_actual == molecule_test
 
     # TODO improve this test maybe add ordered dicts
     def test_rem_template(self):
@@ -63,7 +64,7 @@ $end"""
         ]
 
         for i_rem in rem_actual_list:
-            self.assertIn(i_rem, rem_test)
+            assert i_rem in rem_test
 
     def test_opt_template(self):
         opt_params = {
@@ -92,7 +93,7 @@ $end"""
         ]
 
         for i_opt in opt_actual_list:
-            self.assertIn(i_opt, opt_test)
+            assert i_opt in opt_test
 
     def test_pcm_template(self):
         pcm_params = {"theory": "cpcm"}
@@ -100,7 +101,31 @@ $end"""
         pcm_actual = """$pcm
    theory cpcm
 $end"""
-        self.assertEqual(pcm_actual, pcm_test)
+        assert pcm_actual == pcm_test
+
+    def test_pcm_nonels_template(self):
+        # make sure values that are None get skipped in the output
+        pcm_nonels = {
+            "A": "-0.006736",
+            "B": "0.032698",
+            "C": "-1249.6",
+            "D": None,
+            "Delta": "7.0",
+            "Gamma": "3.7",
+            "SolvRho": "0.05",
+            "GauLag_N": "40",
+        }
+        pcm_nonels_test = QCInput.pcm_nonels_template(pcm_nonels)
+        pcm_nonels_actual = """$pcm_nonels
+   A -0.006736
+   B 0.032698
+   C -1249.6
+   Delta 7.0
+   Gamma 3.7
+   SolvRho 0.05
+   GauLag_N 40
+$end"""
+        assert pcm_nonels_actual == pcm_nonels_test
 
     def test_solvent_template(self):
         solvent_params = {"dielectric": "5.0"}
@@ -108,7 +133,7 @@ $end"""
         solvent_actual = """$solvent
    dielectric 5.0
 $end"""
-        self.assertEqual(solvent_actual, solvent_test)
+        assert solvent_actual == solvent_test
 
     def test_smx_template(self):
         smx_params = {"solvent": "water"}
@@ -116,7 +141,31 @@ $end"""
         smx_actual = """$smx
    solvent water
 $end"""
-        self.assertEqual(smx_actual, smx_test)
+        assert smx_actual == smx_test
+
+        smx_params = {"solvent": "dimethyl sulfoxide"}
+        smx_test = QCInput.smx_template(smx_params)
+        smx_actual = """$smx
+   solvent dmso
+$end"""
+        assert smx_actual == smx_test
+
+    def test_svp_template(self):
+        svp_params = {
+            "RHOISO": 0.001,
+            "DIELST": 78.36,
+            "NPTLEB": 1202,
+            "ITRNGR": 2,
+            "IROTGR": 2,
+            "IPNRF": 1,
+            "IDEFESR": 1,
+        }
+        # svp_params = lower_and_check_unique(svp_params)
+        svp_test = QCInput.svp_template(svp_params)
+        svp_actual = """$svp
+RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1
+$end"""
+        assert svp_actual == svp_test
 
     def test_scan_template(self):
         scan_params = {"stre": ["3 6 1.5 1.9 0.01"], "tors": ["1 2 3 4 -180 180 30"]}
@@ -125,10 +174,10 @@ $end"""
    stre 3 6 1.5 1.9 0.01
    tors 1 2 3 4 -180 180 30
 $end"""
-        self.assertEqual(scan_test, scan_actual)
+        assert scan_test == scan_actual
 
         bad_scan = {"stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"], "bend": ["7 8 9 90 120 10"]}
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             QCInput.scan_template(bad_scan)
 
     def test_van_der_waals_template(self):
@@ -139,7 +188,7 @@ $end"""
    1 1.2
    12 1.72
 $end"""
-        self.assertEqual(vdw_test_atomic, vdw_actual_atomic)
+        assert vdw_test_atomic == vdw_actual_atomic
 
         vdw_test_sequential = QCInput.van_der_waals_template(vdw_params, mode="sequential")
         vdw_actual_sequential = """$van_der_waals
@@ -147,9 +196,9 @@ $end"""
    1 1.2
    12 1.72
 $end"""
-        self.assertEqual(vdw_test_sequential, vdw_actual_sequential)
+        assert vdw_test_sequential == vdw_actual_sequential
 
-        with self.assertRaises(ValueError):  # bad vdw test
+        with pytest.raises(ValueError):  # bad vdw test
             QCInput.van_der_waals_template(vdw_params, mode="mymode")
 
     def test_find_sections(self):
@@ -197,7 +246,7 @@ $end
 """
         sections_test = QCInput.find_sections(str_single_job_input)
         section_actual = ["molecule", "rem", "opt"]
-        self.assertEqual(section_actual, sections_test)
+        assert section_actual == sections_test
 
     def test_read_molecule(self):
         str_molecule = """$molecule
@@ -212,7 +261,7 @@ $end"""
             [-7.5827400000, 0.5127000000, -0.0000000000],
         ]
         molecule_actual = Molecule(species, coords)
-        self.assertEqual(molecule_actual, molecule_test)
+        assert molecule_actual == molecule_test
 
     def test_read_rem(self):
         str_rem = """Trying to break you!
@@ -232,7 +281,7 @@ $end"""
             "max_scf_cycles": "300",
             "gen_scfman": "true",
         }
-        self.assertDictEqual(rem_actual, rem_test)
+        assert rem_actual == rem_test
 
     def test_read_only_rem(self):
         str_rem = """Trying to break you!
@@ -268,7 +317,7 @@ $end
             "max_scf_cycles": "300",
             "gen_scfman": "true",
         }
-        self.assertDictEqual(rem_actual, rem_test)
+        assert rem_actual == rem_test
 
     def test_read_opt(self):
         str_opt = """$opt
@@ -296,7 +345,7 @@ $end"""
             "DUMMY": ["M 2 3 4 5"],
             "CONNECT": ["4 3 2 3 5 6"],
         }
-        self.assertDictEqual(opt_actual, opt_test)
+        assert opt_actual == opt_test
 
     def test__str__(self):
         species = ["C", "O"]
@@ -329,7 +378,7 @@ $end"""
         ]
 
         for i_str in str_actual_list:
-            self.assertIn(i_str, str_test)
+            assert i_str in str_test
 
     def test_from_string(self):
         string = """$molecule
@@ -412,7 +461,7 @@ $end
             [-2.81590978, -0.00516172, -1.58990580],
         ]
         molecule_actual = Molecule(species, coords)
-        self.assertEqual(molecule_actual, qcinput_test.molecule)
+        assert molecule_actual == qcinput_test.molecule
         rem_actual = {
             "job_type": "opt",
             "method": "wb97m-v",
@@ -426,9 +475,9 @@ $end
             "symmetry": "false",
             "thresh": "14",
         }
-        self.assertDictEqual(rem_actual, qcinput_test.rem)
+        assert rem_actual == qcinput_test.rem
         opt_actual = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
-        self.assertDictEqual(opt_actual, qcinput_test.opt)
+        assert opt_actual == qcinput_test.opt
 
     # TODO this test needs an update, the assertion doesn't differentiate between the different rem sections
     def test_multi_job_string(self):
@@ -559,7 +608,7 @@ $end
         ]
 
         for i_str in multi_job_str_actual_list:
-            self.assertIn(i_str, multi_job_str_test)
+            assert i_str in multi_job_str_test
 
     def test_from_multi_jobs_file(self):
         job_list_test = QCInput.from_multi_jobs_file(
@@ -616,9 +665,9 @@ $end
             "thresh": "14",
         }
         opt_1_actual = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
-        self.assertEqual(molecule_1_actual, job_list_test[0].molecule)
-        self.assertEqual(rem_1_actual, job_list_test[0].rem)
-        self.assertEqual(opt_1_actual, job_list_test[0].opt)
+        assert molecule_1_actual == job_list_test[0].molecule
+        assert rem_1_actual == job_list_test[0].rem
+        assert opt_1_actual == job_list_test[0].opt
 
         molecule_2_actual = "read"
         rem_2_actual = {
@@ -634,8 +683,8 @@ $end
             "symmetry": "false",
             "thresh": "14",
         }
-        self.assertEqual(molecule_2_actual, job_list_test[1].molecule)
-        self.assertEqual(rem_2_actual, job_list_test[1].rem)
+        assert molecule_2_actual == job_list_test[1].molecule
+        assert rem_2_actual == job_list_test[1].rem
 
     def test_read_pcm(self):
         str_pcm = """I'm once again trying to break you!
@@ -647,7 +696,31 @@ $pcm
 $end"""
         pcm_test = QCInput.read_pcm(str_pcm)
         pcm_actual = {"theory": "cpcm", "radii": "uff", "vdwscale": "1.1"}
-        self.assertDictEqual(pcm_actual, pcm_test)
+        assert pcm_actual == pcm_test
+
+    def test_read_pcm_nonels(self):
+        str_pcm_nonels = """$pcm_nonels
+   A         -0.006736
+   B          0.032698
+   C      -1249.6
+   D        -21.405
+   Delta    7.0
+   Gamma    3.7
+   SolvRho  0.05
+   GauLag_N 40
+$end"""
+        pcm_nonels_test = QCInput.read_pcm_nonels(str_pcm_nonels)
+        pcm_nonels_actual = {
+            "A": "-0.006736",
+            "B": "0.032698",
+            "C": "-1249.6",
+            "D": "-21.405",
+            "Delta": "7.0",
+            "Gamma": "3.7",
+            "SolvRho": "0.05",
+            "GauLag_N": "40",
+        }
+        assert pcm_nonels_actual == pcm_nonels_test
 
     def test_read_bad_pcm(self):
         str_pcm = """I'm once again trying to break you!
@@ -659,7 +732,7 @@ $pcm
 $end"""
         pcm_test = QCInput.read_pcm(str_pcm)
         pcm_actual = {}
-        self.assertDictEqual(pcm_actual, pcm_test)
+        assert pcm_actual == pcm_test
 
     def test_read_solvent(self):
         str_solvent = """Once again, I'm trying to break you!
@@ -671,7 +744,7 @@ $end"""
         solvent_actual = {
             "dielectric": "5.0",
         }
-        self.assertDictEqual(solvent_actual, solvent_test)
+        assert solvent_actual == solvent_test
 
     def test_read_bad_solvent(self):
         str_solvent = """Once again, I'm trying to break you!
@@ -681,7 +754,7 @@ $solvent
 $end"""
         solvent_test = QCInput.read_solvent(str_solvent)
         solvent_actual = {}
-        self.assertDictEqual(solvent_actual, solvent_test)
+        assert solvent_actual == solvent_test
 
     def test_read_smx(self):
         str_smx = """Once again, I'm trying to break you!
@@ -693,7 +766,23 @@ $end"""
         smx_actual = {
             "solvent": "water",
         }
-        self.assertDictEqual(smx_actual, smx_test)
+        assert smx_actual == smx_test
+
+    def test_read_svp(self):
+        str_svp = """$svp
+RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1
+$end"""
+        svp_test = QCInput.read_svp(str_svp)
+        svp_actual = {
+            "RHOISO": "0.001",
+            "DIELST": "78.36",
+            "NPTLEB": "1202",
+            "ITRNGR": "2",
+            "IROTGR": "2",
+            "IPNRF": "1",
+            "IDEFESR": "1",
+        }
+        assert svp_actual == svp_test
 
     def test_read_bad_smx(self):
         str_smx = """Once again, I'm trying to break you!
@@ -703,7 +792,7 @@ $solvent
 $end"""
         smx_test = QCInput.read_smx(str_smx)
         smx_actual = {}
-        self.assertDictEqual(smx_actual, smx_test)
+        assert smx_actual == smx_test
 
     def test_read_scan(self):
         str_scan = """Once more, I'm trying to break you!
@@ -715,7 +804,7 @@ $end"""
         scan_test = QCInput.read_scan(str_scan)
         scan_actual = {"stre": ["1 2 1.1 1.4 0.03"], "bend": ["3 4 5 60 90 5"], "tors": []}
 
-        self.assertDictEqual(scan_test, scan_actual)
+        assert scan_test == scan_actual
 
     def test_read_bad_scan(self):
         str_scan_1 = """Once more, I"m trying to break you!
@@ -726,7 +815,7 @@ $end
 """
         scan_test_1 = QCInput.read_scan(str_scan_1)
         scan_actual_1 = {}
-        self.assertDictEqual(scan_test_1, scan_actual_1)
+        assert scan_test_1 == scan_actual_1
 
         str_scan_2 = """Once more, I'm trying to break you!
 
@@ -736,7 +825,7 @@ $scan
    tors 6 7 8 9 -180 180 30
 $end"""
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             QCInput.read_scan(str_scan_2)
 
     def test_read_negative(self):
@@ -770,7 +859,7 @@ $rem
 $end
 """
         qcinp = QCInput.from_string(str_molecule)
-        self.assertEqual(str_molecule, str(qcinp))
+        assert str_molecule == str(qcinp)
 
     def test_read_plots(self):
         str_molecule = """$molecule
@@ -818,7 +907,7 @@ $plots
 $end
 """
         qcinp = QCInput.from_string(str_molecule)
-        self.assertEqual(str_molecule, str(qcinp))
+        assert str_molecule == str(qcinp)
 
     def test_read_nbo(self):
         str_molecule = """$molecule
@@ -862,7 +951,7 @@ $nbo
 $end
 """
         qcinp = QCInput.from_string(str_molecule)
-        self.assertEqual(str_molecule, str(qcinp))
+        assert str_molecule == str(qcinp)
 
         str_molecule = """$molecule
  0 2
@@ -906,7 +995,7 @@ $nbo
 $end
 """
         qcinp = QCInput.from_string(str_molecule)
-        self.assertEqual(str_molecule, str(qcinp))
+        assert str_molecule == str(qcinp)
 
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet

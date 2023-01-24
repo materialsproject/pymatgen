@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 
 from pymatgen.util.plotting import periodic_table_heatmap, van_arkel_triangle

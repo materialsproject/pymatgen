@@ -17,6 +17,8 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 (2016). Surface energies of elemental crystals. Scientific Data.
 """
 
+from __future__ import annotations
+
 import itertools
 import logging
 import warnings
@@ -174,7 +176,6 @@ class WulffShape:
             e_surf_list ([float]): list of corresponding surface energies
             symprec (float): for recp_operation, default is 1e-5.
         """
-
         if any(se < 0 for se in e_surf_list):
             warnings.warn("Unphysical (negative) surface energy detected.")
 
@@ -208,7 +209,7 @@ class WulffShape:
 
         wulff_convex = ConvexHull(wulff_pt_list)
         wulff_cv_simp = wulff_convex.simplices
-        logger.debug(", ".join([str(len(x)) for x in wulff_cv_simp]))
+        logger.debug(", ".join(str(len(x)) for x in wulff_cv_simp))
 
         # store simplices and convex
         self.dual_cv_simp = dual_cv_simp
@@ -362,7 +363,6 @@ class WulffShape:
         """
         Returns the sorted pts in a facet used to draw a line
         """
-
         lines = list(facet.outer_lines)
         pt = []
         prev = None
@@ -554,7 +554,6 @@ class WulffShape:
         Return:
             (plotly.graph_objs.Figure)
         """
-
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"
         (
             color_list,

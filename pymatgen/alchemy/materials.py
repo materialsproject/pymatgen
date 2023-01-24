@@ -39,9 +39,9 @@ class TransformedStructure(MSONable):
     def __init__(
         self,
         structure: Structure,
-        transformations: list[AbstractTransformation] = None,
-        history: list[AbstractTransformation | dict[str, Any]] = None,
-        other_parameters: dict[str, Any] = None,
+        transformations: list[AbstractTransformation] | None = None,
+        history: list[AbstractTransformation | dict[str, Any]] | None = None,
+        other_parameters: dict[str, Any] | None = None,
     ) -> None:
         """
         Initializes a transformed structure from a structure.
@@ -207,9 +207,8 @@ class TransformedStructure(MSONable):
         Writes VASP input to an output_dir.
 
         Args:
-            vasp_input_set:
-                pymatgen.io.vaspio_set.VaspInputSet like object that creates
-                vasp input files from structures
+            vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet like object that creates vasp input files from
+                structures.
             output_dir: Directory to output files
             create_directory: Create the directory if not present. Defaults to
                 True.
@@ -266,7 +265,7 @@ class TransformedStructure(MSONable):
     @staticmethod
     def from_cif_string(
         cif_string: str,
-        transformations: list[AbstractTransformation] = None,
+        transformations: list[AbstractTransformation] | None = None,
         primitive: bool = True,
         occupancy_tolerance: float = 1.0,
     ) -> TransformedStructure:
@@ -291,7 +290,7 @@ class TransformedStructure(MSONable):
         Returns:
             TransformedStructure
         """
-        parser = CifParser.from_string(cif_string, occupancy_tolerance)
+        parser = CifParser.from_string(cif_string, occupancy_tolerance=occupancy_tolerance)
         raw_string = re.sub(r"'", '"', cif_string)
         cif_dict = parser.as_dict()
         cif_keys = list(cif_dict)
@@ -311,7 +310,7 @@ class TransformedStructure(MSONable):
 
     @staticmethod
     def from_poscar_string(
-        poscar_string: str, transformations: list[AbstractTransformation] = None
+        poscar_string: str, transformations: list[AbstractTransformation] | None = None
     ) -> TransformedStructure:
         """
         Generates TransformedStructure from a poscar string.

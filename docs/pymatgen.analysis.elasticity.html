@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.elasticity package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.analysis.elasticity package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-      <li>pymatgen.analysis.elasticity package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.analysis.elasticity package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.elasticity.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,9 +123,110 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html">pymatgen.analysis.elasticity.elastic module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html">pymatgen.analysis.elasticity.strain module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html">pymatgen.analysis.elasticity.stress module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html">pymatgen.analysis.elasticity.elastic module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ComplianceTensor"><code class="docutils literal notranslate"><span class="pre">ComplianceTensor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor"><code class="docutils literal notranslate"><span class="pre">ElasticTensor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.cahill_thermalcond"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.cahill_thermalcond()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.clarke_thermalcond"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.clarke_thermalcond()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.compliance_tensor"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.compliance_tensor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.debye_temperature()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_elastic_mod"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.directional_elastic_mod()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_poisson_ratio"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.directional_poisson_ratio()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.from_independent_strains()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_pseudoinverse"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.from_pseudoinverse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_reuss"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.g_reuss</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_voigt"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.g_voigt</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.g_vrh"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.g_vrh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.get_structure_property_dict"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.get_structure_property_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.green_kristoffel"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.green_kristoffel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.homogeneous_poisson"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.homogeneous_poisson</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_reuss"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.k_reuss</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_voigt"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.k_voigt</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.k_vrh"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.k_vrh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.long_v"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.long_v()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.property_dict"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.property_dict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_ac"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.snyder_ac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_opt"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.snyder_opt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_total"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.snyder_total()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.trans_v"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.trans_v()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.universal_anisotropy"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.universal_anisotropy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.y_mod"><code class="docutils literal notranslate"><span class="pre">ElasticTensor.y_mod</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.calculate_stress"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.calculate_stress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.energy_density"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.energy_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.from_diff_fit"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.from_diff_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_compliance_expansion"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_compliance_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_effective_ecs"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_effective_ecs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_ggt"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_ggt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_gruneisen_parameter"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_gruneisen_parameter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_heat_capacity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_stability_criteria"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_stability_criteria()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_strain_from_stress"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_strain_from_stress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_symmetric_wallace_tensor"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_symmetric_wallace_tensor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_tgt"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_tgt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_wallace_tensor"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_wallace_tensor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_yield_stress"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.get_yield_stress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.omega"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.omega()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.order"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.order</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff"><code class="docutils literal notranslate"><span class="pre">ElasticTensorExpansion.thermal_expansion_coeff()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor"><code class="docutils literal notranslate"><span class="pre">NthOrderElasticTensor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3"><code class="docutils literal notranslate"><span class="pre">NthOrderElasticTensor.GPa_to_eV_A3</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.calculate_stress"><code class="docutils literal notranslate"><span class="pre">NthOrderElasticTensor.calculate_stress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.energy_density"><code class="docutils literal notranslate"><span class="pre">NthOrderElasticTensor.energy_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.from_diff_fit"><code class="docutils literal notranslate"><span class="pre">NthOrderElasticTensor.from_diff_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.order"><code class="docutils literal notranslate"><span class="pre">NthOrderElasticTensor.order</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol"><code class="docutils literal notranslate"><span class="pre">NthOrderElasticTensor.symbol</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.diff_fit"><code class="docutils literal notranslate"><span class="pre">diff_fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.find_eq_stress"><code class="docutils literal notranslate"><span class="pre">find_eq_stress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.generate_pseudo"><code class="docutils literal notranslate"><span class="pre">generate_pseudo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.get_diff_coeff"><code class="docutils literal notranslate"><span class="pre">get_diff_coeff()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.get_strain_state_dict"><code class="docutils literal notranslate"><span class="pre">get_strain_state_dict()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.get_symbol_list"><code class="docutils literal notranslate"><span class="pre">get_symbol_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.raise_error_if_unphysical"><code class="docutils literal notranslate"><span class="pre">raise_error_if_unphysical()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.subs"><code class="docutils literal notranslate"><span class="pre">subs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html">pymatgen.analysis.elasticity.strain module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation"><code class="docutils literal notranslate"><span class="pre">Deformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure"><code class="docutils literal notranslate"><span class="pre">Deformation.apply_to_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.from_index_amount"><code class="docutils literal notranslate"><span class="pre">Deformation.from_index_amount()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices"><code class="docutils literal notranslate"><span class="pre">Deformation.get_perturbed_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.green_lagrange_strain"><code class="docutils literal notranslate"><span class="pre">Deformation.green_lagrange_strain</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.is_independent"><code class="docutils literal notranslate"><span class="pre">Deformation.is_independent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.symbol"><code class="docutils literal notranslate"><span class="pre">Deformation.symbol</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.DeformedStructureSet"><code class="docutils literal notranslate"><span class="pre">DeformedStructureSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain"><code class="docutils literal notranslate"><span class="pre">Strain</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.from_deformation"><code class="docutils literal notranslate"><span class="pre">Strain.from_deformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.from_index_amount"><code class="docutils literal notranslate"><span class="pre">Strain.from_index_amount()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix"><code class="docutils literal notranslate"><span class="pre">Strain.get_deformation_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.symbol"><code class="docutils literal notranslate"><span class="pre">Strain.symbol</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.von_mises_strain"><code class="docutils literal notranslate"><span class="pre">Strain.von_mises_strain</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation"><code class="docutils literal notranslate"><span class="pre">convert_strain_to_deformation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html">pymatgen.analysis.elasticity.stress module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress"><code class="docutils literal notranslate"><span class="pre">Stress</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants"><code class="docutils literal notranslate"><span class="pre">Stress.dev_principal_invariants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.deviator_stress"><code class="docutils literal notranslate"><span class="pre">Stress.deviator_stress</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.mean_stress"><code class="docutils literal notranslate"><span class="pre">Stress.mean_stress</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1"><code class="docutils literal notranslate"><span class="pre">Stress.piola_kirchoff_1()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2"><code class="docutils literal notranslate"><span class="pre">Stress.piola_kirchoff_2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.symbol"><code class="docutils literal notranslate"><span class="pre">Stress.symbol</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html#pymatgen.analysis.elasticity.stress.Stress.von_mises"><code class="docutils literal notranslate"><span class="pre">Stress.von_mises</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

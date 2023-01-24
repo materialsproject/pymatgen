@@ -100,7 +100,6 @@ class OptimadeRester:
             timeout: number of seconds before an attempted request is abandoned, a good
             timeout is useful when querying many providers, some of which may be offline
         """
-
         # TODO: maybe we should use the nice pydantic models from optimade-python-tools
         #  for response validation, and use the Lark parser for filter validation
         self.session = requests.Session()
@@ -162,21 +161,20 @@ class OptimadeRester:
     @staticmethod
     def _build_filter(
         elements: str | list[str] | None = None,
-        nelements: int = None,
-        nsites: int = None,
-        chemical_formula_anonymous: str = None,
-        chemical_formula_hill: str = None,
+        nelements: int | None = None,
+        nsites: int | None = None,
+        chemical_formula_anonymous: str | None = None,
+        chemical_formula_hill: str | None = None,
     ):
         """
         Convenience method to build an OPTIMADE filter.
         """
-
         filters = []
 
         if elements:
             if isinstance(elements, str):
                 elements = [elements]
-            elements_str = ", ".join([f'"{el}"' for el in elements])
+            elements_str = ", ".join(f"{el!r}" for el in elements)
             filters.append(f"(elements HAS ALL {elements_str})")
 
         if nsites:
@@ -192,20 +190,20 @@ class OptimadeRester:
                 filters.append(f"({nelements=})")
 
         if chemical_formula_anonymous:
-            filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')
+            filters.append(f"(chemical_formula_anonymous={chemical_formula_anonymous!r})")
 
         if chemical_formula_hill:
-            filters.append(f'(chemical_formula_hill="{chemical_formula_anonymous}")')
+            filters.append(f"(chemical_formula_hill={chemical_formula_anonymous!r})")
 
         return " AND ".join(filters)
 
     def get_structures(
         self,
         elements: list[str] | str | None = None,
-        nelements: int = None,
-        nsites: int = None,
-        chemical_formula_anonymous: str = None,
-        chemical_formula_hill: str = None,
+        nelements: int | None = None,
+        nsites: int | None = None,
+        chemical_formula_anonymous: str | None = None,
+        chemical_formula_hill: str | None = None,
     ) -> dict[str, dict[str, Structure]]:
         """
         Retrieve Structures from OPTIMADE providers.
@@ -222,7 +220,6 @@ class OptimadeRester:
 
         Returns: Dict of (Dict Structures keyed by that database's id system) keyed by provider
         """
-
         optimade_filter = self._build_filter(
             elements=elements,
             nelements=nelements,
@@ -236,10 +233,10 @@ class OptimadeRester:
     def get_snls(
         self,
         elements: list[str] | str | None = None,
-        nelements: int = None,
-        nsites: int = None,
-        chemical_formula_anonymous: str = None,
-        chemical_formula_hill: str = None,
+        nelements: int | None = None,
+        nsites: int | None = None,
+        chemical_formula_anonymous: str | None = None,
+        chemical_formula_hill: str | None = None,
         additional_response_fields: str | list[str] | set[str] | None = None,
     ) -> dict[str, dict[str, StructureNL]]:
         """
@@ -263,7 +260,6 @@ class OptimadeRester:
 
         Returns: Dict of (Dict of StructureNLs keyed by that database's id system) keyed by provider
         """
-
         optimade_filter = self._build_filter(
             elements=elements,
             nelements=nelements,
@@ -279,11 +275,10 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
 
         Returns: Dict of Structures keyed by that database's id system
         """
-
         all_snls = self.get_snls_with_filter(optimade_filter)
         all_structures = {}
 
@@ -301,18 +296,18 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
+            additional_response_fields: Any additional fields desired from the OPTIMADE API,
 
         Returns: Dict of Structures keyed by that database's id system
         """
-
         all_snls = {}
 
-        fields = self._handle_response_fields(additional_response_fields)
+        response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
 
-            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&{response_fields=}")
 
             try:
 
@@ -444,7 +439,7 @@ class OptimadeRester:
         TODO: add better exception handling, intentionally permissive currently
         """
 
-        def is_url(url):
+        def is_url(url) -> bool:
             """
             Basic URL validation thanks to https://stackoverflow.com/a/52455972
             """
@@ -496,7 +491,6 @@ class OptimadeRester:
             A dictionary of keys (in format of "provider.database") to
             Provider objects.
         """
-
         try:
             url = join(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
@@ -538,10 +532,10 @@ class OptimadeRester:
             A string of comma-separated OPTIMADE response fields.
         """
         if isinstance(additional_response_fields, str):
-            additional_response_fields = [additional_response_fields]
+            additional_response_fields = {additional_response_fields}
         if not additional_response_fields:
             additional_response_fields = set()
-        return ",".join(set(additional_response_fields).union(self.mandatory_response_fields))
+        return ",".join({*additional_response_fields} | self.mandatory_response_fields)
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """

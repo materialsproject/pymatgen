@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.command_line.bader_caller module &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.command_line.bader_caller module &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.command_line.html">pymatgen.command_line package</a> &raquo;</li>
-      <li>pymatgen.command_line.bader_caller module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+      <li class="breadcrumb-item active">pymatgen.command_line.bader_caller module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.command_line.bader_caller.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -126,7 +124,7 @@ and follow the instructions to compile the executable.</p>
 Bader decomposition of charge density”, Comput. Mater. Sci. 36, 254-360 (2006).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaderAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chgcar_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potcar_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chgref_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_atomic_densities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L44-L464"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaderAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chgcar_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potcar_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chgref_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_atomic_densities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L46-L463"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Bader analysis for Cube files and VASP outputs.</p>
 <p>Initializes the Bader caller.</p>
@@ -144,7 +142,7 @@ charge densities are atom centered</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.from_path">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L411-L464"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.from_path" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L411-L463"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.from_path" title="Permalink to this definition"></a></dt>
 <dd><p>Convenient constructor that takes in the path name of VASP run
 to perform Bader analysis.</p>
 <dl class="field-list simple">
@@ -161,7 +159,7 @@ for ‘CHGCAR.relax1.gz’).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge">
-<span class="sig-name descname"><span class="pre">get_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L264-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L266-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get the charge on a particular atom. This is the “raw”
 charge generated by the Bader program, not a partial atomic charge. If the cube file
 is a spin-density file, then this will return the spin density per atom with
@@ -178,7 +176,7 @@ positive being spin up and negative being spin down.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_decorated_structure">
-<span class="sig-name descname"><span class="pre">get_charge_decorated_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L324-L335"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_decorated_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_charge_decorated_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L326-L336"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_decorated_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a charge decorated structure</p>
 <p>Note, this assumes that the Bader analysis was correctly performed on a file
 with electron densities</p>
@@ -186,7 +184,7 @@ with electron densities</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer">
-<span class="sig-name descname"><span class="pre">get_charge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L280-L302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_charge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L282-L304"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the charge transferred for a particular atom. A positive value means
 that the site has gained electron density (i.e. exhibits anionic character)
 whereas a negative value means the site has lost electron density (i.e. exhibits
@@ -210,7 +208,7 @@ Given by bader charge on atom - nelect for associated atom.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_decorated_structure">
-<span class="sig-name descname"><span class="pre">get_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L350-L384"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_decorated_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L351-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_decorated_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Get a property-decorated structure from the Bader analysis.</p>
 <p>This is distinct from getting charge decorated structure, which assumes
 the “standard” Bader analysis of electron densities followed by converting
@@ -241,7 +239,7 @@ than the total, by dividing by the atomic volume.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure">
-<span class="sig-name descname"><span class="pre">get_oxidation_state_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nelects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L337-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_oxidation_state_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nelects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L338-L349"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns an oxidation state decorated structure based on bader analysis results.
 Each site is assigned a charge based on the computed partial atomic charge from bader.</p>
 <p>Note, this assumes that the Bader analysis was correctly performed on a file
@@ -250,7 +248,7 @@ with electron densities</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_partial_charge">
-<span class="sig-name descname"><span class="pre">get_partial_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L304-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_partial_charge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_partial_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L306-L324"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_partial_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get the partial charge on a particular atom. This is
 simply the negative value of the charge transferred. A positive value indicates
 that the atom has cationic character, whereas a negative value indicates the
@@ -272,7 +270,7 @@ associated with the pseudopotential (e.g. ZVAL for VASP).</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.summary">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summary</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/command_line/bader_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.summary" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summary</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/command_line/bader_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.summary" title="Permalink to this definition"></a></dt>
 <dd><p>Dict summary of key analysis, e.g., atomic volume, charge, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -285,7 +283,7 @@ associated with the pseudopotential (e.g. ZVAL for VASP).</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.bader_analysis_from_objects">
-<span class="sig-name descname"><span class="pre">bader_analysis_from_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chgcar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potcar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aeccar0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aeccar2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L516-L588"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_objects" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bader_analysis_from_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chgcar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potcar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aeccar0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aeccar2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L515-L587"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_objects" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to run Bader analysis from a set
 of pymatgen Chgcar and Potcar objects.</p>
 <p>This method will:</p>
@@ -310,7 +308,7 @@ for the charge difference (magnetization density).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.bader_analysis_from_path">
-<span class="sig-name descname"><span class="pre">bader_analysis_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../command_line/bader_caller.py#L467-L513"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_path" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bader_analysis_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../command_line/bader_caller.py#L466-L512"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_path" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to run Bader analysis on a folder containing
 typical VASP output files.</p>
 <p>This method will:</p>

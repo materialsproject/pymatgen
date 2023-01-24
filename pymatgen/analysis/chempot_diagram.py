@@ -102,7 +102,7 @@ class ChemicalPotentialDiagram(MSONable):
             raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams with 2 or more elements!")
 
         if len(self.el_refs) != self.dim:
-            missing = set(self.elements).difference(self.el_refs)
+            missing = set(self.elements) - set(self.el_refs)
             raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
     def get_plot(

@@ -2,6 +2,8 @@
 Structure connectivity class.
 """
 
+from __future__ import annotations
+
 import collections
 import logging
 
@@ -79,13 +81,11 @@ class StructureConnectivity(MSONable):
 
     def environment_subgraph(self, environments_symbols=None, only_atoms=None):
         """
-
         Args:
             environments_symbols ():
             only_atoms ():
 
         Returns:
-
         """
         if environments_symbols is not None:
             self.setup_environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
@@ -263,9 +263,7 @@ class StructureConnectivity(MSONable):
 
     def setup_connectivity_description(self):
         """
-
         Returns:
-
         """
 
     def get_connected_components(self, environments_symbols=None, only_atoms=None):
@@ -275,7 +273,6 @@ class StructureConnectivity(MSONable):
             only_atoms ():
 
         Returns:
-
         """
         connected_components = []
         env_subgraph = self.environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
@@ -286,42 +283,34 @@ class StructureConnectivity(MSONable):
 
     def setup_atom_environment_subgraph(self, atom_environment):
         """
-
         Args:
             atom_environment ():
 
         Returns:
-
         """
         raise NotImplementedError()
 
     def setup_environments_subgraph(self, environments_symbols):
         """
-
         Args:
             environments_symbols ():
 
         Returns:
-
         """
         raise NotImplementedError()
 
     def setup_atom_environments_subgraph(self, atoms_environments):
         """
-
         Args:
             atoms_environments ():
 
         Returns:
-
         """
         raise NotImplementedError()
 
     def print_links(self):
         """
-
         Returns:
-
         """
         nodes = self.environment_subgraph().nodes()
         print("Links in graph :")
@@ -341,9 +330,7 @@ class StructureConnectivity(MSONable):
 
     def as_dict(self):
         """
-
         Returns:
-
         """
         return {
             "@module": type(self).__module__,
@@ -359,12 +346,10 @@ class StructureConnectivity(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-
         Args:
             d ():
 
         Returns:
-
         """
         # Reconstructs the graph with integer as nodes (json's as_dict replaces integer keys with str keys)
         cgraph = nx.from_dict_of_dicts(d["connectivity_graph"], create_using=nx.MultiGraph, multigraph_input=True)

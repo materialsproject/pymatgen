@@ -6,6 +6,8 @@ This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
 
+from __future__ import annotations
+
 from enum import Enum, unique
 
 import numpy as np
@@ -222,7 +224,6 @@ class Magmom(MSONable):
         :param saxis: (list/numpy array) spin quantization axis
         :return: np.ndarray of length 3
         """
-
         # transform back to moment with spin axis [0, 0, 1]
         m_inv = self._get_transformation_matrix_inv(self.saxis)
         moment = np.matmul(self.moment, m_inv)
@@ -365,7 +366,7 @@ class Magmom(MSONable):
         return np.array([0, 0, 1], dtype="d")
 
     @staticmethod
-    def are_collinear(magmoms):
+    def are_collinear(magmoms) -> bool:
         """
         Method checks to see if a set of magnetic moments are collinear
         with each other.

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.qchem package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.io.qchem package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
-      <li>pymatgen.io.qchem package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.io.qchem package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.qchem.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,10 +123,83 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.inputs.html">pymatgen.io.qchem.inputs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.outputs.html">pymatgen.io.qchem.outputs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.sets.html">pymatgen.io.qchem.sets module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.utils.html">pymatgen.io.qchem.utils module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.inputs.html">pymatgen.io.qchem.inputs module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput"><code class="docutils literal notranslate"><span class="pre">QCInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.find_sections"><code class="docutils literal notranslate"><span class="pre">QCInput.find_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.from_file"><code class="docutils literal notranslate"><span class="pre">QCInput.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file"><code class="docutils literal notranslate"><span class="pre">QCInput.from_multi_jobs_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.from_string"><code class="docutils literal notranslate"><span class="pre">QCInput.from_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.geom_opt_template"><code class="docutils literal notranslate"><span class="pre">QCInput.geom_opt_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.get_string"><code class="docutils literal notranslate"><span class="pre">QCInput.get_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.molecule_template"><code class="docutils literal notranslate"><span class="pre">QCInput.molecule_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.multi_job_string"><code class="docutils literal notranslate"><span class="pre">QCInput.multi_job_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.nbo_template"><code class="docutils literal notranslate"><span class="pre">QCInput.nbo_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.opt_template"><code class="docutils literal notranslate"><span class="pre">QCInput.opt_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.pcm_nonels_template"><code class="docutils literal notranslate"><span class="pre">QCInput.pcm_nonels_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.pcm_template"><code class="docutils literal notranslate"><span class="pre">QCInput.pcm_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.plots_template"><code class="docutils literal notranslate"><span class="pre">QCInput.plots_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_geom_opt"><code class="docutils literal notranslate"><span class="pre">QCInput.read_geom_opt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_molecule"><code class="docutils literal notranslate"><span class="pre">QCInput.read_molecule()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_nbo"><code class="docutils literal notranslate"><span class="pre">QCInput.read_nbo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_opt"><code class="docutils literal notranslate"><span class="pre">QCInput.read_opt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_pcm"><code class="docutils literal notranslate"><span class="pre">QCInput.read_pcm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_pcm_nonels"><code class="docutils literal notranslate"><span class="pre">QCInput.read_pcm_nonels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_plots"><code class="docutils literal notranslate"><span class="pre">QCInput.read_plots()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_rem"><code class="docutils literal notranslate"><span class="pre">QCInput.read_rem()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_scan"><code class="docutils literal notranslate"><span class="pre">QCInput.read_scan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_smx"><code class="docutils literal notranslate"><span class="pre">QCInput.read_smx()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_solvent"><code class="docutils literal notranslate"><span class="pre">QCInput.read_solvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_svp"><code class="docutils literal notranslate"><span class="pre">QCInput.read_svp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_vdw"><code class="docutils literal notranslate"><span class="pre">QCInput.read_vdw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.rem_template"><code class="docutils literal notranslate"><span class="pre">QCInput.rem_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.scan_template"><code class="docutils literal notranslate"><span class="pre">QCInput.scan_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.smx_template"><code class="docutils literal notranslate"><span class="pre">QCInput.smx_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.solvent_template"><code class="docutils literal notranslate"><span class="pre">QCInput.solvent_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.svp_template"><code class="docutils literal notranslate"><span class="pre">QCInput.svp_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.van_der_waals_template"><code class="docutils literal notranslate"><span class="pre">QCInput.van_der_waals_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.write_multi_job_file"><code class="docutils literal notranslate"><span class="pre">QCInput.write_multi_job_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.outputs.html">pymatgen.io.qchem.outputs module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.QCOutput"><code class="docutils literal notranslate"><span class="pre">QCOutput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.QCOutput.as_dict"><code class="docutils literal notranslate"><span class="pre">QCOutput.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file"><code class="docutils literal notranslate"><span class="pre">QCOutput.multiple_outputs_from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.check_for_structure_changes"><code class="docutils literal notranslate"><span class="pre">check_for_structure_changes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.get_percentage"><code class="docutils literal notranslate"><span class="pre">get_percentage()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.jump_to_header"><code class="docutils literal notranslate"><span class="pre">jump_to_header()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.nbo_parser"><code class="docutils literal notranslate"><span class="pre">nbo_parser()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.parse_hybridization_character"><code class="docutils literal notranslate"><span class="pre">parse_hybridization_character()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.parse_natural_populations"><code class="docutils literal notranslate"><span class="pre">parse_natural_populations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.parse_perturbation_energy"><code class="docutils literal notranslate"><span class="pre">parse_perturbation_energy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.z_int"><code class="docutils literal notranslate"><span class="pre">z_int()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.sets.html">pymatgen.io.qchem.sets module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.ForceSet"><code class="docutils literal notranslate"><span class="pre">ForceSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.FreqSet"><code class="docutils literal notranslate"><span class="pre">FreqSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.OptSet"><code class="docutils literal notranslate"><span class="pre">OptSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.PESScanSet"><code class="docutils literal notranslate"><span class="pre">PESScanSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.QChemDictSet"><code class="docutils literal notranslate"><span class="pre">QChemDictSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.QChemDictSet.write"><code class="docutils literal notranslate"><span class="pre">QChemDictSet.write()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.SinglePointSet"><code class="docutils literal notranslate"><span class="pre">SinglePointSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.TransitionStateSet"><code class="docutils literal notranslate"><span class="pre">TransitionStateSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.qchem.utils.html">pymatgen.io.qchem.utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.lower_and_check_unique"><code class="docutils literal notranslate"><span class="pre">lower_and_check_unique()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.process_parsed_coords"><code class="docutils literal notranslate"><span class="pre">process_parsed_coords()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.process_parsed_fock_matrix"><code class="docutils literal notranslate"><span class="pre">process_parsed_fock_matrix()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.read_matrix_pattern"><code class="docutils literal notranslate"><span class="pre">read_matrix_pattern()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.read_pattern"><code class="docutils literal notranslate"><span class="pre">read_pattern()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.read_table_pattern"><code class="docutils literal notranslate"><span class="pre">read_table_pattern()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

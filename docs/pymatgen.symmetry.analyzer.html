@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.symmetry.analyzer module &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.symmetry.analyzer module &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,11 +98,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.symmetry.html">pymatgen.symmetry package</a> &raquo;</li>
-      <li>pymatgen.symmetry.analyzer module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+      <li class="breadcrumb-item active">pymatgen.symmetry.analyzer module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.symmetry.analyzer.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -127,10 +125,10 @@ as an interface to spglib for pymatgen Structures.</p>
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PointGroupAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigen_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L926-L1509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PointGroupAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigen_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L886-L1452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A class to analyze the point group of a molecule. The general outline of
-the algorithm is as follows:</p>
+<p>A class to analyze the point group of a molecule. The general outline of the
+algorithm is as follows:</p>
 <ol class="arabic">
 <li><p>Center the molecule around its center of mass.</p></li>
 <li><p>Compute the inertia tensor and the eigenvalues and eigenvectors.</p></li>
@@ -152,7 +150,7 @@ have the rare T, O or I point groups.</p></li>
 </ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.sch_symbol">
-<span class="sig-name descname"><span class="pre">sch_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.sch_symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sch_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/symmetry/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.sch_symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Schoenflies symbol of the detected point group.</p>
 </dd></dl>
 
@@ -172,8 +170,8 @@ symmetry operations of the point group.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms">
-<span class="sig-name descname"><span class="pre">get_equivalent_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1444-L1464"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms" title="Permalink to this definition"></a></dt>
-<dd><p>Returns sets of equivalent atoms with symmetry operations</p>
+<span class="sig-name descname"><span class="pre">get_equivalent_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1387-L1407"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns sets of equivalent atoms with symmetry operations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>None</strong> – </p>
@@ -198,21 +196,21 @@ that maps atom <code class="docutils literal notranslate"><span class="pre">i</s
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_pointgroup">
-<span class="sig-name descname"><span class="pre">get_pointgroup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1287-L1291"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_pointgroup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_pointgroup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1238-L1240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_pointgroup" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a PointGroup object for the molecule.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_rotational_symmetry_number">
-<span class="sig-name descname"><span class="pre">get_rotational_symmetry_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1303-L1313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_rotational_symmetry_number" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_rotational_symmetry_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1251-L1259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_rotational_symmetry_number" title="Permalink to this definition"></a></dt>
 <dd><p>Return the rotational symmetry number.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations">
-<span class="sig-name descname"><span class="pre">get_symmetry_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1293-L1301"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations" title="Permalink to this definition"></a></dt>
-<dd><p>Return symmetry operations as a list of SymmOp objects.
-Returns Cartesian coord symmops.</p>
+<span class="sig-name descname"><span class="pre">get_symmetry_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1242-L1249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations" title="Permalink to this definition"></a></dt>
+<dd><p>Return symmetry operations as a list of SymmOp objects. Returns Cartesian coord
+symmops.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List of symmetry operations.</p>
@@ -225,15 +223,14 @@ Returns Cartesian coord symmops.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.inversion_op">
-<span class="sig-name descname"><span class="pre">inversion_op</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Rot:</span> <span class="pre">[[-1.</span> <span class="pre">-0.</span> <span class="pre">-0.]</span>&#160; <span class="pre">[-0.</span> <span class="pre">-1.</span> <span class="pre">-0.]</span>&#160; <span class="pre">[-0.</span> <span class="pre">-0.</span> <span class="pre">-1.]]</span> <span class="pre">tau</span> <span class="pre">[0.</span> <span class="pre">0.</span> <span class="pre">0.]</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.inversion_op" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">inversion_op</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Rot:</span> <span class="pre">[[-1.</span> <span class="pre">-0.</span> <span class="pre">-0.]</span>&#160; <span class="pre">[-0.</span> <span class="pre">-1.</span> <span class="pre">-0.]</span>&#160; <span class="pre">[-0.</span> <span class="pre">-0.</span> <span class="pre">-1.]]</span> <span class="pre">tau</span> <span class="pre">[0.</span> <span class="pre">0.</span> <span class="pre">0.]</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/symmetry/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.inversion_op" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.is_valid_op">
-<span class="sig-name descname"><span class="pre">is_valid_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symmop</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1315-L1333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.is_valid_op" title="Permalink to this definition"></a></dt>
-<dd><p>Check if a particular symmetry operation is a valid symmetry operation
-for a molecule, i.e., the operation maps all atoms to another
-equivalent atom.</p>
+<span class="sig-name descname"><span class="pre">is_valid_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symmop</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1261-L1277"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.is_valid_op" title="Permalink to this definition"></a></dt>
+<dd><p>Check if a particular symmetry operation is a valid symmetry operation for a
+molecule, i.e., the operation maps all atoms to another equivalent atom.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>symmop</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – Symmetry operation to test.</p>
@@ -249,8 +246,8 @@ equivalent atom.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule">
-<span class="sig-name descname"><span class="pre">symmetrize_molecule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1466-L1509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a symmetrized molecule</p>
+<span class="sig-name descname"><span class="pre">symmetrize_molecule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1409-L1452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a symmetrized molecule.</p>
 <p>The equivalent atoms obtained via
 <a class="reference internal" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms" title="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_equivalent_atoms()</span></code></a>
 are rotated, mirrored… unto one position.
@@ -286,13 +283,12 @@ that maps atom <code class="docutils literal notranslate"><span class="pre">i</s
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupOperations">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PointGroupOperations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sch_symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1702-L1729"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupOperations" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PointGroupOperations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sch_symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1639-L1664"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupOperations" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-<p>Defines a point group, which is essentially a sequence of symmetry
-operations.</p>
+<p>Defines a point group, which is essentially a sequence of symmetry operations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol">
-<span class="sig-name descname"><span class="pre">sch_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/symmetry/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sch_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/symmetry/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Schoenflies symbol of the point group.</p>
 </dd></dl>
 
@@ -312,10 +308,10 @@ operations.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpacegroupAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L40-L923"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpacegroupAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L39-L883"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Takes a pymatgen.core.structure.Structure object and a symprec.
-Uses spglib to perform various symmetry finding operations.</p>
+<p>Takes a pymatgen.core.structure.Structure object and a symprec.</p>
+<p>Uses spglib to perform various symmetry finding operations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -333,7 +329,7 @@ Project) is often needed.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.find_primitive">
-<span class="sig-name descname"><span class="pre">find_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L336-L366"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.find_primitive" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L325-L354"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.find_primitive" title="Permalink to this definition"></a></dt>
 <dd><p>Find a primitive version of the unit cell.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -356,16 +352,14 @@ returned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_standard_structure">
-<span class="sig-name descname"><span class="pre">get_conventional_standard_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">international_monoclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L542-L854"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_standard_structure" title="Permalink to this definition"></a></dt>
-<dd><p>Gives a structure with a conventional cell according to certain
-standards. The standards are defined in Setyawan, W., &amp; Curtarolo,
-S. (2010). High-throughput electronic band structure calculations:
-Challenges and tools. Computational Materials Science,
-49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
-They basically enforce as much as possible
-norm(a1)&lt;norm(a2)&lt;norm(a3). NB This is not necessarily the same as the
-standard settings within the International Tables of Crystallography,
-for which get_refined_structure should be used instead.</p>
+<span class="sig-name descname"><span class="pre">get_conventional_standard_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">international_monoclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L522-L831"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_standard_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Gives a structure with a conventional cell according to certain standards. The
+standards are defined in Setyawan, W., &amp; Curtarolo, S. (2010). High-throughput
+electronic band structure calculations: Challenges and tools. Computational
+Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010 They
+basically enforce as much as possible norm(a1)&lt;norm(a2)&lt;norm(a3). NB This is not
+necessarily the same as the standard settings within the International Tables of
+Crystallography, for which get_refined_structure should be used instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -389,13 +383,12 @@ further adjustment.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_to_primitive_transformation_matrix">
-<span class="sig-name descname"><span class="pre">get_conventional_to_primitive_transformation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">international_monoclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L417-L460"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_to_primitive_transformation_matrix" title="Permalink to this definition"></a></dt>
-<dd><p>Gives the transformation matrix to transform a conventional
-unit cell to a primitive cell according to certain standards
-the standards are defined in Setyawan, W., &amp; Curtarolo, S. (2010).
-High-throughput electronic band structure calculations:
-Challenges and tools. Computational Materials Science,
-49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010</p>
+<span class="sig-name descname"><span class="pre">get_conventional_to_primitive_transformation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">international_monoclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L401-L442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_to_primitive_transformation_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Gives the transformation matrix to transform a conventional unit cell to a
+primitive cell according to certain standards the standards are defined in
+Setyawan, W., &amp; Curtarolo, S. (2010). High-throughput electronic band structure
+calculations: Challenges and tools. Computational Materials Science, 49(2),
+299-312. doi:10.1016/j.commatsci.2010.05.010.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>international_monoclinic</strong> (<em>bool</em>) – Whether to convert to proper international convention
@@ -409,9 +402,9 @@ such that beta is the non-right angle.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_crystal_system">
-<span class="sig-name descname"><span class="pre">get_crystal_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'triclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'monoclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'orthorhombic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tetragonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'trigonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'hexagonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cubic'</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L146-L177"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_crystal_system" title="Permalink to this definition"></a></dt>
-<dd><p>Get the crystal system for the structure, e.g., (triclinic,
-orthorhombic, cubic, etc.).</p>
+<span class="sig-name descname"><span class="pre">get_crystal_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'triclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'monoclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'orthorhombic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tetragonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'trigonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'hexagonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cubic'</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L140-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_crystal_system" title="Permalink to this definition"></a></dt>
+<dd><p>Get the crystal system for the structure, e.g., (triclinic, orthorhombic,
+cubic, etc.).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ValueError</strong> – on invalid space group numbers &lt; 1 or &gt; 230.</p>
@@ -427,7 +420,7 @@ orthorhombic, cubic, etc.).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_hall">
-<span class="sig-name descname"><span class="pre">get_hall</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L124-L131"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_hall" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_hall</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L120-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_hall" title="Permalink to this definition"></a></dt>
 <dd><p>Returns Hall symbol for structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -441,10 +434,9 @@ orthorhombic, cubic, etc.).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh">
-<span class="sig-name descname"><span class="pre">get_ir_reciprocal_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L368-L391"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh" title="Permalink to this definition"></a></dt>
-<dd><p>k-point mesh of the Brillouin zone generated taken into account
-symmetry.The method returns the irreducible kpoints of the mesh
-and their weights</p>
+<span class="sig-name descname"><span class="pre">get_ir_reciprocal_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L356-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh" title="Permalink to this definition"></a></dt>
+<dd><p>k-point mesh of the Brillouin zone generated taken into account symmetry.The
+method returns the irreducible kpoints of the mesh and their weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -466,10 +458,9 @@ in fractional coordinates</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh_map">
-<span class="sig-name descname"><span class="pre">get_ir_reciprocal_mesh_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L393-L415"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh_map" title="Permalink to this definition"></a></dt>
-<dd><p>Same as ‘get_ir_reciprocal_mesh’ but the full grid together with
-the mapping that maps a reducible to an irreducible kpoint is
-returned.</p>
+<span class="sig-name descname"><span class="pre">get_ir_reciprocal_mesh_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L379-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh_map" title="Permalink to this definition"></a></dt>
+<dd><p>Same as ‘get_ir_reciprocal_mesh’ but the full grid together with the mapping
+that maps a reducible to an irreducible kpoint is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -491,7 +482,7 @@ that maps all the reducible kpoints from to irreducible ones.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_kpoint_weights">
-<span class="sig-name descname"><span class="pre">get_kpoint_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L856-L901"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_kpoint_weights" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_kpoint_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L833-L877"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_kpoint_weights" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate the weights for a list of kpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -510,9 +501,10 @@ provided does not contain duplicates.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_lattice_type">
-<span class="sig-name descname"><span class="pre">get_lattice_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'triclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'monoclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'orthorhombic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tetragonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rhombohedral'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'hexagonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cubic'</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L179-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_lattice_type" title="Permalink to this definition"></a></dt>
-<dd><p>Get the lattice for the structure, e.g., (triclinic, orthorhombic, cubic, etc.).This is
-the same as the crystal system with the exception of the hexagonal/rhombohedral lattice.</p>
+<span class="sig-name descname"><span class="pre">get_lattice_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'triclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'monoclinic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'orthorhombic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tetragonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rhombohedral'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'hexagonal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cubic'</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L172-L191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_lattice_type" title="Permalink to this definition"></a></dt>
+<dd><p>Get the lattice for the structure, e.g., (triclinic, orthorhombic, cubic,
+etc.).This is the same as the crystal system with the exception of the
+hexagonal/rhombohedral lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ValueError</strong> – on invalid space group numbers &lt; 1 or &gt; 230.</p>
@@ -528,10 +520,9 @@ the same as the crystal system with the exception of the hexagonal/rhombohedral 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_operations">
-<span class="sig-name descname"><span class="pre">get_point_group_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L265-L287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_operations" title="Permalink to this definition"></a></dt>
-<dd><p>Return symmetry operations as a list of SymmOp objects.
-By default returns fractional coord symmops.
-But Cartesian can be returned too.</p>
+<span class="sig-name descname"><span class="pre">get_point_group_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L259-L279"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_operations" title="Permalink to this definition"></a></dt>
+<dd><p>Return symmetry operations as a list of SymmOp objects. By default returns
+fractional coord symmops. But Cartesian can be returned too.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>cartesian</strong> (<em>bool</em>) – Whether to return SymmOps as Cartesian or
@@ -548,7 +539,7 @@ direct coordinate operations.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_symbol">
-<span class="sig-name descname"><span class="pre">get_point_group_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L133-L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_point_group_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L128-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Get the point group associated with the structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -562,12 +553,11 @@ direct coordinate operations.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_primitive_standard_structure">
-<span class="sig-name descname"><span class="pre">get_primitive_standard_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">international_monoclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L462-L540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_primitive_standard_structure" title="Permalink to this definition"></a></dt>
-<dd><p>Gives a structure with a primitive cell according to certain standards
-the standards are defined in Setyawan, W., &amp; Curtarolo, S. (2010).
-High-throughput electronic band structure calculations:
-Challenges and tools. Computational Materials Science,
-49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010</p>
+<span class="sig-name descname"><span class="pre">get_primitive_standard_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">international_monoclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L444-L520"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_primitive_standard_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Gives a structure with a primitive cell according to certain standards the
+standards are defined in Setyawan, W., &amp; Curtarolo, S. (2010). High-throughput
+electronic band structure calculations: Challenges and tools. Computational
+Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -591,10 +581,9 @@ further adjustment.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_refined_structure">
-<span class="sig-name descname"><span class="pre">get_refined_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L305-L334"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_refined_structure" title="Permalink to this definition"></a></dt>
-<dd><p>Get the refined structure based on detected symmetry. The refined
-structure is a <em>conventional</em> cell setting with atoms moved to the
-expected symmetry positions.</p>
+<span class="sig-name descname"><span class="pre">get_refined_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L296-L323"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_refined_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Get the refined structure based on detected symmetry. The refined structure is
+a <em>conventional</em> cell setting with atoms moved to the expected symmetry positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>keep_site_properties</strong> (<em>bool</em>) – Whether to keep the input site properties (including
@@ -614,7 +603,7 @@ further adjustment.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_number">
-<span class="sig-name descname"><span class="pre">get_space_group_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L102-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_number" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_space_group_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L100-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_number" title="Permalink to this definition"></a></dt>
 <dd><p>Get the international spacegroup number (e.g., 62) for structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -628,7 +617,7 @@ further adjustment.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_operations">
-<span class="sig-name descname"><span class="pre">get_space_group_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L111-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_operations" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_space_group_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.symmetry.analyzer.SpacegroupOperations" title="pymatgen.symmetry.analyzer.SpacegroupOperations"><span class="pre">SpacegroupOperations</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L108-L118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_operations" title="Permalink to this definition"></a></dt>
 <dd><p>Get the SpacegroupOperations for the Structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -639,7 +628,7 @@ further adjustment.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_symbol">
-<span class="sig-name descname"><span class="pre">get_space_group_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L93-L100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_symbol" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_space_group_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L92-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_symbol" title="Permalink to this definition"></a></dt>
 <dd><p>Get the spacegroup symbol (e.g., Pnma) for structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -653,9 +642,9 @@ further adjustment.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure">
-<span class="sig-name descname"><span class="pre">get_symmetrized_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L289-L303"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure" title="Permalink to this definition"></a></dt>
-<dd><p>Get a symmetrized structure. A symmetrized structure is one where the
-sites have been grouped into symmetrically equivalent groups.</p>
+<span class="sig-name descname"><span class="pre">get_symmetrized_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L281-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Get a symmetrized structure. A symmetrized structure is one where the sites
+have been grouped into symmetrically equivalent groups.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure" title="pymatgen.symmetry.structure.SymmetrizedStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.structure.SymmetrizedStructure</span></code></a> object.</p>
@@ -665,7 +654,7 @@ sites have been grouped into symmetrically equivalent groups.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_dataset">
-<span class="sig-name descname"><span class="pre">get_symmetry_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L200-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_dataset" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symmetry_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L193-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_dataset" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the symmetry dataset as a dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -692,10 +681,9 @@ wyckoffs: Wyckoff letters</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_operations">
-<span class="sig-name descname"><span class="pre">get_symmetry_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L244-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_operations" title="Permalink to this definition"></a></dt>
-<dd><p>Return symmetry operations as a list of SymmOp objects.
-By default returns fractional coord symmops.
-But Cartesian can be returned too.</p>
+<span class="sig-name descname"><span class="pre">get_symmetry_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L240-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_operations" title="Permalink to this definition"></a></dt>
+<dd><p>Return symmetry operations as a list of SymmOp objects. By default returns
+fractional coord symmops. But Cartesian can be returned too.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List of symmetry operations.</p>
@@ -708,18 +696,15 @@ But Cartesian can be returned too.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue">
-<span class="sig-name descname"><span class="pre">is_laue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L903-L923"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue" title="Permalink to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>Check if the point group of the structure</dt><dd><p>has Laue symmetry (centrosymmetry)</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">is_laue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L879-L883"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue" title="Permalink to this definition"></a></dt>
+<dd><p>Check if the point group of the structure has Laue symmetry (centrosymmetry)</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupOperations">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpacegroupOperations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmops</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1645-L1699"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupOperations" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpacegroupOperations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmops</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1585-L1636"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupOperations" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
 <p>Represents a space group, which is a collection of symmetry operations.</p>
 <dl class="field-list simple">
@@ -734,11 +719,11 @@ spacegroup.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupOperations.are_symmetrically_equivalent">
-<span class="sig-name descname"><span class="pre">are_symmetrically_equivalent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sites1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sites2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1662-L1696"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupOperations.are_symmetrically_equivalent" title="Permalink to this definition"></a></dt>
-<dd><p>Given two sets of PeriodicSites, test if they are actually
-symmetrically equivalent under this space group. Useful, for example,
-if you want to test if selecting atoms 1 and 2 out of a set of 4 atoms
-are symmetrically the same as selecting atoms 3 and 4, etc.</p>
+<span class="sig-name descname"><span class="pre">are_symmetrically_equivalent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sites1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sites2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1600-L1633"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupOperations.are_symmetrically_equivalent" title="Permalink to this definition"></a></dt>
+<dd><p>Given two sets of PeriodicSites, test if they are actually symmetrically
+equivalent under this space group. Useful, for example, if you want to test if
+selecting atoms 1 and 2 out of a set of 4 atoms are symmetrically the same as
+selecting atoms 3 and 4, etc.</p>
 <p>One use is in PartialRemoveSpecie transformation to return only
 symmetrically distinct arrangements of atoms.</p>
 <dl class="field-list simple">
@@ -764,7 +749,7 @@ equivalent.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.cluster_sites">
-<span class="sig-name descname"><span class="pre">cluster_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">give_only_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1563-L1599"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.cluster_sites" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cluster_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">give_only_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1506-L1541"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.cluster_sites" title="Permalink to this definition"></a></dt>
 <dd><p>Cluster sites based on distance and species type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -786,12 +771,11 @@ dict of {(avg_dist, species_and_occu): [list of sites]}</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.generate_full_symmops">
-<span class="sig-name descname"><span class="pre">generate_full_symmops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symmops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1602-L1642"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.generate_full_symmops" title="Permalink to this definition"></a></dt>
-<dd><p>Recursive algorithm to permute through all possible combinations of the
-initially supplied symmetry operations to arrive at a complete set of
-operations mapping a single atom to all other equivalent atoms in the
-point group. This assumes that the initial number already uniquely
-identifies all operations.</p>
+<span class="sig-name descname"><span class="pre">generate_full_symmops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symmops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1544-L1582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.generate_full_symmops" title="Permalink to this definition"></a></dt>
+<dd><p>Recursive algorithm to permute through all possible combinations of the initially
+supplied symmetry operations to arrive at a complete set of operations mapping a
+single atom to all other equivalent atoms in the point group. This assumes that the
+initial number already uniquely identifies all operations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>symmops</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a><em>]</em>) – Initial set of symmetry operations.</p>
@@ -804,8 +788,8 @@ identifies all operations.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.iterative_symmetrize">
-<span class="sig-name descname"><span class="pre">iterative_symmetrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.7.25/pymatgen/core/../symmetry/analyzer.py#L1512-L1560"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.iterative_symmetrize" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a symmetrized molecule</p>
+<span class="sig-name descname"><span class="pre">iterative_symmetrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../symmetry/analyzer.py#L1455-L1503"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.iterative_symmetrize" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a symmetrized molecule.</p>
 <p>The equivalent atoms obtained via
 <a class="reference internal" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms" title="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_equivalent_atoms()</span></code></a>
 are rotated, mirrored… unto one position.

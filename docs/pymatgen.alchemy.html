@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.alchemy package &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>pymatgen.alchemy package &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,10 +98,10 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-      <li>pymatgen.alchemy package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+      <li class="breadcrumb-item active">pymatgen.alchemy package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.alchemy.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -124,9 +122,89 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.alchemy.filters.html">pymatgen.alchemy.filters module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.alchemy.materials.html">pymatgen.alchemy.materials module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.alchemy.transmuters.html">pymatgen.alchemy.transmuters module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.alchemy.filters.html">pymatgen.alchemy.filters module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.AbstractStructureFilter"><code class="docutils literal notranslate"><span class="pre">AbstractStructureFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.AbstractStructureFilter.test"><code class="docutils literal notranslate"><span class="pre">AbstractStructureFilter.test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.ChargeBalanceFilter"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.ChargeBalanceFilter.test"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceFilter.test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.ContainsSpecieFilter"><code class="docutils literal notranslate"><span class="pre">ContainsSpecieFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.ContainsSpecieFilter.as_dict"><code class="docutils literal notranslate"><span class="pre">ContainsSpecieFilter.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.ContainsSpecieFilter.from_dict"><code class="docutils literal notranslate"><span class="pre">ContainsSpecieFilter.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.ContainsSpecieFilter.test"><code class="docutils literal notranslate"><span class="pre">ContainsSpecieFilter.test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.RemoveDuplicatesFilter"><code class="docutils literal notranslate"><span class="pre">RemoveDuplicatesFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.RemoveDuplicatesFilter.test"><code class="docutils literal notranslate"><span class="pre">RemoveDuplicatesFilter.test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.RemoveExistingFilter"><code class="docutils literal notranslate"><span class="pre">RemoveExistingFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.RemoveExistingFilter.as_dict"><code class="docutils literal notranslate"><span class="pre">RemoveExistingFilter.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.RemoveExistingFilter.test"><code class="docutils literal notranslate"><span class="pre">RemoveExistingFilter.test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.SpecieProximityFilter"><code class="docutils literal notranslate"><span class="pre">SpecieProximityFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.SpecieProximityFilter.as_dict"><code class="docutils literal notranslate"><span class="pre">SpecieProximityFilter.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.SpecieProximityFilter.from_dict"><code class="docutils literal notranslate"><span class="pre">SpecieProximityFilter.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.SpecieProximityFilter.test"><code class="docutils literal notranslate"><span class="pre">SpecieProximityFilter.test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.SpeciesMaxDistFilter"><code class="docutils literal notranslate"><span class="pre">SpeciesMaxDistFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.SpeciesMaxDistFilter.test"><code class="docutils literal notranslate"><span class="pre">SpeciesMaxDistFilter.test()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.alchemy.materials.html">pymatgen.alchemy.materials module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure"><code class="docutils literal notranslate"><span class="pre">TransformedStructure</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.append_filter"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.append_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.append_transformation"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.append_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.as_dict"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.extend_transformations"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.extend_transformations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.from_cif_string"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.from_cif_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.from_dict"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.from_poscar_string"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.from_poscar_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.from_snl"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.from_snl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.get_vasp_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.redo_next_change"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.redo_next_change()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.set_parameter"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.set_parameter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.structures"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.structures</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.to_snl"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.to_snl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.undo_last_change"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.undo_last_change()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.was_modified"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.was_modified</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input"><code class="docutils literal notranslate"><span class="pre">TransformedStructure.write_vasp_input()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.alchemy.transmuters.html">pymatgen.alchemy.transmuters module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.CifTransmuter"><code class="docutils literal notranslate"><span class="pre">CifTransmuter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames"><code class="docutils literal notranslate"><span class="pre">CifTransmuter.from_filenames()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.PoscarTransmuter"><code class="docutils literal notranslate"><span class="pre">PoscarTransmuter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames"><code class="docutils literal notranslate"><span class="pre">PoscarTransmuter.from_filenames()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.add_tags"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.add_tags()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.append_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.append_transformed_structures()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.apply_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.extend_transformations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.from_structures()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.redo_next_change()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.set_parameter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.undo_last_change()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input"><code class="docutils literal notranslate"><span class="pre">StandardTransmuter.write_vasp_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.batch_write_vasp_input"><code class="docutils literal notranslate"><span class="pre">batch_write_vasp_input()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

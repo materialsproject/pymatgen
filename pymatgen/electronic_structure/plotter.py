@@ -12,18 +12,13 @@ import logging
 import math
 import warnings
 from collections import Counter
-from typing import Literal, cast
+from typing import List, Literal, cast
 
 import matplotlib.lines as mlines
 import numpy as np
 import scipy.interpolate as scint
 from monty.dev import requires
 from monty.json import jsanitize
-
-try:
-    from mayavi import mlab
-except ImportError:
-    mlab = None
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -32,6 +27,11 @@ from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
 from pymatgen.util.typing import ArrayLike
+
+try:
+    from mayavi import mlab
+except ImportError:
+    mlab = None
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -62,7 +62,7 @@ class DosPlotter:
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
 
-    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float = None) -> None:
+    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float | None = None) -> None:
         """
         Args:
             zero_at_efermi (bool): Whether to shift all Dos to have zero energy at the
@@ -75,6 +75,7 @@ class DosPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
+        self._norm_val = True
         self._doses: dict[
             str, dict[Literal["energies", "densities", "efermi"], float | ArrayLike | dict[Spin, ArrayLike]]
         ] = {}
@@ -84,11 +85,11 @@ class DosPlotter:
         Adds a dos for plotting.
 
         Args:
-            label:
-                label for the DOS. Must be unique.
-            dos:
-                Dos object
+            label: label for the DOS. Must be unique.
+            dos: Dos object
         """
+        if dos.norm_vol is None:
+            self._norm_val = False
         energies = dos.energies - dos.efermi if self.zero_at_efermi else dos.energies
         densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
         efermi = dos.efermi
@@ -135,7 +136,6 @@ class DosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
 
@@ -216,7 +216,11 @@ class DosPlotter:
             plt.plot([0, 0], ylim, "k--", linewidth=2)
 
         plt.xlabel("Energies (eV)")
-        plt.ylabel("Density of states")
+
+        if self._norm_val:
+            plt.ylabel("Density of states (states/eV/Å³)")
+        else:
+            plt.ylabel("Density of states (states/eV)")
 
         plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
         plt.legend()
@@ -263,7 +267,6 @@ class BSPlotter:
         Args:
             bs: A BandStructureSymmLine object.
         """
-
         self._bs: list[BandStructureSymmLine] = []
         self._nb_bands: list[int] = []
 
@@ -317,7 +320,7 @@ class BSPlotter:
 
     def _maketicks(self, plt):
         """
-        utility private method to add ticks to a band structure
+        Utility private method to add ticks to a band structure
         """
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -427,7 +430,6 @@ class BSPlotter:
             is_metal: True if the band structure is metallic (i.e., there is at
             least one band crossing the fermi level).
         """
-
         if bs is None:
             if isinstance(self._bs, list):
                 # if BSPlotter
@@ -528,7 +530,6 @@ class BSPlotter:
         number of branches (high symmetry lines) defined in the
         BandStructureSymmLine object (see BandStructureSymmLine._branches).
         """
-
         int_energies, int_distances = [], []
         smooth_k_orig = smooth_k
 
@@ -599,6 +600,7 @@ class BSPlotter:
             smooth (bool or list(bools)): interpolates the bands by a spline cubic.
                 A single bool values means to interpolate all the bandstructure objs.
                 A list of bools allows to select the bandstructure obs to interpolate.
+            vbm_cbm_marker (bool): if True, a marker is added to the vbm and cbm.
             smooth_tol (float) : tolerance for fitting spline to band data.
                 Default is None such that no tolerance will be used.
             smooth_k (int): degree of splines 1<k<5
@@ -756,6 +758,8 @@ class BSPlotter:
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
             ylim: Specifies the y-axis limits.
+            zero_to_efermi: Automatically the Fermi level as the origin.
+            smooth: Cubic spline interpolation of the bands.
         """
         plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
         plt.savefig(filename, format=img_format)
@@ -844,17 +848,17 @@ class BSPlotter:
 
     def plot_compare(self, other_plotter, legend=True):
         """
-        plot two band structure for comparison. One is in red the other in blue
+        Plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
         on the same symmetry lines! and the distance between symmetry lines is
         the one of the band structure used to build the BSPlotter
 
         Args:
-            another band structure object defined along the same symmetry lines
+            other_plotter: Another band structure object defined along the same symmetry lines
+            legend: True to add a legend to the plot
 
         Returns:
             a matplotlib object with both band structures
-
         """
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
@@ -892,10 +896,7 @@ class BSPlotter:
         return plt
 
     def plot_brillouin(self):
-        """
-        plot the Brillouin zone
-        """
-
+        """Plot the Brillouin zone"""
         # get labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
@@ -1148,7 +1149,7 @@ class BSPlotterProjected(BSPlotter):
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """
-        returns a pylab plot object with one plot where the band structure
+        Returns a pylab plot object with one plot where the band structure
         line color depends on the character of the band (along different
         elements). Each element is associated with red, green or blue
         and the corresponding rgb color depending on the character of the band
@@ -1162,7 +1163,6 @@ class BSPlotterProjected(BSPlotter):
 
         Returns:
             a pylab object
-
         """
         band_linewidth = 3.0
         if len(self._bs.structure.composition.elements) > 3:
@@ -1807,7 +1807,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictio:
                         raise ValueError(
-                            f"You cannot sum projection over orbitals of atoms '{elt}' because they are not "
+                            f"You cannot sum projection over orbitals of atoms {elt!r} because they are not "
                             "mentioned in 'dictio'."
                         )
                 else:
@@ -1818,7 +1818,7 @@ class BSPlotterProjected(BSPlotter):
                 if len(dictio[elt][0]) > 1:
                     if elt in sum_morbs:
                         raise ValueError(
-                            f"You cannot sum projection over one individual orbital '{dictio[elt][0]}' of '{elt}'."
+                            f"You cannot sum projection over one individual orbital {dictio[elt][0]!r} of {elt!r}."
                         )
                 else:
                     if sum_morbs is None:
@@ -1831,10 +1831,10 @@ class BSPlotterProjected(BSPlotter):
                         if len(sum_morbs[elt]) > 1:
                             for orb in sum_morbs[elt]:
                                 if dictio[elt][0] not in orb:
-                                    raise ValueError(f"The invalid orbital '{orb}' was put into 'sum_morbs[{elt}]'.")
+                                    raise ValueError(f"The invalid orbital {orb!r} was put into 'sum_morbs[{elt}]'.")
                         else:
                             if orb == "s" or len(orb) > 1:
-                                raise ValueError(f"The invalid orbital '{orb}' was put into sum_orbs['{elt}'].")
+                                raise ValueError(f"The invalid orbital {orb!r} was put into sum_orbs[{elt!r}].")
                             sum_morbs[elt] = individual_orbs[dictio[elt][0]]
                             dictio[elt] = individual_orbs[dictio[elt][0]]
             else:
@@ -1903,7 +1903,7 @@ class BSPlotterProjected(BSPlotter):
                         if isinstance(number, str):
                             if number.lower() == "all":
                                 dictpa[elt] = indices
-                                print(f"You want to consider all '{elt}' atoms.")
+                                print(f"You want to consider all {elt!r} atoms.")
                                 break
 
                             raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
@@ -1924,10 +1924,10 @@ class BSPlotterProjected(BSPlotter):
             raise KeyError("The number of keys in 'dictio' and 'dictpa' are not the same.")
         for elt in dictio:
             if elt not in dictpa:
-                raise KeyError(f"The element '{elt}' is not in both dictpa and dictio.")
+                raise KeyError(f"The element {elt!r} is not in both dictpa and dictio.")
         for elt in dictpa:
             if elt not in dictio:
-                raise KeyError(f"The element '{elt}' in not in both dictpa and dictio.")
+                raise KeyError(f"The element {elt!r} in not in both dictpa and dictio.")
 
         if sum_atoms is None:
             print("You do not want to sum projection over atoms.")
@@ -1950,7 +1950,7 @@ class BSPlotterProjected(BSPlotter):
                             if isinstance(number, str):
                                 if number.lower() == "all":
                                     sum_atoms[elt] = indices
-                                    print(f"You want to sum projection over all '{elt}' atoms.")
+                                    print(f"You want to sum projection over all {elt!r} atoms.")
                                     break
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                             if isinstance(number, int):
@@ -1958,7 +1958,7 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                                 if number not in dictpa[elt]:
                                     raise ValueError(
-                                        f"You cannot sum projection with atom number '{number}' because it is not "
+                                        f"You cannot sum projection with atom number {number!r} because it is not "
                                         f"mentioned in dicpta[{elt}]"
                                     )
                             else:
@@ -1972,7 +1972,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                     if elt not in dictpa:
                         raise ValueError(
-                            f"You cannot sum projection over atoms '{elt}' because it is not mentioned in 'dictio'."
+                            f"You cannot sum projection over atoms {elt!r} because it is not mentioned in 'dictio'."
                         )
                 else:
                     raise KeyError(f"The invalid element was put into 'sum_atoms' as a key: {elt}")
@@ -2138,7 +2138,7 @@ class BSPlotterProjected(BSPlotter):
 
     def _maketicks_selected(self, plt, branches):
         """
-        utility private method to add ticks to a band structure with selected branches
+        Utility private method to add ticks to a band structure with selected branches
         """
         ticks = self.get_ticks()
         distance = []
@@ -2370,7 +2370,7 @@ class BSDOSPlotter:
             left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
             right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
-            xlabel_distances.append(xlabel_distances[-1] + distance)
+            xlabel_distances.append(xlabel_distances[-1] + distance)  # type: ignore
 
             # add x-coordinates for kpoint data
             npts = branch["end_index"] - branch["start_index"]
@@ -2418,7 +2418,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(list[float], band)
+                    band = cast(List[float], band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level
@@ -2592,13 +2592,14 @@ class BSDOSPlotter:
     def _get_colordata(bs, elements, bs_projection):
         """
         Get color data, including projected band structures
+
         Args:
             bs: Bandstructure object
             elements: elements (in desired order) for setting to blue, red, green
             bs_projection: None for no projection, "elements" for element projection
 
         Returns:
-
+            Dictionary representation of color data.
         """
         contribs = {}
         if bs_projection and bs_projection.lower() == "elements":
@@ -2813,10 +2814,10 @@ class BoltztrapPlotter:
             temps:  list of temperatures of calculated seebeck.
             Lambda: fitting parameter used to model the scattering (0.5 means
                 constant relaxation time).
+
         Returns:
             a matplotlib object
         """
-
         plt = pretty_plot(9, 7)
         for T in temps:
             sbk_mass = self._bz.get_seebeck_eff_mass(output=output, temp=T, Lambda=0.5)
@@ -2874,6 +2875,7 @@ class BoltztrapPlotter:
             temps:  list of temperatures of calculated seebeck and conductivity.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
                     relaxation time).
+
         Returns:
             a matplotlib object
         """
@@ -2926,6 +2928,7 @@ class BoltztrapPlotter:
                 the temperature
             xlim:
                 a list of min and max fermi energy by default (0, and band gap)
+
         Returns:
             a matplotlib object
         """
@@ -3055,10 +3058,10 @@ class BoltztrapPlotter:
                      Specify a list of doping levels if you want to plot only some.
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
+
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             sbk = self._bz.get_seebeck(output="average")
         elif output == "eigs":
@@ -3113,7 +3116,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3169,7 +3171,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3224,7 +3225,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
@@ -3278,7 +3278,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             em = self._bz.get_average_eff_mass(output="average")
         elif output == "eigs":
@@ -3331,7 +3330,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             sbk = self._bz.get_seebeck(output="average")
         elif output == "eigs":
@@ -3550,7 +3548,6 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-
         if output == "average":
             em = self._bz.get_average_eff_mass(output="average")
         elif output == "eigs":
@@ -3592,8 +3589,7 @@ class BoltztrapPlotter:
         return plt
 
     def plot_dos(self, sigma=0.05):
-        """
-        plot dos
+        """Plot dos
 
         Args:
             sigma: a smearing
@@ -3951,6 +3947,7 @@ def plot_fermi_surface(
             If False a non interactive figure will be shown, but it is possible
             to plot other surfaces on the same figure. To make it interactive,
             run mlab.show().
+
     Returns:
         ((mayavi.mlab.figure, mayavi.mlab)): The mlab plotter and an interactive
             figure to control the plot.
@@ -4176,7 +4173,6 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs)
     Returns:
         matplotlib figure and matplotlib ax
     """
-
     ax, fig, plt = get_ax3d_fig_plt(ax)
 
     if "color" not in kwargs:
@@ -4250,7 +4246,6 @@ def fold_point(p, lattice, coords_are_cartesian=False):
     Returns:
         The Cartesian coordinates folded inside the first Brillouin zone
     """
-
     if coords_are_cartesian:
         p = lattice.get_fractional_coords(p)
     else:
@@ -4370,7 +4365,6 @@ def plot_brillouin_zone(
     Returns:
         matplotlib figure
     """
-
     fig, ax = plot_lattice_vectors(bz_lattice, ax=ax)
     plot_wigner_seitz(bz_lattice, ax=ax)
     if lines is not None:
@@ -4432,13 +4426,14 @@ def plot_ellipsoid(
         kwargs: kwargs passed to the matplotlib function 'plot_wireframe'.
                 Color defaults to blue, rstride and cstride
                 default to 4, alpha defaults to 0.2.
+
     Returns:
         matplotlib figure and matplotlib ax
+
     Example of use:
         fig,ax=plot_wigner_seitz(struct.reciprocal_lattice)
         plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)
     """
-
     if (not coords_are_cartesian) and lattice is None:
         raise ValueError("coords_are_cartesian False or fold True require the lattice")
 

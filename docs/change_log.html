@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2022.7.25 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.1.20 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2022.7.25
+                2023.1.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -54,6 +52,14 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-1-20">v2023.1.20</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-1-9">v2023.1.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-11-7">v2022.11.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-11-1">v2022.11.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-10-22">v2022.10.22</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-9-21">v2022.9.21</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-9-8">v2022.9.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-8-23">v2022.8.23</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-7-25">v2022.7.25</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-7-24-1">v2022.7.24.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2022-7-24">v2022.7.24</a></li>
@@ -390,8 +396,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Change log</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Change log</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/change_log.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -403,6 +409,96 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2023-1-20">
+<h2>v2023.1.20<a class="headerlink" href="#v2023-1-20" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Passthrough kwargs support for Structure.from_file and Structure.from_str</p></li>
+<li><p>Allow the <cite>frac_tolerance</cite> to be specified for rounding coordinates in CifParser.</p></li>
+<li><dl class="simple">
+<dt>PR #2803 from &#64;amkrajewski add_weightbasedfunctions</dt><dd><p>When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
+- Composition class method to initialize it from a dictionary of weight fractions
+- Composition property giving a dictionary of weight fractions
+- concise tests for the two above were added</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>QChem: translate DMSO name in smd_solvent</p>
+</section>
+<section id="v2023-1-9">
+<h2>v2023.1.9<a class="headerlink" href="#v2023-1-9" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>PR #2792 from &#64;JaGeo bug_fix</p></li>
+<li><p>PR #2773 from &#64;ab5424 cbar</p></li>
+<li><p>PR #2776 from &#64;MichaelWolloch master</p></li>
+<li><p>PR #2762 from &#64;MichaelWolloch master</p></li>
+<li><p>PR #2774 from &#64;dgaines2 fix-poscar</p></li>
+<li><p>PR #2667 from &#64;nwinner volumetric-data-patch</p></li>
+<li><p>PR #2764 from &#64;naik-aakash lobster_lsodos</p></li>
+<li><p>PR #2215 from &#64;rkingsbury cmirs</p></li>
+<li><p>PR #2742 from &#64;materialsproject pip-dependabot</p></li>
+<li><p>PR #2741 from &#64;materialsproject resurrect-req-txt</p></li>
+<li><p>PR #2735 from &#64;njzjz patch-1</p></li>
+</ul>
+</section>
+<section id="v2022-11-7">
+<h2>v2022.11.7<a class="headerlink" href="#v2022-11-7" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>PR #2724 from &#64;janosh: raise ValueError in <code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_symmetrized_structure()</span></code> if spglib returns no symmetries</p></li>
+<li><p>PR #2720 by &#64;utf: Fix tensor mapping</p></li>
+<li><p>PR #2562 from &#64;sudarshanv01: In case the Fock-matrix and eigenvalues are requested by the user (though the flags <cite>scf_final_print</cite> or <cite>scf_print</cite>), outputs.py now allows parsing both these quantities.</p></li>
+</ul>
+</section>
+<section id="v2022-11-1">
+<h2>v2022.11.1<a class="headerlink" href="#v2022-11-1" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Order of kwargs <cite>fmt</cite> and <cite>filename</cite> in <cite>Structure.to()</cite> swapped for ease of use (note: this can break codes that do not use these options as kwargs).</p></li>
+<li><p>&#64;yuzie007 Parse “Atomic configuration” in POTCAR (52 and 54). Useful for estimating a reasonable NBANDS value.</p></li>
+<li><p>EnumerateStructureTransformation now supports <cite>m3gnet_relax</cite> or <cite>m3gnet_static</cite> options.</p></li>
+</ul>
+</section>
+<section id="v2022-10-22">
+<h2>v2022.10.22<a class="headerlink" href="#v2022-10-22" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Allow env settings to override .pmgrc.yaml (&#64;janosh)</p></li>
+<li><p>Add EntryLike type (&#64;janosh)</p></li>
+<li><p>Update spglib to 2.0+.</p></li>
+<li><p>&#64;cnncnnzh Method to plot the atom-resolved phonon band structures.</p></li>
+<li><p>&#64;jmmshn More Flexible reproduction of VASP’s optical code</p></li>
+<li><p>&#64;Ameyanagi Fix the sorting of the FEFF IO module to create ATOMS input.</p></li>
+<li><p>&#64;JaGeo Extend the ThermalDisplacementMatrices class to read cif files in P1 format.</p></li>
+<li><p>&#64;rkingsbury Changes to FEFF I/O to support the use of non-periodic input structures.</p></li>
+<li><p>&#64;jmmshn Merge Waverder and Wavederf</p></li>
+<li><p>&#64;jmmshn  Set the structure_charge while parsing Potcar</p></li>
+</ul>
+</section>
+<section id="v2022-9-21">
+<h2>v2022.9.21<a class="headerlink" href="#v2022-9-21" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>&#64;chunweizhu fix the bugs when running <cite>TEMCalculator</cite></p></li>
+<li><p>&#64;munrojm Support for new MPRester.</p></li>
+</ul>
+</section>
+<section id="v2022-9-8">
+<h2>v2022.9.8<a class="headerlink" href="#v2022-9-8" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>&#64;janosh Add AirssProvider.as_dict</p></li>
+<li><p>&#64;gpetretto Outcar parsing optimization.</p></li>
+<li><p>&#64;ScottNotFound Adds res file io to handle results from airss searches</p></li>
+<li><p>&#64;janosh Fixes the <cite>AttributeError</cite> currently raised when passing disordered structures to methods like <cite>get_cn()</cite> and <cite>get_bonded_structure()</cite> of <cite>CrystalNN</cite> and other <cite>NearNeighbors</cite> subclasses.</p></li>
+<li><p>&#64;naik-aakash Added new option <cite>standard_with_comp_range</cite> for generating lobsterin files using vasp</p></li>
+</ul>
+</section>
+<section id="v2022-8-23">
+<h2>v2022.8.23<a class="headerlink" href="#v2022-8-23" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Structure Graphs from Lobster Data (&#64;JaGeo)</p></li>
+<li><p>Added ‘get_orbit_and_generators’-method to SpaceGroup class (&#64;nheinsdorf)</p></li>
+<li><p>Class to handle Thermal displacements matrices (&#64;JaGeo)</p></li>
+<li><p>Change default number of significant digits to write VASP POSCAR (&#64;henriquemiranda)</p></li>
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</section>
 <section id="v2022-7-25">
 <h2>v2022.7.25<a class="headerlink" href="#v2022-7-25" title="Permalink to this heading"></a></h2>
 <ul class="simple">
@@ -454,16 +550,16 @@ about this change should be directed to Jimmy-Xuan Shen, &#64;jmmshn.</p>
 <li><p>Enhancement: Remove not converged warning for VASP AIMD runs, PR #2571 by &#64;mjwen</p></li>
 <li><p>Fix: generation of continuous line-mode band structures, PR #2533 by &#64;munrojm</p></li>
 <li><p>Fix: duplicate site properties for magnetic moments hwen using <cite>AseAtomsAdaptor</cite>, PR #2545 by &#64;arosen93</p></li>
-<li><p>Fix: bug in Grüneisen parameter calculation, PR #2543 by by &#64;ab5424</p></li>
+<li><p>Fix: bug in Grüneisen parameter calculation, PR #2543 by &#64;ab5424</p></li>
 <li><p>Fix: allow a comment on final line of KPOINTS file, PR #2549 by &#64;xivh</p></li>
 <li><p>Fix: for <cite>Composition.replace</cite> with complex mappings, PR #2555 by &#64;jacksund</p></li>
 <li><p>Fix: Implement equality method and fix __iter__ for InputSet, PR #2575 by &#64;rkingsbury</p></li>
 <li><p>Fix: use negative charge convention for electron in “update_charge_from_potcar”, PR #2577 by &#64;jmmshn</p></li>
 <li><p>Fix: ensure charge is applied to initial and final structures parsed from vasprun.xml, PR #2579 by &#64;jmmshn</p></li>
 <li><p>Chore: Set permissions for GitHub actions, PR #2547 by &#64;naveensrinivasan</p></li>
-<li><p>Chore: Included GitHub actions in the Dependabot config, PR #2548 by by &#64;naveensrinivasan</p></li>
+<li><p>Chore: Included GitHub actions in the Dependabot config, PR #2548 by &#64;naveensrinivasan</p></li>
 <li><p>Documentation: fix typos in pymatgen.symmetry.analyzer docstrings, PR #2561 by &#64;dgaines2</p></li>
-<li><p>Documentation: clarification about usage of InputFile, PR #2570 by by &#64;orionarcher</p></li>
+<li><p>Documentation: clarification about usage of InputFile, PR #2570 by &#64;orionarcher</p></li>
 <li><p>Documentation: Improve messages and warnings, PR #2572 and PR #2573 by &#64;cajfisher</p></li>
 <li><p>Documentation: fix typo, PR #2580 by &#64;janosh</p></li>
 </ul>
@@ -481,7 +577,7 @@ see deprecation notice.</p>
 <section id="v2022-5-19">
 <h2>v2022.5.19<a class="headerlink" href="#v2022-5-19" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Added option for addtional criteria to be passed to MPRester.get_entries_in_chemsys (&#64;shyuep).</p></li>
+<li><p>Added option for additional criteria to be passed to MPRester.get_entries_in_chemsys (&#64;shyuep).</p></li>
 </ul>
 </section>
 <section id="v2022-5-18-1">
@@ -545,7 +641,7 @@ This avoids the MPRester constantly rewriting a config file and causing users’
 <li><p>Support kwargs for ASE adaptor. (&#64;arosen93)</p></li>
 <li><p>Fix for cation error in Lobster analysis. (&#64;JaGeo)</p></li>
 <li><p>Major revampt of Abstract interface for Input classes in IO. (&#64;rkingsbury)</p></li>
-<li><p>Orbital-projected band center, band filling, band ceneter, skewness, kurtosis, etc. (&#64;arosen93)</p></li>
+<li><p>Orbital-projected band center, band filling, band center, skewness, kurtosis, etc. (&#64;arosen93)</p></li>
 <li><p>Misc cleanups. (&#64;janosh)</p></li>
 </ul>
 </section>
@@ -678,7 +774,7 @@ you are acknowledged appropriately by filling out the linked form.</p>
 <li><p>General improvements to Phase Diagram code (&#64;CompyRhys, #2263, #2264, #2268)</p></li>
 <li><p>Improve appearance of periodic table heatmap (&#64;penicillin0, #2272)</p></li>
 <li><p>Small improvements to battery classes (&#64;jmmshn, #2262)</p></li>
-<li><p>Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (&#64;CompRhys, #2249)</p></li>
+<li><p>Fix for Composition.chemical_system to match expected behavior for compositions with oxidation states (&#64;CompRhys, #2249)</p></li>
 <li><p>Fix for bad param in OPTIMADE response fields (&#64;ml-evs, #2244)</p></li>
 <li><p>Fix for issue in parsing <cite>bandOverlaps.lobster</cite> file (&#64;pzarabadip, #2237)</p></li>
 <li><p>Fix for Moladaptor (&#64;orioncohen, #2269)</p></li>
@@ -770,7 +866,7 @@ method of the <cite>SpacegroupAnalyzer</cite> for triclinic crystals.</p></li>
 <li><p>PR #2132 from &#64;htz1992213 speeds up LammpsData.as_string for
 non-hybrid data with large coeff sections and adds as_lammpsdata method to
 CombinedData</p></li>
-<li><p>PR #2129 from &#64;richardtran415 improves analysis of surface symmetry of slabs.</p></li>
+<li><p>PR #2129 from &#64;CifLord improves analysis of surface symmetry of slabs.</p></li>
 <li><p>PR #2117 from &#64;nwinner contains bug fixes for bader caller.</p></li>
 </ul>
 </section>
@@ -902,7 +998,7 @@ since most of these settings are used within pymatgen itself.</p></li>
 <li><p><strong>Backwards incompatible</strong>: pymatgen.loadfn and get_structure_from_mp have been
 removed since no one was using them.</p></li>
 <li><p>critic2_caller has been refactored. (&#64;samblau)</p></li>
-<li><p>Improved hash for Compositon (&#64;CompRhys)</p></li>
+<li><p>Improved hash for Composition (&#64;CompRhys)</p></li>
 <li><p>Fixes Outcar parsing for VASP 6.2.0. (&#64;MichaelWolloch)</p></li>
 <li><p>Allow None for Gaussian functional, bset, charge and multiplicity (&#64;eimrek)</p></li>
 </ul>
@@ -1122,7 +1218,7 @@ to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (&#
 <ul class="simple">
 <li><p>New high-symmetry k-path algorithm (&#64;munrojm, &#64;kt-latimer)</p></li>
 <li><p>New TEM diffraction calculator (&#64;welltemperedpaprika, &#64;thefrankwan, &#64;shyamd)</p></li>
-<li><p>New plotly plotting option for Wulff shapes (&#64;richardtran415)</p></li>
+<li><p>New plotly plotting option for Wulff shapes (&#64;CifLord)</p></li>
 <li><p>Improvements to SQS caller (&#64;rwoodsrobinson)</p></li>
 <li><p>Various bug fixes and improvements (&#64;mfherbst, &#64;chc273,
 &#64;jacksund, &#64;espottesmith, &#64;hongyi-zhao, &#64;montoyjh,
@@ -1148,7 +1244,7 @@ allow setting of arbitrary precision.</p></li>
 <ul class="simple">
 <li><p>New MonteCarloRattleTransformation and phonopy integration (&#64;utf)</p></li>
 <li><p>New structure connectivity features in Chemenv analysis (&#64;davidwaroquiers)</p></li>
-<li><p>Bug fixes (&#64;richardtran415, &#64;chc273, &#64;JaGeo, &#64;dskoda, &#64;rkingsbury,
+<li><p>Bug fixes (&#64;CifLord, &#64;chc273, &#64;JaGeo, &#64;dskoda, &#64;rkingsbury,
 &#64;jmmshn, &#64;espottesmith, &#64;gVallverdu, &#64;yimingchen95, &#64;fraricci)</p></li>
 </ul>
 </section>
@@ -1216,7 +1312,7 @@ allow setting of arbitrary precision.</p></li>
 <h2>v2019.10.3<a class="headerlink" href="#v2019-10-3" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Faster get_all_neighbors based on &#64;chc273’s improvements. get_all_neighbors
-now returns a Site-like object with nn_distance, image and index attrbutes.
+now returns a Site-like object with nn_distance, image and index attributes.
 Much easier to use.</p></li>
 <li><p>Bug fix for XCrySDen parser (&#64;stevetorr)</p></li>
 <li><p>Added optional mid_struct to direct interpolation (&#64;jmmshn)</p></li>
@@ -1255,7 +1351,7 @@ Actions as well as CircleCI.</p></li>
 <h2>v2019.9.7<a class="headerlink" href="#v2019-9-7" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>New fast Pourbaix algorithm (&#64;montoyjh)</p></li>
-<li><p>VASP Incar parameter checking (&#64;richardtran415)</p></li>
+<li><p>VASP Incar parameter checking (&#64;CifLord)</p></li>
 <li><p>New VASP input set for Lobster, read support for GROSSPOP file (&#64;JaGeo)</p></li>
 <li><p>New CombinedData class  for LAMMPS (&#64;htz1992213)</p></li>
 <li><p>Improvements to molecule fragmenter (&#64;samblau)</p></li>
@@ -1300,7 +1396,7 @@ and PRs must pass pycodestyle.</p></li>
 <li><p>Improved Lobster interface (&#64;JaGeo)</p></li>
 <li><p>Bug fixes (&#64;sthartman, &#64;dwinston, &#64;utf)</p></li>
 <li><p>New functionality for calculation of Heisenberg exchange parameters (&#64;ncfrey)</p></li>
-<li><p>Improvements to Miller indices handling and Lattice (&#64;richardtran415)</p></li>
+<li><p>Improvements to Miller indices handling and Lattice (&#64;CifLord)</p></li>
 </ul>
 </section>
 <section id="v2019-7-2">
@@ -1319,7 +1415,7 @@ and PRs must pass pycodestyle.</p></li>
 <h2>v2019.6.20<a class="headerlink" href="#v2019-6-20" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>New interface class (&#64;sivonxay, &#64;kylebystrom, &#64;shyamd)</p></li>
-<li><p>Updates to SlabGenerator (&#64;richardtran415)</p></li>
+<li><p>Updates to SlabGenerator (&#64;CifLord)</p></li>
 <li><p>Updates to PiezoTensor (&#64;dongsenfo)</p></li>
 <li><p>Add support for parsing on-site density matrix to Outcar (&#64;mkhorton, &#64;mhsiron, &#64;clegaspi)</p></li>
 <li><p>Fixes for magnetic space groups (&#64;simonward86)</p></li>
@@ -1389,7 +1485,7 @@ checking for standardization.</p></li>
 more
 * Improvements to COHP (&#64;JaGeo)
 * Support to read WAVEDER files (&#64;knc6)
-* Addition of van Arkel-Ketelaar triangle plots (&#64;richardtran415)
+* Addition of van Arkel-Ketelaar triangle plots (&#64;CifLord)
 * Addition of optional user agent to MPRester API calls, see documentation
 for more information (&#64;dwinston)</p>
 </section>
@@ -1418,12 +1514,12 @@ kpoint convergence script that can be submitted in a queue</p></li>
 <span class="go">            user_kpoints_settings={&quot;reciprocal_density&quot;: k_dens})</span>
 <span class="go">        vi = vis.get_vasp_input()</span>
 <span class="go">        kpoints = vi[&quot;KPOINTS&quot;].kpts[0][0]</span>
-<span class="go">        d = &quot;Li2O_kpoints_%d&quot; % kpoints</span>
+<span class="go">        d = f&quot;Li2O_kpoints_{kpoints}&quot;</span>
 
 <span class="go">        # Directly run vasp.</span>
 <span class="go">        vi.run_vasp(d, vasp_cmd=VASP_CMD)</span>
 <span class="go">        # Use the final structure as the new initial structure to speed up calculations.</span>
-<span class="go">        structure = Vasprun(&quot;%s/vasprun.xml&quot; % d).final_structure</span>
+<span class="go">        structure = Vasprun(f&quot;{d}/vasprun.xml&quot;).final_structure</span>
 
 
 <span class="go">if __name__ == &quot;__main__&quot;:</span>
@@ -1494,10 +1590,10 @@ remove non-ground-states, etc. Makes it easier to grab a large set of entries an
 (&#64;dwinston)</p></li>
 <li><p>MVLRelax52Set which uses VASP 52 pseudopotentials. (&#64;HanmeiTang)</p></li>
 <li><p>EPH calculations in ABINIT (&#64;gmatteo)</p></li>
-<li><p>New ScaleToRelaxedTransformation (&#64;richardtran415)</p></li>
+<li><p>New ScaleToRelaxedTransformation (&#64;CifLord)</p></li>
 <li><p>New dimensionality finder, and consolidation of existing algorithms (&#64;utf)</p></li>
 <li><p>New dopant predictor built on structure predictor (&#64;utf)</p></li>
-<li><p>Misc bug fixes (&#64;HanmeiTang, &#64;utf, &#64;tamuhey, &#64;mkhorton, &#64;yiming-xu, &#64;richardtran415)</p></li>
+<li><p>Misc bug fixes (&#64;HanmeiTang, &#64;utf, &#64;tamuhey, &#64;mkhorton, &#64;yiming-xu, &#64;CifLord)</p></li>
 </ul>
 </section>
 <section id="v2018-11-6">
@@ -1594,7 +1690,7 @@ input doping (&#64;albalu)</p></li>
 <ul class="simple">
 <li><p>Improved local_env and MoleculeGraph (&#64;WardLT, &#64;espottesmith)</p></li>
 <li><p>Improve BabelMolAdaptor with conformer search and other functions (&#64;Qi-Max)</p></li>
-<li><p>Improved surface analysis (&#64;richardtran415)</p></li>
+<li><p>Improved surface analysis (&#64;CifLord)</p></li>
 </ul>
 </section>
 <section id="v2018-6-11">
@@ -2735,7 +2831,7 @@ intercalation electrodes.</p></li>
 <li><p>Lots of improvements to Gaussian support (Nicolas Dardenne) and Abinit IO
 (Matteo).</p></li>
 <li><p>Lots of Py3k minor updates.</p></li>
-<li><p>Updated doc for Diffusion anaylzer. Invert sq_disp_ions for more intuitive handling.</p></li>
+<li><p>Updated doc for Diffusion analyzer. Invert sq_disp_ions for more intuitive handling.</p></li>
 </ul>
 </section>
 <section id="v3-0-2">
