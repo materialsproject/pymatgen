@@ -10,6 +10,7 @@ import warnings
 from shutil import which
 
 import scipy
+import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -245,10 +246,28 @@ class BSDOSPlotterTest(unittest.TestCase):
         )
         plt.close("all")
         
-        with open (os.path.join(PymatgenTest.TEST_FILES_DIR,'SrBa2Sn2O7_random.json'),'r') as f:
+        with open (os.path.join(PymatgenTest.TEST_FILES_DIR,'SrBa2Sn2O7.json'),'r') as f:
             bandstr_dict = json.load(f)
+        # generate random projections
+        data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
+        bandstr_dict['projections']['1'] = data_structure
+        d = bandstr_dict['projections']['1']
+        for i in range(len(d)):
+            for j in range(len(d[i])):
+                for k in range(len(d[i][j])):
+                    for m in range(len(d[i][j][k])):
+                        d[i][j][k][m] = 0
+                        # d[i][j][k][m] = np.random.rand()
+                    # generate random number for two atoms
+                    a = np.random.randint(0,7)
+                    b = np.random.randint(0,7)
+                    # c = np.random.randint(0,7)
+                    d[i][j][k][a] = np.random.rand()
+                    d[i][j][k][b] = np.random.rand()
+                    # d[i][j][k][c] = np.random.rand()
         bandstr = BandStructureSymmLine.from_dict(bandstr_dict)
         plt = p.get_plot(bandstr)
+        plt.show()
 
 
 class PlotBZTest(unittest.TestCase):
