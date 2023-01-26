@@ -17,6 +17,9 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
@@ -1046,6 +1049,36 @@ $end
         test_file.close()
         ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
+
+    def test_read_write_nbo_e2pert(self):
+        qcinp = QCInput.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin")
+        )
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
+        test_file = open(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin"))
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            assert l_test == l_ref
+
+        test_file.close()
+        ref_file.close()
+        os.remove(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
+
+    def test_read_write_custom_smd(self):
+        qcinp = QCInput.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "custom_smd.qin")
+        )
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
+        test_file = open(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "custom_smd.qin"))
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            assert l_test == l_ref
+
+        test_file.close()
+        ref_file.close()
+        os.remove(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
 
 
 if __name__ == "__main__":
