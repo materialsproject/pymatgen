@@ -56,7 +56,7 @@ class AbstractVoltagePair(MSONable):
     frac_charge: float
     frac_discharge: float
     working_ion_entry: ComputedEntry
-    framework_formula: str  # TODO should be made into Composition whenever the as_dict and from_dict are fixed
+    framework_formula: str
 
     def __post_init__(self):
         # ensure the frame work is a reduced composition
