@@ -2623,10 +2623,15 @@ class BSDOSPlotter:
                                 for idx, e in enumerate(elements):
                                     c[idx] = math.sqrt(projs[e] / total)  # min is to handle round errors
 
-                            c = [c[1], c[2], c[0], c[3]]  # prefer blue, then red, then green or magenta, then yellow, then cyan, then black
+                            c = [
+                                c[1],
+                                c[2],
+                                c[0],
+                                c[3],
+                            ]  # prefer blue, then red, then green or magenta, then yellow, then cyan, then black
                             if len(elements) == 4:
                                 # convert cmyk to rgb
-                                c = [(1-c[0])*(1-c[3]), ((1-c[1])*(1-c[3])), ((1-c[2])*(1-c[3]))]
+                                c = [(1 - c[0]) * (1 - c[3]), ((1 - c[1]) * (1 - c[3])), ((1 - c[2]) * (1 - c[3]))]
                             else:
                                 c = [c[0], c[1], c[2]]
 
@@ -2649,6 +2654,7 @@ class BSDOSPlotter:
             loc = 2
 
         from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
         inset_ax = inset_axes(ax, width=1.5, height=1.5, loc=loc)
         mesh = 35
         x = []
@@ -2657,63 +2663,36 @@ class BSDOSPlotter:
         for c in range(0, mesh):
             for ye in range(0, mesh):
                 for m in range(0, mesh):
-                    if (
-                            not (c == mesh-1 and ye == mesh-1 and m == mesh-1) and
-                            not (c == 0 and ye == 0 and m == 0)
-                        ):
-                        c1 = c / (c + ye + m )
-                        ye1 = ye / (c + ye + m )
-                        m1 = m / (c + ye + m )
-                        x.append(0.33 * (2. * ye1 + c1) / (c1 + ye1 + m1))
+                    if not (c == mesh - 1 and ye == mesh - 1 and m == mesh - 1) and not (c == 0 and ye == 0 and m == 0):
+                        c1 = c / (c + ye + m)
+                        ye1 = ye / (c + ye + m)
+                        m1 = m / (c + ye + m)
+                        x.append(0.33 * (2.0 * ye1 + c1) / (c1 + ye1 + m1))
                         y.append(0.33 * np.sqrt(3) * c1 / (c1 + ye1 + m1))
-                        rc = (1 - c / (mesh - 1))
-                        gc = (1 - m / (mesh - 1)) 
-                        bc = (1 - ye / (mesh - 1))
+                        rc = 1 - c / (mesh - 1)
+                        gc = 1 - m / (mesh - 1)
+                        bc = 1 - ye / (mesh - 1)
                         color.append([rc, gc, bc])
 
         # x = [n + 0.25 for n in x]  # nudge x coordinates
         # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        inset_ax.scatter(x, y, s=7, marker='.', edgecolor=color)
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
         inset_ax.set_xlim([-0.35, 1.00])
         inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
         inset_ax.text(
-            0.70,
-            -0.2,
-            m_label,
-            fontsize=13,
-            family='Times New Roman',
-            color=(0, 0, 0),
-            horizontalalignment='left'
+            0.70, -0.2, m_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="left"
         )
         inset_ax.text(
-            0.325,
-            0.70,
-            c_label,
-            fontsize=13,
-            family='Times New Roman',
-            color=(0, 0, 0),
-            horizontalalignment='center'
+            0.325, 0.70, c_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="center"
         )
         inset_ax.text(
-            -0.05,
-            -0.2,
-            y_label,
-            fontsize=13,
-            family='Times New Roman',
-            color=(0, 0, 0),
-            horizontalalignment='right'
+            -0.05, -0.2, y_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="right"
         )
         inset_ax.text(
-            0.325,
-            0.22,
-            k_label,
-            fontsize=13,
-            family='Times New Roman',
-            color=(1, 1, 1),
-            horizontalalignment='center'
+            0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
         )
 
         inset_ax.get_xaxis().set_visible(False)
