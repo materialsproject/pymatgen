@@ -1105,7 +1105,7 @@ class PhaseDiagram(MSONable):
         evolution = []
 
         for cc in self.get_critical_compositions(elcomp, gccomp)[1:]:
-            decomp_entries = self.get_decomposition(cc).keys()
+            decomp_entries = list(self.get_decomposition(cc).keys())
             decomp = [k.composition for k in decomp_entries]
             rxn = Reaction([comp], decomp + [elcomp])
             rxn.normalize_to(comp)
@@ -1118,6 +1118,7 @@ class PhaseDiagram(MSONable):
                     "element_reference": elref,
                     "reaction": rxn,
                     "entries": decomp_entries,
+                    "critical_composition": cc,
                 }
             )
         return evolution
