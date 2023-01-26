@@ -2242,6 +2242,8 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     break
                 if "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS" in line:
                     break
+                if "Thank you very much for using Q-Chem.  Have a nice day." in line:
+                    break
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
