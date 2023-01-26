@@ -26,7 +26,7 @@ class LammpsMinimizationTest(PymatgenTest):
             lmp_min.data.as_dict()["atoms"].values
             == LammpsData.from_structure(self.structure).as_dict()["atoms"].values
         ).all()
-        assert lmp_min.inputfile.input_settings == [
+        assert lmp_min.inputfile.list_of_commands == [
             [
                 "Stage 1",
                 [
@@ -59,7 +59,7 @@ class LammpsMinimizationTest(PymatgenTest):
             lmp_min.data.as_dict()["atoms"].values
             == LammpsData.from_structure(self.structure).as_dict()["atoms"].values
         ).all()
-        assert lmp_min.inputfile.input_settings == [
+        assert lmp_min.inputfile.list_of_commands == [
             [
                 "Stage 1",
                 [

@@ -3,6 +3,11 @@
 
 """
 Input sets for LAMMPS.
+This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
+For instance, pymatgen will not detect whether a given variable should be adapted based on others
+(e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
+For additional flexibility and automation, use the atomate2-lammps implementation
+(https://github.com/Matgenix/atomate2-lammps).
 """
 
 from __future__ import annotations
@@ -36,7 +41,7 @@ class LammpsInputSet(InputSet):
 
     /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others
-    (e.g., the number of steps from the temperature), it will not check for convergence not will it actually run LAMMPS.
+    (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
     For additional flexibility and automation, use the atomate2-lammps implementation
     (https://github.com/Matgenix/atomate2-lammps).
     """
@@ -115,7 +120,7 @@ class BaseLammpsGenerator(InputGenerator):
 
     /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others
-    (e.g., the number of steps from the temperature), it will not check for convergence not will it actually run LAMMPS.
+    (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
     For additional flexibility and automation, use the atomate2-lammps implementation
     (https://github.com/Matgenix/atomate2-lammps).
     """
@@ -138,7 +143,7 @@ class BaseLammpsGenerator(InputGenerator):
         self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
     ) -> LammpsInputSet:
         """
-        Generate a LammpsInputSet from the structure/data file, tailored to the template file.
+        Generate a LammpsInputSet from the structure/data, tailored to the template file.
         """
         if isinstance(structure, Structure):
             data = LammpsData.from_structure(structure)
@@ -165,7 +170,7 @@ class LammpsMinimization(BaseLammpsGenerator):
 
     /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others
-    (e.g., the number of steps from the temperature), it will not check for convergence not will it actually run LAMMPS.
+    (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
     For additional flexibility and automation, use the atomate2-lammps implementation
     (https://github.com/Matgenix/atomate2-lammps).
     """

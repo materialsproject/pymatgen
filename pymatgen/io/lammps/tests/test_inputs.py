@@ -37,8 +37,8 @@ class LammpsInputFileTest(PymatgenTest):
         assert lmp_input.ncomments == 3
         assert lmp_input.nstages == 1
         assert lmp_input.stages_names == ["Stage 1"]
-        assert lmp_input.input_settings[0][1][0][1] == "metal"
-        assert lmp_input.input_settings == [
+        assert lmp_input.list_of_commands[0][1][0][1] == "metal"
+        assert lmp_input.list_of_commands == [
             [
                 "Stage 1",
                 [
@@ -129,7 +129,7 @@ minimize 1.0e-16 1.0e-16 5000 10000
 write_data run.data"""
 
         lmp_input = LammpsInputFile().from_string(string)
-        assert lmp_input.input_settings == LammpsInputFile().from_file(self.filename).input_settings
+        assert lmp_input.list_of_commands == LammpsInputFile().from_file(self.filename).list_of_commands
 
     def test_stages_names(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
@@ -142,7 +142,7 @@ write_data run.data"""
             "2) System definition",
             "3) Simulation settings",
             "Part A : energy minimization",
-            "Stage 5",
+            "Stage 6",
         ]
 
         lmp_input.add_stage(command="units metal")
@@ -152,8 +152,8 @@ write_data run.data"""
             "2) System definition",
             "3) Simulation settings",
             "Part A : energy minimization",
-            "Stage 5",
             "Stage 6",
+            "Stage 7",
         ]
 
     def test_get_nstages(self):
@@ -182,6 +182,16 @@ write_data run.data"""
         set1 = lmp_input.get_args("set", stage_name="2) System definition")
         assert set1[1] == "type 2 charge 1.2570"
 
+    def test_contains_command(self):
+        lmp_input = LammpsInputFile().from_file(self.filename)
+        assert lmp_input.contains_command("set")
+        assert not lmp_input.contains_command("sett")
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        assert lmp_input.contains_command("units")
+        assert lmp_input.contains_command("units", stage_name="1) Initialization")
+        assert not lmp_input.contains_command("units", stage_name="Stage 6")
+
     def test_set_args(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
         lmp_input.set_args(command="units", argument="atomic")
@@ -189,7 +199,7 @@ write_data run.data"""
 
         lmp_input2 = lmp_input
         lmp_input2.set_args(command="set", argument="new set 2", how=2, stage_name="Stage 1")
-        assert lmp_input.input_settings == lmp_input2.input_settings
+        assert lmp_input.list_of_commands == lmp_input2.list_of_commands
         lmp_input2.set_args(command="set", argument="new set", how="first")
         assert lmp_input.get_args("set")[0] == "new set"
         assert lmp_input.get_args("set")[1] == "type 2 charge 1.2570"
@@ -197,7 +207,7 @@ write_data run.data"""
         lmp_input3 = LammpsInputFile().from_file(self.filename, keep_stages=True)
         lmp_input4 = LammpsInputFile().from_file(self.filename, keep_stages=True)
         lmp_input4.set_args(command="set", argument="new set 2", how=2, stage_name="Stage 1")
-        assert lmp_input3.input_settings == lmp_input4.input_settings
+        assert lmp_input3.list_of_commands == lmp_input4.list_of_commands
         lmp_input4.set_args(command="set", argument="new set 2", how="first", stage_name="2) System definition")
         assert lmp_input4.get_args("set", stage_name="2) System definition")[0] == "new set 2"
         assert lmp_input4.get_args("set", stage_name="2) System definition")[1] == "type 2 charge 1.2570"
@@ -205,35 +215,268 @@ write_data run.data"""
     def test_add_stage(self):
         lmp_input = LammpsInputFile()
         lmp_input.add_stage(command="units metal")
-        assert lmp_input.input_settings == [["Stage 1", [["units", "metal"]]]]
+        assert lmp_input.list_of_commands == [["Stage 1", [["units", "metal"]]]]
         lmp_input.add_stage(command={"pair_style": "eam"}, stage_name="Pair style")
-        assert lmp_input.input_settings == [["Stage 1", [["units", "metal"]]], ["Pair style", [["pair_style", "eam"]]]]
+        assert lmp_input.list_of_commands == [
+            ["Stage 1", [["units", "metal"]]],
+            ["Pair style", [["pair_style", "eam"]]],
+        ]
         lmp_input.add_stage(command=["boundary p p p", "atom_style full"], stage_name="Cell")
-        assert lmp_input.input_settings == [
+        assert lmp_input.list_of_commands == [
             ["Stage 1", [["units", "metal"]]],
             ["Pair style", [["pair_style", "eam"]]],
             ["Cell", [["boundary", "p p p"], ["atom_style", "full"]]],
+        ]
+
+        lmp_input.add_stage(command=["set type 2 charge 0.0"], after_stage="Stage 1")
+        assert lmp_input.list_of_commands == [
+            ["Stage 1", [["units", "metal"]]],
+            ["Stage 4", [["set", "type 2 charge 0.0"]]],
+            ["Pair style", [["pair_style", "eam"]]],
+            ["Cell", [["boundary", "p p p"], ["atom_style", "full"]]],
+        ]
+
+    def test_merge_stages(self):
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        lmp_input.merge_stages(["1) Initialization", "3) Simulation settings"])
+        assert lmp_input.stages_names == [
+            "Comment 1",
+            "Merge of: 1) Initialization, 3) Simulation settings",
+            "2) System definition",
+            "Part A : energy minimization",
+            "Stage 6",
+        ]
+        assert lmp_input.list_of_commands == [
+            ["Comment 1", [["#", "LGPS"]]],
+            [
+                "Merge of: 1) Initialization, 3) Simulation settings",
+                [
+                    ["units", "metal"],
+                    ["atom_style", "full"],
+                    ["dimension", "3"],
+                    ["pair_style", "hybrid/overlay morse 15 coul/long 15"],
+                    ["kspace_style", "ewald 1e-4"],
+                    ["boundary", "p p p"],
+                    ["pair_coeff", "1 1 morse 0.0580 3.987 3.404"],
+                    ["pair_coeff", "1 4 morse 0.0408 1.399 3.204"],
+                    ["pair_coeff", "2 4 morse 0.3147 2.257 2.409"],
+                    ["pair_coeff", "3 4 morse 0.4104 2.329 2.200"],
+                    ["pair_coeff", "4 4 morse 0.0241 1.359 4.284"],
+                    ["pair_coeff", "* * coul/long"],
+                ],
+            ],
+            [
+                "2) System definition",
+                [
+                    ["read_data", "run_init.data"],
+                    ["set", "type 1 charge 0.8803"],
+                    ["set", "type 2 charge 1.2570"],
+                    ["set", "type 3 charge 1.2580"],
+                    ["set", "type 4 charge -1.048"],
+                    ["neigh_modify", "every 1 delay 5 check yes"],
+                ],
+            ],
+            [
+                "Part A : energy minimization",
+                [
+                    ["thermo", "1"],
+                    ["thermo_style", "custom step lx ly lz press pxx pyy pzz pe"],
+                    ["dump", "dmp all atom 5 run.dump"],
+                ],
+            ],
+            [
+                "Stage 6",
+                [
+                    ["min_style", "cg"],
+                    ["fix", "1 all box/relax iso 0.0 vmax 0.001"],
+                    ["minimize", "1.0e-16 1.0e-16 5000 10000"],
+                    ["write_data", "run.data"],
+                ],
+            ],
+        ]
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        lmp_input.merge_stages(lmp_input.stages_names)
+        assert len(lmp_input.stages_names) == 1
+        assert lmp_input.list_of_commands == [
+            [
+                "Merge of: Comment 1, 1) Initialization, 2) System definition, 3) Simulation settings, Part A : "
+                "energy minimization, Stage 6",
+                [
+                    ["#", "LGPS"],
+                    ["units", "metal"],
+                    ["atom_style", "full"],
+                    ["dimension", "3"],
+                    ["pair_style", "hybrid/overlay morse 15 coul/long 15"],
+                    ["kspace_style", "ewald 1e-4"],
+                    ["boundary", "p p p"],
+                    ["read_data", "run_init.data"],
+                    ["set", "type 1 charge 0.8803"],
+                    ["set", "type 2 charge 1.2570"],
+                    ["set", "type 3 charge 1.2580"],
+                    ["set", "type 4 charge -1.048"],
+                    ["neigh_modify", "every 1 delay 5 check yes"],
+                    ["pair_coeff", "1 1 morse 0.0580 3.987 3.404"],
+                    ["pair_coeff", "1 4 morse 0.0408 1.399 3.204"],
+                    ["pair_coeff", "2 4 morse 0.3147 2.257 2.409"],
+                    ["pair_coeff", "3 4 morse 0.4104 2.329 2.200"],
+                    ["pair_coeff", "4 4 morse 0.0241 1.359 4.284"],
+                    ["pair_coeff", "* * coul/long"],
+                    ["thermo", "1"],
+                    ["thermo_style", "custom step lx ly lz press pxx pyy pzz pe"],
+                    ["dump", "dmp all atom 5 run.dump"],
+                    ["min_style", "cg"],
+                    ["fix", "1 all box/relax iso 0.0 vmax 0.001"],
+                    ["minimize", "1.0e-16 1.0e-16 5000 10000"],
+                    ["write_data", "run.data"],
+                ],
+            ]
+        ]
+
+    def test_remove_stage(self):
+        lmp_input = LammpsInputFile().from_file(self.filename)
+        lmp_input.remove_stage("Stage 1")
+        assert lmp_input.list_of_commands == []
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        lmp_input.remove_stage("1) Initialization")
+        assert lmp_input.stages_names == [
+            "Comment 1",
+            "2) System definition",
+            "3) Simulation settings",
+            "Part A : energy minimization",
+            "Stage 6",
+        ]
+
+    def test_remove_command(self):
+        lmp_input = LammpsInputFile().from_file(self.filename)
+        lmp_input.remove_command("set")
+        assert lmp_input.list_of_commands == [
+            [
+                "Stage 1",
+                [
+                    ["units", "metal"],
+                    ["atom_style", "full"],
+                    ["dimension", "3"],
+                    ["pair_style", "hybrid/overlay morse 15 coul/long 15"],
+                    ["kspace_style", "ewald 1e-4"],
+                    ["boundary", "p p p"],
+                    ["#", " 2) System definition"],
+                    ["read_data", "run_init.data"],
+                    ["neigh_modify", "every 1 delay 5 check yes"],
+                    ["#", " 3) Simulation settings"],
+                    ["pair_coeff", "1 1 morse 0.0580 3.987 3.404"],
+                    ["pair_coeff", "1 4 morse 0.0408 1.399 3.204"],
+                    ["pair_coeff", "2 4 morse 0.3147 2.257 2.409"],
+                    ["pair_coeff", "3 4 morse 0.4104 2.329 2.200"],
+                    ["pair_coeff", "4 4 morse 0.0241 1.359 4.284"],
+                    ["pair_coeff", "* * coul/long"],
+                    ["#", " Part A : energy minimization"],
+                    ["thermo", "1"],
+                    ["thermo_style", "custom step lx ly lz press pxx pyy pzz pe"],
+                    ["dump", "dmp all atom 5 run.dump"],
+                    ["min_style", "cg"],
+                    ["fix", "1 all box/relax iso 0.0 vmax 0.001"],
+                    ["minimize", "1.0e-16 1.0e-16 5000 10000"],
+                    ["write_data", "run.data"],
+                ],
+            ]
+        ]
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        lmp_input.add_command(command="set type 1 charge 0.0", stage_name="1) Initialization")
+        lmp_input.remove_command("set")
+        assert lmp_input.list_of_commands == [
+            ["Comment 1", [["#", "LGPS"]]],
+            [
+                "1) Initialization",
+                [
+                    ["units", "metal"],
+                    ["atom_style", "full"],
+                    ["dimension", "3"],
+                    ["pair_style", "hybrid/overlay morse 15 coul/long 15"],
+                    ["kspace_style", "ewald 1e-4"],
+                    ["boundary", "p p p"],
+                ],
+            ],
+            ["2) System definition", [["read_data", "run_init.data"], ["neigh_modify", "every 1 delay 5 check yes"]]],
+            [
+                "3) Simulation settings",
+                [
+                    ["pair_coeff", "1 1 morse 0.0580 3.987 3.404"],
+                    ["pair_coeff", "1 4 morse 0.0408 1.399 3.204"],
+                    ["pair_coeff", "2 4 morse 0.3147 2.257 2.409"],
+                    ["pair_coeff", "3 4 morse 0.4104 2.329 2.200"],
+                    ["pair_coeff", "4 4 morse 0.0241 1.359 4.284"],
+                    ["pair_coeff", "* * coul/long"],
+                ],
+            ],
+            [
+                "Part A : energy minimization",
+                [
+                    ["thermo", "1"],
+                    ["thermo_style", "custom step lx ly lz press pxx pyy pzz pe"],
+                    ["dump", "dmp all atom 5 run.dump"],
+                ],
+            ],
+            [
+                "Stage 6",
+                [
+                    ["min_style", "cg"],
+                    ["fix", "1 all box/relax iso 0.0 vmax 0.001"],
+                    ["minimize", "1.0e-16 1.0e-16 5000 10000"],
+                    ["write_data", "run.data"],
+                ],
+            ],
+        ]
+
+    def test_append(self):
+        lmp_input = LammpsInputFile().from_file(self.filename)
+        lmp_input2 = LammpsInputFile().from_file(self.filename)
+        lmp_input.append(lmp_input2)
+        assert lmp_input.nstages == 2
+        assert lmp_input.ncomments == 6
+        assert lmp_input.stages_names == ["Stage 1", "Stage 2"]
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        lmp_input2 = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        lmp_input.append(lmp_input2)
+        assert lmp_input.nstages == 12
+        assert lmp_input.ncomments == 2
+        assert lmp_input.stages_names == [
+            "Comment 1",
+            "1) Initialization",
+            "2) System definition",
+            "3) Simulation settings",
+            "Part A : energy minimization",
+            "Stage 6",
+            "Comment 2",
+            "1) Initialization",
+            "2) System definition",
+            "3) Simulation settings",
+            "Part A : energy minimization",
+            "Stage 12",
         ]
 
     def test_add_command(self):
         lmp_input = LammpsInputFile()
         lmp_input.add_stage(command="units metal", stage_name="Init")
         lmp_input.add_command(stage_name="Init", command="boundary p p p")
-        assert lmp_input.input_settings == [["Init", [["units", "metal"], ["boundary", "p p p"]]]]
+        assert lmp_input.list_of_commands == [["Init", [["units", "metal"], ["boundary", "p p p"]]]]
         lmp_input.add_command(stage_name="Init", command="atom_style", args="full")
-        assert lmp_input.input_settings == [
+        assert lmp_input.list_of_commands == [
             ["Init", [["units", "metal"], ["boundary", "p p p"], ["atom_style", "full"]]]
         ]
 
     def test_add_comment(self):
         lmp_input = LammpsInputFile()
         lmp_input.add_comment(comment="First comment")
-        assert lmp_input.input_settings == [["Comment 1", [["#", "First comment"]]]]
+        assert lmp_input.list_of_commands == [["Comment 1", [["#", "First comment"]]]]
         lmp_input.add_comment(comment="Sub comment", stage_name="Comment 1")
-        assert lmp_input.input_settings == [["Comment 1", [["#", "First comment"], ["#", "Sub comment"]]]]
+        assert lmp_input.list_of_commands == [["Comment 1", [["#", "First comment"], ["#", "Sub comment"]]]]
         lmp_input.add_stage(command="units metal", stage_name="Init")
         lmp_input.add_comment(comment="Inline comment", stage_name="Init")
-        assert lmp_input.input_settings == [
+        assert lmp_input.list_of_commands == [
             ["Comment 1", [["#", "First comment"], ["#", "Sub comment"]]],
             ["Init", [["units", "metal"], ["#", "Inline comment"]]],
         ]
