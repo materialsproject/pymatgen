@@ -48,30 +48,30 @@ class TestShengBTE(PymatgenTest):
     @unittest.skipIf(f90nml is None, "No f90nml")
     def test_from_file(self):
         io = Control.from_file(self.filename)
-        self.assertEqual(io["nelements"], 1)
-        self.assertEqual(io["natoms"], 2)
+        assert io["nelements"] == 1
+        assert io["natoms"] == 2
         self.assertArrayEqual(io["ngrid"], [25, 25, 25])
-        self.assertEqual(io["norientations"], 0)
-        self.assertEqual(io["lfactor"], 0.1)
-        self.assertEqual(io["lattvec"][0], [0.0, 2.734363999, 2.734363999])
-        self.assertEqual(io["lattvec"][1], [2.734363999, 0.0, 2.734363999])
-        self.assertEqual(io["lattvec"][2], [2.734363999, 2.734363999, 0.0])
-        self.assertIsInstance(io["elements"], (list, str))
+        assert io["norientations"] == 0
+        assert io["lfactor"] == 0.1
+        assert io["lattvec"][0] == [0.0, 2.734363999, 2.734363999]
+        assert io["lattvec"][1] == [2.734363999, 0.0, 2.734363999]
+        assert io["lattvec"][2] == [2.734363999, 2.734363999, 0.0]
+        assert isinstance(io["elements"], (list, str))
         if isinstance(io["elements"], list):
             all_strings = all(isinstance(item, str) for item in io["elements"])
-            self.assertTrue(all_strings)
-        self.assertIsInstance(io["types"], (list, int))
+            assert all_strings
+        assert isinstance(io["types"], (list, int))
         if isinstance(io["types"], list):
             all_ints = all(isinstance(item, int) for item in io["types"])
-            self.assertTrue(all_ints)
+            assert all_ints
         self.assertArrayEqual(io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
         self.assertArrayEqual(io["scell"], [5, 5, 5])
-        self.assertEqual(io["t"], 500)
-        self.assertEqual(io["scalebroad"], 0.5)
-        self.assertFalse(io["isotopes"])
-        self.assertFalse(io["onlyharmonic"])
-        self.assertFalse(io["nonanalytic"])
-        self.assertFalse(io["nanowires"])
+        assert io["t"] == 500
+        assert io["scalebroad"] == 0.5
+        assert not io["isotopes"]
+        assert not io["onlyharmonic"]
+        assert not io["nonanalytic"]
+        assert not io["nanowires"]
 
         if os.path.exists(os.path.join(test_dir, "test_control")):
             os.remove(os.path.join(test_dir, "test_control"))
@@ -81,7 +81,7 @@ class TestShengBTE(PymatgenTest):
             test_string = file.read()
         with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
             reference_string = reference_file.read()
-        self.assertMultiLineEqual(test_string, reference_string)
+        assert test_string == reference_string
         os.remove(os.path.join(test_dir, "test_control"))
 
     @unittest.skipIf(f90nml is None, "No f90nml")
@@ -94,7 +94,7 @@ class TestShengBTE(PymatgenTest):
             test_string = file.read()
         with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
             reference_string = reference_file.read()
-        self.assertMultiLineEqual(test_string, reference_string)
+        assert test_string == reference_string
         os.remove(os.path.join(test_dir, "test_control"))
 
     @unittest.skipIf(f90nml is None, "No f90nml")
@@ -102,5 +102,5 @@ class TestShengBTE(PymatgenTest):
         # tests as dict and from dict methods
         Controlinfromfile = Control.from_file(self.filename)
         newControlin = Control.from_dict(Controlinfromfile.as_dict())
-        self.assertDictEqual(newControlin, Controlinfromfile)
+        assert newControlin == Controlinfromfile
         newControlin.to_json()

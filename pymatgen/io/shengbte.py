@@ -181,7 +181,7 @@ class Control(MSONable, dict):
         """
         for param in self.required_params:
             if param not in self.as_dict():
-                warnings.warn(f"Required parameter '{param}' not specified!")
+                warnings.warn(f"Required parameter {param!r} not specified!")
 
         alloc_dict = _get_subdict(self, self.allocations_keys)
         alloc_nml = f90nml.Namelist({"allocations": alloc_dict})

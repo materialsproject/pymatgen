@@ -183,14 +183,14 @@ def publish(ctx):
 def set_ver(ctx, version):
     with open("pymatgen/core/__init__.py") as f:
         contents = f.read()
-        contents = re.sub(r"__version__ = .*\n", f'__version__ = "{version}"\n', contents)
+        contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
     with open("pymatgen/core/__init__.py", "wt") as f:
         f.write(contents)
 
     with open("setup.py") as f:
         contents = f.read()
-        contents = re.sub(r"version=([^,]+),", f'version="{version}",', contents)
+        contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
     with open("setup.py", "wt") as f:
         f.write(contents)
@@ -305,6 +305,8 @@ def release(ctx, version=None, nodoc=False):
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
+    ctx.run("black setup.py")
+    ctx.run("black pymatgen/core/__init__.py")
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
@@ -352,7 +354,7 @@ def check_egg_sources_txt_for_completeness():
 
     for ext in ("py", "json", "json.gz", "yaml", "csv"):
         for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
-            if "/tests/" in filepath:
+            if "/tests/" in filepath or "dao" in filepath:
                 continue
             if filepath not in sources:
                 raise ValueError(f"{filepath} not found in {src_txt}")

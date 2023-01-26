@@ -8,6 +8,7 @@ import unittest
 import warnings
 
 import numpy as np
+from pytest import approx
 
 from pymatgen.command_line.bader_caller import (
     BaderAnalysis,
@@ -35,11 +36,11 @@ class BaderAnalysisTest(unittest.TestCase):
             potcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "POTCAR.Fe3O4"),
             chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref"),
         )
-        self.assertEqual(len(analysis.data), 14)
-        self.assertAlmostEqual(analysis.data[0]["charge"], 6.6136782, 3)
-        self.assertEqual(analysis.data[0]["charge"], analysis.get_charge(0))
-        self.assertAlmostEqual(analysis.nelectrons, 96)
-        self.assertAlmostEqual(analysis.vacuum_charge, 0)
+        assert len(analysis.data) == 14
+        assert analysis.data[0]["charge"] == approx(6.6136782, abs=1e-3)
+        assert analysis.data[0]["charge"] == analysis.get_charge(0)
+        assert analysis.nelectrons == approx(96)
+        assert analysis.vacuum_charge == approx(0)
         ans = [
             -1.3863218,
             -1.3812175,
@@ -57,18 +58,18 @@ class BaderAnalysisTest(unittest.TestCase):
             1.024357,
         ]
         for i in range(14):
-            self.assertAlmostEqual(ans[i], analysis.get_charge_transfer(i), 3)
-        self.assertEqual(analysis.get_partial_charge(0), -analysis.get_charge_transfer(0))
+            assert ans[i] == approx(analysis.get_charge_transfer(i), abs=1e-3)
+        assert analysis.get_partial_charge(0) == -analysis.get_charge_transfer(0)
         s = analysis.get_oxidation_state_decorated_structure()
-        self.assertAlmostEqual(s[0].specie.oxi_state, 1.3863218, 3)
+        assert s[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
         analysis = BaderAnalysis(chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"))
-        self.assertEqual(len(analysis.data), 14)
+        assert len(analysis.data) == 14
 
         # Test Cube file format parsing
         analysis = BaderAnalysis(cube_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "bader/elec.cube.gz"))
-        self.assertEqual(len(analysis.data), 9)
+        assert len(analysis.data) == 9
 
     def test_from_path(self):
         test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
@@ -78,7 +79,7 @@ class BaderAnalysisTest(unittest.TestCase):
         analysis0 = BaderAnalysis(chgcar_filename=chgcar, chgref_filename=chgref)
         charge = np.array(analysis.summary["charge"])
         charge0 = np.array(analysis0.summary["charge"])
-        self.assertTrue(np.allclose(charge, charge0))
+        assert np.allclose(charge, charge0)
         if os.path.exists("CHGREF"):
             os.remove("CHGREF")
 
@@ -103,21 +104,18 @@ class BaderAnalysisTest(unittest.TestCase):
             'reference_used': True
         }
         """
-        self.assertEqual(
-            set(summary),
-            {
-                "magmom",
-                "min_dist",
-                "vacuum_charge",
-                "vacuum_volume",
-                "atomic_volume",
-                "charge",
-                "bader_version",
-                "reference_used",
-            },
-        )
-        self.assertTrue(summary["reference_used"])
-        self.assertAlmostEqual(sum(summary["magmom"]), 28, places=1)
+        assert set(summary) == {
+            "magmom",
+            "min_dist",
+            "vacuum_charge",
+            "vacuum_volume",
+            "atomic_volume",
+            "charge",
+            "bader_version",
+            "reference_used",
+        }
+        assert summary["reference_used"]
+        assert sum(summary["magmom"]) == approx(28, abs=1e-1)
 
     def test_atom_parsing(self):
         # test with reference file
@@ -128,11 +126,10 @@ class BaderAnalysisTest(unittest.TestCase):
             parse_atomic_densities=True,
         )
 
-        self.assertEqual(len(analysis.atomic_densities), len(analysis.chgcar.structure))
+        assert len(analysis.atomic_densities) == len(analysis.chgcar.structure)
 
-        self.assertAlmostEqual(
-            np.sum(analysis.chgcar.data["total"]),
-            np.sum([np.sum(d["data"]) for d in analysis.atomic_densities]),
+        assert np.sum(analysis.chgcar.data["total"]) == approx(
+            np.sum([np.sum(d["data"]) for d in analysis.atomic_densities])
         )
 
 

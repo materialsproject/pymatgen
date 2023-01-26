@@ -210,7 +210,7 @@ class FunctionalGroupExtractor:
         # Graph representation of only marked atoms
         subgraph = self.molgraph.graph.subgraph(list(atoms)).to_undirected()
 
-        func_grps = []
+        func_groups = []
         for func_grp in nx.connected_components(subgraph):
             grp_hs = set()
             for node in func_grp:
@@ -219,11 +219,11 @@ class FunctionalGroupExtractor:
                     # Add all associated hydrogens into the functional group
                     if neighbor in hydrogens:
                         grp_hs.add(neighbor)
-            func_grp = func_grp.union(grp_hs)
+            func_grp = func_grp | grp_hs
 
-            func_grps.append(func_grp)
+            func_groups.append(func_grp)
 
-        return func_grps
+        return func_groups
 
     def get_basic_functional_groups(self, func_groups=None):
         """
@@ -305,7 +305,7 @@ class FunctionalGroupExtractor:
         """
         heteroatoms = self.get_heteroatoms(elements=elements)
         special_cs = self.get_special_carbon(elements=elements)
-        groups = self.link_marked_atoms(heteroatoms.union(special_cs))
+        groups = self.link_marked_atoms(heteroatoms | special_cs)
 
         if catch_basic:
             groups += self.get_basic_functional_groups(func_groups=func_groups)

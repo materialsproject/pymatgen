@@ -13,19 +13,19 @@ entire directory of vasp input files for running.
 
 from __future__ import annotations
 
-__author__ = "Shyue Ping Ong, Will Richards"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 4, 2012"
-
 import os
 import re
 from multiprocessing import Pool
 
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet
+
+__author__ = "Shyue Ping Ong, Will Richards"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 4, 2012"
 
 
 class StandardTransmuter:

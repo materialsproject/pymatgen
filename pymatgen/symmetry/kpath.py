@@ -959,7 +959,7 @@ class KPathSeek(KPathBase):
             angle_tolerance (float): Angle tolerance for symmetry finding.
             atol (float): Absolute tolerance used to determine edge cases
                 for settings of structures.
-            system_is_tri (boolean): Indicates if the system is time-reversal
+            system_is_tri (bool): Indicates if the system is time-reversal
                 invariant.
         """
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
@@ -1091,7 +1091,7 @@ class KPathLatimerMunro(KPathBase):
         """
         Args:
             structure (Structure): Structure object
-            has_magmoms (boolean): Whether the input structure contains
+            has_magmoms (bool): Whether the input structure contains
                 magnetic moments as site properties with the key 'magmom.'
                 Values may be in the form of 3-component vectors given in
                 the basis of the input lattice vectors, or as scalars, in

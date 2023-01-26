@@ -1623,7 +1623,7 @@ class _MPResterLegacy:
         prefix = "https://nomad-lab.eu/prod/rae/api/repo/?"
         if file_patterns is not None:
             for file_pattern in file_patterns:
-                prefix += f"file_pattern={file_pattern}&"
+                prefix += f"{file_pattern=}&"
         prefix += "external_id="
 
         task_ids = [t["task_id"] for tl in meta.values() for t in tl]

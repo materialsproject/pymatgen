@@ -7,13 +7,6 @@ Development script to test the algorithms of a given model coordination environm
 
 from __future__ import annotations
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
 import itertools
 import time
 from math import factorial
@@ -28,6 +21,13 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     AbstractGeometry,
     LocalGeometryFinder,
 )
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 if __name__ == "__main__":
 
@@ -97,4 +97,4 @@ if __name__ == "__main__":
         print("   => ", algos_results)
         iperm += 1
     t2 = time.clock()
-    print(f'Time to test {nperms} permutations for geometry "{cg.name}" (symbol "{cg_symbol}") : {t2 - t1:.2f} seconds')
+    print(f"Time to test {nperms} permutations for geometry {cg.name!r} (symbol {cg_symbol!r}) : {t2 - t1:.2f} seconds")

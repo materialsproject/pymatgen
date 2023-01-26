@@ -7,13 +7,6 @@ Test for the piezo tensor class
 
 from __future__ import annotations
 
-__author__ = "Handong Ling"
-__version__ = "0.1"
-__maintainer__ = "Handong Ling"
-__email__ = "handongling@berkeley.edu"
-__status__ = "Development"
-__date__ = "4/23/19"
-
 import os
 import pickle
 import unittest
@@ -34,6 +27,13 @@ try:
     from phonopy import Phonopy
 except ImportError:
     Phonopy = None
+
+__author__ = "Handong Ling"
+__version__ = "0.1"
+__maintainer__ = "Handong Ling"
+__email__ = "handongling@berkeley.edu"
+__status__ = "Development"
+__date__ = "4/23/19"
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "piezo_sensitivity")
 

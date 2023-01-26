@@ -3,13 +3,6 @@
 
 from __future__ import annotations
 
-__author__ = "Shyam Dwaraknath"
-__copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyam Dwaraknath"
-__email__ = "shyamd@lbl.gov"
-__date__ = "2/5/16"
-
 import unittest
 
 import pytest
@@ -23,6 +16,13 @@ from pymatgen.analysis.interfaces.zsl import (
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Shyam Dwaraknath"
+__copyright__ = "Copyright 2016, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyam Dwaraknath"
+__email__ = "shyamd@lbl.gov"
+__date__ = "2/5/16"
 
 
 class ZSLGenTest(PymatgenTest):

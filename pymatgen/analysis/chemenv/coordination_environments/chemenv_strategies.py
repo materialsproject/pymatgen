@@ -162,7 +162,7 @@ class AdditionalConditionInt(int, StrategyOption):
 
     allowed_values = "Integer amongst :\n"
     for integer, description in AdditionalConditions.CONDITION_DESCRIPTION.items():
-        allowed_values += f' - {integer:d} for "{description}"\n'
+        allowed_values += f" - {integer:d} for {description!r}\n"
 
     def __new__(cls, integer):
         """Special int representing additional conditions."""
@@ -442,7 +442,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def __str__(self):
-        out = f'  Chemenv Strategy "{type(self).__name__}"\n'
+        out = f"  Chemenv Strategy {type(self).__name__!r}\n"
         out += f"  {'=' * (19 + len(type(self).__name__))}\n\n"
         out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION
@@ -1335,7 +1335,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         elif self.average_type == "arithmetic":
             self.eval = self.aweight
         else:
-            raise ValueError(f'Average type is "{average_type}" while it should be "geometric" or "arithmetic"')
+            raise ValueError(f"Average type is {average_type!r} while it should be 'geometric' or 'arithmetic'")
         self.aa = aa
         self.bb = bb
         if self.aa == 0:
@@ -2046,7 +2046,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             raise NotImplementedError()
             # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
-            raise ValueError(f'Weight type is "{weight_type}" while it should be "has_intersection"')
+            raise ValueError(f'Weight type is {weight_type!r} while it should be "has_intersection"')
         self.surface_definition = surface_definition
         self.nb_sets_from_hints = nb_sets_from_hints
         self.other_nb_sets = other_nb_sets

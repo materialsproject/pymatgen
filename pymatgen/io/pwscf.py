@@ -107,7 +107,7 @@ class PWInput:
 
         def to_str(v):
             if isinstance(v, str):
-                return f"'{v}'"
+                return f"{v!r}"
             if isinstance(v, float):
                 return f"{str(v).replace('e', 'd')}"
             if isinstance(v, bool):
