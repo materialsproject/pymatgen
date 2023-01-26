@@ -401,23 +401,3 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     def __str__(self):
         return self.__repr__()
-
-
-def _get_framework_comps(comp1: Composition, comp2: Composition, working_ion: Element) -> Composition:
-    """
-    Gets the framework composition from two compositions that are changing
-
-    Args:
-        comp1: Composition 1
-        comp2: Composition 2
-        element: If provided, the check that this is indeed the changing element.
-
-    Returns:
-        Composition of the framework
-    """
-    fw_elements = [*filter(lambda el: el != working_ion, comp1.elements)]
-    fw_comp1 = Composition({el: comp1.get_atomic_fraction(el) for el in fw_elements})
-    fw_comp2 = Composition({el: comp2.get_atomic_fraction(el) for el in fw_elements})
-    if fw_comp1.reduced_formula != fw_comp2.reduced_formula:
-        raise ValueError("The two compositions are not changing the same element")
-    return fw_comp1
