@@ -52,6 +52,7 @@ class LammpsInputSet(InputSet):
         data: LammpsData | CombinedData,  # pylint: disable=E1131
         calc_type: str = "",
         template_file: str = "",
+        keep_stages: bool = False,
     ):
         """
         Args:
@@ -61,15 +62,20 @@ class LammpsInputSet(InputSet):
                   It can be a LammpsData or a CombinedData object.
             calc_type: String used to shortly describe the type of computations performed by LAMMPS.
             template_file: Path (string) to the template file used to create the input file for LAMMPS.
+            keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
         """
-        self.inputfile = inputfile
+        if isinstance(inputfile, LammpsInputFile):
+            self.inputfile = inputfile
+        else:
+            self.inputfile = LammpsInputFile.from_string(inputfile, keep_stages=keep_stages)
         self.data = data
         self.calc_type = calc_type
         self.template_file = template_file
+        self.keep_stages = keep_stages
 
         super().__init__(inputs={"in.lammps": self.inputfile, "system.data": self.data})
 
-    def get_inputs(self) -> dict[str, str | LammpsInputFile]:  # pylint: disable=E1131
+    def get_inputs(self) -> dict[str, LammpsInputFile | LammpsData | CombinedData]:  # pylint: disable=E1131
         """
         Generate a dictionary of one or more input files to be written. Keys
         are filenames, values are the contents of each file.
@@ -79,7 +85,7 @@ class LammpsInputSet(InputSet):
         return {"in.lammps": self.inputfile, "system.data": self.data}
 
     @classmethod
-    def from_directory(cls, directory: str | Path):  # pylint: disable=E1131
+    def from_directory(cls, directory: str | Path, keep_stages: bool = False):  # pylint: disable=E1131
         """
         Construct a LammpsInputSet from a directory of two or more files.
         TODO: accept directories with only the input file, that should include the structure as well.
@@ -87,8 +93,9 @@ class LammpsInputSet(InputSet):
         Args:
             directory: Directory to read input files from. It should contain at least two files:
                        in.lammps for the LAMMPS input file, and system.data with the system information.
+            keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
         """
-        input_file = LammpsInputFile.from_file(os.path.join(directory, "in.lammps"))
+        input_file = LammpsInputFile.from_file(os.path.join(directory, "in.lammps"), keep_stages=keep_stages)
         atom_style = input_file.get_args("atom_style")
         data_file = LammpsData.from_file(os.path.join(directory, "system.data"), atom_style=atom_style)
         return LammpsInputSet(inputfile=input_file, data=data_file, calc_type="read_from_dir")
@@ -117,6 +124,7 @@ class BaseLammpsGenerator(InputGenerator):
         calc_type: String used to shortly describe the type of computations performed by LAMMPS.
     Args:
         settings: Dictionary containing the values of the parameters to replace in the template.
+        keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
 
     /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others
@@ -128,8 +136,9 @@ class BaseLammpsGenerator(InputGenerator):
     template: str = os.path.join(template_dir, "md.template")
     calc_type: str = "lammps"
 
-    def __init__(self, settings: dict | None = None):  # pylint: disable=E1131
+    def __init__(self, settings: dict | None = None, keep_stages: bool = False):  # pylint: disable=E1131
         self.settings = settings or {}
+        self.keep_stages = keep_stages
 
         # load the template
         with zopen(self.template, "r") as f:
@@ -137,7 +146,7 @@ class BaseLammpsGenerator(InputGenerator):
 
         # replace all variables
         self.input_str = Template(template_str).safe_substitute(**self.settings)
-        self.input_file = LammpsInputFile.from_string(self.input_str)
+        self.input_file = LammpsInputFile.from_string(self.input_str, keep_stages=self.keep_stages)
 
     def get_input_set(  # type: ignore
         self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
@@ -186,6 +195,7 @@ class LammpsMinimization(BaseLammpsGenerator):
         boundary: str = "p p p",
         read_data: str = "system.data",
         force_field: str = "Unspecified force field!",
+        keep_stages: bool = False,
     ):
         self.units = units
         self.atom_style = atom_style
@@ -201,4 +211,5 @@ class LammpsMinimization(BaseLammpsGenerator):
             "read_structure": read_data,
             "force_field": force_field,
         }
-        super().__init__(settings=self.settings)
+        self.keep_stages = keep_stages
+        super().__init__(settings=self.settings, keep_stages=self.keep_stages)

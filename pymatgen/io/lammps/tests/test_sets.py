@@ -85,3 +85,33 @@ class LammpsMinimizationTest(PymatgenTest):
                 ],
             ]
         ]
+
+        lmp_min = LammpsMinimization(keep_stages=True).get_input_set(self.structure)
+        assert lmp_min.inputfile.list_of_commands == [
+            [
+                "1) Initialization",
+                [["units", "metal"], ["atom_style", "full"], ["dimension", "3"], ["boundary", "p p p"]],
+            ],
+            ["2) System definition", [["read_data", "system.data"], ["neigh_modify", "every 1 delay 5 check yes"]]],
+            ["3) Simulation settings", [["Unspecified", "force field!"]]],
+            [
+                "4) Energy minimization",
+                [
+                    ["thermo", "5"],
+                    ["thermo_style", "custom step lx ly lz press pxx pyy pzz pe"],
+                    ["dump", "dmp all atom 5 run.dump"],
+                ],
+            ],
+            [
+                "Stage 5",
+                [
+                    ["min_style", "cg"],
+                    ["fix", "1 all box/relax iso 0.0 vmax 0.001"],
+                    ["minimize", "1.0e-16 1.0e-16 5000 100000"],
+                ],
+            ],
+            ["5) Write output data", [["write_data", "run.data"], ["write_restart", "run.restart"]]],
+        ]
+
+        assert lmp_min.inputfile.nstages == 6
+        assert lmp_min.inputfile.ncomments == 0
