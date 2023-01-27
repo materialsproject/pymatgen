@@ -15,14 +15,14 @@ from pymatgen.util.testing import PymatgenTest
 
 try:
     from openbabel import openbabel
-
-    openbabel  # reference openbabel so it's not unused import
-    have_babel = True
 except ImportError:
-    have_babel = False
+    openbabel = None
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 
 single_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "single_job.json"))
 multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "multi_job.json"))
@@ -115,9 +115,13 @@ property_list = {
     "exchange_e",
     "min_neg_field_e",
     "max_pos_field_e",
+    "norm_of_stepsize",
+    "version",
+    "dipoles",
+    "gap_info",
 }
 
-if have_babel:
+if openbabel is not None:
     property_list.add("structure_change")
 
 single_job_out_names = {
@@ -188,6 +192,15 @@ single_job_out_names = {
     "new_qchem_files/cmirs_water_single.qcout",
     "new_qchem_files/isosvp_water_single.qcout",
     "new_qchem_files/isosvp_dielst10_single.qcout",
+    "new_qchem_files/custom_gdm_gdmqls_opt.qout",
+    "new_qchem_files/unable.qout",
+    "new_qchem_files/unexpected_ts.out",
+    "new_qchem_files/svd_failed.qout",
+    "new_qchem_files/v6_old_driver.out",
+    "new_qchem_files/gap.qout",
+    "new_qchem_files/3C.qout",
+    "new_qchem_files/hyper.qout",
+    "new_qchem_files/os_gap.qout",
 }
 
 multi_job_out_names = {
@@ -240,7 +253,12 @@ class TestQCOutput(PymatgenTest):
             try:
                 assert outdata.get(key) == single_job_dict[name].get(key)
             except ValueError:
-                self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
+                try:
+                    self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
+                except AssertionError:
+                    raise RuntimeError("Issue with file: " + name + " Exiting...")
+            except AssertionError:
+                raise RuntimeError("Issue with file: " + name + " Exiting...")
         for name, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
@@ -248,7 +266,7 @@ class TestQCOutput(PymatgenTest):
                 except ValueError:
                     self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
-    @unittest.skipIf(not have_babel, "OpenBabel not installed.")
+    @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
     def test_all(self):
         self.maxDiff = None
         single_outs = {}
@@ -265,7 +283,7 @@ class TestQCOutput(PymatgenTest):
             print("Testing ", key)
             self._test_property(key, single_outs, multi_outs)
 
-    @unittest.skipIf((not have_babel), "OpenBabel not installed.")
+    @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
     def test_structural_change(self):
 
         t1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t1.xyz"))
@@ -302,10 +320,10 @@ class TestQCOutput(PymatgenTest):
     def test_NBO_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo.qout")).data
         assert len(data["nbo_data"]["natural_populations"]) == 3
-        assert len(data["nbo_data"]["hybridization_character"]) == 4
+        assert len(data["nbo_data"]["hybridization_character"]) == 6
         assert len(data["nbo_data"]["perturbation_energy"]) == 2
         assert data["nbo_data"]["natural_populations"][0]["Density"][5] == -0.08624
-        assert data["nbo_data"]["hybridization_character"][-1]["atom 2 pol coeff"][35] == "-0.7059"
+        assert data["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][35] == "-0.7059"
         next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"])[-2]
         assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last] == 0.071
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
@@ -334,8 +352,8 @@ class TestQCOutput(PymatgenTest):
         data7 = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
         assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
         assert (
-            data5["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
-            == data7["nbo_data"]["hybridization_character"][3]["atom 2 pol coeff"][9]
+            data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
+            == data7["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
         )
         assert (
             data5["nbo_data"]["hybridization_character"][0]["s"][0]
@@ -426,6 +444,28 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2652032616
         assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0004967767
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0180445935
+
+    def test_NBO_hyperbonds(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "hyper.qout")).data
+        assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()) == 2
+        assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
+        assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
+        assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
+
+    def test_NBO_3C(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "3C.qout")).data
+        assert len(data["nbo_data"]["hybridization_character"]) == 3
+        assert data["nbo_data"]["hybridization_character"][2]["type"][0] == "3C"
+        assert data["nbo_data"]["hybridization_character"][2]["type"][10] == "3Cn"
+        assert data["nbo_data"]["hybridization_character"][2]["type"][20] == "3C*"
+        assert data["nbo_data"]["hybridization_character"][2]["atom 3 pol coeff"][15] == "0.3643"
+        assert data["nbo_data"]["hybridization_character"][2]["atom 3 polarization"][8] == "56.72"
+        assert data["nbo_data"]["hybridization_character"][2]["atom 3 symbol"][3] == "B"
+        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2592] == 36
+        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 symbol"][2125] == "B12"
+        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2593] == "info_is_from_3C"
+        assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][723] == "3C*"
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][3209] == 3.94
 
 
 if __name__ == "__main__":

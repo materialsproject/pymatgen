@@ -18,8 +18,11 @@ from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
@@ -913,7 +916,7 @@ class QCInput(InputFile):
             (dict) nbo parameters.
         """
         header = r"^\s*\$nbo"
-        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        row = r"\s*([a-zA-Z\_\d]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         nbo_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if nbo_table == []:
