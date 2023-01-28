@@ -635,7 +635,8 @@ class PhaseDiagramTest(unittest.TestCase):
         entriesList = []
         with pytest.raises(ValueError, match="Unable to build phase diagram without entries."):
             PhaseDiagram(entriesList)
-        
+
+
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
