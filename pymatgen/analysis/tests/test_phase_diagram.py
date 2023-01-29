@@ -630,11 +630,11 @@ class PhaseDiagramTest(unittest.TestCase):
         # Check the keys in el_refs dict have been updated to Element object via PhaseDiagram class.
         assert all(isinstance(el, Element) for el in pd.el_refs)
 
-    def test_entries_length(self):
-        # Assert PhaseDiagram class raises ValueError when building phase diagram with no entries
-        entriesList = []
-        with pytest.raises(ValueError, match="Unable to build phase diagram without entries."):
-            PhaseDiagram(entriesList)
+    def test_val_err_on_no_entries(self):
+        # check that PhaseDiagram raises ValueError when building phase diagram with no entries
+        for entries in [None, [], set(), tuple()]:
+            with pytest.raises(ValueError, match="Unable to build phase diagram without entries."):
+                PhaseDiagram(entries=entries)
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
