@@ -95,7 +95,6 @@ class StructureVis:
         self.ren_win.AddRenderer(self.ren)
         self.ren.SetBackground(1, 1, 1)
         self.title = "Structure Visualizer"
-        # create a renderwindowinteractor
         self.iren = vtk.vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.ren_win)
         self.mapper_map = {}
@@ -194,7 +193,7 @@ class StructureVis:
         """
         Display the help for various keyboard shortcuts.
         """
-        helptxt = [
+        help_text = [
             "h : Toggle help",
             "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
@@ -206,7 +205,7 @@ class StructureVis:
             "s: Save view to image.png",
             "o: Orthogonalize structure",
         ]
-        self.helptxt_mapper.SetInput("\n".join(helptxt))
+        self.helptxt_mapper.SetInput("\n".join(help_text))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
 
@@ -1209,7 +1208,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
     Interactor for MultiStructureVis.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         """
         Args:
             parent ():

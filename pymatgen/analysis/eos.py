@@ -29,7 +29,7 @@ logger = logging.getLogger(__file__)
 
 class EOSBase(metaclass=ABCMeta):
     """
-    Abstract class that must be subcalssed by all equation of state
+    Abstract class that must be subclassed by all equation of state
     implementations.
     """
 

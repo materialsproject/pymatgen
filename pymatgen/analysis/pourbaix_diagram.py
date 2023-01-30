@@ -133,8 +133,6 @@ class PourbaixEntry(MSONable, Stringify):
     @property
     def energy(self):
         """
-        returns energy
-
         Returns (float): total energy of the Pourbaix
             entry (at pH, V = 0 vs. SHE)
         """

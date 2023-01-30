@@ -62,7 +62,7 @@ class Substitutor(MSONable):
 
     def get_allowed_species(self):
         """
-        returns the species in the domain of the probability function
+        Returns the species in the domain of the probability function
         any other specie will not work
         """
         return self._sp.species
@@ -75,7 +75,7 @@ class Substitutor(MSONable):
         remove_existing=False,
     ):
         """
-        performs a structure prediction targeting compounds containing all of
+        Performs a structure prediction targeting compounds containing all of
         the target_species, based on a list of structure (those structures
         can for instance come from a database like the ICSD). It will return
         all the structures formed by ionic substitutions with a probability
@@ -164,14 +164,14 @@ class Substitutor(MSONable):
     @staticmethod
     def _is_charge_balanced(struct):
         """
-        checks if the structure object is charge balanced
+        Checks if the structure object is charge balanced
         """
         return sum(s.specie.oxi_state for s in struct.sites) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):
         """
-        checks if the structure object is from the given chemical system
+        Checks if the structure object is from the given chemical system
         """
         return {sp.symbol for sp in struct.composition} == set(chemical_system)
 
