@@ -9,12 +9,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from pymatgen.io.lammps.outputs import (
-    LammpsDump,
-    LammpsTrajectory,
-    parse_lammps_dumps,
-    parse_lammps_log,
-)
+from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lammps_log
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
@@ -34,9 +29,9 @@ class LammpsDumpTest(unittest.TestCase):
         assert self.rdx.timestep == 100
         assert self.rdx.natoms == 21
         np.testing.assert_array_equal(self.rdx.box.bounds, np.array([(35, 48)] * 3))
-        np.testing.assert_array_equal(self.rdx.data.columns, ["type", "xs", "ys", "zs"])
+        np.testing.assert_array_equal(self.rdx.data.columns, ["id", "type", "xs", "ys", "zs"])
         rdx_data = self.rdx.data.iloc[-1]
-        rdx_data_target = [2, 0.548489, 0.338285, 0.284454]
+        rdx_data_target = [19, 2, 0.42369, 0.47347, 0.555425]
         np.testing.assert_array_almost_equal(rdx_data, rdx_data_target)
 
         assert self.tatb.timestep == 0
@@ -45,9 +40,9 @@ class LammpsDumpTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(self.tatb.box.bounds, bounds)
         tilt = [-5.75315630927, -6.325466, 7.4257288]
         np.testing.assert_array_almost_equal(self.tatb.box.tilt, tilt)
-        np.testing.assert_array_equal(self.tatb.data.columns, ["type", "q", "x", "y", "z"])
+        np.testing.assert_array_equal(self.tatb.data.columns, ["id", "type", "q", "x", "y", "z"])
         tatb_data = self.tatb.data.iloc[-1]
-        tatb_data_target = [3, -0.478614, -8.58203, 17.0222, 12.6283]
+        tatb_data_target = [356, 3, -0.482096, 2.58647, 12.9577, 14.3143]
         np.testing.assert_array_almost_equal(tatb_data, tatb_data_target)
 
     def test_json_dict(self):
@@ -60,65 +55,6 @@ class LammpsDumpTest(unittest.TestCase):
         pd.testing.assert_frame_equal(rdx.data, self.rdx.data)
 
 
-class LammpsTrajectoryTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.rdx_pattern = os.path.join(test_dir, "dump.rdx_wc.*")
-        cls.trajectory = LammpsTrajectory.from_file_pattern(file_pattern=cls.rdx_pattern)
-
-    def test_from_file_pattern(self):
-        trajectory = self.trajectory
-        self.assertEqual(trajectory.timestep, 25)
-        dump0 = trajectory.trajectory[0]
-        np.testing.assert_array_equal(dump0.box.bounds, [[35.0, 48.0], [35.0, 48.0], [35.0, 48.0]])
-        self.assertEqual(dump0.natoms, 21)
-        self.assertEqual(dump0.timestep, 0)
-
-        dump100 = trajectory.trajectory[100]
-        np.testing.assert_array_equal(dump100.box.bounds, [[35.0, 48.0], [35.0, 48.0], [35.0, 48.0]])
-        self.assertEqual(dump100.natoms, 21)
-        self.assertEqual(dump100.timestep, 100)
-
-    def test_from_dict(self):
-        trajectory = self.trajectory
-        trajectory_dict = trajectory.as_dict()["trajectory"]
-        d = {}
-        for timestep, dump_dict in trajectory_dict.items():
-            dump = LammpsDump.from_dict(dump_dict)
-            d[timestep] = dump
-
-        trajectory_from_dict = LammpsTrajectory.from_dict(d)
-        self.assertDictEqual(trajectory.as_dict(), trajectory_from_dict.as_dict())
-
-    def test_get_msd(self):
-        trajectory = self.trajectory
-        msd = trajectory.get_msd(atom_type=None, time_average=False)
-        np.testing.assert_array_almost_equal(msd[0, 4], [0.00175137, 0.00255548, 0.00041248, 0.00471933])
-        msd = trajectory.get_msd(atom_type=1, time_average=False)
-        np.testing.assert_array_almost_equal(msd[0, 4], [0.00175137, 0.00255548, 0.00041248, 0.00471933])
-        msd = trajectory.get_msd(atom_type=None, time_average=True)
-        np.testing.assert_array_almost_equal(msd[0, 3], [0.00297398, 0.00265123, 0.00176497, 0.00739017])
-        msd = trajectory.get_msd(atom_type=1, time_average=True)
-        np.testing.assert_array_almost_equal(msd[0, 3], [0.00297398, 0.00265123, 0.00176497, 0.00739017])
-        msd = trajectory.get_msd(atom_type=2, time_average=True)
-        np.testing.assert_array_almost_equal(msd[0, 3], [0.0141253, 0.0060939, 0.01020302, 0.03042222])
-
-    def test_get_diffusion_coefficient(self):
-        trajectory = self.trajectory
-        D, time = trajectory.get_diffusion_coefficient()
-        np.testing.assert_array_equal(time, [50.0, 75.0])
-        np.testing.assert_array_almost_equal(D[0, 1], [1.64511789e-06, 1.77920618e-06, 2.65000988e-06, 6.07433395e-06])
-        MSD = trajectory.get_msd(atom_type=None, time_average=False)
-        D, time = trajectory.get_diffusion_coefficient(MSD)
-        np.testing.assert_array_almost_equal(
-            D[1, 1], [-9.31129383e-05, -8.72244921e-05, -9.91032221e-05, -2.79440653e-04]
-        )
-        MSD = trajectory.get_msd(atom_type=1, time_average=True)
-        D, time = trajectory.get_diffusion_coefficient(MSD)
-        self.assertTupleEqual(D.shape, (1, 2, 4))
-        np.testing.assert_array_almost_equal(D[0, 1], [1.64511789e-06, 1.77920618e-06, 2.65000988e-06, 6.07433395e-06])
-
-
 class FuncTest(unittest.TestCase):
     def test_parse_lammps_dumps(self):
         # gzipped
@@ -126,13 +62,13 @@ class FuncTest(unittest.TestCase):
         rdx_10 = list(parse_lammps_dumps(file_pattern=rdx_10_pattern))
         timesteps_10 = [d.timestep for d in rdx_10]
         np.testing.assert_array_equal(timesteps_10, np.arange(0, 101, 10))
-        assert rdx_10[-1].data.shape == (21, 4)
+        assert rdx_10[-1].data.shape == (21, 5)
         # wildcard
         rdx_25_pattern = os.path.join(test_dir, "dump.rdx_wc.*")
         rdx_25 = list(parse_lammps_dumps(file_pattern=rdx_25_pattern))
         timesteps_25 = [d.timestep for d in rdx_25]
         np.testing.assert_array_equal(timesteps_25, np.arange(0, 101, 25))
-        assert rdx_25[-1].data.shape == (21, 4)
+        assert rdx_25[-1].data.shape == (21, 5)
 
     def test_parse_lammps_log(self):
         comb_file = "log.5Oct16.comb.Si.elastic.g++.1.gz"
