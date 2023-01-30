@@ -1296,7 +1296,7 @@ class SurfaceEnergyPlotter:
 
             # Plot the edge along the max x value
             pt = v[-1]
-            delu1, delu2 = pt.keys()
+            delu1, delu2 = pt
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
             if not show_unphyiscal_only:
@@ -1849,7 +1849,7 @@ class NanoscaleStability:
         """
         # get the scaling ratio for the energies
         r_ratio = r / wulffshape.effective_radius
-        miller_list = wulffshape.miller_energy_dict.keys()
+        miller_list = list(wulffshape.miller_energy_dict)
         # Normalize the magnitude of the facet normal vectors
         # of the Wulff shape by the minimum surface energy.
         se_list = np.array(list(wulffshape.miller_energy_dict.values()))
