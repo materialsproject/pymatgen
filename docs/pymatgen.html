@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen namespace &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen namespace &mdash; pymatgen 2023.1.30 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.1.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -1946,6 +1946,7 @@
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html">pymatgen.apps.battery.battery_abc module</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.voltage_pairs"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.voltage_pairs</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.working_ion"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.working_ion</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.working_ion_entry"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.working_ion_entry</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.framework_formula"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.framework_formula</span></code></a></li>
@@ -1965,9 +1966,9 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.normalization_mass"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.normalization_mass</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.normalization_volume"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.normalization_volume</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.num_steps"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.num_steps</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.voltage_pairs"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.voltage_pairs</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id1"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.working_ion</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id2"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.working_ion_entry</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id1"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.voltage_pairs</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id2"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.working_ion</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id3"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.working_ion_entry</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.x_charge"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.x_charge</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.x_discharge"><code class="docutils literal notranslate"><span class="pre">AbstractElectrode.x_discharge</span></code></a></li>
 </ul>
@@ -1983,18 +1984,18 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.frac_discharge"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.frac_discharge</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.working_ion_entry"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.working_ion_entry</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.framework_formula"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.framework_formula</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id3"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.frac_charge</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id4"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.frac_discharge</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id4"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.frac_charge</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id5"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.frac_discharge</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.framework"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.framework</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id5"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.framework_formula</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id6"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.mAh</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id7"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.mass_charge</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id8"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.mass_discharge</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id9"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.vol_charge</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id10"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.vol_discharge</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id11"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.voltage</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id6"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.framework_formula</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id7"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.mAh</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id8"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.mass_charge</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id9"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.mass_discharge</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id10"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.vol_charge</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id11"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.vol_discharge</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id12"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.voltage</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.working_ion"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.working_ion</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id12"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.working_ion_entry</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#id13"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.working_ion_entry</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.x_charge"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.x_charge</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.x_discharge"><code class="docutils literal notranslate"><span class="pre">AbstractVoltagePair.x_discharge</span></code></a></li>
 </ul>
@@ -2013,6 +2014,7 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.rxn</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.voltage"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.voltage</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mAh"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.mAh</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_charge"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.vol_charge</span></code></a></li>
@@ -2027,7 +2029,7 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#id0"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.entries_charge</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#id1"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.entries_discharge</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.from_steps()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.rxn</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.apps.battery.conversion_battery.html#id2"><code class="docutils literal notranslate"><span class="pre">ConversionVoltagePair.rxn</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3887,6 +3889,7 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.get_element_spd_dos"><code class="docutils literal notranslate"><span class="pre">CompleteDos.get_element_spd_dos()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.get_hilbert_transform"><code class="docutils literal notranslate"><span class="pre">CompleteDos.get_hilbert_transform()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.get_n_moment"><code class="docutils literal notranslate"><span class="pre">CompleteDos.get_n_moment()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.get_normalized"><code class="docutils literal notranslate"><span class="pre">CompleteDos.get_normalized()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.get_site_dos"><code class="docutils literal notranslate"><span class="pre">CompleteDos.get_site_dos()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos"><code class="docutils literal notranslate"><span class="pre">CompleteDos.get_site_orbital_dos()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.get_site_spd_dos"><code class="docutils literal notranslate"><span class="pre">CompleteDos.get_site_spd_dos()</span></code></a></li>
@@ -5363,6 +5366,7 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.jump_to_header"><code class="docutils literal notranslate"><span class="pre">jump_to_header()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.nbo_parser"><code class="docutils literal notranslate"><span class="pre">nbo_parser()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.parse_hybridization_character"><code class="docutils literal notranslate"><span class="pre">parse_hybridization_character()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.parse_hyperbonds"><code class="docutils literal notranslate"><span class="pre">parse_hyperbonds()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.parse_natural_populations"><code class="docutils literal notranslate"><span class="pre">parse_natural_populations()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.parse_perturbation_energy"><code class="docutils literal notranslate"><span class="pre">parse_perturbation_energy()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.z_int"><code class="docutils literal notranslate"><span class="pre">z_int()</span></code></a></li>
@@ -5383,6 +5387,7 @@
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.qchem.utils.html">pymatgen.io.qchem.utils module</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.lower_and_check_unique"><code class="docutils literal notranslate"><span class="pre">lower_and_check_unique()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.process_parsed_HESS"><code class="docutils literal notranslate"><span class="pre">process_parsed_HESS()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.process_parsed_coords"><code class="docutils literal notranslate"><span class="pre">process_parsed_coords()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.process_parsed_fock_matrix"><code class="docutils literal notranslate"><span class="pre">process_parsed_fock_matrix()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.utils.html#pymatgen.io.qchem.utils.read_matrix_pattern"><code class="docutils literal notranslate"><span class="pre">read_matrix_pattern()</span></code></a></li>
