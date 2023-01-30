@@ -360,6 +360,9 @@ class PhaseDiagram(MSONable):
                 PhaseDiagram._compute() method and is stored in PhaseDiagram.computed_data
                 when generated for the first time.
         """
+        if not entries:
+            raise ValueError("Unable to build phase diagram without entries.")
+
         self.elements = elements
         self.entries = entries
         if computed_data is None:
