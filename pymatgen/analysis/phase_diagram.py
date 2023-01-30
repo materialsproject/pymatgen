@@ -1099,23 +1099,23 @@ class PhaseDiagram(MSONable):
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
 
-        gccomp = Composition({el: amt for el, amt in comp.items() if el != element})
-        elref = self.el_refs[element]
-        elcomp = Composition(element.symbol)
+        gc_comp = Composition({el: amt for el, amt in comp.items() if el != element})
+        el_ref = self.el_refs[element]
+        el_comp = Composition(element.symbol)
         evolution = []
 
-        for cc in self.get_critical_compositions(elcomp, gccomp)[1:]:
-            decomp_entries = list(self.get_decomposition(cc).keys())
+        for cc in self.get_critical_compositions(el_comp, gc_comp)[1:]:
+            decomp_entries = list(self.get_decomposition(cc))
             decomp = [k.composition for k in decomp_entries]
-            rxn = Reaction([comp], decomp + [elcomp])
+            rxn = Reaction([comp], decomp + [el_comp])
             rxn.normalize_to(comp)
-            c = self.get_composition_chempots(cc + elcomp * 1e-5)[element]
-            amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
+            c = self.get_composition_chempots(cc + el_comp * 1e-5)[element]
+            amt = -rxn.coeffs[rxn.all_comp.index(el_comp)]
             evolution.append(
                 {
                     "chempot": c,
                     "evolution": amt,
-                    "element_reference": elref,
+                    "element_reference": el_ref,
                     "reaction": rxn,
                     "entries": decomp_entries,
                     "critical_composition": cc,

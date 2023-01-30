@@ -2014,7 +2014,7 @@ class PotcarSingle:
             # file with known potcar file hashes.
             md5_file_hash = self.file_hash
             hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
-            if md5_file_hash in hash_db.keys():
+            if md5_file_hash in hash_db:
                 passed_hash_check = True
             else:
                 passed_hash_check = False
