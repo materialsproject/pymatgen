@@ -226,7 +226,6 @@ class PhononBandStructure(MSONable):
         """
         for i in range(self.nb_qpoints):
             if np.allclose(self.qpoints[i].frac_coords, (0, 0, 0)):
-
                 if self.has_eigendisplacements:
                     acoustic_modes_index = []
                     for j in range(self.nb_bands):

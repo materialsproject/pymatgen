@@ -759,7 +759,6 @@ class StructureMatcherTest(PymatgenTest):
         assert not sm_atoms.fit(s1, s2)
 
     def test_occupancy_comparator(self):
-
         lp = Lattice.orthorhombic(10, 20, 30)
         pcoords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         s1 = Structure(lp, [{"Na": 0.6, "K": 0.4}, "Cl"], pcoords)

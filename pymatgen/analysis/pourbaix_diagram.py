@@ -133,8 +133,6 @@ class PourbaixEntry(MSONable, Stringify):
     @property
     def energy(self):
         """
-        returns energy
-
         Returns (float): total energy of the Pourbaix
             entry (at pH, V = 0 vs. SHE)
         """
@@ -448,6 +446,7 @@ ELEMENTS_HO = {Element("H"), Element("O")}
 # TODO: the solids filter breaks some of the functionality of the
 #       heatmap plotter, because the reference states for decomposition
 #       don't include oxygen/hydrogen in the OER/HER regions
+
 
 # TODO: create a from_phase_diagram class method for non-formation energy
 #       invocation

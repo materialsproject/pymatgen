@@ -157,7 +157,6 @@ class VampireCaller:
         self.output = VampireOutput(parsed_out, nmats, critical_temp)
 
     def _create_mat(self):
-
         structure = self.structure
         mat_name = self.mat_name
         magmoms = structure.site_properties["magmom"]
@@ -186,7 +185,6 @@ class VampireCaller:
                 if spin_down and not spin_up:
                     mat_id_dict[site] = nmats
                 if spin_up and spin_down:
-
                     # Check if spin up or down shows up first
                     m0 = magmoms[key[0]]
                     if m > 0 and m0 > 0:
@@ -237,7 +235,6 @@ class VampireCaller:
             f.write(mat_file)
 
     def _create_input(self):
-
         structure = self.structure
         mcbs = self.mc_box_size
         equil_timesteps = self.equil_timesteps
@@ -318,7 +315,6 @@ class VampireCaller:
             f.write(input_script)
 
     def _create_ucf(self):
-
         structure = self.structure
         mat_name = self.mat_name
 

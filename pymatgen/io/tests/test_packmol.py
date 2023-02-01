@@ -116,7 +116,9 @@ class TestPackmolSet:
         is raised when 'ERROR' appears in stdout (even if return code is 0)
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
-            pw = PackmolBoxGen(control_params={"maxit": 0, "nloop": 0},).get_input_set(
+            pw = PackmolBoxGen(
+                control_params={"maxit": 0, "nloop": 0},
+            ).get_input_set(
                 molecules=[
                     {"name": "water", "number": 1000, "coords": water},
                     {"name": "ethanol", "number": 2000, "coords": ethanol},
@@ -206,7 +208,11 @@ class TestPackmolSet:
 
         # deterministic output
         with tempfile.TemporaryDirectory() as scratch_dir:
-            pw = PackmolBoxGen(seed=1, inputfile="input.in", outputfile="output.xyz",).get_input_set(
+            pw = PackmolBoxGen(
+                seed=1,
+                inputfile="input.in",
+                outputfile="output.xyz",
+            ).get_input_set(
                 # scratch_dir,
                 molecules=[
                     {"name": "water", "number": 10, "coords": water},
@@ -222,7 +228,11 @@ class TestPackmolSet:
 
         # randomly generated structures
         with tempfile.TemporaryDirectory() as scratch_dir:
-            pw = PackmolBoxGen(seed=-1, inputfile="input.in", outputfile="output.xyz",).get_input_set(
+            pw = PackmolBoxGen(
+                seed=-1,
+                inputfile="input.in",
+                outputfile="output.xyz",
+            ).get_input_set(
                 molecules=[
                     {"name": "water", "number": 10, "coords": water},
                     {"name": "ethanol", "number": 20, "coords": ethanol},

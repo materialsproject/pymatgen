@@ -941,7 +941,6 @@ class Lobsterout:
         basistype = []
         basisfunctions = []
         for row in data:
-
             if begin and not end:
                 splitrow = row.split()
                 if splitrow[0] not in [
@@ -954,7 +953,6 @@ class Lobsterout:
                     "spillings",
                     "writing",
                 ]:
-
                     elements.append(splitrow[0])
                     basistype.append(splitrow[1].replace("(", "").replace(")", ""))
                     # last sign is a ''
@@ -1232,7 +1230,6 @@ class Fatband:
                 if linenumber == self.nbands:
                     iband = 0
                 if line.split()[0] != "#":
-
                     if linenumber < self.nbands:
                         if ifilename == 0:
                             eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
@@ -1256,7 +1253,6 @@ class Fatband:
 
         label_dict = {}
         for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
-
             if label is not None:
                 label_dict[label] = kpoints_array[ilabel]
 

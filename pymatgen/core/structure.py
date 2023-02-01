@@ -1091,7 +1091,6 @@ class IStructure(SiteCollection, MSONable):
         return m.fit_anonymous(self, other)
 
     def __eq__(self, other: object) -> bool:
-
         # check for valid operand following class Student example from official functools docs
         # https://docs.python.org/3/library/functools.html#functools.total_ordering
         if not isinstance(other, IStructure):
@@ -1797,7 +1796,7 @@ class IStructure(SiteCollection, MSONable):
             all_dists = all_distances(coords, site_coords)
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
-            for (j, d, within_r) in zip(indices, all_dists, all_within_r):
+            for j, d, within_r in zip(indices, all_dists, all_within_r):
                 if include_site:
                     nnsite = PeriodicSite(
                         self[j].species,

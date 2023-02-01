@@ -54,7 +54,6 @@ class KpointTest(unittest.TestCase):
         assert self.kpoint.as_dict()["ccoords"] == [1.0, 4.0, -5.0]
 
     def test_from_dict(self):
-
         d = self.kpoint.as_dict()
 
         kpoint = Kpoint.from_dict(d)

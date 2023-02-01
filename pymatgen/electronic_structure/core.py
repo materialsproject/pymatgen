@@ -174,7 +174,6 @@ class Magmom(MSONable):
 
     @classmethod
     def _get_transformation_matrix(cls, saxis):
-
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])
@@ -195,7 +194,6 @@ class Magmom(MSONable):
 
     @classmethod
     def _get_transformation_matrix_inv(cls, saxis):
-
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])

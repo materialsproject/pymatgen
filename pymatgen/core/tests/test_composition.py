@@ -579,7 +579,6 @@ class CompositionTest(PymatgenTest):
         assert cmp == cmp2
 
     def test_contains_element_type(self):
-
         formula = "EuTiO3"
         cmp = Composition(formula)
         assert cmp.contains_element_type("lanthanoid")
@@ -592,7 +591,6 @@ class CompositionTest(PymatgenTest):
         assert Composition({"Na+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
 
     def test_is_valid(self):
-
         formula = "NaCl"
         cmp = Composition(formula)
         assert cmp.valid

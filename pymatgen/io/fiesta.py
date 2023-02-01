@@ -222,7 +222,6 @@ class BasisSetReader:
 
     @staticmethod
     def _parse_file(input):
-
         lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
 
         nl_orbital_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
@@ -234,9 +233,10 @@ class BasisSetReader:
         parse_preamble = False
         parse_lmax_nnlo = False
         parse_nl_orbital = False
+        nnlo = None  # fix pylint E0601: Using variable 'nnlo' before assignment
+        lmax = None
 
         for line in input.split("\n"):
-
             if parse_nl_orbital:
                 m = nl_orbital_patt.search(line)
                 n = coef_alpha_patt.search(line)
@@ -480,7 +480,6 @@ class FiestaInput(MSONable):
         return self._mol
 
     def __str__(self):
-
         symbols = []
         for syb in self._mol.symbol_set:
             symbols.append(syb)
@@ -761,7 +760,6 @@ class FiestaOutput:
 
     @staticmethod
     def _parse_job(output):
-
         GW_BANDS_results_patt = re.compile(
             r"^<it.*  \| \s+ (\D+\d*) \s+ \| \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \| "
             r" \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \|"
@@ -784,7 +782,6 @@ class FiestaOutput:
         parse_total_time = False
 
         for l in output.split("\n"):
-
             if parse_total_time:
                 m = end_patt.search(l)
                 if m:
@@ -854,7 +851,6 @@ class BSEOutput:
 
     @staticmethod
     def _parse_job(output):
-
         BSE_exitons_patt = re.compile(
             r"^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
             re.VERBOSE,
@@ -869,7 +865,6 @@ class BSEOutput:
         parse_total_time = False
 
         for l in output.split("\n"):
-
             if parse_total_time:
                 m = end_patt.search(l)
                 if m:

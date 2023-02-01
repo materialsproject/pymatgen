@@ -491,7 +491,6 @@ class MPResterOldTest(PymatgenTest):
         assert "user-agent" not in self.rester.session.headers, "user-agent header unwanted"
 
     def test_database_version(self):
-
         with _MPResterLegacy(notify_db_version=True) as mpr:
             db_version = mpr.get_database_version()
 
@@ -504,7 +503,6 @@ class MPResterOldTest(PymatgenTest):
         assert isinstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
     def test_pourbaix_heavy(self):
-
         entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
         _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
@@ -515,7 +513,6 @@ class MPResterOldTest(PymatgenTest):
         _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
 
     def test_pourbaix_mpr_pipeline(self):
-
         data = self.rester.get_pourbaix_entries(["Zn"])
         pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
         pbx.find_stable_entry(10, 0)

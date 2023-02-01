@@ -1930,7 +1930,6 @@ class MPNMRSet(MPStaticSet):
                 }
             )
         elif self.mode.lower() == "efg":
-
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
             quad_efg = [

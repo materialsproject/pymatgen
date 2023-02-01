@@ -16,7 +16,6 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
 
 class TestTemplateInputGen:
     def test_write_inputs(self):
-
         with tempfile.TemporaryDirectory() as scratch_dir:
             tis = TemplateInputGen().get_input_set(
                 template=os.path.join(test_dir, "template_input_file.txt"),

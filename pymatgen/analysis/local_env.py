@@ -2975,7 +2975,6 @@ class LocalStructOrderParams:
             thetas = []
             phis = []
             for vec in rijnorm:
-
                 # z is North pole --> theta between vec and (0, 0, 1)^T.
                 # Because vec is normalized, dot product is simply vec[2].
                 thetas.append(acos(max(-1.0, min(vec[2], 1.0))))

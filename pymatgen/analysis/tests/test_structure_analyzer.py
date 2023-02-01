@@ -106,7 +106,6 @@ class MiscFunctionTest(PymatgenTest):
         assert solid_angle(center, coords) == approx(1.83570965938, abs=1e-7), "Wrong result returned by solid_angle"
 
     def test_contains_peroxide(self):
-
         for f in ["LiFePO4", "NaFePO4", "Li3V2(PO4)3", "Li2O"]:
             assert not contains_peroxide(self.get_structure(f))
 

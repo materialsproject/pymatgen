@@ -204,7 +204,6 @@ class ElasticTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(et.voigt, self.toec_dict["C2_raw"], decimal=-1)
 
     def test_energy_density(self):
-
         film_elac = ElasticTensor.from_voigt(
             [
                 [324.32, 187.3, 170.92, 0.0, 0.0, 0.0],

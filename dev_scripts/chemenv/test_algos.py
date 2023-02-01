@@ -30,7 +30,6 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 if __name__ == "__main__":
-
     allcg = AllCoordinationGeometries()
 
     while True:
@@ -68,7 +67,6 @@ if __name__ == "__main__":
     iperm = 1
     t1 = time.clock()
     for indices_perm in perms_iterator:
-
         lgf.setup_test_perfect_environment(cg_symbol, indices=indices_perm)
 
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)

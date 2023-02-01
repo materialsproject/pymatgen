@@ -787,10 +787,10 @@ class QCOutput(MSONable):
                 r"[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
                 r"(?:\s*gdm_qls\: Orbitals will not converge further\.)*"
                 r"(?:(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::WARNING energy changes are now smaller than effective "
-                r"accuracy\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+calculation will continue, but THRESH s"
-                r"hould be increased\s*"
-                r"(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+or SCF_CONVERGENCE decrea"
-                r"sed\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+effective_thresh = [\d\-\.]+e[\d\-]+)*"
+                r"accuracy\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+calculation will continue, but THRESH "
+                r"should be increased\s*"
+                r"(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+or SCF_CONVERGENCE decreased"
+                r"\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+effective_thresh = [\d\-\.]+e[\d\-]+)*"
             )
         else:
             if "SCF_failed_to_converge" in self.data.get("errors"):
@@ -1002,7 +1002,7 @@ class QCOutput(MSONable):
             self.data["warnings"]["inconsistent_size"] = True
 
         # Check for AO linear depend
-        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True,).get(
+        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["linear_dependence"] = True
@@ -1040,13 +1040,13 @@ class QCOutput(MSONable):
             self.data["warnings"]["bad_lambda_take_NR_step"] = True
 
         # Check for a switch into Cartesian coordinates
-        if read_pattern(self.text, {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"}, terminate_on_match=True,).get(
+        if read_pattern(self.text, {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["switch_to_cartesian"] = True
 
         # Check for problem with eigenvalue magnitude
-        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True,).get(
+        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["eigenvalue_magnitude"] = True
@@ -1264,9 +1264,7 @@ class QCOutput(MSONable):
         self._read_gradients()
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
-            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
-                "key"
-            ) == [[]]:
+            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["back_transform_error"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
@@ -1311,13 +1309,13 @@ class QCOutput(MSONable):
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
-                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get(
                     "key"
                 ) == [[]]:
                     self.data["errors"] += ["back_transform_error"]
-                elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True,).get(
-                    "key"
-                ) == [[]]:
+                elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True).get("key") == [
+                    []
+                ]:
                     self.data["errors"] += ["svd_failed"]
 
     def _read_frequency_data(self):
@@ -1830,17 +1828,15 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["driver_error"]
-        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True,).get(
+        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["basis_not_supported"]
-        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True,).get(
+        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
-        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,
@@ -1860,21 +1856,19 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["gdm_neg_precon_error"]
-        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
             self.data["errors"] += ["esp_chg_fit_error"]
-        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
             self.data["errors"] += ["mem_static_too_small"]
-        elif read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
             self.data["errors"] += ["mem_static_too_small"]
-        elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["mem_total_too_small"]
         elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian":
             self.data["errors"] += ["probably_out_of_memory"]
@@ -2057,7 +2051,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     pop_dfs = []
 
     while no_failures:
-
         # Natural populations
         try:
             lines = jump_to_header(lines, "Summary of Natural Population Analysis:")
@@ -2073,7 +2066,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
             lines = lines[2:]
             data = []
             for line in lines:
-
                 # Termination condition
                 if "=" in line:
                     break
@@ -2130,14 +2122,12 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
             no_failures = False
 
         if no_failures:
-
             # Jump to values
             lines = lines[2:]
 
             # Extract hyperbond data
             hyperbond_data = []
             for line in lines:
-
                 # Termination condition
                 if "NATURAL BOND ORBITALS" in line:
                     break
@@ -2207,7 +2197,6 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     lp_and_bd_and_tc_dfs = []
 
     while no_failures:
-
         # NBO Analysis
         try:
             lines = jump_to_header(lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids")
@@ -2218,7 +2207,6 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                 no_failures = False
 
         if no_failures:
-
             # Jump to values
             lines = lines[2:]
 
@@ -2442,7 +2430,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     e2_dfs = []
 
     while no_failures:
-
         # 2nd order perturbation theory analysis
         try:
             lines = jump_to_header(
@@ -2453,7 +2440,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
             no_failures = False
 
         if no_failures:
-
             # Jump to values
             i = -1
             while True:
@@ -2466,7 +2452,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
             # Extract 2nd order data
             e2_data = []
             for line in lines:
-
                 # Termination condition
                 if "NATURAL BOND ORBITALS" in line:
                     break
@@ -2519,7 +2504,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         # This is a bit hacky, but making new more accurate entry
                         # keys for 3C info forces there to be a NAN for those values
                         # for all other entries, which I believe would nontrivially
-                        # increase the size of the data being stored, which is aleady
+                        # increase the size of the data being stored, which is already
                         # very large. So, here we have saved info that should be labeled
                         # "donor 3C 1", "donor 3C 2", and "donor 3C 3" in the
                         # "donor atom 1 symbol", "donor atom 1 number", and
@@ -2547,7 +2532,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                         # This is a bit hacky, but making new more accurate entry
                         # keys for 3C info forces there to be a NAN for those values
                         # for all other entries, which I believe would nontrivially
-                        # increase the size of the data being stored, which is aleady
+                        # increase the size of the data being stored, which is already
                         # very large. So, here we have saved info that should be labeled
                         # "acceptor 3C 1", "acceptor 3C 2", and "acceptor 3C 3" in the
                         # "acceptor atom 1 symbol", "acceptor atom 1 number", and

@@ -17,7 +17,6 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 if __name__ == "__main__":
-
     cg_symbol = "O:6"
     equiv_list = []
 

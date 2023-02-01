@@ -57,7 +57,6 @@ molecule_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 class StructureGraphTest(PymatgenTest):
     def setUp(self):
-
         self.maxDiff = None
 
         # trivial example, simple square lattice for testing
@@ -123,7 +122,6 @@ class StructureGraphTest(PymatgenTest):
             StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
-
         assert self.mos2_sg.name == "bonds"
         assert self.mos2_sg.edge_weight_name == "bond_length"
         assert self.mos2_sg.edge_weight_unit == "Å"
@@ -189,7 +187,6 @@ class StructureGraphTest(PymatgenTest):
         assert len(square.graph.get_edge_data(0, 0)) == 1
 
     def test_insert_remove(self):
-
         struct_copy = copy.deepcopy(self.square_sg.structure)
         square_copy = copy.deepcopy(self.square_sg)
 
@@ -249,14 +246,12 @@ class StructureGraphTest(PymatgenTest):
         assert edge["weight"] == 0.5
 
     def test_auto_image_detection(self):
-
         sg = StructureGraph.with_empty_graph(self.structure)
         sg.add_edge(0, 0)
 
         assert len(list(sg.graph.edges(data=True))) == 3
 
     def test_str(self):
-
         square_sg_str_ref = """Structure Graph
 Structure:
 Full Formula (H1)
@@ -306,7 +301,6 @@ from    to  to_image      bond_length (A)
         self.assertStrContentEqual(str(self.mos2_sg), mos2_sg_str_ref)
 
     def test_mul(self):
-
         square_sg_mul = self.square_sg * (2, 1, 1)
 
         square_sg_mul_ref_str = """Structure Graph
@@ -365,7 +359,6 @@ from    to  to_image
 
     @unittest.skipIf(pygraphviz is None or not (which("neato") and which("fdp")), "graphviz executables not present")
     def test_draw(self):
-
         # draw MoS2 graph
         self.mos2_sg.draw_graph_to_file("MoS2_single.pdf", image_labels=True, hide_image_edges=False)
         mos2_sg = self.mos2_sg * (9, 9, 1)
@@ -450,7 +443,6 @@ from    to  to_image
         assert sg == self.square_sg
 
     def test_extract_molecules(self):
-
         structure_file = os.path.join(
             PymatgenTest.TEST_FILES_DIR,
             "H6PbCI3N_mp-977013_symmetrized.cif",
@@ -469,14 +461,12 @@ from    to  to_image
         assert len(molecules) == 0
 
     def test_types_and_weights_of_connections(self):
-
         types = self.mos2_sg.types_and_weights_of_connections
 
         assert len(types["Mo-S"]) == 6
         assert types["Mo-S"][0] == approx(2.416931678417331)
 
     def test_weight_statistics(self):
-
         weight_statistics = self.mos2_sg.weight_statistics
 
         assert len(weight_statistics["all_weights"]) == 6
@@ -484,7 +474,6 @@ from    to  to_image
         assert weight_statistics["variance"] == approx(0, abs=1e-10)
 
     def test_types_of_coordination_environments(self):
-
         types = self.mos2_sg.types_of_coordination_environments()
         assert types == ["Mo-S(6)", "S-Mo(3)"]
 
@@ -492,7 +481,6 @@ from    to  to_image
         assert types_anonymous == ["A-B(3)", "A-B(6)"]
 
     def test_no_duplicate_hops(self):
-
         test_structure = Structure(
             lattice=[[2.990355, -5.149042, 0.0], [2.990355, 5.149042, 0.0], [0.0, 0.0, 24.51998]],
             species=["Ba"],
@@ -506,7 +494,6 @@ from    to  to_image
         assert sg.graph.number_of_edges() == 3
 
     def test_sort(self):
-
         sg = copy.deepcopy(self.bc_square_sg_r)
         # insert an unsorted edge, don't use sg.add_edge as it auto-sorts
         sg.graph.add_edge(3, 1, to_jimage=(0, 0, 0))
@@ -519,7 +506,6 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-
         cyclohexene = Molecule.from_file(
             os.path.join(
                 PymatgenTest.TEST_FILES_DIR,
@@ -951,7 +937,6 @@ class MoleculeGraphTest(unittest.TestCase):
         assert str(d) == str(d2)
 
     def test_sort(self):
-
         sg = copy.deepcopy(self.ethylene)
         # insert an unsorted edge, don't use sg.add_edge as it auto-sorts
 

@@ -209,7 +209,6 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert MPRelaxSet(s).nelect == approx(22)
 
     def test_get_incar(self):
-
         incar = self.mpset.incar
 
         assert incar["LDAUU"] == [5.3, 0, 0]

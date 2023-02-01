@@ -11,7 +11,6 @@ from pymatgen.util.testing import PymatgenTest
 
 class CorrectionCalculatorTest(unittest.TestCase):
     def setUp(self):
-
         self.exclude_polyanions = [
             "SO4",
             "CO3",

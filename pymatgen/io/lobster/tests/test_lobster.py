@@ -1927,7 +1927,6 @@ class LobsterinTest(unittest.TestCase):
         }
 
     def test_write_KPOINTS(self):
-
         # line mode
         outfile_path = tempfile.mkstemp()[1]
         outfile_path2 = tempfile.mkstemp(prefix="POSCAR")[1]

@@ -272,12 +272,10 @@ class PhaseDiagramTest(unittest.TestCase):
                 assert e_ah >= 0
 
     def test_get_decomp_and_e_above_hull_on_error(self):
-
         for method, expected in (
             (self.pd.get_e_above_hull, None),
             (self.pd.get_decomp_and_e_above_hull, (None, None)),
         ):
-
             # test raises ValueError on entry with element not in the phase diagram
             U_entry = PDEntry("U", 0)
             with pytest.raises(ValueError, match="Unable to get decomposition for PDEntry : U1 with energy"):

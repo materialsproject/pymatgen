@@ -343,7 +343,6 @@ if __name__ == "__main__":
             t0 = time.process_time()
             timeleft = "Unknown"
             for indices_perm in perms_iterator:
-
                 prt1(
                     string=f"Perm # {iperm:d}/{npermutations:d} : "
                     f"{'-'.join(map(str, indices_perm))} "
