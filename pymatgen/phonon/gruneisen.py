@@ -165,6 +165,7 @@ class GruneisenParameter(MSONable):
         """
         The total DOS (re)constructed from the gruneisen.yaml file
         """
+
         # Here, we will reuse phonopy classes
         class TempMesh:
             """

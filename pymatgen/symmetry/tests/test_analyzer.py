@@ -90,9 +90,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert self.disordered_sg.get_point_group_symbol() == "4/mmm"
 
     def test_get_symmetry_operations(self):
-
         for sg, structure in [(self.sg, self.structure), (self.sg4, self.structure4)]:
-
             pg_ops = sg.get_point_group_operations()
             frac_symmops = sg.get_symmetry_operations()
             symmops = sg.get_symmetry_operations(True)

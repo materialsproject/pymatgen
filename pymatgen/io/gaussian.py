@@ -863,7 +863,6 @@ class GaussianOutput:
                         self.spin_multiplicity = int(m.group(2))
                         parse_stage = 2
                 elif parse_stage == 2:
-
                     if self.is_pcm:
                         self._check_pcm(line)
 

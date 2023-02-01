@@ -140,7 +140,6 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
-
                 d_hkl = 1 / g_hkl
 
                 # Bragg condition

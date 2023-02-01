@@ -201,7 +201,7 @@ def _int_to_roman(number):
     roman_conv = [(10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
 
     result = []
-    for (arabic, roman) in roman_conv:
+    for arabic, roman in roman_conv:
         (factor, number) = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:

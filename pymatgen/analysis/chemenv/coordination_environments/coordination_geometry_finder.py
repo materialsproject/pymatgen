@@ -1427,7 +1427,6 @@ class LocalGeometryFinder:
             local2perfect_maps = []
             perfect2local_maps = []
             for iperm, perm in enumerate(algo.permutations):
-
                 local2perfect_map = {}
                 perfect2local_map = {}
                 permutations.append(perm)

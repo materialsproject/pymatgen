@@ -126,7 +126,6 @@ class CorrectionCalculator:
             entry.correction = 0
 
         for cmpd_info in self.exp_compounds:
-
             # to get consistent element ordering in formula
             name = Composition(cmpd_info["formula"]).reduced_formula
 

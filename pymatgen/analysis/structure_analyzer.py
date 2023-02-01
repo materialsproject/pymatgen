@@ -549,7 +549,6 @@ def sulfide_type(structure):
         s_sites = [site for site in structure if site.specie == s]
 
     def process_site(site):
-
         # in an exceptionally rare number of structures, the search
         # radius needs to be increased to find a neighbor atom
         search_radius = 4

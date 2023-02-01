@@ -289,10 +289,8 @@ class EnumlibAdaptor:
             f.write("\n".join(output))
 
     def _run_multienum(self):
-
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
             if self.timeout:
-
                 timed_out = False
                 timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
@@ -308,7 +306,6 @@ class EnumlibAdaptor:
                     raise TimeoutError("Enumeration took too long.")
 
             else:
-
                 output = p.communicate()[0].decode("utf-8")
 
         count = 0

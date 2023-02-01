@@ -1831,7 +1831,6 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
 
     # Repeat process for zero columns
     if (~arr_rounded.any(axis=0)).any():
-
         # Check for zero columns in T_rounded
         zero_col_idxs = np.where(~arr_rounded.any(axis=0))[0]
         for zero_col_idx in zero_col_idxs:
@@ -2160,7 +2159,6 @@ class SQSTransformation(AbstractTransformation):
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
 
         for d in to_return:
-
             # delete temporary objective_function attribute
             del d["structure"].objective_function
 

@@ -510,7 +510,6 @@ class MagneticSpaceGroup(SymmetryGroup):
         ).format(d=desc, bns_wyckoff_prefix=bns_wyckoff_prefix)
 
         if desc["magtype"] == 4 and include_og:
-
             desc["og_operators"] = " ".join(op_data["str"] for op_data in self._data["og_operators"])
 
             # include all lattice vectors because (1,0,0)+ (0,1,0)+ (0,0,1)+

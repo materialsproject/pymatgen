@@ -2556,7 +2556,6 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
         line_index = 2
         for set_index in range(nset):
-
             setinfo = lines[line_index].split()
             _n, _lmin, _lmax, _nexp = map(int, setinfo[0:4])
             n.append(_n)

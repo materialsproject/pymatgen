@@ -138,7 +138,6 @@ class SOCSpillage:
                 if (
                     self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
                 ):  # do kpoints match?
-
                     # changes section 2
                     nelec_up = n_arr[nk1 - 1, 0]
                     nelec_dn = n_arr[nk1 - 1, 1]

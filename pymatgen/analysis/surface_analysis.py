@@ -683,7 +683,6 @@ class SurfaceEnergyPlotter:
             if type(se).__name__ == "float":
                 all_eqns.append(se - Symbol("gamma"))
             else:
-
                 se = sub_chempots(se, delu_dict) if delu_dict else se
                 all_eqns.append(se - Symbol("gamma"))
                 all_parameters.extend([p for p in list(se.free_symbols) if p not in all_parameters])
@@ -1002,11 +1001,9 @@ class SurfaceEnergyPlotter:
             already_labelled = []
             label = ""
             for clean_entry in self.all_slab_entries[hkl]:
-
                 urange = stable_u_range_dict[clean_entry] if not show_unstable else chempot_range
                 # Don't plot if the slab is unstable, plot if it is.
                 if urange != []:
-
                     label = clean_entry.label
                     if label in already_labelled:
                         label = None
@@ -1259,12 +1256,10 @@ class SurfaceEnergyPlotter:
 
         # Plot the edges of the phases
         for entry, v in vertices_dict.items():
-
             xvals, yvals = [], []
 
             # Plot each edge of a phase within the borders
             for ii, pt1 in enumerate(v):
-
                 # Determine if the surface energy at this lower range
                 # of dmu2 is negative. If so, shade this region.
                 if len(pt1[delu2][1]) == 3:

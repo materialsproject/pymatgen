@@ -1002,7 +1002,11 @@ class QCOutput(MSONable):
             self.data["warnings"]["inconsistent_size"] = True
 
         # Check for AO linear depend
-        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True,).get(
+        if read_pattern(
+            self.text,
+            {"key": r"Linear dependence detected in AO basis"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["linear_dependence"] = True
@@ -1040,13 +1044,21 @@ class QCOutput(MSONable):
             self.data["warnings"]["bad_lambda_take_NR_step"] = True
 
         # Check for a switch into Cartesian coordinates
-        if read_pattern(self.text, {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"}, terminate_on_match=True,).get(
+        if read_pattern(
+            self.text,
+            {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["switch_to_cartesian"] = True
 
         # Check for problem with eigenvalue magnitude
-        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True,).get(
+        if read_pattern(
+            self.text,
+            {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["eigenvalue_magnitude"] = True
@@ -1264,7 +1276,11 @@ class QCOutput(MSONable):
         self._read_gradients()
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
-            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+            if read_pattern(
+                self.text,
+                {"key": r"Error in back_transform"},
+                terminate_on_match=True,
+            ).get(
                 "key"
             ) == [[]]:
                 self.data["errors"] += ["back_transform_error"]
@@ -1311,11 +1327,19 @@ class QCOutput(MSONable):
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
-                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                elif read_pattern(
+                    self.text,
+                    {"key": r"Error in back_transform"},
+                    terminate_on_match=True,
+                ).get(
                     "key"
                 ) == [[]]:
                     self.data["errors"] += ["back_transform_error"]
-                elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True,).get(
+                elif read_pattern(
+                    self.text,
+                    {"key": r"pinv\(\)\: svd failed"},
+                    terminate_on_match=True,
+                ).get(
                     "key"
                 ) == [[]]:
                     self.data["errors"] += ["svd_failed"]
@@ -1830,15 +1854,27 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["driver_error"]
-        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True,).get(
+        elif read_pattern(
+            self.text,
+            {"key": r"Basis not supported for the above atom"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["basis_not_supported"]
-        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True,).get(
+        elif read_pattern(
+            self.text,
+            {"key": r"Unable to find relaxed density"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
-        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True,).get(
+        elif read_pattern(
+            self.text,
+            {"key": r"Out of Iterations- IterZ"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
@@ -1860,19 +1896,35 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["gdm_neg_precon_error"]
-        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True,).get(
+        elif read_pattern(
+            self.text,
+            {"key": r"too many atoms in ESPChgFit"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["esp_chg_fit_error"]
-        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True,).get(
+        elif read_pattern(
+            self.text,
+            {"key": r"Please use larger MEM_STATIC"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["mem_static_too_small"]
-        elif read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True,).get(
+        elif read_pattern(
+            self.text,
+            {"key": r"Please increase MEM_STATIC"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["mem_static_too_small"]
-        elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True,).get(
+        elif read_pattern(
+            self.text,
+            {"key": r"Please increase MEM_TOTAL"},
+            terminate_on_match=True,
+        ).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["mem_total_too_small"]
@@ -2057,7 +2109,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     pop_dfs = []
 
     while no_failures:
-
         # Natural populations
         try:
             lines = jump_to_header(lines, "Summary of Natural Population Analysis:")
@@ -2073,7 +2124,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
             lines = lines[2:]
             data = []
             for line in lines:
-
                 # Termination condition
                 if "=" in line:
                     break
@@ -2130,14 +2180,12 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
             no_failures = False
 
         if no_failures:
-
             # Jump to values
             lines = lines[2:]
 
             # Extract hyperbond data
             hyperbond_data = []
             for line in lines:
-
                 # Termination condition
                 if "NATURAL BOND ORBITALS" in line:
                     break
@@ -2207,7 +2255,6 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     lp_and_bd_and_tc_dfs = []
 
     while no_failures:
-
         # NBO Analysis
         try:
             lines = jump_to_header(lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids")
@@ -2218,7 +2265,6 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                 no_failures = False
 
         if no_failures:
-
             # Jump to values
             lines = lines[2:]
 
@@ -2442,7 +2488,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     e2_dfs = []
 
     while no_failures:
-
         # 2nd order perturbation theory analysis
         try:
             lines = jump_to_header(
@@ -2453,7 +2498,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
             no_failures = False
 
         if no_failures:
-
             # Jump to values
             i = -1
             while True:
@@ -2466,7 +2510,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
             # Extract 2nd order data
             e2_data = []
             for line in lines:
-
                 # Termination condition
                 if "NATURAL BOND ORBITALS" in line:
                     break

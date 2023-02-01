@@ -351,7 +351,6 @@ class EwaldSummation(MSONable):
         simags = np.sum(oxistates[None, :] * np.sin(grs), 1)
 
         for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, expvals, sreals, simags):
-
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             m = (gr[None, :] + pi / 4) - gr[:, None]
             np.sin(m, m)

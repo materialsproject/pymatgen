@@ -617,7 +617,6 @@ class BSPlotter:
 
         colors = list(plt.rcParams["axes.prop_cycle"].by_key().values())[0]
         for ibs, bs in enumerate(self._bs):
-
             # set first bs in the list as ref for rescaling the distances of the other bands
             bs_ref = self._bs[0] if len(self._bs) > 1 and ibs > 0 else None
 
@@ -1639,7 +1638,6 @@ class BSPlotterProjected(BSPlotter):
         for elt in dictpa_d:
             for numa in dictpa_d[elt]:
                 for o in dictio_d[elt]:
-
                     count += 1
                     if num_column is None:
                         if number_figs == 1:
@@ -4362,7 +4360,6 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
         raise ValueError("coords_are_cartesian False or fold True require the lattice")
 
     for p in points:
-
         if fold:
             p = fold_point(p, lattice, coords_are_cartesian=coords_are_cartesian)
 

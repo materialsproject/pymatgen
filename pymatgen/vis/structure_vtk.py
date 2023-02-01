@@ -248,9 +248,9 @@ class StructureVis:
                 self.add_line((0, 0, 0), vec, colors[count])
                 self.add_text(vec, labels[count], colors[count])
                 count += 1
-            for (vec1, vec2) in itertools.permutations(matrix, 2):
+            for vec1, vec2 in itertools.permutations(matrix, 2):
                 self.add_line(vec1, vec1 + vec2)
-            for (vec1, vec2, vec3) in itertools.permutations(matrix, 3):
+            for vec1, vec2, vec3 in itertools.permutations(matrix, 3):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
@@ -1239,7 +1239,6 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                 parent.display_warning("FIRST STRUCTURE")
                 parent.ren_win.Render()
             else:
-
                 parent.istruct -= 1
                 parent.current_structure = parent.structures[parent.istruct]
                 parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)

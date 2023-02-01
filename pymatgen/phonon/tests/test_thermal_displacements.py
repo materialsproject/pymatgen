@@ -318,7 +318,6 @@ class ThermalDisplacementTest(PymatgenTest):
         assert printed
 
     def test_from_cif_P1(self):
-
         with tempfile.TemporaryDirectory() as tmpdirname:
             self.thermal.write_cif(os.path.join(tmpdirname, "U.cif"))
             new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmpdirname, "U.cif"))

@@ -143,7 +143,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_get_atoms_from_molecule_dyn(self):
-
         molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)

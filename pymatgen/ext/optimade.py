@@ -120,12 +120,10 @@ class OptimadeRester:
             )
 
         for alias_or_resource_url in aliases_or_resource_urls:
-
             if alias_or_resource_url in self.aliases:
                 self.resources[alias_or_resource_url] = self.aliases[alias_or_resource_url]
 
             elif self._validate_provider(alias_or_resource_url):
-
                 # TODO: unclear what the key should be here, the "prefix" is for the root provider,
                 # may need to walk back to the index for the given provider to find the correct identifier
 
@@ -306,11 +304,9 @@ class OptimadeRester:
         response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
-
             url = join(resource, f"v1/structures?filter={optimade_filter}&{response_fields=}")
 
             try:
-
                 json = self._get_json(url)
 
                 structures = self._get_snls_from_resource(json, url, identifier)
@@ -329,11 +325,9 @@ class OptimadeRester:
                         pbar.update(len(additional_structures))
 
                 if structures:
-
                     all_snls[identifier] = structures
 
             except Exception as exc:
-
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
                 _logger.error(
@@ -344,7 +338,6 @@ class OptimadeRester:
 
     @staticmethod
     def _get_snls_from_resource(json, url, identifier) -> dict[str, StructureNL]:
-
         snls = {}
 
         exceptions = set()
@@ -363,7 +356,6 @@ class OptimadeRester:
             }
 
         for data in json["data"]:
-
             # TODO: check the spec! and remove this try/except (are all providers following spec?)
             # e.g. can check data["type"] == "structures"
 
@@ -394,7 +386,6 @@ class OptimadeRester:
 
             # TODO: bare exception, remove...
             except Exception:
-
                 try:
                     # e.g. MP (all ordered, no vacancies)
                     structure = Structure(

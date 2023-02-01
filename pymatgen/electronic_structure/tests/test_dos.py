@@ -289,14 +289,12 @@ class CompleteDosTest(unittest.TestCase):
         dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
         # test exceptions
         with pytest.raises(ValueError) as exc_info:
-
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True, normalize=True)
         assert (
             str(exc_info.value) == "Cannot compute similarity index. Please set either "
             "normalize=True or tanimoto=True or both to False."
         )
         with pytest.raises(ValueError) as exc_info:
-
             self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
         assert (
             str(exc_info.value) == "Please recheck type requested, either the orbital "
@@ -337,7 +335,6 @@ class SpinPolarizationTest(unittest.TestCase):
 
 class LobsterCompleteDosTest(unittest.TestCase):
     def setUp(self):
-
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_spin.json")) as f:
             data_spin = json.load(f)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)

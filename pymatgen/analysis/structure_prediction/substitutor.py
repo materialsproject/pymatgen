@@ -126,7 +126,6 @@ class Substitutor(MSONable):
                     and len(list(set(els) & set(self.get_allowed_species()))) == len(els)
                     and self._sp.cond_prob_list(permut, els) > self._threshold
                 ):
-
                     clean_subst = {els[i]: permut[i] for i in range(0, len(els)) if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:

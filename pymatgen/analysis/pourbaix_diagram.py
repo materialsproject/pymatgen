@@ -447,6 +447,7 @@ ELEMENTS_HO = {Element("H"), Element("O")}
 #       heatmap plotter, because the reference states for decomposition
 #       don't include oxygen/hydrogen in the OER/HER regions
 
+
 # TODO: create a from_phase_diagram class method for non-formation energy
 #       invocation
 # TODO: invocation from a MultiEntry entry list could be a bit more robust

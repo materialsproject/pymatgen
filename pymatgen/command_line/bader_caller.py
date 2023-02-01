@@ -532,7 +532,6 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     """
 
     with ScratchDir(".") as temp_dir:
-
         if aeccar0 and aeccar2:
             # construct reference file
             chgref = aeccar0.linear_add(aeccar2)
