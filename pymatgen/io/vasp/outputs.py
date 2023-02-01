@@ -1385,7 +1385,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
                 # opticaltransitions array contains oscillator strength and probability of transition
-                oscillator_strength = np.array(_parse_varray(va))[0:,]
+                oscillator_strength = np.array(_parse_varray(va))[0:]
                 probability_transition = np.array(_parse_varray(va))[0:, 1]
         return oscillator_strength, probability_transition
 
@@ -4629,7 +4629,7 @@ class Wavecar:
                 raise ValueError(f"invalid rtag of {rtag}")
 
             # padding to end of fortran REC=1
-            np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
+            np.fromfile(f, dtype=np.float64, count=recl8 - 3)
 
             # extract kpoint, bands, energy, and lattice information
             self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
@@ -4733,7 +4733,7 @@ class Wavecar:
                             self.Gpoints[ink],
                             extra_gpoints,
                             extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=(self.vasp_type.lower()[0] == "g"))
+                        ) = self._generate_G_points(kpoint, gamma=self.vasp_type.lower()[0] == "g")
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(

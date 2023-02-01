@@ -340,7 +340,7 @@ class EnumlibAdaptor:
         # to ensure consistency, we keep track of what site properties
         # are missing and set them to None
         # TODO: improve this by mapping ordered structure to original
-        # disorded structure, and retrieving correct site properties
+        # disordered structure, and retrieving correct site properties
         disordered_site_properties = {}
 
         if len(self.ordered_sites) > 0:
@@ -363,6 +363,9 @@ class EnumlibAdaptor:
                 site_properties=site_properties,
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
+        else:
+            ordered_structure = None  # to fix pylint E0601
+            inv_org_latt = None
 
         for file in glob.glob("vasp.*"):
             with open(file) as f:

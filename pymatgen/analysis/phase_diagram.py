@@ -1588,7 +1588,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         # TODO comprhys: refactor to have self._compute method to allow serialisation
         self.spaces = sorted(spaces, key=len, reverse=False)  # Calculate pds for smaller dimension spaces first
-        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=(not verbose)))
+        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
         self.all_entries = all_entries
         self.el_refs = el_refs
         self.elements = elements

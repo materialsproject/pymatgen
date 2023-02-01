@@ -233,6 +233,8 @@ class BasisSetReader:
         parse_preamble = False
         parse_lmax_nnlo = False
         parse_nl_orbital = False
+        nnlo = None  # fix pylint E0601: Using variable 'nnlo' before assignment
+        lmax = None
 
         for line in input.split("\n"):
             if parse_nl_orbital:
