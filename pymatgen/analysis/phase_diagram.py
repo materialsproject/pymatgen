@@ -1588,7 +1588,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         # TODO comprhys: refactor to have self._compute method to allow serialisation
         self.spaces = sorted(spaces, key=len, reverse=False)  # Calculate pds for smaller dimension spaces first
-        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=(not verbose)))
+        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
         self.all_entries = all_entries
         self.el_refs = el_refs
         self.elements = elements
@@ -1870,7 +1870,6 @@ class ReactionDiagram:
                     continue
 
                 try:
-
                     mat = []
                     for e in face_entries:
                         mat.append([e.composition.get_atomic_fraction(el) for el in elements])
@@ -1881,7 +1880,6 @@ class ReactionDiagram:
                     x = coeffs[-1]
                     # pylint: disable=R1716
                     if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
-
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
                         factor = 1 / (c1 + c2)
@@ -2727,8 +2725,8 @@ class PDPlotter:
 
         f = interpolate.LinearNDInterpolator(data[:, 0:2], data[:, 2])
         znew = np.zeros((len(ynew), len(xnew)))
-        for (i, xval) in enumerate(xnew):
-            for (j, yval) in enumerate(ynew):
+        for i, xval in enumerate(xnew):
+            for j, yval in enumerate(ynew):
                 znew[j, i] = f(xval, yval)
 
         # pylint: disable=E1101

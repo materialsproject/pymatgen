@@ -21,11 +21,9 @@ from pymatgen.util.testing import PymatgenTest
 
 class ConversionElectrodeTest(unittest.TestCase):
     def setUp(self):
-
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_eletrodes = {}
         for f in self.formulas:
-
             with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json")) as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:

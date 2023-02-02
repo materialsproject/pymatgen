@@ -387,7 +387,6 @@ class PackmolRunner:
         mol = Molecule(zs, coords)
 
         if restore_site_props:
-
             props = []
 
             ref = self.map_residue_to_mol[residue_name].copy()

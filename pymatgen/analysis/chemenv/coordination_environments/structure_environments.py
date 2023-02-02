@@ -1266,7 +1266,6 @@ class StructureEnvironments(MSONable):
         return differences
 
     def __eq__(self, other: object) -> bool:
-
         if not isinstance(other, StructureEnvironments):
             return NotImplemented
 

@@ -59,7 +59,6 @@ class MagmomTest(unittest.TestCase):
         assert np.allclose(magmom5.global_moment, [1, 2, 3])
 
     def test_get_moments(self):
-
         # simple cases
         magmom_along_x = Magmom([1, 0, 0])
         assert np.allclose(magmom_along_x.get_moment(saxis=[1, 0, 0]), [0, 0, 1])

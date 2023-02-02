@@ -1859,7 +1859,6 @@ class GrainBoundaryGenerator:
             else:
                 m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n**2 * d) / mu / lam))
             for m in range(0, m_max + 1):
-
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [

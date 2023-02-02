@@ -261,7 +261,6 @@ class CifFile:
         """
         d = {}
         for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
-
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
             # Springer materials/Pauling file DBs.
@@ -405,7 +404,6 @@ class CifParser:
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
         if "_atom_site_type_symbol" in data.data:
-
             # Keep a track of which data row needs to be removed.
             # Example of a row: Nb,Zr '0.8Nb + 0.2Zr' .2a .m-3m 0 0 0 1 14
             # 'rhombic dodecahedron, Nb<sub>14</sub>'
@@ -425,7 +423,6 @@ class CifParser:
             new_fract_z = []
 
             for idx, el_row in enumerate(data["_atom_site_label"]):
-
                 # CIF files from the Springer Materials/Pauling File have
                 # switched the label and symbol. Thus, in the
                 # above shown example row, '0.8Nb + 0.2Zr' is the symbol.
@@ -433,7 +430,6 @@ class CifParser:
                 # check if the length (or number of elements) in the label and
                 # symbol are equal.
                 if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(el_row.split(" + ")):
-
                     # Dictionary to hold extracted elements and occupancies
                     els_occu = {}
 
@@ -493,7 +489,6 @@ class CifParser:
         specification being finalized (on advice of Branton Campbell).
         """
         if self.feature_flags["magcif"]:
-
             # CIF-1 style has all underscores, interim standard
             # had period before magn instead of before the final
             # component (e.g. xyz)
@@ -614,7 +609,6 @@ class CifParser:
         and necessary parameters are parsed
         """
         try:
-
             return self.get_lattice_no_exception(
                 data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
             )
@@ -628,7 +622,6 @@ class CifParser:
                 if data.data.get(lattice_lable):
                     lattice_type = data.data.get(lattice_lable).lower()
                     try:
-
                         required_args = getargspec(getattr(Lattice, lattice_type)).args
 
                         lengths = (l for l in length_strings if l in required_args)
@@ -770,14 +763,12 @@ class CifParser:
 
         # check to see if magCIF file explicitly contains magnetic symmetry operations
         if data.data.get("_space_group_symop_magn_operation.xyz"):
-
             xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
             if isinstance(xyzt, str):
                 xyzt = [xyzt]
             magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
-
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
                 if isinstance(xyzt, str):
                     xyzt = [xyzt]
@@ -801,7 +792,6 @@ class CifParser:
 
         # else check to see if it specifies a magnetic space group
         elif data.data.get("_space_group_magn.name_BNS") or data.data.get("_space_group_magn.number_BNS"):
-
             if data.data.get("_space_group_magn.name_BNS"):
                 # get BNS label for MagneticSpaceGroup()
                 id = data.data.get("_space_group_magn.name_BNS")
@@ -812,7 +802,6 @@ class CifParser:
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
                 if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-
                     jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
                     msg = MagneticSpaceGroup(id, jf)
 
@@ -957,7 +946,6 @@ class CifParser:
             return False
 
         for i in range(len(data["_atom_site_label"])):
-
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
@@ -1101,7 +1089,6 @@ class CifParser:
             struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
 
             if symmetrized:
-
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
                 # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
                 wyckoffs = ["Not Parsed"] * len(struct)
@@ -1205,7 +1192,6 @@ class CifParser:
         # TODO: CIF specification supports multiple citations.
 
         for idx, data in enumerate(self._cif.data.values()):
-
             # convert to lower-case keys, some cif files inconsistent
             data = {k.lower(): v for k, v in data.data.items()}
 

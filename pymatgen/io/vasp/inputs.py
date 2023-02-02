@@ -489,7 +489,7 @@ class Poscar(MSONable):
         lines.append("direct" if direct else "cartesian")
 
         selective_dynamics = self.selective_dynamics
-        for (i, site) in enumerate(self.structure):
+        for i, site in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join(format_str.format(c) for c in coords)
             if selective_dynamics is not None:
@@ -645,7 +645,6 @@ class Incar(dict, MSONable):
         """
         super().__init__()
         if params:
-
             # if Incar contains vector-like magmoms given as a list
             # of floats, convert to a list of lists
             if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (

@@ -43,7 +43,6 @@ class UtilTest(PymatgenTest):
             lower_and_check_unique(d4)
 
     def test_process_parsed_HESS(self):
-
         data_132 = []
         with zopen(os.path.join(test_dir, "parse_hess", "132.0"), mode="rb") as file:
             binary = file.read()

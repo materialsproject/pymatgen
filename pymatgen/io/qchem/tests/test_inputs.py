@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 class TestQCInput(PymatgenTest):
-
     # ef setUpClass(cls):
     # add things that show up over and over again
 

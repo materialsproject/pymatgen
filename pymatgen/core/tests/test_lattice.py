@@ -318,7 +318,7 @@ class LatticeTestCase(PymatgenTest):
 
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
 
-        for (aligned_out, rot_out, scale_out) in latt.find_all_mappings(latt2):
+        for aligned_out, rot_out, scale_out in latt.find_all_mappings(latt2):
             self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out), aligned_out.matrix, 5)
             self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix), aligned_out.matrix)
             self.assertArrayAlmostEqual(aligned_out.parameters, latt2.parameters)
@@ -375,7 +375,7 @@ class LatticeTestCase(PymatgenTest):
             # print(family_name)
             self.assertArrayAlmostEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
             self.assertArrayAlmostEqual(lattice.norm(frac_basis), lattice.abc, 5)
-            for (i, vec) in enumerate(frac_basis):
+            for i, vec in enumerate(frac_basis):
                 length = lattice.norm(vec)
                 self.assertArrayAlmostEqual(length[0], lattice.abc[i], 5)
                 # We always get a ndarray.

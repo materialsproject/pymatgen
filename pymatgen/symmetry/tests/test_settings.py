@@ -76,7 +76,6 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
                 assert np.allclose(coord, ref_coord)
 
     def test_transform_symmops(self):
-
         # reference data for this test taken from GENPOS
         # http://cryst.ehu.es/cryst/get_gen.html
 

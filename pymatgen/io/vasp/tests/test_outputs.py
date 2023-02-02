@@ -117,7 +117,6 @@ class VasprunTest(PymatgenTest):
             assert issubclass(w[-1].category, UserWarning)
 
     def test_runtype(self):
-
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
         assert v.run_type in "HF"
 
@@ -160,7 +159,6 @@ class VasprunTest(PymatgenTest):
         assert v.final_energy == approx(-9.78310677)
 
     def test_energies(self):
-
         # VASP 5.4.1
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
         assert v.final_energy == approx(-11.18981538)
@@ -178,7 +176,6 @@ class VasprunTest(PymatgenTest):
         assert o.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
-
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]])
@@ -1240,7 +1237,6 @@ class OutcarTest(PymatgenTest):
         assert np.sum(outcar.drift) == approx(0.448010)
 
     def test_electrostatic_potential(self):
-
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
         assert outcar.ngf == [54, 30, 54]
         assert np.allclose(outcar.sampling_radii, [0.9748, 0.9791, 0.7215])
@@ -1417,7 +1413,6 @@ class OutcarTest(PymatgenTest):
         assert outcar.run_stats["cores"] == 64
 
     def test_energies(self):
-
         # VASP 5.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest1.gz")
         assert o.final_energy == approx(-11.18981538)

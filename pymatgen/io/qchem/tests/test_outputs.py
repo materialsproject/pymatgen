@@ -285,7 +285,6 @@ class TestQCOutput(PymatgenTest):
 
     @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
     def test_structural_change(self):
-
         t1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t1.xyz"))
         t2 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t2.xyz"))
         t3 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t3.xyz"))

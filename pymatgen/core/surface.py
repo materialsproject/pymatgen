@@ -870,7 +870,6 @@ class SlabGenerator:
         if max_normal_search is None:
             slab_scale_factor.append(eye[c_index])
         else:
-
             index_range = sorted(
                 reversed(range(-max_normal_search, max_normal_search + 1)),
                 key=lambda x: abs(x),
@@ -1194,7 +1193,6 @@ class SlabGenerator:
                 for site in self.oriented_unit_cell:
                     poly_coord = 0
                     if site.species_string == el:
-
                         for nn in self.oriented_unit_cell.get_neighbors(site, blength):
                             if nn[0].species_string == pair[i - 1]:
                                 poly_coord += 1

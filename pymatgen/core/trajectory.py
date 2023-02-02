@@ -183,7 +183,6 @@ class Trajectory(MSONable):
         This is the opposite operation of `to_positions()`.
         """
         if not self.coords_are_displacement:
-
             displacements = np.subtract(
                 self.frac_coords,
                 np.roll(self.frac_coords, 1, axis=0),
@@ -283,7 +282,6 @@ class Trajectory(MSONable):
 
         # For integer input, return the structure at that frame
         if isinstance(frames, int):
-
             if frames >= len(self):
                 raise IndexError(f"Frame index {frames} out of range.")
 
@@ -299,7 +297,6 @@ class Trajectory(MSONable):
 
         # For slice input, return a trajectory
         if isinstance(frames, (slice, list, np.ndarray)):
-
             if isinstance(frames, slice):
                 start, stop, step = frames.indices(len(self))
                 selected = list(range(start, stop, step))
@@ -384,7 +381,7 @@ class Trajectory(MSONable):
 
             lines.append(f"Direct configuration=     {si + 1}")
 
-            for (frac_coord, specie) in zip(frac_coords, self.species):
+            for frac_coord, specie in zip(frac_coords, self.species):
                 coords = frac_coord
                 line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
                 lines.append(line)

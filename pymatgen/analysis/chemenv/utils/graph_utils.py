@@ -56,7 +56,7 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
             continue
         node_paths.append(path)
         current_edge_paths = [[]]
-        for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
+        for node1, node2 in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
             new_edge_paths = []
             for key, edge_data in graph[node1][node2].items():
                 for tmp_edge_path in current_edge_paths:

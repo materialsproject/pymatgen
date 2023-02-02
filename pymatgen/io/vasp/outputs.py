@@ -1038,7 +1038,7 @@ class Vasprun(MSONable):
                 vbm = -float("inf")
                 cbm = float("inf")
             for k, val in enumerate(d):
-                for (eigenval, occu) in val:
+                for eigenval, occu in val:
                     if occu > self.occu_tol and eigenval > vbm:
                         vbm = eigenval
                         vbm_kpoint = k
@@ -1385,9 +1385,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
                 # opticaltransitions array contains oscillator strength and probability of transition
-                oscillator_strength = np.array(_parse_varray(va))[
-                    0:,
-                ]
+                oscillator_strength = np.array(_parse_varray(va))[0:]
                 probability_transition = np.array(_parse_varray(va))[0:, 1]
         return oscillator_strength, probability_transition
 
@@ -2026,7 +2024,7 @@ class Outcar:
             )
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
-        for (n, nplwv) in enumerate(nplwvs_at_kpoints):
+        for n, nplwv in enumerate(nplwvs_at_kpoints):
             try:
                 self.data["nplwvs_at_kpoints"][n] = int(nplwv)
             except ValueError:
@@ -3554,7 +3552,6 @@ class VolumetricData(BaseVolumetricData):
                         all_dataset_aug[key] = []
                     all_dataset_aug[key].append(original_line)
             if len(all_dataset) == 4:
-
                 data = {
                     "total": all_dataset[0],
                     "diff_x": all_dataset[1],
@@ -3641,7 +3638,7 @@ class VolumetricData(BaseVolumetricData):
                 lines = []
                 count = 0
                 f.write(f"   {a[0]}   {a[1]}   {a[2]}\n")
-                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])), list(range(a[0]))):
+                for k, j, i in itertools.product(list(range(a[2])), list(range(a[1])), list(range(a[0]))):
                     lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
                     if count % 5 == 0:
@@ -4632,7 +4629,7 @@ class Wavecar:
                 raise ValueError(f"invalid rtag of {rtag}")
 
             # padding to end of fortran REC=1
-            np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
+            np.fromfile(f, dtype=np.float64, count=recl8 - 3)
 
             # extract kpoint, bands, energy, and lattice information
             self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
@@ -4736,7 +4733,7 @@ class Wavecar:
                             self.Gpoints[ink],
                             extra_gpoints,
                             extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=(self.vasp_type.lower()[0] == "g"))
+                        ) = self._generate_G_points(kpoint, gamma=self.vasp_type.lower()[0] == "g")
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(
@@ -5194,7 +5191,7 @@ class Eigenval:
                 vbm = -float("inf")
                 cbm = float("inf")
             for k, val in enumerate(d):
-                for (eigenval, occu) in val:
+                for eigenval, occu in val:
                     if occu > self.occu_tol and eigenval > vbm:
                         vbm = eigenval
                         vbm_kpoint = k

@@ -1568,7 +1568,6 @@ class Cp2kOutput:
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
-
         if not width:
             return densities
 

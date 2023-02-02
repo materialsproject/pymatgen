@@ -1454,7 +1454,6 @@ class LobsterCompleteDos(CompleteDos):
         eg_dos = []
         for s, atom_dos in self.pdos.items():
             if s == site:
-
                 for orb, pdos in atom_dos.items():
                     if _get_orb_lobster(orb) in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)

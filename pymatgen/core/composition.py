@@ -785,7 +785,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         new_comp = {elem: amount for elem, amount in self.as_dict().items() if elem not in elem_map}
 
         for old_elem, new_elem in elem_map.items():
-
             amount = self[old_elem]
 
             # build a dictionary of substitutions to be made
@@ -960,7 +959,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             # get all possible combinations of oxidation states
             # and sum each combination
             for oxid_combo in combinations_with_replacement(oxids, int(el_amt[el])):
-
                 # List this sum as a possible option
                 oxid_sum = sum(oxid_combo)
                 if oxid_sum not in el_sums[idx]:

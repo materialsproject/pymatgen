@@ -317,7 +317,6 @@ class PhononBSPlotter:
         ticks = self.get_ticks()
 
         for b in self._bs.branches:
-
             frequency.append([])
             distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
 
@@ -976,7 +975,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         ticks = self.get_ticks()
 
         for b in self._bs.branches:
-
             frequency.append([])
             gruneisen.append([])
             distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])

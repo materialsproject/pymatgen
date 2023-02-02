@@ -2014,7 +2014,6 @@ class TestMaterialsProjectAqueousCompatibility:
     """
 
     def test_h_h2o_energy_with_args_single(self):
-
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
             h2o_energy=-5,
@@ -2047,7 +2046,6 @@ class TestMaterialsProjectAqueousCompatibility:
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_h_h2o_energy_with_args_multi(self):
-
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
             h2o_energy=-5,
@@ -2073,7 +2071,6 @@ class TestMaterialsProjectAqueousCompatibility:
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_h_h2o_energy_no_args(self):
-
         with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
             compat = MaterialsProjectAqueousCompatibility(solid_compat=None)
 
@@ -2165,7 +2162,6 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
         self.aqcorr = AqueousCorrection(fp)
 
     def test_aqueous_compat(self):
-
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")

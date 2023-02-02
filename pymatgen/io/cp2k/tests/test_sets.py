@@ -40,7 +40,6 @@ class SetTest(PymatgenTest):
         return super().setUp()
 
     def test_dft_set(self):
-
         # Basis sets / potentials searching
         basis_and_potential = {"basis_type": "SZV", "potential_type": "Pseudopotential", "functional": None}
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")

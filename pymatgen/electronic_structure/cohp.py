@@ -883,7 +883,6 @@ class IcohpValue(MSONable):
             self._is_spin_polarized = False
 
     def __str__(self):
-
         if not self._are_coops and not self._are_cobis:
             if self._is_spin_polarized:
                 return (
@@ -1338,7 +1337,6 @@ def get_integrated_cohp_in_energy_range(
             summedicohp = icohps
 
     if energy_range is None:
-
         energies_corrected = cohp.energies - cohp.efermi
         spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
 
