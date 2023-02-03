@@ -1008,7 +1008,7 @@ class QCOutput(MSONable):
         temp_mulliken = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         real_mulliken = []
         for one_mulliken in temp_mulliken:
-            if include_spin:
+            if self.data.get("unrestricted", []):
                 temp = np.zeros(shape=(len(one_mulliken), 2))
                 for ii, entry in enumerate(one_mulliken):
                     temp[ii, 0] = float(entry[0])
