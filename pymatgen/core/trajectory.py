@@ -840,66 +840,6 @@ class MoleculeOptimizeTrajectory(MSONable):
         supported = [int, slice, list or np.ndarray]
         raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
 
-    # def write_Xdatcar(
-    #     self,
-    #     filename: str | Path = "XDATCAR",
-    #     system: str | None = None,
-    #     significant_figures: int = 6,
-    # ):
-    #     """
-    #     Writes to Xdatcar file.
-
-    #     The supported kwargs are the same as those for the
-    #     Xdatcar_from_structs.get_string method and are passed through directly.
-
-    #     Args:
-    #         filename: Name of file to write.  It's prudent to end the filename with
-    #             'XDATCAR', as most visualization and analysis software require this
-    #             for autodetection.
-    #         system: Description of system (e.g. 2D MoS2).
-    #         significant_figures: Significant figures in the output file.
-    #     """
-    #     # Ensure trajectory is in position form
-    #     self.to_positions()
-
-    #     if system is None:
-    #         system = f"{self[0].composition.reduced_formula}"
-
-    #     lines = []
-    #     format_str = f"{{:.{significant_figures}f}}"
-    #     syms = [site.specie.symbol for site in self[0]]
-    #     site_symbols = [a[0] for a in itertools.groupby(syms)]
-    #     syms = [site.specie.symbol for site in self[0]]
-    #     n_atoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
-
-    #     for si, frac_coords in enumerate(self.frac_coords):
-    #         # Only print out the info block if
-    #         if si == 0 or not self.constant_lattice:
-    #             lines.extend([system, "1.0"])
-
-    #             if self.constant_lattice:
-    #                 _lattice = self.lattice
-    #             else:
-    #                 _lattice = self.lattice[si]
-
-    #             for latt_vec in _lattice:
-    #                 lines.append(f'{" ".join(map(str, latt_vec))}')
-
-    #             lines.append(" ".join(site_symbols))
-    #             lines.append(" ".join(map(str, n_atoms)))
-
-    #         lines.append(f"Direct configuration=     {si + 1}")
-
-    #         for frac_coord, specie in zip(frac_coords, self.species):
-    #             coords = frac_coord
-    #             line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
-    #             lines.append(line)
-
-    #     xdatcar_string = "\n".join(lines) + "\n"
-
-    #     with zopen(filename, "wt") as f:
-    #         f.write(xdatcar_string)
-
     def as_dict(self) -> dict:
         """
         Return the trajectory as a MSONAble dict.
@@ -907,106 +847,43 @@ class MoleculeOptimizeTrajectory(MSONable):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "lattice": self.lattice.tolist(),
             "species": self.species,
-            "frac_coords": self.frac_coords.tolist(),
+            "coords": self.coords.tolist(),
             "site_properties": self.site_properties,
             "frame_properties": self.frame_properties,
-            "constant_lattice": self.constant_lattice,
             "time_step": self.time_step,
             "coords_are_displacement": self.coords_are_displacement,
             "base_positions": self.base_positions,
         }
 
     @classmethod
-    def from_structures(
+    def from_molecules(
         cls,
-        structures: list[Structure],
-        constant_lattice: bool = True,
+        molecules: list[Molecule],
         **kwargs,
     ) -> Trajectory:
         """
-        Create trajectory from a list of structures.
+        Create trajectory from a list of molecules.
 
         Note: Assumes no atoms removed during simulation.
 
         Args:
-            structures: pymatgen Structure objects.
-            constant_lattice: Whether the lattice changes during the simulation,
-                such as in an NPT MD simulation.
+            molecules: pymatgen Molecules objects.
 
         Returns:
             A trajectory from the structures.
         """
-        if constant_lattice:
-            lattice = structures[0].lattice.matrix
-        else:
-            lattice = np.array([structure.lattice.matrix for structure in structures])
 
-        species = structures[0].species
-        frac_coords = [structure.frac_coords for structure in structures]
-        site_properties = [structure.site_properties for structure in structures]
+        species = molecules[0].species
+        coords = [mol.cart_coords for mol in molecules]
+        site_properties = [mol.site_properties for mol in molecules]
 
         return cls(
-            lattice,
             species,  # type: ignore
-            frac_coords,
+            coords,
             site_properties=site_properties,  # type: ignore
-            constant_lattice=constant_lattice,
             **kwargs,
         )
-
-    @classmethod
-    def from_file(
-        cls,
-        filename: str | Path,
-        constant_lattice: bool = True,
-        **kwargs,
-    ) -> Trajectory:
-        """
-        Create trajectory from XDATCAR or vasprun.xml file.
-
-        Args:
-            filename: Path to the file to read from.
-            constant_lattice: Whether the lattice changes during the simulation,
-                such as in an NPT MD simulation.
-
-        Returns:
-            A trajectory from the file.
-        """
-        fname = Path(filename).expanduser().resolve().name
-
-        if fnmatch(fname, "*XDATCAR*"):
-            structures = Xdatcar(filename).structures
-        elif fnmatch(fname, "vasprun*.xml*"):
-            structures = Vasprun(filename).structures
-        else:
-            supported = ("XDATCAR", "vasprun.xml")
-            raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
-
-        return cls.from_structures(
-            structures,
-            constant_lattice=constant_lattice,
-            **kwargs,
-        )
-
-    @staticmethod
-    def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
-        """
-        Helper function to combine trajectory lattice.
-        """
-        if lat1.ndim == lat2.ndim == 2:
-            constant_lat = True
-            lat = lat1
-        else:
-            constant_lat = False
-            if lat1.ndim == 2:
-                lat1 = np.tile(lat1, (len1, 1, 1))
-            if lat2.ndim == 2:
-                lat2 = np.tile(lat2, (len2, 1, 1))
-            lat = np.concatenate((lat1, lat2))
-
-        return lat, constant_lat
 
     @staticmethod
     def _combine_site_props(
@@ -1078,7 +955,7 @@ class MoleculeOptimizeTrajectory(MSONable):
             for k, v in d.items():
                 assert len(v) == num_sites, (
                     f"Size of site property {k} {len(v)}) does not equal to the "
-                    f"number of sites in the structure {num_sites}."
+                    f"number of sites in the molecule {num_sites}."
                 )
 
     def _check_frame_props(self, frame_props: list[dict] | None):
