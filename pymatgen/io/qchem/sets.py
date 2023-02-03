@@ -677,9 +677,8 @@ class SinglePointSet(QChemDictSet):
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
         cdft_constraints: list[list[dict]] | None = None,
         almo_coupling_states: list[list[tuple[int, int]]] | None = None,
-        overwrite_inputs: dict | None = None,
-        vdw_mode: Literal["atomic", "sequential"] = "atomic",
         extra_scf_print: bool = False,
+        overwrite_inputs: dict | None = None,
     ):
         """
         Args:
