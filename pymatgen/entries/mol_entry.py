@@ -1,3 +1,7 @@
+from typing import Any, Dict, Optional
+
+import numpy as np
+
 from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
@@ -5,46 +9,35 @@ from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
 
 class MoleculeEntry:
     """
-    A molecule entry class to provide easy access to Molecule properties.
+    A class to provide easy access to Molecule properties.
 
     Args:
-        molecule: Molecule of interest.
-        energy: Electronic energy of the molecule in Hartree.
-        enthalpy: Enthalpy of the molecule (kcal/mol). Defaults to None.
-        entropy: Entropy of the molecule (cal/mol.K). Defaults to None.
-        entry_id: An optional id to uniquely identify the entry.
-        mol_graph: MoleculeGraph of the molecule.
+        molecule: pymatgen Molecule object
+        energy: Electronic energy (units: Hartree)
+        entry_id: Unique identifier for this MoleculeEntry (default: None)
+        enthalpy: Enthalpy (units: kcal/mol) (default: None)
+        entropy: Entropy (units: cal/mol-K) (default: None)
+        mol_graph: graph representation of the Molecule (default: None)
+        data: Other data associated with this entry (default: None)
     """
 
     def __init__(
         self,
-        molecule,
-        energy,
-        enthalpy,
-        entropy,
-        entry_id,
-        mol_graph,
-        partial_charges_resp,
-        partial_charges_mulliken,
-        partial_charges_nbo,
-        electron_affinity,
-        ionization_energy,
-        spin_multiplicity,
-        partial_spins_nbo
+        molecule: Molecule,
+        energy: float,
+        entry_id: object | None = None,
+        enthalpy: Optional[float] = None,
+        entropy: Optional[float] = None,
+        mol_graph: Optional[MoleculeGraph] = None,
+        data: Optional[Dict[str, Any]] = None
     ):
+        self.molecule = molecule
+
         self.energy = energy
         self.enthalpy = enthalpy
         self.entropy = entropy
-        self.electron_affinity = electron_affinity
-        self.ionization_energy = ionization_energy
-        self.spin_multiplicity = spin_multiplicity
 
-        self.ind = None
         self.entry_id = entry_id
-
-        self.star_hashes = {}
-        self.fragment_data = []
-
 
         if not mol_graph:
             mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN())
@@ -52,27 +45,31 @@ class MoleculeEntry:
         else:
             self.mol_graph = mol_graph
 
-        self.partial_charges_resp = partial_charges_resp
-        self.partial_charges_mulliken = partial_charges_mulliken
-        self.partial_charges_nbo = partial_charges_nbo
-        self.partial_spins_nbo = partial_spins_nbo
+        if data is None:
+            self.data = dict()
+        else:
+            self.data = data
 
-        self.molecule = self.mol_graph.molecule
-        self.graph = self.mol_graph.graph.to_undirected()
-        self.species = [str(s) for s in self.molecule.species]
 
-        self.m_inds = [
-            i for i, x in enumerate(self.species) if x in metals
-        ]
+    @property
+    def free_energy():
+        pass
 
-        # penalty gets used in the non local part of species filtering.
-        # certain species filters will increase penalty rather than explicitly filtering
-        # out a molecule. The non local filtering step prioritizes mols with a lower
-        # penalty.
-        self.penalty = 0
-        self.covalent_graph = copy.deepcopy(self.graph)
-        self.covalent_graph.remove_nodes_from(self.m_inds)
+    @property
+    def graph(self):
+        return self.mol_graph.graph.to_undirected()
 
+    @property
+    def formula(self):
+        return self.molecule.composition.alphabetical_formula
+
+    @property
+    def charge(self):
+        return self.molecule.charge
+
+    @property
+    def spin_multiplicity(self):
+        return self.molecule.spin_multiplicity
 
         self.formula = self.molecule.composition.alphabetical_formula
         self.charge = self.molecule.charge

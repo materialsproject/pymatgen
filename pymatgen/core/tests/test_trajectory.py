@@ -418,7 +418,7 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
 
         props = [{"SCF_energy_in_the_final_basis_set": e} for e in [-113.3256885788, -113.3260019471, -113.326006415]]
 
-        traj = MoleculeOptimizeTrajectory(species, coords, frame_properties=props)
+        traj = MoleculeOptimizeTrajectory(species, coords, charge, spin, frame_properties=props)
 
         # compare the overall site properties
         assert traj.frame_properties == props
@@ -433,20 +433,20 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         # Case of compatible trajectories
         compatible_traj = MoleculeOptimizeTrajectory(
             traj.species,
-            [[-1.46958173, -0.47370158, -0.03391061],
-             [-0.79757102,  0.48588802,  0.94508206],
-             [0.50256405,  0.8947604 ,  0.47698504],
-             [1.56101382,  0.13356272,  0.79931048],
-             [1.43897567, -0.8642765 ,  1.56363034],
-             [2.66882238,  0.48431336,  0.30635727],
-             [-2.72606146, -0.81552889,  0.39696593],
-             [3.307822  , -1.01132269,  1.26654957],
-             [-0.81092724, -1.35590014, -0.1458541],
-             [-1.48634516,  0.02121279, -1.02465009],
-             [-0.71212347,  0.03008471,  1.93272477],
-             [-1.37888759,  1.40819443,  1.02143913],
-             [-4.79241099,  0.80275103, -0.39852432],
-             [-4.28509927, -1.03484764,  0.86348452]],
+            [[[-1.46958173, -0.47370158, -0.03391061],
+              [-0.79757102,  0.48588802,  0.94508206],
+              [0.50256405,  0.8947604 ,  0.47698504],
+              [1.56101382,  0.13356272,  0.79931048],
+              [1.43897567, -0.8642765 ,  1.56363034],
+              [2.66882238,  0.48431336,  0.30635727],
+              [-2.72606146, -0.81552889,  0.39696593],
+              [3.307822  , -1.01132269,  1.26654957],
+              [-0.81092724, -1.35590014, -0.1458541],
+              [-1.48634516,  0.02121279, -1.02465009],
+              [-0.71212347,  0.03008471,  1.93272477],
+              [-1.37888759,  1.40819443,  1.02143913],
+              [-4.79241099,  0.80275103, -0.39852432],
+              [-4.28509927, -1.03484764,  0.86348452]]],
             0,
             2
         )
@@ -473,15 +473,11 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         num_frames = len(coords)
 
         props_1 = {
-            {
                 "test": [[True, True, True], [False, False, False]],
-            },
-        }
+            }
         props_2 = {
-            {
                 "test": [[False, False, False], [False, False, False]],
-            },
-        }
+            }
         props_3 = [
             {
                 "test": [[True, True, True], [False, False, False]],
@@ -560,22 +556,22 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         assert traj_combined.site_properties == expected_site_props
 
     def test_extend_frame_props(self):
-        lattice, species, frac_coords = self._get_lattice_species_and_coords()
+        species, coords, charge, spin = self._get_species_and_coords()
 
         energy_1 = [-3, -3.9, -4.1]
         energy_2 = [-4.2, -4.25, -4.3]
-        pressure_2 = [2, 2.5, 2.5]
+        enthalpy_2 = [1.0, 1.25, 1.3]
 
         # energy only properties
         props_1 = [{"energy": e} for e in energy_1]
-        traj_1 = Trajectory(lattice, species, frac_coords, frame_properties=props_1)
+        traj_1 = MoleculeOptimizeTrajectory(species, coords, charge, spin, frame_properties=props_1)
 
         # energy and pressure properties
-        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2)]
-        traj_2 = Trajectory(lattice, species, frac_coords, frame_properties=props_2)
+        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, enthalpy_2)]
+        traj_2 = MoleculeOptimizeTrajectory(species, coords, charge, spin, frame_properties=props_2)
 
         # no properties
-        traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=None)
+        traj_3 = MoleculeOptimizeTrajectory(species, coords, charge, spin, frame_properties=None)
 
         # test combining two with different properties
         traj_combined = copy.deepcopy(traj_1)
@@ -586,7 +582,7 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         # test combining two where one has properties and the other does not
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_3)
-        expected_props = props_1 + [None] * len(frac_coords)
+        expected_props = props_1 + [None] * len(coords)
         assert traj_combined.frame_properties == expected_props
 
         # test combining two both of which have no properties

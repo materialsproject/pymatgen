@@ -836,6 +836,8 @@ class MoleculeOptimizeTrajectory(MSONable):
             return MoleculeOptimizeTrajectory(
                 self.species,
                 coords,
+                self.charge,
+                self.spin_multiplicity,
                 site_properties=self._get_site_props(selected),
                 frame_properties=frame_properties,
                 time_step=self.time_step,
