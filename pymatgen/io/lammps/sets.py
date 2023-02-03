@@ -117,7 +117,7 @@ class BaseLammpsGenerator(InputGenerator):
     This generic class is specialized for each template in subclasses, e.g. LammpsMinimization.
     You can create a template for your own task following those present in pymatgen/io/lammps/templates.
     The parameters are then replaced based on the values found
-    in the settings dictionary that you provide, e.g., {"nsteps": 1000}.
+    in the settings dictionary that you provide, e.g., `{"nsteps": 1000}`.
 
     Parameters:
         template: Path (string) to the template file used to create the input file for LAMMPS.
@@ -136,7 +136,9 @@ class BaseLammpsGenerator(InputGenerator):
     template: str = os.path.join(template_dir, "md.template")
     calc_type: str = "lammps"
 
-    def __init__(self, settings: dict | None = None, keep_stages: bool = False):  # pylint: disable=E1131
+    def __init__(
+        self, settings: dict[str, str | float] | None = None, keep_stages: bool = False  # pylint: disable=E1131
+    ):
         self.settings = settings or {}
         self.keep_stages = keep_stages
 
@@ -172,8 +174,10 @@ class LammpsMinimization(BaseLammpsGenerator):
     Yields a LammpsInputSet tailored for minimizing the energy of a system by iteratively
     adjusting atom coordinates.
     Example usage:
+    ```
     structure = Structure.from_file("mp-149.cif")
     lmp_minimization = LammpsMinimization(units="atomic").get_input_set(structure)
+    ```
 
     Do not forget to specify the force field, otherwise LAMMPS will not be able to run!
 

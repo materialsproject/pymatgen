@@ -44,13 +44,15 @@ class LammpsInputFile(InputFile):
     input where the simulation box is set up, a set of variables are declared or
     quantities are computed.
 
-    The LammpsInputFile is defined by its list_of_commands,
+    The LammpsInputFile is defined by the attribute `list_of_commands`,
     i.e. a list of stages (strings) together with the corresponding LAMMPS input settings (strings).
     The structure is the following:
+    ```
     list_of_commands = [
         ["Stage 1", [[cmd1, args1], [cmd2, args2]]],
         ["Stage 2", [[cmd3, args3]]]
     ]
+    ```
     where cmd's are the LAMMPS command names (e.g., "units", or "pair_coeff")
     and the args are the corresponding arguments.
     "Stage 1" and "Stage 2" are examples of stage names.
@@ -69,7 +71,7 @@ class LammpsInputFile(InputFile):
     @property
     def stages_names(self) -> list:
         """List of names for all the stages present in list_of_commands."""
-        return [self.list_of_commands[i][0] for i in range(len(self.list_of_commands))] if self.list_of_commands else []
+        return [stage_name for stage_name, _ in self.list_of_commands] if self.list_of_commands else []
 
     def get_nstages(self) -> int:
         """Returns the number of stages in the current LammpsInputFile."""
@@ -81,15 +83,14 @@ class LammpsInputFile(InputFile):
         as inline comments (comment lines within blocks of LAMMPS commands).
         """
         ncomments = 0
-        for stage in self.list_of_commands:
+        for _, stage in self.list_of_commands:
             # Block of comment = 1 comment
-            if all(cmd[0][0] == "#" for cmd in stage[1]):
+            if all(cmd.startswith("#") for cmd, args in stage):
                 ncomments += 1
             else:
                 # Else, inline comment each count as one
-                for cmd in stage[1]:
-                    if cmd[0] == "#":
-                        ncomments += 1
+                ncomments += sum(1 for cmd, args in stage if cmd.startswith("#"))
+
         return ncomments
 
     def get_args(self, command: str, stage_name: str | None = None) -> list | str:
@@ -132,12 +133,11 @@ class LammpsInputFile(InputFile):
         Returns:
             True if the command is present, False is not.
         """
-        args = self.get_args(command, stage_name)
-        return True if args else False
+        return bool(self.get_args(command, stage_name))
 
-    def set_args(self, command: str, argument: str, stage_name: str | None = None, how: str | int | list = "all"):
+    def set_args(self, command: str, argument: str, stage_name: str | None = None, how: str | int | list[int] = "all"):
         """
-        Set the argument to a given command.
+        Sets the arguments for the given command to the given string.
         If a stage name is specified, it will be replaced or set only for this stage.
         If the command is set multiple times in the file/stage, it will be replaced based on "how":
         either the first occurrence, all of them, or the index of the occurrence.
@@ -173,18 +173,26 @@ class LammpsInputFile(InputFile):
                             self.list_of_commands[i_stage][1][i_cmd][1] = argument
                         i += 1
 
-    def add_stage(self, command: str | list | dict, stage_name: str | None = None, after_stage: str | None = None):
+    def add_stage(
+        self,
+        command: str | list[str] | dict[str, str | float],
+        stage_name: str | None = None,
+        after_stage: str | None = None,
+    ):
         r"""
         Adds LAMMPS command(s) and its arguments to LAMMPS input file.
 
         Examples:
             1) In order to add a stage defining the potential to be used, you can use:
+            ```
             your_input_file.add_stage(
                 command=["pair_coeff 1 1 morse 0.0580 3.987 3.404", "pair_coeff 1 4 morse 0.0408 1.399 3.204"],
                 stage_name="Definition of the potential"
             )
+            ```
 
             2) Another stage could consist in an energy minimization. In that case, the commands could look like
+            ```
             command = [
                 "thermo 1",
                 "thermo_style custom step lx ly lz press pxx pyy pzz pe",
@@ -194,8 +202,9 @@ class LammpsInputFile(InputFile):
                 "minimize 1.0e-16 1.0e-16 5000 10000",
                 "write_data run.data"
             ]
+            ```
             or a similar version with a long string containing all (separated by \n), or a dictionary such as
-            {"thermo": 1, ...}
+            `{"thermo": 1, ...}`.
 
         Args:
             command (str or list or dict): LAMMPS command(s) for this stage of the run.
@@ -267,9 +276,9 @@ class LammpsInputFile(InputFile):
         else:
             raise LookupError("The given stage name is not present in this LammpsInputFile.")
 
-    def merge_stages(self, stage_names: list):
+    def merge_stages(self, stage_names: list[str]):
         """
-        Merge multiple stages of a LammpsInputFile together.
+        Merges multiple stages of a LammpsInputFile together.
         The merged stage will be at the same index as the first of the stages to be merged.
         The others will appear in the same order as provided in the list. Other non-merged stages will follow.
 
@@ -308,7 +317,7 @@ class LammpsInputFile(InputFile):
         self.ncomments = self.get_ncomments()
         self.nstages = self.get_nstages()
 
-    def add_command(self, stage_name: str, command: str, args: str | None = None):
+    def add_command(self, stage_name: str, command: str, args: str | float | None = None):
         """
         Helper method to add a single LAMMPS command and its arguments to
         a LAMMPS input file. The stage name should be provided: a default behavior
@@ -316,18 +325,22 @@ class LammpsInputFile(InputFile):
         use add_stage directly.
 
         Example:
-            In order to add the command "pair_coeff 1 1 morse 0.0580 3.987 3.404"
+            In order to add the command ``pair_coeff 1 1 morse 0.0580 3.987 3.404``
             to the stage "Definition of the potential", simply use
+            ```
             your_input_file.add_command(
                 stage_name="Definition of the potential",
                 command="pair_coeff 1 1 morse 0.0580 3.987 3.404"
             )
+            ```
             or
+            ```
             your_input_file.add_command(
                 stage_name="Definition of the potential",
                 command="pair_coeff",
                 args="1 1 morse 0.0580 3.987 3.404"
             )
+            ```
 
         Args:
             stage_name (str): name of the stage to which the command should be added.
@@ -347,7 +360,7 @@ class LammpsInputFile(InputFile):
         else:
             self.list_of_commands[idx][1].append([command, args])
 
-    def remove_command(self, command: str, stage_name: str | list | None = None, remove_empty_stages: bool = True):
+    def remove_command(self, command: str, stage_name: str | list[str] | None = None, remove_empty_stages: bool = True):
         """
         Removes a given command from a given stage. If no stage is given, removes all occurrences of the command.
         In case removing a command completely empties a stage, the choice whether to keep this stage in the
@@ -487,7 +500,7 @@ class LammpsInputFile(InputFile):
 
     def write_file(self, filename: str | Path, ignore_comments: bool = False, keep_stages: bool = True) -> None:
         """
-        Write the input file.
+        Writes the input file.
 
         Args:
             filename (str or path): The filename to output to, including path.
@@ -656,7 +669,7 @@ class LammpsInputFile(InputFile):
         return lines
 
     @staticmethod
-    def _get_blocks(string_list: list, keep_stages: bool = False) -> list:
+    def _get_blocks(string_list: list[str], keep_stages: bool = False) -> list[list[str]]:
         """
         Helper method to return a list of blocks of LAMMPS commands,
         separated from "" in a list of all commands.

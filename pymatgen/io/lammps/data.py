@@ -863,20 +863,19 @@ class LammpsData(MSONable):
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
 
-    def set_charge_atom(self, charges: dict):
+    def set_charge_atom(self, charges: dict[int, float]):
         """
-        Add or modify charges of atoms of the data.
+        Set the charges of specific atoms of the data.
 
         Args:
-            charges: Dict containing the charges for the atoms to set.
-                     The dict should contain atom indexes and charges.
-                     Example: change the charge of the third atom of the list to -2:
-                     charges={3: -2}
+            charges: A dictionary with atom indexes as keys and
+                     charges as values, e.g., to set the charge
+                     of the atom with index 3 to -2, use `{3: -2}`.
         """
         for iat, q in charges.items():
             self.atoms.loc[iat, "q"] = q
 
-    def set_charge_atom_type(self, charges: dict):
+    def set_charge_atom_type(self, charges: dict[str | int, float]):
         """
         Add or modify charges of all atoms of a given type in the data
 
