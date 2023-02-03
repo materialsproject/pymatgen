@@ -25,6 +25,7 @@ from pymatgen.core.structure import (
     Lattice,
     Species,
     Structure,
+    Molecule
 )
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
@@ -599,6 +600,7 @@ class Trajectory(MSONable):
             raise ValueError("Unexpected frames type.")
         raise ValueError("Unexpected site_properties type.")
 
+
 class MoleculeOptimizeTrajectory(MSONable):
     """
     Trajectory of a geometry optimization for a system without a lattice (namely, a Molecule object).
@@ -668,11 +670,11 @@ class MoleculeOptimizeTrajectory(MSONable):
                 )
             self.base_positions = base_positions
         else:
-            self.base_positions = frac_coords[0]  # type: ignore[assignment]
+            self.base_positions = coords[0]  # type: ignore[assignment]
         self.coords_are_displacement = coords_are_displacement
 
         self.species = species
-        self.frac_coords = np.asarray(frac_coords)
+        self.coords = np.asarray(coords)
         self.time_step = time_step
 
         self._check_site_props(site_properties)
@@ -681,24 +683,21 @@ class MoleculeOptimizeTrajectory(MSONable):
         self._check_frame_props(frame_properties)
         self.frame_properties = frame_properties
 
-    def get_structure(self, i: int) -> Structure:
+    def get_molecule(self, i: int) -> Molecule:
         """
-        Get structure at specified index.
+        Get molecule at specified index.
 
         Args:
             i: Index of structure.
 
         Returns:
-            A pymatgen Structure object.
+            A pymatgen Molecule object.
         """
         return self[i]
 
     def to_positions(self):
         """
         Convert displacements between consecutive frames into positions.
-
-        `base_positions` and `frac_coords` should both be in fractional coords or
-        absolute coords.
 
         This is the opposite operation of `to_displacements()`.
         """
@@ -712,10 +711,6 @@ class MoleculeOptimizeTrajectory(MSONable):
         """
         Converts positions of trajectory into displacements between consecutive frames.
 
-        `base_positions` and `frac_coords` should both be in fractional coords. Does
-        not work for absolute coords because the atoms are to be wrapped into the
-        simulation box.
-
         This is the opposite operation of `to_positions()`.
         """
         if not self.coords_are_displacement:
@@ -725,25 +720,17 @@ class MoleculeOptimizeTrajectory(MSONable):
             )
             displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
 
-            # Deal with PBC.
-            # For example - If in one frame an atom has fractional coordinates of
-            # [0, 0, 0.98] and in the next its coordinates are [0, 0, 0.01], this atom
-            # will have moved 0.03*c, but if we only subtract the positions, we would
-            # get a displacement vector of [0, 0, -0.97]. Therefore, we can correct for
-            # this by adding or subtracting 1 from the value.
-            displacements = [np.subtract(d, np.around(d)) for d in displacements]
-
             self.frac_coords = displacements
             self.coords_are_displacement = True
 
-    def extend(self, trajectory: Trajectory):
+    def extend(self, trajectory: MoleculeOptimizeTrajectory):
         """
         Append a trajectory to the current one.
 
-        The lattice, coords, and all other properties are combined.
+        The coords and all other properties are combined.
 
         Args:
-            trajectory: Trajectory to append.
+            trajectory: MoleculeOptimizeTrajectory to append.
         """
         if self.time_step != trajectory.time_step:
             raise ValueError(
@@ -775,16 +762,9 @@ class MoleculeOptimizeTrajectory(MSONable):
             len(trajectory),
         )
 
-        self.lattice, self.constant_lattice = self._combine_lattice(
-            self.lattice,
-            trajectory.lattice,
-            len(self),
-            len(trajectory),
-        )
-
         # Note, this should be after the other self._combine... method calls, since
         # len(self) is used there.
-        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords))
+        self.coords = np.concatenate((self.coords, trajectory.coords))
 
     def __iter__(self):
         """
@@ -797,14 +777,14 @@ class MoleculeOptimizeTrajectory(MSONable):
         """
         Number of frames in the trajectory.
         """
-        return len(self.frac_coords)
+        return len(self.coords)
 
-    def __getitem__(self, frames: int | slice | list[int]) -> Structure | Trajectory:
+    def __getitem__(self, frames: int | slice | list[int]) -> Molecule | MoleculeOptimizeTrajectory:
         """
         Get a subset of the trajectory.
 
         The output depends on the type of the input `frames`. If an int is given, return
-        a pymatgen Structure at the specified frame. If a list or a slice, return a new
+        a pymatgen Molecule at the specified frame. If a list or a slice, return a new
         trajectory with a subset of frames.
 
         Args:
@@ -821,14 +801,10 @@ class MoleculeOptimizeTrajectory(MSONable):
             if frames >= len(self):
                 raise IndexError(f"Frame index {frames} out of range.")
 
-            lattice = self.lattice if self.constant_lattice else self.lattice[frames]
-
-            return Structure(
-                Lattice(lattice),
+            return Molecule(
                 self.species,
-                self.frac_coords[frames],
+                self.coords[frames],
                 site_properties=self._get_site_props(frames),  # type: ignore
-                to_unit_cell=True,
             )
 
         # For slice input, return a trajectory
@@ -844,21 +820,18 @@ class MoleculeOptimizeTrajectory(MSONable):
                     bad_frames = [i for i in frames if i > len(self)]
                     raise IndexError(f"Frame index {bad_frames} out of range.")
 
-            lattice = self.lattice if self.constant_lattice else self.lattice[selected]
-            frac_coords = self.frac_coords[selected]
+            coords = self.coords[selected]
 
             if self.frame_properties is not None:
                 frame_properties = [self.frame_properties[i] for i in selected]
             else:
                 frame_properties = None
 
-            return Trajectory(
-                lattice,
+            return MoleculeOptimizeTrajectory(
                 self.species,
-                frac_coords,
+                coords,
                 site_properties=self._get_site_props(selected),
                 frame_properties=frame_properties,
-                constant_lattice=self.constant_lattice,
                 time_step=self.time_step,
                 coords_are_displacement=False,
                 base_positions=self.base_positions,
@@ -867,65 +840,65 @@ class MoleculeOptimizeTrajectory(MSONable):
         supported = [int, slice, list or np.ndarray]
         raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
 
-    def write_Xdatcar(
-        self,
-        filename: str | Path = "XDATCAR",
-        system: str | None = None,
-        significant_figures: int = 6,
-    ):
-        """
-        Writes to Xdatcar file.
+    # def write_Xdatcar(
+    #     self,
+    #     filename: str | Path = "XDATCAR",
+    #     system: str | None = None,
+    #     significant_figures: int = 6,
+    # ):
+    #     """
+    #     Writes to Xdatcar file.
 
-        The supported kwargs are the same as those for the
-        Xdatcar_from_structs.get_string method and are passed through directly.
+    #     The supported kwargs are the same as those for the
+    #     Xdatcar_from_structs.get_string method and are passed through directly.
 
-        Args:
-            filename: Name of file to write.  It's prudent to end the filename with
-                'XDATCAR', as most visualization and analysis software require this
-                for autodetection.
-            system: Description of system (e.g. 2D MoS2).
-            significant_figures: Significant figures in the output file.
-        """
-        # Ensure trajectory is in position form
-        self.to_positions()
+    #     Args:
+    #         filename: Name of file to write.  It's prudent to end the filename with
+    #             'XDATCAR', as most visualization and analysis software require this
+    #             for autodetection.
+    #         system: Description of system (e.g. 2D MoS2).
+    #         significant_figures: Significant figures in the output file.
+    #     """
+    #     # Ensure trajectory is in position form
+    #     self.to_positions()
 
-        if system is None:
-            system = f"{self[0].composition.reduced_formula}"
+    #     if system is None:
+    #         system = f"{self[0].composition.reduced_formula}"
 
-        lines = []
-        format_str = f"{{:.{significant_figures}f}}"
-        syms = [site.specie.symbol for site in self[0]]
-        site_symbols = [a[0] for a in itertools.groupby(syms)]
-        syms = [site.specie.symbol for site in self[0]]
-        n_atoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
+    #     lines = []
+    #     format_str = f"{{:.{significant_figures}f}}"
+    #     syms = [site.specie.symbol for site in self[0]]
+    #     site_symbols = [a[0] for a in itertools.groupby(syms)]
+    #     syms = [site.specie.symbol for site in self[0]]
+    #     n_atoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
-        for si, frac_coords in enumerate(self.frac_coords):
-            # Only print out the info block if
-            if si == 0 or not self.constant_lattice:
-                lines.extend([system, "1.0"])
+    #     for si, frac_coords in enumerate(self.frac_coords):
+    #         # Only print out the info block if
+    #         if si == 0 or not self.constant_lattice:
+    #             lines.extend([system, "1.0"])
 
-                if self.constant_lattice:
-                    _lattice = self.lattice
-                else:
-                    _lattice = self.lattice[si]
+    #             if self.constant_lattice:
+    #                 _lattice = self.lattice
+    #             else:
+    #                 _lattice = self.lattice[si]
 
-                for latt_vec in _lattice:
-                    lines.append(f'{" ".join(map(str, latt_vec))}')
+    #             for latt_vec in _lattice:
+    #                 lines.append(f'{" ".join(map(str, latt_vec))}')
 
-                lines.append(" ".join(site_symbols))
-                lines.append(" ".join(map(str, n_atoms)))
+    #             lines.append(" ".join(site_symbols))
+    #             lines.append(" ".join(map(str, n_atoms)))
 
-            lines.append(f"Direct configuration=     {si + 1}")
+    #         lines.append(f"Direct configuration=     {si + 1}")
 
-            for frac_coord, specie in zip(frac_coords, self.species):
-                coords = frac_coord
-                line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
-                lines.append(line)
+    #         for frac_coord, specie in zip(frac_coords, self.species):
+    #             coords = frac_coord
+    #             line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
+    #             lines.append(line)
 
-        xdatcar_string = "\n".join(lines) + "\n"
+    #     xdatcar_string = "\n".join(lines) + "\n"
 
-        with zopen(filename, "wt") as f:
-            f.write(xdatcar_string)
+    #     with zopen(filename, "wt") as f:
+    #         f.write(xdatcar_string)
 
     def as_dict(self) -> dict:
         """
