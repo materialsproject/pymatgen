@@ -88,7 +88,7 @@ $end"""
  H      1.9063010000      4.0000000000     -0.9287850000
 $end"""
 
-        self.assertEqual(molecule_test, molecule_actual)
+        assert molecule_test == molecule_actual
 
     # TODO improve this test maybe add ordered dicts
     def test_rem_template(self):
@@ -273,7 +273,7 @@ $end"""
    1.0 1 27 s
 $end"""
 
-        self.assertEqual(cdft_test, cdft_actual)
+        assert cdft_test == cdft_actual
 
     def test_almo_template(self):
         almo = [[(1, 2), (0, 1)], [(0, 1), (1, 2)]]
@@ -286,7 +286,7 @@ $end"""
    1 2
 $end"""
 
-        self.assertEqual(almo_test, almo_actual)
+        assert almo_test == almo_actual
 
     def test_find_sections(self):
         str_single_job_input = """$molecule
@@ -393,8 +393,8 @@ $end"""
         mol_2 = Molecule(species, coords_2)
 
         parsed = QCInput.read_molecule(str_molecule)
-        self.assertEqual(parsed[0], mol_1)
-        self.assertEqual(parsed[1], mol_2)
+        assert parsed[0], mol_1
+        assert parsed[1], mol_2
 
     def test_read_rem(self):
         str_rem = """Trying to break you!
@@ -1176,7 +1176,7 @@ $end"""
 
         result = [[(1, 2), (0, 1)], [(0, 1), (1, 2)]]
 
-        self.assertEqual(QCInput.read_almo(str_almo), result)
+        assert QCInput.read_almo(str_almo) == result
 
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet
