@@ -386,6 +386,105 @@ class QCOutput(MSONable):
                         spin_contamination[ii] = abs(correct_s2 - entry)
                     self.data["warnings"]["spin_contamination"] = spin_contamination
 
+        # Parse data from CDFT calculations
+        self.data["cdft"] = read_pattern(self.text, {"key": r"CDFT Becke Populations"}).get("key")
+        if self.data.get("cdft", []):
+            self._read_cdft()
+
+        # Parse direct-coupling calculation output
+        self.data["cdft_direct_coupling"] = read_pattern(
+            self.text, {"key": r"Start with Direct-Coupling Calculation"}
+        ).get("key")
+        if self.data.get("cdft_direct_coupling", []):
+            temp_dict = read_pattern(
+                self.text,
+                {
+                    "Hif": r"\s*DC Matrix Element\s+Hif =\s+([\-\.0-9]+)",
+                    "Sif": r"\s*DC Matrix Element\s+Sif =\s+([\-\.0-9]+)",
+                    "Hii": r"\s*DC Matrix Element\s+Hii =\s+([\-\.0-9]+)",
+                    "Sii": r"\s*DC Matrix Element\s+Sii =\s+([\-\.0-9]+)",
+                    "Hff": r"\s*DC Matrix Element\s+Hff =\s+([\-\.0-9]+)",
+                    "Sff": r"\s*DC Matrix Element\s+Sff =\s+([\-\.0-9]+)",
+                    "coupling": r"\s*Effective Coupling \(in eV\) =\s+([\-\.0-9]+)",
+                },
+            )
+
+            if len(temp_dict.get("Hif", [])) == 0:
+                self.data["direct_coupling_Hif_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hif_Hartree"] = float(temp_dict["Hif"][0][0])
+            if len(temp_dict.get("Sif", [])) == 0:
+                self.data["direct_coupling_Sif_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sif_Hartree"] = float(temp_dict["Sif"][0][0])
+            if len(temp_dict.get("Hii", [])) == 0:
+                self.data["direct_coupling_Hii_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hii_Hartree"] = float(temp_dict["Hii"][0][0])
+            if len(temp_dict.get("Sii", [])) == 0:
+                self.data["direct_coupling_Sii_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sii_Hartree"] = float(temp_dict["Sii"][0][0])
+            if len(temp_dict.get("Hff", [])) == 0:
+                self.data["direct_coupling_Hff_Hartree"] = None
+            else:
+                self.data["direct_coupling_Hff_Hartree"] = float(temp_dict["Hff"][0][0])
+            if len(temp_dict.get("Sff", [])) == 0:
+                self.data["direct_coupling_Sff_Hartree"] = None
+            else:
+                self.data["direct_coupling_Sff_Hartree"] = float(temp_dict["Sff"][0][0])
+            if len(temp_dict.get("coupling", [])) == 0:
+                self.data["direct_coupling_eV"] = None
+            else:
+                self.data["direct_coupling_eV"] = float(temp_dict["coupling"][0][0])
+
+        # Parse data from ALMO(MSDFT) calculation
+        self.data["almo_msdft"] = read_pattern(
+            self.text, {"key": r"ALMO\(MSDFT2?\) method for electronic coupling"}
+        ).get("key")
+        if self.data.get("almo_msdft", []):
+            self._read_almo_msdft()
+
+        # Parse data from Projection Operator Diabatization (POD) calculation
+        self.data["pod"] = read_pattern(self.text, {"key": r"POD2? based on the RSCF Fock matrix"}).get("key")
+        if self.data.get("pod", []):
+            coupling = read_pattern(
+                self.text,
+                {"coupling": r"The D\([0-9]+\) \- A\([0-9]+\) coupling:\s+(?:[\.\-0-9]+ \()?([\-\.0-9]+) meV\)?"},
+            ).get("coupling")
+
+            if coupling is None or len(coupling) == 0:
+                self.data["pod_coupling_eV"] = None
+            else:
+                self.data["pod_coupling_eV"] = float(coupling[0][0]) / 1000
+
+        # Parse data from Fragment Orbital DFT (FODFT) method
+        self.data["fodft"] = read_pattern(
+            self.text, {"key": r"FODFT\(2n(?:[\-\+]1)?\)\@D(?:\^[\-\+])?A(?:\^\-)? for [EH]T"}
+        ).get("key")
+        if self.data.get("fodft", []):
+            temp_dict = read_pattern(
+                self.text,
+                {
+                    "had": r"H_ad = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                    "coupling": r"The (?:averaged )?electronic coupling: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                },
+            )
+
+            if temp_dict.get("had") is None or len(temp_dict.get("had", [])) == 0:
+                self.data["fodft_had_eV"] = None
+            else:
+                self.data["fodft_had_eV"] = float(temp_dict["had"][0][0]) / 1000
+            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:
+                self.data["fodft_hda_eV"] = None
+            else:
+                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000
+            if temp_dict.get("coupling") is None or len(temp_dict.get("coupling", [])) == 0:
+                self.data["fodft_coupling_eV"] = None
+            else:
+                self.data["fodft_coupling_eV"] = float(temp_dict["coupling"][0][0]) / 1000
+
         # Parse additional data from coupled-cluster calculations
         self.data["coupled_cluster"] = read_pattern(
             self.text, {"key": r"CCMAN2: suite of methods based on coupled cluster"}
@@ -532,7 +631,7 @@ class QCOutput(MSONable):
         if not self.data.get("completion", []) and self.data.get("errors") == []:
             self._check_completion_errors()
 
-    @staticmethod
+    @classmethod
     def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
         """
         Parses a QChem output file with multiple calculations
@@ -1767,6 +1866,151 @@ class QCOutput(MSONable):
         for key, value in dfs.items():
             nbo_data[key] = [df.to_dict() for df in value]
         self.data["nbo_data"] = nbo_data
+
+    def _read_cdft(self):
+        """
+        Parses output from charge- or spin-constrained DFT (CDFT) calculations.
+        """
+
+        # Parse constraint and optimization parameters
+        temp_dict = read_pattern(
+            self.text, {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)", "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
+        )
+
+        self.data["cdft_constraints_multipliers"] = list()
+        for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", [])):
+            entry = {"index": int(const[0]), "constraint": float(const[1]), "multiplier": float(multip[0])}
+            self.data["cdft_constraints_multipliers"].append(entry)
+
+        # Parse Becke populations
+        header_pattern = (
+            r"\s*CDFT Becke Populations\s*\n\-+\s*\n\s*Atom\s+Excess Electrons\s+Population \(a\.u\.\)\s+Net Spin"
+        )
+        table_pattern = r"\s*(?:[0-9]+)\s+(?:[A-Za-z0-9]+)\s+([\-\.0-9]+)\s+([\.0-9]+)\s+([\-\.0-9]+)"
+        footer_pattern = r"\s*\-+"
+
+        becke_table = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+        if becke_table is None or len(becke_table) == 0:
+            self.data["cdft_becke_excess_electrons"] = None
+            self.data["cdft_becke_population"] = None
+            self.data["cdft_becke_net_spin"] = None
+        else:
+            self.data["cdft_becke_excess_electrons"] = list()
+            self.data["cdft_becke_population"] = list()
+            self.data["cdft_becke_net_spin"] = list()
+
+            for table in becke_table:
+                excess = list()
+                population = list()
+                spin = list()
+
+                for row in table:
+                    excess.append(float(row[0]))
+                    population.append(float(row[1]))
+                    spin.append(float(row[2]))
+
+                self.data["cdft_becke_excess_electrons"].append(excess)
+                self.data["cdft_becke_population"].append(population)
+                self.data["cdft_becke_net_spin"].append(spin)
+
+        # TODO: CDFT-CI calculation outputs
+
+    def _read_almo_msdft(self):
+        """
+        Parse output of ALMO(MSDFT) calculations for coupling between diabatic states
+        """
+
+        temp_dict = read_pattern(
+            self.text,
+            {
+                "states": r"Number of diabatic states: 2\s*\nstate 1\s*\ncharge per "
+                r"fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)multiplicity per fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)"
+                r"state 2\s*\ncharge per fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)multiplicity per "
+                r"fragment\s*\n((?:\s*[\-0-9]+\s*\n)+)",
+                "diabat_energies": r"Energies of the diabats:\s*\n\s*state 1:\s+([\-\.0-9]+)"
+                r"\s*\n\s*state 2:\s+([\-\.0-9]+)",
+                "adiabat_energies": r"Energy of the adiabatic states\s*\n\s*State 1:\s+([\-\.0-9]+)\s*\n\s*"
+                r"State 2:\s+([\-\.0-9]+)",
+                "hamiltonian": r"Hamiltonian\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
+                r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                "overlap": r"overlap\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
+                r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                "s2": r"<S2>\s*\n\s*1\s+2\s*\n\s*1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*"
+                r"2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                "diabat_basis_coeff": r"Diabatic basis coefficients\s*\n\s*1\s+2\s*\n\s*"
+                r"1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                "h_coupling": r"H passed to diabatic coupling calculation\s*\n\s*1\s+2\s*\n\s*"
+                r"1\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n\s*2\s+([\-\.0-9]+)\s+([\-\.0-9]+)",
+                "coupling": r"Coupling between diabats 1 and 2: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+            },
+        )
+
+        # Coupling states
+        if temp_dict.get("states") is None or len(temp_dict.get("states", [])) == 0:
+            self.data["almo_coupling_states"] = None
+        else:
+            charges_1 = [int(r.strip()) for r in temp_dict["states"][0][0].strip().split("\n")]
+            spins_1 = [int(r.strip()) for r in temp_dict["states"][0][1].strip().split("\n")]
+            charges_2 = [int(r.strip()) for r in temp_dict["states"][0][2].strip().split("\n")]
+            spins_2 = [int(r.strip()) for r in temp_dict["states"][0][3].strip().split("\n")]
+
+            self.data["almo_coupling_states"] = [
+                [[i, j] for i, j in zip(charges_1, spins_1)],
+                [[i, j] for i, j in zip(charges_2, spins_2)],
+            ]
+
+        # State energies
+        if temp_dict.get("diabat_energies") is None or len(temp_dict.get("diabat_energies", [])) == 0:
+            self.data["almo_diabat_energies_Hartree"] = None
+        else:
+            self.data["almo_diabat_energies_Hartree"] = [float(x) for x in temp_dict["diabat_energies"][0]]
+        if temp_dict.get("adiabat_energies") is None or len(temp_dict.get("adiabat_energies", [])) == 0:
+            self.data["almo_adiabat_energies_Hartree"] = None
+        else:
+            self.data["almo_adiabat_energies_Hartree"] = [float(x) for x in temp_dict["adiabat_energies"][0]]
+
+        # Matrices
+        if temp_dict.get("hamiltonian") is None or len(temp_dict.get("hamiltonian", [])) == 0:
+            self.data["almo_hamiltonian"] = None
+        else:
+            self.data["almo_hamiltonian"] = [
+                [float(temp_dict["hamiltonian"][0][0]), float(temp_dict["hamiltonian"][0][1])],
+                [float(temp_dict["hamiltonian"][0][2]), float(temp_dict["hamiltonian"][0][3])],
+            ]
+        if temp_dict.get("overlap") is None or len(temp_dict.get("overlap", [])) == 0:
+            self.data["almo_overlap_matrix"] = None
+        else:
+            self.data["almo_overlap_matrix"] = [
+                [float(temp_dict["overlap"][0][0]), float(temp_dict["overlap"][0][1])],
+                [float(temp_dict["overlap"][0][2]), float(temp_dict["overlap"][0][3])],
+            ]
+        if temp_dict.get("s2") is None or len(temp_dict.get("s2", [])) == 0:
+            self.data["almo_s2_matrix"] = None
+        else:
+            self.data["almo_s2_matrix"] = [
+                [float(temp_dict["s2"][0][0]), float(temp_dict["s2"][0][1])],
+                [float(temp_dict["s2"][0][2]), float(temp_dict["s2"][0][3])],
+            ]
+        if temp_dict.get("diabat_basis_coeff") is None or len(temp_dict.get("diabat_basis_coeff", [])) == 0:
+            self.data["almo_diabat_basis_coeff"] = None
+        else:
+            self.data["almo_diabat_basis_coeff"] = [
+                [float(temp_dict["diabat_basis_coeff"][0][0]), float(temp_dict["diabat_basis_coeff"][0][1])],
+                [float(temp_dict["diabat_basis_coeff"][0][2]), float(temp_dict["diabat_basis_coeff"][0][3])],
+            ]
+        if temp_dict.get("h_coupling") is None or len(temp_dict.get("h_coupling", [])) == 0:
+            self.data["almo_h_coupling_matrix"] = None
+        else:
+            self.data["almo_h_coupling_matrix"] = [
+                [float(temp_dict["h_coupling"][0][0]), float(temp_dict["h_coupling"][0][1])],
+                [float(temp_dict["h_coupling"][0][2]), float(temp_dict["h_coupling"][0][3])],
+            ]
+
+        # Electronic coupling
+        if temp_dict.get("coupling") is None or len(temp_dict.get("coupling", [])) == 0:
+            self.data["almo_coupling_eV"] = None
+        else:
+            self.data["almo_coupling_eV"] = float(temp_dict["coupling"][0][0]) / 1000
 
     def _check_completion_errors(self):
         """
