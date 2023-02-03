@@ -36,7 +36,6 @@ class ZSLGenTest(PymatgenTest):
         ).get_conventional_standard_structure()
 
     def test_zsl(self):
-
         z = ZSLGenerator()
 
         assert fast_norm([3, 2, 1]) == pytest.approx(3.74165738)
@@ -50,7 +49,6 @@ class ZSLGenTest(PymatgenTest):
         assert len(matches) == 8
 
     def test_bidirectional(self):
-
         z = ZSLGenerator(max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05)
 
         matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))

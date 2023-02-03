@@ -485,7 +485,7 @@ class Smearing(AbivarAble, MSONable):
     @property
     def mode(self):
         """String with smearing technique."""
-        for (mode_str, occopt) in self._mode2occopt.items():
+        for mode_str, occopt in self._mode2occopt.items():
             if occopt == self.occopt:
                 return mode_str
         raise AttributeError(f"Unknown occopt {self.occopt}")

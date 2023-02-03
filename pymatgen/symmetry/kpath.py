@@ -1017,7 +1017,6 @@ class KPathSeek(KPathBase):
 
     @staticmethod
     def _trans_sc_to_Hin(sub_class):
-
         if sub_class in [
             "cP1",
             "cP2",
@@ -1298,7 +1297,6 @@ class KPathLatimerMunro(KPathBase):
 
         orbit_cosines = []
         for orbit in key_points_inds_orbits[:-1]:
-
             orbit_cosines.append(
                 sorted(
                     sorted(
@@ -1388,7 +1386,7 @@ class KPathLatimerMunro(KPathBase):
 
         line_orbits_in_path = []
         point_orbits_in_path = []
-        for (i, little_group) in enumerate(little_groups_lines):
+        for i, little_group in enumerate(little_groups_lines):
             add_rep = False
             nC2 = 0
             nC3 = 0
@@ -1416,7 +1414,7 @@ class KPathLatimerMunro(KPathBase):
                 ind1 = l[1]
                 found0 = False
                 found1 = False
-                for (j, orbit) in enumerate(key_points_inds_orbits):
+                for j, orbit in enumerate(key_points_inds_orbits):
                     if ind0 in orbit:
                         point_orbits_in_path.append(j)
                         found0 = True
@@ -1455,7 +1453,7 @@ class KPathLatimerMunro(KPathBase):
                     pass
             if connect:
                 l = (key_points_inds_orbits[ind][0], gamma_ind)
-                for (j, orbit) in enumerate(key_lines_inds_orbits):
+                for j, orbit in enumerate(key_lines_inds_orbits):
                     if l in orbit:
                         line_orbits_in_path.append(j)
                         break
@@ -1475,8 +1473,8 @@ class KPathLatimerMunro(KPathBase):
 
         # pymatgen gives BZ in Cartesian coordinates; convert to fractional in
         # the primitive basis for reciprocal space
-        for (i, facet) in enumerate(bz):
-            for (j, vert) in enumerate(facet):
+        for i, facet in enumerate(bz):
+            for j, vert in enumerate(facet):
                 vert = self._rec_lattice.get_fractional_coords(vert)
                 bz[i][j] = vert
         pop = []
@@ -1490,18 +1488,18 @@ class KPathLatimerMunro(KPathBase):
         bz = [bz[i] for i in range(len(bz)) if i not in pop]
 
         # use vertex points to calculate edge- and face- centers
-        for (i, facet) in enumerate(bz):
+        for i, facet in enumerate(bz):
             bz_as_key_point_inds.append([])
-            for (j, vert) in enumerate(facet):
+            for j, vert in enumerate(facet):
                 edge_center = (vert + facet[j + 1]) / 2.0 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
                 duplicatevert = False
                 duplicateedge = False
-                for (k, point) in enumerate(key_points):
+                for k, point in enumerate(key_points):
                     if np.allclose(vert, point, atol=self._atol):
                         bz_as_key_point_inds[i].append(k)
                         duplicatevert = True
                         break
-                for (k, point) in enumerate(key_points):
+                for k, point in enumerate(key_points):
                     if np.allclose(edge_center, point, atol=self._atol):
                         bz_as_key_point_inds[i].append(k)
                         duplicateedge = True
@@ -1568,7 +1566,7 @@ class KPathLatimerMunro(KPathBase):
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
             face_center_ind = facet_as_key_point_inds[-1]
-            for (j, ind) in enumerate(facet_as_key_point_inds_bndy):
+            for j, ind in enumerate(facet_as_key_point_inds_bndy):
                 if (
                     min(ind, facet_as_key_point_inds_bndy[j - 1]),
                     max(ind, facet_as_key_point_inds_bndy[j - 1]),
@@ -1613,7 +1611,6 @@ class KPathLatimerMunro(KPathBase):
             p01 = key_points[l0[1]]
             pmid0 = p00 + e / pi * (p01 - p00)
             for ind_key in key_lines_copy:
-
                 l1 = key_lines_copy[ind_key]
                 p10 = key_points[l1[0]]
                 p11 = key_points[l1[1]]
@@ -1671,14 +1668,13 @@ class KPathLatimerMunro(KPathBase):
         return key_lines_inds_orbits
 
     def _get_little_groups(self, key_points, key_points_inds_orbits, key_lines_inds_orbits):
-
         little_groups_points = []  # elements are lists of indices of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
-        for (i, orbit) in enumerate(key_points_inds_orbits):
+        for i, orbit in enumerate(key_points_inds_orbits):
             k0 = key_points[orbit[0]]
             little_groups_points.append([])
-            for (j, op) in enumerate(self._rpg):
+            for j, op in enumerate(self._rpg):
                 gamma_to = np.dot(op, -1 * k0) + k0
                 check_gamma = True
                 if not self._all_ints(gamma_to, atol=self._atol):
@@ -1691,12 +1687,12 @@ class KPathLatimerMunro(KPathBase):
         little_groups_lines = []
         # the little group for the orbit key_points_inds_lines[i]
 
-        for (i, orbit) in enumerate(key_lines_inds_orbits):
+        for i, orbit in enumerate(key_lines_inds_orbits):
             l0 = orbit[0]
             v = key_points[l0[1]] - key_points[l0[0]]
             k0 = key_points[l0[0]] + np.e / pi * v
             little_groups_lines.append([])
-            for (j, op) in enumerate(self._rpg):
+            for j, op in enumerate(self._rpg):
                 gamma_to = np.dot(op, -1 * k0) + k0
                 check_gamma = True
                 if not self._all_ints(gamma_to, atol=self._atol):
@@ -1851,7 +1847,6 @@ class KPathLatimerMunro(KPathBase):
                         op2.translation_vector,
                         np.ones(3) * self._atol,
                     ):
-
                         is_coset_factor = False
                         break
                 if not is_coset_factor:
@@ -2179,7 +2174,6 @@ class KPathLatimerMunro(KPathBase):
         return [IRBZ_points[i] for i in range(len(IRBZ_points)) if in_reduced_section[i]]
 
     def _get_orbit_labels(self, orbit_cosines_orig, key_points_inds_orbits, atol):
-
         orbit_cosines_copy = orbit_cosines_orig.copy()
         orbit_labels_unsorted = [(len(key_points_inds_orbits) - 1, 26)]
         orbit_inds_remaining = range(len(key_points_inds_orbits) - 1)

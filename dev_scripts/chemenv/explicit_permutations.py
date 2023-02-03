@@ -36,7 +36,6 @@ class Algo:
 
 
 if __name__ == "__main__":
-
     # Choose the geometry
     allcg = AllCoordinationGeometries()
     while True:

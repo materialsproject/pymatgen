@@ -32,7 +32,6 @@ def get_path(path_str):
 
 class SlabEntryTest(PymatgenTest):
     def setUp(self):
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
@@ -84,7 +83,6 @@ class SlabEntryTest(PymatgenTest):
                         )
 
     def test_create_slab_label(self):
-
         for el, val in self.metals_O_entry_dict.items():
             for hkl in val:
                 # Test WulffShape for adsorbed surfaces
@@ -133,7 +131,6 @@ class SlabEntryTest(PymatgenTest):
 
 class SurfaceEnergyPlotterTest(PymatgenTest):
     def setUp(self):
-
         entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
         self.Cu_entry_dict = entry_dict
         with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
@@ -156,7 +153,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         }
 
     def test_get_stable_entry_at_u(self):
-
         for plotter in self.Oads_analyzer_dict.values():
             for hkl in plotter.all_slab_entries:
                 # Test that the surface energy is clean for specific range of chempot
@@ -178,7 +174,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                 assert gamma3 != gamma4
 
     def test_wulff_from_chempot(self):
-
         # Test if it generates a Wulff shape, test if
         # all the facets for Cu wulff shape are inside.
         Cu_wulff = self.Cu_analyzer.wulff_from_chempot()
@@ -215,7 +210,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         assert wulff_neg55.weighted_surface_energy != wulff_neg525.weighted_surface_energy
 
     def test_color_palette_dict(self):
-
         for el, val in self.metals_O_entry_dict.items():
             analyzer = self.Oads_analyzer_dict[el]
             color_dict = analyzer.color_palette_dict()
@@ -259,7 +253,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         assert len(all_u) > 1
 
     def test_entry_dict_from_list(self):
-
         # Plug in a list of entries to see if it works
         all_Pt_slab_entries = []
         Pt_entries = self.Pt_analyzer.all_slab_entries

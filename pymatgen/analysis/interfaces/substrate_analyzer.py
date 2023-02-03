@@ -187,7 +187,6 @@ class SubstrateAnalyzer(ZSLGenerator):
             substrate_miller,
         ] in surface_vector_sets:
             for match in self(film_vectors, substrate_vectors, lowest):
-
                 sub_match = SubstrateMatch.from_zsl(
                     match=match,
                     film=film,

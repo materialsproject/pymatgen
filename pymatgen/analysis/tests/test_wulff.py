@@ -23,7 +23,6 @@ __date__ = "May 05 2016"
 
 class WulffShapeTest(PymatgenTest):
     def setUp(self):
-
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "surface_samples.json")) as data_file:
             surface_properties = json.load(data_file)
@@ -110,7 +109,6 @@ class WulffShapeTest(PymatgenTest):
         return True
 
     def consistency_tests(self):
-
         # For a set of given values, these tests will
         # ensure that the general result given by the
         # algorithm does not change as the code is edited
@@ -138,7 +136,6 @@ class WulffShapeTest(PymatgenTest):
         assert self.wulff_Nb.miller_energy_dict[(3, 1, 0)] == self.wulff_Nb.weighted_surface_energy
 
     def symmetry_test(self):
-
         # Maintains that all wulff shapes have the same point
         # groups as the conventional unit cell they were
         # derived from. This test should pass for all subsequent
@@ -152,7 +149,6 @@ class WulffShapeTest(PymatgenTest):
         assert check_symmetry_Ti
 
     def test_get_azimuth_elev(self):
-
         # Test out the viewing of the Wulff shape from Miller indices.
         azim, elev = self.wulff_Ir._get_azimuth_elev((0, 0, 1))
         assert azim == 0
@@ -161,7 +157,6 @@ class WulffShapeTest(PymatgenTest):
         assert azim == approx(45)
 
     def test_properties(self):
-
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
@@ -177,7 +172,6 @@ class WulffShapeTest(PymatgenTest):
             assert round(wulff.anisotropy, 3) == round(properties["surface_anisotropy"], 3)
 
     def test_corner_and_edges(self):
-
         # Test if it is returning the correct number of corner and edges
         self.assertArrayEqual(self.cube.tot_corner_sites, 8)
         self.assertArrayEqual(self.cube.tot_edges, 12)

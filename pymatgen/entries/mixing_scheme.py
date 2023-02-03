@@ -586,7 +586,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         filtered_entries = []
 
         for entry in entries:
-
             if not entry.parameters.get("run_type"):
                 warnings.warn(
                     f"Entry {entry.entry_id} is missing parameters.run_type! This field"

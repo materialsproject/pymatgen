@@ -76,7 +76,6 @@ class MagneticSpaceGroupTest(PymatgenTest):
         assert msg.is_compatible(hexagonal)
 
     def test_symmetry_ops(self):
-
         msg_1_symmops = "\n".join(map(str, self.msg_1.symmetry_ops))
         msg_1_symmops_ref = """x, y, z, +1
 -x+3/4, -y+3/4, z, +1
@@ -150,7 +149,6 @@ x+1/2, y, z, -1
         assert msg_4_symmops == msg_4_symmops_ref
 
     def test_equivalence_to_spacegroup(self):
-
         # first 230 magnetic space groups have same symmetry operations
         # as normal space groups, so should give same orbits
 
@@ -170,7 +168,6 @@ x+1/2, y, z, -1
                 assert np.allclose(pp_sg, pp_msg)
 
     def test_str(self):
-
         msg = MagneticSpaceGroup([4, 11])
 
         ref_string = """BNS: 4.11 P_b2_1

@@ -659,9 +659,9 @@ class Cp2kOutput:
 
         # Functional
         if self.input and self.input.check("FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"):
-            xcfuncs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections.keys())
-            if xcfuncs:
-                self.data["dft"]["functional"] = xcfuncs
+            xc_funcs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections)
+            if xc_funcs:
+                self.data["dft"]["functional"] = xc_funcs
             else:
                 for v in self.input["force_eval"]["dft"]["xc"].subsections.values():
                     if v.name.upper() == "XC_FUNCTIONAL":
@@ -1568,7 +1568,6 @@ class Cp2kOutput:
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
-
         if not width:
             return densities
 
@@ -1614,7 +1613,7 @@ class Cp2kOutput:
             terminate_on_match=terminate_on_match,
             postprocess=postprocess,
         )
-        for k in patterns.keys():
+        for k in patterns:
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_table_pattern(

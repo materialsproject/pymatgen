@@ -214,7 +214,6 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
-
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
 

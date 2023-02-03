@@ -6,7 +6,7 @@ ci:
 
 repos:
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.0
+    rev: v2.0.1
     hooks:
       - id: autoflake
 
@@ -31,7 +31,7 @@ repos:
         args: [--profile, black]
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.1.0
     hooks:
       - id: black
 
@@ -65,13 +65,13 @@ repos:
         args: [--ignore-words-list, 'titel,titels,reson,rute,pres,kno,coo,coul']
 
   - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.1.1
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         exclude: tests
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: v0.10.1
+    rev: v0.11.1
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]

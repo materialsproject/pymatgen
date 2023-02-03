@@ -272,12 +272,10 @@ class PhaseDiagramTest(unittest.TestCase):
                 assert e_ah >= 0
 
     def test_get_decomp_and_e_above_hull_on_error(self):
-
         for method, expected in (
             (self.pd.get_e_above_hull, None),
             (self.pd.get_decomp_and_e_above_hull, (None, None)),
         ):
-
             # test raises ValueError on entry with element not in the phase diagram
             U_entry = PDEntry("U", 0)
             with pytest.raises(ValueError, match="Unable to get decomposition for PDEntry : U1 with energy"):
@@ -629,6 +627,12 @@ class PhaseDiagramTest(unittest.TestCase):
         pd = PhaseDiagram(self.entries, computed_data=mock_computed_data)
         # Check the keys in el_refs dict have been updated to Element object via PhaseDiagram class.
         assert all(isinstance(el, Element) for el in pd.el_refs)
+
+    def test_val_err_on_no_entries(self):
+        # check that PhaseDiagram raises ValueError when building phase diagram with no entries
+        for entries in [None, [], set(), tuple()]:
+            with pytest.raises(ValueError, match="Unable to build phase diagram without entries."):
+                PhaseDiagram(entries=entries)
 
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):

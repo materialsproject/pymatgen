@@ -112,7 +112,6 @@ class Mcsqs:
         all_coords = []
         all_species = []
         for l in data[first_species_line:]:
-
             coords = np.array([l[0], l[1], l[2]], dtype=float)
             scaled_coords = np.matmul(coords, np.linalg.inv(lattice_vecs))
             all_coords.append(scaled_coords)
@@ -124,7 +123,6 @@ class Mcsqs:
             species = {}
 
             for species_occ in species_strs:
-
                 # gets a species, occupancy pair
                 species_occ = species_occ.split("=")
 

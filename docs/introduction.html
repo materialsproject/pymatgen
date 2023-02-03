@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>Introduction &mdash; pymatgen 2023.1.30 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -22,6 +22,7 @@
     <link rel="next" title="Installation" href="installation.html" />
     <link rel="prev" title="Introduction" href="index.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.1.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -54,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2023-1-20">v2023.1.20</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2023-1-30">v2023.1.30</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -226,21 +227,26 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h2>
-<section id="v2023-1-20">
-<h3>v2023.1.20<a class="headerlink" href="#v2023-1-20" title="Permalink to this heading"></a></h3>
+<section id="v2023-1-30">
+<h3>v2023.1.30<a class="headerlink" href="#v2023-1-30" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p>Passthrough kwargs support for Structure.from_file and Structure.from_str</p></li>
-<li><p>Allow the <cite>frac_tolerance</cite> to be specified for rounding coordinates in CifParser.</p></li>
 <li><dl class="simple">
-<dt>PR #2803 from &#64;amkrajewski add_weightbasedfunctions</dt><dd><p>When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
-- Composition class method to initialize it from a dictionary of weight fractions
-- Composition property giving a dictionary of weight fractions
-- concise tests for the two above were added</p>
+<dt>PR #2806 from &#64;samblau qchem</dt><dd><ul>
+<li><p>Major changes to Q-Chem IO (inputs.py and outputs.py) to accommodate differences and new features in version 6+</p></li>
+<li><p>Additional parsing capabilities for HOMO/LUMO, dipoles, NBO info (hyperbonds and 3C bonds) in outputs.py</p></li>
+<li><p>Utility for processing a parsed binary Hessian scratch file</p></li>
+<li><p>Overdue updates to default values in sets.py and new defaults associated with differences and new features in Q-Chem 6+</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>PR #2814 from &#64;jmmshn patch_dos</dt><dd><p>## Added Convenience to obtain the normalized CompleteDos object
+Added tests to make sure calling it multiple time still only gives one result.</p>
 </dd>
 </dl>
 </li>
 </ul>
-<p>QChem: translate DMSO name in smd_solvent</p>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
 </section>

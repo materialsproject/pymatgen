@@ -41,7 +41,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         ax.annotate(str(n), pos[n], ha="center", va="center", xycoords="data")
     seen = {}
     e = None
-    for (u, v, d) in env_graph.edges(data=True):
+    for u, v, d in env_graph.edges(data=True):
         n1 = env_graph.node[u]["patch"]
         n2 = env_graph.node[v]["patch"]
         rad = 0.1
@@ -147,7 +147,7 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
         edges = graph.edges(data=True, keys=True)
         connecting_edges = []
         other_edges = []
-        for (n1, n2, key, data) in edges:
+        for n1, n2, key, data in edges:
             print(n1, n2, key, data)
             if np.all(np.array(data["delta"]) == np.array(periodicity_vectors[0])):
                 connecting_edges.append((n1, n2, key, data))
@@ -457,7 +457,7 @@ class ConnectedComponent(MSONable):
                     # TODO: there are some paths that appears twice for cycles, and there are some paths that should
                     # probably not be considered
                     this_path_deltas = [np.zeros(3, int)]
-                    for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
+                    for node1, node2 in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
                         this_path_deltas_new = []
                         for edge_data in self._connected_subgraph[node1][node2].values():
                             delta = get_delta(node1, node2, edge_data)
@@ -496,7 +496,7 @@ class ConnectedComponent(MSONable):
             mycyc = list(cyc)
             mycyc.append(cyc[0])
             this_cycle_deltas = [np.zeros(3, int)]
-            for (node1, node2) in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
+            for node1, node2 in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
                 this_cycle_deltas_new = []
                 for edge_data in self._connected_subgraph[node1][node2].values():
                     delta = get_delta(node1, node2, edge_data)

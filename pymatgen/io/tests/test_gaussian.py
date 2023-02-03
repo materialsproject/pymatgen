@@ -19,7 +19,6 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 class GaussianInputTest(unittest.TestCase):
     def setUp(self):
-
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],

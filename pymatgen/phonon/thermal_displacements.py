@@ -521,7 +521,6 @@ class ThermalDisplacementMatrices(MSONable):
             allcoords = []
             allspecies = []
             for i in range(len(data["_atom_site_label"])):
-
                 try:
                     # If site type symbol exists, use it. Otherwise, we use the
                     # label.

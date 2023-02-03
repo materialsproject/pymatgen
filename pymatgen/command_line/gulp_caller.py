@@ -692,7 +692,6 @@ class GulpCaller:
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             ) as p:
-
                 out, err = p.communicate(bytearray(gin, "utf-8"))
             out = out.decode("utf-8")
             err = err.decode("utf-8")

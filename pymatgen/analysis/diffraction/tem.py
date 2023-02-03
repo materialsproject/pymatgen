@@ -271,10 +271,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             dict of hkl plane to cell intensity
         """
         csf = self.cell_scattering_factors(structure, bragg_angles)
-        plane = bragg_angles.keys()
         csf_val = np.array(list(csf.values()))
         cell_intensity_val = (csf_val * csf_val.conjugate()).real
-        cell_intensity = dict(zip(plane, cell_intensity_val))
+        cell_intensity = dict(zip(bragg_angles, cell_intensity_val))
         return cell_intensity
 
     def get_pattern(

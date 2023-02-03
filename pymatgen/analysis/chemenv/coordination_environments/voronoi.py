@@ -583,7 +583,7 @@ class DetailedVoronoiContainer(MSONable):
         for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
-                for (idp, iap, iacb) in list_parameters_indices:
+                for idp, iap, iacb in list_parameters_indices:
                     if iacb in additional_conditions:
                         thissurf += surfaces[idp, iap]
                 maps_and_surfaces.append(
@@ -617,7 +617,7 @@ class DetailedVoronoiContainer(MSONable):
         for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
-                for (idp, iap, iacb) in list_parameters_indices:
+                for idp, iap, iacb in list_parameters_indices:
                     if iacb in additional_conditions:
                         thissurf += surfaces[idp, iap]
                 maps_and_surfaces.append(
