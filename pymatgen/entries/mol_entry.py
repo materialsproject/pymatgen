@@ -71,22 +71,9 @@ class MoleculeEntry:
     def spin_multiplicity(self):
         return self.molecule.spin_multiplicity
 
-        self.formula = self.molecule.composition.alphabetical_formula
-        self.charge = self.molecule.charge
-        self.num_atoms = len(self.molecule)
-
-        self.atom_locations = [
-            site.coords for site in self.molecule]
-
-
-        self.free_energy = self.get_free_energy()
-
-        self.non_metal_atoms = [
-            i for i in range(self.num_atoms)
-            if self.species[i] not in metals]
-
-
-
+    @property
+    def num_atoms(self):
+        return len(self.molecule)
 
     @classmethod
     def from_dataset_entry(

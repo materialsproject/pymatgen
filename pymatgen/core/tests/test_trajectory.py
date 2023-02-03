@@ -367,7 +367,7 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
             raise AssertionError
 
         sliced_traj = self.traj[:-2]
-        sliced_traj_from_mols = MoleculeOptimizeTrajectory.from_molecules(self.structures[:-2])
+        sliced_traj_from_mols = MoleculeOptimizeTrajectory.from_molecules(self.molecules[:-2])
 
         if len(sliced_traj) == len(sliced_traj_from_mols):
             assert all([sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj))])
@@ -591,7 +591,7 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         assert traj_combined.frame_properties is None
 
     def test_length(self):
-        assert len(self.traj) == len(self.structures)
+        assert len(self.traj) == len(self.molecules)
 
     def test_to_from_dict(self):
         d = self.traj.as_dict()

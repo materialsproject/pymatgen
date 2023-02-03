@@ -857,6 +857,8 @@ class MoleculeOptimizeTrajectory(MSONable):
             "@class": type(self).__name__,
             "species": self.species,
             "coords": self.coords.tolist(),
+            "charge": self.charge,
+            "spin_multiplicity": self.spin_multiplicity,
             "site_properties": self.site_properties,
             "frame_properties": self.frame_properties,
             "time_step": self.time_step,
@@ -889,6 +891,8 @@ class MoleculeOptimizeTrajectory(MSONable):
         return cls(
             species,  # type: ignore
             coords,
+            molecules[0].charge,
+            molecules[0].spin_multiplicity,
             site_properties=site_properties,  # type: ignore
             **kwargs,
         )
