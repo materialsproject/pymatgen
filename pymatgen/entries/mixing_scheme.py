@@ -164,16 +164,19 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if len(entries) == 1:
             warnings.warn(f"{type(self).__name__} cannot process single entries. Supply a list of entries.")
             return processed_entry_list
-
+        
+        # take operations on a copy, to keep input entries unchanged
+        entries_copy = [entry.copy() for entry in entries]
+        
         # if clean is True, remove all previous adjustments from the entry
         # this code must be placed before the next block, because we don't want to remove
         # any corrections added by compat_1 or compat_2.
         if clean:
-            for entry in entries:
+            for entry in entries_copy:
                 for ea in entry.energy_adjustments:
                     entry.energy_adjustments.remove(ea)
 
-        entries_type_1, entries_type_2 = self._filter_and_sort_entries(entries, verbose=verbose)
+        entries_type_1, entries_type_2 = self._filter_and_sort_entries(entries_copy, verbose=verbose)
 
         if mixing_state_data is None:
             if verbose:
