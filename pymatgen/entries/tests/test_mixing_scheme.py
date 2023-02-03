@@ -99,11 +99,7 @@ Implementation Notes
   in place, so tests could cross-contaminate one another if a fixture were not used.
 """
 
-__author__ = "Ryan Kingsbury"
-__copyright__ = "Copyright 2019-2021, The Materials Project"
-__version__ = "1.0"
-__email__ = "RKingsbury@lbl.gov"
-__date__ = "October 2021"
+from __future__ import annotations
 
 import numpy as np
 import pandas as pd
@@ -120,6 +116,12 @@ from pymatgen.entries.computed_entries import (
     ComputedStructureEntry,
 )
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
+
+__author__ = "Ryan Kingsbury"
+__copyright__ = "Copyright 2019-2021, The Materials Project"
+__version__ = "1.0"
+__email__ = "RKingsbury@lbl.gov"
+__date__ = "October 2021"
 
 """
 Define utility classes to make the tests easier to read

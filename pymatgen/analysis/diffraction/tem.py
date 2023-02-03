@@ -47,11 +47,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     def __init__(
         self,
-        symprec: float = None,
+        symprec: float | None = None,
         voltage: float = 200,
         beam_direction: tuple[int, int, int] = (0, 0, 1),
         camera_length: int = 160,
-        debye_waller_factors: dict[str, float] = None,
+        debye_waller_factors: dict[str, float] | None = None,
         cs: float = 1,
     ) -> None:
         """
@@ -271,23 +271,22 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             dict of hkl plane to cell intensity
         """
         csf = self.cell_scattering_factors(structure, bragg_angles)
-        plane = bragg_angles.keys()
         csf_val = np.array(list(csf.values()))
         cell_intensity_val = (csf_val * csf_val.conjugate()).real
-        cell_intensity = dict(zip(plane, cell_intensity_val))
+        cell_intensity = dict(zip(bragg_angles, cell_intensity_val))
         return cell_intensity
 
     def get_pattern(
         self,
         structure: Structure,
-        scaled: bool = None,
-        two_theta_range: tuple[float, float] = None,
+        scaled: bool | None = None,
+        two_theta_range: tuple[float, float] | None = None,
     ) -> pd.DataFrame:
         """
         Returns all relevant TEM DP info in a pandas dataframe.
         Args:
             structure (Structure): The input structure.
-            scaled (boolean): Required value for inheritance, does nothing in TEM pattern
+            scaled (bool): Required value for inheritance, does nothing in TEM pattern
             two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
         Returns:
             PandasDataFrame

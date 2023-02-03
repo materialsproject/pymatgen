@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+from __future__ import annotations
 
 import os
 import unittest
@@ -43,12 +43,12 @@ class PathFinderTest(unittest.TestCase):
         for i, image in enumerate(pf.images):
             if i % 3 == 0:
                 images.append(image)
-        self.assertEqual(len(images), 9)
+        assert len(images) == 9
 
         moving_site = relax_sites[0]
         dists = [s1.sites[moving_site].distance(s2.sites[moving_site]) for s1, s2 in zip(pf.images[:-1], pf.images[1:])]
         # check that all the small distances are about equal
-        self.assertTrue(abs(min(dists) - max(dists)) / mean(dists) < 0.02)
+        assert abs(min(dists) - max(dists)) / mean(dists) < 0.02
 
 
 if __name__ == "__main__":

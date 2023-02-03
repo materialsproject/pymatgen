@@ -14,7 +14,7 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Any, Callable, Literal, cast
+from typing import Any, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -516,7 +516,6 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-
                         comb_counter[(ML, MS)] -= 1
                         if comb_counter[(ML, MS)] == 0:
                             del comb_counter[(ML, MS)]
@@ -1110,9 +1109,9 @@ class Species(MSONable, Stringify):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state, followed by spin.
         """
-        if not hasattr(other, "X") or not hasattr(other, "symbol"):
+        if not isinstance(other, type(self)):
             return NotImplemented
-        other = cast(Species, other)
+
         x1 = float("inf") if self.X != self.X else self.X
         x2 = float("inf") if other.X != other.X else other.X
         if x1 != x2:
@@ -1141,7 +1140,6 @@ class Species(MSONable, Stringify):
         """
         Ionic radius of specie. Returns None if data is not present.
         """
-
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
@@ -1178,7 +1176,6 @@ class Species(MSONable, Stringify):
         Raises:
             ValueError if species_string cannot be interpreted.
         """
-
         # e.g. Fe2+,spin=5
         # 1st group: ([A-Z][a-z]*)    --> Fe
         # 2nd group: ([0-9.]*)        --> "2"
@@ -1187,7 +1184,6 @@ class Species(MSONable, Stringify):
 
         m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
-
             # parse symbol
             sym = m.group(1)
 
@@ -1246,7 +1242,6 @@ class Species(MSONable, Stringify):
             isotope (str): the isotope to get the quadrupole moment for
                 default is None, which gets the lowest mass isotope
         """
-
         quad_mom = self._el.nmr_quadrupole_moment
 
         if not quad_mom:

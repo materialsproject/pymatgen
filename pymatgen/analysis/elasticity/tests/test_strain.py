@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import unittest
 import warnings
 
 import numpy as np
+import pytest
 
 from pymatgen.analysis.elasticity.strain import (
     Deformation,
@@ -41,8 +44,8 @@ class DeformationTest(PymatgenTest):
         )
 
     def test_independence(self):
-        self.assertFalse(self.non_ind_defo.is_independent())
-        self.assertEqual(self.ind_defo.get_perturbed_indices()[0], (0, 1))
+        assert not self.non_ind_defo.is_independent()
+        assert self.ind_defo.get_perturbed_indices()[0] == (0, 1)
 
     def test_apply_to_structure(self):
         strained_norm = self.norm_defo.apply_to_structure(self.structure)
@@ -101,7 +104,8 @@ class StrainTest(PymatgenTest):
     def test_new(self):
         test_strain = Strain([[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]])
         self.assertArrayAlmostEqual(test_strain, test_strain.get_deformation_matrix().green_lagrange_strain)
-        self.assertRaises(ValueError, Strain, [[0.1, 0.1, 0], [0, 0, 0], [0, 0, 0]])
+        with pytest.raises(ValueError):
+            Strain([[0.1, 0.1, 0], [0, 0, 0], [0, 0, 0]])
 
     def test_from_deformation(self):
         self.assertArrayAlmostEqual(self.norm_str, [[0.0202, 0, 0], [0, 0, 0], [0, 0, 0]])
@@ -140,7 +144,7 @@ class StrainTest(PymatgenTest):
         upper = convert_strain_to_deformation(strain, shape="upper")
         symm = convert_strain_to_deformation(strain, shape="symmetric")
         self.assertArrayAlmostEqual(np.triu(upper), upper)
-        self.assertTrue(Tensor(symm).is_symmetric())
+        assert Tensor(symm).is_symmetric()
         for defo in upper, symm:
             self.assertArrayAlmostEqual(defo.green_lagrange_strain, strain)
 
@@ -151,12 +155,12 @@ class DeformedStructureSetTest(PymatgenTest):
         self.default_dss = DeformedStructureSet(self.structure)
 
     def test_init(self):
-        self.assertEqual(self.structure, self.default_dss.undeformed_structure)
+        assert self.structure == self.default_dss.undeformed_structure
         # Test symmetry
         dss_symm = DeformedStructureSet(self.structure, symmetry=True)
         # Should be 4 strains for normal, 2 for shear (since +/- shear
         # are symmetrically equivalent)
-        self.assertEqual(len(dss_symm), 6)
+        assert len(dss_symm) == 6
 
 
 if __name__ == "__main__":

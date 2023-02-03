@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
@@ -22,15 +24,15 @@ class XSFTest(PymatgenTest):
         )
         structure = Structure(lattice, ["Si", "Si"], coords)
         xsf = XSF(structure)
-        self.assertTrue(structure, XSF.from_string(xsf.to_string()))
+        assert structure, XSF.from_string(xsf.to_string())
 
     def test_to_string(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
         s = xsf.to_string()
-        self.assertEqual(
-            s,
-            """CRYSTAL
+        assert (
+            s
+            == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC
  2.91738857000000 0.09789437000000 1.52000466000000
@@ -41,12 +43,12 @@ PRIMCOORD
  3 1
 O     0.00000000000000     0.00000000000000     0.00000000000000
 Li     3.01213761017484     2.21364440998406     4.74632330032018
-Li     1.00309136982516     0.73718000001594     1.58060372967982""",
+Li     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
         s = xsf.to_string(atom_symbol=False)
-        self.assertEqual(
-            s,
-            """CRYSTAL
+        assert (
+            s
+            == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC
  2.91738857000000 0.09789437000000 1.52000466000000
@@ -57,7 +59,7 @@ PRIMCOORD
  3 1
 8     0.00000000000000     0.00000000000000     0.00000000000000
 3     3.01213761017484     2.21364440998406     4.74632330032018
-3     1.00309136982516     0.73718000001594     1.58060372967982""",
+3     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
 
     def test_xsf_symbolparse(self):
@@ -66,7 +68,6 @@ PRIMCOORD
         even if the atomic symbol / number convention
         is different.
         """
-
         test_string = """
 CRYSTAL
 PRIMVEC
@@ -78,7 +79,7 @@ PRIMCOORD
 H     -0.71644986    -0.41364333     1.19898200     0.00181803     0.00084718     0.00804832
 """
         structure = XSF.from_string(test_string).structure
-        self.assertEqual(str(structure.species[0]), "H")
+        assert str(structure.species[0]) == "H"
         test_string2 = """
 CRYSTAL
 PRIMVEC
@@ -91,7 +92,7 @@ PRIMCOORD
 """
 
         structure2 = XSF.from_string(test_string2).structure
-        self.assertEqual(structure, structure2)
+        assert structure == structure2
 
 
 if __name__ == "__main__":

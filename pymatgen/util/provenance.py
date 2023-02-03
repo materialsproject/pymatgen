@@ -5,12 +5,15 @@
 Classes and methods related to the Structure Notation Language (SNL)
 """
 
+from __future__ import annotations
+
 import datetime
 import json
 import re
 import sys
 from collections import namedtuple
 from io import StringIO
+from typing import Sequence
 
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
@@ -34,7 +37,7 @@ MAX_HNODES = 100  # maximum number of HistoryNodes in SNL file
 MAX_BIBTEX_CHARS = 20000  # maximum number of characters for BibTeX reference
 
 
-def is_valid_bibtex(reference):
+def is_valid_bibtex(reference: str) -> bool:
     """
     Use pybtex to validate that a reference is in proper BibTeX format
 
@@ -80,14 +83,14 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         Structure (dict).
     """
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, str]:
         """
         Returns: Dict
         """
         return {"name": self.name, "url": self.url, "description": self.description}
 
     @staticmethod
-    def from_dict(h_node):
+    def from_dict(h_node: dict[str, str]) -> HistoryNode:
         """
         Args:
             d (dict): Dict representation
@@ -181,7 +184,7 @@ class Author(namedtuple("Author", ["name", "email"])):
 
 class StructureNL:
     """
-    The Structure Notation Language (SNL, pronounced 'snail') is container
+    The Structure Notation Language (SNL, pronounced 'snail') is a container
     for a pymatgen Structure/Molecule object with some additional fields for
     enhanced provenance. It is meant to be imported/exported in a JSON file
     format with the following structure:
@@ -329,8 +332,8 @@ class StructureNL:
     @classmethod
     def from_structures(
         cls,
-        structures,
-        authors,
+        structures: Sequence[Structure],
+        authors: Sequence[dict[str, str]],
         projects=None,
         references="",
         remarks=None,
@@ -400,4 +403,8 @@ class StructureNL:
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
         return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)

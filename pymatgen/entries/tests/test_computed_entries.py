@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import copy
 import json
 import os
@@ -96,43 +98,43 @@ class ComputedEntryTest(unittest.TestCase):
         self.entry7 = ComputedEntry("Fe6O9", 6.9, energy_adjustments=[ea])
 
     def test_energy(self):
-        self.assertAlmostEqual(self.entry.energy, -269.38319884)
+        assert self.entry.energy == pytest.approx(-269.38319884)
         self.entry.correction = 1.0
-        self.assertAlmostEqual(self.entry.energy, -268.38319884)
-        self.assertAlmostEqual(self.entry3.energy_per_atom, 2.3 / 5)
+        assert self.entry.energy == pytest.approx(-268.38319884)
+        assert self.entry3.energy_per_atom == pytest.approx(2.3 / 5)
 
     def test_composition(self):
-        self.assertEqual(self.entry.composition.reduced_formula, "LiFe4(PO4)4")
-        self.assertEqual(self.entry2.composition.reduced_formula, "Fe2O3")
-        self.assertEqual(self.entry5.composition.reduced_formula, "Fe2O3")
-        self.assertEqual(self.entry5.composition.get_reduced_formula_and_factor()[1], 3)
+        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry2.composition.reduced_formula == "Fe2O3"
+        assert self.entry5.composition.reduced_formula == "Fe2O3"
+        assert self.entry5.composition.get_reduced_formula_and_factor()[1] == 3
 
     def test_per_atom_props(self):
         entry = ComputedEntry("Fe6O9", 6.9)
         entry.energy_adjustments.append(CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O"))
-        self.assertAlmostEqual(entry.energy, 2.4)
-        self.assertAlmostEqual(entry.energy_per_atom, 2.4 / 15)
-        self.assertAlmostEqual(entry.uncorrected_energy, 6.9)
-        self.assertAlmostEqual(entry.uncorrected_energy_per_atom, 6.9 / 15)
-        self.assertAlmostEqual(entry.correction, -4.5)
-        self.assertAlmostEqual(entry.correction_per_atom, -4.5 / 15)
-        self.assertAlmostEqual(entry.correction_uncertainty, 0.9)
-        self.assertAlmostEqual(entry.correction_uncertainty_per_atom, 0.9 / 15)
+        assert entry.energy == pytest.approx(2.4)
+        assert entry.energy_per_atom == pytest.approx(2.4 / 15)
+        assert entry.uncorrected_energy == pytest.approx(6.9)
+        assert entry.uncorrected_energy_per_atom == pytest.approx(6.9 / 15)
+        assert entry.correction == pytest.approx(-4.5)
+        assert entry.correction_per_atom == pytest.approx(-4.5 / 15)
+        assert entry.correction_uncertainty == pytest.approx(0.9)
+        assert entry.correction_uncertainty_per_atom == pytest.approx(0.9 / 15)
 
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry_formula = entry.normalize()
-        self.assertEqual(entry_formula.composition.formula, "Fe2 O3")
-        self.assertAlmostEqual(entry_formula.uncorrected_energy, 6.9 / 3)
-        self.assertAlmostEqual(entry_formula.correction, 1 / 3)
-        self.assertAlmostEqual(entry_formula.energy * 3, 6.9 + 1)
-        self.assertAlmostEqual(entry_formula.energy_adjustments[0].value, 1 / 3)
+        assert entry_formula.composition.formula == "Fe2 O3"
+        assert entry_formula.uncorrected_energy == pytest.approx(6.9 / 3)
+        assert entry_formula.correction == pytest.approx(1 / 3)
+        assert entry_formula.energy * 3 == pytest.approx(6.9 + 1)
+        assert entry_formula.energy_adjustments[0].value == pytest.approx(1 / 3)
         entry_atom = entry.normalize("atom")
-        self.assertEqual(entry_atom.composition.formula, "Fe0.4 O0.6")
-        self.assertAlmostEqual(entry_atom.uncorrected_energy, 6.9 / 15)
-        self.assertAlmostEqual(entry_atom.correction, 1 / 15)
-        self.assertAlmostEqual(entry_atom.energy * 15, 6.9 + 1)
-        self.assertAlmostEqual(entry_atom.energy_adjustments[0].value, 1 / 15)
+        assert entry_atom.composition.formula == "Fe0.4 O0.6"
+        assert entry_atom.uncorrected_energy == pytest.approx(6.9 / 15)
+        assert entry_atom.correction == pytest.approx(1 / 15)
+        assert entry_atom.energy * 15 == pytest.approx(6.9 + 1)
+        assert entry_atom.energy_adjustments[0].value == pytest.approx(1 / 15)
 
     def test_normalize_energy_adjustments(self):
         ealist = [
@@ -151,8 +153,8 @@ class ComputedEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
-        self.assertEqual(self.entry, e)
-        self.assertAlmostEqual(e.energy, -269.38319884)
+        assert self.entry == e
+        assert e.energy == pytest.approx(-269.38319884)
 
     def test_to_from_dict_with_adjustment(self):
         """
@@ -160,8 +162,8 @@ class ComputedEntryTest(unittest.TestCase):
         """
         d = self.entry6.as_dict()
         e = ComputedEntry.from_dict(d)
-        self.assertAlmostEqual(e.uncorrected_energy, 6.9)
-        self.assertEqual(e.energy_adjustments[0].value, self.entry6.energy_adjustments[0].value)
+        assert e.uncorrected_energy == pytest.approx(6.9)
+        assert e.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
 
     def test_to_from_dict_with_adjustment_2(self):
         """
@@ -169,8 +171,8 @@ class ComputedEntryTest(unittest.TestCase):
         """
         d = self.entry7.as_dict()
         e = ComputedEntry.from_dict(d)
-        self.assertAlmostEqual(e.uncorrected_energy, 6.9)
-        self.assertEqual(e.energy_adjustments[0].value, self.entry7.energy_adjustments[0].value)
+        assert e.uncorrected_energy == pytest.approx(6.9)
+        assert e.energy_adjustments[0].value == self.entry7.energy_adjustments[0].value
 
     def test_to_from_dict_with_adjustment_3(self):
         """
@@ -189,8 +191,8 @@ class ComputedEntryTest(unittest.TestCase):
             "correction": -10,
         }
         e = ComputedEntry.from_dict(d)
-        self.assertAlmostEqual(e.uncorrected_energy, 6.9)
-        self.assertAlmostEqual(e.correction, -10)
+        assert e.uncorrected_energy == pytest.approx(6.9)
+        assert e.correction == pytest.approx(-10)
         assert len(e.energy_adjustments) == 1
 
     def test_conflicting_correction_adjustment(self):
@@ -203,22 +205,28 @@ class ComputedEntryTest(unittest.TestCase):
             ComputedEntry("Fe6O9", 6.9, correction=-10, energy_adjustments=[ea])
 
     def test_entry_id(self):
-        self.assertEqual(self.entry4.entry_id, 1)
-        self.assertEqual(self.entry2.entry_id, None)
+        assert self.entry4.entry_id == 1
+        assert self.entry2.entry_id is None
 
     def test_str(self):
-        self.assertIsNotNone(str(self.entry))
+        assert str(self.entry) is not None
 
     def test_sulfide_energy(self):
         self.entry = ComputedEntry("BaS", -10.21249155)
-        self.assertAlmostEqual(self.entry.energy, -10.21249155)
-        self.assertAlmostEqual(self.entry.energy_per_atom, -10.21249155 / 2)
+        assert self.entry.energy == pytest.approx(-10.21249155)
+        assert self.entry.energy_per_atom == pytest.approx(-10.21249155 / 2)
         self.entry.correction = 1.0
-        self.assertAlmostEqual(self.entry.energy, -9.21249155)
+        assert self.entry.energy == pytest.approx(-9.21249155)
 
     def test_is_element(self):
         entry = ComputedEntry("Fe3", 2.3)
-        self.assertTrue(entry.is_element)
+        assert entry.is_element
+
+    def test_copy(self):
+        for entry in (self.entry, self.entry2, self.entry3, self.entry4):
+            copy = entry.copy()
+            assert entry == copy
+            assert str(entry) == str(copy)
 
 
 class ComputedStructureEntryTest(unittest.TestCase):
@@ -226,21 +234,21 @@ class ComputedStructureEntryTest(unittest.TestCase):
         self.entry = ComputedStructureEntry(vasprun.final_structure, vasprun.final_energy, parameters=vasprun.incar)
 
     def test_energy(self):
-        self.assertAlmostEqual(self.entry.energy, -269.38319884)
+        assert self.entry.energy == pytest.approx(-269.38319884)
         self.entry.correction = 1.0
-        self.assertAlmostEqual(self.entry.energy, -268.38319884)
+        assert self.entry.energy == pytest.approx(-268.38319884)
 
     def test_composition(self):
-        self.assertEqual(self.entry.composition.reduced_formula, "LiFe4(PO4)4")
+        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedStructureEntry.from_dict(d)
-        self.assertEqual(self.entry, e)
-        self.assertAlmostEqual(e.energy, -269.38319884)
+        assert self.entry == e
+        assert e.energy == pytest.approx(-269.38319884)
 
     def test_str(self):
-        self.assertIsNotNone(str(self.entry))
+        assert str(self.entry) is not None
 
     def test_to_from_dict_structure_with_adjustment_3(self):
         """
@@ -380,10 +388,38 @@ class ComputedStructureEntryTest(unittest.TestCase):
             },
         }
         e = ComputedEntry.from_dict(d)
-        self.assertAlmostEqual(e.uncorrected_energy, -39.42116819)
-        self.assertAlmostEqual(e.energy, -38.42116819)
-        self.assertAlmostEqual(e.correction, 1)
+        assert e.uncorrected_energy == pytest.approx(-39.42116819)
+        assert e.energy == pytest.approx(-38.42116819)
+        assert e.correction == pytest.approx(1)
         assert len(e.energy_adjustments) == 1
+
+    def test_copy(self):
+        copy = self.entry.copy()
+        assert copy == self.entry
+        assert copy is not self.entry
+        assert copy.structure is not self.entry.structure
+        assert str(copy) == str(self.entry)
+
+    def test_eq(self):
+        copy1 = self.entry.copy()
+        copy2 = self.entry.copy()
+        copy3 = self.entry.copy()
+
+        # if no entry ids but same energy/comps --> equal
+        assert copy1 == copy2
+
+        # check different entry_ids --> not equal
+        copy1.entry_id = "mp_1"
+        copy2.entry_id = "mp_2"
+        assert copy1 != copy2
+
+        # same entry_id and energy --> equal
+        copy3.entry_id = "mp_1"
+        assert copy3 == copy1
+
+        # check different energy adjustments (but same id) --> not equal
+        copy3.energy_adjustments.append(ConstantEnergyAdjustment(0.1))
+        assert copy3 != copy1
 
 
 class GibbsComputedStructureEntryTest(unittest.TestCase):
@@ -420,44 +456,43 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             1800: -32.32513382051749,
         }
         for t in self.temps:
-            self.assertAlmostEqual(self.entries_with_temps[t].energy, energies[t])
+            assert self.entries_with_temps[t].energy == pytest.approx(energies[t])
 
     def test_interpolation(self):
         temp = 450
         e = GibbsComputedStructureEntry(self.struct, -2.436, temp=temp)
-        self.assertAlmostEqual(e.energy, -53.7243542548528)
+        assert e.energy == pytest.approx(-53.7243542548528)
 
     def test_expt_gas_entry(self):
         co2_entry = GibbsComputedStructureEntry(self.co2_struct, 0, temp=900)
-        self.assertAlmostEqual(co2_entry.energy, -16.406560223724014)
-        self.assertAlmostEqual(co2_entry.energy_per_atom, -1.3672133519770011)
+        assert co2_entry.energy == pytest.approx(-16.406560223724014)
+        assert co2_entry.energy_per_atom == pytest.approx(-1.3672133519770011)
 
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
-        self.assertIsNotNone(gibbs_entries)
+        assert gibbs_entries is not None
 
     def test_from_pd(self):
         pd = PhaseDiagram(self.mp_entries)
         gibbs_entries = GibbsComputedStructureEntry.from_pd(pd)
-        self.assertIsNotNone(gibbs_entries)
+        assert gibbs_entries is not None
 
     def test_to_from_dict(self):
         test_entry = self.entries_with_temps[300]
         d = test_entry.as_dict()
         e = GibbsComputedStructureEntry.from_dict(d)
-        self.assertEqual(test_entry, e)
-        self.assertAlmostEqual(e.energy, test_entry.energy)
+        assert test_entry == e
+        assert e.energy == pytest.approx(test_entry.energy)
 
     def test_str(self):
-        self.assertIsNotNone(str(self.entries_with_temps[300]))
+        assert str(self.entries_with_temps[300]) is not None
 
     def test_normalize(self):
         for e in self.entries_with_temps.values():
             entry = copy.deepcopy(e)
             normed_entry = entry.normalize(mode="atom")
-            self.assertAlmostEqual(entry.uncorrected_energy, normed_entry.uncorrected_energy * self.num_atoms, 11)
+            assert entry.uncorrected_energy == pytest.approx(normed_entry.uncorrected_energy * self.num_atoms)
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -26,21 +26,23 @@ from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
 from pymatgen.io.qchem.utils import (
     process_parsed_coords,
+    process_parsed_fock_matrix,
+    read_matrix_pattern,
     read_pattern,
     read_table_pattern,
 )
 
 try:
-
-    have_babel = True
+    from openbabel import openbabel
 except ImportError:
     openbabel = None
-    have_babel = False
 
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
-__copyright__ = "Copyright 2018, The Materials Project"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__copyright__ = "Copyright 2018-2022, The Materials Project"
 __version__ = "0.1"
+__maintainer__ = "Samuel Blau"
+__email__ = "samblau1@gmail.com"
 __credits__ = "Gabe Gomes"
 
 logger = logging.getLogger(__name__)
@@ -78,6 +80,22 @@ class QCOutput(MSONable):
                     + "')"
                 )
 
+        # Parse the Q-Chem major version
+        if read_pattern(
+            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 4"}, terminate_on_match=True
+        ).get("key") == [[]]:
+            self.data["version"] = "4"
+        elif read_pattern(
+            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 5"}, terminate_on_match=True
+        ).get("key") == [[]]:
+            self.data["version"] = "5"
+        elif read_pattern(
+            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 6"}, terminate_on_match=True
+        ).get("key") == [[]]:
+            self.data["version"] = "6"
+        else:
+            self.data["version"] = "unknown"
+
         # Parse the molecular details: charge, multiplicity,
         # species, and initial geometry.
         self._read_charge_and_multiplicity()
@@ -110,6 +128,26 @@ class QCOutput(MSONable):
             {"key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"},
             terminate_on_match=True,
         ).get("key")
+        if not self.data["unrestricted"]:
+            self.data["unrestricted"] = read_pattern(
+                self.text,
+                {"key": r"unrestricted = true"},
+                terminate_on_match=True,
+            ).get("key")
+
+        if self.data["unrestricted"] is None and self.data["multiplicity"] != 1:
+            self.data["unrestricted"] = [[]]
+
+        # Get the value of scf_final_print in the output file
+        scf_final_print = read_pattern(
+            self.text,
+            {"key": r"scf_final_print\s*=\s*(\d+)"},
+            terminate_on_match=True,
+        ).get("key")
+        if scf_final_print is not None:
+            self.data["scf_final_print"] = int(scf_final_print[0][0])
+        else:
+            self.data["scf_final_print"] = 0
 
         # Check if calculation uses GEN_SCFMAN, multiple potential output formats
         self.data["using_GEN_SCFMAN"] = read_pattern(
@@ -131,23 +169,121 @@ class QCOutput(MSONable):
         # Parse the SCF
         self._read_SCF()
 
-        # Parse the Mulliken/ESP/RESP charges
-        self._read_charges()
+        # Parse the Mulliken/ESP/RESP charges and dipoles
+        self._read_charges_and_dipoles()
 
         # Check for various warnings
         self._detect_general_warnings()
 
+        # Parse mem_total, if present
+        self.data["mem_total"] = None
+        if read_pattern(self.text, {"key": r"mem_total\s*="}, terminate_on_match=True).get("key") == [[]]:
+            temp_mem_total = read_pattern(self.text, {"key": r"mem_total\s*=\s*(\d+)"}, terminate_on_match=True).get(
+                "key"
+            )
+            self.data["mem_total"] = int(temp_mem_total[0][0])
+
+        # Parse gap info, if present:
+        if read_pattern(self.text, {"key": r"Generalized Kohn-Sham gap"}, terminate_on_match=True).get("key") == [[]]:
+            gap_info = {}
+            # If this is open-shell gap info:
+            if read_pattern(self.text, {"key": r"Alpha HOMO Eigenvalue"}, terminate_on_match=True).get("key") == [[]]:
+                temp_alpha_HOMO = read_pattern(
+                    self.text, {"key": r"Alpha HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["alpha_HOMO"] = float(temp_alpha_HOMO[0][0])
+                temp_beta_HOMO = read_pattern(
+                    self.text, {"key": r"Beta  HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["beta_HOMO"] = float(temp_beta_HOMO[0][0])
+                temp_alpha_LUMO = read_pattern(
+                    self.text, {"key": r"Alpha LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["alpha_LUMO"] = float(temp_alpha_LUMO[0][0])
+                temp_beta_LUMO = read_pattern(
+                    self.text, {"key": r"Beta  LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["beta_LUMO"] = float(temp_beta_LUMO[0][0])
+                temp_alpha_gap = read_pattern(
+                    self.text, {"key": r"HOMO-Alpha LUMO gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["alpha_gap"] = float(temp_alpha_gap[0][0])
+                temp_beta_gap = read_pattern(
+                    self.text, {"key": r"HOMO-Beta LUMO gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                ).get("key")
+                gap_info["beta_gap"] = float(temp_beta_gap[0][0])
+
+            temp_HOMO = read_pattern(
+                self.text, {"key": r"    HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+            ).get("key")
+            gap_info["HOMO"] = float(temp_HOMO[0][0])
+            temp_LUMO = read_pattern(
+                self.text, {"key": r"    LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+            ).get("key")
+            gap_info["LUMO"] = float(temp_LUMO[0][0])
+            temp_KSgap = read_pattern(self.text, {"key": r"KS gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True).get(
+                "key"
+            )
+            gap_info["KSgap"] = float(temp_KSgap[0][0])
+            self.data["gap_info"] = gap_info
+        else:
+            self.data["gap_info"] = None
+
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
         self.data["solvent_data"] = None
+
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "PCM"
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*smd"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "SMD"
+        if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*isosvp"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
+            self.data["solvent_method"] = "ISOSVP"
+
+        # if solvent_method is not None, populate solvent_data with None values for all possible keys
+        # ISOSVP and CMIRS data are nested under respective keys
+        # TODO - nest PCM and SMD data under respective keys in a future PR
+        pcm_keys = [
+            "PCM_dielectric",
+            "g_electrostatic",
+            "g_cavitation",
+            "g_dispersion",
+            "g_repulsion",
+            "total_contribution_pcm",
+            "solute_internal_energy",
+        ]
+        smd_keys = ["SMD_solvent", "smd0", "smd3", "smd4", "smd6", "smd9"]
+        isosvp_keys = [
+            "isosvp_dielectric",
+            "final_soln_phase_e",
+            "solute_internal_e",
+            "total_solvation_free_e",
+            "change_solute_internal_e",
+            "reaction_field_free_e",
+        ]
+        cmirs_keys = [
+            "CMIRS_enabled",
+            "dispersion_e",
+            "exchange_e",
+            "min_neg_field_e",
+            "max_pos_field_e",
+        ]
+
+        if self.data["solvent_method"] is not None:
+            self.data["solvent_data"] = {}
+            for key in pcm_keys + smd_keys:
+                self.data["solvent_data"][key] = None
+            self.data["solvent_data"]["isosvp"] = {}
+            for key in isosvp_keys:
+                self.data["solvent_data"]["isosvp"][key] = None
+            self.data["solvent_data"]["cmirs"] = {}
+            for key in cmirs_keys:
+                self.data["solvent_data"]["cmirs"][key] = None
 
         # Parse information specific to a solvent model
         if self.data["solvent_method"] == "PCM":
-            self.data["solvent_data"] = {}
             temp_dielectric = read_pattern(
                 self.text, {"key": r"dielectric\s*([\d\-\.]+)"}, terminate_on_match=True
             ).get("key")
@@ -159,7 +295,6 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["unrecognized_solvent"]
                 else:
                     self.data["warnings"]["unrecognized_solvent"] = True
-            self.data["solvent_data"] = {}
             temp_solvent = read_pattern(self.text, {"key": r"\s[Ss]olvent:? ([a-zA-Z]+)"}).get("key")
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
@@ -173,6 +308,24 @@ class QCOutput(MSONable):
                             self.data["warnings"]["questionable_SMD_parsing"] = True
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
+        elif self.data["solvent_method"] == "ISOSVP":
+            self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = False
+            self._read_isosvp_information()
+            if read_pattern(
+                self.text,
+                {"cmirs": r"DEFESR calculation with single-center isodensity surface"},
+                terminate_on_match=True,
+            ).get("cmirs") == [[]]:
+                # this is a CMIRS calc
+                # note that all other outputs follow the same format as ISOSVP
+                self._read_cmirs_information()
+                # TODO - would it make more sense to set solvent_method = 'cmirs'?
+                # but in the QChem input file, solvent_method is still 'isosvp'
+                self.data["solvent_data"]["cmirs"]["CMIRS_enabled"] = True
+
+                # TODO - parsing to identify the CMIRS solvent?
+                # this would require parsing the $pcm_nonels section of input and comparing
+                # parameters to the contents of CMIRS_SETTINGS in pymatgen.io.qchem.sets
 
         # Parse the final energy
         temp_final_energy = read_pattern(self.text, {"key": r"Final\senergy\sis\s+([\d\-\.]+)"}).get("key")
@@ -180,6 +333,15 @@ class QCOutput(MSONable):
             self.data["final_energy"] = None
         else:
             self.data["final_energy"] = float(temp_final_energy[0][0])
+
+        if self.data["final_energy"] is None:
+            temp_dict = read_pattern(
+                self.text,
+                {"final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"},
+            )
+
+            if temp_dict.get("final_energy") is not None:
+                self.data["final_energy"] = float(temp_dict.get("final_energy")[-1][0])
 
         # Check if calculation is using dft_d and parse relevant info if so
         self.data["using_dft_d3"] = read_pattern(self.text, {"key": r"dft_d\s*= d3"}, terminate_on_match=True).get(
@@ -276,6 +438,14 @@ class QCOutput(MSONable):
         if self.data.get("optimization", []):
             # Determine if the calculation is using the new geometry optimizer
             self.data["new_optimizer"] = read_pattern(self.text, {"key": r"(?i)\s*geom_opt2\s*(?:=)*\s*3"}).get("key")
+            if self.data["version"] == "6":
+                temp_driver = read_pattern(self.text, {"key": r"(?i)\s*geom_opt_driver\s*(?:=)*\s*optimize"}).get("key")
+                if temp_driver is None:
+                    self.data["new_optimizer"] = [[]]
+            # Check if we have an unexpected transition state
+            tmp_transition_state = read_pattern(self.text, {"key": r"TRANSITION STATE CONVERGED"}).get("key")
+            if tmp_transition_state is not None:
+                self.data["warnings"]["unexpected_transition_state"] = True
             self._read_optimization_data()
 
         # Check if the calculation is a transition state optimization. If so, parse the relevant output
@@ -325,8 +495,6 @@ class QCOutput(MSONable):
             {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*sp"},
             terminate_on_match=True,
         ).get("key")
-        if self.data.get("single_point_job", []):
-            self._read_single_point_data()
 
         # Check if the calculation is a force calculation. If so, parse the relevant output
         self.data["force_job"] = read_pattern(
@@ -336,6 +504,15 @@ class QCOutput(MSONable):
         ).get("key")
         if self.data.get("force_job", []):
             self._read_force_data()
+
+        # Read in the eigenvalues from the output file
+        if self.data["scf_final_print"] >= 1:
+            self._read_eigenvalues()
+
+        # Read the Fock matrix from the output file
+        if self.data["scf_final_print"] >= 3:
+            self._read_fock_matrix()
+            self._read_coefficient_matrix()
 
         # Check if the calculation is a PES scan. If so, parse the relevant output
         self.data["scan_job"] = read_pattern(
@@ -378,6 +555,120 @@ class QCOutput(MSONable):
             if not keep_sub_files:
                 os.remove(filename + "." + str(i))
         return to_return
+
+    def _read_eigenvalues(self):
+        """Parse the orbital energies from the output file. An array of the
+        dimensions of the number of orbitals used in the calculation is stored."""
+
+        # Find the pattern corresponding to the "Final Alpha MO Eigenvalues" section
+        header_pattern = r"Final Alpha MO Eigenvalues"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers.
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            # Since this is a spin-paired calculation, there will be
+            # only a single list of orbital energies (denoted as alpha)
+            # in the input file. The footer will then correspond
+            # to the next section, which is the MO coefficients.
+            footer_pattern = r"Final Alpha MO Coefficients+\s*"
+        else:
+            spin_unrestricted = True
+            # It is an unrestricted calculation, so there will be two sets
+            # of eigenvalues. First parse the alpha eigenvalues.
+            footer_pattern = r"Final Beta MO Eigenvalues"
+        # Common for both spin restricted and unrestricted calculations is the alpha eigenvalues.
+        alpha_eigenvalues = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        # The beta eigenvalues are only present if this is a spin-unrestricted calculation.
+        if spin_unrestricted:
+            header_pattern = r"Final Beta MO Eigenvalues"
+            footer_pattern = r"Final Alpha MO Coefficients+\s*"
+            beta_eigenvalues = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        self.data["alpha_eigenvalues"] = alpha_eigenvalues
+
+        if spin_unrestricted:
+            self.data["beta_eigenvalues"] = beta_eigenvalues
+
+    def _read_fock_matrix(self):
+        """Parses the Fock matrix. The matrix is read in whole
+        from the output file and then transformed into the right dimensions."""
+
+        # The header is the same for both spin-restricted and spin-unrestricted calculations.
+        header_pattern = r"Final Alpha Fock Matrix"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            footer_pattern = "SCF time:"
+        else:
+            spin_unrestricted = True
+            footer_pattern = "Final Beta Fock Matrix"
+        # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
+        alpha_fock_matrix = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        # The beta Fock matrix is only present if this is a spin-unrestricted calculation.
+        if spin_unrestricted:
+            header_pattern = r"Final Beta Fock Matrix"
+            footer_pattern = "SCF time:"
+            beta_fock_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        # Convert the matrices to the right dimension. Right now they are simply
+        # one massive list of numbers, but we need to split them into a matrix. The
+        # Fock matrix must always be a square matrix and as a result, we have to
+        # modify the dimensions.
+        alpha_fock_matrix = process_parsed_fock_matrix(alpha_fock_matrix)
+        self.data["alpha_fock_matrix"] = alpha_fock_matrix
+
+        if spin_unrestricted:
+            # Perform the same transformation for the beta Fock matrix.
+            beta_fock_matrix = process_parsed_fock_matrix(beta_fock_matrix)
+            self.data["beta_fock_matrix"] = beta_fock_matrix
+
+    def _read_coefficient_matrix(self):
+        """Parses the coefficient matrix from the output file. Done is much
+        the same was as the Fock matrix."""
+        # The header is the same for both spin-restricted and spin-unrestricted calculations.
+        header_pattern = r"Final Alpha MO Coefficients"
+        # The elements of the matrix are always floats, they are surrounded by
+        # the index of the matrix, which are integers
+        elements_pattern = r"\-*\d+\.\d+"
+        if not self.data.get("unrestricted", []):
+            spin_unrestricted = False
+            footer_pattern = "Final Alpha Density Matrix"
+        else:
+            spin_unrestricted = True
+            footer_pattern = "Final Beta MO Coefficients"
+        # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
+        alpha_coeff_matrix = read_matrix_pattern(
+            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+        )
+        if spin_unrestricted:
+            header_pattern = r"Final Beta MO Coefficients"
+            footer_pattern = "Final Alpha Density Matrix"
+            beta_coeff_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
+        # Convert the matrices to the right dimension. Right now they are simply
+        # one massive list of numbers, but we need to split them into a matrix. The
+        # Fock matrix must always be a square matrix and as a result, we have to
+        # modify the dimensions.
+        alpha_coeff_matrix = process_parsed_fock_matrix(alpha_coeff_matrix)
+        self.data["alpha_coeff_matrix"] = alpha_coeff_matrix
+
+        if spin_unrestricted:
+            # Perform the same transformation for the beta Fock matrix.
+            beta_coeff_matrix = process_parsed_fock_matrix(beta_coeff_matrix)
+            self.data["beta_coeff_matrix"] = beta_coeff_matrix
 
     def _read_charge_and_multiplicity(self):
         """
@@ -465,10 +756,7 @@ class QCOutput(MSONable):
         Parses both old and new SCFs.
         """
         if self.data.get("using_GEN_SCFMAN", []):
-            if "SCF_failed_to_converge" in self.data.get("errors"):
-                footer_pattern = r"^\s*gen_scfman_exception: SCF failed to converge"
-            else:
-                footer_pattern = r"^\s*\-+\n\s+SCF time"
+            footer_pattern = r"(^\s*\-+\n\s+SCF time|^\s*gen_scfman_exception: SCF failed to converge)"
             header_pattern = (
                 r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+"
                 r"(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
@@ -485,15 +773,24 @@ class QCOutput(MSONable):
                 r"(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*"
                 r"(?:\s+Descent step)*(?:\s+Done DIIS. Switching to GDM)*"
                 r"(?:\s+Done GDM. Switching to DIIS)*"
+                r"(?:(?:\s+Done GDM. Switching to GDM with quadratic line-search\s)*\s*GDM subspace size\: \d+)*"
                 r"(?:\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*"
-                r"(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
+                r"(?:RMS Gradient)*\s+\-+"
+                r"(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
                 r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, "
                 r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n)*"
+                r"(?:\s*Line search, dEdstep = [\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s*)*"
+                r"(?:\s*[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s"
+                r"+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
+                r"(?:\s*Resetting GDM\.)*(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+)*"
+                r"(?:\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+[\d\-\.]+e[\d\-\.\+]+\s+"
+                r"[\d\-\.]+\s+[\d\-\.]+e[\d\-\.\+]+\s+Optimal value differs by [\d\-\.]+e[\d\-\.\+]+ from prediction)*"
+                r"(?:\s*gdm_qls\: Orbitals will not converge further\.)*"
                 r"(?:(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::WARNING energy changes are now smaller than effective "
-                r"accuracy\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+calculation will continue, but THRESH s"
-                r"hould be increased\s*"
-                r"(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+or SCF_CONVERGENCE decrea"
-                r"sed\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+effective_thresh = [\d\-\.]+e[\d\-]+)*"
+                r"accuracy\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+calculation will continue, but THRESH "
+                r"should be increased\s*"
+                r"(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+or SCF_CONVERGENCE decreased"
+                r"\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+effective_thresh = [\d\-\.]+e[\d\-]+)*"
             )
         else:
             if "SCF_failed_to_converge" in self.data.get("errors"):
@@ -565,10 +862,38 @@ class QCOutput(MSONable):
                     Total_energy[ii] = float(val[0])
                 self.data["Total_energy_in_the_final_basis_set"] = Total_energy
 
-    def _read_charges(self):
+    def _read_charges_and_dipoles(self):
         """
-        Parses Mulliken/ESP/RESP charges. Also parses spins given an unrestricted SCF.
+        Parses Mulliken/ESP/RESP charges.
+        Parses associated dipoles.
+        Also parses spins given an unrestricted SCF.
         """
+
+        self.data["dipoles"] = {}
+        temp_dipole_total = read_pattern(
+            self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
+        ).get("key")
+        temp_dipole = read_pattern(
+            self.text, {"key": r"X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\s*Tot\s*[\d\-\.]+"}
+        ).get("key")
+        if temp_dipole is not None:
+            if len(temp_dipole_total) == 1:
+                self.data["dipoles"]["total"] = float(temp_dipole_total[0][0])
+                dipole = np.zeros(3)
+                for ii, val in enumerate(temp_dipole[0]):
+                    dipole[ii] = float(val)
+                self.data["dipoles"]["dipole"] = dipole
+            else:
+                total = np.zeros(len(temp_dipole_total))
+                for ii, val in enumerate(temp_dipole_total):
+                    total[ii] = float(val[0])
+                self.data["dipoles"]["total"] = total
+                dipole = np.zeros(shape=(len(temp_dipole_total), 3))
+                for ii, _entry in enumerate(temp_dipole):
+                    for jj, _val in enumerate(temp_dipole[ii]):
+                        dipole[ii][jj] = temp_dipole[ii][jj]
+                self.data["dipoles"]["dipole"] = dipole
+
         if self.data.get("unrestricted", []):
             header_pattern = (
                 r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+"
@@ -612,6 +937,33 @@ class QCOutput(MSONable):
                     temp[ii] = float(entry[0])
                 real_esp_or_resp += [temp]
             self.data[esp_or_resp[0][0]] = real_esp_or_resp
+            temp_RESP_dipole_total = read_pattern(
+                self.text,
+                {"key": r"Related Dipole Moment =\s*([\d\-\.]+)\s*\(X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\)"},
+            ).get("key")
+            temp_RESP_dipole = read_pattern(
+                self.text,
+                {  # pylint: disable=line-too-long
+                    "key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\)"
+                },
+            ).get("key")
+            if temp_RESP_dipole is not None:
+                if len(temp_RESP_dipole_total) == 1:
+                    self.data["dipoles"]["RESP_total"] = float(temp_RESP_dipole_total[0][0])
+                    RESP_dipole = np.zeros(3)
+                    for ii, val in enumerate(temp_RESP_dipole[0]):
+                        RESP_dipole[ii] = float(val)
+                    self.data["dipoles"]["RESP_dipole"] = RESP_dipole
+                else:
+                    RESP_total = np.zeros(len(temp_RESP_dipole_total))
+                    for ii, val in enumerate(temp_RESP_dipole_total):
+                        RESP_total[ii] = float(val[0])
+                    self.data["dipoles"]["RESP_total"] = RESP_total
+                    RESP_dipole = np.zeros(shape=(len(temp_RESP_dipole_total), 3))
+                    for ii, _entry in enumerate(temp_RESP_dipole):
+                        for jj, _val in enumerate(temp_RESP_dipole[ii]):
+                            RESP_dipole[ii][jj] = temp_RESP_dipole[ii][jj]
+                    self.data["dipoles"]["RESP_dipole"] = RESP_dipole
 
     def _detect_general_warnings(self):
         # Check for inaccurate integrated density
@@ -650,7 +1002,7 @@ class QCOutput(MSONable):
             self.data["warnings"]["inconsistent_size"] = True
 
         # Check for AO linear depend
-        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True,).get(
+        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["linear_dependence"] = True
@@ -679,8 +1031,22 @@ class QCOutput(MSONable):
         ).get("key") == [[]]:
             self.data["warnings"]["internal_coordinates"] = True
 
+        # Check for an issue with an RFO step
+        if read_pattern(
+            self.text,
+            {"key": r"UNABLE TO DETERMINE Lambda IN RFO  \*\*\s+\*\* Taking simple Newton-Raphson step"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            self.data["warnings"]["bad_lambda_take_NR_step"] = True
+
+        # Check for a switch into Cartesian coordinates
+        if read_pattern(self.text, {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"}, terminate_on_match=True).get(
+            "key"
+        ) == [[]]:
+            self.data["warnings"]["switch_to_cartesian"] = True
+
         # Check for problem with eigenvalue magnitude
-        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True,).get(
+        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["warnings"]["eigenvalue_magnitude"] = True
@@ -721,6 +1087,17 @@ class QCOutput(MSONable):
             header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
             table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
+        elif read_pattern(
+            self.text,
+            {"key": r"Geometry Optimization Coordinates :\s+Cartesian"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
+            header_pattern = (
+                r"RMS\s+of Stepsize\s+[\d\-\.]+\s+-+\s+Standard Nuclear Orientation "
+                r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            )
+            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+            footer_pattern = r"\s*-+"
         else:  # pylint: disable=line-too-long
             header_pattern = (
                 r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation "
@@ -734,64 +1111,62 @@ class QCOutput(MSONable):
                 geoms.append(None)
             else:
                 geoms.append(process_parsed_coords(parsed_geometry))
-        self.data["geometries"] = geoms
-        self.data["last_geometry"] = geoms[-1]
-        if self.data.get("charge") is not None:
-            self.data["molecule_from_last_geometry"] = Molecule(
-                species=self.data.get("species"),
-                coords=self.data.get("last_geometry"),
-                charge=self.data.get("charge"),
-                spin_multiplicity=self.data.get("multiplicity"),
-            )
-
-        # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-        if self.data.get("new_optimizer") is None:
-            header_pattern = (
-                r"\*+\s+OPTIMIZATION\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
-            )
-            table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-            footer_pattern = r"\s+Z-matrix Print:"
-        else:  # pylint: disable=line-too-long
-            header_pattern = (
-                r"OPTIMIZATION\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation "
-                r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
-            )
-            table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
-            footer_pattern = r"\s*-+"
-        parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-
-        if not parsed_optimized_geometries:
-            self.data["optimized_geometry"] = None
-            header_pattern = (
-                r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
-                r"Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
-            )
-            table_pattern = (
-                r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)"
-                r"(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
-            )
-            footer_pattern = r"^\$end\n"
-
-            self.data["optimized_zmat"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-        else:
-            self.data["optimized_geometry"] = process_parsed_coords(parsed_optimized_geometries[0])
-            self.data["optimized_geometries"] = [process_parsed_coords(i) for i in parsed_optimized_geometries]
+        if len(geoms) >= 1:
+            self.data["geometries"] = geoms
+            self.data["last_geometry"] = geoms[-1]
             if self.data.get("charge") is not None:
-                self.data["molecule_from_optimized_geometry"] = Molecule(
+                self.data["molecule_from_last_geometry"] = Molecule(
                     species=self.data.get("species"),
-                    coords=self.data.get("optimized_geometry"),
+                    coords=self.data.get("last_geometry"),
                     charge=self.data.get("charge"),
                     spin_multiplicity=self.data.get("multiplicity"),
                 )
-                self.data["molecules_from_optimized_geometries"] = []
-                for geom in self.data["optimized_geometries"]:
-                    mol = Molecule(
+
+            # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
+            if self.data.get("new_optimizer") is None:  # pylint: disable-next=line-too-long
+                header_pattern = r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+                table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+                footer_pattern = r"\s+Z-matrix Print:"
+            else:  # pylint: disable-next=line-too-long
+                header_pattern = r"(OPTIMIZATION|TRANSITION STATE)\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+                table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+                footer_pattern = r"\s*-+"
+            parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+
+            if not parsed_optimized_geometries:
+                self.data["optimized_geometry"] = None
+                header_pattern = (
+                    r"^\s+\*+\s+(OPTIMIZATION|TRANSITION STATE) CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
+                    r"Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
+                )
+                table_pattern = (
+                    r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)"
+                    r"(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
+                )
+                footer_pattern = r"^\$end\n"
+
+                self.data["optimized_zmat"] = read_table_pattern(
+                    self.text, header_pattern, table_pattern, footer_pattern
+                )
+            else:
+                self.data["optimized_geometry"] = process_parsed_coords(parsed_optimized_geometries[0])
+                self.data["optimized_geometries"] = [process_parsed_coords(i) for i in parsed_optimized_geometries]
+                if self.data.get("charge") is not None:
+                    self.data["molecule_from_optimized_geometry"] = Molecule(
                         species=self.data.get("species"),
-                        coords=geom,
+                        coords=self.data.get("optimized_geometry"),
                         charge=self.data.get("charge"),
                         spin_multiplicity=self.data.get("multiplicity"),
                     )
-                    self.data["molecules_from_optimized_geometries"].append(mol)
+                    self.data["molecules_from_optimized_geometries"] = []
+                    for geom in self.data["optimized_geometries"]:
+                        mol = Molecule(
+                            species=self.data.get("species"),
+                            coords=geom,
+                            charge=self.data.get("charge"),
+                            spin_multiplicity=self.data.get("multiplicity"),
+                        )
+                        self.data["molecules_from_optimized_geometries"].append(mol)
 
     def _get_grad_format_length(self, header):
         """
@@ -813,7 +1188,6 @@ class QCOutput(MSONable):
         """
         Parses all gradients obtained during an optimization trajectory
         """
-
         grad_header_pattern = r"Gradient of (?:SCF)?(?:MP2)? Energy(?: \(in au\.\))?"
         footer_pattern = r"(?:Max gradient component|Gradient time)"
 
@@ -826,39 +1200,7 @@ class QCOutput(MSONable):
                 grad_table_pattern = grad_table_pattern + r"(?:\s*(\-?[\d\.]{9,12}))?"
 
         parsed_gradients = read_table_pattern(self.text, grad_header_pattern, grad_table_pattern, footer_pattern)
-        sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
-        for ii, grad in enumerate(parsed_gradients):
-            for jj in range(int(len(grad) / 3)):
-                for kk in range(grad_format_length):
-                    if grad[jj * 3][kk] != "None":
-                        sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
-                        sorted_gradients[ii][jj * grad_format_length + kk][1] = grad[jj * 3 + 1][kk]
-                        sorted_gradients[ii][jj * grad_format_length + kk][2] = grad[jj * 3 + 2][kk]
-
-        self.data["gradients"] = sorted_gradients
-
-        if self.data["solvent_method"] is not None:
-            header_pattern = r"total gradient after adding PCM contribution --\s+-+\s+Atom\s+X\s+Y\s+Z\s+-+"
-            table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s"
-            footer_pattern = r"-+"
-
-            parsed_gradients = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-
-            pcm_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
-            for ii, grad in enumerate(parsed_gradients):
-                for jj, entry in enumerate(grad):
-                    for kk, val in enumerate(entry):
-                        pcm_gradients[ii][jj][kk] = float(val)
-
-            self.data["pcm_gradients"] = pcm_gradients
-        else:
-            self.data["pcm_gradients"] = None
-
-        if read_pattern(self.text, {"key": r"Gradient of CDS energy"}, terminate_on_match=True).get("key") == [[]]:
-            header_pattern = r"Gradient of CDS energy"
-
-            parsed_gradients = read_table_pattern(self.text, header_pattern, grad_table_pattern, grad_header_pattern)
-
+        if len(parsed_gradients) >= 1:
             sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
             for ii, grad in enumerate(parsed_gradients):
                 for jj in range(int(len(grad) / 3)):
@@ -868,40 +1210,81 @@ class QCOutput(MSONable):
                             sorted_gradients[ii][jj * grad_format_length + kk][1] = grad[jj * 3 + 1][kk]
                             sorted_gradients[ii][jj * grad_format_length + kk][2] = grad[jj * 3 + 2][kk]
 
-            self.data["CDS_gradients"] = sorted_gradients
-        else:
-            self.data["CDS_gradients"] = None
+            self.data["gradients"] = sorted_gradients
+
+            if self.data["solvent_method"] is not None:
+                header_pattern = r"total gradient after adding PCM contribution --\s+-+\s+Atom\s+X\s+Y\s+Z\s+-+"
+                table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s"
+                footer_pattern = r"-+"
+
+                parsed_gradients = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+
+                pcm_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
+                for ii, grad in enumerate(parsed_gradients):
+                    for jj, entry in enumerate(grad):
+                        for kk, val in enumerate(entry):
+                            pcm_gradients[ii][jj][kk] = float(val)
+
+                self.data["pcm_gradients"] = pcm_gradients
+            else:
+                self.data["pcm_gradients"] = None
+
+            if read_pattern(self.text, {"key": r"Gradient of CDS energy"}, terminate_on_match=True).get("key") == [[]]:
+                header_pattern = r"Gradient of CDS energy"
+
+                parsed_gradients = read_table_pattern(
+                    self.text, header_pattern, grad_table_pattern, grad_header_pattern
+                )
+
+                sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
+                for ii, grad in enumerate(parsed_gradients):
+                    for jj in range(int(len(grad) / 3)):
+                        for kk in range(grad_format_length):
+                            if grad[jj * 3][kk] != "None":
+                                sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
+                                sorted_gradients[ii][jj * grad_format_length + kk][1] = grad[jj * 3 + 1][kk]
+                                sorted_gradients[ii][jj * grad_format_length + kk][2] = grad[jj * 3 + 2][kk]
+
+                self.data["CDS_gradients"] = sorted_gradients
+            else:
+                self.data["CDS_gradients"] = None
 
     def _read_optimization_data(self):
-        if self.data.get("new_optimizer") is None:
+        if self.data.get("new_optimizer") is None or self.data["version"] == "6":
             temp_energy_trajectory = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get("key")
         else:
             temp_energy_trajectory = read_pattern(self.text, {"key": r"\sStep\s*\d+\s*:\s*Energy\s*([\d\-\.]+)"}).get(
                 "key"
             )
+        if self.data.get("new_optimizer") == [[]]:
             # Formatting of the new optimizer means we need to prepend the first energy
             if temp_energy_trajectory is not None:
                 temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
+        self._read_geometries()
+        self._read_gradients()
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
-            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
-                "key"
-            ) == [[]]:
+            if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["back_transform_error"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
             for ii, entry in enumerate(temp_energy_trajectory):
                 real_energy_trajectory[ii] = float(entry[0])
             self.data["energy_trajectory"] = real_energy_trajectory
-            self._read_geometries()
-            if have_babel:
+            if self.data.get("new_optimizer") == [[]]:
+                temp_norms = read_pattern(self.text, {"key": r"Norm of Stepsize\s*([\d\-\.]+)"}).get("key")
+                if temp_norms is not None:
+                    norms = np.zeros(len(temp_norms))
+                    for ii, val in enumerate(temp_norms):
+                        norms[ii] = float(val[0])
+                    self.data["norm_of_stepsize"] = norms
+            if openbabel is not None:
                 self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"],
                 )
-            self._read_gradients()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
-            # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
+            # identified, check to see if the optimization failed to converge or if Lambda wasn't able
             # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0
@@ -926,10 +1309,14 @@ class QCOutput(MSONable):
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
-                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True,).get(
+                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get(
                     "key"
                 ) == [[]]:
                     self.data["errors"] += ["back_transform_error"]
+                elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True).get("key") == [
+                    []
+                ]:
+                    self.data["errors"] += ["svd_failed"]
 
     def _read_frequency_data(self):
         """
@@ -1115,22 +1502,6 @@ class QCOutput(MSONable):
             ):
                 self.data["warnings"]["frequency_length_inconsistency"] = True
 
-    def _read_single_point_data(self):
-        """
-        Parses final free energy information from single-point calculations.
-        """
-        temp_dict = read_pattern(
-            self.text,
-            {"final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"},
-        )
-
-        if temp_dict.get("final_energy") is None:
-            self.data["final_energy"] = None
-        else:
-            # -1 in case of pcm
-            # Two lines will match the above; we want final calculation
-            self.data["final_energy"] = float(temp_dict.get("final_energy")[-1][0])
-
     def _read_force_data(self):
         self._read_gradients()
 
@@ -1145,7 +1516,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
 
         self._read_geometries()
-        if have_babel:
+        if openbabel is not None:
             self.data["structure_change"] = check_for_structure_changes(
                 self.data["initial_molecule"],
                 self.data["molecule_from_last_geometry"],
@@ -1249,7 +1620,6 @@ class QCOutput(MSONable):
         """
         Parses information from PCM solvent calculations.
         """
-
         temp_dict = read_pattern(
             self.text,
             {
@@ -1273,15 +1643,10 @@ class QCOutput(MSONable):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
 
-        smd_keys = ["smd0", "smd3", "smd4", "smd6", "smd9"]
-        for key in smd_keys:
-            self.data["solvent_data"][key] = None
-
     def _read_smd_information(self):
         """
         Parses information from SMD solvent calculations.
         """
-
         temp_dict = read_pattern(
             self.text,
             {
@@ -1304,16 +1669,94 @@ class QCOutput(MSONable):
                     temp_result[ii] = float(entry[0])
                 self.data["solvent_data"][key] = temp_result
 
-        pcm_keys = [
-            "g_electrostatic",
-            "g_cavitation",
-            "g_dispersion",
-            "g_repulsion",
-            "total_contribution_pcm",
-            "solute_internal_energy",
-        ]
-        for key in pcm_keys:
-            self.data["solvent_data"][key] = None
+    def _read_isosvp_information(self):
+        """
+        Parses information from ISOSVP solvent calculations.
+
+        There are 5 energies output, as in the example below
+
+        --------------------------------------------------------------------------------
+        The Final SS(V)PE energies and Properties
+        --------------------------------------------------------------------------------
+
+        Energies
+        --------------------
+        The Final Solution-Phase Energy =     -40.4850599390
+        The Solute Internal Energy =          -40.4846329759
+        The Change in Solute Internal Energy =  0.0000121970  (   0.00765 KCAL/MOL)
+        The Reaction Field Free Energy =       -0.0004269631  (  -0.26792 KCAL/MOL)
+        The Total Solvation Free Energy =      -0.0004147661  (  -0.26027 KCAL/MOL)
+
+        In addition, we need to parse the DIELST fortran variable to get the dielectric
+        constant used.
+        """
+        temp_dict = read_pattern(
+            self.text,
+            {
+                "final_soln_phase_e": r"\s*The Final Solution-Phase Energy\s+=\s+([\d\-\.]+)\s*",
+                "solute_internal_e": r"\s*The Solute Internal Energy\s+=\s+([\d\-\.]+)\s*",
+                "total_solvation_free_e": r"\s*The Total Solvation Free Energy\s+=\s+([\d\-\.]+)\s*",
+                "change_solute_internal_e": r"\s*The Change in Solute Internal Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "reaction_field_free_e": r"\s*The Reaction Field Free Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "isosvp_dielectric": r"\s*DIELST=\s+(\s+[\d\-\.]+)\s*",
+            },
+        )
+
+        for key, _v in temp_dict.items():
+            if temp_dict.get(key) is None:
+                self.data["solvent_data"]["isosvp"][key] = None
+            elif len(temp_dict.get(key)) == 1:
+                self.data["solvent_data"]["isosvp"][key] = float(temp_dict.get(key)[0][0])
+            else:
+                temp_result = np.zeros(len(temp_dict.get(key)))
+                for ii, entry in enumerate(temp_dict.get(key)):
+                    temp_result[ii] = float(entry[0])
+                self.data["solvent_data"]["isosvp"][key] = temp_result
+
+    def _read_cmirs_information(self):
+        """
+        Parses information from CMIRS solvent calculations.
+
+        In addition to the 5 energies returned by ISOSVP (and read separately in
+        _read_isosvp_information), there are 4 additional energies reported, as shown
+        in the example below
+
+        --------------------------------------------------------------------------------
+        The Final SS(V)PE energies and Properties
+        --------------------------------------------------------------------------------
+
+        Energies
+        --------------------
+        The Final Solution-Phase Energy =     -40.4751881546
+        The Solute Internal Energy =          -40.4748568841
+        The Change in Solute Internal Energy =  0.0000089729  (   0.00563 KCAL/MOL)
+        The Reaction Field Free Energy =       -0.0003312705  (  -0.20788 KCAL/MOL)
+        The Dispersion Energy =                 0.6955550107  (  -2.27836 KCAL/MOL)
+        The Exchange Energy =                   0.2652679507  (   2.15397 KCAL/MOL)
+        Min. Negative Field Energy =            0.0005235850  (   0.00000 KCAL/MOL)
+        Max. Positive Field Energy =            0.0179866718  (   0.00000 KCAL/MOL)
+        The Total Solvation Free Energy =      -0.0005205275  (  -0.32664 KCAL/MOL)
+        """
+        temp_dict = read_pattern(
+            self.text,
+            {
+                "dispersion_e": r"\s*The Dispersion Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "exchange_e": r"\s*The Exchange Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "min_neg_field_e": r"\s*Min. Negative Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "max_pos_field_e": r"\s*Max. Positive Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+            },
+        )
+
+        for key, _v in temp_dict.items():
+            if temp_dict.get(key) is None:
+                self.data["solvent_data"]["cmirs"][key] = None
+            elif len(temp_dict.get(key)) == 1:
+                self.data["solvent_data"]["cmirs"][key] = float(temp_dict.get(key)[0][0])
+            else:
+                temp_result = np.zeros(len(temp_dict.get(key)))
+                for ii, entry in enumerate(temp_dict.get(key)):
+                    temp_result[ii] = float(entry[0])
+                self.data["solvent_data"]["cmirs"][key] = temp_result
 
     def _read_nbo_data(self):
         """
@@ -1385,17 +1828,15 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["driver_error"]
-        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True,).get(
+        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["basis_not_supported"]
-        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True,).get(
+        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
-        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,
@@ -1415,14 +1856,24 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["gdm_neg_precon_error"]
-        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"too many atoms in ESPChgFit"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
             self.data["errors"] += ["esp_chg_fit_error"]
-        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True,).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
             self.data["errors"] += ["mem_static_too_small"]
+        elif read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True).get("key") == [
+            []
+        ]:
+            self.data["errors"] += ["mem_static_too_small"]
+        elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True).get("key") == [[]]:
+            self.data["errors"] += ["mem_total_too_small"]
+        elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian":
+            self.data["errors"] += ["probably_out_of_memory"]
+        elif self.text[-16:-1] == "Roots Converged":
+            self.data["errors"] += ["probably_out_of_memory"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text,
@@ -1600,7 +2051,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     pop_dfs = []
 
     while no_failures:
-
         # Natural populations
         try:
             lines = jump_to_header(lines, "Summary of Natural Population Analysis:")
@@ -1616,7 +2066,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
             lines = lines[2:]
             data = []
             for line in lines:
-
                 # Termination condition
                 if "=" in line:
                     break
@@ -1645,6 +2094,88 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     return pop_dfs
 
 
+def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
+    """
+    Parse the natural populations section of NBO output.
+
+    Args:
+            lines: QChem output lines.
+
+    Returns:
+            Data frame of formatted output.
+
+    Raises:
+            RuntimeError
+    """
+
+    no_failures = True
+    hyperbond_dfs = []
+
+    while no_failures:
+        # hyperbonds
+        try:
+            lines = jump_to_header(
+                lines,
+                "3-Center, 4-Electron A:-B-:C Hyperbonds (A-B :C <=> A: B-C)",
+            )
+        except RuntimeError:
+            no_failures = False
+
+        if no_failures:
+            # Jump to values
+            lines = lines[2:]
+
+            # Extract hyperbond data
+            hyperbond_data = []
+            for line in lines:
+                # Termination condition
+                if "NATURAL BOND ORBITALS" in line:
+                    break
+                if "SECOND ORDER PERTURBATION THEORY" in line:
+                    break
+                if "NHO DIRECTIONALITY AND BOND BENDING" in line:
+                    break
+                if "Archival summary:" in line:
+                    break
+
+                # Skip conditions
+                if line.strip() == "":
+                    continue
+                if "NBOs" in line:
+                    continue
+                if "threshold" in line:
+                    continue
+                if "-------------" in line:
+                    continue
+                if "A:-B-:C" in line:
+                    continue
+
+                # Extract the values
+                entry: dict[str, str | int | float] = {}
+                entry["hyperbond index"] = int(line[0:4].strip())
+                entry["bond atom 1 symbol"] = str(line[5:8].strip())
+                entry["bond atom 1 index"] = int(line[8:11].strip())
+                entry["bond atom 2 symbol"] = str(line[13:15].strip())
+                entry["bond atom 2 index"] = int(line[15:18].strip())
+                entry["bond atom 3 symbol"] = str(line[20:22].strip())
+                entry["bond atom 3 index"] = int(line[22:25].strip())
+                entry["pctA-B"] = float(line[27:31].strip())
+                entry["pctB-C"] = float(line[32:36].strip())
+                entry["occ"] = float(line[38:44].strip())
+                entry["BD(A-B)"] = int(line[46:53].strip())
+                entry["LP(C)"] = int(line[54:59].strip())
+                entry["h(A)"] = int(line[61:65].strip())
+                entry["h(B)"] = int(line[67:71].strip())
+                entry["h(C)"] = int(line[73:77].strip())
+
+                hyperbond_data.append(entry)
+
+            # Store values in a dataframe
+            hyperbond_dfs.append(pd.DataFrame(data=hyperbond_data))
+
+    return hyperbond_dfs
+
+
 def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     """
     Parse the hybridization character section of NBO output.
@@ -1663,10 +2194,9 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     orbitals = ["s", "p", "d", "f"]
 
     no_failures = True
-    lp_and_bd_dfs = []
+    lp_and_bd_and_tc_dfs = []
 
     while no_failures:
-
         # NBO Analysis
         try:
             lines = jump_to_header(lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids")
@@ -1677,13 +2207,13 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                 no_failures = False
 
         if no_failures:
-
             # Jump to values
             lines = lines[2:]
 
             # Save the data for different types of orbitals
             lp_data = []
             bd_data = []
+            tc_data = []
 
             # Iterate over the lines
             i = -1
@@ -1697,6 +2227,10 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                 if "Archival summary:" in line:
                     break
                 if "3-Center, 4-Electron A:-B-:C Hyperbonds (A-B :C <=> A: B-C)" in line:
+                    break
+                if "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS" in line:
+                    break
+                if "Thank you very much for using Q-Chem.  Have a nice day." in line:
                     break
 
                 # Lone pair
@@ -1786,11 +2320,96 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     # Save the entry
                     bd_data.append(BDentry)
 
-            # Store values in a dataframe
-            lp_and_bd_dfs.append(pd.DataFrame(data=lp_data))
-            lp_and_bd_dfs.append(pd.DataFrame(data=bd_data))
+                # 3-center bond
+                if "3C" in line:
+                    TCentry: dict[str, str | int | float] = {
+                        f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 4)
+                    }
+                    TCentry["bond index"] = line[0:4].strip()
+                    TCentry["occupancy"] = line[7:14].strip()
+                    TCentry["type"] = line[16:19].strip()
+                    TCentry["orbital index"] = line[20:22].strip()
+                    TCentry["atom 1 symbol"] = line[23:25].strip()
+                    TCentry["atom 1 number"] = line[25:28].strip()
+                    TCentry["atom 2 symbol"] = line[29:31].strip()
+                    TCentry["atom 2 number"] = line[31:34].strip()
+                    TCentry["atom 3 symbol"] = line[35:37].strip()
+                    TCentry["atom 3 number"] = line[37:40].strip()
 
-    return lp_and_bd_dfs
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    TCentry["atom 1 polarization"] = line[16:22].strip()
+                    TCentry["atom 1 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move down until you see an orbital
+                    while "s" not in line:
+                        i += 1
+                        line = lines[i]
+
+                    TCentry["atom 2 polarization"] = line[16:22].strip()
+                    TCentry["atom 2 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move down until you see an orbital
+                    while "s" not in line:
+                        i += 1
+                        line = lines[i]
+
+                    TCentry["atom 3 polarization"] = line[16:22].strip()
+                    TCentry["atom 3 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 3 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            TCentry[f"atom 3 {orbital}"] = get_percentage(line, orbital)
+
+                    # Save the entry
+                    tc_data.append(TCentry)
+
+            # Store values in a dataframe
+            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=lp_data))
+            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=bd_data))
+            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=tc_data))
+
+    return lp_and_bd_and_tc_dfs
 
 
 def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
@@ -1811,7 +2430,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     e2_dfs = []
 
     while no_failures:
-
         # 2nd order perturbation theory analysis
         try:
             lines = jump_to_header(
@@ -1822,7 +2440,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
             no_failures = False
 
         if no_failures:
-
             # Jump to values
             i = -1
             while True:
@@ -1835,7 +2452,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
             # Extract 2nd order data
             e2_data = []
             for line in lines:
-
                 # Termination condition
                 if "NATURAL BOND ORBITALS" in line:
                     break
@@ -1847,11 +2463,16 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     continue
                 if "None" in line:
                     continue
-                if "3C" in line:
-                    continue
 
                 # Extract the values
                 entry: dict[str, str | int | float] = {}
+                first_3C = False
+                second_3C = False
+                if line[7] == "3":
+                    first_3C = True
+                if line[35] == "3":
+                    second_3C = True
+
                 if line[4] == ".":
                     entry["donor bond index"] = int(line[0:4].strip())
                     entry["donor type"] = str(line[5:9].strip())
@@ -1874,21 +2495,62 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     entry["donor bond index"] = int(line[0:5].strip())
                     entry["donor type"] = str(line[6:10].strip())
                     entry["donor orbital index"] = int(line[11:13].strip())
-                    entry["donor atom 1 symbol"] = str(line[14:16].strip())
-                    entry["donor atom 1 number"] = int(line[16:19].strip())
-                    entry["donor atom 2 symbol"] = str(line[20:22].strip())
-                    entry["donor atom 2 number"] = z_int(line[22:25].strip())
-                    entry["acceptor bond index"] = int(line[25:33].strip())
+
+                    if first_3C:
+                        tmp = str(line[14:28].strip())
+                        split = tmp.split("-")
+                        if len(split) != 3:
+                            raise ValueError("Should have three components! Exiting...")
+                        # This is a bit hacky, but making new more accurate entry
+                        # keys for 3C info forces there to be a NAN for those values
+                        # for all other entries, which I believe would nontrivially
+                        # increase the size of the data being stored, which is already
+                        # very large. So, here we have saved info that should be labeled
+                        # "donor 3C 1", "donor 3C 2", and "donor 3C 3" in the
+                        # "donor atom 1 symbol", "donor atom 1 number", and
+                        # "donor atom 2 symbol" fields, and then put a reminder in the
+                        # "donor atom 2 number" field.
+                        entry["donor atom 1 symbol"] = split[0]
+                        entry["donor atom 1 number"] = split[1]
+                        entry["donor atom 2 symbol"] = split[2]
+                        entry["donor atom 2 number"] = "info_is_from_3C"
+                    else:
+                        entry["donor atom 1 symbol"] = str(line[14:16].strip())
+                        entry["donor atom 1 number"] = int(line[16:19].strip())
+                        entry["donor atom 2 symbol"] = str(line[20:22].strip())
+                        entry["donor atom 2 number"] = z_int(line[22:25].strip())
+
+                    entry["acceptor bond index"] = int(line[28:33].strip())
                     entry["acceptor type"] = str(line[34:38].strip())
                     entry["acceptor orbital index"] = int(line[39:41].strip())
-                    entry["acceptor atom 1 symbol"] = str(line[42:44].strip())
-                    entry["acceptor atom 1 number"] = int(line[44:47].strip())
-                    entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
-                    entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
+
+                    if second_3C:
+                        tmp = str(line[42:56].strip())
+                        split = tmp.split("-")
+                        if len(split) != 3:
+                            raise ValueError("Should have three components! Exiting...")
+                        # This is a bit hacky, but making new more accurate entry
+                        # keys for 3C info forces there to be a NAN for those values
+                        # for all other entries, which I believe would nontrivially
+                        # increase the size of the data being stored, which is already
+                        # very large. So, here we have saved info that should be labeled
+                        # "acceptor 3C 1", "acceptor 3C 2", and "acceptor 3C 3" in the
+                        # "acceptor atom 1 symbol", "acceptor atom 1 number", and
+                        # "acceptor atom 2 symbol" fields, and then put a reminder in the
+                        # "acceptor atom 2 number" field.
+                        entry["acceptor atom 1 symbol"] = split[0]
+                        entry["acceptor atom 1 number"] = split[1]
+                        entry["acceptor atom 2 symbol"] = split[2]
+                        entry["acceptor atom 2 number"] = "info_is_from_3C"
+                    else:
+                        entry["acceptor atom 1 symbol"] = str(line[42:44].strip())
+                        entry["acceptor atom 1 number"] = int(line[44:47].strip())
+                        entry["acceptor atom 2 symbol"] = str(line[48:50].strip())
+                        entry["acceptor atom 2 number"] = z_int(line[50:53].strip())
                     try:
-                        entry["perturbation energy"] = float(line[53:63].strip())
+                        entry["perturbation energy"] = float(line[56:63].strip())
                     except ValueError:
-                        if line[53:63].strip() == "*******":
+                        if line[56:63].strip() == "*******":
                             entry["perturbation energy"] = float("inf")
                         else:
                             raise ValueError("Unknown value error in parsing perturbation energy")
@@ -1924,5 +2586,6 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs = {}
     dfs["natural_populations"] = parse_natural_populations(lines)
     dfs["hybridization_character"] = parse_hybridization_character(lines)
+    dfs["hyperbonds"] = parse_hyperbonds(lines)
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs

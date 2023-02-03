@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 
@@ -534,18 +536,18 @@ class BondDissociationTest(unittest.TestCase):
 
     def test_tfsi_neg_no_pcm(self):
         BDE = BondDissociationEnergies(self.neg_TFSI_principle, self.neg_TFSI_fragments)
-        self.assertEqual(len(BDE.filtered_entries), 16)
-        self.assertEqual(BDE.bond_dissociation_energies, self.TFSI_correct)
+        assert len(BDE.filtered_entries) == 16
+        assert BDE.bond_dissociation_energies == self.TFSI_correct
 
     def test_pc_neutral_pcm_65(self):
         BDE = BondDissociationEnergies(self.PC_65_principle, self.PC_65_fragments)
-        self.assertEqual(len(BDE.filtered_entries), 36)
-        self.assertEqual(BDE.bond_dissociation_energies, self.PC_correct)
+        assert len(BDE.filtered_entries) == 36
+        assert BDE.bond_dissociation_energies == self.PC_correct
 
     def test_ec_neg_pcm_40(self):
         BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
-        self.assertEqual(len(BDE.filtered_entries), 18)
-        self.assertEqual(BDE.bond_dissociation_energies, self.EC_correct)
+        assert len(BDE.filtered_entries) == 18
+        assert BDE.bond_dissociation_energies == self.EC_correct
 
 
 if __name__ == "__main__":

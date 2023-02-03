@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import os
 import tempfile
 
 import numpy as np
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
@@ -101,7 +104,7 @@ class ThermalDisplacementTest(PymatgenTest):
         )
 
     def test_Ucart(self):
-        self.assertAlmostEqual(self.thermal.thermal_displacement_matrix_cart[0][0], 0.00516)
+        assert self.thermal.thermal_displacement_matrix_cart[0][0] == approx(0.00516)
         # U11, U22, U33, U23, U13, U12
         self.assertArrayAlmostEqual(
             self.thermal.thermal_displacement_matrix_cart_matrixform[0],
@@ -115,9 +118,7 @@ class ThermalDisplacementTest(PymatgenTest):
         )
 
     def test_U1U2U3(self):
-        self.assertAlmostEqual(
-            self.thermal.U1U2U3[0].sort(), np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort()
-        )
+        assert self.thermal.U1U2U3[0].sort() == approx(np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort())
 
     def test_Ustar(self):
         Ustar = self.thermal.Ustar
@@ -175,7 +176,7 @@ class ThermalDisplacementTest(PymatgenTest):
                 lines = file.read().splitlines()  # now we won't have those newlines
                 if "_atom_site_aniso_U_12" in lines:
                     printed = True
-        self.assertTrue(printed)
+        assert printed
 
     def test_from_ucif(self):
         thermal = ThermalDisplacementMatrices.from_Ucif(
@@ -278,15 +279,48 @@ class ThermalDisplacementTest(PymatgenTest):
             ),
             temperature=0.0,
         )
-        self.assertAlmostEqual(self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"], 0.0)
+        assert self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"] == approx(0.0)
         self.assertArrayAlmostEqual(
             self.thermal.compute_directionality_quality_criterion(thermal)[0]["vector0"],
             self.thermal.compute_directionality_quality_criterion(thermal)[1]["vector1"],
         )
 
     def test_angle(self):
-        self.assertAlmostEqual(self.thermal._angle_dot([-1, -1, -1], [1, 1, 1]), 180.0)
-        self.assertAlmostEqual(self.thermal._angle_dot([1, 1, 1], [1, 1, 1]), 0.0)
+        assert self.thermal._angle_dot([-1, -1, -1], [1, 1, 1]) == approx(180.0)
+        assert self.thermal._angle_dot([1, 1, 1], [1, 1, 1]) == approx(0.0)
 
     def test_ratio_prolate(self):
-        self.assertAlmostEqual(self.thermal.ratio_prolate[0], 6.854889e-03 / 2.893872e-03)
+        assert self.thermal.ratio_prolate[0] == approx(6.854889e-03 / 2.893872e-03)
+
+    def test_to_structure_with_site_properties(self):
+        # test creation of structure with site properties
+        structure = self.thermal.to_structure_with_site_properties_Ucif()
+        # test reading of structure with site properties
+        new_thermals = ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(structure)
+        self.assertArrayAlmostEqual(
+            self.thermal.thermal_displacement_matrix_cart, new_thermals.thermal_displacement_matrix_cart
+        )
+        self.assertArrayAlmostEqual(self.thermal.structure.frac_coords, new_thermals.structure.frac_coords)
+        self.assertArrayAlmostEqual(self.thermal.structure.lattice.volume, new_thermals.structure.lattice.volume)
+
+    def test_visualization_directionality_criterion(self):
+        # test file creation for VESTA
+        printed = False
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            self.thermal.visualize_directionality_quality_criterion(
+                filename=os.path.join(tmpdirname, "U.vesta"), other=self.thermal, which_structure=0
+            )
+            with open(os.path.join(tmpdirname, "U.vesta")) as file:
+                file.seek(0)  # set position to start of file
+                lines = file.read().splitlines()  # now we won't have those newlines
+                if "VECTR" in lines:
+                    printed = True
+        assert printed
+
+    def test_from_cif_P1(self):
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            self.thermal.write_cif(os.path.join(tmpdirname, "U.cif"))
+            new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmpdirname, "U.cif"))
+            self.assertArrayAlmostEqual(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
+            self.assertArrayAlmostEqual(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
+            self.assertArrayAlmostEqual(new_thermals[0].structure.lattice.volume, self.thermal.structure.lattice.volume)

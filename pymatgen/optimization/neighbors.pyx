@@ -3,9 +3,9 @@
 # cython: nonecheck=False
 # cython: cdivision=False
 # cython: profile=True
-# cython: language_level=3
 # distutils: language = c
-# distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
+
+# isort: dont-add-imports
 
 import numpy as np
 
@@ -21,7 +21,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
         return NULL
     cdef void *ptr = malloc(size)
     if ptr == NULL:
-        raise MemoryError("Memory allocation of %s bytes failed!" % size)
+        raise MemoryError(f"Memory allocation of {size} bytes failed!")
     return ptr
 
 
@@ -32,7 +32,7 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
         return NULL
     cdef void *ptr = realloc(ptr_orig, size)
     if ptr == NULL:
-        raise MemoryError("Realloc memory of %s bytes failed!" % size)
+        raise MemoryError(f"Realloc memory of {size} bytes failed!")
     return ptr
 
 
@@ -202,7 +202,6 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
     cdef double *distances = <double*> safe_malloc(n*sizeof(double))
-    cdef long[:] ncube_indices_map
     cdef long cube_index_temp
     cdef long link_index
     cdef double d_temp2
@@ -497,10 +496,8 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
 
 def compute_offset_vectors(long n):
     cdef long i, j, k
-    cdef long v[3]
     cdef double center[8][3] # center vertices coords
     cdef int ind
-    cdef bint is_within
     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
     cdef long count = 0
@@ -512,7 +509,7 @@ def compute_offset_vectors(long n):
                 center[ind][1] = j - 0.5
                 center[ind][2] = k - 0.5
 
-    cdef double off[8][3] # offseted vertices
+    cdef double off[8][3] # offsetted vertices
     for i in range(-n, n + 1):
         for j in range(-n, n + 1):
             for k in range(-n, n + 1):
@@ -539,12 +536,12 @@ cdef bint distance_vertices(double center[8][3], double off[8][3], double r):
                 return 1
     return 0
 
-cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):
+cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offsetted)[8][3]):
     cdef int i, j, k
     for i in range(2):
         for j in range(2):
             for k in range(2):
                 ind = i * 4 + j * 2 + k
-                offseted[ind][0] = center[ind][0] + n
-                offseted[ind][1] = center[ind][1] + m
-                offseted[ind][2] = center[ind][2] + l
+                offsetted[ind][0] = center[ind][0] + n
+                offsetted[ind][1] = center[ind][1] + m
+                offsetted[ind][2] = center[ind][2] + l

@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-
-
-__author__ = "waroquiers"
+from __future__ import annotations
 
 import os
 
@@ -11,7 +8,9 @@ from pymatgen.util.testing import PymatgenTest
 try:
     import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
-    bson = None
+    bson = None  # type: ignore
+
+__author__ = "waroquiers"
 
 json_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,

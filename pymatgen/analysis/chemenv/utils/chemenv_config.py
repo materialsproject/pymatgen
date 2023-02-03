@@ -5,6 +5,8 @@
 This module contains the classes for configuration of the chemenv package.
 """
 
+from __future__ import annotations
+
 import json
 from os import makedirs
 from os.path import exists, expanduser
@@ -48,8 +50,8 @@ class ChemEnvConfig:
         """
         :param package_options:
         """
-        if SETTINGS.get("PMG_MAPI_KEY", "") != "":
-            self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY", "")
+        if SETTINGS.get("PMG_MAPI_KEY"):
+            self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY")
         else:
             self.materials_project_configuration = None
 
@@ -87,7 +89,7 @@ class ChemEnvConfig:
                 print(" ... wrong key, try again ...")
             print()
         if test == "S":
-            print(f'Configuration has been saved to file "{config_file}"')
+            print(f"Configuration has been saved to file {config_file!r}")
 
     @property
     def has_materials_project_access(self):
@@ -115,7 +117,7 @@ class ChemEnvConfig:
         if len(strategy_class.STRATEGY_OPTIONS) > 0:
             for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
                 while True:
-                    print(f"  => Enter value for option '{option}' (<ENTER> for default = {option_dict['default']})\n")
+                    print(f"  => Enter value for option {option!r} (<ENTER> for default = {option_dict['default']})\n")
                     print("     Valid options are :\n")
                     print(f"       {option_dict['type'].allowed_values}")
                     test = input("     Your choice : ")
@@ -182,6 +184,6 @@ class ChemEnvConfig:
             return ChemEnvConfig(package_options=config_dict["package_options"])
 
         except OSError:
-            print(f'Unable to load configuration from file "{config_file}" ...')
+            print(f"Unable to load configuration from file {config_file!r} ...")
             print(" ... loading default configuration")
             return ChemEnvConfig()

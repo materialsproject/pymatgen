@@ -89,13 +89,11 @@ def run_mcsqs(
     os.chdir(directory)
 
     if isinstance(scaling, (int, float)):
-
         if scaling % 1:
             raise ValueError(f"Scaling should be an integer, not {scaling}")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
 
     else:
-
         # Set supercell to identity (will make supercell with pymatgen)
         with open("sqscell.out", "w") as f:
             f.write("1\n1 0 0\n0 1 0\n0 0 1\n")
@@ -156,7 +154,6 @@ def run_mcsqs(
 
         # Find the best sqs structures
         if instances and instances > 1:
-
             if not os.path.exists("bestcorr1.out"):
                 raise RuntimeError(
                     "mcsqs did not generate output files, "

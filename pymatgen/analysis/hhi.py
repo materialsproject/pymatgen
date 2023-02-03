@@ -12,6 +12,8 @@ Performance and Resource Considerations" by Gaultois et al., published
 in Chemistry of Materials (2013).
 """
 
+from __future__ import annotations
+
 import os
 
 from monty.design_patterns import singleton
@@ -73,7 +75,6 @@ class HHIModel:
         Returns:
             A tuple representing the (HHI_production, HHI_reserve)
         """
-
         try:
             if not isinstance(comp_or_form, Composition):
                 comp_or_form = Composition(comp_or_form)
@@ -128,7 +129,6 @@ class HHIModel:
         Returns:
             The designation as String
         """
-
         if hhi is None:
             return None
 

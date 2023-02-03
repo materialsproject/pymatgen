@@ -112,7 +112,7 @@ def get_magnetizations(dir: str, ion_list: list[int]):
     """
     data = []
     max_row = 0
-    for (parent, _subdirs, files) in os.walk(dir):
+    for parent, _subdirs, files in os.walk(dir):
         for f in files:
             if re.match(r"OUTCAR*", f):
                 try:

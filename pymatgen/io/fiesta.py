@@ -45,7 +45,6 @@ class Nwchem2Fiesta(MSONable):
 
         the run method launches NWCHEM2FIESTA
         """
-
         self.folder = folder
         self.filename = filename
         self.log_file = log_file
@@ -59,7 +58,6 @@ class Nwchem2Fiesta(MSONable):
         """
         Performs actual NWCHEM2FIESTA run
         """
-
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
@@ -104,7 +102,9 @@ class FiestaRun(MSONable):
         otherwise it breaks
     """
 
-    def __init__(self, folder: str = None, grid: tuple[int, int, int] = (2, 2, 2), log_file: str = "log") -> None:
+    def __init__(
+        self, folder: str | None = None, grid: tuple[int, int, int] = (2, 2, 2), log_file: str = "log"
+    ) -> None:
         """
         Args:
             folder: Folder to look for runs.
@@ -132,7 +132,6 @@ class FiestaRun(MSONable):
         """
         Performs FIESTA (gw) run
         """
-
         if self.folder != os.getcwd():
             init_folder = os.getcwd()
             os.chdir(self.folder)
@@ -158,7 +157,6 @@ class FiestaRun(MSONable):
         """
         Performs BSE run
         """
-
         if self.folder != os.getcwd():
             init_folder = os.getcwd()
             os.chdir(self.folder)
@@ -224,7 +222,6 @@ class BasisSetReader:
 
     @staticmethod
     def _parse_file(input):
-
         lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
 
         nl_orbital_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
@@ -236,9 +233,10 @@ class BasisSetReader:
         parse_preamble = False
         parse_lmax_nnlo = False
         parse_nl_orbital = False
+        nnlo = None  # fix pylint E0601: Using variable 'nnlo' before assignment
+        lmax = None
 
         for line in input.split("\n"):
-
             if parse_nl_orbital:
                 m = nl_orbital_patt.search(line)
                 n = coef_alpha_patt.search(line)
@@ -274,7 +272,6 @@ class BasisSetReader:
         """
         :return: the number of nlm orbitals for the basis set
         """
-
         nnlmo = 0
 
         data_tmp = self.data
@@ -313,11 +310,11 @@ class FiestaInput(MSONable):
     def __init__(
         self,
         mol,
-        correlation_grid: dict[str, str] = None,
-        Exc_DFT_option: dict[str, str] = None,
-        COHSEX_options: dict[str, str] = None,
-        GW_options: dict[str, str] = None,
-        BSE_TDDFT_options: dict[str, str] = None,
+        correlation_grid: dict[str, str] | None = None,
+        Exc_DFT_option: dict[str, str] | None = None,
+        COHSEX_options: dict[str, str] | None = None,
+        GW_options: dict[str, str] | None = None,
+        BSE_TDDFT_options: dict[str, str] | None = None,
     ):
         """
         :param mol: pymatgen mol
@@ -327,7 +324,6 @@ class FiestaInput(MSONable):
         :param GW_options: dict
         :param BSE_TDDFT_options: dict
         """
-
         self._mol = mol
         self.correlation_grid = correlation_grid or {"dE_grid": "0.500", "n_grid": "14"}
         self.Exc_DFT_option = Exc_DFT_option or {"rdVxcpsi": "1"}
@@ -357,7 +353,6 @@ class FiestaInput(MSONable):
         :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must
             be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find "aug_cc_pvtz"
         """
-
         list_files = os.listdir(auxiliary_folder)
 
         for specie in self._mol.symbol_set:
@@ -373,7 +368,6 @@ class FiestaInput(MSONable):
         :param n_iteration: number of iteration
         :param n_grid and dE_grid:: number of points and spacing in eV for correlation grid
         """
-
         self.GW_options.update(nv_corr=nv_band, nc_corr=nc_band, nit_gw=n_iteration)
         self.correlation_grid.update(dE_grid=dE_grid, n_grid=n_grid)
 
@@ -382,7 +376,6 @@ class FiestaInput(MSONable):
         """
         mkdir "FULL_BSE_Densities" folder (needed for bse run) in the desired folder
         """
-
         if os.path.exists(folder + "/FULL_BSE_Densities"):
             return "FULL_BSE_Densities folder already exists"
 
@@ -404,7 +397,6 @@ class FiestaInput(MSONable):
         :param BSE_dump: boolean
         :return: set the "do_bse" variable to one in cell.in
         """
-
         if BSE_dump:
             self.BSE_TDDFT_options.update(do_bse=1, do_tddft=0)
         else:
@@ -425,7 +417,6 @@ class FiestaInput(MSONable):
         """
         Returns infos on initial parameters as in the log file of Fiesta
         """
-
         o = []
         o.append("=========================================")
         o.append("Reading infos on system:")
@@ -489,7 +480,6 @@ class FiestaInput(MSONable):
         return self._mol
 
     def __str__(self):
-
         symbols = []
         for syb in self._mol.symbol_set:
             symbols.append(syb)
@@ -604,7 +594,6 @@ $geometry
         Returns:
             FiestaInput object
         """
-
         correlation_grid = {}
         Exc_DFT_option = {}
         COHSEX_options = {}
@@ -771,7 +760,6 @@ class FiestaOutput:
 
     @staticmethod
     def _parse_job(output):
-
         GW_BANDS_results_patt = re.compile(
             r"^<it.*  \| \s+ (\D+\d*) \s+ \| \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \| "
             r" \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \|"
@@ -794,7 +782,6 @@ class FiestaOutput:
         parse_total_time = False
 
         for l in output.split("\n"):
-
             if parse_total_time:
                 m = end_patt.search(l)
                 if m:
@@ -864,7 +851,6 @@ class BSEOutput:
 
     @staticmethod
     def _parse_job(output):
-
         BSE_exitons_patt = re.compile(
             r"^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
             re.VERBOSE,
@@ -879,7 +865,6 @@ class BSEOutput:
         parse_total_time = False
 
         for l in output.split("\n"):
-
             if parse_total_time:
                 m = end_patt.search(l)
                 if m:

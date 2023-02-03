@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import pickle
 import unittest
@@ -11,7 +13,9 @@ import numpy as np
 import pytest
 import scipy.constants as const
 from monty.io import zopen
+from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
+from pytest import approx
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
@@ -35,7 +39,7 @@ class PoscarTest(PymatgenTest):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         comp = poscar.structure.composition
-        self.assertEqual(comp, Composition("Fe4P4O16"))
+        assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
         poscar_string = """Test1
@@ -49,10 +53,11 @@ direct
 0.750000 0.500000 0.750000 F
 """
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.structure.composition, Composition("SiF"))
+        assert poscar.structure.composition == Composition("SiF")
 
         poscar_string = ""
-        self.assertRaises(ValueError, Poscar.from_string, poscar_string)
+        with pytest.raises(ValueError):
+            Poscar.from_string(poscar_string)
 
         # VASP 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
@@ -68,7 +73,7 @@ direct
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.structure.composition, Composition("HHe"))
+        assert poscar.structure.composition == Composition("HHe")
         # VASP 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
@@ -82,7 +87,7 @@ direct
 0.750000 0.500000 0.750000 F F F O
 """
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
+        assert poscar.selective_dynamics == [[True, True, True], [False, False, False]]
         self.selective_poscar = poscar
 
     def test_from_file(self):
@@ -143,7 +148,7 @@ direct
             "Fe",
             "Fe",
         ]
-        self.assertEqual([site.specie.symbol for site in poscar.structure], ordered_expected_elements)
+        assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
     def test_to_from_dict(self):
         poscar_string = """Test3
@@ -160,9 +165,9 @@ direct
         poscar = Poscar.from_string(poscar_string)
         d = poscar.as_dict()
         poscar2 = Poscar.from_dict(d)
-        self.assertEqual(poscar2.comment, "Test3")
-        self.assertTrue(all(poscar2.selective_dynamics[0]))
-        self.assertFalse(all(poscar2.selective_dynamics[1]))
+        assert poscar2.comment == "Test3"
+        assert all(poscar2.selective_dynamics[0])
+        assert not all(poscar2.selective_dynamics[1])
 
     def test_cart_scale(self):
         poscar_string = """Test1
@@ -207,7 +212,7 @@ direct
 """
 
         actual_str = poscar.get_string(significant_figures=2)
-        self.assertEqual(actual_str, expected_str, "Wrong POSCAR output!")
+        assert actual_str == expected_str, "Wrong POSCAR output!"
 
     def test_str(self):
         si = 14
@@ -235,7 +240,7 @@ direct
    0.7500000000000000    0.5000000000000000    0.7500000000000000 Si
 """
 
-        self.assertEqual(str(poscar), expected_str, "Wrong POSCAR output!")
+        assert str(poscar) == expected_str, "Wrong POSCAR output!"
 
         # VASP 4 type with symbols at the end.
         poscar_string = """Test1
@@ -261,14 +266,14 @@ direct
    0.7500000000000000    0.5000000000000000    0.7500000000000000 F
 """
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(str(poscar), expected)
+        assert str(poscar) == expected
 
     def test_from_md_run(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         p = Poscar.from_file(PymatgenTest.TEST_FILES_DIR / "CONTCAR.MD", check_for_POTCAR=False)
-        self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
-        self.assertEqual(p.predictor_corrector[0][0][0], 0.33387820e00)
-        self.assertEqual(p.predictor_corrector[0][1][1], -0.10583589e-02)
+        assert np.sum(np.array(p.velocities)) == approx(0.0065417961324)
+        assert p.predictor_corrector[0][0][0] == 0.33387820e00
+        assert p.predictor_corrector[0][1][1] == -0.10583589e-02
 
     def test_write_MD_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
@@ -282,13 +287,14 @@ direct
         self.assertArrayAlmostEqual(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
         self.assertArrayAlmostEqual(p.velocities, p3.velocities, 5)
         self.assertArrayAlmostEqual(p.predictor_corrector, p3.predictor_corrector, 5)
-        self.assertEqual(p.predictor_corrector_preamble, p3.predictor_corrector_preamble)
+        assert p.predictor_corrector_preamble == p3.predictor_corrector_preamble
         tempfname.unlink()
 
     def test_setattr(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
-        self.assertRaises(ValueError, setattr, poscar, "velocities", [[0, 0, 0]])
+        with pytest.raises(ValueError):
+            poscar.velocities = [[0, 0, 0]]
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
         ans = """
         Fe4P4O16
@@ -324,7 +330,7 @@ direct
    0.8342902600000000    0.9539276700000000    0.7146160600000000 T F F O
    0.9033575600000000    0.7500000000000000    0.2586796500000000 T F F O
    0.9566276900000000    0.2500000000000000    0.2928623300000000 T F F O"""
-        self.assertEqual(str(poscar).strip(), ans.strip())
+        assert str(poscar).strip() == ans.strip()
 
     def test_velocities(self):
         si = 14
@@ -345,18 +351,18 @@ direct
         v = np.array(poscar.velocities)
 
         for x in np.sum(v, axis=0):
-            self.assertAlmostEqual(x, 0, 7)
+            assert x == approx(0, abs=1e-7)
 
         temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
-        self.assertAlmostEqual(temperature, 900, 4, "Temperature instantiated incorrectly")
+        assert temperature == approx(900, abs=1e-4), "Temperature instantiated incorrectly"
 
         poscar.set_temperature(700)
         v = np.array(poscar.velocities)
         for x in np.sum(v, axis=0):
-            self.assertAlmostEqual(x, 0, 7, "Velocities initialized with a net momentum")
+            assert x == approx(0, abs=1e-7), "Velocities initialized with a net momentum"
 
         temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
-        self.assertAlmostEqual(temperature, 700, 4, "Temperature instantiated incorrectly")
+        assert temperature == approx(700, abs=1e-4), "Temperature instantiated incorrectly"
 
     def test_write(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
@@ -376,9 +382,9 @@ class IncarTest(PymatgenTest):
     def test_init(self):
         incar = self.incar
         incar["LDAU"] = "T"
-        self.assertEqual(incar["ALGO"], "Damped", "Wrong Algo")
-        self.assertEqual(float(incar["EDIFF"]), 1e-4, "Wrong EDIFF")
-        self.assertEqual(type(incar["LORBIT"]), int)
+        assert incar["ALGO"] == "Damped", "Wrong Algo"
+        assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
+        assert isinstance(incar["LORBIT"], int)
 
     def test_diff(self):
         filepath1 = PymatgenTest.TEST_FILES_DIR / "INCAR"
@@ -386,167 +392,161 @@ class IncarTest(PymatgenTest):
         filepath2 = PymatgenTest.TEST_FILES_DIR / "INCAR.2"
         incar2 = Incar.from_file(filepath2)
         incar3 = Incar.from_file(filepath2)
-        self.assertEqual(
-            incar1.diff(incar2),
-            {
-                "Different": {
-                    "NELM": {"INCAR1": None, "INCAR2": 100},
-                    "ISPIND": {"INCAR1": 2, "INCAR2": None},
-                    "LWAVE": {"INCAR1": True, "INCAR2": False},
-                    "LDAUPRINT": {"INCAR1": None, "INCAR2": 1},
-                    "MAGMOM": {
-                        "INCAR1": [
-                            6,
-                            -6,
-                            -6,
-                            6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                        ],
-                        "INCAR2": None,
-                    },
-                    "NELMIN": {"INCAR1": None, "INCAR2": 3},
-                    "ENCUTFOCK": {"INCAR1": 0.0, "INCAR2": None},
-                    "HFSCREEN": {"INCAR1": 0.207, "INCAR2": None},
-                    "LSCALU": {"INCAR1": False, "INCAR2": None},
-                    "ENCUT": {"INCAR1": 500, "INCAR2": None},
-                    "NSIM": {"INCAR1": 1, "INCAR2": None},
-                    "ICHARG": {"INCAR1": None, "INCAR2": 1},
-                    "NSW": {"INCAR1": 99, "INCAR2": 51},
-                    "NKRED": {"INCAR1": 2, "INCAR2": None},
-                    "NUPDOWN": {"INCAR1": 0, "INCAR2": None},
-                    "LCHARG": {"INCAR1": True, "INCAR2": None},
-                    "LPLANE": {"INCAR1": True, "INCAR2": None},
-                    "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
-                    "NPAR": {"INCAR1": 8, "INCAR2": 1},
-                    "SYSTEM": {
-                        "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
-                        "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
-                        "sg_name=[r-3m]",
-                    },
-                    "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
-                    "LHFCALC": {"INCAR1": True, "INCAR2": None},
-                    "TIME": {"INCAR1": 0.4, "INCAR2": None},
+        assert incar1.diff(incar2) == {
+            "Different": {
+                "NELM": {"INCAR1": None, "INCAR2": 100},
+                "ISPIND": {"INCAR1": 2, "INCAR2": None},
+                "LWAVE": {"INCAR1": True, "INCAR2": False},
+                "LDAUPRINT": {"INCAR1": None, "INCAR2": 1},
+                "MAGMOM": {
+                    "INCAR1": [
+                        6,
+                        -6,
+                        -6,
+                        6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                    ],
+                    "INCAR2": None,
                 },
-                "Same": {
-                    "IBRION": 2,
-                    "PREC": "Accurate",
-                    "ISIF": 3,
-                    "LMAXMIX": 4,
-                    "LREAL": "Auto",
-                    "ISPIN": 2,
-                    "EDIFF": 0.0001,
-                    "LORBIT": 11,
-                    "SIGMA": 0.05,
+                "NELMIN": {"INCAR1": None, "INCAR2": 3},
+                "ENCUTFOCK": {"INCAR1": 0.0, "INCAR2": None},
+                "HFSCREEN": {"INCAR1": 0.207, "INCAR2": None},
+                "LSCALU": {"INCAR1": False, "INCAR2": None},
+                "ENCUT": {"INCAR1": 500, "INCAR2": None},
+                "NSIM": {"INCAR1": 1, "INCAR2": None},
+                "ICHARG": {"INCAR1": None, "INCAR2": 1},
+                "NSW": {"INCAR1": 99, "INCAR2": 51},
+                "NKRED": {"INCAR1": 2, "INCAR2": None},
+                "NUPDOWN": {"INCAR1": 0, "INCAR2": None},
+                "LCHARG": {"INCAR1": True, "INCAR2": None},
+                "LPLANE": {"INCAR1": True, "INCAR2": None},
+                "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
+                "NPAR": {"INCAR1": 8, "INCAR2": 1},
+                "SYSTEM": {
+                    "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
+                    "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
+                    "sg_name=[r-3m]",
                 },
+                "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
+                "LHFCALC": {"INCAR1": True, "INCAR2": None},
+                "TIME": {"INCAR1": 0.4, "INCAR2": None},
             },
-        )
+            "Same": {
+                "IBRION": 2,
+                "PREC": "Accurate",
+                "ISIF": 3,
+                "LMAXMIX": 4,
+                "LREAL": "Auto",
+                "ISPIN": 2,
+                "EDIFF": 0.0001,
+                "LORBIT": 11,
+                "SIGMA": 0.05,
+            },
+        }
 
-        self.assertEqual(
-            incar1.diff(incar3),
-            {
-                "Different": {
-                    "NELM": {"INCAR1": None, "INCAR2": 100},
-                    "ISPIND": {"INCAR1": 2, "INCAR2": None},
-                    "LWAVE": {"INCAR1": True, "INCAR2": False},
-                    "LDAUPRINT": {"INCAR1": None, "INCAR2": 1},
-                    "MAGMOM": {
-                        "INCAR1": [
-                            6,
-                            -6,
-                            -6,
-                            6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                            0.6,
-                        ],
-                        "INCAR2": None,
-                    },
-                    "NELMIN": {"INCAR1": None, "INCAR2": 3},
-                    "ENCUTFOCK": {"INCAR1": 0.0, "INCAR2": None},
-                    "HFSCREEN": {"INCAR1": 0.207, "INCAR2": None},
-                    "LSCALU": {"INCAR1": False, "INCAR2": None},
-                    "ENCUT": {"INCAR1": 500, "INCAR2": None},
-                    "NSIM": {"INCAR1": 1, "INCAR2": None},
-                    "ICHARG": {"INCAR1": None, "INCAR2": 1},
-                    "NSW": {"INCAR1": 99, "INCAR2": 51},
-                    "NKRED": {"INCAR1": 2, "INCAR2": None},
-                    "NUPDOWN": {"INCAR1": 0, "INCAR2": None},
-                    "LCHARG": {"INCAR1": True, "INCAR2": None},
-                    "LPLANE": {"INCAR1": True, "INCAR2": None},
-                    "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
-                    "NPAR": {"INCAR1": 8, "INCAR2": 1},
-                    "SYSTEM": {
-                        "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
-                        "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
-                        "sg_name=[r-3m]",
-                    },
-                    "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
-                    "LHFCALC": {"INCAR1": True, "INCAR2": None},
-                    "TIME": {"INCAR1": 0.4, "INCAR2": None},
+        assert incar1.diff(incar3) == {
+            "Different": {
+                "NELM": {"INCAR1": None, "INCAR2": 100},
+                "ISPIND": {"INCAR1": 2, "INCAR2": None},
+                "LWAVE": {"INCAR1": True, "INCAR2": False},
+                "LDAUPRINT": {"INCAR1": None, "INCAR2": 1},
+                "MAGMOM": {
+                    "INCAR1": [
+                        6,
+                        -6,
+                        -6,
+                        6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                        0.6,
+                    ],
+                    "INCAR2": None,
                 },
-                "Same": {
-                    "IBRION": 2,
-                    "PREC": "Accurate",
-                    "ISIF": 3,
-                    "LMAXMIX": 4,
-                    "LREAL": "Auto",
-                    "ISPIN": 2,
-                    "EDIFF": 0.0001,
-                    "LORBIT": 11,
-                    "SIGMA": 0.05,
+                "NELMIN": {"INCAR1": None, "INCAR2": 3},
+                "ENCUTFOCK": {"INCAR1": 0.0, "INCAR2": None},
+                "HFSCREEN": {"INCAR1": 0.207, "INCAR2": None},
+                "LSCALU": {"INCAR1": False, "INCAR2": None},
+                "ENCUT": {"INCAR1": 500, "INCAR2": None},
+                "NSIM": {"INCAR1": 1, "INCAR2": None},
+                "ICHARG": {"INCAR1": None, "INCAR2": 1},
+                "NSW": {"INCAR1": 99, "INCAR2": 51},
+                "NKRED": {"INCAR1": 2, "INCAR2": None},
+                "NUPDOWN": {"INCAR1": 0, "INCAR2": None},
+                "LCHARG": {"INCAR1": True, "INCAR2": None},
+                "LPLANE": {"INCAR1": True, "INCAR2": None},
+                "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
+                "NPAR": {"INCAR1": 8, "INCAR2": 1},
+                "SYSTEM": {
+                    "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
+                    "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
+                    "sg_name=[r-3m]",
                 },
+                "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
+                "LHFCALC": {"INCAR1": True, "INCAR2": None},
+                "TIME": {"INCAR1": 0.4, "INCAR2": None},
             },
-        )
+            "Same": {
+                "IBRION": 2,
+                "PREC": "Accurate",
+                "ISIF": 3,
+                "LMAXMIX": 4,
+                "LREAL": "Auto",
+                "ISPIN": 2,
+                "EDIFF": 0.0001,
+                "LORBIT": 11,
+                "SIGMA": 0.05,
+            },
+        }
 
     def test_as_dict_and_from_dict(self):
         d = self.incar.as_dict()
         incar2 = Incar.from_dict(d)
-        self.assertEqual(self.incar, incar2)
+        assert self.incar == incar2
         d["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
         incar3 = Incar.from_dict(d)
-        self.assertEqual(incar3["MAGMOM"], [Magmom([1, 2, 3])])
+        assert incar3["MAGMOM"] == [Magmom([1, 2, 3])]
 
     def test_write(self):
         tempfname = Path("INCAR.testing")
         self.incar.write_file(tempfname)
         i = Incar.from_file(tempfname)
-        self.assertEqual(i, self.incar)
+        assert i == self.incar
         tempfname.unlink()
 
     def test_get_string(self):
@@ -579,7 +579,7 @@ PREC       =  Accurate
 SIGMA      =  0.05
 SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
 TIME       =  0.4"""
-        self.assertEqual(s, ans)
+        assert s == ans
 
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
@@ -596,51 +596,48 @@ TIME       =  0.4"""
         incar["MAGMOM"] = magmom1
         incar["LSORBIT"] = "T"
         incar["LANGEVIN_GAMMA"] = [10, 10, 10]
-        self.assertEqual(ans_string1, str(incar))
+        assert ans_string1 == str(incar)
 
         incar["MAGMOM"] = magmom2
         incar["LSORBIT"] = "T"
         incar["LANGEVIN_GAMMA"] = 10
-        self.assertEqual(ans_string2, str(incar))
+        assert ans_string2 == str(incar)
 
         incar["MAGMOM"] = magmom4
         incar["LSORBIT"] = "F"
-        self.assertEqual(ans_string4_nolsorbit, str(incar))
+        assert ans_string4_nolsorbit == str(incar)
         incar["LSORBIT"] = "T"
-        self.assertEqual(ans_string4_lsorbit, str(incar))
+        assert ans_string4_lsorbit == str(incar)
 
         incar = Incar.from_string(ans_string1)
-        self.assertEqual(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
-        self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
+        assert incar["MAGMOM"] == [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
+        assert incar["LANGEVIN_GAMMA"] == [10, 10, 10]
 
         incar = Incar.from_string(ans_string2)
-        self.assertEqual(
-            incar["MAGMOM"],
-            [
-                [-1, -1, -1],
-                [-1, -1, -1],
-                [-1, -1, -1],
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-            ],
-        )
-        self.assertEqual(incar["LANGEVIN_GAMMA"], [10])
+        assert incar["MAGMOM"] == [
+            [-1, -1, -1],
+            [-1, -1, -1],
+            [-1, -1, -1],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ]
+        assert incar["LANGEVIN_GAMMA"] == [10]
 
         incar = Incar.from_string(ans_string3)
-        self.assertFalse(incar["LSORBIT"])
-        self.assertEqual(incar["MAGMOM"], [-1, -1, 9, 9])
+        assert not incar["LSORBIT"]
+        assert incar["MAGMOM"] == [-1, -1, 9, 9]
 
     def test_quad_efg(self):
         incar1 = Incar({})
         incar1["LEFG"] = True
         incar1["QUAD_EFG"] = [0.0, 146.6, -25.58]
         ans_string1 = "LEFG = True\nQUAD_EFG = 0.0 146.6 -25.58\n"
-        self.assertEqual(ans_string1, str(incar1))
+        assert ans_string1 == str(incar1)
         incar2 = Incar.from_string(ans_string1)
-        self.assertEqual(ans_string1, str(incar2))
+        assert ans_string1 == str(incar2)
 
     def test_types(self):
         incar_str = """ALGO = Fast
@@ -657,22 +654,22 @@ NBMOD = -3
 PREC = Accurate
 SIGMA = 0.1"""
         i = Incar.from_string(incar_str)
-        self.assertIsInstance(i["EINT"], list)
-        self.assertEqual(i["EINT"][0], -0.85)
+        assert isinstance(i["EINT"], list)
+        assert i["EINT"][0] == -0.85
 
         incar_str += "\nLHFCALC = .TRUE. ; HFSCREEN = 0.2"
         incar_str += "\nALGO = All;"
         i = Incar.from_string(incar_str)
-        self.assertTrue(i["LHFCALC"])
-        self.assertEqual(i["HFSCREEN"], 0.2)
-        self.assertEqual(i["ALGO"], "All")
+        assert i["LHFCALC"]
+        assert i["HFSCREEN"] == 0.2
+        assert i["ALGO"] == "All"
 
     def test_proc_types(self):
-        self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
+        assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
 
     def test_check_params(self):
         # Triggers warnings when running into nonsensical parameters
-        with self.assertWarns(BadIncarWarning):
+        with pytest.warns(BadIncarWarning):
             incar = Incar(
                 {
                     "ADDGRID": True,
@@ -716,82 +713,78 @@ class KpointsTest(PymatgenTest):
     def test_init(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
-        self.assertEqual(kpoints.kpts, [[10]], "Wrong kpoint lattice read")
+        assert kpoints.kpts == [[10]], "Wrong kpoint lattice read"
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.cartesian"
         kpoints = Kpoints.from_file(filepath)
-        self.assertEqual(
-            kpoints.kpts,
-            [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]],
-            "Wrong kpoint lattice read",
-        )
-        self.assertEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5], "Wrong kpoint shift read")
+        assert kpoints.kpts == [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], "Wrong kpoint lattice read"
+        assert kpoints.kpts_shift == [0.5, 0.5, 0.5], "Wrong kpoint shift read"
 
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         self.kpoints = kpoints
-        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
+        assert kpoints.kpts == [[2, 4, 6]]
 
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.band"
         kpoints = Kpoints.from_file(filepath)
-        self.assertIsNotNone(kpoints.labels)
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Line_mode)
+        assert kpoints.labels is not None
+        assert kpoints.style == Kpoints.supported_modes.Line_mode
         kpoints_str = str(kpoints)
-        self.assertEqual(kpoints_str.split("\n")[3], "Reciprocal")
+        assert kpoints_str.split("\n")[3] == "Reciprocal"
 
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.explicit"
         kpoints = Kpoints.from_file(filepath)
-        self.assertIsNotNone(kpoints.kpts_weights)
-        self.assertEqual(
-            str(kpoints).strip(),
-            """Example file
+        assert kpoints.kpts_weights is not None
+        assert (
+            str(kpoints).strip()
+            == """Example file
 4
 Cartesian
 0.0 0.0 0.0 1 None
 0.0 0.0 0.5 1 None
 0.0 0.5 0.5 2 None
-0.5 0.5 0.5 4 None""",
+0.5 0.5 0.5 4 None"""
         )
 
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.explicit_tet"
         kpoints = Kpoints.from_file(filepath)
-        self.assertEqual(kpoints.tet_connections, [(6, [1, 2, 3, 4])])
+        assert kpoints.tet_connections == [(6, [1, 2, 3, 4])]
 
     def test_style_setter(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS"
         kpoints = Kpoints.from_file(filepath)
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
+        assert kpoints.style == Kpoints.supported_modes.Monkhorst
         kpoints.style = "G"
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        assert kpoints.style == Kpoints.supported_modes.Gamma
 
     def test_static_constructors(self):
         kpoints = Kpoints.gamma_automatic([3, 3, 3], [0, 0, 0])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
-        self.assertEqual(kpoints.kpts, [[3, 3, 3]])
+        assert kpoints.style == Kpoints.supported_modes.Gamma
+        assert kpoints.kpts == [[3, 3, 3]]
         kpoints = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
-        self.assertEqual(kpoints.kpts, [[2, 2, 2]])
+        assert kpoints.style == Kpoints.supported_modes.Monkhorst
+        assert kpoints.kpts == [[2, 2, 2]]
         kpoints = Kpoints.automatic(100)
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
-        self.assertEqual(kpoints.kpts, [[100]])
+        assert kpoints.style == Kpoints.supported_modes.Automatic
+        assert kpoints.kpts == [[100]]
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
-        self.assertEqual(kpoints.kpts, [[1, 3, 3]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        assert kpoints.kpts == [[1, 3, 3]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
-        self.assertEqual(kpoints.kpts, [[6, 10, 13]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        assert kpoints.kpts == [[6, 10, 13]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], True)
-        self.assertEqual(kpoints.kpts, [[5, 9, 1]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        assert kpoints.kpts == [[5, 9, 1]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
 
         s = poscar.structure
         s.make_supercell(3)
         kpoints = Kpoints.automatic_density(s, 500)
-        self.assertEqual(kpoints.kpts, [[1, 1, 1]])
-        self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        assert kpoints.kpts == [[1, 1, 1]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_string(
             """k-point mesh
 0
@@ -806,9 +799,9 @@ G
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
         d = k.as_dict()
         k2 = Kpoints.from_dict(d)
-        self.assertEqual(k.kpts, k2.kpts)
-        self.assertEqual(k.style, k2.style)
-        self.assertEqual(k.kpts_shift, k2.kpts_shift)
+        assert k.kpts == k2.kpts
+        assert k.style == k2.style
+        assert k.kpts_shift == k2.kpts_shift
 
     def test_kpt_bands_as_dict_from_dict(self):
         file_name = PymatgenTest.TEST_FILES_DIR / "KPOINTS.band"
@@ -819,10 +812,10 @@ G
         json.dumps(d)
         # This doesn't work
         k2 = Kpoints.from_dict(d)
-        self.assertEqual(k.kpts, k2.kpts)
-        self.assertEqual(k.style, k2.style)
-        self.assertEqual(k.kpts_shift, k2.kpts_shift)
-        self.assertEqual(k.num_kpts, k2.num_kpts)
+        assert k.kpts == k2.kpts
+        assert k.style == k2.style
+        assert k.kpts_shift == k2.kpts_shift
+        assert k.num_kpts == k2.num_kpts
 
     def test_pickle(self):
         k = Kpoints.gamma_automatic()
@@ -879,14 +872,44 @@ class PotcarSingleTest(PymatgenTest):
             "POMASS": 54.938,
             "RWIGS": 1.323,
         }
-        self.assertEqual(self.psingle.keywords, data)
+        assert self.psingle.keywords == data
+
+    def test_psctr(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
+
+        psingle = PotcarSingle.from_file(filename)
+
+        data = {
+            "nentries": 9,
+            "Orbitals": (
+                (1, 0, 0.50, -6993.8440, 2.0000),
+                (2, 0, 0.50, -0814.6047, 2.0000),
+                (2, 1, 1.50, -0693.3689, 6.0000),
+                (3, 0, 0.50, -0089.4732, 2.0000),
+                (3, 1, 1.50, -0055.6373, 6.0000),
+                (3, 2, 2.50, -0003.8151, 7.0000),
+                (4, 0, 0.50, -0004.2551, 1.0000),
+                (4, 1, 1.50, -0003.4015, 0.0000),
+                (4, 3, 2.50, -0001.3606, 0.0000),
+            ),
+            "OrbitalDescriptions": (
+                (2, -3.8151135, 23, 2.300, None, None),
+                (2, -5.1756961, 23, 2.300, None, None),
+                (0, -4.2550963, 23, 2.300, None, None),
+                (0, 07.2035603, 23, 2.300, None, None),
+                (1, -2.7211652, 23, 2.300, None, None),
+                (1, 18.4316424, 23, 2.300, None, None),
+            ),
+        }
+        for k, v in data.items():
+            assert psingle.PSCTR[k] == v
 
     def test_nelectrons(self):
-        self.assertEqual(self.psingle.nelectrons, 13)
+        assert self.psingle.nelectrons == 13
 
     def test_electron_config(self):
         config = self.psingle.electron_configuration
-        self.assertEqual(config[-1], (3, "p", 6))
+        assert config[-1] == (3, "p", 6)
 
     def test_attributes(self):
         for k in [
@@ -908,50 +931,79 @@ class PotcarSingleTest(PymatgenTest):
             "POMASS",
             "RWIGS",
         ]:
-            self.assertIsNotNone(getattr(self.psingle, k))
+            assert getattr(self.psingle, k) is not None
 
     def test_found_unknown_key(self):
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             PotcarSingle.parse_functions["BAD_KEY"]
 
     def test_bad_value(self):
-        self.assertRaises(ValueError, PotcarSingle.parse_functions["ENMAX"], "ThisShouldBeAFloat")
+        with pytest.raises(ValueError):
+            PotcarSingle.parse_functions["ENMAX"]("ThisShouldBeAFloat")
 
     def test_hash(self):
-        self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
+        assert self.psingle.get_potcar_hash() == "fa52f891f234d49bb4cb5ea96aae8f98"
 
     def test_functional_types(self):
-        self.assertEqual(self.psingle.functional, "PBE")
+        assert self.psingle.functional == "PBE"
 
-        self.assertEqual(self.psingle.functional_class, "GGA")
+        assert self.psingle.functional_class == "GGA"
 
-        self.assertEqual(self.psingle.potential_type, "PAW")
+        assert self.psingle.potential_type == "PAW"
 
         psingle = PotcarSingle.from_file(PymatgenTest.TEST_FILES_DIR / "POT_LDA_PAW" / "POTCAR.Fe.gz")
 
-        self.assertEqual(psingle.functional, "Perdew-Zunger81")
+        assert psingle.functional == "Perdew-Zunger81"
 
-        self.assertEqual(psingle.functional_class, "LDA")
+        assert psingle.functional_class == "LDA"
 
-        self.assertEqual(psingle.potential_type, "PAW")
+        assert psingle.potential_type == "PAW"
 
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
-        with pytest.warns(None):
-            psingle = PotcarSingle.from_file(filename)
+        psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
 
     def test_potcar_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="incomplete"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
         filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_header" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="following"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
             PotcarSingle.from_file(filename)
+
+    def test_verify_faulty_potcar_with_hash(self):
+        filename = (
+            PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
+        )
+        with pytest.raises(ValueError):
+            PotcarSingle.from_file(filename)
+
+    def test_verify_correct_potcar_with_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        metadata_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_pymatgen_hashes.json"))
+
+        psingle = PotcarSingle.from_file(filename)
+        assert psingle.hash in metadata_hash_db
+        assert psingle.file_hash in file_hash_db
+        assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+
+    def test_multi_potcar_with_and_without_hash(self):
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_O.gz"
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        potcars = Potcar.from_file(filename)
+        for psingle in potcars:
+            if hasattr(psingle, "hash_sha256_from_file"):
+                assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+            else:
+                assert psingle.file_hash in file_hash_db
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
@@ -970,9 +1022,9 @@ class PotcarTest(PymatgenTest):
         self.potcar = Potcar.from_file(filepath)
 
     def test_init(self):
-        self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")
+        assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
-        self.assertEqual(potcar[0].enmax, 293.238)
+        assert potcar[0].enmax == 293.238
 
     def test_potcar_map(self):
         fe_potcar = zopen(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz").read().decode("utf-8")
@@ -980,26 +1032,26 @@ class PotcarTest(PymatgenTest):
         # code just grabs the POTCAR from the config file (the config file would
         # grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
-        self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in for POTCAR")
+        assert potcar.symbols == ["Fe_pv"], "Wrong symbols read in for POTCAR"
 
     def test_to_from_dict(self):
         d = self.potcar.as_dict()
         potcar = Potcar.from_dict(d)
-        self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
+        assert potcar.symbols == ["Fe", "P", "O"]
 
     def test_write(self):
         tempfname = Path("POTCAR.testing")
         self.potcar.write_file(tempfname)
         p = Potcar.from_file(tempfname)
-        self.assertEqual(p.symbols, self.potcar.symbols)
+        assert p.symbols == self.potcar.symbols
         tempfname.unlink()
 
     def test_set_symbol(self):
-        self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"])
-        self.assertEqual(self.potcar[0].nelectrons, 8)
+        assert self.potcar.symbols == ["Fe", "P", "O"]
+        assert self.potcar[0].nelectrons == 8
         self.potcar.symbols = ["Fe_pv", "O"]
-        self.assertEqual(self.potcar.symbols, ["Fe_pv", "O"])
-        self.assertEqual(self.potcar[0].nelectrons, 14)
+        assert self.potcar.symbols == ["Fe_pv", "O"]
+        assert self.potcar[0].nelectrons == 14
 
     # def test_default_functional(self):
     #     p = Potcar(["Fe", "P"])
@@ -1035,7 +1087,7 @@ class VaspInputTest(PymatgenTest):
         d = self.vinput.as_dict()
         vinput = VaspInput.from_dict(d)
         comp = vinput["POSCAR"].structure.composition
-        self.assertEqual(comp, Composition("Fe4P4O16"))
+        assert comp == Composition("Fe4P4O16")
 
     def test_write(self):
         tmp_dir = Path("VaspInput.testing")
@@ -1043,7 +1095,7 @@ class VaspInputTest(PymatgenTest):
 
         filepath = tmp_dir / "INCAR"
         incar = Incar.from_file(filepath)
-        self.assertEqual(incar["NSW"], 99)
+        assert incar["NSW"] == 99
 
         for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
             (tmp_dir / name).unlink()
@@ -1056,15 +1108,15 @@ class VaspInputTest(PymatgenTest):
             self.vinput.run_vasp(d, vasp_cmd=["cat", "INCAR"])
             with open(os.path.join(d, "vasp.out")) as f:
                 output = f.read()
-                self.assertEqual(output.split("\n")[0], "ALGO = Damped")
+                assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
-        self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
-        self.assertIn("CONTCAR.Li2O", vi)
+        assert vi["INCAR"]["ALGO"] == "Damped"
+        assert "CONTCAR.Li2O" in vi
         d = vi.as_dict()
         vinput = VaspInput.from_dict(d)
-        self.assertIn("CONTCAR.Li2O", vinput)
+        assert "CONTCAR.Li2O" in vinput
 
 
 if __name__ == "__main__":

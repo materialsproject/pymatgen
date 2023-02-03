@@ -10,7 +10,6 @@ from __future__ import annotations
 import datetime
 import glob
 import itertools
-import json
 import logging
 import math
 import os
@@ -29,7 +28,6 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
-from scipy.interpolate import RegularGridInterpolator
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -44,6 +42,7 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.io.common import VolumetricData as BaseVolumetricData
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
@@ -590,8 +589,9 @@ class Vasprun(MSONable):
         Calculate the optical absorption coefficient
         from the dielectric constants. Note that this method is only
         implemented for optical properties calculated with GGA and BSE.
+
         Returns:
-        optical absorption coefficient in list
+            optical absorption coefficient in list
         """
         if self.dielectric_data["density"]:
             real_avg = [
@@ -691,6 +691,17 @@ class Vasprun(MSONable):
         final_struct = self.final_structure
         pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
         return CompleteDos(self.final_structure, self.tdos, pdoss)
+
+    @property
+    def complete_dos_normalized(self) -> CompleteDos:
+        """
+        A CompleteDos object which incorporates the total DOS and all
+        projected DOS. Normalized by the volume of the unit cell with
+        units of states/eV/unit cell volume.
+        """
+        final_struct = self.final_structure
+        pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
+        return CompleteDos(self.final_structure, self.tdos, pdoss, normalize=True)
 
     @property
     def hubbards(self):
@@ -795,7 +806,7 @@ class Vasprun(MSONable):
         return rt
 
     @property
-    def is_hubbard(self):
+    def is_hubbard(self) -> bool:
         """
         True if run is a DFT+U run.
         """
@@ -804,13 +815,13 @@ class Vasprun(MSONable):
         return sum(self.hubbards.values()) > 1e-8
 
     @property
-    def is_spin(self):
+    def is_spin(self) -> bool:
         """
         True if run is spin-polarized.
         """
         return self.parameters.get("ISPIN", 1) == 2
 
-    def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str = None):
+    def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str | None = None):
         """
         Returns a ComputedEntry or ComputedStructureEntry from the Vasprun.
 
@@ -1027,7 +1038,7 @@ class Vasprun(MSONable):
                 vbm = -float("inf")
                 cbm = float("inf")
             for k, val in enumerate(d):
-                for (eigenval, occu) in val:
+                for eigenval, occu in val:
                     if occu > self.occu_tol and eigenval > vbm:
                         vbm = eigenval
                         vbm_kpoint = k
@@ -1374,9 +1385,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
                 # opticaltransitions array contains oscillator strength and probability of transition
-                oscillator_strength = np.array(_parse_varray(va))[
-                    0:,
-                ]
+                oscillator_strength = np.array(_parse_varray(va))[0:]
                 probability_transition = np.array(_parse_varray(va))[0:, 1]
         return oscillator_strength, probability_transition
 
@@ -2015,7 +2024,7 @@ class Outcar:
             )
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
-        for (n, nplwv) in enumerate(nplwvs_at_kpoints):
+        for n, nplwv in enumerate(nplwvs_at_kpoints):
             try:
                 self.data["nplwvs_at_kpoints"][n] = int(nplwv)
             except ValueError:
@@ -2195,7 +2204,7 @@ class Outcar:
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
                 be returned. Default to be True. Incompatible with first_one_only.
-            first_one_only (bool): Only the first occurence of the table will be
+            first_one_only (bool): Only the first occurrence of the table will be
                 parsed and the parsing procedure will stop. The enclosing list
                 will be removed. i.e. Only a single table will be returned.
                 Incompatible with last_one_only.
@@ -2285,7 +2294,6 @@ class Outcar:
         LOPTICS). Frequencies (in eV) are in self.frequencies, and dielectric
         tensor function is given as self.dielectric_tensor_function.
         """
-
         plasma_pattern = r"plasma frequency squared.*"
         dielectric_pattern = (
             r"frequency dependent\s+IMAGINARY "
@@ -2474,7 +2482,6 @@ class Outcar:
         Returns:
             A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR
         """
-
         header_pattern = (
             r"Electric field gradients \(V/A\^2\)\n" r"-*\n" r" ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n" r"-*\n"
         )
@@ -2545,7 +2552,6 @@ class Outcar:
         Parse the onsite density matrices, returns list with index corresponding
         to atom index in Structure.
         """
-
         # matrix size will vary depending on if d or f orbitals are present
         # therefore regex assumes f, but filter out None values if d
 
@@ -2647,7 +2653,6 @@ class Outcar:
         (See VASP section "LBERRY,  IGPAR,  NPPSTR,  DIPOL tags" for info on
         what these are).
         """
-
         # variables to be filled
         self.er_ev = {}  # will  be  dict (Spin.up/down) of array(3*float)
         self.er_bp = {}  # will  be  dics (Spin.up/down) of array(3*float)
@@ -3258,7 +3263,6 @@ class Outcar:
             The core state eigenenergie of the 2s AO of the 6th atom of the
             structure at the last ionic step is [5]["2s"][-1]
         """
-
         with zopen(self.filename, "rt") as foutcar:
             line = foutcar.readline()
             while line != "":
@@ -3404,7 +3408,7 @@ class Outcar:
 
     def read_fermi_contact_shift(self):
         """
-        output example:
+        Output example:
         Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         -------------------------------------------------------------
         ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
@@ -3418,7 +3422,6 @@ class Outcar:
          [-0.002, -0.002, -0.051, 0.0, -0.052],
          [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data
         """
-
         # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         header_pattern1 = (
             r"\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+"
@@ -3474,138 +3477,11 @@ class Outcar:
         self.data["fermi_contact_shift"] = fc_shift_table
 
 
-class VolumetricData(MSONable):
+class VolumetricData(BaseVolumetricData):
     """
-    Simple volumetric object for reading LOCPOT and CHGCAR type files.
-
-    .. attribute:: structure
-
-        Structure associated with the Volumetric Data object
-
-    ..attribute:: is_spin_polarized
-
-        True if run is spin polarized
-
-    ..attribute:: dim
-
-        Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
-
-    ..attribute:: data
-
-        Actual data as a dict of {string: np.array}. The string are "total"
-        and "diff", in accordance to the output format of vasp LOCPOT and
-        CHGCAR files where the total spin density is written first, followed
-        by the difference spin density.
-
-    .. attribute:: ngridpts
-
-        Total number of grid points in volumetric data.
+    Container for volumetric data that allows
+    for reading/writing with Poscar-type data.
     """
-
-    def __init__(self, structure: Structure, data, distance_matrix=None, data_aug=None):
-        """
-        Typically, this constructor is not used directly and the static
-        from_file constructor is used. This constructor is designed to allow
-        summation and other operations between VolumetricData objects.
-
-        Args:
-            structure: Structure associated with the volumetric data
-            data: Actual volumetric data. If the data is provided as in list format,
-                it will be converted into an np.array automatically
-            data_aug: Any extra information associated with volumetric data
-                (typically augmentation charges)
-            distance_matrix: A pre-computed distance matrix if available.
-                Useful so pass distance_matrices between sums,
-                shortcircuiting an otherwise expensive operation.
-        """
-        self.structure = structure
-        self.is_spin_polarized = len(data) >= 2
-        self.is_soc = len(data) >= 4
-        # convert data to numpy arrays incase they were jsanitized as lists
-        self.data = {k: np.array(v) for k, v in data.items()}
-        self.dim = self.data["total"].shape
-        self.data_aug = data_aug or {}
-        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
-        # lazy init the spin data since this is not always needed.
-        self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = {} if not distance_matrix else distance_matrix
-        self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
-        self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
-        self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
-        self.interpolator = RegularGridInterpolator(
-            (self.xpoints, self.ypoints, self.zpoints),
-            self.data["total"],
-            bounds_error=True,
-        )
-        self.name = "VolumetricData"
-
-    @property
-    def spin_data(self):
-        """
-        The data decomposed into actual spin data as {spin: data}.
-        Essentially, this provides the actual Spin.up and Spin.down data
-        instead of the total and diff. Note that by definition, a
-        non-spin-polarized run would have Spin.up data == Spin.down data.
-        """
-        if not self._spin_data:
-            spin_data = {}
-            spin_data[Spin.up] = 0.5 * (self.data["total"] + self.data.get("diff", 0))
-            spin_data[Spin.down] = 0.5 * (self.data["total"] - self.data.get("diff", 0))
-            self._spin_data = spin_data
-        return self._spin_data
-
-    def get_axis_grid(self, ind):
-        """
-        Returns the grid for a particular axis.
-
-        Args:
-            ind (int): Axis index.
-        """
-        ng = self.dim
-        num_pts = ng[ind]
-        lengths = self.structure.lattice.abc
-        return [i / num_pts * lengths[ind] for i in range(num_pts)]
-
-    def __add__(self, other):
-        return self.linear_add(other, 1.0)
-
-    def __sub__(self, other):
-        return self.linear_add(other, -1.0)
-
-    def copy(self):
-        """
-        :return: Copy of Volumetric object
-        """
-        return VolumetricData(
-            self.structure,
-            {k: v.copy() for k, v in self.data.items()},
-            distance_matrix=self._distance_matrix,
-            data_aug=self.data_aug,
-        )
-
-    def linear_add(self, other, scale_factor=1.0):
-        """
-        Method to do a linear sum of volumetric objects. Used by + and -
-        operators as well. Returns a VolumetricData object containing the
-        linear sum.
-
-        Args:
-            other (VolumetricData): Another VolumetricData object
-            scale_factor (float): Factor to scale the other data by.
-
-        Returns:
-            VolumetricData corresponding to self + scale_factor * other.
-        """
-        if self.structure != other.structure:
-            warnings.warn("Structures are different. Make sure you know what you are doing...")
-        if list(self.data) != list(other.data):
-            raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
-
-        # To add checks
-        data = {}
-        for k in self.data:
-            data[k] = self.data[k] + scale_factor * other.data[k]
-        return VolumetricData(self.structure, data, self._distance_matrix)
 
     @staticmethod
     def parse_file(filename):
@@ -3676,7 +3552,6 @@ class VolumetricData(MSONable):
                         all_dataset_aug[key] = []
                     all_dataset_aug[key].append(original_line)
             if len(all_dataset) == 4:
-
                 data = {
                     "total": all_dataset[0],
                     "diff_x": all_dataset[1],
@@ -3749,8 +3624,8 @@ class VolumetricData(MSONable):
             for vec in self.structure.lattice.matrix:
                 lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
             if not vasp4_compatible:
-                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
-            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
+                lines += "".join(f"{s:5}" for s in p.site_symbols) + "\n"
+            lines += "".join(f"{x:6}" for x in p.natoms) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 a, b, c = site.frac_coords
@@ -3763,7 +3638,7 @@ class VolumetricData(MSONable):
                 lines = []
                 count = 0
                 f.write(f"   {a[0]}   {a[1]}   {a[2]}\n")
-                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])), list(range(a[0]))):
+                for k, j, i in itertools.product(list(range(a[2])), list(range(a[1])), list(range(a[0]))):
                     lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
                     if count % 5 == 0:
@@ -3782,173 +3657,6 @@ class VolumetricData(MSONable):
                 write_spin("diff_z")
             elif self.is_spin_polarized:
                 write_spin("diff")
-
-    def value_at(self, x, y, z):
-        """
-        Get a data value from self.data at a given point (x, y, z) in terms
-        of fractional lattice parameters. Will be interpolated using a
-        RegularGridInterpolator on self.data if (x, y, z) is not in the original
-        set of data points.
-
-        Args:
-            x (float): Fraction of lattice vector a.
-            y (float): Fraction of lattice vector b.
-            z (float): Fraction of lattice vector c.
-
-        Returns:
-            Value from self.data (potentially interpolated) correspondisng to
-            the point (x, y, z).
-        """
-        return self.interpolator([x, y, z])[0]
-
-    def linear_slice(self, p1, p2, n=100):
-        """
-        Get a linear slice of the volumetric data with n data points from
-        point p1 to point p2, in the form of a list.
-
-        Args:
-            p1 (list): 3-element list containing fractional coordinates of the first point.
-            p2 (list): 3-element list containing fractional coordinates of the second point.
-            n (int): Number of data points to collect, defaults to 100.
-
-        Returns:
-            List of n data points (mostly interpolated) representing a linear slice of the
-            data from point p1 to point p2.
-        """
-        assert type(p1) in [list, np.ndarray] and type(p2) in [list, np.ndarray]
-        assert len(p1) == 3 and len(p2) == 3
-        xpts = np.linspace(p1[0], p2[0], num=n)
-        ypts = np.linspace(p1[1], p2[1], num=n)
-        zpts = np.linspace(p1[2], p2[2], num=n)
-        return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
-
-    def get_integrated_diff(self, ind, radius, nbins=1):
-        """
-        Get integrated difference of atom index ind up to radius. This can be
-        an extremely computationally intensive process, depending on how many
-        grid points are in the VolumetricData.
-
-        Args:
-            ind (int): Index of atom.
-            radius (float): Radius of integration.
-            nbins (int): Number of bins. Defaults to 1. This allows one to
-                obtain the charge integration up to a list of the cumulative
-                charge integration values for radii for [radius/nbins,
-                2 * radius/nbins, ....].
-
-        Returns:
-            Differential integrated charge as a np array of [[radius, value],
-            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
-            data[:,1])
-        """
-        # For non-spin-polarized runs, this is zero by definition.
-        if not self.is_spin_polarized:
-            radii = [radius / nbins * (i + 1) for i in range(nbins)]
-            data = np.zeros((nbins, 2))
-            data[:, 0] = radii
-            return data
-
-        struct = self.structure
-        a = self.dim
-        if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
-            coords = []
-            for x, y, z in itertools.product(*(list(range(i)) for i in a)):
-                coords.append([x / a[0], y / a[1], z / a[2]])
-            sites_dist = struct.lattice.get_points_in_sphere(coords, struct[ind].coords, radius)
-            self._distance_matrix[ind] = {
-                "max_radius": radius,
-                "data": np.array(sites_dist),
-            }
-
-        data = self._distance_matrix[ind]["data"]
-
-        # Use boolean indexing to find all charges within the desired distance.
-        inds = data[:, 1] <= radius
-        dists = data[inds, 1]
-        data_inds = np.rint(np.mod(list(data[inds, 0]), 1) * np.tile(a, (len(dists), 1))).astype(int)
-        vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
-
-        hist, edges = np.histogram(dists, bins=nbins, range=[0, radius], weights=vals)
-        data = np.zeros((nbins, 2))
-        data[:, 0] = edges[1:]
-        data[:, 1] = [sum(hist[0 : i + 1]) / self.ngridpts for i in range(nbins)]
-        return data
-
-    def get_average_along_axis(self, ind):
-        """
-        Get the averaged total of the volumetric data a certain axis direction.
-        For example, useful for visualizing Hartree Potentials from a LOCPOT
-        file.
-
-        Args:
-            ind (int): Index of axis.
-
-        Returns:
-            Average total along axis
-        """
-        m = self.data["total"]
-        ng = self.dim
-        if ind == 0:
-            total = np.sum(np.sum(m, axis=1), 1)
-        elif ind == 1:
-            total = np.sum(np.sum(m, axis=0), 1)
-        else:
-            total = np.sum(np.sum(m, axis=0), 0)
-        return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
-
-    def to_hdf5(self, filename):
-        """
-        Writes the VolumetricData to a HDF5 format, which is a highly optimized
-        format for reading storing large data. The mapping of the VolumetricData
-        to this file format is as follows:
-
-        VolumetricData.data -> f["vdata"]
-        VolumetricData.structure ->
-            f["Z"]: Sequence of atomic numbers
-            f["fcoords"]: Fractional coords
-            f["lattice"]: Lattice in the pymatgen.core.lattice.Lattice matrix
-                format
-            f.attrs["structure_json"]: String of json representation
-
-        Args:
-            filename (str): Filename to output to.
-        """
-        import h5py
-
-        with h5py.File(filename, "w") as f:
-            ds = f.create_dataset("lattice", (3, 3), dtype="float")
-            ds[...] = self.structure.lattice.matrix
-            ds = f.create_dataset("Z", (len(self.structure.species),), dtype="i")
-            ds[...] = np.array([sp.Z for sp in self.structure.species])
-            ds = f.create_dataset("fcoords", self.structure.frac_coords.shape, dtype="float")
-            ds[...] = self.structure.frac_coords
-            dt = h5py.special_dtype(vlen=str)
-            ds = f.create_dataset("species", (len(self.structure.species),), dtype=dt)
-            ds[...] = [str(sp) for sp in self.structure.species]
-            grp = f.create_group("vdata")
-            for k in self.data:
-                ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
-                ds[...] = self.data[k]
-            f.attrs["name"] = self.name
-            f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
-
-    @classmethod
-    def from_hdf5(cls, filename, **kwargs):
-        """
-        Reads VolumetricData from HDF5 file.
-
-        :param filename: Filename
-        :return: VolumetricData
-        """
-        import h5py
-
-        with h5py.File(filename, "r") as f:
-            data = {k: np.array(v) for k, v in f["vdata"].items()}
-            data_aug = None
-            if "vdata_aug" in f:
-                data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
-            structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
 
 class Locpot(VolumetricData):
@@ -4242,7 +3950,6 @@ class Procar:
         Returns:
             Sum occupation of orbital of atom.
         """
-
         orbital_index = self.orbitals.index(orbital)
         return {
             spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None]) for spin, d in self.data.items()
@@ -4469,6 +4176,7 @@ class Xdatcar:
             filename (str): Filename of input XDATCAR file.
             ionicstep_start (int): Starting number of ionic step.
             ionicstep_end (int): Ending number of ionic step.
+            comment (str): Optional comment attached to this set of structures.
         """
         preamble = None
         coords_str = []
@@ -4634,7 +4342,7 @@ class Xdatcar:
             latt = Lattice(-latt.matrix)
         lines = [self.comment, "1.0", str(latt)]
         lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join([str(x) for x in self.natoms]))
+        lines.append(" ".join(str(x) for x in self.natoms))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
@@ -4645,7 +4353,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             else:
@@ -4653,7 +4361,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
         return "\n".join(lines) + "\n"
@@ -4715,7 +4423,7 @@ class Dynmat:
                     self.data[atom][disp]["dynmat"].append(v)
 
     def get_phonon_frequencies(self):
-        """calculate phonon frequencies"""
+        """Calculate phonon frequencies"""
         # TODO: the following is most likely not correct or suboptimal
         # hence for demonstration purposes only
         frequencies = []
@@ -4728,22 +4436,22 @@ class Dynmat:
 
     @property
     def nspecs(self):
-        """returns the number of species"""
+        """Returns the number of species"""
         return self._nspecs
 
     @property
     def natoms(self):
-        """returns the number of atoms"""
+        """Returns the number of atoms"""
         return self._natoms
 
     @property
     def ndisps(self):
-        """returns the number of displacements"""
+        """Returns the number of displacements"""
         return self._ndisps
 
     @property
     def masses(self):
-        """returns the list of atomic masses"""
+        """Returns the list of atomic masses"""
         return list(self._masses)
 
 
@@ -4907,7 +4615,7 @@ class Wavecar:
             # read the header information
             recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
-                print(f"recl={recl}, spin={spin}, rtag={rtag}")
+                print(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
             self.spin = spin
 
@@ -4921,7 +4629,7 @@ class Wavecar:
                 raise ValueError(f"invalid rtag of {rtag}")
 
             # padding to end of fortran REC=1
-            np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
+            np.fromfile(f, dtype=np.float64, count=recl8 - 3)
 
             # extract kpoint, bands, energy, and lattice information
             self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
@@ -5025,7 +4733,7 @@ class Wavecar:
                             self.Gpoints[ink],
                             extra_gpoints,
                             extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=(self.vasp_type.lower()[0] == "g"))
+                        ) = self._generate_G_points(kpoint, gamma=self.vasp_type.lower()[0] == "g")
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(
@@ -5120,7 +4828,6 @@ class Wavecar:
         Returns:
             a list containing valid G-points
         """
-
         if gamma:
             kmax = self._nbmax[0] + 1
         else:
@@ -5177,6 +4884,7 @@ class Wavecar:
                             ISPIN = 2, default = 0)
             spinor (int): component of the spinor that is evaluated (only used
                             if vasp_type == 'ncl')
+
         Returns:
             a complex value corresponding to the evaluation of the wavefunction
         """
@@ -5275,11 +4983,12 @@ class Wavecar:
                 wavefunctions.
             scale (int): scaling for the FFT grid. The default value of 2 is at
                 least as fine as the VASP default.
+
         Returns:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
         if phase and not np.all(self.kpoints[kpoint] == 0.0):
-            warnings.warn("phase == True should only be used for the Gamma kpoint! I hope you know what you're doing!")
+            warnings.warn("phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!")
 
         # scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
@@ -5354,7 +5063,7 @@ class Wavecar:
                 for ispin in range(self.spin):
                     for ib in range(self.nb):
                         data[ib, :, :, :] = np.fft.ifftn(self.fft_mesh(ik, ib, spin=ispin)) * N
-                    Unk(ik + 1, data).write_file(str(out_dir / (fname + f"{ispin+1}")))
+                    Unk(ik + 1, data).write_file(str(out_dir / f"{fname}{ispin+1}"))
 
 
 class Eigenval:
@@ -5416,7 +5125,6 @@ class Eigenval:
         Returns:
             a pymatgen.io.vasp.outputs.Eigenval object
         """
-
         self.filename = filename
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
@@ -5483,7 +5191,7 @@ class Eigenval:
                 vbm = -float("inf")
                 cbm = float("inf")
             for k, val in enumerate(d):
-                for (eigenval, occu) in val:
+                for eigenval, occu in val:
                     if occu > self.occu_tol and eigenval > vbm:
                         vbm = eigenval
                         vbm_kpoint = k
@@ -5507,13 +5215,13 @@ class Eigenval:
 
 @dataclass
 class Waveder(MSONable):
-    """Represention of the WAVEDER file.
+    """Representation of the WAVEDER file.
 
     The LOPTICS tag produces a WAVEDER file which contains the derivative of the orbitals with respect to k.
     Since the data is complex, we need to split it into the real and imaginary parts for JSON serialization.
 
     Note:
-        The way tha VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
+        The way that VASP writes the WAVEDER and WAVEDERF has slightly different logic when indexing the bands.
         This results in the formatted WAVDERF only indexing between filled bands. (i.e. all the matrix elements
         are between the states i=1:8 and j=1:8 in a two atom Si calculation, which is likely a VASP bug).
         As such, it is recommended to used the hidden ``LVEL=.True.`` flag in VASP which will force indexing over
@@ -5545,6 +5253,8 @@ class Waveder(MSONable):
         Note: This file is only produced when LOPTICS is true AND vasp has been
         recompiled after uncommenting the line that calls
         WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F
+        It is recommended to use `from_binary` instead since the binary file is
+        much smaller and contains the same information.
 
         Args:
             filename (str): The name of the WAVEDER file.
@@ -5567,12 +5277,14 @@ class Waveder(MSONable):
         return cls(cder_real, cder_imag)
 
     @classmethod
-    def from_binary(cls, filename, gamma_only=False):
+    def from_binary(cls, filename, data_type="complex64"):
         """Read the WAVEDER file and returns a Waveder object.
 
         Args:
             filename: Name of file containing WAVEDER.
-            gamma_only: Whether this is from a gamma-only calculation.
+            data_type: Data type of the WAVEDER file. Default is complex64.
+                If the file was generated with the "gamma" version of VASP,
+                the data type can be either "float64" or "float32".
 
         Returns:
             Waveder object.
@@ -5580,8 +5292,10 @@ class Waveder(MSONable):
         with open(filename, "rb") as fp:
 
             def readData(dtype):
-                """Read records from Fortran binary file and convert to
-                np.array of given dtype."""
+                """
+                Read records from Fortran binary file
+                and convert to np.array of given dtype.
+                """
                 data = b""
                 while True:
                     prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
@@ -5598,10 +5312,8 @@ class Waveder(MSONable):
             nbands, nelect, nk, ispin = readData(np.int32)
             _ = readData(np.float_)  # nodes_in_dielectric_function
             _ = readData(np.float_)  # wplasmon
-            if gamma_only:
-                cder = readData(np.float_)
-            else:
-                cder = readData(np.complex64)
+            me_datatype = np.dtype(data_type)
+            cder = readData(me_datatype)
 
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
             return cls(cder_data.real, cder_data.imag)
@@ -5635,12 +5347,14 @@ class Waveder(MSONable):
         """
         Method returning a value
         between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
+
         Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
-            kpoint (Integer): Index of k-point
-            spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of Cartesian direction (0,1,2)
+            band_i (int): Index of band i
+            band_j (int): Index of band j
+            kpoint (int): Index of k-point
+            spin   (int): Index of spin-channel (0 or 1)
+            cart_dir (int): Index of Cartesian direction (0,1,2)
+
         Returns:
             a float value
         """
@@ -5651,7 +5365,7 @@ class Waveder(MSONable):
 class WSWQ(MSONable):
     r"""
     Class for reading a WSWQ file.
-    The WSWQ file is used to calculation the wave function overlaps betweeen
+    The WSWQ file is used to calculation the wave function overlaps between
         - W: Wavefunctions in the currenct directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq
 

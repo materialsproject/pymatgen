@@ -16,6 +16,8 @@ as well as::
     Surface Science, 2013, 617, 53-59, doi:10.1016/j.susc.2013.05.016.
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 import json
@@ -308,7 +310,6 @@ class Slab(Structure):
         Returns:
             (bool) Whether surfaces are symmetric.
         """
-
         sg = SpacegroupAnalyzer(self, symprec=symprec)
         symmops = sg.get_point_group_operations()
 
@@ -404,7 +405,7 @@ class Slab(Structure):
             dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
         return dipole
 
-    def is_polar(self, tol_dipole_per_unit_area=1e-3):
+    def is_polar(self, tol_dipole_per_unit_area=1e-3) -> bool:
         """
         Checks whether the surface is polar by computing the dipole per unit
         area. Note that the Slab must be oxidation state-decorated for this
@@ -479,8 +480,8 @@ class Slab(Structure):
         def to_s(x):
             return f"{x:0.6f}"
 
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
         outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
@@ -488,7 +489,7 @@ class Slab(Structure):
                     [
                         str(i + 1),
                         site.species_string,
-                        " ".join([to_s(j).rjust(12) for j in site.frac_coords]),
+                        " ".join(to_s(j).rjust(12) for j in site.frac_coords),
                     ]
                 )
             )
@@ -558,7 +559,6 @@ class Slab(Structure):
             than one unequivalent site. This will allow us to use this for
             compound systems.
         """
-
         from pymatgen.analysis.local_env import VoronoiNN
 
         # Get a dictionary of coordination numbers
@@ -624,7 +624,6 @@ class Slab(Structure):
             point: Fractional coordinate. A point equivalent to the
                 parameter point, but on the other side of the slab
         """
-
         sg = SpacegroupAnalyzer(self)
         ops = sg.get_symmetry_operations(cartesian=cartesian)
 
@@ -664,7 +663,6 @@ class Slab(Structure):
         Returns:
             (Slab): The modified slab
         """
-
         # For now just use the species of the
         # surface atom as the element to add
 
@@ -684,7 +682,6 @@ class Slab(Structure):
             indices ([indices]): The indices of the sites
                 in the slab to remove.
         """
-
         slabcopy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         points = [slabcopy[i].frac_coords for i in indices]
         removal_list = []
@@ -873,7 +870,6 @@ class SlabGenerator:
         if max_normal_search is None:
             slab_scale_factor.append(eye[c_index])
         else:
-
             index_range = sorted(
                 reversed(range(-max_normal_search, max_normal_search + 1)),
                 key=lambda x: abs(x),
@@ -943,7 +939,6 @@ class SlabGenerator:
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
-
         h = self._proj_height
         p = round(h / self.parent.lattice.d_hkl(self.miller_index), 8)
         if self.in_unit_planes:
@@ -1185,7 +1180,6 @@ class SlabGenerator:
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
-
         for pair in bonds:
             blength = bonds[pair]
 
@@ -1199,7 +1193,6 @@ class SlabGenerator:
                 for site in self.oriented_unit_cell:
                     poly_coord = 0
                     if site.species_string == el:
-
                         for nn in self.oriented_unit_cell.get_neighbors(site, blength):
                             if nn[0].species_string == pair[i - 1]:
                                 poly_coord += 1
@@ -1249,7 +1242,6 @@ class SlabGenerator:
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
-
         slab = init_slab.copy()
 
         # Determine what fraction the slab is of the total cell size
@@ -1300,7 +1292,6 @@ class SlabGenerator:
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
-
         if init_slab.is_symmetric():
             return [init_slab]
 
@@ -1469,7 +1460,6 @@ class ReconstructionGenerator:
             WILL MODIFY THE BOTTOM SURFACE ACCORDINGLY TO RETURN A SLAB WITH
             EQUIVALENT SURFACES.
         """
-
         if reconstruction_name not in reconstructions_archive:
             raise KeyError(
                 f"The reconstruction_name entered ({reconstruction_name}) does not exist in the "
@@ -1523,7 +1513,6 @@ class ReconstructionGenerator:
         Returns:
             (Slab): The reconstructed slab.
         """
-
         slabs = self.get_unreconstructed_slabs()
         recon_slabs = []
 

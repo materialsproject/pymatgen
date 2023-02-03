@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import numpy as np
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
@@ -233,7 +235,6 @@ class SymmOpTestCase(PymatgenTest):
 
 class MagSymmOpTestCase(PymatgenTest):
     def test_xyzt_string(self):
-
         xyzt_strings = ["x, y, z, +1", "x, y, z, -1", "-y+1/2, x+1/2, x+1/2, +1"]
 
         for xyzt_string in xyzt_strings:
@@ -270,7 +271,6 @@ class MagSymmOpTestCase(PymatgenTest):
         assert magop2.as_xyzt_string() == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
     def test_operate_magmom(self):
-
         # all test magmoms are the same
         magmoms = [
             Magmom([1, 2, 3]),  # as Magmom

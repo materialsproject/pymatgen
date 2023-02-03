@@ -1,6 +1,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
+import json
 import os
 import random
 import unittest
@@ -10,6 +13,8 @@ from shutil import which
 
 import numpy as np
 import pytest
+from monty.json import MontyDecoder, MontyEncoder
+from monty.tempfile import ScratchDir
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -19,6 +24,7 @@ from pymatgen.core.structure import (
     IMolecule,
     IStructure,
     Molecule,
+    PeriodicNeighbor,
     Structure,
     StructureError,
 )
@@ -32,6 +38,16 @@ try:
     import m3gnet
 except ImportError:
     m3gnet = None
+
+
+class NeighborTest(PymatgenTest):
+    def test_msonable(self):
+        s = PymatgenTest.get_structure("Li2O")
+        nn = s.get_neighbors(s[0], r=3)
+        assert isinstance(nn[0], PeriodicNeighbor)
+        str_ = json.dumps(nn, cls=MontyEncoder)
+        nn = json.loads(str_, cls=MontyDecoder)
+        assert isinstance(nn[0], PeriodicNeighbor)
 
 
 class IStructureTest(PymatgenTest):
@@ -205,7 +221,6 @@ class IStructureTest(PymatgenTest):
         assert "xyz" not in d["sites"][0]
 
     def test_from_dict(self):
-
         d = self.propertied_structure.as_dict()
         s = IStructure.from_dict(d)
         assert s[0].magmom == 5
@@ -677,43 +692,41 @@ Direct
         self.assertArrayAlmostEqual(self.struct.distance_matrix, ans)
 
     def test_to_from_file_string(self):
-        for fmt in ["cif", "json", "poscar", "cssr"]:
-            s = self.struct.to(fmt=fmt)
-            assert s is not None
-            ss = IStructure.from_str(s, fmt=fmt)
-            self.assertArrayAlmostEqual(ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
-            self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
-            assert isinstance(ss, IStructure)
+        with ScratchDir("."):
+            for fmt in ["cif", "json", "poscar", "cssr"]:
+                s = self.struct.to(fmt=fmt)
+                assert s is not None
+                ss = IStructure.from_str(s, fmt=fmt)
+                self.assertArrayAlmostEqual(ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
+                self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
+                assert isinstance(ss, IStructure)
 
-        assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
+            assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
 
-        self.struct.to(filename="POSCAR.testing")
-        assert os.path.exists("POSCAR.testing")
-        os.remove("POSCAR.testing")
+            self.struct.to(filename="POSCAR.testing")
+            assert os.path.exists("POSCAR.testing")
 
-        self.struct.to(filename="Si_testing.yaml")
-        assert os.path.exists("Si_testing.yaml")
-        s = Structure.from_file("Si_testing.yaml")
-        assert s == self.struct
-        # Test Path support.
-        s = Structure.from_file(Path("Si_testing.yaml"))
-        assert s == self.struct
+            self.struct.to(filename="Si_testing.yaml")
+            assert os.path.exists("Si_testing.yaml")
+            s = Structure.from_file("Si_testing.yaml")
+            assert s == self.struct
+            # Test Path support.
+            s = Structure.from_file(Path("Si_testing.yaml"))
+            assert s == self.struct
 
-        # Test .yml extension works too.
-        os.replace("Si_testing.yaml", "Si_testing.yml")
-        s = Structure.from_file("Si_testing.yml")
-        assert s == self.struct
-        os.remove("Si_testing.yml")
+            # Test .yml extension works too.
+            os.replace("Si_testing.yaml", "Si_testing.yml")
+            s = Structure.from_file("Si_testing.yml")
+            assert s == self.struct
 
-        with pytest.raises(ValueError):
-            self.struct.to(filename="whatever")
-        with pytest.raises(ValueError):
-            self.struct.to(fmt="badformat")
+            with pytest.raises(ValueError):
+                self.struct.to(filename="whatever")
+            with pytest.raises(ValueError):
+                self.struct.to(fmt="badformat")
 
-        self.struct.to(filename="POSCAR.testing.gz")
-        s = Structure.from_file("POSCAR.testing.gz")
-        assert s == self.struct
-        os.remove("POSCAR.testing.gz")
+            self.struct.to(filename="POSCAR.testing.gz")
+            s = Structure.from_file("POSCAR.testing.gz")
+            assert s == self.struct
 
     def test_pbc(self):
         self.assertArrayEqual(self.struct.pbc, (True, True, True))
@@ -901,7 +914,6 @@ class StructureTest(PymatgenTest):
             assert i.specie in [Species("Li", 1), Species("O", -2)]
 
     def test_add_remove_spin_states(self):
-
         latt = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1056,23 +1068,20 @@ class StructureTest(PymatgenTest):
         assert isinstance(s2, Structure)
 
     def test_to_from_file_string(self):
-        for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
-            s = self.structure.to(fmt=fmt)
-            assert s is not None
-            ss = Structure.from_str(s, fmt=fmt)
-            self.assertArrayAlmostEqual(ss.lattice.parameters, self.structure.lattice.parameters, decimal=5)
-            self.assertArrayAlmostEqual(ss.frac_coords, self.structure.frac_coords)
-            assert isinstance(ss, Structure)
+        with ScratchDir("."):
+            for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
+                s = self.structure.to(fmt=fmt)
+                assert s is not None
+                ss = Structure.from_str(s, fmt=fmt)
+                self.assertArrayAlmostEqual(ss.lattice.parameters, self.structure.lattice.parameters, decimal=5)
+                self.assertArrayAlmostEqual(ss.frac_coords, self.structure.frac_coords)
+                assert isinstance(ss, Structure)
 
-        self.structure.to(filename="POSCAR.testing")
-        assert os.path.exists("POSCAR.testing")
-        os.remove("POSCAR.testing")
+            self.structure.to(filename="POSCAR.testing")
+            assert os.path.exists("POSCAR.testing")
 
-        self.structure.to(filename="structure_testing.json")
-        assert os.path.exists("structure_testing.json")
-        s = Structure.from_file("structure_testing.json")
-        assert s == self.structure
-        os.remove("structure_testing.json")
+            self.structure.to(filename="structure_testing.json")
+            assert Structure.from_file("structure_testing.json") == self.structure
 
     def test_from_spacegroup(self):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])
@@ -1113,7 +1122,6 @@ class StructureTest(PymatgenTest):
         assert len(s) == 8
 
     def test_from_magnetic_spacegroup(self):
-
         # AFM MnF
         s1 = Structure.from_magnetic_spacegroup(
             "P4_2'/mnm'",
@@ -1329,14 +1337,15 @@ class StructureTest(PymatgenTest):
     def test_from_prototype(self):
         for pt in ["bcc", "fcc", "hcp", "diamond"]:
             s = Structure.from_prototype(pt, ["C"], a=3, c=4)
-            self.assertIsInstance(s, Structure)
+            assert isinstance(s, Structure)
 
-        self.assertRaises(ValueError, Structure.from_prototype, "hcp", ["C"], a=3)
+        with pytest.raises(ValueError):
+            Structure.from_prototype("hcp", ["C"], a=3)
 
         s = Structure.from_prototype("rocksalt", ["Li", "Cl"], a=2.56)
-        self.assertEqual(
-            str(s),
-            """Full Formula (Li4 Cl4)
+        assert (
+            str(s)
+            == """Full Formula (Li4 Cl4)
 Reduced Formula: LiCl
 abc   :   2.560000   2.560000   2.560000
 angles:  90.000000  90.000000  90.000000
@@ -1351,11 +1360,11 @@ Sites (8)
   4  Cl    0.5  0    0.5
   5  Cl    0    0.5  0.5
   6  Cl    0.5  0.5  0
-  7  Cl    0    0    0""",
+  7  Cl    0    0    0"""
         )
         for pt in ("cscl", "fluorite", "antifluorite", "zincblende"):
             s = Structure.from_prototype(pt, ["Cs", "Cl"], a=5)
-            self.assertTrue(s.lattice.is_orthogonal)
+            assert s.lattice.is_orthogonal
 
 
 class IMoleculeTest(PymatgenTest):

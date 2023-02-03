@@ -46,11 +46,11 @@ class SubstrateMatch(ZSLMatch):
         """Generate a substrate match from a ZSL match plus metadata"""
 
         # Get the appropriate surface structure
-        struc = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
+        struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
 
         dfm = Deformation(match.match_transformation)
 
-        strain = dfm.green_lagrange_strain.convert_to_ieee(struc, initial_fit=False)
+        strain = dfm.green_lagrange_strain.convert_to_ieee(struct, initial_fit=False)
         von_mises_strain = strain.von_mises_strain
 
         if elasticity_tensor is not None:
@@ -187,7 +187,6 @@ class SubstrateAnalyzer(ZSLGenerator):
             substrate_miller,
         ] in surface_vector_sets:
             for match in self(film_vectors, substrate_vectors, lowest):
-
                 sub_match = SubstrateMatch.from_zsl(
                     match=match,
                     film=film,

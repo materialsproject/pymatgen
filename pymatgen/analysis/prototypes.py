@@ -14,6 +14,8 @@ Computational Materials Science, 136, S1-S828.
 https://doi.org/10.1016/j.commatsci.2017.01.017
 """
 
+from __future__ import annotations
+
 import os
 
 from monty.serialization import loadfn
@@ -104,7 +106,6 @@ class AflowPrototypeMatcher:
         but it is possible a material can match
         multiple prototypes.
         """
-
         tags = self._match_single_prototype(structure)
 
         if len(tags) == 0:

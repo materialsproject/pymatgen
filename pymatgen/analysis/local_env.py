@@ -33,7 +33,6 @@ from pymatgen.core.composition import SpeciesLike
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
-from pymatgen.util.typing import ArrayLike
 
 try:
     from openbabel import openbabel
@@ -290,7 +289,7 @@ class NearNeighbors:
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         raise NotImplementedError("extend_structures_molecule is not defined!")
 
@@ -307,7 +306,7 @@ class NearNeighbors:
         Args:
             structure (Structure): input structure.
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True) to use weights for computing the coordination
+            use_weights (bool): flag indicating whether (True) to use weights for computing the coordination
                 number or not (False, default: each coordinated site has equal weight).
             on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
                 What to do when encountering a disordered structure. 'error' will raise ValueError.
@@ -330,7 +329,7 @@ class NearNeighbors:
         Args:
             structure (Structure): input structure
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
+            use_weights (bool): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
@@ -338,7 +337,6 @@ class NearNeighbors:
         Returns:
             cn (dict): dictionary of CN of each element bonded to site
         """
-
         siw = self.get_nn_info(structure, n)
 
         cn_dict = {}
@@ -367,7 +365,6 @@ class NearNeighbors:
         Returns:
             sites (list of Site objects): near neighbors.
         """
-
         return [e["site"] for e in self.get_nn_info(structure, n)]
 
     def get_weights_of_nn_sites(self, structure: Structure, n: int):
@@ -381,7 +378,6 @@ class NearNeighbors:
         Returns:
             weights (list of floats): near-neighbor weights.
         """
-
         return [e["weight"] for e in self.get_nn_info(structure, n)]
 
     def get_nn_images(self, structure: Structure, n: int):
@@ -397,7 +393,6 @@ class NearNeighbors:
             images (list of 3D integer array): image locations of
                 near neighbors.
         """
-
         return [e["image"] for e in self.get_nn_info(structure, n)]
 
     def get_nn_info(self, structure: Structure, n: int) -> list[dict]:
@@ -457,7 +452,6 @@ class NearNeighbors:
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`.
         """
-
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
@@ -500,12 +494,11 @@ class NearNeighbors:
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`. Does not update the site positions
         """
-
         if shell <= 0:
             raise ValueError("Shell must be positive")
 
         # Append this site to the list of previously-visited sites
-        _previous_steps = _previous_steps.union({(site_idx, _cur_image)})
+        _previous_steps = _previous_steps | {(site_idx, _cur_image)}
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])
@@ -759,7 +752,6 @@ class VoronoiNN(NearNeighbors):
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
         """
-
         # Assemble the list of neighbors used in the tessellation
         #   Gets all atoms within a certain radius
         if self.targets is None:
@@ -814,7 +806,6 @@ class VoronoiNN(NearNeighbors):
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
         """
-
         # Special case: For atoms with 1 site, the atom in the root image is not
         # included in the get_all_neighbors output. Rather than creating logic to add
         # that atom to the neighbor list, which requires detecting whether it will be
@@ -1010,7 +1001,6 @@ class VoronoiNN(NearNeighbors):
                 of which represents a coordinated site, its image location,
                 and its weight.
         """
-
         # Run the tessellation
         nns = self.get_voronoi_polyhedra(structure, n)
 
@@ -1037,7 +1027,6 @@ class VoronoiNN(NearNeighbors):
         Returns:
             (list of tuples (Site, array, float)): See nn_info
         """
-
         # Get the target information
         if self.targets is None:
             targets = structure.composition.elements
@@ -1149,7 +1138,6 @@ class IsayevNN(VoronoiNN):
         Returns:
             See get_nn_info for the format of the returned data.
         """
-
         # Get the target information
         if self.targets is None:
             targets = structure.composition.elements
@@ -1227,7 +1215,10 @@ class JmolNN(NearNeighbors):
     """
 
     def __init__(
-        self, tol: float = 0.45, min_bond_distance: float = 0.4, el_radius_updates: dict[SpeciesLike, float] = None
+        self,
+        tol: float = 0.45,
+        min_bond_distance: float = 0.4,
+        el_radius_updates: dict[SpeciesLike, float] | None = None,
     ):
         """
         Args:
@@ -1272,7 +1263,7 @@ class JmolNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -1303,7 +1294,6 @@ class JmolNN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
         site = structure[n]
 
         # Determine relevant bond lengths based on atomic radii table
@@ -1347,7 +1337,7 @@ class MinimumDistanceNN(NearNeighbors):
                 (default: 0.1).
             cutoff (float): cutoff radius in Angstrom to look for trial
                 near-neighbor sites (default: 10.0).
-            get_all_sites (boolean): If this is set to True then the neighbor
+            get_all_sites (bool): If this is set to True then the neighbor
                 sites are only determined by the cutoff radius, tol is ignored
         """
         self.tol = tol
@@ -1375,7 +1365,7 @@ class MinimumDistanceNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -1395,7 +1385,6 @@ class MinimumDistanceNN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
         is_periodic = isinstance(structure, (Structure, IStructure))
@@ -1471,7 +1460,7 @@ class OpenBabelNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return False
 
@@ -1488,7 +1477,6 @@ class OpenBabelNN(NearNeighbors):
             (dict): representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
-
         from pymatgen.io.babel import BabelMolAdaptor
 
         obmol = BabelMolAdaptor(structure).openbabel_mol
@@ -1578,7 +1566,6 @@ class OpenBabelNN(NearNeighbors):
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`.
         """
-
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
@@ -1634,7 +1621,7 @@ class CovalentBondNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return False
 
@@ -1648,7 +1635,6 @@ class CovalentBondNN(NearNeighbors):
         :return: [dict] representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
-
         # This is unfortunately inefficient, but is the best way to fit the
         # current NearNeighbors scheme
         self.bonds = bonds = structure.get_covalent_bonds(tol=self.tol)
@@ -1688,7 +1674,6 @@ class CovalentBondNN(NearNeighbors):
 
         Returns: a pymatgen.analysis.graphs.MoleculeGraph object
         """
-
         # requires optional dependency which is why it's not a top-level import
         from pymatgen.analysis.graphs import MoleculeGraph
 
@@ -1730,7 +1715,6 @@ class CovalentBondNN(NearNeighbors):
                 a certain neighbor in the structure, in the same format as
                 `get_nn_info`.
         """
-
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
@@ -1785,7 +1769,7 @@ class MinimumOKeeffeNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -1805,7 +1789,6 @@ class MinimumOKeeffeNN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
         try:
@@ -2025,7 +2008,7 @@ def get_okeeffe_params(el_symbol):
     if el not in list(BV_PARAMS):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            f' "{el_symbol}" in "BV_PARAMS"dictionary'
+            f' {el_symbol!r} in "BV_PARAMS"dictionary'
             " provided by pymatgen"
         )
 
@@ -2426,7 +2409,6 @@ class LocalStructOrderParams:
             int: the number of different order parameters that are targeted
                 to be calculated.
         """
-
         return len(self._types)
 
     @property
@@ -2438,7 +2420,6 @@ class LocalStructOrderParams:
                 that no such calculation has yet been performed for this
                 instance.
         """
-
         return len(self._last_nneigh)
 
     def compute_trigonometric_terms(self, thetas, phis):
@@ -2460,7 +2441,6 @@ class LocalStructOrderParams:
                 neighbors. And, this sequence has to equal the sequence
                 of neighbors in the list of polar angles.
         """
-
         if len(thetas) != len(phis):
             raise ValueError("List of polar and azimuthal angles have to be equal!")
 
@@ -2496,7 +2476,6 @@ class LocalStructOrderParams:
             float: bond orientational order parameter of weight l=2
                 corresponding to the input angles thetas and phis.
         """
-
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
@@ -2563,7 +2542,6 @@ class LocalStructOrderParams:
             float: bond orientational order parameter of weight l=4
                 corresponding to the input angles thetas and phis.
         """
-
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
@@ -2671,7 +2649,6 @@ class LocalStructOrderParams:
             float: bond orientational order parameter of weight l=6
                 corresponding to the input angles thetas and phis.
         """
-
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
         nnn = len(self._pow_sin_t[1])
@@ -2860,7 +2837,7 @@ class LocalStructOrderParams:
         return self._params[index]
 
     def get_order_parameters(
-        self, structure: Structure, n: int, indices_neighs: list[int] = None, tol: float = 0.0, target_spec=None
+        self, structure: Structure, n: int, indices_neighs: list[int] | None = None, tol: float = 0.0, target_spec=None
     ):
         """
         Compute all order parameters of site n.
@@ -2908,7 +2885,6 @@ class LocalStructOrderParams:
             does not permit calculation of angles between multiple
             neighbors.
         """
-
         # Do error-checking and initialization.
         if n < 0:
             raise ValueError("Site index smaller zero!")
@@ -2951,10 +2927,10 @@ class LocalStructOrderParams:
         self._last_nneigh = nneigh
 
         # Prepare angle calculations, if applicable.
-        rij: list[ArrayLike] = []
-        rjk: list[list[ArrayLike]] = []
+        rij: list[np.ndarray] = []
+        rjk: list[list[np.ndarray]] = []
         rijnorm: list[list[float]] = []
-        rjknorm: list[list[float]] = []
+        rjknorm: list[list[np.ndarray]] = []
         dist: list[float] = []
         distjk_unique: list[float] = []
         distjk: list[list[float]] = []
@@ -2962,7 +2938,7 @@ class LocalStructOrderParams:
         if self._computerijs:
             for j, neigh in enumerate(neighsites):
                 rij.append(neigh.coords - centvec)
-                dist.append(np.linalg.norm(rij[j]))
+                dist.append(float(np.linalg.norm(rij[j])))
                 rijnorm.append(rij[j] / dist[j])  # type: ignore
         if self._computerjks:
             for j, neigh in enumerate(neighsites):
@@ -2973,7 +2949,7 @@ class LocalStructOrderParams:
                 for k, neigh_2 in enumerate(neighsites):
                     if j != k:
                         rjk[j].append(neigh_2.coords - neigh.coords)
-                        distjk[j].append(np.linalg.norm(rjk[j][kk]))
+                        distjk[j].append(float(np.linalg.norm(rjk[j][kk])))
                         if k > j:
                             distjk_unique.append(distjk[j][kk])
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
@@ -2999,7 +2975,6 @@ class LocalStructOrderParams:
             thetas = []
             phis = []
             for vec in rijnorm:
-
                 # z is North pole --> theta between vec and (0, 0, 1)^T.
                 # Because vec is normalized, dot product is simply vec[2].
                 thetas.append(acos(max(-1.0, min(vec[2], 1.0))))
@@ -3684,7 +3659,7 @@ class EconNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -3930,7 +3905,6 @@ class CrystalNN(NearNeighbors):
                 - a dict of CN -> weight
                 - a dict of CN -> associated near neighbor sites
         """
-
         length = length or self.fingerprint_length
 
         # determine possible bond targets
@@ -4053,7 +4027,7 @@ class CrystalNN(NearNeighbors):
         Args:
             structure (Structure): input structure.
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
+            use_weights (bool): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
@@ -4081,7 +4055,7 @@ class CrystalNN(NearNeighbors):
         Args:
             structure (Structure): input structure
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
+            use_weights (bool): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
@@ -4128,7 +4102,6 @@ class CrystalNN(NearNeighbors):
             nndata: (NNData)
             length: (int) desired length of NNData
         """
-
         if length is None:
             return nndata
 
@@ -4220,7 +4193,6 @@ class CutOffDictNN(NearNeighbors):
             the cut-off distances will have to explicitly include
             the oxidation state, e.g. {('Fe2+', 'O2-'): 2.0}
         """
-
         self.cut_off_dict = cut_off_dict or {}
 
         # for convenience
@@ -4254,7 +4226,7 @@ class CutOffDictNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -4357,7 +4329,7 @@ class Critic2NN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 

@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import unittest
 import warnings
 from pathlib import Path
@@ -39,8 +41,8 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_dim(self):
-        self.assertEqual(self.cpd_binary.dim, 2)
-        self.assertEqual(self.cpd_ternary.dim, 3)
+        assert self.cpd_binary.dim == 2
+        assert self.cpd_ternary.dim == 3
 
     def test_el_refs(self):
         el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary.el_refs.items()}
@@ -117,11 +119,11 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         fig_2d = self.cpd_binary.get_plot()
         fig_3d = self.cpd_ternary.get_plot()
 
-        self.assertEqual(type(fig_2d), Figure)
-        self.assertEqual(fig_2d["data"][0]["type"], "scatter")
+        assert isinstance(fig_2d, Figure)
+        assert fig_2d["data"][0]["type"] == "scatter"
 
-        self.assertEqual(type(fig_3d), Figure)
-        self.assertEqual(fig_3d["data"][0]["type"], "scatter3d")
+        assert isinstance(fig_3d, Figure)
+        assert fig_3d["data"][0]["type"] == "scatter3d"
 
     def test_domains(self):
         correct_domains = {

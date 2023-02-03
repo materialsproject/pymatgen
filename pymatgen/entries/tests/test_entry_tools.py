@@ -2,10 +2,13 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 from pathlib import Path
 
+import pytest
 from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core.periodic_table import Element
@@ -24,10 +27,10 @@ class FuncTest(unittest.TestCase):
     def test_group_entries_by_structure(self):
         entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"))
         groups = group_entries_by_structure(entries)
-        self.assertEqual(sorted(len(g) for g in groups), [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4])
-        self.assertLess(len(groups), len(entries))
+        assert sorted(len(g) for g in groups) == [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4]
+        assert len(groups) < len(entries)
         # Make sure no entries are left behind
-        self.assertEqual(sum(len(g) for g in groups), len(entries))
+        assert sum(len(g) for g in groups) == len(entries)
 
     def test_group_entries_by_composition(self):
         entries = [
@@ -41,10 +44,10 @@ class FuncTest(unittest.TestCase):
         ]
 
         groups = group_entries_by_composition(entries)
-        self.assertEqual(sorted(len(g) for g in groups), [2, 2, 3])
-        self.assertLess(len(groups), len(entries))
+        assert sorted(len(g) for g in groups) == [2, 2, 3]
+        assert len(groups) < len(entries)
         # Make sure no entries are left behind
-        self.assertEqual(sum(len(g) for g in groups), len(entries))
+        assert sum(len(g) for g in groups) == len(entries)
         # test sorting by energy
         for g in groups:
             assert g == sorted(g, key=lambda e: e.energy_per_atom)
@@ -56,26 +59,26 @@ class EntrySetTest(unittest.TestCase):
         self.entry_set = EntrySet(entries)
 
     def test_chemsys(self):
-        self.assertEqual(self.entry_set.chemsys, {"Fe", "Li", "O", "P"})
+        assert self.entry_set.chemsys == {"Fe", "Li", "O", "P"}
 
     def test_get_subset(self):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for e in entries:
-            self.assertTrue({Element.Li, Element.O}.issuperset(e.composition))
-        self.assertRaises(ValueError, self.entry_set.get_subset_in_chemsys, ["Fe", "F"])
+            assert {Element.Li, Element.O}.issuperset(e.composition)
+        with pytest.raises(ValueError):
+            self.entry_set.get_subset_in_chemsys(["Fe", "F"])
 
     def test_remove_non_ground_states(self):
         l = len(self.entry_set)
         self.entry_set.remove_non_ground_states()
-        self.assertLess(len(self.entry_set), l)
+        assert len(self.entry_set) < l
 
     def test_as_dict(self):
         dumpfn(self.entry_set, "temp_entry_set.json")
         entry_set = loadfn("temp_entry_set.json")
-        self.assertEqual(len(entry_set), len(self.entry_set))
+        assert len(entry_set) == len(self.entry_set)
         os.remove("temp_entry_set.json")
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

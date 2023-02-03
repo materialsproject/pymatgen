@@ -40,7 +40,7 @@ class AbstractRatioFunction:
         :param options_dict: Dictionary containing the parameters for the ratio function.
         """
         if function not in self.ALLOWED_FUNCTIONS:
-            raise ValueError(f'Function "{function}" is not allowed in RatioFunction of type "{type(self).__name__}"')
+            raise ValueError(f'Function {function!r} is not allowed in RatioFunction of type "{type(self).__name__}"')
         self.eval = object.__getattribute__(self, function)
         self.function = function
         self.setup_parameters(options_dict=options_dict)
@@ -67,26 +67,26 @@ class AbstractRatioFunction:
                 if len(function_options) == 1:
                     opts = f'Option "{function_options[0]}"'
                 else:
-                    opts1 = ", ".join([f'"{op}"' for op in function_options[:-1]])
+                    opts1 = ", ".join(f"{op!r}" for op in function_options[:-1])
                     opts = f'Options {opts1} and "{function_options[-1]}"'
                 if options_dict is None or len(options_dict) == 0:
                     missing = "no option was provided."
                 else:
                     optgiven = list(options_dict)
                     if len(options_dict) == 1:
-                        missing = f'only "{optgiven[0]}" was provided.'
+                        missing = f"only {optgiven[0]!r} was provided."
                     else:
-                        missing1 = ", ".join([f'"{miss}"' for miss in optgiven[:-1]])
-                        missing = f'only {missing1} and "{optgiven[-1]}" were provided.'
+                        missing1 = ", ".join(f"{miss!r}" for miss in optgiven[:-1])
+                        missing = f"only {missing1} and {optgiven[-1]!r} were provided."
                 raise ValueError(
-                    f'{opts} should be provided for function "{self.function}" in RatioFunction of '
-                    f'type "{type(self).__name__}" while {missing}'
+                    f"{opts} should be provided for function {self.function!r} in RatioFunction of "
+                    f"type {type(self).__name__!r} while {missing}"
                 )
             # Setup the options and raise an error if a wrong option is provided
             for key, val in options_dict.items():
                 if key not in function_options:
                     raise ValueError(
-                        f'Option "{key}" not allowed for function "{self.function}" in RatioFunction of '
+                        f"Option {key!r} not allowed for function {self.function!r} in RatioFunction of "
                         f'type "{type(self).__name__}"'
                     )
                 setattr(self, key, val)

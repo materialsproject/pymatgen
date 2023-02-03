@@ -2,10 +2,13 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 
 import numpy as np
+from pytest import approx
 
 from pymatgen.analysis.structure_analyzer import (
     RelaxationAnalyzer,
@@ -36,19 +39,11 @@ class VoronoiAnalyzerTest(PymatgenTest):
     def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
         single_structure = self.va.analyze(self.s, n=5)
-        self.assertIn(
-            single_structure.view(),
-            np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(),
-            "Cannot find the right polyhedron.",
-        )
+        assert single_structure.view() in np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(), "Cannot find the right polyhedron."
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
         ensemble = self.va.analyze_structures(self.ss, step_freq=2, most_frequent_polyhedra=10)
-        self.assertIn(
-            ("[1 3 4 7 1 0 0 0]", 3),
-            ensemble,
-            "Cannot find the right polyhedron in ensemble.",
-        )
+        assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
 class RelaxationAnalyzerTest(unittest.TestCase):
@@ -61,18 +56,18 @@ class RelaxationAnalyzerTest(unittest.TestCase):
 
     def test_vol_and_para_changes(self):
         for v in self.analyzer.get_percentage_lattice_parameter_changes().values():
-            self.assertAlmostEqual(-0.0092040921155279731, v)
+            assert -0.0092040921155279731 == approx(v)
             latt_change = v
         vol_change = self.analyzer.get_percentage_volume_change()
-        self.assertAlmostEqual(-0.0273589101391, vol_change)
+        assert -0.0273589101391 == approx(vol_change)
         # This is a simple cubic cell, so the latt and vol change are simply
         # Related. So let's test that.
-        self.assertAlmostEqual((1 + latt_change) ** 3 - 1, vol_change)
+        assert (1 + latt_change) ** 3 - 1 == approx(vol_change)
 
     def test_get_percentage_bond_dist_changes(self):
         for v in self.analyzer.get_percentage_bond_dist_changes().values():
             for v2 in v.values():
-                self.assertAlmostEqual(-0.009204092115527862, v2)
+                assert -0.009204092115527862 == approx(v2)
 
 
 class VoronoiConnectivityTest(PymatgenTest):
@@ -80,27 +75,24 @@ class VoronoiConnectivityTest(PymatgenTest):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
         expected = np.array([0, 1.96338392, 0, 0.04594495])
-        self.assertTrue(np.allclose(ca[15, :4, ca.shape[2] // 2], expected))
+        assert np.allclose(ca[15, :4, ca.shape[2] // 2], expected)
 
         expected = np.array([0, 0, 0])
-        self.assertTrue(np.allclose(ca[1, -3:, 51], expected))
+        assert np.allclose(ca[1, -3:, 51], expected)
 
         site = vc.get_sitej(27, 51)
-        self.assertEqual(site.specie, Element("O"))
+        assert site.specie == Element("O")
         expected = np.array([-0.29158, 0.74889, 0.95684])
-        self.assertTrue(np.allclose(site.frac_coords, expected))
+        assert np.allclose(site.frac_coords, expected)
 
 
 class MiscFunctionTest(PymatgenTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD"))
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
-        self.assertAlmostEqual(
-            coordination_numbers["Fe"],
-            4.771903318390836,
-            5,
-            "Coordination number not calculated properly.",
-        )
+        assert coordination_numbers["Fe"] == approx(
+            4.771903318390836, 5
+        ), "Coordination number not calculated properly."
 
     def test_solid_angle(self):
         center = [2.294508207929496, 4.4078057081404, 2.299997773791287]
@@ -111,20 +103,14 @@ class MiscFunctionTest(PymatgenTest):
             [3.874524708023352, 4.425301459451914, 2.771990305592935],
             [2.055778446743566, 4.437449313863041, 4.061046832034642],
         ]
-        self.assertAlmostEqual(
-            solid_angle(center, coords),
-            1.83570965938,
-            7,
-            "Wrong result returned by solid_angle",
-        )
+        assert solid_angle(center, coords) == approx(1.83570965938, abs=1e-7), "Wrong result returned by solid_angle"
 
     def test_contains_peroxide(self):
-
         for f in ["LiFePO4", "NaFePO4", "Li3V2(PO4)3", "Li2O"]:
-            self.assertFalse(contains_peroxide(self.get_structure(f)))
+            assert not contains_peroxide(self.get_structure(f))
 
         for f in ["Li2O2", "K2O2"]:
-            self.assertTrue(contains_peroxide(self.get_structure(f)))
+            assert contains_peroxide(self.get_structure(f))
 
     def test_oxide_type(self):
         el_li = Element("Li")
@@ -139,7 +125,7 @@ class MiscFunctionTest(PymatgenTest):
         coords.append([0.132568, 0.414910, 0.000000])
         coords.append([0.867432, 0.585090, 0.000000])
         struct = Structure(latt, elts, coords)
-        self.assertEqual(oxide_type(struct, 1.1), "superoxide")
+        assert oxide_type(struct, 1.1) == "superoxide"
 
         el_li = Element("Li")
         el_o = Element("O")
@@ -152,7 +138,7 @@ class MiscFunctionTest(PymatgenTest):
             [0.099587, 0.874790, 0.224797],
         ]
         struct = Structure(latt, elts, coords)
-        self.assertEqual(oxide_type(struct, 1.1), "ozonide")
+        assert oxide_type(struct, 1.1) == "ozonide"
 
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
         el_li = Element("Li")
@@ -169,7 +155,7 @@ class MiscFunctionTest(PymatgenTest):
             [0.666665, 0.666684, 0.149189],
         ]
         struct = Structure(latt, elts, coords)
-        self.assertEqual(oxide_type(struct, 1.1), "peroxide")
+        assert oxide_type(struct, 1.1) == "peroxide"
 
         el_li = Element("Li")
         el_o = Element("O")
@@ -185,7 +171,7 @@ class MiscFunctionTest(PymatgenTest):
             [0.500000, 0.000000, 0.807328],
         ]
         struct = Structure(latt, elts, coords)
-        self.assertEqual(oxide_type(struct, 1.1), "hydroxide")
+        assert oxide_type(struct, 1.1) == "hydroxide"
 
         el_li = Element("Li")
         el_n = Element("N")
@@ -201,7 +187,7 @@ class MiscFunctionTest(PymatgenTest):
             [0.500000, 0.000000, 0.807328],
         ]
         struct = Structure(latt, elts, coords)
-        self.assertEqual(oxide_type(struct, 1.1), "None")
+        assert oxide_type(struct, 1.1) == "None"
 
         el_o = Element("O")
         latt = Lattice.from_parameters(4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828)
@@ -217,7 +203,7 @@ class MiscFunctionTest(PymatgenTest):
             [0.867359, 0.851778, 0.851778],
         ]
         struct = Structure(latt, elts, coords)
-        self.assertEqual(oxide_type(struct, 1.1), "None")
+        assert oxide_type(struct, 1.1) == "None"
 
     def test_sulfide_type(self):
         # NaS2 -> polysulfide
@@ -230,14 +216,14 @@ class MiscFunctionTest(PymatgenTest):
             [0.14700, 0.11600, 0.40000],
         ]
         struct = Structure.from_spacegroup(122, latt, species, coords)
-        self.assertEqual(sulfide_type(struct), "polysulfide")
+        assert sulfide_type(struct) == "polysulfide"
 
         # NaCl type NaS -> sulfide
         latt = Lattice.cubic(5.75)
         species = ["Na", "S"]
         coords = [[0.00000, 0.00000, 0.00000], [0.50000, 0.50000, 0.50000]]
         struct = Structure.from_spacegroup(225, latt, species, coords)
-        self.assertEqual(sulfide_type(struct), "sulfide")
+        assert sulfide_type(struct) == "sulfide"
 
         # Na2S2O3 -> None (sulfate)
         latt = Lattice.monoclinic(6.40100, 8.10000, 8.47400, 96.8800)
@@ -252,7 +238,7 @@ class MiscFunctionTest(PymatgenTest):
             [0.16248, -0.08546, 0.11608],
         ]
         struct = Structure.from_spacegroup(14, latt, species, coords)
-        self.assertEqual(sulfide_type(struct), None)
+        assert sulfide_type(struct) is None
 
         # Na3PS3O -> sulfide
         latt = Lattice.orthorhombic(9.51050, 11.54630, 5.93230)
@@ -266,11 +252,11 @@ class MiscFunctionTest(PymatgenTest):
             [0.50000, 0.30300, 0.61140],
         ]
         struct = Structure.from_spacegroup(36, latt, species, coords)
-        self.assertEqual(sulfide_type(struct), "sulfide")
+        assert sulfide_type(struct) == "sulfide"
 
         # test for unphysical cells
         struct.scale_lattice(struct.volume * 10)
-        self.assertEqual(sulfide_type(struct), "sulfide")
+        assert sulfide_type(struct) == "sulfide"
 
 
 if __name__ == "__main__":

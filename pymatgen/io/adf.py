@@ -2,6 +2,8 @@
 IO for ADF files.
 """
 
+from __future__ import annotations
+
 import os
 import re
 from typing import Generator
@@ -15,7 +17,7 @@ from pymatgen.core.structure import Molecule
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-def is_numeric(s):
+def is_numeric(s) -> bool:
     """
     Return True is the string ``s`` is a numeric string.
 
@@ -148,7 +150,7 @@ class AdfKey(MSONable):
             return s.strip()
         return ""
 
-    def is_block_key(self):
+    def is_block_key(self) -> bool:
         """
         Return True if this key is a block key.
         """
@@ -195,7 +197,7 @@ class AdfKey(MSONable):
             s += "END\n"
         return s
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, AdfKey):
             return False
         return str(self) == str(other)
@@ -395,7 +397,7 @@ class AdfKey(MSONable):
         Only the first block key will be returned.
         """
 
-        def is_float(s):
+        def is_float(s) -> bool:
             return "." in s or "E" in s or "e" in s
 
         if string.find("\n") == -1:
@@ -654,7 +656,6 @@ class AdfInput:
         inpfile : str
             The name where the input file will be saved.
         """
-
         mol_blocks = []
         atom_block = AdfKey("Atoms", options=["cartesian"])
         for site in molecule:
@@ -771,7 +772,6 @@ class AdfOutput:
         """
         Parse the formatted logfile.
         """
-
         cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
         coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)" + 3 * r"\s+([-\.0-9]+)")
         energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\sHartree")

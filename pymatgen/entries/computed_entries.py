@@ -13,10 +13,11 @@ from __future__ import annotations
 
 import abc
 import json
+import math
 import os
 import warnings
 from itertools import combinations
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -94,7 +95,7 @@ class EnergyAdjustment(MSONable):
     @abc.abstractmethod
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
 
     def __repr__(self):
@@ -126,7 +127,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         Args:
             value: float, value of the energy adjustment in eV
-            uncertainty: float, uncertaint of the energy adjustment in eV. (Default: np.nan)
+            uncertainty: float, uncertainty of the energy adjustment in eV. (Default: np.nan)
             name: str, human-readable name of the energy adjustment.
                 (Default: Constant energy adjustment)
             cls: dict, Serialized Compatibility class used to generate the energy
@@ -140,9 +141,9 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
     @property
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self.value:.3f} eV)"
+        return f"{self.description} ({self.value:.3f} eV)"
 
     def normalize(self, factor):
         """
@@ -220,9 +221,9 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
     @property
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
+        return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -287,9 +288,9 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
     @property
     def explain(self):
         """
-        Return an explanaion of how the energy adjustment is calculated.
+        Return an explanation of how the energy adjustment is calculated.
         """
-        return self.description + f" ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
+        return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
@@ -312,10 +313,10 @@ class ComputedEntry(Entry):
         composition: Composition | str | dict[str, float],
         energy: float,
         correction: float = 0.0,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
     ):
         """
         Initializes a ComputedEntry.
@@ -439,7 +440,6 @@ class ComputedEntry(Entry):
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
         """
-
         factor = self._normalization_factor(mode)
         new_composition = self._composition / factor
         new_energy = self._energy / factor
@@ -482,27 +482,36 @@ class ComputedEntry(Entry):
     def __str__(self):
         return self.__repr__()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         # NOTE: Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately.
         if self is other:
             return True
 
-        # Equality is defined based on composition and energy
+        needed_attrs = ("composition", "energy", "entry_id")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(ComputedEntry, other)
+
+        # Equality is defined based on composition and energy.
         # If structures are involved, it is assumed that a {composition, energy} is
-        # vanishingly unlikely to be the same if the structures are different
-        # if entry_ids are equivalent, skip the more expensive composition check
+        # vanishingly unlikely to be the same if the structures are different.
+        # If entry_ids are different, assume that the entries are different.
+        # However, if entry_id is same, they may have different corrections (e.g., due
+        # to mixing scheme used) and thus should be compared on corrected energy.
 
         if getattr(self, "entry_id", None) and getattr(other, "entry_id", None):
-            return self.entry_id == other.entry_id
+            if self.entry_id != other.entry_id:
+                return False
 
-        if not np.allclose(self.energy, other.energy):
+        if not math.isclose(self.energy, other.energy):
             return False
 
         if self.composition != other.composition:
             return False
 
-        # assumes that data, parameters, corrections are equivalent
+        # assumes that data, parameters are equivalent
         return True
 
     @classmethod
@@ -560,6 +569,19 @@ class ComputedEntry(Entry):
 
         return super().__hash__()
 
+    def copy(self) -> ComputedEntry:
+        """
+        Returns a copy of the ComputedEntry.
+        """
+        return ComputedEntry(
+            composition=self.composition,
+            energy=self.uncorrected_energy,
+            energy_adjustments=self.energy_adjustments,
+            parameters=self.parameters,
+            data=self.data,
+            entry_id=self.entry_id,
+        )
+
 
 class ComputedStructureEntry(ComputedEntry):
     """
@@ -573,11 +595,11 @@ class ComputedStructureEntry(ComputedEntry):
         energy: float,
         correction: float = 0.0,
         composition: Composition | str | dict[str, float] | None = None,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
-    ):
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
+    ) -> None:
         """
         Initializes a ComputedStructureEntry.
 
@@ -585,20 +607,21 @@ class ComputedStructureEntry(ComputedEntry):
             structure (Structure): The actual structure of an entry.
             energy (float): Energy of the entry. Usually the final calculated
                 energy from VASP or other electronic structure codes.
-            energy_adjustments: An optional list of EnergyAdjustment to
-                be applied to the energy. This is used to modify the energy for
-                certain analyses. Defaults to None.
+            correction (float, optional): A correction to the energy. This is mutually exclusive with
+                energy_adjustments, i.e. pass either or neither but not both. Defaults to 0.
             composition (Composition): Composition of the entry. For
                 flexibility, this can take the form of all the typical input
                 taken by a Composition, including a {symbol: amt} dict,
                 a string formula, and others.
+            energy_adjustments: An optional list of EnergyAdjustment to
+                be applied to the energy. This is used to modify the energy for
+                certain analyses. Defaults to None.
             parameters: An optional dict of parameters associated with
                 the entry. Defaults to None.
             data: An optional dict of any additional data associated
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
         """
-
         if composition:
             composition = Composition(composition)
             if (
@@ -670,8 +693,8 @@ class ComputedStructureEntry(ComputedEntry):
 
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedStructureEntry:
         """
-        Normalize the entry's composition and energy. The structure remains
-        unchanged.
+        Normalize the entry's composition and energy. The structure remains unchanged.
+
         Args:
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
@@ -691,6 +714,20 @@ class ComputedStructureEntry(ComputedEntry):
         entry._composition /= factor  # pylint: disable=E1101
         return entry
 
+    def copy(self) -> ComputedStructureEntry:
+        """
+        Returns a copy of the ComputedStructureEntry.
+        """
+        return ComputedStructureEntry(
+            structure=self.structure.copy(),
+            energy=self.uncorrected_energy,
+            composition=self.composition,
+            energy_adjustments=self.energy_adjustments,
+            parameters=self.parameters,
+            data=self.data,
+            entry_id=self.entry_id,
+        )
+
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
     """
@@ -704,12 +741,12 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         formation_enthalpy_per_atom: float,
         temp: float = 300,
         gibbs_model: Literal["SISSO"] = "SISSO",
-        composition: Composition = None,
+        composition: Composition | None = None,
         correction: float = 0.0,
-        energy_adjustments: list = None,
-        parameters: dict = None,
-        data: dict = None,
-        entry_id: object = None,
+        energy_adjustments: list | None = None,
+        parameters: dict | None = None,
+        data: dict | None = None,
+        entry_id: object | None = None,
     ):
         """
         Args:
@@ -887,7 +924,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
             float: G^delta [eV/atom]
         """
-
         return (
             (-2.48e-4 * np.log(vol_per_atom) - 8.94e-5 * reduced_mass / vol_per_atom) * temp
             + 0.181 * np.log(temp)

@@ -1,10 +1,9 @@
-# coding: utf-8
-#cython: language_level=3
-
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.
 """
+
+# isort: dont-add-imports
 
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -17,7 +16,7 @@ import numpy as np
 
 cimport cython
 cimport numpy as np
-from libc.math cimport M_PI, acos, cos, fabs, round, sin, sqrt
+from libc.math cimport fabs, round
 from libc.stdlib cimport free, malloc
 
 #create images, 2d array of all length 3 combinations of [-1,0,1]
@@ -94,7 +93,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     cdef int n_pbc_im = 3 ** n_pbc
     cdef np.float_t[:, ::1] frac_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
 
-    cdef int i, j, k, l, I, J, bestK
+    cdef int i, j, k, l, I, J
 
     if n_pbc == 3:
         fcoords1 = lattice.get_lll_frac_coords(fcoords1)
@@ -112,7 +111,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
                 frac_im[k] = images_view[i]
                 k += 1
 
-    cdef np.float_t[:, ::1] lat = np.array(matrix, dtype=np.float_, copy=False, order='C')
+    cdef np.float_t[:, ::1] lat = np.array(matrix, dtype=np.float_, copy=False, order="C")
 
     I = len(fcoords1)
     J = len(fcoords2)
@@ -127,12 +126,12 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     cdef bint has_mask = mask is not None
     cdef np.int_t[:, :] m
     if has_mask:
-        m = np.array(mask, dtype=np.int_, copy=False, order='C')
+        m = np.array(mask, dtype=np.int_, copy=False, order="C")
 
     cdef bint has_ftol = (lll_frac_tol is not None)
     cdef np.float_t[:] ftol
     if has_ftol:
-        ftol = np.array(lll_frac_tol, dtype=np.float_, order='C', copy=False)
+        ftol = np.array(lll_frac_tol, dtype=np.float_, order="C", copy=False)
 
 
     dot_2d_mod(fc1, lat, cart_f1)
@@ -143,7 +142,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     d2 = np.empty((I, J))
     cdef np.float_t[:, :, ::1] vs = vectors
     cdef np.float_t[:, ::1] ds = d2
-    cdef np.float_t best, d, inc_d, da, db, dc, fdist
+    cdef np.float_t best, d, da, db, dc, fdist
     cdef bint within_frac = True
     cdef np.float_t[:] pre_im = <np.float_t[:3]> malloc(3 * sizeof(np.float_t))
 
@@ -210,20 +209,20 @@ def is_coord_subset_pbc(subset, superset, atol, mask, pbc=(True, True, True)):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order='C')
+    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order="C")
 
-    cdef int i, j, k, I, J
+    cdef int i, j, k, len_fc1, len_fc2
     cdef np.float_t d
     cdef bint ok, pbc_int[3]
 
     pbc_int = pbc
 
-    I = fc1.shape[0]
-    J = fc2.shape[0]
+    len_fc1 = fc1.shape[0]
+    len_fc2 = fc2.shape[0]
 
-    for i in range(I):
+    for i in range(len_fc1):
         ok = False
-        for j in range(J):
+        for j in range(len_fc2):
             if m[i, j]:
                 continue
             ok = True
@@ -254,7 +253,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    inds = np.zeros(len(subset), dtype=np.int) - 1
+    inds = -np.ones(len(subset), dtype=int)
     subset = np.atleast_2d(subset)
     superset = np.atleast_2d(superset)
 
@@ -267,12 +266,12 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
 
     pbc_int = pbc
 
-    I = fc1.shape[0]
-    J = fc2.shape[0]
+    len_fc1 = fc1.shape[0]
+    len_fc2 = fc2.shape[0]
 
-    for i in range(I):
+    for i in range(len_fc1):
         ok_outer = False
-        for j in range(J):
+        for j in range(len_fc2):
             ok_inner = True
             for k in range(3):
                 d = fc1[i, k] - fc2[j, k]
@@ -281,8 +280,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
                     break
             if ok_inner:
                 if c_inds[i] >= 0:
-                    raise ValueError("Something wrong with the inputs, likely duplicates "
-                             "in superset")
+                    raise ValueError("Something wrong with the inputs, likely duplicates in superset")
                 c_inds[i] = j
                 ok_outer = True
                 # we don't break here so we can check for duplicates in superset

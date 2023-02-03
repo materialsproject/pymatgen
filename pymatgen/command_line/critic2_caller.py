@@ -29,13 +29,15 @@ appropriate (e.g. the two nucleus critical points linked to
 If you use this module, please cite the following:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
-Comput. Phys. Commun. 185, 1007-1018 (2014)
+Comput. Phys. Communications 185, 1007-1018 (2014)
 (https://doi.org/10.1016/j.cpc.2013.10.026)
 
 A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and
-V. Luaña, Comput. Phys. Commun. 180, 157-166 (2009)
+V. Luaña, Comput. Phys. Communications 180, 157-166 (2009)
 (https://doi.org/10.1016/j.cpc.2008.07.018)
 """
+
+from __future__ import annotations
 
 import glob
 import logging
@@ -78,7 +80,6 @@ class Critic2Caller:
 
         :param input_script: string defining the critic2 input
         """
-
         # store if examining the input script is useful,
         # not otherwise used
         self._input_script = input_script
@@ -177,7 +178,6 @@ class Critic2Caller:
         (ZVAL in VASP pseudopotential), with which to properly augment core regions
         and calculate charge transfer. Optional.
         """
-
         settings = {"CPEPS": 0.1, "SEED": ["WS", "PAIR DIST 10"]}
         if user_input_settings:
             settings.update(user_input_settings)
@@ -193,7 +193,7 @@ class Critic2Caller:
         if chgcar:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = " zpsp " + " ".join([f"{symbol} {zval}" for symbol, zval in zpsp.items()])
+                zpsp_str = " zpsp " + " ".join(f"{symbol} {zval}" for symbol, zval in zpsp.items())
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
@@ -220,7 +220,6 @@ class Critic2Caller:
         input_script = "\n".join(input_script)
 
         with ScratchDir(".") as temp_dir:
-
             os.chdir(temp_dir)
 
             structure.to(filename="POSCAR")
@@ -270,13 +269,11 @@ class Critic2Caller:
         :param zpsp: manually specify ZPSP if POTCAR not present
         :return:
         """
-
         chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
         chgcar_ref = None
 
         if not zpsp:
-
             potcar_path = get_filepath(
                 "POTCAR",
                 "Could not find POTCAR, will not be able to calculate charge transfer.",
@@ -463,7 +460,6 @@ class Critic2Analysis(MSONable):
         (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
         Optional.
         """
-
         self.structure = structure
 
         self._stdout = stdout
@@ -499,7 +495,6 @@ class Critic2Analysis(MSONable):
 
         Returns: a StructureGraph
         """
-
         structure = self.structure.copy()
 
         point_idx_to_struct_idx = {}
@@ -562,7 +557,6 @@ class Critic2Analysis(MSONable):
             unique_idx = self.nodes[idx]["unique_idx"]
             # only add edges representing bonds, not rings
             if self.critical_points[unique_idx].type == CriticalPointType.bond:
-
                 from_idx = edge["from_idx"]
                 to_idx = edge["to_idx"]
 
@@ -682,7 +676,6 @@ class Critic2Analysis(MSONable):
         Re-maps indices on self.nodes and self.edges such that node indices match
         that of structure, and then sorts self.nodes by index.
         """
-
         # Order of nuclei provided by critic2 doesn't
         # necessarily match order of sites in Structure.
         # This is because critic2 performs a symmetrization step.
@@ -712,7 +705,6 @@ class Critic2Analysis(MSONable):
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
-
         volume_idx = None
         charge_idx = None
 
@@ -765,7 +757,6 @@ class Critic2Analysis(MSONable):
         return structure
 
     def _parse_stdout(self, stdout):
-
         warnings.warn(
             "Parsing critic2 standard output is deprecated and will not be maintained, "
             "please use the native JSON output in future."
@@ -856,7 +847,6 @@ class Critic2Analysis(MSONable):
 
         for i, line in enumerate(stdout):
             if start_i <= i <= end_i:
-
                 l = line.replace("(", "").replace(")", "").split()
 
                 idx = int(l[0]) - 1

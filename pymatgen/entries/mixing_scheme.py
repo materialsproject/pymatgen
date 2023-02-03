@@ -52,7 +52,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def __init__(
         self,
-        structure_matcher: StructureMatcher = None,
+        structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
         compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
@@ -533,10 +533,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             "hull_energy_2",
         ]
 
-        def _get_sg(struc) -> int:
+        def _get_sg(struct) -> int:
             """helper function to get spacegroup with a loose tolerance"""
             try:
-                return struc.get_space_group_info(symprec=0.1)[1]
+                return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
                 return -1
 
@@ -586,7 +586,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         filtered_entries = []
 
         for entry in entries:
-
             if not entry.parameters.get("run_type"):
                 warnings.warn(
                     f"Entry {entry.entry_id} is missing parameters.run_type! This field"
@@ -634,7 +633,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
-                    f"{self.compat_1.__class__.__name__}"
+                    f"{type(self.compat_1).__name__}"
                 )
         entries_type_1 = EntrySet(entries_type_1)
 
@@ -643,7 +642,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if verbose:
                 print(
                     f"  Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
-                    f"{self.compat_2.__class__.__name__}"
+                    f"{type(self.compat_2).__name__}"
                 )
         entries_type_2 = EntrySet(entries_type_2)
 

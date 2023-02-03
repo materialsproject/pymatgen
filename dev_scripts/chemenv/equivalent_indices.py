@@ -5,6 +5,10 @@
 Development script of the ChemEnv utility to get the equivalent indices of the model coordination environments
 """
 
+from __future__ import annotations
+
+import numpy as np
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"
@@ -12,10 +16,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-import numpy as np
-
 if __name__ == "__main__":
-
     cg_symbol = "O:6"
     equiv_list = []
 
@@ -38,7 +39,7 @@ if __name__ == "__main__":
             for i2 in perp_plane[i0]:
                 # 3. point opposite to point 2.
                 i3 = opposite_points[i2]
-                remaining = range(6)
+                remaining = list(range(6))
                 remaining.remove(i0)
                 remaining.remove(i1)
                 remaining.remove(i2)

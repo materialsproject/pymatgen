@@ -25,6 +25,8 @@ b) Go to pymatgen/analysis/defects/tests and run
    is not installed. But there should be no errors.
 """
 
+from __future__ import annotations
+
 import os
 import re
 
@@ -59,7 +61,7 @@ class ZeoCssr(Cssr):
     ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
     input CSSR format. The coordinate system is rotated from xyz to zyx.
     This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
-    of Zeo++ (x-axis) for structurural modifications.
+    of Zeo++ (x-axis) for structural modifications.
     """
 
     def __init__(self, structure):
@@ -71,7 +73,7 @@ class ZeoCssr(Cssr):
 
     def __str__(self):
         """
-        CSSR.__str__ method is modified to padd 0's to the CSSR site data.
+        CSSR.__str__ method is modified to pad 0's to the CSSR site data.
         The padding is to conform with the CSSR format supported Zeo++.
         The oxidation state is stripped from site.specie
         Also coordinate system is rotated from xyz to zxy

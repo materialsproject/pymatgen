@@ -12,10 +12,7 @@ The implementation is based on an excellent python package called `rmsd` that
 you can find at https://github.com/charnley/rmsd.
 """
 
-__author__ = "Xiaohui Qu, Adam Fekete"
-__version__ = "1.0"
-__email__ = "xhqu1981@gmail.com"
-
+from __future__ import annotations
 
 import abc
 import copy
@@ -39,6 +36,10 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
 from pymatgen.core.structure import Molecule  # pylint: disable=ungrouped-imports
+
+__author__ = "Xiaohui Qu, Adam Fekete"
+__version__ = "1.0"
+__email__ = "xhqu1981@gmail.com"
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +93,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             AbstractMolAtomMapper
         """
         for trans_modules in ["molecule_matcher"]:
-
             level = 0  # Python 3.x
             mod = __import__(
                 "pymatgen.analysis." + trans_modules,
@@ -254,11 +254,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             original label
             List of equivalent atoms.
         """
-        obconv = openbabel.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("a", openbabel.OBConversion.OUTOPTIONS)
-        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obconv.WriteString(mol)
+        ob_conv = openbabel.OBConversion()
+        ob_conv.SetOutFormat("inchi")
+        ob_conv.AddOption("a", openbabel.OBConversion.OUTOPTIONS)
+        ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = ob_conv.WriteString(mol)
         match = re.search(
             r"InChI=(?P<inchi>.+)\nAuxInfo=.+" r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9," r";\(\)]*)/)?",
             inchi_text,
@@ -300,12 +300,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
     def _virtual_molecule(self, mol, ilabels, eq_atoms):
         """
-        Create a virtual molecule by unique atoms, the centriods of the
+        Create a virtual molecule by unique atoms, the centroids of the
         equivalent atoms
 
         Args:
             mol: The molecule. OpenBabel OBMol object
-            ilables: inchi label map
+            ilabels: inchi label map
             eq_atoms: equivalent atom labels
             farthest_group_idx: The equivalent atom group index in which
                 there is the farthest atom to the centroid
@@ -364,7 +364,6 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             corrected inchi labels of heavy atoms of the second molecule
         """
-
         nvirtual = vmol1.NumAtoms()
         nheavy = len(ilabel1)
 
@@ -836,7 +835,6 @@ class KabschMatcher(MSONable):
         Returns:
             U: 3x3 rotation matrix
         """
-
         # Computation of the cross-covariance matrix
         C = np.dot(P.T, Q)
 
@@ -880,7 +878,6 @@ class BruteForceOrderMatcher(KabschMatcher):
             V: Translation vector
             rmsd: Root mean squared deviation between P and Q
         """
-
         q = self.target
 
         if sorted(p.atomic_numbers) != sorted(q.atomic_numbers):
@@ -913,7 +910,6 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         # Generate all permutation grouped/sorted by the elements
         for p_inds_test in self.permutations(p_atoms):
-
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
 
@@ -946,7 +942,6 @@ class BruteForceOrderMatcher(KabschMatcher):
             p_prime: Rotated and translated of the `p` `Molecule` object
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-
         inds, U, V, rmsd = self.match(p, ignore_warning=ignore_warning)
 
         p_prime = Molecule.from_sites([p[i] for i in inds])
@@ -990,7 +985,6 @@ class HungarianOrderMatcher(KabschMatcher):
             V: Translation vector
             rmsd: Root mean squared deviation between P and Q
         """
-
         if sorted(p.atomic_numbers) != sorted(self.target.atomic_numbers):
             raise ValueError("The number of the same species aren't matching!")
 
@@ -1013,7 +1007,6 @@ class HungarianOrderMatcher(KabschMatcher):
 
         # Generate all permutation grouped/sorted by the elements
         for p_inds_test in self.permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
-
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
 
@@ -1039,7 +1032,6 @@ class HungarianOrderMatcher(KabschMatcher):
             p_prime: Rotated and translated of the `p` `Molecule` object
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-
         inds, U, V, rmsd = self.match(p)
 
         # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
@@ -1131,11 +1123,9 @@ class HungarianOrderMatcher(KabschMatcher):
         Returns:
             Array of dim 3 containing the principal axis
         """
-
         Ixx = Iyy = Izz = Ixy = Ixz = Iyz = 0.0
 
         for (x, y, z), wt in zip(coords, weights):
-
             Ixx += wt * (y * y + z * z)
             Iyy += wt * (x * x + z * z)
             Izz += wt * (x * x + y * y)
@@ -1165,7 +1155,6 @@ class HungarianOrderMatcher(KabschMatcher):
         Returns:
             3x3 rotation matrix
         """
-
         if np.allclose(v1, v2):
             # same direction
             return np.eye(3)
@@ -1280,7 +1269,6 @@ class GeneticOrderMatcher(KabschMatcher):
         Returns:
             Array of index arrays
         """
-
         # caching atomic numbers and coordinates
         p_atoms, q_atoms = p.atomic_numbers, self.target.atomic_numbers
         p_coords, q_coords = p.cart_coords, self.target.cart_coords
@@ -1291,28 +1279,26 @@ class GeneticOrderMatcher(KabschMatcher):
         # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
 
-        for i in range(1, self.N):
+        for idx in range(1, self.N):
             # extending the target fragment with then next atom
-            f_coords = q_coords[: i + 1]
-            f_atom = q_atoms[i]
+            f_coords = q_coords[: idx + 1]
+            f_atom = q_atoms[idx]
 
             f_trans = f_coords.mean(axis=0)
             f_centroid = f_coords - f_trans
 
             matches = []
             for indices in partial_matches:
-
-                for j in range(self.N):
-
+                for jdx in range(self.N):
                     # skipping if the this index is already matched
-                    if j in indices:
+                    if jdx in indices:
                         continue
 
                     # skipping if they are different species
-                    if p_atoms[j] != f_atom:
+                    if p_atoms[jdx] != f_atom:
                         continue
 
-                    inds = indices + [j]
+                    inds = indices + [jdx]
                     P = p_coords[inds]
 
                     # Both sets of coordinates must be translated first, so that
@@ -1335,6 +1321,6 @@ class GeneticOrderMatcher(KabschMatcher):
 
             partial_matches = matches
 
-            logger.info(f"number of atom in the fragment: {i + 1}, number of possible matches: {len(matches)}")
+            logger.info(f"number of atom in the fragment: {idx + 1}, number of possible matches: {len(matches)}")
 
         return matches

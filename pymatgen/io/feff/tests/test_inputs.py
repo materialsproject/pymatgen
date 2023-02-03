@@ -2,10 +2,13 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 
 import numpy as np
+from pytest import approx
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.cif import CifParser
@@ -34,37 +37,27 @@ class HeaderTest(unittest.TestCase):
         h = header.splitlines()
         hs = header_string.splitlines()
         for i, line in enumerate(h):
-            self.assertEqual(line, hs[i])
-        self.assertEqual(
-            header_string.splitlines(),
-            header.splitlines(),
-            "Failed to read HEADER file",
-        )
+            assert line == hs[i]
+        assert header_string.splitlines() == header.splitlines(), "Failed to read HEADER file"
 
     def test_from_string(self):
         header = Header.from_string(header_string)
-        self.assertEqual(
-            header.struct.composition.reduced_formula,
-            "CoO",
-            "Failed to generate structure from HEADER string",
-        )
+        assert header.struct.composition.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
 
     def test_get_string(self):
         cif_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif")
         h = Header.from_cif_file(cif_file)
         head = str(h)
-        self.assertEqual(
-            head.splitlines()[3].split()[-1],
-            header_string.splitlines()[3].split()[-1],
-            "Failed to generate HEADER from structure",
-        )
+        assert (
+            head.splitlines()[3].split()[-1] == header_string.splitlines()[3].split()[-1]
+        ), "Failed to generate HEADER from structure"
 
     def test_as_dict_and_from_dict(self):
         file_name = os.path.join(PymatgenTest.TEST_FILES_DIR, "HEADER")
         header = Header.from_file(file_name)
         d = header.as_dict()
         header2 = Header.from_dict(d)
-        self.assertEqual(str(header), str(header2), "Header failed to and from dict test")
+        assert str(header) == str(header2), "Header failed to and from dict test"
 
 
 class FeffAtomsTest(unittest.TestCase):
@@ -72,13 +65,13 @@ class FeffAtomsTest(unittest.TestCase):
     def setUpClass(cls):
         r = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif"))
         cls.structure = r.get_structures()[0]
-        cls.atoms = Atoms(cls.structure, "O", 10.0)
+        cls.atoms = Atoms(cls.structure, "O", 12.0)
 
     def test_absorbing_atom(self):
         atoms_1 = Atoms(self.structure, 0, 10.0)
         atoms_2 = Atoms(self.structure, 2, 10.0)
-        self.assertEqual(atoms_1.absorbing_atom, "Co")
-        self.assertEqual(atoms_2.absorbing_atom, "O")
+        assert atoms_1.absorbing_atom == "Co"
+        assert atoms_2.absorbing_atom == "O"
 
     def test_single_absorbing_atom(self):
         """
@@ -96,19 +89,19 @@ class FeffAtomsTest(unittest.TestCase):
     def test_absorber_line(self):
         atoms_lines = self.atoms.get_lines()
         # x
-        self.assertAlmostEqual(float(atoms_lines[0][0]), 0.0)
+        assert float(atoms_lines[0][0]) == approx(0.0)
         # y
-        self.assertAlmostEqual(float(atoms_lines[0][1]), 0.0)
+        assert float(atoms_lines[0][1]) == approx(0.0)
         # z
-        self.assertAlmostEqual(float(atoms_lines[0][2]), 0.0)
+        assert float(atoms_lines[0][2]) == approx(0.0)
         # ipot
-        self.assertEqual(int(atoms_lines[0][3]), 0)
+        assert int(atoms_lines[0][3]) == 0
         # atom symbol
-        self.assertEqual(atoms_lines[0][4], "O")
+        assert atoms_lines[0][4] == "O"
         # distance
-        self.assertAlmostEqual(float(atoms_lines[0][5]), 0.0)
+        assert float(atoms_lines[0][5]) == approx(0.0)
         # id
-        self.assertEqual(int(atoms_lines[0][6]), 0)
+        assert int(atoms_lines[0][6]) == 0
 
     def test_distances(self):
         atoms_1 = self.atoms.get_lines()
@@ -121,19 +114,15 @@ class FeffAtomsTest(unittest.TestCase):
     def test_atoms_from_file(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "ATOMS")
         atoms = Atoms.atoms_string_from_file(filepath)
-        self.assertEqual(atoms.splitlines()[3].split()[4], "O", "failed to read ATOMS file")
+        assert atoms.splitlines()[3].split()[4] == "O", "failed to read ATOMS file"
 
     def test_get_string(self):
         header = Header.from_string(header_string)
-        struc = header.struct
+        struct = header.struct
         central_atom = "O"
-        a = Atoms(struc, central_atom, radius=10.0)
+        a = Atoms(struct, central_atom, radius=10.0)
         atoms = str(a)
-        self.assertEqual(
-            atoms.splitlines()[3].split()[4],
-            central_atom,
-            "failed to create ATOMS string",
-        )
+        assert atoms.splitlines()[3].split()[4] == central_atom, "failed to create ATOMS string"
 
     def test_as_dict_and_from_dict(self):
         file_name = os.path.join(PymatgenTest.TEST_FILES_DIR, "HEADER")
@@ -142,14 +131,14 @@ class FeffAtomsTest(unittest.TestCase):
         atoms = Atoms(struct, "O", radius=10.0)
         d = atoms.as_dict()
         atoms2 = Atoms.from_dict(d)
-        self.assertEqual(str(atoms), str(atoms2), "Atoms failed to and from dict test")
+        assert str(atoms) == str(atoms2), "Atoms failed to and from dict test"
 
     def test_cluster_from_file(self):
         self.atoms.write_file("ATOMS_test")
         mol_1 = Atoms.cluster_from_file("ATOMS_test")
         mol_2 = Atoms.cluster_from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "ATOMS"))
-        self.assertEqual(mol_1.formula, mol_2.formula)
-        self.assertEqual(len(mol_1), len(mol_2))
+        assert mol_1.formula == mol_2.formula
+        assert len(mol_1) == len(mol_2)
         os.remove("ATOMS_test")
 
 
@@ -158,41 +147,38 @@ class FeffTagsTest(unittest.TestCase):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "PARAMETERS")
         parameters = Tags.from_file(filepath)
         parameters["RPATH"] = 10
-        self.assertEqual(parameters["COREHOLE"], "Fsr", "Failed to read PARAMETERS file")
-        self.assertEqual(parameters["LDOS"], [-30.0, 15.0, 0.1], "Failed to read PARAMETERS file")
+        assert parameters["COREHOLE"] == "Fsr", "Failed to read PARAMETERS file"
+        assert parameters["LDOS"] == [-30.0, 15.0, 0.1], "Failed to read PARAMETERS file"
 
     def test_diff(self):
         filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "PARAMETERS")
         parameters1 = Tags.from_file(filepath1)
         filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "PARAMETERS.2")
         parameters2 = Tags.from_file(filepath2)
-        self.assertEqual(
-            Tags(parameters1).diff(parameters2),
-            {
-                "Different": {},
-                "Same": {
-                    "CONTROL": [1, 1, 1, 1, 1, 1],
-                    "MPSE": [2],
-                    "OPCONS": "",
-                    "SCF": [6.0, 0, 30, 0.2, 1],
-                    "EXCHANGE": [0, 0.0, 0.0, 2],
-                    "S02": [0.0],
-                    "COREHOLE": "Fsr",
-                    "FMS": [8.5, 0],
-                    "XANES": [3.7, 0.04, 0.1],
-                    "EDGE": "K",
-                    "PRINT": [1, 0, 0, 0, 0, 0],
-                    "LDOS": [-30.0, 15.0, 0.1],
-                },
+        assert Tags(parameters1).diff(parameters2) == {
+            "Different": {},
+            "Same": {
+                "CONTROL": [1, 1, 1, 1, 1, 1],
+                "MPSE": [2],
+                "OPCONS": "",
+                "SCF": [6.0, 0, 30, 0.2, 1],
+                "EXCHANGE": [0, 0.0, 0.0, 2],
+                "S02": [0.0],
+                "COREHOLE": "Fsr",
+                "FMS": [8.5, 0],
+                "XANES": [3.7, 0.04, 0.1],
+                "EDGE": "K",
+                "PRINT": [1, 0, 0, 0, 0, 0],
+                "LDOS": [-30.0, 15.0, 0.1],
             },
-        )
+        }
 
     def test_as_dict_and_from_dict(self):
         file_name = os.path.join(PymatgenTest.TEST_FILES_DIR, "PARAMETERS")
         tags = Tags.from_file(file_name)
         d = tags.as_dict()
         tags2 = Tags.from_dict(d)
-        self.assertEqual(tags, tags2, "Parameters do not match to and from dict")
+        assert tags == tags2, "Parameters do not match to and from dict"
 
     def test_eels_tags(self):
         ans_1 = {
@@ -214,11 +200,11 @@ class FeffTagsTest(unittest.TestCase):
             "SCF": [6, 0, 30, 0.2, 5],
         }
         tags_1 = Tags.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_eels_powder.inp"))
-        self.assertEqual(dict(tags_1), ans_1)
+        assert dict(tags_1) == ans_1
         ans_1["ELNES"]["BEAM_ENERGY"] = "200 0 1 1"
         ans_1["ELNES"]["BEAM_DIRECTION"] = "1 0 0"
         tags_2 = Tags.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_eels_x.inp"))
-        self.assertEqual(dict(tags_2), ans_1)
+        assert dict(tags_2) == ans_1
 
 
 class FeffPotTest(unittest.TestCase):
@@ -226,7 +212,7 @@ class FeffPotTest(unittest.TestCase):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POTENTIALS")
         feffpot = Potential.pot_string_from_file(filepath)
         d, dr = Potential.pot_dict_from_string(feffpot)
-        self.assertEqual(d["Co"], 1, "Wrong symbols read in for Potential")
+        assert d["Co"] == 1, "Wrong symbols read in for Potential"
 
     def test_single_absorbing_atom(self):
         """
@@ -250,7 +236,7 @@ class FeffPotTest(unittest.TestCase):
         pot = Potential(struct, "O")
         d = pot.as_dict()
         pot2 = Potential.from_dict(d)
-        self.assertEqual(str(pot), str(pot2), "Potential to and from dict does not match")
+        assert str(pot) == str(pot2), "Potential to and from dict does not match"
 
 
 class PathsTest(unittest.TestCase):
@@ -407,7 +393,7 @@ class PathsTest(unittest.TestCase):
             "0.000000 0.000000 0.000000 0 Fe",
         ]
         answer = "\n".join(lines)
-        self.assertEqual(answer, str(self.paths))
+        assert answer == str(self.paths)
 
 
 if __name__ == "__main__":
