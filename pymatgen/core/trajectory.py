@@ -677,6 +677,8 @@ class MoleculeOptimizeTrajectory(MSONable):
 
         self.species = species
         self.coords = np.asarray(coords)
+        self.charge = charge
+        self.spin_multiplicity = spin_multiplicity
         self.time_step = time_step
 
         self._check_site_props(site_properties)
@@ -704,9 +706,9 @@ class MoleculeOptimizeTrajectory(MSONable):
         This is the opposite operation of `to_displacements()`.
         """
         if self.coords_are_displacement:
-            cumulative_displacements = np.cumsum(self.frac_coords, axis=0)
+            cumulative_displacements = np.cumsum(self.coords, axis=0)
             positions = self.base_positions + cumulative_displacements
-            self.frac_coords = positions
+            self.coords = positions
             self.coords_are_displacement = False
 
     def to_displacements(self):
@@ -717,12 +719,12 @@ class MoleculeOptimizeTrajectory(MSONable):
         """
         if not self.coords_are_displacement:
             displacements = np.subtract(
-                self.frac_coords,
-                np.roll(self.frac_coords, 1, axis=0),
+                self.coords,
+                np.roll(self.coords, 1, axis=0),
             )
-            displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
+            displacements[0] = np.zeros(np.shape(self.coords[0]))
 
-            self.frac_coords = displacements
+            self.coords = displacements
             self.coords_are_displacement = True
 
     def extend(self, trajectory: MoleculeOptimizeTrajectory):
@@ -954,7 +956,7 @@ class MoleculeOptimizeTrajectory(MSONable):
                 self
             ), f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}."
 
-        num_sites = len(self.frac_coords[0])
+        num_sites = len(self.coords[0])
         for d in site_props:
             for k, v in d.items():
                 assert len(v) == num_sites, (

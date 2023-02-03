@@ -432,7 +432,7 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
 
         # Case of compatible trajectories
         compatible_traj = MoleculeOptimizeTrajectory(
-            ['C', 'C', 'O', 'C', 'O', 'O', 'O', 'Li', 'H', 'H', 'H', 'H', 'H', 'Li'],
+            traj.species,
             [[-1.46958173, -0.47370158, -0.03391061],
              [-0.79757102,  0.48588802,  0.94508206],
              [0.50256405,  0.8947604 ,  0.47698504],
@@ -597,58 +597,10 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
     def test_length(self):
         assert len(self.traj) == len(self.structures)
 
-    def test_displacements(self):
-        poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
-        structures = [poscar.structure]
-        displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
-
-        for i in range(10):
-            displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
-            new_coords = displacement + structures[-1].frac_coords
-            structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
-            displacements[i + 1, :, :] = displacement
-
-        traj = Trajectory.from_structures(structures, constant_lattice=True)
-        traj.to_displacements()
-
-        assert np.allclose(traj.frac_coords, displacements)
-
-    def test_variable_lattice(self):
-        structure = self.structures[0]
-
-        # Generate structures with different lattices
-        structures = []
-        for _ in range(10):
-            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
-            temp_struct = structure.copy()
-            temp_struct.lattice = Lattice(new_lattice)
-            structures.append(temp_struct)
-
-        traj = Trajectory.from_structures(structures, constant_lattice=False)
-
-        # Check if lattices were properly stored
-        assert all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
-
-        # Check if the file is written correctly when lattice is not constant.
-        traj.write_Xdatcar(filename="traj_test_XDATCAR")
-
-        # Load trajectory from written xdatcar and compare to original
-        written_traj = Trajectory.from_file("traj_test_XDATCAR", constant_lattice=False)
-        self._check_traj_equality(traj, written_traj)
-        os.remove("traj_test_XDATCAR")
-
     def test_to_from_dict(self):
         d = self.traj.as_dict()
-        traj = Trajectory.from_dict(d)
-        assert isinstance(traj, Trajectory)
-
-    def test_xdatcar_write(self):
-        self.traj.write_Xdatcar(filename="traj_test_XDATCAR")
-
-        # Load trajectory from written xdatcar and compare to original
-        written_traj = Trajectory.from_file("traj_test_XDATCAR")
-        self._check_traj_equality(self.traj, written_traj)
-        os.remove("traj_test_XDATCAR")
+        traj = MoleculeOptimizeTrajectory.from_dict(d)
+        assert isinstance(traj, MoleculeOptimizeTrajectory)
 
 
 if __name__ == "__main__":
