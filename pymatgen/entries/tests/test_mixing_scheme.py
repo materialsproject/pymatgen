@@ -1287,6 +1287,13 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
 
+    def test_entries_copy(self, ms_complete):
+        # check that mixing process does not change input entries themselves
+        entries = ms_complete.all_entries
+        entries_copy = [entry.copy() for entry in entries]
+        MaterialsProjectDFTMixingScheme().process_entries(entries_copy)
+        assert all([e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy)])
+
 
 class TestMaterialsProjectDFTMixingSchemeStates:
     """

@@ -1194,6 +1194,13 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         temp_compat = decoder.process_decoded(compat_dict)
         assert isinstance(temp_compat, MaterialsProject2020Compatibility)
 
+    def test_entries_copy(self):
+        # check that mixing process does not change input entries
+        entries = [self.entry1, self.entry2, self.entry3]
+        entries_copy = [entry.copy() for entry in entries]
+        self.compat.process_entries(entries_copy)
+        assert all([e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy)])
+
 
 class MITCompatibilityTest(unittest.TestCase):
     def tearDown(self):
