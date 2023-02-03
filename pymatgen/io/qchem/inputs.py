@@ -8,6 +8,7 @@ Classes for reading/manipulating/writing QChem input files.
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -39,7 +40,7 @@ class QCInput(InputFile):
 
     def __init__(
         self,
-        molecule: Molecule | Literal["read"],
+        molecule: Molecule | list[Molecule] | Literal["read"],
         rem: dict,
         opt: dict[str, list] | None = None,
         pcm: dict | None = None,
@@ -51,15 +52,17 @@ class QCInput(InputFile):
         plots: dict | None = None,
         nbo: dict | None = None,
         geom_opt: dict | None = None,
+        cdft: list[list[dict]] | None = None,
+        almo_coupling: list[list[tuple[int, int]]] | None = None,
         svp: dict | None = None,
         pcm_nonels: dict | None = None,
     ):
         """
         Args:
-            molecule (pymatgen Molecule object or "read"):
-                Input molecule. molecule can be set as either a pymatgen Molecule object or as the str "read".
-                "read" can be used in multi_job QChem input files where the molecule is read in from the
-                previous calculation.
+            molecule (pymatgen Molecule object, list of Molecule objects, or "read"):
+                Input molecule(s). molecule can be set as a pymatgen Molecule object, a list of such
+                Molecule objects, or as the string "read". "read" can be used in multi_job QChem input
+                files where the molecule is read in from the previous calculation.
             rem (dict):
                 A dictionary of all the input parameters for the rem section of QChem input file.
                 Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
@@ -94,12 +97,63 @@ class QCInput(InputFile):
                 radius (e.g., 12 = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
             plots (dict):
-                    A dictionary of all the input parameters for the plots section of QChem input file.
+                    A dictionary of all the input parameters for the plots section of the QChem input file.
             nbo (dict):
-                    A dictionary of all the input parameters for the nbo section of QChem input file.
+                    A dictionary of all the input parameters for the nbo section of the QChem input file.
             geom_opt (dict):
                     A dictionary of input parameters for the geom_opt section of the QChem input file.
                     This section is required when using the new libopt3 geometry optimizer.
+            cdft (list of lists of dicts):
+                    A list of lists of dictionaries, where each dictionary represents a charge constraint in the
+                    cdft section of the QChem input file.
+
+                    Each entry in the main list represents one state (allowing for multiconfiguration calculations
+                    using constrainted density functional theory - configuration interaction (CDFT-CI).
+                    Each state is relresented by a list, which itself contains some number of constraints
+                    (dictionaries).
+
+                    Ex:
+
+                    1. For a single-state calculation with two constraints:
+                     cdft=[[
+                        {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [2], "types": [None]},
+                        {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19],
+                            "types": ["s"]}
+                    ]]
+
+                    Note that a type of None will default to a charge constraint (which can also be accessed by
+                    requesting a type of "c" or "charge".
+
+                    2. For a multireference calculation:
+                    cdft=[
+                        [
+                            {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["c"]},
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["s"]},
+                        ],
+                        [
+                            {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["c"]},
+                            {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
+                                "types": ["s"]},
+                        ]
+                    ]
+            almo_coupling (list of lists of int 2-tuples):
+                A list of lists of int 2-tuples used for calculations of diabatization and state coupling calculations
+                    relying on the absolutely localized molecular orbitals (ALMO) methodology. Each entry in the main
+                    list represents a single state (two states are included in an ALMO calculation). Within a single
+                    state, each 2-tuple represents the charge and spin multiplicity of a single fragment.
+                ex: almo=[
+                            [
+                                (1, 2),
+                                (0, 1)
+                            ],
+                            [
+                                (0, 1),
+                                (1, 2)
+                            ]
+                        ]
         """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
@@ -113,6 +167,8 @@ class QCInput(InputFile):
         self.plots = lower_and_check_unique(plots)
         self.nbo = lower_and_check_unique(nbo)
         self.geom_opt = lower_and_check_unique(geom_opt)
+        self.cdft = cdft
+        self.almo_coupling = almo_coupling
         self.svp = lower_and_check_unique(svp)
         self.pcm_nonels = lower_and_check_unique(pcm_nonels)
 
@@ -199,6 +255,14 @@ class QCInput(InputFile):
         if self.geom_opt is not None:
             combined_list.append(self.geom_opt_template(self.geom_opt))
             combined_list.append("")
+        # cdft section
+        if self.cdft is not None:
+            combined_list.append(self.cdft_template(self.cdft))
+            combined_list.append("")
+        # almo section
+        if self.almo_coupling is not None:
+            combined_list.append(self.almo_template(self.almo_coupling))
+            combined_list.append("")
         # svp section
         if self.svp:
             combined_list.append(self.svp_template(self.svp))
@@ -250,6 +314,8 @@ class QCInput(InputFile):
         plots = None
         nbo = None
         geom_opt = None
+        cdft = None
+        almo_coupling = None
         svp = None
         pcm_nonels = None
         if "opt" in sections:
@@ -270,6 +336,10 @@ class QCInput(InputFile):
             nbo = cls.read_nbo(string)
         if "geom_opt" in sections:
             geom_opt = cls.read_geom_opt(string)
+        if "cdft" in sections:
+            cdft = cls.read_cdft(string)
+        if "almo_coupling" in sections:
+            almo_coupling = cls.read_almo(string)
         if "svp" in sections:
             svp = cls.read_svp(string)
         if "pcm_nonels" in sections:
@@ -287,6 +357,8 @@ class QCInput(InputFile):
             plots=plots,
             nbo=nbo,
             geom_opt=geom_opt,
+            cdft=cdft,
+            almo_coupling=almo_coupling,
             svp=svp,
             pcm_nonels=pcm_nonels,
         )
@@ -334,26 +406,46 @@ class QCInput(InputFile):
             return input_list
 
     @staticmethod
-    def molecule_template(molecule: Molecule | Literal["read"]) -> str:
+    def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:
         """
         Args:
-            molecule (Molecule): molecule
+            molecule (Molecule, list of Molecules, or "read")
 
         Returns:
             (str) Molecule template.
+
         """
-        # todo: add ghost atoms
+        # TODO: add ghost atoms
         mol_list = []
         mol_list.append("$molecule")
+
+        # Edge case; can't express molecule as fragments with only one fragment
+        if isinstance(molecule, list):
+            if len(molecule) == 1:
+                molecule = molecule[0]
+
         if isinstance(molecule, str):
             if molecule == "read":
                 mol_list.append(" read")
             else:
                 raise ValueError('The only acceptable text value for molecule is "read"')
-        else:
+        elif isinstance(molecule, Molecule):
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
             for site in molecule.sites:
                 mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+        else:
+            overall_charge = sum(x.charge for x in molecule)
+            unpaired_electrons = sum(x.spin_multiplicity - 1 for x in molecule)
+            overall_spin = unpaired_electrons + 1
+
+            mol_list.append(f" {int(overall_charge)} {int(overall_spin)}")
+
+            for fragment in molecule:
+                mol_list.append("--")
+                mol_list.append(f" {int(fragment.charge)} {fragment.spin_multiplicity}")
+                for site in fragment.sites:
+                    mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+
         mol_list.append("$end")
         return "\n".join(mol_list)
 
@@ -580,6 +672,82 @@ class QCInput(InputFile):
         return "\n".join(geom_opt_list)
 
     @staticmethod
+    def cdft_template(cdft: list[list[dict]]) -> str:
+        """
+        Args:
+            cdft: list of lists of dicts
+
+        Returns:
+            (str)
+        """
+
+        cdft_list = list()
+        cdft_list.append("$cdft")
+        for ii, state in enumerate(cdft):
+            for constraint in state:
+                types = constraint["types"]
+                cdft_list.append(f"   {constraint['value']}")
+
+                type_strings = list()
+                for t in types:
+                    if t is None:
+                        type_strings.append("")
+                    elif t.lower() in ["c", "charge"]:
+                        type_strings.append("")
+                    elif t.lower() in ["s", "spin"]:
+                        type_strings.append("s")
+                    else:
+                        raise ValueError("Invalid CDFT constraint type!")
+
+                for coef, first, last, type_string in zip(
+                    constraint["coefficients"], constraint["first_atoms"], constraint["last_atoms"], type_strings
+                ):
+                    if type_string != "":
+                        cdft_list.append(f"   {coef} {first} {last} {type_string}")
+                    else:
+                        cdft_list.append(f"   {coef} {first} {last}")
+            if len(cdft) != 1 and ii + 1 < len(state):
+                cdft_list.append("--------------")
+
+        # Ensure that you don't have a line indicating a state that doesn't exist
+        if cdft_list[-1] == "--------------":
+            del cdft_list[-1]
+
+        cdft_list.append("$end")
+        return "\n".join(cdft_list)
+
+    @staticmethod
+    def almo_template(almo_coupling: list[list[tuple[int, int]]]) -> str:
+        """
+        Args:
+            almo: list of lists of int 2-tuples
+
+        Returns:
+            (str)
+        """
+
+        almo_list = list()
+        almo_list.append("$almo_coupling")
+
+        # ALMO coupling calculations always involve 2 states
+        if len(almo_coupling) != 2:
+            raise ValueError("ALMO coupling calculations require exactly two states!")
+
+        state_1 = almo_coupling[0]
+        state_2 = almo_coupling[1]
+
+        for frag in state_1:
+            # Casting to int probably unnecessary, given type hint
+            # Doesn't hurt, though
+            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+        almo_list.append("   --")
+        for frag in state_2:
+            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+
+        almo_list.append("$end")
+        return "\n".join(almo_list)
+
+    @staticmethod
     def pcm_nonels_template(pcm_nonels: dict) -> str:
         """
         Template for the $pcm_nonels section.
@@ -636,7 +804,7 @@ class QCInput(InputFile):
         return sections
 
     @staticmethod
-    def read_molecule(string: str) -> Molecule | Literal["read"]:
+    def read_molecule(string: str) -> Molecule | list[Molecule] | Literal["read"]:
         """
         Read molecule from string.
 
@@ -650,8 +818,9 @@ class QCInput(InputFile):
         spin_mult = None
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
-            "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d",
-            "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*(\d)",
+            "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d+",
+            "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*((?:\-)*\d+)",
+            "fragment": r"^\s*\$molecule\n\s*(?:\-)*\d+\s+\d+\s*\n\s*(\-\-)",
         }
         matches = read_pattern(string, patterns)
         if "read" in matches:
@@ -660,17 +829,43 @@ class QCInput(InputFile):
             charge = float(matches["charge"][0][0])
         if "spin_mult" in matches:
             spin_mult = int(matches["spin_mult"][0][0])
-        header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s*\d"
-        row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer = r"^\$end"
-        mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        species = [val[0] for val in mol_table[0]]
-        coords = [[float(val[1]), float(val[2]), float(val[3])] for val in mol_table[0]]
-        if charge is None:
-            mol = Molecule(species=species, coords=coords)
+        if "fragment" in matches:
+            multi_mol = True
         else:
-            mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
-        return mol
+            multi_mol = False
+
+        if not multi_mol:
+            header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s+(?:\-)*\d+"
+            row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer = r"^\$end"
+            mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+            species = [val[0] for val in mol_table[0]]
+            coords = [[float(val[1]), float(val[2]), float(val[3])] for val in mol_table[0]]
+            if charge is None:
+                mol = Molecule(species=species, coords=coords)
+            else:
+                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
+            return mol
+        else:
+            header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
+            row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+            footer = r"(:?(:?\-\-)|(:?\$end))"
+
+            molecules = list()
+
+            patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
+            matches = read_pattern(string, patterns)
+
+            mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+            for match, table in zip(matches.get("charge_spin"), mol_table):
+                charge = int(match[0])
+                spin = int(match[1])
+                species = [val[0] for val in table]
+                coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
+                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
+                molecules.append(mol)
+
+            return molecules
 
     @staticmethod
     def read_rem(string: str) -> dict:
@@ -949,6 +1144,104 @@ class QCInput(InputFile):
         for key, val in geom_opt_table[0]:
             geom_opt[key] = val
         return geom_opt
+
+    @staticmethod
+    def read_cdft(string: str) -> list[list[dict]]:
+        """
+        Read cdft parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+             (list of lists of dicts) cdft parameters
+        """
+
+        pattern_sec = {
+            "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|"
+            r"(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
+        }
+
+        pattern_const = {
+            "constraint": r"\s*([\-\.0-9]+)\s*\n((?:\s*(?:[\-\.0-9]+)\s+(?:\d+)\s+(?:\d+)(?:\s+[A-Za-z]+)?\s*)+)"
+        }
+
+        section = read_pattern(string, pattern_sec)["full_section"]
+        if len(section) == 0:
+            print("No valid cdft inputs found.")
+            return list()
+
+        cdft = list()
+        section = section[0][0]
+        states = re.split(r"\-{2,25}", section)
+        for state in states:
+            state_list = list()
+            const_out = list(read_pattern(state, pattern_const).get("constraint"))
+            if len(const_out) == 0:
+                continue
+            for const in const_out:
+                const_dict = {
+                    "value": float(const[0]),
+                    "coefficients": list(),
+                    "first_atoms": list(),
+                    "last_atoms": list(),
+                    "types": list(),
+                }  # type: ignore
+                subconsts = const[1].strip().split("\n")
+                for subconst in subconsts:
+                    tokens = subconst.split()
+                    const_dict["coefficients"].append(float(tokens[0]))  # type: ignore
+                    const_dict["first_atoms"].append(int(tokens[1]))  # type: ignore
+                    const_dict["last_atoms"].append(int(tokens[2]))  # type: ignore
+                    if len(tokens) > 3:
+                        const_dict["types"].append(tokens[3])  # type: ignore
+                    else:
+                        const_dict["types"].append(None)  # type: ignore
+
+                state_list.append(const_dict)
+
+            cdft.append(state_list)
+
+        return cdft
+
+    @staticmethod
+    def read_almo(string: str) -> list[list[tuple[int, int]]]:
+        """
+        Read ALMO coupling parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (list of lists of int 2-tuples) almo_coupling parameters
+        """
+
+        pattern = {
+            "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-"
+            r"((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"
+        }
+
+        section = read_pattern(string, pattern)["key"]
+
+        if len(section) == 0:
+            print("No valid almo inputs found.")
+            return list()
+
+        section = section[0]
+
+        almo_coupling = [[], []]  # type: ignore
+
+        state_1 = section[0]
+        for line in state_1.strip().split("\n"):
+            contents = line.split()
+            almo_coupling[0].append((int(contents[0]), int(contents[1])))
+
+        state_2 = section[1]
+        for line in state_2.strip().split("\n"):
+            contents = line.split()
+            almo_coupling[1].append((int(contents[0]), int(contents[1])))
+
+        return almo_coupling
 
     @staticmethod
     def read_svp(string: str) -> dict:
