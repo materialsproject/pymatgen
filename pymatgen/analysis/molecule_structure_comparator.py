@@ -11,6 +11,8 @@ correspondence prerequisite, while molecule_matcher is supposed to do exact
 comparisons without the atom order correspondence prerequisite.
 """
 
+from __future__ import annotations
+
 import itertools
 
 from monty.json import MSONable
@@ -187,7 +189,7 @@ class MoleculeStructureComparator(MSONable):
         self.ignore_halogen_self_bond = True
         self.bond_13_cap = bond_13_cap
 
-    def are_equal(self, mol1, mol2):
+    def are_equal(self, mol1, mol2) -> bool:
         """
         Compare the bond table of the two molecules.
 
@@ -288,7 +290,6 @@ class MoleculeStructureComparator(MSONable):
         Returns:
             MoleculeStructureComparator
         """
-
         return cls(
             bond_length_cap=d["bond_length_cap"],
             covalent_radius=d["covalent_radius"],

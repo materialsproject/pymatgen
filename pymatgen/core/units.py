@@ -10,6 +10,8 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
 
+from __future__ import annotations
+
 import collections
 import numbers
 from functools import partial
@@ -183,7 +185,6 @@ class Unit(collections.abc.Mapping):
                 format uses "^" as the power operator and all units must be
                 space-separated.
         """
-
         if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
             import re

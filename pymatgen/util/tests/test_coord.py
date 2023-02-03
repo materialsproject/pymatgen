@@ -2,9 +2,13 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import random
 
 import numpy as np
+import pytest
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.util import coord
@@ -15,26 +19,27 @@ class CoordUtilsTest(PymatgenTest):
     def test_get_linear_interpolated_value(self):
         xvals = [0, 1, 2, 3, 4, 5]
         yvals = [3, 6, 7, 8, 10, 12]
-        self.assertEqual(coord.get_linear_interpolated_value(xvals, yvals, 3.6), 9.2)
-        self.assertRaises(ValueError, coord.get_linear_interpolated_value, xvals, yvals, 6)
+        assert coord.get_linear_interpolated_value(xvals, yvals, 3.6) == 9.2
+        with pytest.raises(ValueError):
+            coord.get_linear_interpolated_value(xvals, yvals, 6)
 
     def test_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertFalse(coord.in_coord_list(coords, test_coord))
-        self.assertTrue(coord.in_coord_list(coords, test_coord, atol=0.15))
-        self.assertFalse(coord.in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15))
+        assert not coord.in_coord_list(coords, test_coord)
+        assert coord.in_coord_list(coords, test_coord, atol=0.15)
+        assert not coord.in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15)
 
     def test_is_coord_subset(self):
         c1 = [0, 0, 0]
         c2 = [0, 1.2, -1]
         c3 = [3, 2, 1]
         c4 = [3 - 9e-9, 2 - 9e-9, 1 - 9e-9]
-        self.assertTrue(coord.is_coord_subset([c1, c2, c3], [c1, c4, c2]))
-        self.assertTrue(coord.is_coord_subset([c1], [c2, c1]))
-        self.assertTrue(coord.is_coord_subset([c1, c2], [c2, c1]))
-        self.assertFalse(coord.is_coord_subset([c1, c2], [c2, c3]))
-        self.assertFalse(coord.is_coord_subset([c1, c2], [c2]))
+        assert coord.is_coord_subset([c1, c2, c3], [c1, c4, c2])
+        assert coord.is_coord_subset([c1], [c2, c1])
+        assert coord.is_coord_subset([c1, c2], [c2, c1])
+        assert not coord.is_coord_subset([c1, c2], [c2, c3])
+        assert not coord.is_coord_subset([c1, c2], [c2])
 
     def test_coord_list_mapping(self):
         c1 = [0, 0.124, 0]
@@ -43,9 +48,11 @@ class CoordUtilsTest(PymatgenTest):
         a = np.array([c1, c2])
         b = np.array([c3, c2, c1])
         inds = coord.coord_list_mapping(a, b)
-        self.assertTrue(np.allclose(a, b[inds]))
-        self.assertRaises(Exception, coord.coord_list_mapping, [c1, c2], [c2, c3])
-        self.assertRaises(Exception, coord.coord_list_mapping, [c2], [c2, c2])
+        assert np.allclose(a, b[inds])
+        with pytest.raises(ValueError):
+            coord.coord_list_mapping([c1, c2], [c2, c3])
+        with pytest.raises(ValueError):
+            coord.coord_list_mapping([c2], [c2, c2])
 
     def test_coord_list_mapping_pbc(self):
         c1 = [0.1, 0.2, 0.3]
@@ -59,18 +66,21 @@ class CoordUtilsTest(PymatgenTest):
         inds = coord.coord_list_mapping_pbc(a, b)
         diff = a - b[inds]
         diff -= np.round(diff)
-        self.assertTrue(np.allclose(diff, 0))
-        self.assertRaises(Exception, coord.coord_list_mapping_pbc, [c1, c2], [c2, c3])
-        self.assertRaises(Exception, coord.coord_list_mapping_pbc, [c2], [c2, c2])
+        assert np.allclose(diff, 0)
+        with pytest.raises(ValueError):
+            coord.coord_list_mapping_pbc([c1, c2], [c2, c3])
+        with pytest.raises(ValueError):
+            coord.coord_list_mapping_pbc([c2], [c2, c2])
         coord.coord_list_mapping_pbc([c1, c2], [c2, c1], pbc=(False, False, False))
-        self.assertRaises(Exception, coord.coord_list_mapping_pbc, a, b, pbc=(True, True, False))
+        with pytest.raises(ValueError):
+            coord.coord_list_mapping_pbc(a, b, pbc=(True, True, False))
 
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertEqual(coord.find_in_coord_list(coords, test_coord).size, 0)
-        self.assertEqual(coord.find_in_coord_list(coords, test_coord, atol=0.15)[0], 0)
-        self.assertEqual(coord.find_in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15).size, 0)
+        assert coord.find_in_coord_list(coords, test_coord).size == 0
+        assert coord.find_in_coord_list(coords, test_coord, atol=0.15)[0] == 0
+        assert coord.find_in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15).size == 0
         coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.1, 0.1, 0.1]]
         self.assertArrayEqual(coord.find_in_coord_list(coords, test_coord, atol=0.15), [0, 2])
 
@@ -95,73 +105,73 @@ class CoordUtilsTest(PymatgenTest):
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertFalse(coord.in_coord_list_pbc(coords, test_coord))
-        self.assertTrue(coord.in_coord_list_pbc(coords, test_coord, atol=0.15))
+        assert not coord.in_coord_list_pbc(coords, test_coord)
+        assert coord.in_coord_list_pbc(coords, test_coord, atol=0.15)
         test_coord = [0.99, 0.99, 0.99]
-        self.assertFalse(coord.in_coord_list_pbc(coords, test_coord, atol=0.01))
+        assert not coord.in_coord_list_pbc(coords, test_coord, atol=0.01)
 
     def test_find_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord).size, 0)
-        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, atol=0.15)[0], 0)
+        assert coord.find_in_coord_list_pbc(coords, test_coord).size == 0
+        assert coord.find_in_coord_list_pbc(coords, test_coord, atol=0.15)[0] == 0
         test_coord = [0.99, 0.99, 0.99]
-        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, atol=0.02)[0], 0)
+        assert coord.find_in_coord_list_pbc(coords, test_coord, atol=0.02)[0] == 0
         test_coord = [-0.499, -0.499, -0.499]
-        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, atol=0.01)[0], 1)
+        assert coord.find_in_coord_list_pbc(coords, test_coord, atol=0.01)[0] == 1
         test_coord = [-0.5, -0.5, -0.5]
         pbc = (True, True, False)
-        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, pbc=pbc).size, 0)
+        assert coord.find_in_coord_list_pbc(coords, test_coord, pbc=pbc).size == 0
         test_coord = [-0.5, -0.5, 0.5]
-        self.assertEqual(coord.find_in_coord_list_pbc(coords, test_coord, pbc=pbc)[0], 1)
+        assert coord.find_in_coord_list_pbc(coords, test_coord, pbc=pbc)[0] == 1
 
     def test_is_coord_subset_pbc(self):
         c1 = [0, 0, 0]
         c2 = [0, 1.2, -1]
         c3 = [2.3, 0, 1]
         c4 = [1.3 - 9e-9, -1 - 9e-9, 1 - 9e-9]
-        self.assertTrue(coord.is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2]))
-        self.assertTrue(coord.is_coord_subset_pbc([c1], [c2, c1]))
-        self.assertTrue(coord.is_coord_subset_pbc([c1, c2], [c2, c1]))
-        self.assertFalse(coord.is_coord_subset_pbc([c1, c2], [c2, c3]))
-        self.assertFalse(coord.is_coord_subset_pbc([c1, c2], [c2]))
+        assert coord.is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2])
+        assert coord.is_coord_subset_pbc([c1], [c2, c1])
+        assert coord.is_coord_subset_pbc([c1, c2], [c2, c1])
+        assert not coord.is_coord_subset_pbc([c1, c2], [c2, c3])
+        assert not coord.is_coord_subset_pbc([c1, c2], [c2])
 
         # test tolerances
         c5 = [0.1, 0.1, 0.2]
         atol1 = [0.25, 0.15, 0.15]
         atol2 = [0.15, 0.15, 0.25]
-        self.assertFalse(coord.is_coord_subset_pbc([c1], [c5], atol1))
-        self.assertTrue(coord.is_coord_subset_pbc([c1], [c5], atol2))
+        assert not coord.is_coord_subset_pbc([c1], [c5], atol1)
+        assert coord.is_coord_subset_pbc([c1], [c5], atol2)
 
         # test mask
         mask1 = [[True]]
-        self.assertFalse(coord.is_coord_subset_pbc([c1], [c5], atol2, mask1))
+        assert not coord.is_coord_subset_pbc([c1], [c5], atol2, mask1)
         mask2 = [[True, False]]
-        self.assertTrue(coord.is_coord_subset_pbc([c1], [c2, c1], mask=mask2))
-        self.assertFalse(coord.is_coord_subset_pbc([c1], [c1, c2], mask=mask2))
+        assert coord.is_coord_subset_pbc([c1], [c2, c1], mask=mask2)
+        assert not coord.is_coord_subset_pbc([c1], [c1, c2], mask=mask2)
         mask3 = [[False, True]]
-        self.assertFalse(coord.is_coord_subset_pbc([c1], [c2, c1], mask=mask3))
-        self.assertTrue(coord.is_coord_subset_pbc([c1], [c1, c2], mask=mask3))
+        assert not coord.is_coord_subset_pbc([c1], [c2, c1], mask=mask3)
+        assert coord.is_coord_subset_pbc([c1], [c1, c2], mask=mask3)
 
         # test pbc
         c5 = [1.3 - 9e-9, 9e-9, 1 - 9e-9]
         pbc = (True, False, True)
-        self.assertTrue(coord.is_coord_subset_pbc([c1], [c2, c1], pbc=pbc))
-        self.assertFalse(coord.is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2], pbc=pbc))
-        self.assertTrue(coord.is_coord_subset_pbc([c1, c2, c3], [c1, c5, c2], pbc=pbc))
+        assert coord.is_coord_subset_pbc([c1], [c2, c1], pbc=pbc)
+        assert not coord.is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2], pbc=pbc)
+        assert coord.is_coord_subset_pbc([c1, c2, c3], [c1, c5, c2], pbc=pbc)
 
     def test_lattice_points_in_supercell(self):
         supercell = np.array([[1, 3, 5], [-3, 2, 3], [-5, 3, 1]])
         points = coord.lattice_points_in_supercell(supercell)
-        self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
-        self.assertGreaterEqual(np.min(points), -1e-10)
-        self.assertLessEqual(np.max(points), 1 - 1e-10)
+        assert len(points) == approx(abs(np.linalg.det(supercell)))
+        assert np.min(points) >= -1e-10
+        assert np.max(points) <= 1 - 1e-10
 
         supercell = np.array([[-5, -5, -3], [0, -4, -2], [0, -5, -2]])
         points = coord.lattice_points_in_supercell(supercell)
-        self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
-        self.assertGreaterEqual(np.min(points), -1e-10)
-        self.assertLessEqual(np.max(points), 1 - 1e-10)
+        assert len(points) == approx(abs(np.linalg.det(supercell)))
+        assert np.min(points) >= -1e-10
+        assert np.max(points) <= 1 - 1e-10
 
     def test_barycentric(self):
         # 2d test
@@ -170,18 +180,18 @@ class CoordUtilsTest(PymatgenTest):
         output1 = coord.barycentric_coords(pts1, simplex1)
         # do back conversion to cartesian
         o_dot_s = np.sum(output1[:, :, None] * simplex1[None, :, :], axis=1)
-        self.assertTrue(np.allclose(pts1, o_dot_s))
+        assert np.allclose(pts1, o_dot_s)
 
         # do 3d tests
         simplex2 = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0], [0, 0, 0]])
         pts2 = np.array([[0, 0, 1], [0, 0.5, 0.5], [1.0 / 3, 1.0 / 3, 1.0 / 3]])
         output2 = coord.barycentric_coords(pts2, simplex2)
-        self.assertTrue(np.allclose(output2[1], [0.5, 0.5, 0, 0]))
+        assert np.allclose(output2[1], [0.5, 0.5, 0, 0])
         # do back conversion to cartesian
         o_dot_s = np.sum(output2[:, :, None] * simplex2[None, :, :], axis=1)
-        self.assertTrue(np.allclose(pts2, o_dot_s))
+        assert np.allclose(pts2, o_dot_s)
         # test single point
-        self.assertTrue(np.allclose(output2[2], coord.barycentric_coords(pts2[2], simplex2)))
+        assert np.allclose(output2[2], coord.barycentric_coords(pts2[2], simplex2))
 
     def test_pbc_shortest_vectors(self):
         fcoords = np.array(
@@ -232,8 +242,8 @@ class CoordUtilsTest(PymatgenTest):
     def test_get_angle(self):
         v1 = (1, 0, 0)
         v2 = (1, 1, 1)
-        self.assertAlmostEqual(coord.get_angle(v1, v2), 54.7356103172)
-        self.assertAlmostEqual(coord.get_angle(v1, v2, units="radians"), 0.9553166181245092)
+        assert coord.get_angle(v1, v2) == approx(54.7356103172)
+        assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
 
 
 class SimplexTest(PymatgenTest):
@@ -248,14 +258,14 @@ class SimplexTest(PymatgenTest):
     def test_equal(self):
         c2 = list(self.simplex.coords)
         random.shuffle(c2)
-        self.assertEqual(coord.Simplex(c2), self.simplex)
+        assert coord.Simplex(c2) == self.simplex
 
     def test_in_simplex(self):
-        self.assertTrue(self.simplex.in_simplex([0.1, 0.1, 0.1]))
-        self.assertFalse(self.simplex.in_simplex([0.6, 0.6, 0.6]))
+        assert self.simplex.in_simplex([0.1, 0.1, 0.1])
+        assert not self.simplex.in_simplex([0.6, 0.6, 0.6])
         for _ in range(10):
             coord = np.random.random_sample(size=3) / 3
-            self.assertTrue(self.simplex.in_simplex(coord))
+            assert self.simplex.in_simplex(coord)
 
     def test_2dtriangle(self):
         s = coord.Simplex([[0, 1], [1, 1], [1, 0]])
@@ -265,15 +275,16 @@ class SimplexTest(PymatgenTest):
         self.assertArrayAlmostEqual(s.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
 
         s = coord.Simplex([[1, 1], [1, 0]])
-        self.assertRaises(ValueError, s.bary_coords, [0.5, 0.5])
+        with pytest.raises(ValueError):
+            s.bary_coords([0.5, 0.5])
 
     def test_volume(self):
         # Should be value of a right tetrahedron.
-        self.assertAlmostEqual(self.simplex.volume, 1 / 6)
+        assert self.simplex.volume == approx(1 / 6)
 
     def test_str(self):
-        self.assertTrue(str(self.simplex).startswith("3-simplex in 4D space"))
-        self.assertTrue(repr(self.simplex).startswith("3-simplex in 4D space"))
+        assert str(self.simplex).startswith("3-simplex in 4D space")
+        assert repr(self.simplex).startswith("3-simplex in 4D space")
 
     def test_bary_coords(self):
         s = coord.Simplex([[0, 2], [3, 1], [1, 0]])
@@ -342,7 +353,7 @@ class SimplexTest(PymatgenTest):
         self.assertArrayAlmostEqual(intersections, expected)
 
     def test_to_json(self):
-        self.assertIsInstance(self.simplex.to_json(), str)
+        assert isinstance(self.simplex.to_json(), str)
 
 
 if __name__ == "__main__":

@@ -5,10 +5,12 @@
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
+from __future__ import annotations
+
 import warnings
 
-from pymatgen.analysis.interfaces import CoherentInterfaceBuilder  # noqa
-from pymatgen.core.interface import Interface  # noqa
+from pymatgen.analysis.interfaces import CoherentInterfaceBuilder  # noqa: F401
+from pymatgen.core.interface import Interface  # noqa: F401
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, and Kyle Bystrom"
 __copyright__ = "Copyright 2019, The Materials Project"

@@ -9,6 +9,8 @@ optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
 
+from __future__ import annotations
+
 import abc
 import csv
 import itertools
@@ -36,8 +38,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 class CostEntry(PDEntry):
     """
-    Extends PDEntry to include a BibTeX reference and include language about
-    cost
+    Extends PDEntry to include a BibTeX reference and include language about cost
     """
 
     def __init__(self, composition, cost, name, reference):
@@ -156,7 +157,6 @@ class CostAnalyzer:
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
-
         entries_list = []
         elements = [e.symbol for e in composition.elements]
         for i in range(len(elements)):
@@ -180,7 +180,6 @@ class CostAnalyzer:
         Returns:
             float of cost/mol
         """
-
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         decomp = self.get_lowest_decomposition(comp)
         return sum(k.energy_per_atom * v * comp.num_atoms for k, v in decomp.items())

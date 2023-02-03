@@ -1,6 +1,67 @@
 Change log
 ==========
 
+v2023.1.30
+----------
+* PR #2806 from @samblau qchem
+    - Major changes to Q-Chem IO (inputs.py and outputs.py) to accommodate differences and new features in version 6+
+    - Additional parsing capabilities for HOMO/LUMO, dipoles, NBO info (hyperbonds and 3C bonds) in outputs.py
+    - Utility for processing a parsed binary Hessian scratch file
+    - Overdue updates to default values in sets.py and new defaults associated with differences and new features in Q-Chem 6+
+* PR #2814 from @jmmshn patch_dos
+    ## Added Convenience to obtain the normalized CompleteDos object
+    Added tests to make sure calling it multiple time still only gives one result.
+
+v2023.1.20
+----------
+* Passthrough kwargs support for Structure.from_file and Structure.from_str
+* Allow the `frac_tolerance` to be specified for rounding coordinates in CifParser.
+* PR #2803 from @amkrajewski add_weightbasedfunctions
+    When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
+    - Composition class method to initialize it from a dictionary of weight fractions
+    - Composition property giving a dictionary of weight fractions
+    - concise tests for the two above were added
+QChem: translate DMSO name in smd_solvent
+
+v2023.1.9
+---------
+* PR #2792 from @JaGeo bug_fix
+* PR #2773 from @ab5424 cbar
+* PR #2776 from @MichaelWolloch master
+* PR #2762 from @MichaelWolloch master
+* PR #2774 from @dgaines2 fix-poscar
+* PR #2667 from @nwinner volumetric-data-patch
+* PR #2764 from @naik-aakash lobster_lsodos
+* PR #2215 from @rkingsbury cmirs
+* PR #2742 from @materialsproject pip-dependabot
+* PR #2741 from @materialsproject resurrect-req-txt
+* PR #2735 from @njzjz patch-1
+
+v2022.11.7
+----------
+* PR #2724 from @janosh: raise ValueError in ``SpacegroupAnalyzer.get_symmetrized_structure()`` if spglib returns no symmetries
+* PR #2720 by @utf: Fix tensor mapping
+* PR #2562 from @sudarshanv01: In case the Fock-matrix and eigenvalues are requested by the user (though the flags `scf_final_print` or `scf_print`), outputs.py now allows parsing both these quantities.
+
+v2022.11.1
+----------
+* Order of kwargs `fmt` and `filename` in `Structure.to()` swapped for ease of use (note: this can break codes that do not use these options as kwargs).
+* @yuzie007 Parse "Atomic configuration" in POTCAR (52 and 54). Useful for estimating a reasonable NBANDS value.
+* EnumerateStructureTransformation now supports `m3gnet_relax` or `m3gnet_static` options.
+
+v2022.10.22
+-----------
+* Allow env settings to override .pmgrc.yaml (@janosh)
+* Add EntryLike type (@janosh)
+* Update spglib to 2.0+.
+* @cnncnnzh Method to plot the atom-resolved phonon band structures.
+* @jmmshn More Flexible reproduction of VASP's optical code
+* @Ameyanagi Fix the sorting of the FEFF IO module to create ATOMS input.
+* @JaGeo Extend the ThermalDisplacementMatrices class to read cif files in P1 format.
+* @rkingsbury Changes to FEFF I/O to support the use of non-periodic input structures.
+* @jmmshn Merge Waverder and Wavederf
+* @jmmshn  Set the structure_charge while parsing Potcar
+
 v2022.9.21
 ----------
 * @chunweizhu fix the bugs when running `TEMCalculator`
@@ -270,7 +331,7 @@ you are acknowledged appropriately by filling out the linked form.
 * General improvements to Phase Diagram code (@CompyRhys, #2263, #2264, #2268)
 * Improve appearance of periodic table heatmap (@penicillin0, #2272)
 * Small improvements to battery classes (@jmmshn, #2262)
-* Fix for Composition.chemical_system to match expected behaviour for compositions with oxidation states (@CompRhys, #2249)
+* Fix for Composition.chemical_system to match expected behavior for compositions with oxidation states (@CompRhys, #2249)
 * Fix for bad param in OPTIMADE response fields (@ml-evs, #2244)
 * Fix for issue in parsing `bandOverlaps.lobster` file (@pzarabadip, #2237)
 * Fix for Moladaptor (@orioncohen, #2269)

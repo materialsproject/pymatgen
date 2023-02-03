@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -35,14 +37,14 @@ class SubstitutorTest(PymatgenTest):
     def test_substitutor(self):
         s_list = [Species("O", -2), Species("Li", 1)]
         subs = self.s.pred_from_list(s_list)
-        self.assertEqual(len(subs), 4, "incorrect number of substitutions")
+        assert len(subs) == 4, "incorrect number of substitutions"
         c = Composition({"O2-": 1, "Li1+": 2})
         subs = self.s.pred_from_comp(c)
-        self.assertEqual(len(subs), 4, "incorrect number of substitutions")
+        assert len(subs) == 4, "incorrect number of substitutions"
 
         structures = [{"structure": PymatgenTest.get_structure("Li2O"), "id": "pmgtest"}]
         subs = self.s.pred_from_structures(["Na+", "O2-"], structures)
-        self.assertEqual(subs[0].formula, "Na2 O1")
+        assert subs[0].formula == "Na2 O1"
 
     def test_as_dict(self):
         Substitutor.from_dict(self.s.as_dict())

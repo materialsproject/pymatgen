@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import json
 import os
 import tempfile
@@ -8,6 +10,8 @@ import unittest
 import warnings
 
 import numpy as np
+import pytest
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -77,39 +81,39 @@ class CohpcarTest(PymatgenTest):
         )
 
     def test_attributes(self):
-        self.assertFalse(self.cohp_bise.are_coops)
-        self.assertTrue(self.coop_bise.are_coops)
-        self.assertFalse(self.cohp_bise.is_spin_polarized)
-        self.assertFalse(self.coop_bise.is_spin_polarized)
-        self.assertFalse(self.cohp_fe.are_coops)
-        self.assertTrue(self.coop_fe.are_coops)
-        self.assertTrue(self.cohp_fe.is_spin_polarized)
-        self.assertTrue(self.coop_fe.is_spin_polarized)
-        self.assertEqual(len(self.cohp_bise.energies), 241)
-        self.assertEqual(len(self.coop_bise.energies), 241)
-        self.assertEqual(len(self.cohp_fe.energies), 301)
-        self.assertEqual(len(self.coop_fe.energies), 301)
-        self.assertEqual(len(self.cohp_bise.cohp_data), 12)
-        self.assertEqual(len(self.coop_bise.cohp_data), 12)
-        self.assertEqual(len(self.cohp_fe.cohp_data), 3)
-        self.assertEqual(len(self.coop_fe.cohp_data), 3)
+        assert not self.cohp_bise.are_coops
+        assert self.coop_bise.are_coops
+        assert not self.cohp_bise.is_spin_polarized
+        assert not self.coop_bise.is_spin_polarized
+        assert not self.cohp_fe.are_coops
+        assert self.coop_fe.are_coops
+        assert self.cohp_fe.is_spin_polarized
+        assert self.coop_fe.is_spin_polarized
+        assert len(self.cohp_bise.energies) == 241
+        assert len(self.coop_bise.energies) == 241
+        assert len(self.cohp_fe.energies) == 301
+        assert len(self.coop_fe.energies) == 301
+        assert len(self.cohp_bise.cohp_data) == 12
+        assert len(self.coop_bise.cohp_data) == 12
+        assert len(self.cohp_fe.cohp_data) == 3
+        assert len(self.coop_fe.cohp_data) == 3
 
         # Lobster 3.1
-        self.assertFalse(self.cohp_KF.are_coops)
-        self.assertTrue(self.coop_KF.are_coops)
-        self.assertFalse(self.cohp_KF.is_spin_polarized)
-        self.assertFalse(self.coop_KF.is_spin_polarized)
-        self.assertEqual(len(self.cohp_KF.energies), 6)
-        self.assertEqual(len(self.coop_KF.energies), 6)
-        self.assertEqual(len(self.cohp_KF.cohp_data), 7)
-        self.assertEqual(len(self.coop_KF.cohp_data), 7)
+        assert not self.cohp_KF.are_coops
+        assert self.coop_KF.are_coops
+        assert not self.cohp_KF.is_spin_polarized
+        assert not self.coop_KF.is_spin_polarized
+        assert len(self.cohp_KF.energies) == 6
+        assert len(self.coop_KF.energies) == 6
+        assert len(self.cohp_KF.cohp_data) == 7
+        assert len(self.coop_KF.cohp_data) == 7
 
         # Lobster 4.1.0
-        self.assertFalse(self.cohp_KF.are_cobis)
-        self.assertFalse(self.coop_KF.are_cobis)
-        self.assertFalse(self.cobi.are_coops)
-        self.assertTrue(self.cobi.are_cobis)
-        self.assertFalse(self.cobi.is_spin_polarized)
+        assert not self.cohp_KF.are_cobis
+        assert not self.coop_KF.are_cobis
+        assert not self.cobi.are_coops
+        assert self.cobi.are_cobis
+        assert not self.cobi.is_spin_polarized
 
     def test_energies(self):
         efermi_bise = 5.90043
@@ -119,29 +123,29 @@ class CohpcarTest(PymatgenTest):
         efermi_KF = -2.87475
         elim_KF = (-11.25000 + efermi_KF, 7.5000 + efermi_KF)
 
-        self.assertEqual(self.cohp_bise.efermi, efermi_bise)
-        self.assertEqual(self.coop_bise.efermi, efermi_bise)
-        self.assertEqual(self.cohp_fe.efermi, efermi_fe)
-        self.assertEqual(self.coop_fe.efermi, efermi_fe)
+        assert self.cohp_bise.efermi == efermi_bise
+        assert self.coop_bise.efermi == efermi_bise
+        assert self.cohp_fe.efermi == efermi_fe
+        assert self.coop_fe.efermi == efermi_fe
         # Lobster 3.1
-        self.assertEqual(self.cohp_KF.efermi, efermi_KF)
-        self.assertEqual(self.coop_KF.efermi, efermi_KF)
+        assert self.cohp_KF.efermi == efermi_KF
+        assert self.coop_KF.efermi == efermi_KF
 
-        self.assertAlmostEqual(self.cohp_bise.energies[0] + self.cohp_bise.efermi, elim_bise[0], places=4)
-        self.assertAlmostEqual(self.cohp_bise.energies[-1] + self.cohp_bise.efermi, elim_bise[1], places=4)
-        self.assertAlmostEqual(self.coop_bise.energies[0] + self.coop_bise.efermi, elim_bise[0], places=4)
-        self.assertAlmostEqual(self.coop_bise.energies[-1] + self.coop_bise.efermi, elim_bise[1], places=4)
+        assert self.cohp_bise.energies[0] + self.cohp_bise.efermi == approx(elim_bise[0], abs=1e-4)
+        assert self.cohp_bise.energies[-1] + self.cohp_bise.efermi == approx(elim_bise[1], abs=1e-4)
+        assert self.coop_bise.energies[0] + self.coop_bise.efermi == approx(elim_bise[0], abs=1e-4)
+        assert self.coop_bise.energies[-1] + self.coop_bise.efermi == approx(elim_bise[1], abs=1e-4)
 
-        self.assertAlmostEqual(self.cohp_fe.energies[0] + self.cohp_fe.efermi, elim_fe[0], places=4)
-        self.assertAlmostEqual(self.cohp_fe.energies[-1] + self.cohp_fe.efermi, elim_fe[1], places=4)
-        self.assertAlmostEqual(self.coop_fe.energies[0] + self.coop_fe.efermi, elim_fe[0], places=4)
-        self.assertAlmostEqual(self.coop_fe.energies[-1] + self.coop_fe.efermi, elim_fe[1], places=4)
+        assert self.cohp_fe.energies[0] + self.cohp_fe.efermi == approx(elim_fe[0], abs=1e-4)
+        assert self.cohp_fe.energies[-1] + self.cohp_fe.efermi == approx(elim_fe[1], abs=1e-4)
+        assert self.coop_fe.energies[0] + self.coop_fe.efermi == approx(elim_fe[0], abs=1e-4)
+        assert self.coop_fe.energies[-1] + self.coop_fe.efermi == approx(elim_fe[1], abs=1e-4)
 
         # Lobster 3.1
-        self.assertAlmostEqual(self.cohp_KF.energies[0] + self.cohp_KF.efermi, elim_KF[0], places=4)
-        self.assertAlmostEqual(self.cohp_KF.energies[-1] + self.cohp_KF.efermi, elim_KF[1], places=4)
-        self.assertAlmostEqual(self.coop_KF.energies[0] + self.coop_KF.efermi, elim_KF[0], places=4)
-        self.assertAlmostEqual(self.coop_KF.energies[-1] + self.coop_KF.efermi, elim_KF[1], places=4)
+        assert self.cohp_KF.energies[0] + self.cohp_KF.efermi == approx(elim_KF[0], abs=1e-4)
+        assert self.cohp_KF.energies[-1] + self.cohp_KF.efermi == approx(elim_KF[1], abs=1e-4)
+        assert self.coop_KF.energies[0] + self.coop_KF.efermi == approx(elim_KF[0], abs=1e-4)
+        assert self.coop_KF.energies[-1] + self.coop_KF.efermi == approx(elim_KF[1], abs=1e-4)
 
     def test_cohp_data(self):
         lengths_sites_bise = {
@@ -174,40 +178,40 @@ class CohpcarTest(PymatgenTest):
         for data in [self.cohp_bise.cohp_data, self.coop_bise.cohp_data]:
             for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(val["length"], lengths_sites_bise[bond][0])
-                    self.assertEqual(val["sites"], lengths_sites_bise[bond][1])
-                    self.assertEqual(len(val["COHP"][Spin.up]), 241)
-                    self.assertEqual(len(val["ICOHP"][Spin.up]), 241)
+                    assert val["length"] == lengths_sites_bise[bond][0]
+                    assert val["sites"] == lengths_sites_bise[bond][1]
+                    assert len(val["COHP"][Spin.up]) == 241
+                    assert len(val["ICOHP"][Spin.up]) == 241
         for data in [self.cohp_fe.cohp_data, self.coop_fe.cohp_data]:
             for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(val["length"], lengths_sites_fe[bond][0])
-                    self.assertEqual(val["sites"], lengths_sites_fe[bond][1])
-                    self.assertEqual(len(val["COHP"][Spin.up]), 301)
-                    self.assertEqual(len(val["ICOHP"][Spin.up]), 301)
+                    assert val["length"] == lengths_sites_fe[bond][0]
+                    assert val["sites"] == lengths_sites_fe[bond][1]
+                    assert len(val["COHP"][Spin.up]) == 301
+                    assert len(val["ICOHP"][Spin.up]) == 301
 
         # Lobster 3.1
         for data in [self.cohp_KF.cohp_data, self.coop_KF.cohp_data]:
             for bond, val in data.items():
                 if bond != "average":
-                    self.assertEqual(val["length"], lengths_sites_KF[bond][0])
-                    self.assertEqual(val["sites"], lengths_sites_KF[bond][1])
-                    self.assertEqual(len(val["COHP"][Spin.up]), 6)
-                    self.assertEqual(len(val["ICOHP"][Spin.up]), 6)
+                    assert val["length"] == lengths_sites_KF[bond][0]
+                    assert val["sites"] == lengths_sites_KF[bond][1]
+                    assert len(val["COHP"][Spin.up]) == 6
+                    assert len(val["ICOHP"][Spin.up]) == 6
 
     def test_orbital_resolved_cohp(self):
         orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4) for i in range(4)]
-        self.assertIsNone(self.cohp_bise.orb_res_cohp)
-        self.assertIsNone(self.coop_bise.orb_res_cohp)
-        self.assertIsNone(self.cohp_fe.orb_res_cohp)
-        self.assertIsNone(self.coop_fe.orb_res_cohp)
-        self.assertIsNone(self.orb_notot.cohp_data["1"]["COHP"])
-        self.assertIsNone(self.orb_notot.cohp_data["1"]["ICOHP"])
+        assert self.cohp_bise.orb_res_cohp is None
+        assert self.coop_bise.orb_res_cohp is None
+        assert self.cohp_fe.orb_res_cohp is None
+        assert self.coop_fe.orb_res_cohp is None
+        assert self.orb_notot.cohp_data["1"]["COHP"] is None
+        assert self.orb_notot.cohp_data["1"]["ICOHP"] is None
         for orbs in self.orb.orb_res_cohp["1"]:
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
-            self.assertEqual(orb_set[0][0], 4)
-            self.assertEqual(orb_set[1][0], 4)
-            self.assertIn(tuple((orb_set[0][1], orb_set[1][1])), orbitals)
+            assert orb_set[0][0] == 4
+            assert orb_set[1][0] == 4
+            assert tuple((orb_set[0][1], orb_set[1][1])) in orbitals
 
         # test d and f orbitals
         comparelist = [
@@ -352,8 +356,8 @@ class CohpcarTest(PymatgenTest):
         ]
         for iorb, orbs in enumerate(sorted(self.cohp_Na2UO4.orb_res_cohp["49"])):
             orb_set = self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["orbitals"]
-            self.assertEqual(orb_set[0][0], comparelist[iorb])
-            self.assertEqual(str(orb_set[0][1]), comparelist2[iorb])
+            assert orb_set[0][0] == comparelist[iorb]
+            assert str(orb_set[0][1]) == comparelist2[iorb]
 
         # The sum of the orbital-resolved COHPs should be approximately
         # the total COHP. Due to small deviations in the LOBSTER calculation,
@@ -454,34 +458,34 @@ class IcohplistTest(unittest.TestCase):
         )
 
     def test_attributes(self):
-        self.assertFalse(self.icohp_bise.are_coops)
-        self.assertTrue(self.icoop_bise.are_coops)
-        self.assertFalse(self.icohp_bise.is_spin_polarized)
-        self.assertFalse(self.icoop_bise.is_spin_polarized)
-        self.assertEqual(len(self.icohp_bise.icohplist), 11)
-        self.assertEqual(len(self.icoop_bise.icohplist), 11)
-        self.assertFalse(self.icohp_fe.are_coops)
-        self.assertTrue(self.icoop_fe.are_coops)
-        self.assertTrue(self.icohp_fe.is_spin_polarized)
-        self.assertTrue(self.icoop_fe.is_spin_polarized)
-        self.assertEqual(len(self.icohp_fe.icohplist), 2)
-        self.assertEqual(len(self.icoop_fe.icohplist), 2)
+        assert not self.icohp_bise.are_coops
+        assert self.icoop_bise.are_coops
+        assert not self.icohp_bise.is_spin_polarized
+        assert not self.icoop_bise.is_spin_polarized
+        assert len(self.icohp_bise.icohplist) == 11
+        assert len(self.icoop_bise.icohplist) == 11
+        assert not self.icohp_fe.are_coops
+        assert self.icoop_fe.are_coops
+        assert self.icohp_fe.is_spin_polarized
+        assert self.icoop_fe.is_spin_polarized
+        assert len(self.icohp_fe.icohplist) == 2
+        assert len(self.icoop_fe.icohplist) == 2
         # test are_cobis
-        self.assertFalse(self.icohp_fe.are_coops)
-        self.assertFalse(self.icohp_fe.are_cobis)
-        self.assertTrue(self.icoop_fe.are_coops)
-        self.assertFalse(self.icoop_fe.are_cobis)
-        self.assertTrue(self.icobi.are_cobis)
-        self.assertFalse(self.icobi.are_coops)
+        assert not self.icohp_fe.are_coops
+        assert not self.icohp_fe.are_cobis
+        assert self.icoop_fe.are_coops
+        assert not self.icoop_fe.are_cobis
+        assert self.icobi.are_cobis
+        assert not self.icobi.are_coops
 
         # orbitalwise
-        self.assertTrue(self.icobi_orbitalwise.orbitalwise)
-        self.assertFalse(self.icobi.orbitalwise)
+        assert self.icobi_orbitalwise.orbitalwise
+        assert not self.icobi.orbitalwise
 
-        self.assertTrue(self.icobi_orbitalwise_spinpolarized.orbitalwise)
+        assert self.icobi_orbitalwise_spinpolarized.orbitalwise
 
-        self.assertTrue(self.icobi_orbitalwise_add.orbitalwise)
-        self.assertTrue(self.icobi_orbitalwise_spinpolarized_add.orbitalwise)
+        assert self.icobi_orbitalwise_add.orbitalwise
+        assert self.icobi_orbitalwise_spinpolarized_add.orbitalwise
 
     def test_values(self):
         icohplist_bise = {
@@ -635,27 +639,19 @@ class IcohplistTest(unittest.TestCase):
             },
         }
 
-        self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
-        self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
-        self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
-        self.assertAlmostEqual(self.icobi.icohplist["1"]["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up], 0.58649)
-        self.assertAlmostEqual(
-            self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up],
-            0.58649 / 2,
-            3,
-        )
-        self.assertAlmostEqual(
-            self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down],
-            0.58649 / 2,
-            3,
-        )
-        self.assertAlmostEqual(
-            self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down],
-            0.58649 / 2,
-            3,
-        )
+        assert icohplist_bise == self.icohp_bise.icohplist
+        assert -2.38796 == self.icohp_bise.icohpcollection.extremum_icohpvalue()
+        assert icooplist_fe == self.icoop_fe.icohplist
+        assert -0.29919 == self.icoop_fe.icohpcollection.extremum_icohpvalue()
+        assert icooplist_bise == self.icoop_bise.icohplist
+        assert 0.24714 == self.icoop_bise.icohpcollection.extremum_icohpvalue()
+        assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
+        assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == approx(0.58649)
+        assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, abs=1e-3)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
+        assert 0.58649 == self.icobi.icohpcollection.extremum_icohpvalue()
 
 
 class DoscarTest(unittest.TestCase):
@@ -695,48 +691,24 @@ class DoscarTest(unittest.TestCase):
         PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        self.assertListEqual(energies_spin, self.DOSCAR_spin_pol.completedos.energies.tolist())
-        self.assertListEqual(tdos_up, self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist())
-        self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist())
-        self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.completedos.efermi)
+        assert energies_spin == self.DOSCAR_spin_pol.completedos.energies.tolist()
+        assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
+        assert tdos_down == self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist()
+        assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
         for coords, coords2 in zip(
             self.DOSCAR_spin_pol.completedos.structure.frac_coords,
             self.structure.frac_coords,
         ):
             for xyz, xyz2 in zip(coords, coords2):
-                self.assertAlmostEqual(xyz, xyz2)
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist(),
-            PDOS_F_2s_up,
-        )
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist(),
-            PDOS_F_2s_down,
-        )
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist(),
-            PDOS_F_2py_up,
-        )
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist(),
-            PDOS_F_2py_down,
-        )
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist(),
-            PDOS_F_2pz_up,
-        )
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist(),
-            PDOS_F_2pz_down,
-        )
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist(),
-            PDOS_F_2px_up,
-        )
-        self.assertListEqual(
-            self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist(),
-            PDOS_F_2px_down,
-        )
+                assert xyz == approx(xyz2)
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == PDOS_F_2s_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist() == PDOS_F_2py_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == PDOS_F_2pz_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist() == PDOS_F_2pz_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == PDOS_F_2px_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist() == PDOS_F_2px_down
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
@@ -745,35 +717,17 @@ class DoscarTest(unittest.TestCase):
         PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
         PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        self.assertListEqual(energies_nonspin, self.DOSCAR_nonspin_pol.completedos.energies.tolist())
+        assert energies_nonspin == self.DOSCAR_nonspin_pol.completedos.energies.tolist()
 
-        self.assertListEqual(
-            tdos_nonspin,
-            self.DOSCAR_nonspin_pol.completedos.densities[Spin.up].tolist(),
-        )
+        assert tdos_nonspin == self.DOSCAR_nonspin_pol.completedos.densities[Spin.up].tolist()
 
-        self.assertAlmostEqual(fermi, self.DOSCAR_nonspin_pol.completedos.efermi)
-        self.assertDictEqual(
-            self.DOSCAR_nonspin_pol.completedos.structure.as_dict(),
-            self.structure.as_dict(),
-        )
+        assert fermi == approx(self.DOSCAR_nonspin_pol.completedos.efermi)
+        assert self.DOSCAR_nonspin_pol.completedos.structure.as_dict() == self.structure.as_dict()
 
-        self.assertListEqual(
-            self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist(),
-            PDOS_F_2s,
-        )
-        self.assertListEqual(
-            self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist(),
-            PDOS_F_2py,
-        )
-        self.assertListEqual(
-            self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist(),
-            PDOS_F_2pz,
-        )
-        self.assertListEqual(
-            self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist(),
-            PDOS_F_2px,
-        )
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == PDOS_F_2pz
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == PDOS_F_2px
 
     def test_pdos(self):
         # first for spin polarized version
@@ -787,14 +741,14 @@ class DoscarTest(unittest.TestCase):
         PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist(), PDOS_F_2s_up)
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist(), PDOS_F_2s_down)
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist(), PDOS_F_2py_up)
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist(), PDOS_F_2py_down)
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist(), PDOS_F_2pz_up)
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist(), PDOS_F_2pz_down)
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist(), PDOS_F_2px_up)
-        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist(), PDOS_F_2px_down)
+        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist() == PDOS_F_2s_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist() == PDOS_F_2s_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist() == PDOS_F_2py_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist() == PDOS_F_2pz_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist() == PDOS_F_2pz_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist() == PDOS_F_2px_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist() == PDOS_F_2px_down
 
         # non spin
         PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
@@ -802,10 +756,10 @@ class DoscarTest(unittest.TestCase):
         PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
         PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist(), PDOS_F_2s)
-        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist(), PDOS_F_2py)
-        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist(), PDOS_F_2pz)
-        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist(), PDOS_F_2px)
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist() == PDOS_F_2s
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist() == PDOS_F_2py
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == PDOS_F_2pz
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == PDOS_F_2px
 
     def test_tdos(self):
         # first for spin polarized version
@@ -814,53 +768,53 @@ class DoscarTest(unittest.TestCase):
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
         fermi = 0.0
 
-        self.assertListEqual(energies_spin, self.DOSCAR_spin_pol.tdos.energies.tolist())
-        self.assertListEqual(tdos_up, self.DOSCAR_spin_pol.tdos.densities[Spin.up].tolist())
-        self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.tdos.densities[Spin.down].tolist())
-        self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.tdos.efermi)
+        assert energies_spin == self.DOSCAR_spin_pol.tdos.energies.tolist()
+        assert tdos_up == self.DOSCAR_spin_pol.tdos.densities[Spin.up].tolist()
+        assert tdos_down == self.DOSCAR_spin_pol.tdos.densities[Spin.down].tolist()
+        assert fermi == approx(self.DOSCAR_spin_pol.tdos.efermi)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
         fermi = 0.0
 
-        self.assertListEqual(energies_nonspin, self.DOSCAR_nonspin_pol.tdos.energies.tolist())
-        self.assertListEqual(tdos_nonspin, self.DOSCAR_nonspin_pol.tdos.densities[Spin.up].tolist())
-        self.assertAlmostEqual(fermi, self.DOSCAR_nonspin_pol.tdos.efermi)
+        assert energies_nonspin == self.DOSCAR_nonspin_pol.tdos.energies.tolist()
+        assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdos.densities[Spin.up].tolist()
+        assert fermi == approx(self.DOSCAR_nonspin_pol.tdos.efermi)
 
     def test_energies(self):
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
 
-        self.assertListEqual(energies_spin, self.DOSCAR_spin_pol.energies.tolist())
+        assert energies_spin == self.DOSCAR_spin_pol.energies.tolist()
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
-        self.assertListEqual(energies_nonspin, self.DOSCAR_nonspin_pol.energies.tolist())
+        assert energies_nonspin == self.DOSCAR_nonspin_pol.energies.tolist()
 
     def test_tdensities(self):
         # first for spin polarized version
         tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
 
-        self.assertListEqual(tdos_up, self.DOSCAR_spin_pol.tdensities[Spin.up].tolist())
-        self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.tdensities[Spin.down].tolist())
+        assert tdos_up == self.DOSCAR_spin_pol.tdensities[Spin.up].tolist()
+        assert tdos_down == self.DOSCAR_spin_pol.tdensities[Spin.down].tolist()
 
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
-        self.assertListEqual(tdos_nonspin, self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist())
+        assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist()
 
     def test_itdensities(self):
         itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
         itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
-        self.assertListEqual(itdos_up, self.DOSCAR_spin_pol.itdensities[Spin.up].tolist())
-        self.assertListEqual(itdos_down, self.DOSCAR_spin_pol.itdensities[Spin.down].tolist())
+        assert itdos_up == self.DOSCAR_spin_pol.itdensities[Spin.up].tolist()
+        assert itdos_down == self.DOSCAR_spin_pol.itdensities[Spin.down].tolist()
 
         itdos_nonspin = [4.00000, 10.00000, 10.00000, 16.00000, 16.00000, 16.09067]
-        self.assertListEqual(itdos_nonspin, self.DOSCAR_nonspin_pol.itdensities[Spin.up].tolist())
+        assert itdos_nonspin == self.DOSCAR_nonspin_pol.itdensities[Spin.up].tolist()
 
     def test_is_spin_polarized(self):
         # first for spin polarized version
-        self.assertTrue(self.DOSCAR_spin_pol.is_spin_polarized)
+        assert self.DOSCAR_spin_pol.is_spin_polarized
 
-        self.assertFalse(self.DOSCAR_nonspin_pol.is_spin_polarized)
+        assert not self.DOSCAR_nonspin_pol.is_spin_polarized
 
 
 class ChargeTest(PymatgenTest):
@@ -918,10 +872,7 @@ class ChargeTest(PymatgenTest):
             "@module": "pymatgen.core.structure",
         }
         s2 = Structure.from_dict(structure_dict2)
-        self.assertEqual(
-            s2,
-            self.charge2.get_structure_with_charges(os.path.join(this_dir, "../../tests/POSCAR.MnO")),
-        )
+        assert s2 == self.charge2.get_structure_with_charges(os.path.join(this_dir, "../../tests/POSCAR.MnO"))
 
 
 class LobsteroutTest(PymatgenTest):
@@ -960,6 +911,9 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_cobi_madelung = Lobsterout(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung")
         )
+        self.lobsterout_doscar_lso = Lobsterout(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_doscar_lso")
+        )
 
         # TODO: implement skipping madelung/cobi
         self.lobsterout_skipping_cobi_madelung = Lobsterout(
@@ -970,449 +924,369 @@ class LobsteroutTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def testattributes(self):
-        self.assertListEqual(
-            self.lobsterout_normal.basis_functions,
+        assert self.lobsterout_normal.basis_functions == [
             [
-                [
-                    "3s",
-                    "4s",
-                    "3p_y",
-                    "3p_z",
-                    "3p_x",
-                    "3d_xy",
-                    "3d_yz",
-                    "3d_z^2",
-                    "3d_xz",
-                    "3d_x^2-y^2",
-                ]
-            ],
-        )
-        self.assertListEqual(self.lobsterout_normal.basis_type, ["pbeVaspFit2015"])
-        self.assertListEqual(self.lobsterout_normal.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_normal.dftprogram, "VASP")
-        self.assertListEqual(self.lobsterout_normal.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_normal.has_CHARGE)
-        self.assertTrue(self.lobsterout_normal.has_COHPCAR)
-        self.assertTrue(self.lobsterout_normal.has_COOPCAR)
-        self.assertTrue(self.lobsterout_normal.has_DOSCAR)
-        self.assertFalse(self.lobsterout_normal.has_Projection)
-        self.assertTrue(self.lobsterout_normal.has_bandoverlaps)
-        self.assertFalse(self.lobsterout_normal.has_density_of_energies)
-        self.assertFalse(self.lobsterout_normal.has_fatbands)
-        self.assertFalse(self.lobsterout_normal.has_grosspopulation)
-        self.assertListEqual(
-            self.lobsterout_normal.info_lines,
-            [
-                "There are more PAW bands than local basis functions available.",
-                "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
-                "the PAW bands from 21 and upwards will be ignored.",
-            ],
-        )
-        self.assertListEqual(
-            self.lobsterout_normal.info_orthonormalization,
-            ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
-        )
-        self.assertFalse(self.lobsterout_normal.is_restart_from_projection)
-        self.assertEqual(self.lobsterout_normal.lobster_version, "v3.1.0")
-        self.assertEqual(self.lobsterout_normal.number_of_spins, 1)
-        self.assertEqual(self.lobsterout_normal.number_of_threads, 8)
-        self.assertDictEqual(
-            self.lobsterout_normal.timing,
-            {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "702"},
-                "usertime": {"h": "0", "min": "0", "s": "20", "ms": "330"},
-                "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
-            },
-        )
-        self.assertAlmostEqual(self.lobsterout_normal.totalspilling[0], [0.044000000000000004][0])
-        self.assertListEqual(
-            self.lobsterout_normal.warninglines,
-            [
-                "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
-                "Generally, this is not a critical error. But to help you analyze it,",
-                "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
-                "Please check how much they deviate from the identity matrix and decide to",
-                "use your results only, if you are sure that this is ok.",
-            ],
-        )
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
+        ]
+        assert self.lobsterout_normal.basis_type == ["pbeVaspFit2015"]
+        assert self.lobsterout_normal.charge_spilling == [0.0268]
+        assert self.lobsterout_normal.dft_program == "VASP"
+        assert self.lobsterout_normal.elements == ["Ti"]
+        assert self.lobsterout_normal.has_charge
+        assert self.lobsterout_normal.has_cohpcar
+        assert self.lobsterout_normal.has_coopcar
+        assert self.lobsterout_normal.has_doscar
+        assert not self.lobsterout_normal.has_projection
+        assert self.lobsterout_normal.has_bandoverlaps
+        assert not self.lobsterout_normal.has_density_of_energies
+        assert not self.lobsterout_normal.has_fatbands
+        assert not self.lobsterout_normal.has_grosspopulation
+        assert self.lobsterout_normal.info_lines == [
+            "There are more PAW bands than local basis functions available.",
+            "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
+            "the PAW bands from 21 and upwards will be ignored.",
+        ]
+        assert self.lobsterout_normal.info_orthonormalization == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."
+        ]
+        assert not self.lobsterout_normal.is_restart_from_projection
+        assert self.lobsterout_normal.lobster_version == "v3.1.0"
+        assert self.lobsterout_normal.number_of_spins == 1
+        assert self.lobsterout_normal.number_of_threads == 8
+        assert self.lobsterout_normal.timing == {
+            "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "702"},
+            "user_time": {"h": "0", "min": "0", "s": "20", "ms": "330"},
+            "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
+        }
+        assert self.lobsterout_normal.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_normal.warning_lines == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
+            "Generally, this is not a critical error. But to help you analyze it,",
+            "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
+            "Please check how much they deviate from the identity matrix and decide to",
+            "use your results only, if you are sure that this is ok.",
+        ]
 
-        self.assertListEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.basis_functions,
+        assert self.lobsterout_fatband_grosspop_densityofenergies.basis_functions == [
             [
-                [
-                    "3s",
-                    "4s",
-                    "3p_y",
-                    "3p_z",
-                    "3p_x",
-                    "3d_xy",
-                    "3d_yz",
-                    "3d_z^2",
-                    "3d_xz",
-                    "3d_x^2-y^2",
-                ]
-            ],
-        )
-        self.assertListEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.basis_type,
-            ["pbeVaspFit2015"],
-        )
-        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.dftprogram, "VASP")
-        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_CHARGE)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_COHPCAR)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_COOPCAR)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_DOSCAR)
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_Projection)
-        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_bandoverlaps)
-        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_density_of_energies)
-        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_fatbands)
-        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_grosspopulation)
-        self.assertListEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.info_lines,
-            [
-                "There are more PAW bands than local basis functions available.",
-                "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
-                "the PAW bands from 21 and upwards will be ignored.",
-            ],
-        )
-        self.assertListEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.info_orthonormalization,
-            ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
-        )
-        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.is_restart_from_projection)
-        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.lobster_version, "v3.1.0")
-        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.number_of_spins, 1)
-        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.number_of_threads, 8)
-        self.assertDictEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.timing,
-            {
-                "walltime": {"h": "0", "min": "0", "s": "4", "ms": "136"},
-                "usertime": {"h": "0", "min": "0", "s": "18", "ms": "280"},
-                "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "290"},
-            },
-        )
-        self.assertAlmostEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.totalspilling[0],
-            [0.044000000000000004][0],
-        )
-        self.assertListEqual(
-            self.lobsterout_fatband_grosspop_densityofenergies.warninglines,
-            [
-                "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
-                "Generally, this is not a critical error. But to help you analyze it,",
-                "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
-                "Please check how much they deviate from the identity matrix and decide to",
-                "use your results only, if you are sure that this is ok.",
-            ],
-        )
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
+        ]
+        assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
+        assert self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling == [0.0268]
+        assert self.lobsterout_fatband_grosspop_densityofenergies.dft_program == "VASP"
+        assert self.lobsterout_fatband_grosspop_densityofenergies.elements == ["Ti"]
+        assert self.lobsterout_fatband_grosspop_densityofenergies.has_charge
+        assert not self.lobsterout_fatband_grosspop_densityofenergies.has_cohpcar
+        assert not self.lobsterout_fatband_grosspop_densityofenergies.has_coopcar
+        assert not self.lobsterout_fatband_grosspop_densityofenergies.has_doscar
+        assert not self.lobsterout_fatband_grosspop_densityofenergies.has_projection
+        assert self.lobsterout_fatband_grosspop_densityofenergies.has_bandoverlaps
+        assert self.lobsterout_fatband_grosspop_densityofenergies.has_density_of_energies
+        assert self.lobsterout_fatband_grosspop_densityofenergies.has_fatbands
+        assert self.lobsterout_fatband_grosspop_densityofenergies.has_grosspopulation
+        assert self.lobsterout_fatband_grosspop_densityofenergies.info_lines == [
+            "There are more PAW bands than local basis functions available.",
+            "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
+            "the PAW bands from 21 and upwards will be ignored.",
+        ]
+        assert self.lobsterout_fatband_grosspop_densityofenergies.info_orthonormalization == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."
+        ]
+        assert not self.lobsterout_fatband_grosspop_densityofenergies.is_restart_from_projection
+        assert self.lobsterout_fatband_grosspop_densityofenergies.lobster_version == "v3.1.0"
+        assert self.lobsterout_fatband_grosspop_densityofenergies.number_of_spins == 1
+        assert self.lobsterout_fatband_grosspop_densityofenergies.number_of_threads == 8
+        assert self.lobsterout_fatband_grosspop_densityofenergies.timing == {
+            "wall_time": {"h": "0", "min": "0", "s": "4", "ms": "136"},
+            "user_time": {"h": "0", "min": "0", "s": "18", "ms": "280"},
+            "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "290"},
+        }
+        assert self.lobsterout_fatband_grosspop_densityofenergies.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_fatband_grosspop_densityofenergies.warning_lines == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
+            "Generally, this is not a critical error. But to help you analyze it,",
+            "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
+            "Please check how much they deviate from the identity matrix and decide to",
+            "use your results only, if you are sure that this is ok.",
+        ]
 
-        self.assertListEqual(
-            self.lobsterout_saveprojection.basis_functions,
+        assert self.lobsterout_saveprojection.basis_functions == [
             [
-                [
-                    "3s",
-                    "4s",
-                    "3p_y",
-                    "3p_z",
-                    "3p_x",
-                    "3d_xy",
-                    "3d_yz",
-                    "3d_z^2",
-                    "3d_xz",
-                    "3d_x^2-y^2",
-                ]
-            ],
-        )
-        self.assertListEqual(self.lobsterout_saveprojection.basis_type, ["pbeVaspFit2015"])
-        self.assertListEqual(self.lobsterout_saveprojection.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_saveprojection.dftprogram, "VASP")
-        self.assertListEqual(self.lobsterout_saveprojection.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_saveprojection.has_CHARGE)
-        self.assertFalse(self.lobsterout_saveprojection.has_COHPCAR)
-        self.assertFalse(self.lobsterout_saveprojection.has_COOPCAR)
-        self.assertFalse(self.lobsterout_saveprojection.has_DOSCAR)
-        self.assertTrue(self.lobsterout_saveprojection.has_Projection)
-        self.assertTrue(self.lobsterout_saveprojection.has_bandoverlaps)
-        self.assertTrue(self.lobsterout_saveprojection.has_density_of_energies)
-        self.assertFalse(self.lobsterout_saveprojection.has_fatbands)
-        self.assertFalse(self.lobsterout_saveprojection.has_grosspopulation)
-        self.assertListEqual(
-            self.lobsterout_saveprojection.info_lines,
-            [
-                "There are more PAW bands than local basis functions available.",
-                "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
-                "the PAW bands from 21 and upwards will be ignored.",
-            ],
-        )
-        self.assertListEqual(
-            self.lobsterout_saveprojection.info_orthonormalization,
-            ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
-        )
-        self.assertFalse(self.lobsterout_saveprojection.is_restart_from_projection)
-        self.assertEqual(self.lobsterout_saveprojection.lobster_version, "v3.1.0")
-        self.assertEqual(self.lobsterout_saveprojection.number_of_spins, 1)
-        self.assertEqual(self.lobsterout_saveprojection.number_of_threads, 8)
-        self.assertDictEqual(
-            self.lobsterout_saveprojection.timing,
-            {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "574"},
-                "usertime": {"h": "0", "min": "0", "s": "18", "ms": "250"},
-                "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
-            },
-        )
-        self.assertAlmostEqual(self.lobsterout_saveprojection.totalspilling[0], [0.044000000000000004][0])
-        self.assertListEqual(
-            self.lobsterout_saveprojection.warninglines,
-            [
-                "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
-                "Generally, this is not a critical error. But to help you analyze it,",
-                "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
-                "Please check how much they deviate from the identity matrix and decide to",
-                "use your results only, if you are sure that this is ok.",
-            ],
-        )
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
+        ]
+        assert self.lobsterout_saveprojection.basis_type == ["pbeVaspFit2015"]
+        assert self.lobsterout_saveprojection.charge_spilling == [0.0268]
+        assert self.lobsterout_saveprojection.dft_program == "VASP"
+        assert self.lobsterout_saveprojection.elements == ["Ti"]
+        assert self.lobsterout_saveprojection.has_charge
+        assert not self.lobsterout_saveprojection.has_cohpcar
+        assert not self.lobsterout_saveprojection.has_coopcar
+        assert not self.lobsterout_saveprojection.has_doscar
+        assert self.lobsterout_saveprojection.has_projection
+        assert self.lobsterout_saveprojection.has_bandoverlaps
+        assert self.lobsterout_saveprojection.has_density_of_energies
+        assert not self.lobsterout_saveprojection.has_fatbands
+        assert not self.lobsterout_saveprojection.has_grosspopulation
+        assert self.lobsterout_saveprojection.info_lines == [
+            "There are more PAW bands than local basis functions available.",
+            "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
+            "the PAW bands from 21 and upwards will be ignored.",
+        ]
+        assert self.lobsterout_saveprojection.info_orthonormalization == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."
+        ]
+        assert not self.lobsterout_saveprojection.is_restart_from_projection
+        assert self.lobsterout_saveprojection.lobster_version == "v3.1.0"
+        assert self.lobsterout_saveprojection.number_of_spins == 1
+        assert self.lobsterout_saveprojection.number_of_threads == 8
+        assert self.lobsterout_saveprojection.timing == {
+            "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "574"},
+            "user_time": {"h": "0", "min": "0", "s": "18", "ms": "250"},
+            "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
+        }
+        assert self.lobsterout_saveprojection.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_saveprojection.warning_lines == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
+            "Generally, this is not a critical error. But to help you analyze it,",
+            "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
+            "Please check how much they deviate from the identity matrix and decide to",
+            "use your results only, if you are sure that this is ok.",
+        ]
 
-        self.assertListEqual(
-            self.lobsterout_skipping_all.basis_functions,
+        assert self.lobsterout_skipping_all.basis_functions == [
             [
-                [
-                    "3s",
-                    "4s",
-                    "3p_y",
-                    "3p_z",
-                    "3p_x",
-                    "3d_xy",
-                    "3d_yz",
-                    "3d_z^2",
-                    "3d_xz",
-                    "3d_x^2-y^2",
-                ]
-            ],
-        )
-        self.assertListEqual(self.lobsterout_skipping_all.basis_type, ["pbeVaspFit2015"])
-        self.assertListEqual(self.lobsterout_skipping_all.chargespilling, [0.0268])
-        self.assertEqual(self.lobsterout_skipping_all.dftprogram, "VASP")
-        self.assertListEqual(self.lobsterout_skipping_all.elements, ["Ti"])
-        self.assertFalse(self.lobsterout_skipping_all.has_CHARGE)
-        self.assertFalse(self.lobsterout_skipping_all.has_COHPCAR)
-        self.assertFalse(self.lobsterout_skipping_all.has_COOPCAR)
-        self.assertFalse(self.lobsterout_skipping_all.has_DOSCAR)
-        self.assertFalse(self.lobsterout_skipping_all.has_Projection)
-        self.assertTrue(self.lobsterout_skipping_all.has_bandoverlaps)
-        self.assertFalse(self.lobsterout_skipping_all.has_density_of_energies)
-        self.assertFalse(self.lobsterout_skipping_all.has_fatbands)
-        self.assertFalse(self.lobsterout_skipping_all.has_grosspopulation)
-        self.assertFalse(self.lobsterout_skipping_all.has_COBICAR)
-        self.assertFalse(self.lobsterout_skipping_all.has_madelung)
-        self.assertListEqual(
-            self.lobsterout_skipping_all.info_lines,
-            [
-                "There are more PAW bands than local basis functions available.",
-                "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
-                "the PAW bands from 21 and upwards will be ignored.",
-            ],
-        )
-        self.assertListEqual(
-            self.lobsterout_skipping_all.info_orthonormalization,
-            ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
-        )
-        self.assertFalse(self.lobsterout_skipping_all.is_restart_from_projection)
-        self.assertEqual(self.lobsterout_skipping_all.lobster_version, "v3.1.0")
-        self.assertEqual(self.lobsterout_skipping_all.number_of_spins, 1)
-        self.assertEqual(self.lobsterout_skipping_all.number_of_threads, 8)
-        self.assertDictEqual(
-            self.lobsterout_skipping_all.timing,
-            {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "117"},
-                "usertime": {"h": "0", "min": "0", "s": "16", "ms": "79"},
-                "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
-            },
-        )
-        self.assertAlmostEqual(self.lobsterout_skipping_all.totalspilling[0], [0.044000000000000004][0])
-        self.assertListEqual(
-            self.lobsterout_skipping_all.warninglines,
-            [
-                "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
-                "Generally, this is not a critical error. But to help you analyze it,",
-                "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
-                "Please check how much they deviate from the identity matrix and decide to",
-                "use your results only, if you are sure that this is ok.",
-            ],
-        )
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
+        ]
+        assert self.lobsterout_skipping_all.basis_type == ["pbeVaspFit2015"]
+        assert self.lobsterout_skipping_all.charge_spilling == [0.0268]
+        assert self.lobsterout_skipping_all.dft_program == "VASP"
+        assert self.lobsterout_skipping_all.elements == ["Ti"]
+        assert not self.lobsterout_skipping_all.has_charge
+        assert not self.lobsterout_skipping_all.has_cohpcar
+        assert not self.lobsterout_skipping_all.has_coopcar
+        assert not self.lobsterout_skipping_all.has_doscar
+        assert not self.lobsterout_skipping_all.has_projection
+        assert self.lobsterout_skipping_all.has_bandoverlaps
+        assert not self.lobsterout_skipping_all.has_density_of_energies
+        assert not self.lobsterout_skipping_all.has_fatbands
+        assert not self.lobsterout_skipping_all.has_grosspopulation
+        assert not self.lobsterout_skipping_all.has_cobicar
+        assert not self.lobsterout_skipping_all.has_madelung
+        assert self.lobsterout_skipping_all.info_lines == [
+            "There are more PAW bands than local basis functions available.",
+            "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
+            "the PAW bands from 21 and upwards will be ignored.",
+        ]
+        assert self.lobsterout_skipping_all.info_orthonormalization == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."
+        ]
+        assert not self.lobsterout_skipping_all.is_restart_from_projection
+        assert self.lobsterout_skipping_all.lobster_version == "v3.1.0"
+        assert self.lobsterout_skipping_all.number_of_spins == 1
+        assert self.lobsterout_skipping_all.number_of_threads == 8
+        assert self.lobsterout_skipping_all.timing == {
+            "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "117"},
+            "user_time": {"h": "0", "min": "0", "s": "16", "ms": "79"},
+            "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
+        }
+        assert self.lobsterout_skipping_all.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_skipping_all.warning_lines == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
+            "Generally, this is not a critical error. But to help you analyze it,",
+            "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
+            "Please check how much they deviate from the identity matrix and decide to",
+            "use your results only, if you are sure that this is ok.",
+        ]
 
-        self.assertListEqual(
-            self.lobsterout_twospins.basis_functions,
+        assert self.lobsterout_twospins.basis_functions == [
             [
-                [
-                    "4s",
-                    "4p_y",
-                    "4p_z",
-                    "4p_x",
-                    "3d_xy",
-                    "3d_yz",
-                    "3d_z^2",
-                    "3d_xz",
-                    "3d_x^2-y^2",
-                ]
-            ],
-        )
-        self.assertListEqual(self.lobsterout_twospins.basis_type, ["pbeVaspFit2015"])
-        self.assertAlmostEqual(self.lobsterout_twospins.chargespilling[0], 0.36619999999999997)
-        self.assertAlmostEqual(self.lobsterout_twospins.chargespilling[1], 0.36619999999999997)
-        self.assertEqual(self.lobsterout_twospins.dftprogram, "VASP")
-        self.assertListEqual(self.lobsterout_twospins.elements, ["Ti"])
-        self.assertTrue(self.lobsterout_twospins.has_CHARGE)
-        self.assertTrue(self.lobsterout_twospins.has_COHPCAR)
-        self.assertTrue(self.lobsterout_twospins.has_COOPCAR)
-        self.assertTrue(self.lobsterout_twospins.has_DOSCAR)
-        self.assertFalse(self.lobsterout_twospins.has_Projection)
-        self.assertTrue(self.lobsterout_twospins.has_bandoverlaps)
-        self.assertFalse(self.lobsterout_twospins.has_density_of_energies)
-        self.assertFalse(self.lobsterout_twospins.has_fatbands)
-        self.assertFalse(self.lobsterout_twospins.has_grosspopulation)
-        self.assertListEqual(
-            self.lobsterout_twospins.info_lines,
-            [
-                "There are more PAW bands than local basis functions available.",
-                "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
-                "the PAW bands from 19 and upwards will be ignored.",
-            ],
-        )
-        self.assertListEqual(
-            self.lobsterout_twospins.info_orthonormalization,
-            ["60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
-        )
-        self.assertFalse(self.lobsterout_twospins.is_restart_from_projection)
-        self.assertEqual(self.lobsterout_twospins.lobster_version, "v3.1.0")
-        self.assertEqual(self.lobsterout_twospins.number_of_spins, 2)
-        self.assertEqual(self.lobsterout_twospins.number_of_threads, 8)
-        self.assertDictEqual(
-            self.lobsterout_twospins.timing,
-            {
-                "walltime": {"h": "0", "min": "0", "s": "3", "ms": "71"},
-                "usertime": {"h": "0", "min": "0", "s": "22", "ms": "660"},
-                "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
-            },
-        )
-        self.assertAlmostEqual(self.lobsterout_twospins.totalspilling[0], [0.2567][0])
-        self.assertAlmostEqual(self.lobsterout_twospins.totalspilling[1], [0.2567][0])
-        self.assertListEqual(
-            self.lobsterout_twospins.warninglines,
-            [
-                "60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
-                "Generally, this is not a critical error. But to help you analyze it,",
-                "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
-                "Please check how much they deviate from the identity matrix and decide to",
-                "use your results only, if you are sure that this is ok.",
-            ],
-        )
+                "4s",
+                "4p_y",
+                "4p_z",
+                "4p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
+        ]
+        assert self.lobsterout_twospins.basis_type == ["pbeVaspFit2015"]
+        assert self.lobsterout_twospins.charge_spilling[0] == approx(0.36619999999999997)
+        assert self.lobsterout_twospins.charge_spilling[1] == approx(0.36619999999999997)
+        assert self.lobsterout_twospins.dft_program == "VASP"
+        assert self.lobsterout_twospins.elements == ["Ti"]
+        assert self.lobsterout_twospins.has_charge
+        assert self.lobsterout_twospins.has_cohpcar
+        assert self.lobsterout_twospins.has_coopcar
+        assert self.lobsterout_twospins.has_doscar
+        assert not self.lobsterout_twospins.has_projection
+        assert self.lobsterout_twospins.has_bandoverlaps
+        assert not self.lobsterout_twospins.has_density_of_energies
+        assert not self.lobsterout_twospins.has_fatbands
+        assert not self.lobsterout_twospins.has_grosspopulation
+        assert self.lobsterout_twospins.info_lines == [
+            "There are more PAW bands than local basis functions available.",
+            "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
+            "the PAW bands from 19 and upwards will be ignored.",
+        ]
+        assert self.lobsterout_twospins.info_orthonormalization == [
+            "60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5."
+        ]
+        assert not self.lobsterout_twospins.is_restart_from_projection
+        assert self.lobsterout_twospins.lobster_version == "v3.1.0"
+        assert self.lobsterout_twospins.number_of_spins == 2
+        assert self.lobsterout_twospins.number_of_threads == 8
+        assert self.lobsterout_twospins.timing == {
+            "wall_time": {"h": "0", "min": "0", "s": "3", "ms": "71"},
+            "user_time": {"h": "0", "min": "0", "s": "22", "ms": "660"},
+            "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
+        }
+        assert self.lobsterout_twospins.total_spilling[0] == approx([0.2567][0])
+        assert self.lobsterout_twospins.total_spilling[1] == approx([0.2567][0])
+        assert self.lobsterout_twospins.warning_lines == [
+            "60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
+            "Generally, this is not a critical error. But to help you analyze it,",
+            "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
+            "Please check how much they deviate from the identity matrix and decide to",
+            "use your results only, if you are sure that this is ok.",
+        ]
 
-        self.assertListEqual(self.lobsterout_from_projection.basis_functions, [])
-        self.assertListEqual(self.lobsterout_from_projection.basis_type, [])
-        self.assertAlmostEqual(self.lobsterout_from_projection.chargespilling[0], 0.0177)
-        self.assertEqual(self.lobsterout_from_projection.dftprogram, None)
-        self.assertListEqual(self.lobsterout_from_projection.elements, [])
-        self.assertTrue(self.lobsterout_from_projection.has_CHARGE)
-        self.assertTrue(self.lobsterout_from_projection.has_COHPCAR)
-        self.assertTrue(self.lobsterout_from_projection.has_COOPCAR)
-        self.assertTrue(self.lobsterout_from_projection.has_DOSCAR)
-        self.assertFalse(self.lobsterout_from_projection.has_Projection)
-        self.assertFalse(self.lobsterout_from_projection.has_bandoverlaps)
-        self.assertFalse(self.lobsterout_from_projection.has_density_of_energies)
-        self.assertFalse(self.lobsterout_from_projection.has_fatbands)
-        self.assertFalse(self.lobsterout_from_projection.has_grosspopulation)
-        self.assertListEqual(self.lobsterout_from_projection.info_lines, [])
-        self.assertListEqual(self.lobsterout_from_projection.info_orthonormalization, [])
-        self.assertTrue(self.lobsterout_from_projection.is_restart_from_projection)
-        self.assertEqual(self.lobsterout_from_projection.lobster_version, "v3.1.0")
-        self.assertEqual(self.lobsterout_from_projection.number_of_spins, 1)
-        self.assertEqual(self.lobsterout_from_projection.number_of_threads, 8)
-        self.assertDictEqual(
-            self.lobsterout_from_projection.timing,
-            {
-                "walltime": {"h": "0", "min": "2", "s": "1", "ms": "890"},
-                "usertime": {"h": "0", "min": "15", "s": "10", "ms": "530"},
-                "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "400"},
-            },
-        )
-        self.assertAlmostEqual(self.lobsterout_from_projection.totalspilling[0], [0.1543][0])
-        self.assertListEqual(self.lobsterout_from_projection.warninglines, [])
+        assert self.lobsterout_from_projection.basis_functions == []
+        assert self.lobsterout_from_projection.basis_type == []
+        assert self.lobsterout_from_projection.charge_spilling[0] == approx(0.0177)
+        assert self.lobsterout_from_projection.dft_program is None
+        assert self.lobsterout_from_projection.elements == []
+        assert self.lobsterout_from_projection.has_charge
+        assert self.lobsterout_from_projection.has_cohpcar
+        assert self.lobsterout_from_projection.has_coopcar
+        assert self.lobsterout_from_projection.has_doscar
+        assert not self.lobsterout_from_projection.has_projection
+        assert not self.lobsterout_from_projection.has_bandoverlaps
+        assert not self.lobsterout_from_projection.has_density_of_energies
+        assert not self.lobsterout_from_projection.has_fatbands
+        assert not self.lobsterout_from_projection.has_grosspopulation
+        assert self.lobsterout_from_projection.info_lines == []
+        assert self.lobsterout_from_projection.info_orthonormalization == []
+        assert self.lobsterout_from_projection.is_restart_from_projection
+        assert self.lobsterout_from_projection.lobster_version == "v3.1.0"
+        assert self.lobsterout_from_projection.number_of_spins == 1
+        assert self.lobsterout_from_projection.number_of_threads == 8
+        assert self.lobsterout_from_projection.timing == {
+            "wall_time": {"h": "0", "min": "2", "s": "1", "ms": "890"},
+            "user_time": {"h": "0", "min": "15", "s": "10", "ms": "530"},
+            "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "400"},
+        }
+        assert self.lobsterout_from_projection.total_spilling[0] == approx([0.1543][0])
+        assert self.lobsterout_from_projection.warning_lines == []
 
-        self.assertListEqual(
-            self.lobsterout_GaAs.basis_functions,
+        assert self.lobsterout_GaAs.basis_functions == [
+            ["4s", "4p_y", "4p_z", "4p_x"],
             [
-                ["4s", "4p_y", "4p_z", "4p_x"],
-                [
-                    "4s",
-                    "4p_y",
-                    "4p_z",
-                    "4p_x",
-                    "3d_xy",
-                    "3d_yz",
-                    "3d_z^2",
-                    "3d_xz",
-                    "3d_x^2-y^2",
-                ],
+                "4s",
+                "4p_y",
+                "4p_z",
+                "4p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
             ],
-        )
-        self.assertListEqual(self.lobsterout_GaAs.basis_type, ["Bunge", "Bunge"])
-        self.assertAlmostEqual(self.lobsterout_GaAs.chargespilling[0], 0.0089)
-        self.assertEqual(self.lobsterout_GaAs.dftprogram, "VASP")
-        self.assertListEqual(self.lobsterout_GaAs.elements, ["As", "Ga"])
-        self.assertTrue(self.lobsterout_GaAs.has_CHARGE)
-        self.assertTrue(self.lobsterout_GaAs.has_COHPCAR)
-        self.assertTrue(self.lobsterout_GaAs.has_COOPCAR)
-        self.assertTrue(self.lobsterout_GaAs.has_DOSCAR)
-        self.assertFalse(self.lobsterout_GaAs.has_Projection)
-        self.assertFalse(self.lobsterout_GaAs.has_bandoverlaps)
-        self.assertFalse(self.lobsterout_GaAs.has_density_of_energies)
-        self.assertFalse(self.lobsterout_GaAs.has_fatbands)
-        self.assertFalse(self.lobsterout_GaAs.has_grosspopulation)
-        self.assertListEqual(
-            self.lobsterout_GaAs.info_lines,
-            [
-                "There are more PAW bands than local basis functions available.",
-                "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
-                "the PAW bands from 14 and upwards will be ignored.",
-            ],
-        )
-        self.assertListEqual(self.lobsterout_GaAs.info_orthonormalization, [])
-        self.assertFalse(self.lobsterout_GaAs.is_restart_from_projection)
-        self.assertEqual(self.lobsterout_GaAs.lobster_version, "v3.1.0")
-        self.assertEqual(self.lobsterout_GaAs.number_of_spins, 1)
-        self.assertEqual(self.lobsterout_GaAs.number_of_threads, 8)
-        self.assertDictEqual(
-            self.lobsterout_GaAs.timing,
-            {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "726"},
-                "usertime": {"h": "0", "min": "0", "s": "12", "ms": "370"},
-                "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "180"},
-            },
-        )
-        self.assertAlmostEqual(self.lobsterout_GaAs.totalspilling[0], [0.0859][0])
+        ]
+        assert self.lobsterout_GaAs.basis_type == ["Bunge", "Bunge"]
+        assert self.lobsterout_GaAs.charge_spilling[0] == approx(0.0089)
+        assert self.lobsterout_GaAs.dft_program == "VASP"
+        assert self.lobsterout_GaAs.elements == ["As", "Ga"]
+        assert self.lobsterout_GaAs.has_charge
+        assert self.lobsterout_GaAs.has_cohpcar
+        assert self.lobsterout_GaAs.has_coopcar
+        assert self.lobsterout_GaAs.has_doscar
+        assert not self.lobsterout_GaAs.has_projection
+        assert not self.lobsterout_GaAs.has_bandoverlaps
+        assert not self.lobsterout_GaAs.has_density_of_energies
+        assert not self.lobsterout_GaAs.has_fatbands
+        assert not self.lobsterout_GaAs.has_grosspopulation
+        assert self.lobsterout_GaAs.info_lines == [
+            "There are more PAW bands than local basis functions available.",
+            "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
+            "the PAW bands from 14 and upwards will be ignored.",
+        ]
+        assert self.lobsterout_GaAs.info_orthonormalization == []
+        assert not self.lobsterout_GaAs.is_restart_from_projection
+        assert self.lobsterout_GaAs.lobster_version == "v3.1.0"
+        assert self.lobsterout_GaAs.number_of_spins == 1
+        assert self.lobsterout_GaAs.number_of_threads == 8
+        assert self.lobsterout_GaAs.timing == {
+            "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "726"},
+            "user_time": {"h": "0", "min": "0", "s": "12", "ms": "370"},
+            "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "180"},
+        }
+        assert self.lobsterout_GaAs.total_spilling[0] == approx([0.0859][0])
 
-        self.assertEqual(self.lobsterout_onethread.number_of_threads, 1)
+        assert self.lobsterout_onethread.number_of_threads == 1
         # Test lobsterout of lobster-4.1.0
-        self.assertEqual(self.lobsterout_cobi_madelung.has_COBICAR, True)
-        self.assertEqual(self.lobsterout_cobi_madelung.has_COHPCAR, True)
-        self.assertEqual(self.lobsterout_cobi_madelung.has_madelung, True)
+        assert self.lobsterout_cobi_madelung.has_cobicar is True
+        assert self.lobsterout_cobi_madelung.has_cohpcar is True
+        assert self.lobsterout_cobi_madelung.has_madelung is True
+        assert not self.lobsterout_cobi_madelung.has_doscar_lso
 
-        self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_COBICAR, False)
-        self.assertEqual(self.lobsterout_skipping_cobi_madelung.has_madelung, False)
+        assert self.lobsterout_doscar_lso.has_doscar_lso
+
+        assert self.lobsterout_skipping_cobi_madelung.has_cobicar is False
+        assert self.lobsterout_skipping_cobi_madelung.has_madelung is False
 
     def test_get_doc(self):
         comparedict = {
             "restart_from_projection": False,
             "lobster_version": "v3.1.0",
             "threads": 8,
-            "Dftprogram": "VASP",
-            "chargespilling": [0.0268],
-            "totalspilling": [0.044000000000000004],
+            "dft_program": "VASP",
+            "charge_spilling": [0.0268],
+            "total_spilling": [0.044000000000000004],
             "elements": ["Ti"],
-            "basistype": ["pbeVaspFit2015"],
-            "basisfunctions": [
+            "basis_type": ["pbeVaspFit2015"],
+            "basis_functions": [
                 [
                     "3s",
                     "4s",
@@ -1427,45 +1301,46 @@ class LobsteroutTest(PymatgenTest):
                 ]
             ],
             "timing": {
-                "walltime": {"h": "0", "min": "0", "s": "2", "ms": "702"},
-                "usertime": {"h": "0", "min": "0", "s": "20", "ms": "330"},
+                "wall_time": {"h": "0", "min": "0", "s": "2", "ms": "702"},
+                "user_time": {"h": "0", "min": "0", "s": "20", "ms": "330"},
                 "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
             },
-            "warnings": [
+            "warning_lines": [
                 "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
                 "Generally, this is not a critical error. But to help you analyze it,",
                 "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
                 "Please check how much they deviate from the identity matrix and decide to",
                 "use your results only, if you are sure that this is ok.",
             ],
-            "orthonormalization": ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
-            "infos": [
+            "info_orthonormalization": ["3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
+            "info_lines": [
                 "There are more PAW bands than local basis functions available.",
                 "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
                 "the PAW bands from 21 and upwards will be ignored.",
             ],
-            "hasDOSCAR": True,
-            "hasCOHPCAR": True,
-            "hasCOOPCAR": True,
-            "hasCHARGE": True,
-            "hasProjection": False,
-            "hasbandoverlaps": True,
-            "hasfatband": False,
-            "hasGrossPopuliation": False,
-            "hasDensityOfEnergies": False,
+            "has_doscar": True,
+            "has_doscar_lso": False,
+            "has_cohpcar": True,
+            "has_coopcar": True,
+            "has_charge": True,
+            "has_projection": False,
+            "has_bandoverlaps": True,
+            "has_fatbands": False,
+            "has_grosspopulation": False,
+            "has_density_of_energies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():
-            if key not in ["hasCOBICAR", "hasmadelung"]:
+            if key not in ["has_cobicar", "has_madelung"]:
                 if isinstance(item, str):
-                    self.assertTrue(comparedict[key], item)
+                    assert comparedict[key], item
                 elif isinstance(item, int):
-                    self.assertEqual(comparedict[key], item)
-                elif key in ("chargespilling", "totalspilling"):
-                    self.assertAlmostEqual(item[0], comparedict[key][0])
+                    assert comparedict[key] == item
+                elif key in ("charge_spilling", "total_spilling"):
+                    assert item[0] == approx(comparedict[key][0])
                 elif isinstance(item, list):
-                    self.assertListEqual(item, comparedict[key])
+                    assert item == comparedict[key]
                 elif isinstance(item, dict):
-                    self.assertDictEqual(item, comparedict[key])
+                    assert item == comparedict[key]
 
 
 class FatbandTest(PymatgenTest):
@@ -1511,112 +1386,100 @@ class FatbandTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_attributes(self):
-        self.assertAlmostEqual(list(self.fatband_SiO2_p_x.label_dict["M"])[0], 0.5)
-        self.assertAlmostEqual(list(self.fatband_SiO2_p_x.label_dict["M"])[1], 0.0)
-        self.assertAlmostEqual(list(self.fatband_SiO2_p_x.label_dict["M"])[2], 0.0)
-        self.assertEqual(self.fatband_SiO2_p_x.efermi, self.vasprun_SiO2_p_x.efermi)
+        assert list(self.fatband_SiO2_p_x.label_dict["M"])[0] == approx(0.5)
+        assert list(self.fatband_SiO2_p_x.label_dict["M"])[1] == approx(0.0)
+        assert list(self.fatband_SiO2_p_x.label_dict["M"])[2] == approx(0.0)
+        assert self.fatband_SiO2_p_x.efermi == self.vasprun_SiO2_p_x.efermi
         lattice1 = self.bs_symmline.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p_x.lattice.as_dict()
-        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
-        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
-        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
-        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
-        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
-        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
-        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
-        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
-        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
-        self.assertEqual(
-            self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi,
-            -18.245,
-        )
-        self.assertEqual(self.fatband_SiO2_p_x.is_spinpolarized, False)
-        self.assertAlmostEqual(self.fatband_SiO2_p_x.kpoints_array[3][0], 0.03409091)
-        self.assertEqual(self.fatband_SiO2_p_x.kpoints_array[3][1], 0.0)
-        self.assertEqual(self.fatband_SiO2_p_x.kpoints_array[3][2], 0.0)
-        self.assertEqual(self.fatband_SiO2_p_x.nbands, 36)
-        self.assertEqual(self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"], 0.002)
-        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].frac_coords[0], 0.0)
-        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].frac_coords[1], 0.47634315)
-        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].frac_coords[2], 0.666667)
-        self.assertEqual(self.fatband_SiO2_p_x.structure[0].species_string, "Si")
-        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].coords[0], -1.19607309)
-        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].coords[1], 2.0716597)
-        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].coords[2], 3.67462144)
+        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
+        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
+        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
+        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
+        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
+        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
+        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
+        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
+        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == -18.245
+        assert self.fatband_SiO2_p_x.is_spinpolarized is False
+        assert self.fatband_SiO2_p_x.kpoints_array[3][0] == approx(0.03409091)
+        assert self.fatband_SiO2_p_x.kpoints_array[3][1] == 0.0
+        assert self.fatband_SiO2_p_x.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_p_x.nbands == 36
+        assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == 0.002
+        assert self.fatband_SiO2_p_x.structure[0].frac_coords[0] == approx(0.0)
+        assert self.fatband_SiO2_p_x.structure[0].frac_coords[1] == approx(0.47634315)
+        assert self.fatband_SiO2_p_x.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_p_x.structure[0].species_string == "Si"
+        assert self.fatband_SiO2_p_x.structure[0].coords[0] == approx(-1.19607309)
+        assert self.fatband_SiO2_p_x.structure[0].coords[1] == approx(2.0716597)
+        assert self.fatband_SiO2_p_x.structure[0].coords[2] == approx(3.67462144)
 
-        self.assertAlmostEqual(list(self.fatband_SiO2_p.label_dict["M"])[0], 0.5)
-        self.assertAlmostEqual(list(self.fatband_SiO2_p.label_dict["M"])[1], 0.0)
-        self.assertAlmostEqual(list(self.fatband_SiO2_p.label_dict["M"])[2], 0.0)
-        self.assertEqual(self.fatband_SiO2_p.efermi, self.vasprun_SiO2_p.efermi)
+        assert list(self.fatband_SiO2_p.label_dict["M"])[0] == approx(0.5)
+        assert list(self.fatband_SiO2_p.label_dict["M"])[1] == approx(0.0)
+        assert list(self.fatband_SiO2_p.label_dict["M"])[2] == approx(0.0)
+        assert self.fatband_SiO2_p.efermi == self.vasprun_SiO2_p.efermi
         lattice1 = self.bs_symmline2.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p.lattice.as_dict()
-        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
-        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
-        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
-        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
-        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
-        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
-        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
-        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
-        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
-        self.assertEqual(
-            self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi,
-            -18.245,
-        )
-        self.assertEqual(self.fatband_SiO2_p.is_spinpolarized, False)
-        self.assertAlmostEqual(self.fatband_SiO2_p.kpoints_array[3][0], 0.03409091)
-        self.assertEqual(self.fatband_SiO2_p.kpoints_array[3][1], 0.0)
-        self.assertEqual(self.fatband_SiO2_p.kpoints_array[3][2], 0.0)
-        self.assertEqual(self.fatband_SiO2_p.nbands, 36)
-        self.assertEqual(self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"], 0.042)
-        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].frac_coords[0], 0.0)
-        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].frac_coords[1], 0.47634315)
-        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].frac_coords[2], 0.666667)
-        self.assertEqual(self.fatband_SiO2_p.structure[0].species_string, "Si")
-        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].coords[0], -1.19607309)
-        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].coords[1], 2.0716597)
-        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].coords[2], 3.67462144)
+        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
+        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
+        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
+        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
+        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
+        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
+        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
+        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
+        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == -18.245
+        assert self.fatband_SiO2_p.is_spinpolarized is False
+        assert self.fatband_SiO2_p.kpoints_array[3][0] == approx(0.03409091)
+        assert self.fatband_SiO2_p.kpoints_array[3][1] == 0.0
+        assert self.fatband_SiO2_p.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_p.nbands == 36
+        assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
+        assert self.fatband_SiO2_p.structure[0].frac_coords[0] == approx(0.0)
+        assert self.fatband_SiO2_p.structure[0].frac_coords[1] == approx(0.47634315)
+        assert self.fatband_SiO2_p.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_p.structure[0].species_string == "Si"
+        assert self.fatband_SiO2_p.structure[0].coords[0] == approx(-1.19607309)
+        assert self.fatband_SiO2_p.structure[0].coords[1] == approx(2.0716597)
+        assert self.fatband_SiO2_p.structure[0].coords[2] == approx(3.67462144)
 
-        self.assertAlmostEqual(list(self.fatband_SiO2_spin.label_dict["M"])[0], 0.5)
-        self.assertAlmostEqual(list(self.fatband_SiO2_spin.label_dict["M"])[1], 0.0)
-        self.assertAlmostEqual(list(self.fatband_SiO2_spin.label_dict["M"])[2], 0.0)
-        self.assertEqual(self.fatband_SiO2_spin.efermi, self.vasprun_SiO2_spin.efermi)
+        assert list(self.fatband_SiO2_spin.label_dict["M"])[0] == approx(0.5)
+        assert list(self.fatband_SiO2_spin.label_dict["M"])[1] == approx(0.0)
+        assert list(self.fatband_SiO2_spin.label_dict["M"])[2] == approx(0.0)
+        assert self.fatband_SiO2_spin.efermi == self.vasprun_SiO2_spin.efermi
         lattice1 = self.bs_symmline_spin.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_spin.lattice.as_dict()
-        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
-        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
-        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
-        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
-        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
-        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
-        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
-        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
-        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
-        self.assertEqual(
-            self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi,
-            -18.245,
-        )
-        self.assertEqual(
-            self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi,
-            -18.245,
-        )
-        self.assertEqual(self.fatband_SiO2_spin.is_spinpolarized, True)
-        self.assertAlmostEqual(self.fatband_SiO2_spin.kpoints_array[3][0], 0.03409091)
-        self.assertEqual(self.fatband_SiO2_spin.kpoints_array[3][1], 0.0)
-        self.assertEqual(self.fatband_SiO2_spin.kpoints_array[3][2], 0.0)
-        self.assertEqual(self.fatband_SiO2_spin.nbands, 36)
+        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
+        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
+        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
+        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
+        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
+        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
+        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
+        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
+        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
+        assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
+        assert self.fatband_SiO2_spin.is_spinpolarized is True
+        assert self.fatband_SiO2_spin.kpoints_array[3][0] == approx(0.03409091)
+        assert self.fatband_SiO2_spin.kpoints_array[3][1] == 0.0
+        assert self.fatband_SiO2_spin.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_spin.nbands == 36
 
-        self.assertEqual(self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"], 0.042)
-        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].frac_coords[0], 0.0)
-        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].frac_coords[1], 0.47634315)
-        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].frac_coords[2], 0.666667)
-        self.assertEqual(self.fatband_SiO2_spin.structure[0].species_string, "Si")
-        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].coords[0], -1.19607309)
-        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].coords[1], 2.0716597)
-        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].coords[2], 3.67462144)
+        assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
+        assert self.fatband_SiO2_spin.structure[0].frac_coords[0] == approx(0.0)
+        assert self.fatband_SiO2_spin.structure[0].frac_coords[1] == approx(0.47634315)
+        assert self.fatband_SiO2_spin.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_spin.structure[0].species_string == "Si"
+        assert self.fatband_SiO2_spin.structure[0].coords[0] == approx(-1.19607309)
+        assert self.fatband_SiO2_spin.structure[0].coords[1] == approx(2.0716597)
+        assert self.fatband_SiO2_spin.structure[0].coords[2] == approx(3.67462144)
 
     def test_raises(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
                     os.path.join(
@@ -1638,7 +1501,7 @@ class FatbandTest(PymatgenTest):
                 ),
             )
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
                     os.path.join(
@@ -1660,7 +1523,7 @@ class FatbandTest(PymatgenTest):
                 ),
             )
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=".",
                 Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
@@ -1675,131 +1538,91 @@ class FatbandTest(PymatgenTest):
         bs_p = self.fatband_SiO2_p.get_bandstructure()
         atom1 = bs_p.structure[0]
         atom2 = self.bs_symmline2.structure[0]
-        self.assertAlmostEqual(atom1.frac_coords[0], atom2.frac_coords[0])
-        self.assertAlmostEqual(atom1.frac_coords[1], atom2.frac_coords[1])
-        self.assertAlmostEqual(atom1.frac_coords[2], atom2.frac_coords[2])
-        self.assertAlmostEqual(atom1.coords[0], atom2.coords[0])
-        self.assertAlmostEqual(atom1.coords[1], atom2.coords[1])
-        self.assertAlmostEqual(atom1.coords[2], atom2.coords[2])
-        self.assertEqual(atom1.species_string, atom2.species_string)
-        self.assertEqual(bs_p.efermi, self.bs_symmline2.efermi)
+        assert atom1.frac_coords[0] == approx(atom2.frac_coords[0])
+        assert atom1.frac_coords[1] == approx(atom2.frac_coords[1])
+        assert atom1.frac_coords[2] == approx(atom2.frac_coords[2])
+        assert atom1.coords[0] == approx(atom2.coords[0])
+        assert atom1.coords[1] == approx(atom2.coords[1])
+        assert atom1.coords[2] == approx(atom2.coords[2])
+        assert atom1.species_string == atom2.species_string
+        assert bs_p.efermi == self.bs_symmline2.efermi
         branch1 = bs_p.branches[0]
         branch2 = self.bs_symmline2.branches[0]
-        self.assertEqual(branch2["name"], branch1["name"])
-        self.assertEqual(branch2["start_index"], branch1["start_index"])
-        self.assertEqual(branch2["end_index"], branch1["end_index"])
+        assert branch2["name"] == branch1["name"]
+        assert branch2["start_index"] == branch1["start_index"]
+        assert branch2["end_index"] == branch1["end_index"]
 
-        self.assertAlmostEqual(bs_p.distance[30], self.bs_symmline2.distance[30])
+        assert bs_p.distance[30] == approx(self.bs_symmline2.distance[30])
         lattice1 = bs_p.lattice_rec.as_dict()
         lattice2 = self.bs_symmline2.lattice_rec.as_dict()
-        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
-        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
-        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
-        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
-        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
-        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
-        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
-        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
-        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
+        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
+        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
+        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
+        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
+        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
+        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
+        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
+        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
+        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
 
-        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[0], self.bs_symmline2.kpoints[8].frac_coords[0])
-        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[1], self.bs_symmline2.kpoints[8].frac_coords[1])
-        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[2], self.bs_symmline2.kpoints[8].frac_coords[2])
-        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[0], self.bs_symmline2.kpoints[8].cart_coords[0])
-        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[1], self.bs_symmline2.kpoints[8].cart_coords[1])
-        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[2], self.bs_symmline2.kpoints[8].cart_coords[2])
-        self.assertAlmostEqual(
-            bs_p.kpoints[50].frac_coords[0],
-            self.bs_symmline2.kpoints[50].frac_coords[0],
-        )
-        self.assertAlmostEqual(
-            bs_p.kpoints[50].frac_coords[1],
-            self.bs_symmline2.kpoints[50].frac_coords[1],
-        )
-        self.assertAlmostEqual(
-            bs_p.kpoints[50].frac_coords[2],
-            self.bs_symmline2.kpoints[50].frac_coords[2],
-        )
-        self.assertAlmostEqual(
-            bs_p.kpoints[50].cart_coords[0],
-            self.bs_symmline2.kpoints[50].cart_coords[0],
-        )
-        self.assertAlmostEqual(
-            bs_p.kpoints[50].cart_coords[1],
-            self.bs_symmline2.kpoints[50].cart_coords[1],
-        )
-        self.assertAlmostEqual(
-            bs_p.kpoints[50].cart_coords[2],
-            self.bs_symmline2.kpoints[50].cart_coords[2],
-        )
-        self.assertAlmostEqual(
-            bs_p.get_band_gap()["energy"],
-            self.bs_symmline2.get_band_gap()["energy"],
-            places=2,
-        )
-        self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
-        self.assertAlmostEqual(
-            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
-            0.003,
-        )
-        self.assertAlmostEqual(
-            bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
-            0.002 * 3 + 0.003 * 3,
+        assert bs_p.kpoints[8].frac_coords[0] == approx(self.bs_symmline2.kpoints[8].frac_coords[0])
+        assert bs_p.kpoints[8].frac_coords[1] == approx(self.bs_symmline2.kpoints[8].frac_coords[1])
+        assert bs_p.kpoints[8].frac_coords[2] == approx(self.bs_symmline2.kpoints[8].frac_coords[2])
+        assert bs_p.kpoints[8].cart_coords[0] == approx(self.bs_symmline2.kpoints[8].cart_coords[0])
+        assert bs_p.kpoints[8].cart_coords[1] == approx(self.bs_symmline2.kpoints[8].cart_coords[1])
+        assert bs_p.kpoints[8].cart_coords[2] == approx(self.bs_symmline2.kpoints[8].cart_coords[2])
+        assert bs_p.kpoints[50].frac_coords[0] == approx(self.bs_symmline2.kpoints[50].frac_coords[0])
+        assert bs_p.kpoints[50].frac_coords[1] == approx(self.bs_symmline2.kpoints[50].frac_coords[1])
+        assert bs_p.kpoints[50].frac_coords[2] == approx(self.bs_symmline2.kpoints[50].frac_coords[2])
+        assert bs_p.kpoints[50].cart_coords[0] == approx(self.bs_symmline2.kpoints[50].cart_coords[0])
+        assert bs_p.kpoints[50].cart_coords[1] == approx(self.bs_symmline2.kpoints[50].cart_coords[1])
+        assert bs_p.kpoints[50].cart_coords[2] == approx(self.bs_symmline2.kpoints[50].cart_coords[2])
+        assert bs_p.get_band_gap()["energy"] == approx(self.bs_symmline2.get_band_gap()["energy"], abs=1e-2)
+        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(0.003)
+        assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
+            0.002 * 3 + 0.003 * 3
         )
         dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
             0
         ]
-        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
-        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
-        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
-        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
+        assert dict_here["O"]["2s"] == approx(0.792)
+        assert dict_here["O"]["2p"] == approx(0.015)
 
         bs_spin = self.fatband_SiO2_spin.get_bandstructure()
-        self.assertAlmostEqual(
-            bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"],
-            3 * (0.001 + 0.064),
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(
+            0.003
         )
-        self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
-            0.003,
-        )
-        self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
-            0.002 * 3 + 0.003 * 3,
+        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
+            0.002 * 3 + 0.003 * 3
         )
         dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
             0
         ][0]
-        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
-        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
-        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
-        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
+        assert dict_here["O"]["2s"] == approx(0.792)
+        assert dict_here["O"]["2p"] == approx(0.015)
 
-        self.assertAlmostEqual(
-            bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"],
-            3 * (0.001 + 0.064),
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"] == approx(
+            0.003
         )
-        self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"],
-            0.003,
-        )
-        self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
-            0.002 * 3 + 0.003 * 3,
+        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"] == approx(
+            0.002 * 3 + 0.003 * 3
         )
         dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[
             Spin.down
         ][0][0]
-        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
-        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
-        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
-        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
+        assert dict_here["O"]["2s"] == approx(0.792)
+        assert dict_here["O"]["2p"] == approx(0.015)
         bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
-        self.assertAlmostEqual(
-            bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"],
-            3 * (0.001 + 0.064),
-            2,
-        )
+        assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
 class LobsterinTest(unittest.TestCase):
@@ -1814,29 +1637,29 @@ class LobsterinTest(unittest.TestCase):
 
     def test_from_file(self):
         # test read from file
-        self.assertAlmostEqual(self.Lobsterinfromfile["cohpstartenergy"], -15.0)
-        self.assertAlmostEqual(self.Lobsterinfromfile["cohpendenergy"], 5.0)
-        self.assertAlmostEqual(self.Lobsterinfromfile["basisset"], "pbeVaspFit2015")
-        self.assertAlmostEqual(self.Lobsterinfromfile["gaussiansmearingwidth"], 0.1)
-        self.assertEqual(self.Lobsterinfromfile["basisfunctions"][0], "Fe 3d 4p 4s")
-        self.assertEqual(self.Lobsterinfromfile["basisfunctions"][1], "Co 3d 4p 4s")
-        self.assertEqual(self.Lobsterinfromfile["skipdos"], True)
-        self.assertEqual(self.Lobsterinfromfile["skipcohp"], True)
-        self.assertEqual(self.Lobsterinfromfile["skipcoop"], True)
-        self.assertEqual(self.Lobsterinfromfile["skippopulationanalysis"], True)
-        self.assertEqual(self.Lobsterinfromfile["skipgrosspopulation"], True)
+        assert self.Lobsterinfromfile["cohpstartenergy"] == approx(-15.0)
+        assert self.Lobsterinfromfile["cohpendenergy"] == approx(5.0)
+        assert self.Lobsterinfromfile["basisset"] == "pbeVaspFit2015"
+        assert self.Lobsterinfromfile["gaussiansmearingwidth"] == approx(0.1)
+        assert self.Lobsterinfromfile["basisfunctions"][0] == "Fe 3d 4p 4s"
+        assert self.Lobsterinfromfile["basisfunctions"][1] == "Co 3d 4p 4s"
+        assert self.Lobsterinfromfile["skipdos"] is True
+        assert self.Lobsterinfromfile["skipcohp"] is True
+        assert self.Lobsterinfromfile["skipcoop"] is True
+        assert self.Lobsterinfromfile["skippopulationanalysis"] is True
+        assert self.Lobsterinfromfile["skipgrosspopulation"] is True
 
         # test if comments are correctly removed
-        self.assertDictEqual(self.Lobsterinfromfile, self.Lobsterinfromfile2)
+        assert self.Lobsterinfromfile == self.Lobsterinfromfile2
 
     def test_getitem(self):
         # tests implementation of getitem, should be case independent
-        self.assertAlmostEqual(self.Lobsterinfromfile["COHPSTARTENERGY"], -15.0)
+        assert self.Lobsterinfromfile["COHPSTARTENERGY"] == approx(-15.0)
 
     def test_setitem(self):
         # test implementation of setitem
         self.Lobsterinfromfile["skipCOHP"] = False
-        self.assertEqual(self.Lobsterinfromfile["skipcohp"], False)
+        assert self.Lobsterinfromfile["skipcohp"] is False
 
     def test_initialize_from_dict(self):
         # initialize from dict
@@ -1854,22 +1677,22 @@ class LobsterinTest(unittest.TestCase):
                 "skipgrosspopulation": True,
             }
         )
-        self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -15.0)
-        self.assertAlmostEqual(lobsterin1["cohpendenergy"], 5.0)
-        self.assertAlmostEqual(lobsterin1["basisset"], "pbeVaspFit2015")
-        self.assertAlmostEqual(lobsterin1["gaussiansmearingwidth"], 0.1)
-        self.assertEqual(lobsterin1["basisfunctions"][0], "Fe 3d 4p 4s")
-        self.assertEqual(lobsterin1["basisfunctions"][1], "Co 3d 4p 4s")
-        self.assertEqual(lobsterin1["skipdos"], True)
-        self.assertEqual(lobsterin1["skipcohp"], True)
-        self.assertEqual(lobsterin1["skipcoop"], True)
-        self.assertEqual(lobsterin1["skippopulationanalysis"], True)
-        self.assertEqual(lobsterin1["skipgrosspopulation"], True)
-        with self.assertRaises(IOError):
+        assert lobsterin1["cohpstartenergy"] == approx(-15.0)
+        assert lobsterin1["cohpendenergy"] == approx(5.0)
+        assert lobsterin1["basisset"] == "pbeVaspFit2015"
+        assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
+        assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s"
+        assert lobsterin1["basisfunctions"][1] == "Co 3d 4p 4s"
+        assert lobsterin1["skipdos"] is True
+        assert lobsterin1["skipcohp"] is True
+        assert lobsterin1["skipcoop"] is True
+        assert lobsterin1["skippopulationanalysis"] is True
+        assert lobsterin1["skipgrosspopulation"] is True
+        with pytest.raises(IOError):
             lobsterin2 = Lobsterin({"cohpstartenergy": -15.0, "cohpstartEnergy": -20.0})
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
-        with self.assertRaises(IOError):
+        with pytest.raises(IOError):
             lobsterin2._get_nbands(structure=Structure.from_file(os.path.join(test_dir_doscar, "POSCAR.Fe3O4")))
 
     def test_standard_settings(self):
@@ -1892,12 +1715,12 @@ class LobsterinTest(unittest.TestCase):
                 os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
                 option=option,
             )
-            self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -35.0)
-            self.assertAlmostEqual(lobsterin1["cohpendenergy"], 5.0)
-            self.assertAlmostEqual(lobsterin1["basisset"], "pbeVaspFit2015")
-            self.assertAlmostEqual(lobsterin1["gaussiansmearingwidth"], 0.1)
-            self.assertEqual(lobsterin1["basisfunctions"][0], "Fe 3d 4p 4s ")
-            self.assertEqual(lobsterin1["basisfunctions"][1], "O 2p 2s ")
+            assert lobsterin1["cohpstartenergy"] == approx(-35.0)
+            assert lobsterin1["cohpendenergy"] == approx(5.0)
+            assert lobsterin1["basisset"] == "pbeVaspFit2015"
+            assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
+            assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s "
+            assert lobsterin1["basisfunctions"][1] == "O 2p 2s "
 
             if option in [
                 "standard",
@@ -1907,7 +1730,7 @@ class LobsterinTest(unittest.TestCase):
                 "onlycoop",
                 "onlycohpcoop",
             ]:
-                self.assertEqual(lobsterin1["saveProjectiontoFile"], True)
+                assert lobsterin1["saveProjectiontoFile"] is True
             if option in [
                 "standard",
                 "standard_with_fatband",
@@ -1915,18 +1738,18 @@ class LobsterinTest(unittest.TestCase):
                 "onlycoop",
                 "onlycohpcoop",
             ]:
-                self.assertEqual(lobsterin1["cohpGenerator"], "from 0.1 to 6.0 orbitalwise")
+                assert lobsterin1["cohpGenerator"] == "from 0.1 to 6.0 orbitalwise"
             if option in ["standard"]:
-                self.assertEqual("skipdos" not in lobsterin1, True)
-                self.assertEqual("skipcohp" not in lobsterin1, True)
-                self.assertEqual("skipcoop" not in lobsterin1, True)
+                assert ("skipdos" not in lobsterin1) is True
+                assert ("skipcohp" not in lobsterin1) is True
+                assert ("skipcoop" not in lobsterin1) is True
             if option in ["standard_with_fatband"]:
-                self.assertListEqual(lobsterin1["createFatband"], ["Fe 3d 4p 4s ", "O 2p 2s "])
-                self.assertEqual("skipdos" not in lobsterin1, True)
-                self.assertEqual("skipcohp" not in lobsterin1, True)
-                self.assertEqual("skipcoop" not in lobsterin1, True)
+                assert lobsterin1["createFatband"] == ["Fe 3d 4p 4s ", "O 2p 2s "]
+                assert ("skipdos" not in lobsterin1) is True
+                assert ("skipcohp" not in lobsterin1) is True
+                assert ("skipcoop" not in lobsterin1) is True
             if option in ["standard_from_projection"]:
-                self.assertTrue(lobsterin1["loadProjectionFromFile"], True)
+                assert lobsterin1["loadProjectionFromFile"], True
             if option in [
                 "onlyprojection",
                 "onlycohp",
@@ -1935,33 +1758,33 @@ class LobsterinTest(unittest.TestCase):
                 "onlycohpcoop",
                 "onlycohpcoopcobi",
             ]:
-                self.assertTrue(lobsterin1["skipdos"], True)
-                self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
-                self.assertTrue(lobsterin1["skipGrossPopulation"], True)
-                self.assertTrue(lobsterin1["skipMadelungEnergy"], True)
+                assert lobsterin1["skipdos"], True
+                assert lobsterin1["skipPopulationAnalysis"], True
+                assert lobsterin1["skipGrossPopulation"], True
+                assert lobsterin1["skipMadelungEnergy"], True
 
             if option in ["onlydos"]:
-                self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
-                self.assertTrue(lobsterin1["skipGrossPopulation"], True)
-                self.assertTrue(lobsterin1["skipcohp"], True)
-                self.assertTrue(lobsterin1["skipcoop"], True)
-                self.assertTrue(lobsterin1["skipcobi"], True)
-                self.assertTrue(lobsterin1["skipMadelungEnergy"], True)
+                assert lobsterin1["skipPopulationAnalysis"], True
+                assert lobsterin1["skipGrossPopulation"], True
+                assert lobsterin1["skipcohp"], True
+                assert lobsterin1["skipcoop"], True
+                assert lobsterin1["skipcobi"], True
+                assert lobsterin1["skipMadelungEnergy"], True
             if option in ["onlycohp"]:
-                self.assertTrue(lobsterin1["skipcoop"], True)
-                self.assertTrue(lobsterin1["skipcobi"], True)
+                assert lobsterin1["skipcoop"], True
+                assert lobsterin1["skipcobi"], True
             if option in ["onlycoop"]:
-                self.assertTrue(lobsterin1["skipcohp"], True)
-                self.assertTrue(lobsterin1["skipcobi"], True)
+                assert lobsterin1["skipcohp"], True
+                assert lobsterin1["skipcobi"], True
             if option in ["onlyprojection"]:
-                self.assertTrue(lobsterin1["skipdos"], True)
+                assert lobsterin1["skipdos"], True
             if option in ["onlymadelung"]:
-                self.assertTrue(lobsterin1["skipPopulationAnalysis"], True)
-                self.assertTrue(lobsterin1["skipGrossPopulation"], True)
-                self.assertTrue(lobsterin1["skipcohp"], True)
-                self.assertTrue(lobsterin1["skipcoop"], True)
-                self.assertTrue(lobsterin1["skipcobi"], True)
-                self.assertTrue(lobsterin1["skipdos"], True)
+                assert lobsterin1["skipPopulationAnalysis"], True
+                assert lobsterin1["skipGrossPopulation"], True
+                assert lobsterin1["skipcohp"], True
+                assert lobsterin1["skipcoop"], True
+                assert lobsterin1["skipcobi"], True
+                assert lobsterin1["skipdos"], True
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
             os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
@@ -1969,7 +1792,7 @@ class LobsterinTest(unittest.TestCase):
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
-        self.assertListEqual(lobsterin_new["basisfunctions"], ["Fe 3d 4p 4s", "O 2s 2p"])
+        assert lobsterin_new["basisfunctions"] == ["Fe 3d 4p 4s", "O 2s 2p"]
 
         # test gaussian smearing
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
@@ -1978,10 +1801,10 @@ class LobsterinTest(unittest.TestCase):
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
-        self.assertTrue("gaussiansmearingwidth" not in lobsterin_new)
+        assert "gaussiansmearingwidth" not in lobsterin_new
 
         # fatband and ISMEAR=-5 does not work together
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
                 os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
                 os.path.join(test_dir_doscar, "INCAR.lobster2"),
@@ -1998,31 +1821,28 @@ class LobsterinTest(unittest.TestCase):
             os.path.join(test_dir_doscar, "vasprun.xml.C2.gz"),
             option="standard_with_energy_range_from_vasprun",
         )
-        self.assertEqual(lobsterin_comp["COHPstartEnergy"], -28.3679)
-        self.assertEqual(lobsterin_comp["COHPendEnergy"], 32.8968)
-        self.assertEqual(lobsterin_comp["COHPSteps"], 301)
+        assert lobsterin_comp["COHPstartEnergy"] == -28.3679
+        assert lobsterin_comp["COHPendEnergy"] == 32.8968
+        assert lobsterin_comp["COHPSteps"] == 301
 
     def test_diff(self):
         # test diff
-        self.assertDictEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"], {})
-        self.assertAlmostEqual(
-            self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["COHPSTARTENERGY"],
-            -15.0,
-        )
+        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"] == {}
+        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["COHPSTARTENERGY"] == approx(-15.0)
 
         # test diff in both directions
         for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]:
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"])
+            assert entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"]
         for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"]:
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"])
+            assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]
         for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]:
-            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"])
+            assert entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]
         for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]:
-            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"])
+            assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]
 
-        self.assertEqual(
-            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"],
-            self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"],
+        assert (
+            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"]
+            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
         )
 
     def test_get_basis(self):
@@ -2031,22 +1851,16 @@ class LobsterinTest(unittest.TestCase):
         potcar = Potcar.from_file(os.path.join(test_dir_doscar, "POTCAR.Fe3O4"))
         Potcar_names = [name["symbol"] for name in potcar.spec]
 
-        self.assertListEqual(
-            lobsterin1.get_basis(
-                Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
-                potcar_symbols=Potcar_names,
-            ),
-            ["Fe 3d 4p 4s ", "O 2p 2s "],
-        )
+        assert lobsterin1.get_basis(
+            Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
+            potcar_symbols=Potcar_names,
+        ) == ["Fe 3d 4p 4s ", "O 2p 2s "]
         potcar = Potcar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POTCAR.GaAs"))
         Potcar_names = [name["symbol"] for name in potcar.spec]
-        self.assertListEqual(
-            lobsterin1.get_basis(
-                Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.GaAs")),
-                potcar_symbols=Potcar_names,
-            ),
-            ["Ga 3d 4p 4s ", "As 4p 4s "],
-        )
+        assert lobsterin1.get_basis(
+            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.GaAs")),
+            potcar_symbols=Potcar_names,
+        ) == ["Ga 3d 4p 4s ", "As 4p 4s "]
 
     def test_get_all_possible_basis_functions(self):
         potcar = Potcar.from_file(os.path.join(test_dir_doscar, "POTCAR.Fe3O4"))
@@ -2055,8 +1869,8 @@ class LobsterinTest(unittest.TestCase):
             Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
             potcar_symbols=Potcar_names,
         )
-        self.assertDictEqual(result[0], {"Fe": "3d 4s", "O": "2p 2s"})
-        self.assertDictEqual(result[1], {"Fe": "3d 4s 4p", "O": "2p 2s"})
+        assert result[0] == {"Fe": "3d 4s", "O": "2p 2s"}
+        assert result[1] == {"Fe": "3d 4s 4p", "O": "2p 2s"}
 
         potcar2 = Potcar.from_file(os.path.join(test_dir_doscar, "POT_GGA_PAW_PBE_54/POTCAR.Fe_pv.gz"))
         Potcar_names2 = [name["symbol"] for name in potcar2.spec]
@@ -2064,18 +1878,15 @@ class LobsterinTest(unittest.TestCase):
             Structure.from_file(os.path.join(test_dir_doscar, "Fe.cif")),
             potcar_symbols=Potcar_names2,
         )
-        self.assertDictEqual(result2[0], {"Fe": "3d 3p 4s"})
+        assert result2[0] == {"Fe": "3d 3p 4s"}
 
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
-        self.assertListEqual(
-            lobsterin1._get_potcar_symbols(os.path.join(test_dir_doscar, "POTCAR.Fe3O4")),
-            ["Fe", "O"],
-        )
-        self.assertListEqual(
-            lobsterin1._get_potcar_symbols(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POTCAR.GaAs")),
-            ["Ga_d", "As"],
-        )
+        assert lobsterin1._get_potcar_symbols(os.path.join(test_dir_doscar, "POTCAR.Fe3O4")) == ["Fe", "O"]
+        assert lobsterin1._get_potcar_symbols(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POTCAR.GaAs")) == [
+            "Ga_d",
+            "As",
+        ]
 
     def test_write_lobsterin(self):
         # write lobsterin, read it and compare it
@@ -2088,7 +1899,7 @@ class LobsterinTest(unittest.TestCase):
         )
         lobsterin1.write_lobsterin(outfile_path)
         lobsterin2 = Lobsterin.from_file(outfile_path)
-        self.assertDictEqual(lobsterin1.diff(lobsterin2)["Different"], {})
+        assert lobsterin1.diff(lobsterin2)["Different"] == {}
 
     def test_write_INCAR(self):
         # write INCAR and compare
@@ -2108,18 +1919,14 @@ class LobsterinTest(unittest.TestCase):
         incar1 = Incar.from_file(os.path.join(test_dir_doscar, "INCAR.lobster3"))
         incar2 = Incar.from_file(outfile_path)
 
-        self.assertDictEqual(
-            incar1.diff(incar2)["Different"],
-            {
-                "ISYM": {"INCAR1": 2, "INCAR2": -1},
-                "NBANDS": {"INCAR1": None, "INCAR2": 86},
-                "NSW": {"INCAR1": 500, "INCAR2": 0},
-                "LWAVE": {"INCAR1": False, "INCAR2": True},
-            },
-        )
+        assert incar1.diff(incar2)["Different"] == {
+            "ISYM": {"INCAR1": 2, "INCAR2": -1},
+            "NBANDS": {"INCAR1": None, "INCAR2": 86},
+            "NSW": {"INCAR1": 500, "INCAR2": 0},
+            "LWAVE": {"INCAR1": False, "INCAR2": True},
+        }
 
     def test_write_KPOINTS(self):
-
         # line mode
         outfile_path = tempfile.mkstemp()[1]
         outfile_path2 = tempfile.mkstemp(prefix="POSCAR")[1]
@@ -2136,11 +1943,11 @@ class LobsterinTest(unittest.TestCase):
             kpoints_line_density=58,
         )
         kpoint = Kpoints.from_file(outfile_path)
-        self.assertEqual(kpoint.num_kpts, 562)
-        self.assertAlmostEqual(kpoint.kpts[-1][0], -0.5)
-        self.assertAlmostEqual(kpoint.kpts[-1][1], 0.5)
-        self.assertAlmostEqual(kpoint.kpts[-1][2], 0.5)
-        self.assertEqual(kpoint.labels[-1], "T")
+        assert kpoint.num_kpts == 562
+        assert kpoint.kpts[-1][0] == approx(-0.5)
+        assert kpoint.kpts[-1][1] == approx(0.5)
+        assert kpoint.kpts[-1][2] == approx(0.5)
+        assert kpoint.labels[-1] == "T"
         kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "KPOINTS_band.lobster"))
 
         labels = []
@@ -2166,7 +1973,7 @@ class LobsterinTest(unittest.TestCase):
                 else:
                     labels2.append(label)
                     number2 += 1
-        self.assertListEqual(labels, labels2)
+        assert labels == labels2
 
         # without line mode
         lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
@@ -2174,11 +1981,11 @@ class LobsterinTest(unittest.TestCase):
         kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
-            self.assertAlmostEqual(list_kpoint[0], kpoint2.kpts[num_kpt][0])
-            self.assertAlmostEqual(list_kpoint[1], kpoint2.kpts[num_kpt][1])
-            self.assertAlmostEqual(list_kpoint[2], kpoint2.kpts[num_kpt][2])
+            assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
+            assert list_kpoint[1] == approx(kpoint2.kpts[num_kpt][1])
+            assert list_kpoint[2] == approx(kpoint2.kpts[num_kpt][2])
 
-        self.assertEqual(kpoint.num_kpts, 108)
+        assert kpoint.num_kpts == 108
 
         # without line mode, use grid instead of reciprocal density
         lobsterin1.write_KPOINTS(
@@ -2192,11 +1999,11 @@ class LobsterinTest(unittest.TestCase):
         kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
-            self.assertAlmostEqual(list_kpoint[0], kpoint2.kpts[num_kpt][0])
-            self.assertAlmostEqual(list_kpoint[1], kpoint2.kpts[num_kpt][1])
-            self.assertAlmostEqual(list_kpoint[2], kpoint2.kpts[num_kpt][2])
+            assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
+            assert list_kpoint[1] == approx(kpoint2.kpts[num_kpt][1])
+            assert list_kpoint[2] == approx(kpoint2.kpts[num_kpt][2])
 
-        self.assertEqual(kpoint.num_kpts, 108)
+        assert kpoint.num_kpts == 108
 
         #
         # #without line mode, using a certain grid, isym=0 instead of -1
@@ -2212,22 +2019,18 @@ class LobsterinTest(unittest.TestCase):
         kpoint1 = Kpoints.from_file(outfile_path)
         kpoint2 = Kpoints.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "IBZKPT_3_3_3_Li"))
         for ikpoint, kpoint in enumerate(kpoint1.kpts):
-            self.assertTrue(
-                self.is_kpoint_in_list(
-                    kpoint,
-                    kpoint2.kpts,
-                    kpoint1.kpts_weights[ikpoint],
-                    kpoint2.kpts_weights,
-                )
+            assert self.is_kpoint_in_list(
+                kpoint,
+                kpoint2.kpts,
+                kpoint1.kpts_weights[ikpoint],
+                kpoint2.kpts_weights,
             )
         for ikpoint, kpoint in enumerate(kpoint2.kpts):
-            self.assertTrue(
-                self.is_kpoint_in_list(
-                    kpoint,
-                    kpoint1.kpts,
-                    kpoint2.kpts_weights[ikpoint],
-                    kpoint1.kpts_weights,
-                )
+            assert self.is_kpoint_in_list(
+                kpoint,
+                kpoint1.kpts,
+                kpoint2.kpts_weights[ikpoint],
+                kpoint1.kpts_weights,
             )
 
         lobsterin1.write_KPOINTS(
@@ -2242,25 +2045,21 @@ class LobsterinTest(unittest.TestCase):
         kpoint1 = Kpoints.from_file(outfile_path)
         kpoint2 = Kpoints.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "IBZKPT_2_2_2_Li"))
         for ikpoint, kpoint in enumerate(kpoint1.kpts):
-            self.assertTrue(
-                self.is_kpoint_in_list(
-                    kpoint,
-                    kpoint2.kpts,
-                    kpoint1.kpts_weights[ikpoint],
-                    kpoint2.kpts_weights,
-                )
+            assert self.is_kpoint_in_list(
+                kpoint,
+                kpoint2.kpts,
+                kpoint1.kpts_weights[ikpoint],
+                kpoint2.kpts_weights,
             )
         for ikpoint, kpoint in enumerate(kpoint2.kpts):
-            self.assertTrue(
-                self.is_kpoint_in_list(
-                    kpoint,
-                    kpoint1.kpts,
-                    kpoint2.kpts_weights[ikpoint],
-                    kpoint1.kpts_weights,
-                )
+            assert self.is_kpoint_in_list(
+                kpoint,
+                kpoint1.kpts,
+                kpoint2.kpts_weights[ikpoint],
+                kpoint1.kpts_weights,
             )
 
-    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist):
+    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist) -> bool:
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
@@ -2285,7 +2084,7 @@ class LobsterinTest(unittest.TestCase):
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods
         newLobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
-        self.assertDictEqual(newLobsterin, self.Lobsterinfromfile)
+        assert newLobsterin == self.Lobsterinfromfile
         newLobsterin.to_json()
 
     def tearDown(self):
@@ -2309,205 +2108,142 @@ class BandoverlapsTest(unittest.TestCase):
 
     def test_attributes(self):
         # bandoverlapsdict
-        self.assertAlmostEqual(
-            self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["maxDeviation"],
-            0.000278953,
-        )
-        self.assertAlmostEqual(
-            self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["maxDeviation"],
-            0.0640933,
-        )
-        self.assertAlmostEqual(
-            self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][-1][-1],
-            0.0188058,
-        )
-        self.assertAlmostEqual(
-            self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][-1][-1],
-            1.0,
-        )
-        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][0][0], 1)
-        self.assertAlmostEqual(
-            self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][0][0],
-            0.995849,
-        )
+        assert self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["maxDeviation"] == approx(0.000278953)
+        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["maxDeviation"] == approx(0.0640933)
+        assert self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][-1][-1] == approx(0.0188058)
+        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][-1][-1] == approx(1.0)
+        assert self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][0][0] == approx(1)
+        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][0][0] == approx(0.995849)
 
-        self.assertAlmostEqual(
-            self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["maxDeviation"],
-            4.31567e-05,
+        assert self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["maxDeviation"] == approx(
+            4.31567e-05
         )
-        self.assertAlmostEqual(
-            self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["maxDeviation"],
-            0.064369,
-        )
-        self.assertAlmostEqual(
-            self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][-1],
-            4.0066e-07,
-        )
-        self.assertAlmostEqual(
-            self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["matrix"][0][-1],
-            1.37447e-09,
-        )
+        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["maxDeviation"] == approx(0.064369)
+        assert self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][
+            -1
+        ] == approx(4.0066e-07)
+        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["matrix"][0][-1] == approx(1.37447e-09)
 
         # maxDeviation
-        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[0], 0.000278953)
-        self.assertAlmostEqual(self.bandoverlaps1_new.max_deviation[0], 0.39824)
-        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[-1], 4.31567e-05)
-        self.assertAlmostEqual(self.bandoverlaps1_new.max_deviation[-1], 0.324898)
+        assert self.bandoverlaps1.max_deviation[0] == approx(0.000278953)
+        assert self.bandoverlaps1_new.max_deviation[0] == approx(0.39824)
+        assert self.bandoverlaps1.max_deviation[-1] == approx(4.31567e-05)
+        assert self.bandoverlaps1_new.max_deviation[-1] == approx(0.324898)
 
-        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[0], 0.000473319)
-        self.assertAlmostEqual(self.bandoverlaps2_new.max_deviation[0], 0.403249)
-        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[-1], 1.48451e-05)
-        self.assertAlmostEqual(self.bandoverlaps2_new.max_deviation[-1], 0.45154)
+        assert self.bandoverlaps2.max_deviation[0] == approx(0.000473319)
+        assert self.bandoverlaps2_new.max_deviation[0] == approx(0.403249)
+        assert self.bandoverlaps2.max_deviation[-1] == approx(1.48451e-05)
+        assert self.bandoverlaps2_new.max_deviation[-1] == approx(0.45154)
 
     def test_has_good_quality(self):
-        self.assertFalse(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1))
-        self.assertFalse(self.bandoverlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=0.1))
-        self.assertFalse(
-            self.bandoverlaps1.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=9,
-                number_occ_bands_spin_down=5,
-                limit_deviation=0.1,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1)
+        assert not self.bandoverlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=0.1)
+        assert not self.bandoverlaps1.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=9,
+            number_occ_bands_spin_down=5,
+            limit_deviation=0.1,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=9,
-                number_occ_bands_spin_down=5,
-                limit_deviation=0.1,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=9,
+            number_occ_bands_spin_down=5,
+            limit_deviation=0.1,
+            spin_polarized=True,
         )
-        self.assertTrue(
-            self.bandoverlaps1.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=3,
-                number_occ_bands_spin_down=0,
-                limit_deviation=0.001,
-                spin_polarized=True,
-            )
+        assert self.bandoverlaps1.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=3,
+            number_occ_bands_spin_down=0,
+            limit_deviation=0.001,
+            spin_polarized=True,
         )
-        self.assertTrue(
-            self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=3,
-                number_occ_bands_spin_down=0,
-                limit_deviation=0.01,
-                spin_polarized=True,
-            )
+        assert self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=3,
+            number_occ_bands_spin_down=0,
+            limit_deviation=0.01,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=1,
-                number_occ_bands_spin_down=1,
-                limit_deviation=0.000001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1,
+            number_occ_bands_spin_down=1,
+            limit_deviation=0.000001,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=1,
-                number_occ_bands_spin_down=1,
-                limit_deviation=0.000001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1,
+            number_occ_bands_spin_down=1,
+            limit_deviation=0.000001,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=1,
-                number_occ_bands_spin_down=0,
-                limit_deviation=0.000001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1,
+            number_occ_bands_spin_down=0,
+            limit_deviation=0.000001,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=1,
-                number_occ_bands_spin_down=0,
-                limit_deviation=0.000001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1,
+            number_occ_bands_spin_down=0,
+            limit_deviation=0.000001,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=0,
-                number_occ_bands_spin_down=1,
-                limit_deviation=0.000001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=0,
+            number_occ_bands_spin_down=1,
+            limit_deviation=0.000001,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=0,
-                number_occ_bands_spin_down=1,
-                limit_deviation=0.000001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=0,
+            number_occ_bands_spin_down=1,
+            limit_deviation=0.000001,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=4,
-                number_occ_bands_spin_down=4,
-                limit_deviation=0.001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=4,
+            number_occ_bands_spin_down=4,
+            limit_deviation=0.001,
+            spin_polarized=True,
         )
-        self.assertFalse(
-            self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=4,
-                number_occ_bands_spin_down=4,
-                limit_deviation=0.001,
-                spin_polarized=True,
-            )
+        assert not self.bandoverlaps1_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=4,
+            number_occ_bands_spin_down=4,
+            limit_deviation=0.001,
+            spin_polarized=True,
         )
 
-        self.assertTrue(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100))
-        self.assertTrue(self.bandoverlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=100))
-        self.assertTrue(self.bandoverlaps2.has_good_quality_maxDeviation())
-        self.assertFalse(self.bandoverlaps2_new.has_good_quality_maxDeviation())
-        self.assertFalse(self.bandoverlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001))
-        self.assertFalse(self.bandoverlaps2_new.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001))
-        self.assertFalse(
-            self.bandoverlaps2.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=10, limit_deviation=0.0000001
-            )
+        assert self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100)
+        assert self.bandoverlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=100)
+        assert self.bandoverlaps2.has_good_quality_maxDeviation()
+        assert not self.bandoverlaps2_new.has_good_quality_maxDeviation()
+        assert not self.bandoverlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
+        assert not self.bandoverlaps2_new.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
+        assert not self.bandoverlaps2.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=10, limit_deviation=0.0000001
         )
-        self.assertFalse(
-            self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=10, limit_deviation=0.0000001
-            )
+        assert not self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=10, limit_deviation=0.0000001
         )
-        self.assertTrue(
-            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1)
-        )
-        self.assertTrue(
-            self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=1, limit_deviation=0.1
-            )
+        assert self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1)
+        assert self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1, limit_deviation=0.1
         )
 
-        self.assertFalse(
-            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=1e-8)
+        assert not self.bandoverlaps2.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1, limit_deviation=1e-8
         )
-        self.assertFalse(
-            self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=1, limit_deviation=1e-8
-            )
+        assert not self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1, limit_deviation=1e-8
         )
-        self.assertTrue(
-            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10, limit_deviation=0.1)
+        assert self.bandoverlaps2.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=10, limit_deviation=0.1
         )
-        self.assertTrue(
-            self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=2, limit_deviation=0.1
-            )
+        assert self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=2, limit_deviation=0.1
         )
 
-        self.assertTrue(
-            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1)
-        )
-        self.assertTrue(
-            self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
-                number_occ_bands_spin_up=1, limit_deviation=0.1
-            )
+        assert self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1)
+        assert self.bandoverlaps2_new.has_good_quality_check_occupied_bands(
+            number_occ_bands_spin_up=1, limit_deviation=0.1
         )
 
 
@@ -2516,23 +2252,23 @@ class GrosspopTest(unittest.TestCase):
         self.grosspop1 = Grosspop(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "GROSSPOP.lobster"))
 
     def testattributes(self):
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"], 0.52)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"], 0.38)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"], 0.37)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_x"], 0.37)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["total"], 1.64)
-        self.assertEqual(self.grosspop1.list_dict_grosspop[0]["element"], "Si")
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3s"], 0.61)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_y"], 0.52)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_z"], 0.52)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_x"], 0.52)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["total"], 2.16)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Mulliken GP"]["2s"], 1.80)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Loewdin GP"]["2s"], 1.60)
-        self.assertEqual(self.grosspop1.list_dict_grosspop[5]["element"], "O")
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Mulliken GP"]["2s"], 1.80)
-        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Loewdin GP"]["2s"], 1.60)
-        self.assertEqual(self.grosspop1.list_dict_grosspop[8]["element"], "O")
+        assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"] == approx(0.52)
+        assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"] == approx(0.38)
+        assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"] == approx(0.37)
+        assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_x"] == approx(0.37)
+        assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["total"] == approx(1.64)
+        assert self.grosspop1.list_dict_grosspop[0]["element"] == "Si"
+        assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3s"] == approx(0.61)
+        assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_y"] == approx(0.52)
+        assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_z"] == approx(0.52)
+        assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_x"] == approx(0.52)
+        assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["total"] == approx(2.16)
+        assert self.grosspop1.list_dict_grosspop[5]["Mulliken GP"]["2s"] == approx(1.80)
+        assert self.grosspop1.list_dict_grosspop[5]["Loewdin GP"]["2s"] == approx(1.60)
+        assert self.grosspop1.list_dict_grosspop[5]["element"] == "O"
+        assert self.grosspop1.list_dict_grosspop[8]["Mulliken GP"]["2s"] == approx(1.80)
+        assert self.grosspop1.list_dict_grosspop[8]["Loewdin GP"]["2s"] == approx(1.60)
+        assert self.grosspop1.list_dict_grosspop[8]["element"] == "O"
 
     def test_structure_with_grosspop(self):
         struct_dict = {
@@ -2629,7 +2365,7 @@ class GrosspopTest(unittest.TestCase):
         )
         for coords, coords2 in zip(newstructure.frac_coords, Structure.from_dict(struct_dict).frac_coords):
             for xyz, xyz2 in zip(coords, coords2):
-                self.assertAlmostEqual(xyz, xyz2)
+                assert xyz == approx(xyz2)
 
 
 class TestUtils(PymatgenTest):
@@ -2638,65 +2374,53 @@ class TestUtils(PymatgenTest):
         min_basis = ["Li 1s 2s ", "Na 1s 2s", "Si 1s 2s"]
         max_basis = ["Li 1s 2p 2s ", "Na 1s 2p 2s", "Si 1s 2s"]
         combinations_basis = get_all_possible_basis_combinations(min_basis, max_basis)
-        self.assertListEqual(
-            combinations_basis,
-            [
-                ["Li 1s 2s", "Na 1s 2s", "Si 1s 2s"],
-                ["Li 1s 2s", "Na 1s 2s 2p", "Si 1s 2s"],
-                ["Li 1s 2s 2p", "Na 1s 2s", "Si 1s 2s"],
-                ["Li 1s 2s 2p", "Na 1s 2s 2p", "Si 1s 2s"],
-            ],
-        )
+        assert combinations_basis == [
+            ["Li 1s 2s", "Na 1s 2s", "Si 1s 2s"],
+            ["Li 1s 2s", "Na 1s 2s 2p", "Si 1s 2s"],
+            ["Li 1s 2s 2p", "Na 1s 2s", "Si 1s 2s"],
+            ["Li 1s 2s 2p", "Na 1s 2s 2p", "Si 1s 2s"],
+        ]
 
         min_basis = ["Li 1s 2s"]
         max_basis = ["Li 1s 2s 2p 3s"]
         combinations_basis = get_all_possible_basis_combinations(min_basis, max_basis)
-        self.assertListEqual(
-            combinations_basis,
-            [["Li 1s 2s"], ["Li 1s 2s 2p"], ["Li 1s 2s 3s"], ["Li 1s 2s 2p 3s"]],
-        )
+        assert combinations_basis == [["Li 1s 2s"], ["Li 1s 2s 2p"], ["Li 1s 2s 3s"], ["Li 1s 2s 2p 3s"]]
 
         min_basis = ["Li 1s 2s", "Na 1s 2s"]
         max_basis = ["Li 1s 2s 2p 3s", "Na 1s 2s 2p 3s"]
         combinations_basis = get_all_possible_basis_combinations(min_basis, max_basis)
-        self.assertListEqual(
-            combinations_basis,
-            [
-                ["Li 1s 2s", "Na 1s 2s"],
-                ["Li 1s 2s", "Na 1s 2s 2p"],
-                ["Li 1s 2s", "Na 1s 2s 3s"],
-                ["Li 1s 2s", "Na 1s 2s 2p 3s"],
-                ["Li 1s 2s 2p", "Na 1s 2s"],
-                ["Li 1s 2s 2p", "Na 1s 2s 2p"],
-                ["Li 1s 2s 2p", "Na 1s 2s 3s"],
-                ["Li 1s 2s 2p", "Na 1s 2s 2p 3s"],
-                ["Li 1s 2s 3s", "Na 1s 2s"],
-                ["Li 1s 2s 3s", "Na 1s 2s 2p"],
-                ["Li 1s 2s 3s", "Na 1s 2s 3s"],
-                ["Li 1s 2s 3s", "Na 1s 2s 2p 3s"],
-                ["Li 1s 2s 2p 3s", "Na 1s 2s"],
-                ["Li 1s 2s 2p 3s", "Na 1s 2s 2p"],
-                ["Li 1s 2s 2p 3s", "Na 1s 2s 3s"],
-                ["Li 1s 2s 2p 3s", "Na 1s 2s 2p 3s"],
-            ],
-        )
+        assert combinations_basis == [
+            ["Li 1s 2s", "Na 1s 2s"],
+            ["Li 1s 2s", "Na 1s 2s 2p"],
+            ["Li 1s 2s", "Na 1s 2s 3s"],
+            ["Li 1s 2s", "Na 1s 2s 2p 3s"],
+            ["Li 1s 2s 2p", "Na 1s 2s"],
+            ["Li 1s 2s 2p", "Na 1s 2s 2p"],
+            ["Li 1s 2s 2p", "Na 1s 2s 3s"],
+            ["Li 1s 2s 2p", "Na 1s 2s 2p 3s"],
+            ["Li 1s 2s 3s", "Na 1s 2s"],
+            ["Li 1s 2s 3s", "Na 1s 2s 2p"],
+            ["Li 1s 2s 3s", "Na 1s 2s 3s"],
+            ["Li 1s 2s 3s", "Na 1s 2s 2p 3s"],
+            ["Li 1s 2s 2p 3s", "Na 1s 2s"],
+            ["Li 1s 2s 2p 3s", "Na 1s 2s 2p"],
+            ["Li 1s 2s 2p 3s", "Na 1s 2s 3s"],
+            ["Li 1s 2s 2p 3s", "Na 1s 2s 2p 3s"],
+        ]
 
         min_basis = ["Si 1s 2s 2p", "Na 1s 2s"]
         max_basis = ["Si 1s 2s 2p 3s", "Na 1s 2s 2p 3s"]
         combinations_basis = get_all_possible_basis_combinations(min_basis, max_basis)
-        self.assertListEqual(
-            combinations_basis,
-            [
-                ["Si 1s 2s 2p", "Na 1s 2s"],
-                ["Si 1s 2s 2p", "Na 1s 2s 2p"],
-                ["Si 1s 2s 2p", "Na 1s 2s 3s"],
-                ["Si 1s 2s 2p", "Na 1s 2s 2p 3s"],
-                ["Si 1s 2s 2p 3s", "Na 1s 2s"],
-                ["Si 1s 2s 2p 3s", "Na 1s 2s 2p"],
-                ["Si 1s 2s 2p 3s", "Na 1s 2s 3s"],
-                ["Si 1s 2s 2p 3s", "Na 1s 2s 2p 3s"],
-            ],
-        )
+        assert combinations_basis == [
+            ["Si 1s 2s 2p", "Na 1s 2s"],
+            ["Si 1s 2s 2p", "Na 1s 2s 2p"],
+            ["Si 1s 2s 2p", "Na 1s 2s 3s"],
+            ["Si 1s 2s 2p", "Na 1s 2s 2p 3s"],
+            ["Si 1s 2s 2p 3s", "Na 1s 2s"],
+            ["Si 1s 2s 2p 3s", "Na 1s 2s 2p"],
+            ["Si 1s 2s 2p 3s", "Na 1s 2s 3s"],
+            ["Si 1s 2s 2p 3s", "Na 1s 2s 2p 3s"],
+        ]
 
 
 class WavefunctionTest(PymatgenTest):
@@ -2709,15 +2433,15 @@ class WavefunctionTest(PymatgenTest):
             )
         )
         self.assertArrayEqual([41, 41, 41], grid)
-        self.assertAlmostEqual(points[4][0], 0.0000)
-        self.assertAlmostEqual(points[4][1], 0.0000)
-        self.assertAlmostEqual(points[4][2], 0.4000)
-        self.assertAlmostEqual(real[8], 1.38863e-01)
-        self.assertAlmostEqual(imaginary[8], 2.89645e-01)
-        self.assertEqual(len(imaginary), 41 * 41 * 41)
-        self.assertEqual(len(real), 41 * 41 * 41)
-        self.assertEqual(len(points), 41 * 41 * 41)
-        self.assertAlmostEqual(distance[0], 0.0000)
+        assert points[4][0] == approx(0.0000)
+        assert points[4][1] == approx(0.0000)
+        assert points[4][2] == approx(0.4000)
+        assert real[8] == approx(1.38863e-01)
+        assert imaginary[8] == approx(2.89645e-01)
+        assert len(imaginary) == 41 * 41 * 41
+        assert len(real) == 41 * 41 * 41
+        assert len(points) == 41 * 41 * 41
+        assert distance[0] == approx(0.0000)
 
     def test_set_volumetric_data(self):
         wave1 = Wavefunction(
@@ -2730,8 +2454,8 @@ class WavefunctionTest(PymatgenTest):
         )
 
         wave1.set_volumetric_data(grid=wave1.grid, structure=wave1.structure)
-        self.assertTrue(hasattr(wave1, "volumetricdata_real"))
-        self.assertTrue(hasattr(wave1, "volumetricdata_imaginary"))
+        assert hasattr(wave1, "volumetricdata_real")
+        assert hasattr(wave1, "volumetricdata_imaginary")
 
     def test_get_volumetricdata_real(self):
         wave1 = Wavefunction(
@@ -2743,7 +2467,7 @@ class WavefunctionTest(PymatgenTest):
             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")),
         )
         volumetricdata_real = wave1.get_volumetricdata_real()
-        self.assertAlmostEqual(volumetricdata_real.data["total"][0, 0, 0], -3.0966)
+        assert volumetricdata_real.data["total"][0, 0, 0] == approx(-3.0966)
 
     def test_get_volumetricdata_imaginary(self):
         wave1 = Wavefunction(
@@ -2755,7 +2479,7 @@ class WavefunctionTest(PymatgenTest):
             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")),
         )
         volumetricdata_imaginary = wave1.get_volumetricdata_imaginary()
-        self.assertAlmostEqual(volumetricdata_imaginary.data["total"][0, 0, 0], -6.45895e00)
+        assert volumetricdata_imaginary.data["total"][0, 0, 0] == approx(-6.45895e00)
 
     def test_get_volumetricdata_density(self):
         wave1 = Wavefunction(
@@ -2767,10 +2491,7 @@ class WavefunctionTest(PymatgenTest):
             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")),
         )
         volumetricdata_density = wave1.get_volumetricdata_density()
-        self.assertAlmostEqual(
-            volumetricdata_density.data["total"][0, 0, 0],
-            (-3.0966 * -3.0966) + (-6.45895 * -6.45895),
-        )
+        assert volumetricdata_density.data["total"][0, 0, 0] == approx((-3.0966 * -3.0966) + (-6.45895 * -6.45895))
 
     def test_write_file(self):
         wave1 = Wavefunction(
@@ -2782,13 +2503,13 @@ class WavefunctionTest(PymatgenTest):
             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")),
         )
         wave1.write_file(filename=os.path.join("wavecar_test.vasp"), part="real")
-        self.assertTrue(os.path.isfile("wavecar_test.vasp"))
+        assert os.path.isfile("wavecar_test.vasp")
 
         wave1.write_file(filename=os.path.join("wavecar_test.vasp"), part="imaginary")
-        self.assertTrue(os.path.isfile("wavecar_test.vasp"))
+        assert os.path.isfile("wavecar_test.vasp")
         os.remove("wavecar_test.vasp")
         wave1.write_file(filename=os.path.join("density.vasp"), part="density")
-        self.assertTrue(os.path.isfile("density.vasp"))
+        assert os.path.isfile("density.vasp")
         os.remove("density.vasp")
 
     def tearDown(self):
@@ -2802,30 +2523,21 @@ class SitePotentialsTest(PymatgenTest):
         )
 
     def test_attributes(self):
-        self.assertListEqual(self.sitepotential.sitepotentials_Loewdin, [-8.77, -17.08, 9.57, 9.57, 8.45])
-        self.assertListEqual(
-            self.sitepotential.sitepotentials_Mulliken,
-            [-11.38, -19.62, 11.18, 11.18, 10.09],
-        )
-        self.assertAlmostEqual(self.sitepotential.madelungenergies_Loewdin, -28.64)
-        self.assertAlmostEqual(self.sitepotential.madelungenergies_Mulliken, -40.02)
-        self.assertListEqual(self.sitepotential.atomlist, ["La1", "Ta2", "N3", "N4", "O5"])
-        self.assertListEqual(self.sitepotential.types, ["La", "Ta", "N", "N", "O"])
-        self.assertEqual(self.sitepotential.num_atoms, 5)
-        self.assertAlmostEqual(self.sitepotential.ewald_splitting, 3.14)
+        assert self.sitepotential.sitepotentials_Loewdin == [-8.77, -17.08, 9.57, 9.57, 8.45]
+        assert self.sitepotential.sitepotentials_Mulliken == [-11.38, -19.62, 11.18, 11.18, 10.09]
+        assert self.sitepotential.madelungenergies_Loewdin == approx(-28.64)
+        assert self.sitepotential.madelungenergies_Mulliken == approx(-40.02)
+        assert self.sitepotential.atomlist == ["La1", "Ta2", "N3", "N4", "O5"]
+        assert self.sitepotential.types == ["La", "Ta", "N", "N", "O"]
+        assert self.sitepotential.num_atoms == 5
+        assert self.sitepotential.ewald_splitting == approx(3.14)
 
     def test_get_structure(self):
         structure = self.sitepotential.get_structure_with_site_potentials(
             os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite")
         )
-        self.assertListEqual(
-            structure.site_properties["Loewdin Site Potentials (eV)"],
-            [-8.77, -17.08, 9.57, 9.57, 8.45],
-        )
-        self.assertListEqual(
-            structure.site_properties["Mulliken Site Potentials (eV)"],
-            [-11.38, -19.62, 11.18, 11.18, 10.09],
-        )
+        assert structure.site_properties["Loewdin Site Potentials (eV)"] == [-8.77, -17.08, 9.57, 9.57, 8.45]
+        assert structure.site_properties["Mulliken Site Potentials (eV)"] == [-11.38, -19.62, 11.18, 11.18, 10.09]
 
 
 class MadelungEnergiesTest(PymatgenTest):
@@ -2835,9 +2547,9 @@ class MadelungEnergiesTest(PymatgenTest):
         )
 
     def test_attributes(self):
-        self.assertAlmostEqual(self.madelungenergies.madelungenergies_Loewdin, -28.64)
-        self.assertAlmostEqual(self.madelungenergies.madelungenergies_Mulliken, -40.02)
-        self.assertAlmostEqual(self.madelungenergies.ewald_splitting, 3.14)
+        assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
+        assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
+        assert self.madelungenergies.ewald_splitting == approx(3.14)
 
 
 if __name__ == "__main__":

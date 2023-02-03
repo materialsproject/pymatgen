@@ -8,6 +8,8 @@ Part of this module is automatically generated so be careful when refactoring st
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
 
+from __future__ import annotations
+
 import json
 import os
 from enum import Enum
@@ -441,47 +443,47 @@ class LibxcFunc(Enum):
         return _all_xcfuncs[self.value]
 
     @property
-    def is_x_kind(self):
+    def is_x_kind(self) -> bool:
         """True if this is an exchange-only functional"""
         return self.kind == "EXCHANGE"
 
     @property
-    def is_c_kind(self):
+    def is_c_kind(self) -> bool:
         """True if this is a correlation-only functional"""
         return self.kind == "CORRELATION"
 
     @property
-    def is_k_kind(self):
+    def is_k_kind(self) -> bool:
         """True if this is a kinetic functional"""
         return self.kind == "KINETIC"
 
     @property
-    def is_xc_kind(self):
+    def is_xc_kind(self) -> bool:
         """True if this is a exchange+correlation functional"""
         return self.kind == "EXCHANGE_CORRELATION"
 
     @property
-    def is_lda_family(self):
+    def is_lda_family(self) -> bool:
         """True if this functional belongs to the LDA family."""
         return self.family == "LDA"
 
     @property
-    def is_gga_family(self):
+    def is_gga_family(self) -> bool:
         """True if this functional belongs to the GGA family."""
         return self.family == "GGA"
 
     @property
-    def is_mgga_family(self):
+    def is_mgga_family(self) -> bool:
         """True if this functional belongs to the meta-GGA family."""
         return self.family == "MGGA"
 
     @property
-    def is_hyb_gga_family(self):
+    def is_hyb_gga_family(self) -> bool:
         """True if this functional belongs to the hybrid + GGA family."""
         return self.family == "HYB_GGA"
 
     @property
-    def is_hyb_mgga_family(self):
+    def is_hyb_mgga_family(self) -> bool:
         """True if this functional belongs to the hybrid + meta-GGA family."""
         return self.family == "HYB_MGGA"
 

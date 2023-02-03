@@ -2,9 +2,13 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import unittest
 
 import numpy as np
+import pytest
+from pytest import approx
 
 from pymatgen.optimization.linear_assignment import LinearAssignment
 
@@ -58,12 +62,12 @@ class LinearAssignmentTest(unittest.TestCase):
 
         la0 = LinearAssignment(w0)
 
-        self.assertEqual(la0.min_cost, 194, "Incorrect cost")
+        assert la0.min_cost == 194, "Incorrect cost"
         la1 = LinearAssignment(w1)
-        self.assertEqual(la0.min_cost, la0.min_cost, "Property incorrect")
-        self.assertEqual(la1.min_cost, 125, "Incorrect cost")
+        assert la0.min_cost == la0.min_cost, "Property incorrect"
+        assert la1.min_cost == 125, "Incorrect cost"
         la2 = LinearAssignment(w2)
-        self.assertEqual(la2.min_cost, 110, "Incorrect cost")
+        assert la2.min_cost == 110, "Incorrect cost"
 
     def test_rectangular(self):
         w0 = np.array(
@@ -107,10 +111,11 @@ class LinearAssignmentTest(unittest.TestCase):
             ]
         )
         la1 = LinearAssignment(w1)
-        self.assertEqual(len(la1.solution), 10)
-        self.assertEqual(la0.min_cost, la1.min_cost)
+        assert len(la1.solution) == 10
+        assert la0.min_cost == la1.min_cost
 
-        self.assertRaises(ValueError, LinearAssignment, w0.T)
+        with pytest.raises(ValueError):
+            LinearAssignment(w0.T)
 
     def another_test_case(self):
         w1 = np.array(
@@ -238,7 +243,7 @@ class LinearAssignmentTest(unittest.TestCase):
             ]
         )
         la = LinearAssignment(w1)
-        self.assertAlmostEqual(la.min_cost, 0)
+        assert la.min_cost == approx(0)
 
     def test_small_range(self):
         # can be tricky for the augment step
@@ -256,7 +261,7 @@ class LinearAssignmentTest(unittest.TestCase):
                 [5, 6, 6, 6, 7, 6, 6, 5, 6, 7],
             ]
         )
-        self.assertAlmostEqual(LinearAssignment(x).min_cost, 48)
+        assert LinearAssignment(x).min_cost == approx(48)
 
     def test_boolean_inputs(self):
         w = np.ones((135, 135), dtype=bool)
@@ -264,9 +269,8 @@ class LinearAssignmentTest(unittest.TestCase):
         la = LinearAssignment(w)
         # if the input doesn't get converted to a float, the masking
         # doesn't work properly
-        self.assertEqual(la.orig_c.dtype, np.float64)
+        assert la.orig_c.dtype == np.float64
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -43,11 +43,7 @@ and Non-Periodic Materials,” J. Chem. Theory Comput. 8 (2012) 2844-2867.
 Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theory Comput. 6
 (2010) 2455-2468.
 """
-__author__ = "Martin Siron, Andrew S. Rosen"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "01/18/21"
+from __future__ import annotations
 
 import glob
 import os
@@ -63,6 +59,12 @@ from monty.tempfile import ScratchDir
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
+
+__author__ = "Martin Siron, Andrew S. Rosen"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "01/18/21"
 
 CHARGEMOLEXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
@@ -180,19 +182,18 @@ class ChargemolAnalysis:
                 Default: None.
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-
         with ScratchDir("."):
             with zopen(self._chgcarpath, "rt") as f_in:
-                with open("CHGCAR", "wt") as f_out:
+                with open("CHGCAR", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             with zopen(self._potcarpath, "rt") as f_in:
-                with open("POTCAR", "wt") as f_out:
+                with open("POTCAR", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             with zopen(self._aeccar0path, "rt") as f_in:
-                with open("AECCAR0", "wt") as f_out:
+                with open("AECCAR0", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             with zopen(self._aeccar2path, "rt") as f_in:
-                with open("AECCAR2", "wt") as f_out:
+                with open("AECCAR2", "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
             # write job_script file:
@@ -428,7 +429,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", "wt") as fh:
+        with open("job_control.txt", "w") as fh:
             fh.write(lines)
 
     @staticmethod
@@ -439,7 +440,6 @@ class ChargemolAnalysis:
         Args:
             filepath (str): The path to the DDEC6_even_tempered_net_atomic_charges.xyz file
         """
-
         i = 0
         start = False
         dipoles = []
@@ -535,7 +535,6 @@ class ChargemolAnalysis:
                         }
             }
         """
-
         summary = {}
         ddec_summary = {
             "partial_charges": self.ddec_charges,
@@ -576,7 +575,6 @@ class ChargemolAnalysis:
         Returns:
             list[float]: site-specific properties
         """
-
         props = []
         if os.path.exists(xyz_path):
             with open(xyz_path) as r:

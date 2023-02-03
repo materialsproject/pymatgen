@@ -2,14 +2,15 @@
 This module provides various methods to analyze order/disorder in materials.
 """
 
+from __future__ import annotations
+
 import collections
 import itertools
-from typing import Dict, Tuple
 
 from pymatgen.core.structure import Structure
 
 
-def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> Dict[Tuple, float]:
+def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> dict[tuple, float]:
     """
     Warren-Crowley parameters
 
@@ -31,7 +32,7 @@ def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> D
             n_neighbors[site.specie] += 1
 
     alpha_ij = {}  # type: ignore
-    for sp1, sp2 in itertools.product(comp.keys(), comp.keys()):
+    for sp1, sp2 in itertools.product(comp, comp):
         pij = n_ij.get((sp1, sp2), 0) / n_neighbors[sp1]
         conc2 = comp.get_atomic_fraction(sp2)
         alpha_ij[(sp1, sp2)] = (pij - conc2) / ((1 if sp1 == sp2 else 0) - conc2)

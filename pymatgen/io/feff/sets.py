@@ -140,7 +140,6 @@ class FEFFDictSet(AbstractFeffInputSet):
         spacegroup_analyzer_settings: dict | None = None,
     ):
         """
-
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
             structure: Structure or Molecule object. If a Structure, SpaceGroupAnalyzer is used to
@@ -334,7 +333,6 @@ class FEFFDictSet(AbstractFeffInputSet):
             )
 
             for site_index, site in enumerate(sub_d["header"].struct):
-
                 if site.specie == input_atoms[0].specie:
                     site_atoms = Atoms(sub_d["header"].struct, absorbing_atom=site_index, radius=radius)
                     site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
@@ -563,7 +561,6 @@ class MPELNESSet(MPEELSDictSet):
             user_tag_settings (dict): override default tag settings
             **kwargs: Passthrough to FEFFDictSet
         """
-
         super().__init__(
             absorbing_atom,
             structure,
@@ -622,7 +619,6 @@ class MPEXELFSSet(MPEELSDictSet):
             user_tag_settings (dict): override default tag settings
             **kwargs: Passthrough to FEFFDictSet
         """
-
         super().__init__(
             absorbing_atom,
             structure,

@@ -35,9 +35,9 @@ class Site(collections.abc.Hashable, MSONable):
         self,
         species: SpeciesLike | CompositionLike,
         coords: ArrayLike,
-        properties: dict = None,
+        properties: dict | None = None,
         skip_checks: bool = False,
-    ):
+    ) -> None:
         """
         Creates a non-periodic Site.
 
@@ -62,21 +62,20 @@ class Site(collections.abc.Hashable, MSONable):
                     species = Composition({get_el_sp(species): 1})
                 except TypeError:
                     species = Composition(species)
-            totaloccu = species.num_atoms
-            if totaloccu > 1 + Composition.amount_tolerance:
+            total_occu = species.num_atoms
+            if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             coords = np.array(coords)
         self._species: Composition = species  # type: ignore
         self.coords: np.ndarray = coords  # type: ignore
         self.properties: dict = properties or {}
 
-    def __getattr__(self, a):
-        # overriding getattr doesn't play nice with pickle, so we
-        # can't use self._properties
-        p = object.__getattribute__(self, "properties")
-        if a in p:
-            return p[a]
-        raise AttributeError(a)
+    def __getattr__(self, attr):
+        # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
+        props = object.__getattribute__(self, "properties")
+        if attr in props:
+            return props[attr]
+        raise AttributeError(attr)
 
     @property
     def species(self) -> Composition:
@@ -92,8 +91,8 @@ class Site(collections.abc.Hashable, MSONable):
                 species = Composition({get_el_sp(species): 1})
             except TypeError:
                 species = Composition(species)
-        totaloccu = species.num_atoms
-        if totaloccu > 1 + Composition.amount_tolerance:
+        total_occu = species.num_atoms
+        if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
         self._species = species
 
@@ -138,9 +137,9 @@ class Site(collections.abc.Hashable, MSONable):
             other: Other site.
 
         Returns:
-            Distance (float)
+            float: distance
         """
-        return np.linalg.norm(other.coords - self.coords)
+        return float(np.linalg.norm(other.coords - self.coords))
 
     def distance_from_point(self, pt) -> float:
         """
@@ -150,9 +149,9 @@ class Site(collections.abc.Hashable, MSONable):
             pt: Cartesian coordinates of point.
 
         Returns:
-            Distance (float)
+            float: distance
         """
-        return np.linalg.norm(np.array(pt) - self.coords)
+        return float(np.linalg.norm(np.array(pt) - self.coords))
 
     @property
     def species_string(self) -> str:
@@ -162,7 +161,7 @@ class Site(collections.abc.Hashable, MSONable):
         if self.is_ordered:
             return str(list(self.species)[0])
         sorted_species = sorted(self.species)
-        return ", ".join([f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species])
+        return ", ".join(f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species)
 
     @property
     def specie(self) -> Element | Species | DummySpecies:
@@ -186,8 +185,8 @@ class Site(collections.abc.Hashable, MSONable):
         True if site is an ordered site, i.e., with a single species with
         occupancy 1.
         """
-        totaloccu = self.species.num_atoms
-        return totaloccu == 1 and len(self.species) == 1
+        total_occu = self.species.num_atoms
+        return total_occu == 1 and len(self.species) == 1
 
     def __getitem__(self, el):
         """
@@ -299,7 +298,7 @@ class PeriodicSite(Site, MSONable):
         lattice: Lattice,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
-        properties: dict = None,
+        properties: dict | None = None,
         skip_checks: bool = False,
     ):
         """
@@ -326,14 +325,13 @@ class PeriodicSite(Site, MSONable):
             create the site. Use this if the PeriodicSite is created in a
             controlled manner and speed is desired.
         """
-
         if coords_are_cartesian:
             frac_coords = lattice.get_fractional_coords(coords)
         else:
             frac_coords = coords  # type: ignore
 
         if to_unit_cell:
-            frac_coords = [np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)]
+            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)])
 
         if not skip_checks:
             frac_coords = np.array(frac_coords)
@@ -343,8 +341,8 @@ class PeriodicSite(Site, MSONable):
                 except TypeError:
                     species = Composition(species)
 
-            totaloccu = species.num_atoms
-            if totaloccu > 1 + Composition.amount_tolerance:
+            total_occu = species.num_atoms
+            if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice: Lattice = lattice

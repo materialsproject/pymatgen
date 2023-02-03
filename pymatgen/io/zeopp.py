@@ -25,6 +25,8 @@ b) Go to pymatgen/analysis/defects/tests and run
    is not installed. But there should be no errors.
 """
 
+from __future__ import annotations
+
 import os
 import re
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 import pytest
@@ -79,7 +81,7 @@ class TestAirssProvider:
     def test_raise(self, provider: AirssProvider):
         entry = provider.entry
         string = ResWriter(entry).string
-        string_strip = "\n".join([line for line in string.splitlines() if "REM" not in line])
+        string_strip = "\n".join(line for line in string.splitlines() if "REM" not in line)
         prov = AirssProvider.from_str(string_strip, "strict")
         assert entry.structure == prov.entry.structure
         with pytest.raises(ParseError):

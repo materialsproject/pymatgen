@@ -52,7 +52,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def __init__(
         self,
-        structure_matcher: StructureMatcher = None,
+        structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
         compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
@@ -586,7 +586,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         filtered_entries = []
 
         for entry in entries:
-
             if not entry.parameters.get("run_type"):
                 warnings.warn(
                     f"Entry {entry.entry_id} is missing parameters.run_type! This field"

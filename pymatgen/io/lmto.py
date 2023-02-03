@@ -8,6 +8,8 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 """
 
 
+from __future__ import annotations
+
 import re
 
 import numpy as np
@@ -68,7 +70,7 @@ class LMTOCtrl:
     def get_string(self, sigfigs=8):
         """
         Generates the string representation of the CTRL file. This is
-        the mininmal CTRL file necessary to execute lmhart.run.
+        the minimal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()
         lines = [] if "HEADER" not in ctrl_dict else ["HEADER".ljust(10) + self.header]
@@ -81,7 +83,7 @@ class LMTOCtrl:
                 line = "PLAT=".rjust(15)
             else:
                 line = " ".ljust(15)
-            line += " ".join([str(round(v, sigfigs)) for v in latt])
+            line += " ".join(str(round(v, sigfigs)) for v in latt)
             lines.append(line)
 
         for cat in ["CLASS", "SITE"]:
@@ -92,7 +94,7 @@ class LMTOCtrl:
                     line = [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
                     if token == "POS":
-                        line.append("POS=" + " ".join([str(round(p, sigfigs)) for p in val]))
+                        line.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
                     else:
                         line.append(token + "=" + str(val))
                 line = " ".join(line)
@@ -126,7 +128,6 @@ class LMTOCtrl:
         numbers with the second atom of the same species, e.g. "Bi", "Bi1",
         "Bi2", etc.
         """
-
         eq_atoms = sga.get_symmetry_dataset()["equivalent_atoms"]
         ineq_sites_index = list(set(eq_atoms))
         sites = []
@@ -342,7 +343,6 @@ class LMTOCopl:
             to_eV: LMTO-ASA gives energies in Ry. To convert energies into
               eV, set to True. Defaults to False for energies in Ry.
         """
-
         # COPL files have an extra trailing blank line
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")[:-1]
@@ -416,7 +416,6 @@ class LMTOCopl:
             The bond label, the bond length and a tuple of the site
             indices.
         """
-
         line = line.split()
         length = float(line[2])
         # Replacing "/" with "-" makes splitting easier

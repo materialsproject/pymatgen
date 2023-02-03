@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+from __future__ import annotations
 
 import unittest
 
@@ -34,16 +34,16 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
         for test_string, test_Pp in zip(self.test_strings, self.test_Pps):
             jft = JonesFaithfulTransformation.from_transformation_string(test_string)
             jft2 = JonesFaithfulTransformation(test_Pp[0], test_Pp[1])
-            self.assertTrue(np.allclose(jft.P, jft2.P))
-            self.assertTrue(np.allclose(jft.p, jft2.p))
-            self.assertEqual(test_string, jft.transformation_string)
-            self.assertEqual(test_string, jft2.transformation_string)
+            assert np.allclose(jft.P, jft2.P)
+            assert np.allclose(jft.p, jft2.p)
+            assert test_string == jft.transformation_string
+            assert test_string == jft2.transformation_string
 
     def test_inverse(self):
         for test_string in self.test_strings:
             jft = JonesFaithfulTransformation.from_transformation_string(test_string)
-            self.assertEqual(jft, jft.inverse.inverse)
-            self.assertEqual(jft.transformation_string, jft.inverse.inverse.transformation_string)
+            assert jft == jft.inverse.inverse
+            assert jft.transformation_string == jft.inverse.inverse.transformation_string
 
     def test_transform_lattice(self):
         lattice = Lattice.cubic(5)
@@ -57,7 +57,7 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
 
         for ref_lattice, (P, p) in zip(all_ref_lattices, self.test_Pps):
             jft = JonesFaithfulTransformation(P, p)
-            self.assertTrue(np.allclose(jft.transform_lattice(lattice).matrix, ref_lattice))
+            assert np.allclose(jft.transform_lattice(lattice).matrix, ref_lattice)
 
     def test_transform_coords(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -73,10 +73,9 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
             jft = JonesFaithfulTransformation(P, p)
             transformed_coords = jft.transform_coords(coords)
             for coord, ref_coord in zip(transformed_coords, ref_coords):
-                self.assertTrue(np.allclose(coord, ref_coord))
+                assert np.allclose(coord, ref_coord)
 
     def test_transform_symmops(self):
-
         # reference data for this test taken from GENPOS
         # http://cryst.ehu.es/cryst/get_gen.html
 
@@ -188,7 +187,7 @@ y,-x,-z+1/2
         transformed_symmops = [jft.transform_symmop(op) for op in input_symmops]
 
         for transformed_op, ref_transformed_op in zip(transformed_symmops, ref_transformed_symmops):
-            self.assertEqual(transformed_op, ref_transformed_op)
+            assert transformed_op == ref_transformed_op
 
 
 if __name__ == "__main__":

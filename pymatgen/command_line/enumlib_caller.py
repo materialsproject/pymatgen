@@ -27,6 +27,8 @@ superstructures for systems with high configurational freedom," Comp. Mat.
 Sci. 136 144-149 (May 2017)
 """
 
+from __future__ import annotations
+
 import fractions
 import glob
 import itertools
@@ -169,7 +171,6 @@ class EnumlibAdaptor:
         different equivalent sites is dealt with by having determined the
         spacegroup earlier and labelling the species differently.
         """
-
         # index_species and index_amounts store mappings between the indices
         # used in the enum input file, and the actual species and amounts.
         index_species = []
@@ -198,7 +199,7 @@ class EnumlibAdaptor:
                         ind = index_species.index(sp)
                         sp_label.append(ind)
                         index_amounts[ind] += amt * len(sites)
-                sp_label = "/".join([f"{i}" for i in sorted(sp_label)])
+                sp_label = "/".join(f"{i}" for i in sorted(sp_label))
                 for site in sites:
                     coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
                 disordered_sites.append(sites)
@@ -288,10 +289,8 @@ class EnumlibAdaptor:
             f.write("\n".join(output))
 
     def _run_multienum(self):
-
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
             if self.timeout:
-
                 timed_out = False
                 timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
@@ -307,7 +306,6 @@ class EnumlibAdaptor:
                     raise TimeoutError("Enumeration took too long.")
 
             else:
-
                 output = p.communicate()[0].decode("utf-8")
 
         count = 0
@@ -342,7 +340,7 @@ class EnumlibAdaptor:
         # to ensure consistency, we keep track of what site properties
         # are missing and set them to None
         # TODO: improve this by mapping ordered structure to original
-        # disorded structure, and retrieving correct site properties
+        # disordered structure, and retrieving correct site properties
         disordered_site_properties = {}
 
         if len(self.ordered_sites) > 0:
@@ -365,6 +363,9 @@ class EnumlibAdaptor:
                 site_properties=site_properties,
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
+        else:
+            ordered_structure = None  # to fix pylint E0601
+            inv_org_latt = None
 
         for file in glob.glob("vasp.*"):
             with open(file) as f:

@@ -134,7 +134,6 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
     def get_vasp_input(self) -> VaspInput:
         """
-
         Returns:
             VaspInput
         """
@@ -190,11 +189,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
-        cifname = ""
+        cif_name = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            cifname = Path(output_dir) / (re.sub(r"\s", "", s.formula) + ".cif")
-            s.to(filename=cifname)
+            cif_name = f"{output_dir}/{s.formula.replace(' ', '')}.cif"
+            s.to(filename=cif_name)
 
         if zip_output:
             filename = type(self).__name__ + ".zip"
@@ -205,7 +204,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                     "KPOINTS",
                     "POTCAR",
                     "POTCAR.spec",
-                    cifname,
+                    cif_name,
                 ]:
                     try:
                         zip.write(os.path.join(output_dir, file), arcname=file)
@@ -691,7 +690,6 @@ class DictSet(VaspInputSet):
         calculation with by default. Note that in practice this
         can depend on # of cores (if not set explicitly)
         """
-
         nions = len(self.structure)
 
         # from VASP's point of view, the number of magnetic atoms are
@@ -736,6 +734,7 @@ class DictSet(VaspInputSet):
                 not have a license to specific Potcar files. Given a "POTCAR.spec",
                 the specific POTCAR file can be re-generated using pymatgen with the
                 "generate_potcar" function in the pymatgen CLI.
+            zip_output (bool): Whether to zip each VASP input file written to the output directory.
         """
         super().write_input(
             output_dir=output_dir,
@@ -757,8 +756,8 @@ class DictSet(VaspInputSet):
             max_prime_factor (int): the valid prime factors of the grid size in each direction
                 VASP has many different setting for this to handle many compiling options.
                 For typical MPI options all prime factors up to 7 are allowed
+            must_inc_2 (bool): Whether 2 must be a prime factor of the result. Defaults to True.
         """
-
         # TODO throw error for Ultrasoft potentials
 
         _RYTOEV = 13.605826
@@ -1774,7 +1773,6 @@ class MPSOCSet(MPStaticSet):
             magmom (list[list[float]]): Override for the structure magmoms.
             **kwargs: kwargs supported by MPStaticSet.
         """
-
         if not hasattr(structure[0], "magmom") and not isinstance(structure[0].magmom, list):
             raise ValueError(
                 "The structure must have the 'magmom' site "
@@ -1932,7 +1930,6 @@ class MPNMRSet(MPStaticSet):
                 }
             )
         elif self.mode.lower() == "efg":
-
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
             quad_efg = [
@@ -2228,7 +2225,6 @@ class MVLSlabSet(MPRelaxSet):
             directions, also for c direction in bulk calculations
         Automatic mesh & Gamma is the default setting.
         """
-
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object (ie. 4). Slab
         # attributes aren't going to affect the VASP inputs anyways so
@@ -2274,7 +2270,6 @@ class MVLGBSet(MPRelaxSet):
 
     def __init__(self, structure: Structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
         """
-
         Args:
             structure(Structure): provide the structure
             k_product: Kpoint number * length for a & b directions, also for c
@@ -2302,7 +2297,6 @@ class MVLGBSet(MPRelaxSet):
         directions, also for c direction in bulk calculations
         Automatic mesh & Gamma is the default setting.
         """
-
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object.
 
@@ -2521,7 +2515,6 @@ class MITMDSet(MITRelaxSet):
 
     def __init__(self, structure: Structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
         """
-
         Args:
             structure (Structure): Input structure.
             start_temp (int): Starting temperature.
@@ -2613,7 +2606,6 @@ class MPMDSet(MPRelaxSet):
                 The ISPIN parameter. Defaults to False.
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-
         # MD default settings
         defaults = {
             "TEBEG": start_temp,
@@ -2783,10 +2775,10 @@ class LobsterSet(MPRelaxSet):
         structure: Structure,
         isym: int = 0,
         ismear: int = -5,
-        reciprocal_density: int = None,
-        address_basis_file: str = None,
-        user_supplied_basis: dict = None,
-        user_potcar_settings: dict = None,
+        reciprocal_density: int | None = None,
+        address_basis_file: str | None = None,
+        user_supplied_basis: dict | None = None,
+        user_potcar_settings: dict | None = None,
         **kwargs,
     ):
         """
@@ -3063,7 +3055,7 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
             - none: Remove all the magmom information
 
     Returns:
-        New structure if inplace == False
+        New structure if inplace is False
     """
     default_values = {"s": 1.0, "v": [1.0, 1.0, 1.0], "n": None}
     if spin_mode[0].lower() == "a":
@@ -3149,7 +3141,6 @@ class MPAbsorptionSet(MPRelaxSet):
             nedos: the density of DOS, default: 2001.
             **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
         """
-
         # Initialize the input set (default: IPA absorption)
         super().__init__(structure, **kwargs)
 
@@ -3235,8 +3226,10 @@ class MPAbsorptionSet(MPRelaxSet):
     def override_from_prev_calc(self, prev_calc_dir=".", **kwargs):
         """
         Update the input set to include settings from a previous calculation.
+
         Args:
             prev_calc_dir (str): The path to the previous calculation directory.
+
         Returns:
             The input set with the settings (structure, k-points, incar, etc)
             updated using the previous VASP run.

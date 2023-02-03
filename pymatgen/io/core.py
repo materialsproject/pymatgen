@@ -117,7 +117,7 @@ class InputSet(MSONable, MutableMapping):
     is optional.
     """
 
-    def __init__(self, inputs: dict[str | Path, str | InputFile] = None, **kwargs):
+    def __init__(self, inputs: dict[str | Path, str | InputFile] | None = None, **kwargs):
         """
         Instantiate an InputSet.
 
@@ -139,7 +139,7 @@ class InputSet(MSONable, MutableMapping):
         # allow accessing keys as attributes
         if k in self._kwargs:
             return self.get(k)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{k}'")
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute {k!r}")
 
     def __len__(self):
         return len(self.inputs)

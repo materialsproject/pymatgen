@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
 
@@ -21,7 +23,7 @@ class FuncTest(PymatgenTest):
             return y
 
         micro_pyawk(filename, [["POTCAR:(.*)", f2, f]])
-        self.assertEqual(len(data), 6)
+        assert len(data) == 6
 
 
 if __name__ == "__main__":

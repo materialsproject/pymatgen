@@ -136,7 +136,6 @@ class JonesFaithfulTransformation:
     @property
     def p(self) -> list[float]:
         """
-
         :return: translation vector
         """
         return self._p
@@ -144,7 +143,6 @@ class JonesFaithfulTransformation:
     @property
     def inverse(self) -> JonesFaithfulTransformation:
         """
-
         :return: JonesFaithfulTransformation
         """
         Q = np.linalg.inv(self.P)

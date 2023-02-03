@@ -39,7 +39,6 @@ class JahnTellerAnalyzer:
         """
         Init for JahnTellerAnalyzer.
         """
-
         self.spin_configs = {
             "oct": {  # key is number of d electrons
                 0: {"high": {"e_g": 0, "t_2g": 0}, "default": "high"},
@@ -111,7 +110,6 @@ class JahnTellerAnalyzer:
             analysis of structure, with key 'strength' which may be 'none', 'strong',
             'weak', or 'unknown' (Default value = 0.1) and decorated structure
         """
-
         structure = structure.get_primitive_structure()
 
         if calculate_valences:
@@ -130,13 +128,11 @@ class JahnTellerAnalyzer:
         non_jt_sites = []
 
         for indices in symmetrized_structure.equivalent_indices:
-
             idx = indices[0]
             site = symmetrized_structure[idx]
 
             # only interested in sites with oxidation states
             if isinstance(site.specie, Species) and site.specie.element.is_transition_metal:
-
                 # get motif around site
                 order_params = op.get_order_parameters(symmetrized_structure, idx)
 
@@ -151,12 +147,10 @@ class JahnTellerAnalyzer:
                     motif_order_parameter = None
 
                 if motif in ["oct", "tet"]:
-
                     motif = cast(Literal["oct", "tet"], motif)  # mypy needs help
 
                     # guess spin of metal ion
                     if guesstimate_spin and "magmom" in site.properties:
-
                         # estimate if high spin or low spin
                         magmom = site.properties["magmom"]
                         spin_state = self._estimate_spin_state(site.specie, motif, magmom)
@@ -166,7 +160,6 @@ class JahnTellerAnalyzer:
                     magnitude = self.get_magnitude_of_effect_from_species(site.specie, spin_state, motif)
 
                     if magnitude != "none":
-
                         ligands = get_neighbors_of_site_with_index(structure, idx, approach="min_dist", delta=0.15)
                         ligand_bond_lengths = [ligand.distance(structure[idx]) for ligand in ligands]
                         ligands_species = list({str(ligand.specie) for ligand in ligands})
@@ -289,7 +282,6 @@ class JahnTellerAnalyzer:
         Returns:
             boolean, True if might be Jahn-Teller active, False if not
         """
-
         active = False
 
         try:
@@ -358,7 +350,6 @@ class JahnTellerAnalyzer:
 
         Returns: Number of d electrons.
         """
-
         # TODO: replace with more generic Hund's rule algorithm?
 
         # taken from get_crystal_field_spin
@@ -382,14 +373,12 @@ class JahnTellerAnalyzer:
 
         Returns: "none", "weak" or "strong
         """
-
         magnitude = "none"
 
         sp = get_el_sp(species)
 
         # has to be Species; we need to know the oxidation state
         if isinstance(sp, Species) and sp.element.is_transition_metal:
-
             d_electrons = self._get_number_of_d_electrons(sp)
 
             if motif in self.spin_configs:

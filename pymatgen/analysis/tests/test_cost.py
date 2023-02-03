@@ -1,8 +1,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+from __future__ import annotations
 
 import os
 import unittest
+
+import pytest
 
 from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
 from pymatgen.util.testing import PymatgenTest
@@ -14,25 +17,25 @@ class CostAnalyzerTest(unittest.TestCase):
         self.ca2 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_2.csv")))
 
     def test_cost_per_kg(self):
-        self.assertAlmostEqual(self.ca1.get_cost_per_kg("Ag"), 3, 3)
-        self.assertAlmostEqual(self.ca1.get_cost_per_kg("O"), 1, 3)
-        self.assertAlmostEqual(self.ca1.get_cost_per_kg("AgO"), 2.7416, 3)
-        self.assertAlmostEqual(self.ca2.get_cost_per_kg("AgO"), 1.5, 3)
+        assert self.ca1.get_cost_per_kg("Ag") == pytest.approx(3, rel=1e-3)
+        assert self.ca1.get_cost_per_kg("O") == pytest.approx(1, rel=1e-3)
+        assert self.ca1.get_cost_per_kg("AgO") == pytest.approx(2.7416, rel=1e-3)
+        assert self.ca2.get_cost_per_kg("AgO") == pytest.approx(1.5, rel=1e-3)
 
     def test_cost_per_mol(self):
-        self.assertAlmostEqual(self.ca1.get_cost_per_mol("Ag"), 0.3236, 3)
-        self.assertAlmostEqual(self.ca1.get_cost_per_mol("O"), 0.0160, 3)
-        self.assertAlmostEqual(self.ca1.get_cost_per_mol("AgO"), 0.3396, 3)
-        self.assertAlmostEqual(self.ca2.get_cost_per_mol("AgO"), 0.1858, 3)
+        assert self.ca1.get_cost_per_mol("Ag") == pytest.approx(0.3236, rel=1e-3)
+        assert self.ca1.get_cost_per_mol("O") == pytest.approx(0.0160, rel=1e-3)
+        assert self.ca1.get_cost_per_mol("AgO") == pytest.approx(0.3396, rel=1e-3)
+        assert self.ca2.get_cost_per_mol("AgO") == pytest.approx(0.1858, rel=1e-3)
 
     def test_sanity(self):
-        self.assertEqual(self.ca1.get_cost_per_kg("Ag"), self.ca2.get_cost_per_kg("Ag"))
+        assert self.ca1.get_cost_per_kg("Ag") == self.ca2.get_cost_per_kg("Ag")
 
 
 class CostDBTest(unittest.TestCase):
     def test_sanity(self):
         ca = CostAnalyzer(CostDBElements())
-        self.assertGreater(ca.get_cost_per_kg("PtO"), ca.get_cost_per_kg("MgO"))
+        assert ca.get_cost_per_kg("PtO") > ca.get_cost_per_kg("MgO")
 
 
 if __name__ == "__main__":

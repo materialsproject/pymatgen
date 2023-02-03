@@ -2,8 +2,12 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import os
 import unittest
+
+import pytest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -54,7 +58,7 @@ class BandStructureSCTest(PymatgenTest):
         struct_file_path = os.path.join(test_dir_structs, "ICSD_170.cif")
         struct = Structure.from_file(struct_file_path)
         hkp = KPathSetyawanCurtarolo(struct)
-        self.assertEqual(hkp.name, "MCLC5")
+        assert hkp.name == "MCLC5"
 
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
@@ -66,50 +70,47 @@ class BandStructureSCTest(PymatgenTest):
         kpoints = kpath._kpath["kpoints"]
         labels = list(kpoints)
 
-        self.assertEqual(
-            sorted(labels),
-            sorted(["\\Gamma", "A", "A_1", "R", "S", "T", "X", "X_1", "Y", "Z"]),
-        )
+        assert sorted(labels) == sorted(["\\Gamma", "A", "A_1", "R", "S", "T", "X", "X_1", "Y", "Z"])
 
-        self.assertEqual(kpoints["\\Gamma"][0], 0.00000000)
-        self.assertAlmostEqual(kpoints["\\Gamma"][1], 0.00000000)
-        self.assertAlmostEqual(kpoints["\\Gamma"][2], 0.00000000)
+        assert kpoints["\\Gamma"][0] == 0.00000000
+        assert kpoints["\\Gamma"][1] == pytest.approx(0.00000000)
+        assert kpoints["\\Gamma"][2] == pytest.approx(0.00000000)
 
-        self.assertAlmostEqual(kpoints["A"][0], 0.25308642)
-        self.assertAlmostEqual(kpoints["A"][1], 0.25308642)
-        self.assertAlmostEqual(kpoints["A"][2], 0.50000000)
+        assert kpoints["A"][0] == pytest.approx(0.25308642)
+        assert kpoints["A"][1] == pytest.approx(0.25308642)
+        assert kpoints["A"][2] == pytest.approx(0.50000000)
 
-        self.assertAlmostEqual(kpoints["A_1"][0], -0.25308642)
-        self.assertAlmostEqual(kpoints["A_1"][1], 0.74691358)
-        self.assertAlmostEqual(kpoints["A_1"][2], 0.50000000)
+        assert kpoints["A_1"][0] == pytest.approx(-0.25308642)
+        assert kpoints["A_1"][1] == pytest.approx(0.74691358)
+        assert kpoints["A_1"][2] == pytest.approx(0.50000000)
 
-        self.assertAlmostEqual(kpoints["R"][0], 0.00000000)
-        self.assertAlmostEqual(kpoints["R"][1], 0.50000000)
-        self.assertAlmostEqual(kpoints["R"][2], 0.50000000)
+        assert kpoints["R"][0] == pytest.approx(0.00000000)
+        assert kpoints["R"][1] == pytest.approx(0.50000000)
+        assert kpoints["R"][2] == pytest.approx(0.50000000)
 
-        self.assertAlmostEqual(kpoints["S"][0], 0.00000000)
-        self.assertAlmostEqual(kpoints["S"][1], 0.50000000)
-        self.assertAlmostEqual(kpoints["S"][2], 0.00000000)
+        assert kpoints["S"][0] == pytest.approx(0.00000000)
+        assert kpoints["S"][1] == pytest.approx(0.50000000)
+        assert kpoints["S"][2] == pytest.approx(0.00000000)
 
-        self.assertAlmostEqual(kpoints["T"][0], -0.50000000)
-        self.assertAlmostEqual(kpoints["T"][1], 0.50000000)
-        self.assertAlmostEqual(kpoints["T"][2], 0.50000000)
+        assert kpoints["T"][0] == pytest.approx(-0.50000000)
+        assert kpoints["T"][1] == pytest.approx(0.50000000)
+        assert kpoints["T"][2] == pytest.approx(0.50000000)
 
-        self.assertAlmostEqual(kpoints["X"][0], 0.25308642)
-        self.assertAlmostEqual(kpoints["X"][1], 0.25308642)
-        self.assertAlmostEqual(kpoints["X"][2], 0.00000000)
+        assert kpoints["X"][0] == pytest.approx(0.25308642)
+        assert kpoints["X"][1] == pytest.approx(0.25308642)
+        assert kpoints["X"][2] == pytest.approx(0.00000000)
 
-        self.assertAlmostEqual(kpoints["X_1"][0], -0.25308642)
-        self.assertAlmostEqual(kpoints["X_1"][1], 0.74691358)
-        self.assertAlmostEqual(kpoints["X_1"][2], 0.00000000)
+        assert kpoints["X_1"][0] == pytest.approx(-0.25308642)
+        assert kpoints["X_1"][1] == pytest.approx(0.74691358)
+        assert kpoints["X_1"][2] == pytest.approx(0.00000000)
 
-        self.assertAlmostEqual(kpoints["Y"][0], -0.50000000)
-        self.assertAlmostEqual(kpoints["Y"][1], 0.50000000)
-        self.assertAlmostEqual(kpoints["Y"][2], 0.00000000)
+        assert kpoints["Y"][0] == pytest.approx(-0.50000000)
+        assert kpoints["Y"][1] == pytest.approx(0.50000000)
+        assert kpoints["Y"][2] == pytest.approx(0.00000000)
 
-        self.assertAlmostEqual(kpoints["Z"][0], 0.00000000)
-        self.assertAlmostEqual(kpoints["Z"][1], 0.00000000)
-        self.assertAlmostEqual(kpoints["Z"][2], 0.50000000)
+        assert kpoints["Z"][0] == pytest.approx(0.00000000)
+        assert kpoints["Z"][1] == pytest.approx(0.00000000)
+        assert kpoints["Z"][2] == pytest.approx(0.50000000)
 
 
 if __name__ == "__main__":

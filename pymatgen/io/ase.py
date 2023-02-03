@@ -6,12 +6,7 @@ Atoms object and pymatgen Structure objects.
 """
 
 
-__author__ = "Shyue Ping Ong, Andrew S. Rosen"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 8, 2012"
+from __future__ import annotations
 
 import warnings
 
@@ -29,6 +24,13 @@ except ImportError:
 if ase_loaded:
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
+
+__author__ = "Shyue Ping Ong, Andrew S. Rosen"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Mar 8, 2012"
 
 
 class AseAtomsAdaptor:
@@ -147,7 +149,6 @@ class AseAtomsAdaptor:
         Returns:
             Equivalent pymatgen.core.structure.Structure
         """
-
         cls = Structure if cls is None else cls
 
         symbols = atoms.get_chemical_symbols()
@@ -252,7 +253,6 @@ class AseAtomsAdaptor:
         Returns:
             Equivalent pymatgen.core.structure.Molecule
         """
-
         cls = Molecule if cls is None else cls
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
         if atoms.has("initial_charges"):

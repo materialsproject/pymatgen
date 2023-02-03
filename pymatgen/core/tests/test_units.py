@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import pytest
 
 from pymatgen.core.units import (
@@ -187,7 +189,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         # here there's a minor difference because we have a ndarray with
         # dtype=int.
         a = TimeArray(20, "h")
-        assert pytest.approx(a.to("s")) == 3600 * 20
+        assert a.to("s") == 3600 * 20
         # Test left and right multiplication.
         assert str(a * 3) == "60 h"
         assert str(3 * a) == "60 h"

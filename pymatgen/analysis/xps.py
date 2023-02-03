@@ -16,6 +16,8 @@ Note that the atomic_subshell_photoionization_cross_sections.csv has been repars
 This version contains all detailed information for all orbitals.
 """
 
+from __future__ import annotations
+
 import collections
 import warnings
 from pathlib import Path

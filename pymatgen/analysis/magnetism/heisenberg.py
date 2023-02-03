@@ -7,6 +7,8 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
 """
 
+from __future__ import annotations
+
 import copy
 import logging
 import sys
@@ -68,7 +70,6 @@ class HeisenbergMapper:
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
             ex_params (dict): Exchange parameter values (meV/atom)
         """
-
         # Save original copies of inputs
         self.ordered_structures_ = ordered_structures
         self.energies_ = energies
@@ -116,7 +117,6 @@ class HeisenbergMapper:
         Returns:
             sgraphs (list): StructureGraph objects.
         """
-
         # Strategy for finding neighbors
         if cutoff:
             strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True)
@@ -142,7 +142,6 @@ class HeisenbergMapper:
             wyckoff_ids (dict): maps tuples of equivalent site indices to their
                 wyckoff symbols
         """
-
         # Get a nonmagnetic representation of the supercell geometry
         s0 = CollinearMagneticStructureAnalyzer(
             structure, make_primitive=False, threshold=0.0
@@ -178,7 +177,6 @@ class HeisenbergMapper:
         Returns:
             None: (sets self.nn_interactions and self.dists instance variables)
         """
-
         tol = self.tol  # tolerance on NN distances
         sgraph = self.sgraphs[0]
         unique_site_ids = self.unique_site_ids
@@ -254,7 +252,6 @@ class HeisenbergMapper:
         TODO:
             * Deal with large variance in |S| across configs
         """
-
         sgraphs = self.sgraphs
         tol = self.tol
         unique_site_ids = self.unique_site_ids
@@ -373,7 +370,6 @@ class HeisenbergMapper:
         Returns:
             ex_params (dict): Exchange parameter values (meV/atom).
         """
-
         ex_mat = self.ex_mat
         # Solve the matrix equation for J_ij values
         E = ex_mat[["E"]]
@@ -412,7 +408,6 @@ class HeisenbergMapper:
             fm_e (float): fm energy
             afm_e (float): afm energy
         """
-
         fm_struct, afm_struct = None, None
         mag_min = np.inf
         mag_max = 0.001
@@ -422,7 +417,6 @@ class HeisenbergMapper:
         # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
 
         for s, e in zip(self.ordered_structures, self.energies):
-
             ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, make_primitive=False).ordering
             magmoms = s.site_properties["magmom"]
 
@@ -485,7 +479,6 @@ class HeisenbergMapper:
         Returns:
             j_avg (float): Average exchange parameter (meV/atom)
         """
-
         # Get low energy orderings if not supplied
         if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
             fm_struct, afm_struct, fm_e, afm_e = self.get_low_energy_orderings()
@@ -525,7 +518,6 @@ class HeisenbergMapper:
         Returns:
             mft_t (float): Critical temperature (K)
         """
-
         num_sublattices = len(self.unique_site_ids)
         k_boltzmann = 0.0861733  # meV/K
 
@@ -568,7 +560,6 @@ class HeisenbergMapper:
         Returns:
             igraph (StructureGraph): Exchange interaction graph.
         """
-
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
 
@@ -618,7 +609,6 @@ class HeisenbergMapper:
         Returns:
             j_exc (float): Exchange parameter in meV
         """
-
         # Get unique site identifiers
         for k, v in self.unique_site_ids.items():
             if i in k:
@@ -658,7 +648,6 @@ class HeisenbergMapper:
         Returns:
             hmodel (HeisenbergModel): MSONable object.
         """
-
         # Original formula unit with nonmagnetic ions
         hm_formula = str(self.ordered_structures_[0].composition.reduced_formula)
 
@@ -718,7 +707,6 @@ class HeisenbergScreener:
             screened_structures (list): Sorted structures.
             screened_energies (list): Sorted energies.
         """
-
         # Cleanup
         structures, energies = self._do_cleanup(structures, energies)
 
@@ -750,7 +738,6 @@ class HeisenbergScreener:
             ordered_structures (list): Sanitized structures.
             ordered_energies (list): Sorted energies.
         """
-
         # Get only magnetic ions & give all structures site_properties['magmom']
         # zero threshold so that magnetic ions with small moments
         # are preserved
@@ -809,7 +796,6 @@ class HeisenbergScreener:
             screened_structures (list): Sorted structures.
             screened_energies (list): Sorted energies.
         """
-
         magmoms = [s.site_properties["magmom"] for s in structures]
         n_below_1ub = [len([m for m in ms if abs(m) < 1]) for ms in magmoms]
 
@@ -864,7 +850,6 @@ class HeisenbergModel(MSONable):
         igraph=None,
     ):
         """
-
         Args:
             formula (str): Reduced formula of compound.
             structures (list): Structure objects with magmoms.
@@ -885,7 +870,6 @@ class HeisenbergModel(MSONable):
             javg (float): <J> exchange param (meV/atom).
             igraph (StructureGraph): Exchange interaction graph.
         """
-
         self.formula = formula
         self.structures = structures
         self.energies = energies
@@ -905,7 +889,6 @@ class HeisenbergModel(MSONable):
         """
         Because some dicts have tuple keys, some sanitization is required for json compatibility.
         """
-
         d = {}
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -1005,7 +988,6 @@ class HeisenbergModel(MSONable):
         Returns:
             j_exc (float): Exchange parameter in meV
         """
-
         # Get unique site identifiers
         for k in self.unique_site_ids:
             if i in k:

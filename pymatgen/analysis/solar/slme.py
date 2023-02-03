@@ -8,6 +8,8 @@ References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
             2) https://doi.org/10.1103/PhysRevLett.108.068701
 """
 
+from __future__ import annotations
+
 import os
 from math import pi
 

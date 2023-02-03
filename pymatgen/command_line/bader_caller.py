@@ -15,6 +15,8 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
+from __future__ import annotations
+
 import glob
 import os
 import shutil
@@ -27,7 +29,7 @@ from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
 
-from pymatgen.io.cube import Cube
+from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
@@ -151,7 +153,7 @@ class BaderAnalysis:
         else:
             fpath = os.path.abspath(cube_filename)
             self.is_vasp = False
-            self.cube = Cube(fpath)
+            self.cube = VolumetricData.from_cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
@@ -160,12 +162,12 @@ class BaderAnalysis:
         with ScratchDir("."):
             tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
             with zopen(fpath, "rt") as f_in:
-                with open(tmpfile, "wt") as f_out:
+                with open(tmpfile, "w") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             args = [BADEREXE, tmpfile]
             if chgref_filename:
                 with zopen(chgrefpath, "rt") as f_in:
-                    with open("CHGCAR_ref", "wt") as f_out:
+                    with open("CHGCAR_ref", "w") as f_out:
                         shutil.copyfileobj(f_in, f_out)
                 args += ["-ref", "CHGCAR_ref"]
             if parse_atomic_densities:
@@ -387,7 +389,6 @@ class BaderAnalysis:
         """
         :return: Dict summary of key analysis, e.g., atomic volume, charge, etc.
         """
-
         summary = {
             "min_dist": [d["min_dist"] for d in self.data],
             "charge": [d["charge"] for d in self.data],
@@ -531,7 +532,6 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     """
 
     with ScratchDir(".") as temp_dir:
-
         if aeccar0 and aeccar2:
             # construct reference file
             chgref = aeccar0.linear_add(aeccar2)
