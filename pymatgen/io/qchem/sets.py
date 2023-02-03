@@ -877,7 +877,6 @@ class SinglePointSet(QChemDictSet):
             cdft_constraints=cdft_constraints,
             almo_coupling_states=almo_coupling_states,
             overwrite_inputs=overwrite_inputs,
-            vdw_mode=vdw_mode,
             extra_scf_print=extra_scf_print,
         )
 
