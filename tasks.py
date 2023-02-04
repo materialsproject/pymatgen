@@ -274,7 +274,7 @@ def update_changelog(ctx, version=None, dry_run=False):
                     ll = ll.strip()
                     if ll in ["", "## Summary"]:
                         continue
-                    elif ll.startswith("## Checklist") or ll.startswith("## TODO"):
+                    elif ll.startswith(("## Checklist", "## TODO")):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)

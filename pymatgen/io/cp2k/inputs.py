@@ -796,7 +796,7 @@ class Cp2kInput(Section):
         current = self.name
         description = ""
         for line in lines:
-            if line.startswith("!") or line.startswith("#"):
+            if line.startswith(("!", "#")):
                 description += line[1:].strip()
             elif line.upper().startswith("&END"):
                 current = "/".join(current.split("/")[:-1])

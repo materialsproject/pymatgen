@@ -9,10 +9,8 @@ import sys
 import numpy
 from setuptools import Extension, find_namespace_packages, setup
 
-extra_link_args: list[str] = []
-if sys.platform.startswith("win") and platform.machine().endswith("64"):
-    extra_link_args = ["-Wl,--allow-multiple-definition"]
-
+is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
+extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 
 setup(
     name="pymatgen",
@@ -51,7 +49,7 @@ setup(
             "coverage",
             "coveralls",
             "flake8",
-            "mypy==0.991",  # pinned due to long list of errors starting with mypy 0.990
+            "mypy",
             "pre-commit",
             "pydocstyle",
             "pylint",
