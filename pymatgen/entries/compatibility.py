@@ -584,7 +584,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         # take operations on a copy, to keep input entries unchanged
         entries_copy = [entry.copy() for entry in entries]
-        
+
         for entry in tqdm(entries_copy, disable=not verbose):
             ignore_entry = False
             # if clean is True, remove all previous adjustments from the entry
