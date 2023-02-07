@@ -1109,6 +1109,7 @@ class CifParser:
                 allmagmoms.extend(magmoms)
 
             # rescale occupancies if necessary
+            allspecies_noedit = allspecies[:]
             for i, species in enumerate(allspecies):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
@@ -1129,7 +1130,7 @@ class CifParser:
             struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
             if skip_checks:
                 struct_2 = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
-                for i, site in enumerate(struct_2):
+                for i, _ in enumerate(struct_2):
                     struct_2[i] = PeriodicSite(allspecies_noedit[i], allcoords[i], lattice, properties=site_properties,
                                                skip_checks=True)
 
@@ -1145,7 +1146,7 @@ class CifParser:
                 struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
                 if skip_checks:
                     struct_2 = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
-                    for i, site in enumerate(struct_2):
+                    for i, _ in enumerate(struct_2):
                         struct_2[i] = PeriodicSite(allspecies_noedit[i], allcoords[i], lattice,
                                                    properties=site_properties,
                                                    skip_checks=True)
