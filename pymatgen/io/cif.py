@@ -906,7 +906,7 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data, primitive, symmetrized):
+    def _get_structure(self, data, primitive, symmetrized, skip_checks=False):
         """
         Generate structure from part of the cif.
         """
@@ -980,25 +980,65 @@ class CifParser:
             except (KeyError, ValueError):
                 occu = 1
 
-            if occu > 0:
-                coord = (x, y, z)
-                match = get_matching_coord(coord)
-                comp_d = {el: occu}
-                if num_h > 0:
-                    comp_d["H"] = num_h
-                    self.warnings.append(
-                        "Structure has implicit hydrogens defined, "
-                        "parsed structure unlikely to be suitable for use "
-                        "in calculations unless hydrogens added."
-                    )
-                comp = Composition(comp_d)
-                if not match:
-                    coord_to_species[coord] = comp
-                    coord_to_magmoms[coord] = magmom
+            if skip_checks:
+                if occu > 0:
+                    coord = (x, y, z)
+                    match = get_matching_coord(coord)
+                    comp_d = {el: occu}
+                    if num_h > 0:
+                        comp_d["H"] = num_h
+                        self.warnings.append(
+                            "Structure has implicit hydrogens defined, "
+                            "parsed structure unlikely to be suitable for use "
+                            "in calculations unless hydrogens added."
+                        )
+                    comp = Composition(comp_d)
+                    if not match:
+                        coord_to_species[coord] = comp
+                        coord_to_magmoms[coord] = magmom
+                    else:
+                        coord_to_species[match] += comp
+                        # disordered magnetic not currently supported
+                        coord_to_magmoms[match] = None
                 else:
-                    coord_to_species[match] += comp
-                    # disordered magnetic not currently supported
-                    coord_to_magmoms[match] = None
+                    coord = (x, y, z)
+                    match = get_matching_coord(coord)
+                    comp_d = {el: 0.00000001}
+                    if num_h > 0:
+                        comp_d["H"] = num_h
+                        self.warnings.append(
+                            "Structure has implicit hydrogens defined, "
+                            "parsed structure unlikely to be suitable for use "
+                            "in calculations unless hydrogens added."
+                        )
+                    comp = Composition(comp_d)
+                    if not match:
+                        coord_to_species[coord] = comp
+                        coord_to_magmoms[coord] = magmom
+                    else:
+                        coord_to_species[match] += comp
+                        # disordered magnetic not currently supported
+                        coord_to_magmoms[match] = None
+            else:
+                if occu > 0:
+                    coord = (x, y, z)
+                    match = get_matching_coord(coord)
+                    comp_d = {el: occu}
+                    if num_h > 0:
+                        comp_d["H"] = num_h
+                        self.warnings.append(
+                            "Structure has implicit hydrogens defined, "
+                            "parsed structure unlikely to be suitable for use "
+                            "in calculations unless hydrogens added."
+                        )
+                    comp = Composition(comp_d)
+                    if not match:
+                        coord_to_species[coord] = comp
+                        coord_to_magmoms[coord] = magmom
+                    else:
+                        coord_to_species[match] += comp
+                        # disordered magnetic not currently supported
+                        coord_to_magmoms[match] = None
 
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
@@ -1087,6 +1127,11 @@ class CifParser:
                 site_properties = None
 
             struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+            if skip_checks:
+                struct_2 = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+                for i, site in enumerate(struct_2):
+                    struct_2[i] = PeriodicSite(allspecies_noedit[i], allcoords[i], lattice, properties=site_properties,
+                                               skip_checks=True)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
@@ -1097,10 +1142,21 @@ class CifParser:
                 # What is stored are the lists of symmetry operations used to generate the structure
                 # TODO: ensure space group labels are stored if present
                 sg = SpacegroupOperations("Not Parsed", -1, self.symmetry_operations)
+                struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
+                if skip_checks:
+                    struct_2 = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
+                    for i, site in enumerate(struct_2):
+                        struct_2[i] = PeriodicSite(allspecies_noedit[i], allcoords[i], lattice,
+                                                   properties=site_properties,
+                                                   skip_checks=True)
+                    return struct_2
+                else:
+                    return struct
 
-                return SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
-
-            struct = struct.get_sorted_structure()
+            if skip_checks:
+                return struct_2
+            else:
+                struct = struct.get_sorted_structure()
 
             if primitive and self.feature_flags["magcif"]:
                 struct = struct.get_primitive_structure(use_site_props=True)
@@ -1110,7 +1166,7 @@ class CifParser:
 
             return struct
 
-    def get_structures(self, primitive=True, symmetrized=False):
+    def get_structures(self, primitive=True, symmetrized=False, skip_checks=False):
         """
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
@@ -1127,10 +1183,15 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
+            skip_checks (bool): If True, the occupancy of the periodic sites will
+                not be checked, allowing for aphysical values to be accepted.
 
         Returns:
             List of Structures.
         """
+        if skip_checks:
+            warnings.warn("Structures with aphysical site occupancies are not compatible with many pymatgen features.")
+
         if primitive and symmetrized:
             raise ValueError(
                 "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
@@ -1140,7 +1201,7 @@ class CifParser:
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                s = self._get_structure(d, primitive, symmetrized)
+                s = self._get_structure(d, primitive, symmetrized, skip_checks)
                 if s:
                     structures.append(s)
             except (KeyError, ValueError) as exc:
