@@ -1,15 +1,16 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module provides input and output from the CSSR file format.
 """
 
+from __future__ import annotations
+
 import re
 
 from monty.io import zopen
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -33,20 +34,20 @@ class Cssr:
             structure (Structure/IStructure): A structure to create the Cssr object.
         """
         if not structure.is_ordered:
-            raise ValueError("Cssr file can only be constructed from ordered "
-                             "structure")
+            raise ValueError("Cssr file can only be constructed from ordered structure")
         self.structure = structure
 
     def __str__(self):
-        output = ["{:.4f} {:.4f} {:.4f}"
-                  .format(*self.structure.lattice.abc),
-                  "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
-                  .format(*self.structure.lattice.angles),
-                  "{} 0".format(len(self.structure)),
-                  "0 {}".format(self.structure.formula)]
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
+        output = [
+            f"{a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.2f} {beta:.2f} {gamma:.2f} SPGR =  1 P 1    OPT = 1",
+            f"{len(self.structure)} 0",
+            f"0 {self.structure.formula}",
+        ]
         for i, site in enumerate(self.structure.sites):
-            output.append("{} {} {:.4f} {:.4f} {:.4f}"
-                          .format(i + 1, site.specie, site.a, site.b, site.c))
+            output.append(f"{i + 1} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
         return "\n".join(output)
 
     def write_file(self, filename):
@@ -56,7 +57,7 @@ class Cssr:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, 'wt') as f:
+        with zopen(filename, "wt") as f:
             f.write(str(self) + "\n")
 
     @staticmethod
@@ -79,9 +80,7 @@ class Cssr:
         sp = []
         coords = []
         for l in lines[4:]:
-            m = re.match(
-                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
-                l.strip())
+            m = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", l.strip())
             if m:
                 sp.append(m.group(1))
                 coords.append([float(m.group(i)) for i in range(2, 5)])

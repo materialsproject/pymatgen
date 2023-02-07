@@ -1,0 +1,123 @@
+# Runs the complete test suite incl. many external command line dependencies (like Openbabel)
+# as well as the pymatgen.ext package. Coverage is computed based on this workflow.
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        options: [tests, release]
+        default: tests
+        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.8']
+        # pytest-split automatically distributes work load so parallel jobs finish in similar time
+        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
+      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: setup.py
+      - name: Add CLIs to GITHUB_PATH
+        if: runner.os != 'Windows'
+        # This is the way to update env variables in a way that persist for the entire job.
+        run: |
+          for pkg in cmd_line/*;
+            do echo "$(pwd)/cmd_line/$pkg/Linux_64bit" >> "$GITHUB_PATH";
+          done
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install m3gnet
+          python -m pip install -e '.[dev,optional]'
+      - name: pytest split ${{ matrix.split }}
+        # to update the test durations, run
+        # pytest --store-durations --durations-path test_files/.pytest-split-durations
+        # and commit the results
+        run: |
+          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path test_files/.pytest-split-durations
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-${{ matrix.split }}
+          path: .coverage
+
+  coverage:
+    needs: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Coverage
+        run: python -m pip install coverage
+      - name: Download coverage artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v3
+      - name: Run coverage
+        continue-on-error: true
+        run: |
+          coverage combine coverage*/.coverage*
+          coverage report
+          coverage xml
+      - name: Coveralls Python
+        continue-on-error: true
+        uses: AndreMiras/coveralls-python-action@v20201129
+
+  release:
+    needs: pytest
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10']
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: setup.py
+      - name: Release
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        run: |
+          python -m pip install --upgrade pip twine build
+          python -m build
+          python -m twine upload --skip-existing dist/*.whl dist/*.tar.gz

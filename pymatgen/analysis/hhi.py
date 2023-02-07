@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -13,20 +12,24 @@ Performance and Resource Considerations" by Gaultois et al., published
 in Chemistry of Materials (2013).
 """
 
+from __future__ import annotations
+
 import os
+
 from monty.design_patterns import singleton
-from pymatgen import Element, Composition
 
-__author__ = 'Anubhav Jain'
-__copyright__ = 'Copyright 2014, The Materials Project'
-__version__ = '0.1'
-__maintainer__ = 'Anubhav Jain'
-__email__ = 'ajain@lbl.gov'
-__date__ = 'Oct 27, 2014'
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+
+__author__ = "Anubhav Jain"
+__copyright__ = "Copyright 2014, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Anubhav Jain"
+__email__ = "ajain@lbl.gov"
+__date__ = "Oct 27, 2014"
 
 
-csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        'hhi_data.csv')
+csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hhi_data.csv")
 
 
 @singleton
@@ -44,9 +47,11 @@ class HHIModel:
         with open(csv_path) as f:
             for line in f:
                 if line[0] != "#":
-                    symbol, hhi_production, hhi_reserve = line.split(',')
-                    self.symbol_hhip_hhir[symbol] = (float(hhi_production),
-                                                     float(hhi_reserve))
+                    symbol, hhi_production, hhi_reserve = line.split(",")
+                    self.symbol_hhip_hhir[symbol] = (
+                        float(hhi_production),
+                        float(hhi_reserve),
+                    )
 
     def _get_hhi_el(self, el_or_symbol):
         """
@@ -55,8 +60,10 @@ class HHIModel:
         if isinstance(el_or_symbol, Element):
             el_or_symbol = el_or_symbol.symbol
 
-        return (self.symbol_hhip_hhir[el_or_symbol][0],
-                self.symbol_hhip_hhir[el_or_symbol][1])
+        return (
+            self.symbol_hhip_hhir[el_or_symbol][0],
+            self.symbol_hhip_hhir[el_or_symbol][1],
+        )
 
     def get_hhi(self, comp_or_form):
         """
@@ -68,7 +75,6 @@ class HHIModel:
         Returns:
             A tuple representing the (HHI_production, HHI_reserve)
         """
-
         try:
             if not isinstance(comp_or_form, Composition):
                 comp_or_form = Composition(comp_or_form)
@@ -110,7 +116,8 @@ class HHIModel:
         """
         return self.get_hhi(comp_or_form)[1]
 
-    def get_hhi_designation(self, hhi):
+    @staticmethod
+    def get_hhi_designation(hhi):
         """
         Gets a designation for low, medium, high HHI, as specified in "U.S.
         Department of Justice and the Federal Trade Commission, Horizontal
@@ -122,15 +129,13 @@ class HHIModel:
         Returns:
             The designation as String
         """
-
         if hhi is None:
             return None
 
         if 0 <= hhi < 1500:
-            return 'low'
+            return "low"
 
         if 1500 <= hhi <= 2500:
-            return 'medium'
+            return "medium"
 
-        if hhi > 2500:
-            return 'high'
+        return "high"

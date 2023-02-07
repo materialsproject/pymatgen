@@ -1,10 +1,11 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
 Magnetic space groups.
 """
+
+from __future__ import annotations
 
 import os
 import sqlite3
@@ -15,6 +16,7 @@ from fractions import Fraction
 import numpy as np
 from monty.design_patterns import cached_class
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
@@ -22,12 +24,7 @@ from pymatgen.symmetry.settings import JonesFaithfulTransformation
 from pymatgen.util.string import transformation_to_string
 
 __author__ = "Matthew Horton, Shyue Ping Ong"
-__copyright__ = "Copyright 2017, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Matthew Horton"
-__email__ = "mkhorton@lbl.gov"
-__status__ = "Beta"
-__date__ = "Feb 2017"
+
 
 MAGSYMM_DATA = os.path.join(os.path.dirname(__file__), "symm_data_magnetic.sqlite")
 
@@ -37,6 +34,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     """
     Representation of a magnetic space group.
     """
+
     def __init__(self, id, setting_transformation="a,b,c;0,0,0"):
         """
         Initializes a MagneticSpaceGroup from its Belov, Neronova and
@@ -57,13 +55,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         where G = magnetic space group, and F = parent crystallographic
         space group:
 
-        1.  G=F no time reversal, i.e. the same as corresponding
+        1. G=F no time reversal, i.e. the same as corresponding
             crystallographic group
-        2.  G=F+F1', "grey" groups, where avg. magnetic moment is zero,
+        2. G=F+F1', "grey" groups, where avg. magnetic moment is zero,
             e.g. a paramagnet in zero ext. mag. field
-        3.  G=D+(F-D)1', where D is an equi-translation subgroup of F of
+        3. G=D+(F-D)1', where D is an equi-translation subgroup of F of
             index 2, lattice translations do not include time reversal
-        4.  G=D+(F-D)1', where D is an equi-class subgroup of F of index 2
+        4. G=D+(F-D)1', where D is an equi-class subgroup of F of index 2
 
         There are two common settings for magnetic space groups, BNS
         and OG. In case 4, the BNS setting != OG setting, and so a
@@ -97,8 +95,8 @@ class MagneticSpaceGroup(SymmetryGroup):
         information on magnetic symmetry.
 
         :param id: BNS number supplied as list of 2 ints or BNS label as
-            str or index as int (1-1651) to iterate over all space groups"""
-
+            str or index as int (1-1651) to iterate over all space groups
+        """
         self._data = {}
 
         # Datafile is stored as sqlite3 database since (a) it can be easily
@@ -113,12 +111,12 @@ class MagneticSpaceGroup(SymmetryGroup):
         c = db.cursor()
         if isinstance(id, str):
             id = "".join(id.split())  # remove any white space
-            c.execute('SELECT * FROM space_groups WHERE BNS_label=?;', (id,))
+            c.execute("SELECT * FROM space_groups WHERE BNS_label=?;", (id,))
         elif isinstance(id, list):
-            c.execute('SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;', (id[0], id[1]))
+            c.execute("SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;", (id[0], id[1]))
         elif isinstance(id, int):
             # OG3 index is a 'master' index, going from 1 to 1651
-            c.execute('SELECT * FROM space_groups WHERE OG3=?;', (id,))
+            c.execute("SELECT * FROM space_groups WHERE OG3=?;", (id,))
         raw_data = list(c.fetchone())
 
         # Jones Faithful transformation
@@ -130,25 +128,31 @@ class MagneticSpaceGroup(SymmetryGroup):
             if setting_transformation != self.jf:
                 self.jf = setting_transformation
 
-        self._data['magtype'] = raw_data[0]  # int from 1 to 4
-        self._data['bns_number'] = [raw_data[1], raw_data[2]]
-        self._data['bns_label'] = raw_data[3]
-        self._data['og_number'] = [raw_data[4], raw_data[5], raw_data[6]]
-        self._data['og_label'] = raw_data[7]  # can differ from BNS_label
+        self._data["magtype"] = raw_data[0]  # int from 1 to 4
+        self._data["bns_number"] = [raw_data[1], raw_data[2]]
+        self._data["bns_label"] = raw_data[3]
+        self._data["og_number"] = [raw_data[4], raw_data[5], raw_data[6]]
+        self._data["og_label"] = raw_data[7]  # can differ from BNS_label
 
         def _get_point_operator(idx):
             """Retrieve information on point operator (rotation matrix and Seitz label)."""
-            hex = self._data['bns_number'][0] >= 143 and self._data['bns_number'][0] <= 194
-            c.execute('SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;', (idx - 1, hex))
+            hex = self._data["bns_number"][0] >= 143 and self._data["bns_number"][0] <= 194
+            c.execute(
+                "SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;",
+                (idx - 1, hex),
+            )
             op = c.fetchone()
-            op = {'symbol': op[0], 'matrix': np.array(op[1].split(','), dtype='f').reshape(3, 3)}
+            op = {
+                "symbol": op[0],
+                "matrix": np.array(op[1].split(","), dtype="f").reshape(3, 3),
+            }
             return op
 
         def _parse_operators(b):
             """Parses compact binary representation into list of MagSymmOps."""
             if len(b) == 0:  # e.g. if magtype != 4, OG setting == BNS setting, and b == [] for OG symmops
                 return None
-            raw_symops = [b[i:i + 6] for i in range(0, len(b), 6)]
+            raw_symops = [b[i : i + 6] for i in range(0, len(b), 6)]
 
             symops = []
 
@@ -156,17 +160,19 @@ class MagneticSpaceGroup(SymmetryGroup):
                 point_operator = _get_point_operator(r[0])
                 translation_vec = [r[1] / r[4], r[2] / r[4], r[3] / r[4]]
                 time_reversal = r[5]
-                op = MagSymmOp.from_rotation_and_translation_and_time_reversal(rotation_matrix=point_operator['matrix'],
-                                                                               translation_vec=translation_vec,
-                                                                               time_reversal=time_reversal)
+                op = MagSymmOp.from_rotation_and_translation_and_time_reversal(
+                    rotation_matrix=point_operator["matrix"],
+                    translation_vec=translation_vec,
+                    time_reversal=time_reversal,
+                )
                 # store string representation, e.g. (2x|1/2,1/2,1/2)'
-                seitz = '({0}|{1},{2},{3})'.format(point_operator['symbol'],
-                                                   Fraction(translation_vec[0]),
-                                                   Fraction(translation_vec[1]),
-                                                   Fraction(translation_vec[2]))
+                seitz = (
+                    f"({point_operator['symbol']}|"
+                    f"{Fraction(translation_vec[0])},{Fraction(translation_vec[1])},{Fraction(translation_vec[2])})"
+                )
                 if time_reversal == -1:
-                    seitz += '\''
-                symops.append({'op': op, 'str': seitz})
+                    seitz += "'"
+                symops.append({"op": op, "str": seitz})
 
             return symops
 
@@ -180,7 +186,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             def get_label(idx):
                 if idx <= 25:
                     return chr(97 + idx)  # returns a-z when idx 0-25
-                return 'alpha'  # when a-z labels exhausted, use alpha, only relevant for a few space groups
+                return "alpha"  # when a-z labels exhausted, use alpha, only relevant for a few space groups
 
             o = 0  # offset
             n = 1  # nth Wyckoff site
@@ -190,26 +196,35 @@ class MagneticSpaceGroup(SymmetryGroup):
                 label = str(b[2 + o] * m) + get_label(num_wyckoff - n)
                 sites = []
                 for j in range(m):
-                    s = b[3 + o + (j * 22):3 + o + (j * 22) + 22]  # data corresponding to specific Wyckoff position
+                    s = b[3 + o + (j * 22) : 3 + o + (j * 22) + 22]  # data corresponding to specific Wyckoff position
                     translation_vec = [s[0] / s[3], s[1] / s[3], s[2] / s[3]]
-                    matrix = [[s[4], s[7], s[10]],
-                              [s[5], s[8], s[11]],
-                              [s[6], s[9], s[12]]]
-                    matrix_magmom = [[s[13], s[16], s[19]],
-                                     [s[14], s[17], s[20]],
-                                     [s[15], s[18], s[21]]]
+                    matrix = [
+                        [s[4], s[7], s[10]],
+                        [s[5], s[8], s[11]],
+                        [s[6], s[9], s[12]],
+                    ]
+                    matrix_magmom = [
+                        [s[13], s[16], s[19]],
+                        [s[14], s[17], s[20]],
+                        [s[15], s[18], s[21]],
+                    ]
                     # store string representation, e.g. (x,y,z;mx,my,mz)
-                    wyckoff_str = "({};{})".format(transformation_to_string(matrix, translation_vec),
-                                                   transformation_to_string(matrix_magmom, c='m'))
-                    sites.append({'translation_vec': translation_vec,
-                                  'matrix': matrix,
-                                  'matrix_magnetic': matrix_magmom,
-                                  'str': wyckoff_str})
+                    wyckoff_str = (
+                        f"({transformation_to_string(matrix, translation_vec)};"
+                        f"{transformation_to_string(matrix_magmom, c='m')})"
+                    )
+                    sites.append(
+                        {
+                            "translation_vec": translation_vec,
+                            "matrix": matrix,
+                            "matrix_magnetic": matrix_magmom,
+                            "str": wyckoff_str,
+                        }
+                    )
 
                 # only keeping string representation of Wyckoff sites for now
                 # could do something else with these in future
-                wyckoff_sites.append({'label': label,
-                                      'str': ' '.join([s['str'] for s in sites])})
+                wyckoff_sites.append({"label": label, "str": " ".join(s["str"] for s in sites)})
                 n += 1
                 o += m * 22 + 2
 
@@ -219,15 +234,19 @@ class MagneticSpaceGroup(SymmetryGroup):
             """Parses compact binary representation into list of lattice vectors/centerings."""
             if len(b) == 0:
                 return None
-            raw_lattice = [b[i:i + 4] for i in range(0, len(b), 4)]
+            raw_lattice = [b[i : i + 4] for i in range(0, len(b), 4)]
 
             lattice = []
 
             for r in raw_lattice:
-                lattice.append({'vector': [r[0] / r[3], r[1] / r[3], r[2] / r[3]],
-                                'str': '({0},{1},{2})+'.format(Fraction(r[0] / r[3]).limit_denominator(),
-                                                               Fraction(r[1] / r[3]).limit_denominator(),
-                                                               Fraction(r[2] / r[3]).limit_denominator())})
+                lattice.append(
+                    {
+                        "vector": [r[0] / r[3], r[1] / r[3], r[2] / r[3]],
+                        "str": f"({Fraction(r[0] / r[3]).limit_denominator()},"
+                        f"{Fraction(r[1] / r[3]).limit_denominator()},"
+                        f"{Fraction(r[2] / r[3]).limit_denominator()})+",
+                    }
+                )
 
             return lattice
 
@@ -237,31 +256,31 @@ class MagneticSpaceGroup(SymmetryGroup):
                 return None
             # capital letters used here by convention,
             # IUCr defines P and p specifically
-            P = [[b[0], b[3], b[6]],
-                 [b[1], b[4], b[7]],
-                 [b[2], b[5], b[8]]]
+            P = [[b[0], b[3], b[6]], [b[1], b[4], b[7]], [b[2], b[5], b[8]]]
             p = [b[9] / b[12], b[10] / b[12], b[11] / b[12]]
             P = np.array(P).transpose()
-            P_string = transformation_to_string(P, components=('a', 'b', 'c'))
-            p_string = "{},{},{}".format(Fraction(p[0]).limit_denominator(),
-                                         Fraction(p[1]).limit_denominator(),
-                                         Fraction(p[2]).limit_denominator())
+            P_string = transformation_to_string(P, components=("a", "b", "c"))
+            p_string = (
+                f"{Fraction(p[0]).limit_denominator()},"
+                f"{Fraction(p[1]).limit_denominator()},"
+                f"{Fraction(p[2]).limit_denominator()}"
+            )
             return P_string + ";" + p_string
 
         for i in range(8, 15):
             try:
-                raw_data[i] = array('b', raw_data[i])  # construct array from sql binary blobs
+                raw_data[i] = array("b", raw_data[i])  # construct array from sql binary blobs
             except Exception:
                 # array() behavior changed, need to explicitly convert buffer to str in earlier Python
-                raw_data[i] = array('b', str(raw_data[i]))
+                raw_data[i] = array("b", str(raw_data[i]))
 
-        self._data['og_bns_transform'] = _parse_transformation(raw_data[8])
-        self._data['bns_operators'] = _parse_operators(raw_data[9])
-        self._data['bns_lattice'] = _parse_lattice(raw_data[10])
-        self._data['bns_wyckoff'] = _parse_wyckoff(raw_data[11])
-        self._data['og_operators'] = _parse_operators(raw_data[12])
-        self._data['og_lattice'] = _parse_lattice(raw_data[13])
-        self._data['og_wyckoff'] = _parse_wyckoff(raw_data[14])
+        self._data["og_bns_transform"] = _parse_transformation(raw_data[8])
+        self._data["bns_operators"] = _parse_operators(raw_data[9])
+        self._data["bns_lattice"] = _parse_lattice(raw_data[10])
+        self._data["bns_wyckoff"] = _parse_wyckoff(raw_data[11])
+        self._data["og_operators"] = _parse_operators(raw_data[12])
+        self._data["og_lattice"] = _parse_lattice(raw_data[13])
+        self._data["og_wyckoff"] = _parse_wyckoff(raw_data[14])
 
         db.close()
 
@@ -274,19 +293,23 @@ class MagneticSpaceGroup(SymmetryGroup):
             or OG label as str
         :return:
         """
-
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
         if isinstance(id, str):
-            c.execute('SELECT BNS_label FROM space_groups WHERE OG_label=?', (id,))
+            c.execute("SELECT BNS_label FROM space_groups WHERE OG_label=?", (id,))
         elif isinstance(id, list):
-            c.execute('SELECT BNS_label FROM space_groups WHERE OG1=? and OG2=? and OG3=?', (id[0], id[1], id[2]))
+            c.execute(
+                "SELECT BNS_label FROM space_groups WHERE OG1=? and OG2=? and OG3=?",
+                (id[0], id[1], id[2]),
+            )
         bns_label = c.fetchone()[0]
         db.close()
 
         return cls(bns_label)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return self._data == other._data
 
     @property
@@ -322,21 +345,21 @@ class MagneticSpaceGroup(SymmetryGroup):
         Retrieve magnetic symmetry operations of the space group.
         :return: List of :class:`pymatgen.core.operations.MagSymmOp`
         """
-        ops = [op_data['op'] for op_data in self._data['bns_operators']]
+        ops = [op_data["op"] for op_data in self._data["bns_operators"]]
 
         # add lattice centerings
         centered_ops = []
-        lattice_vectors = [l['vector'] for l in self._data['bns_lattice']]
+        lattice_vectors = [l["vector"] for l in self._data["bns_lattice"]]
 
         for vec in lattice_vectors:
-            if not (np.array_equal(vec, [1, 0, 0])
-                    or np.array_equal(vec, [0, 1, 0])
-                    or np.array_equal(vec, [0, 0, 1])):
+            if not (np.array_equal(vec, [1, 0, 0]) or np.array_equal(vec, [0, 1, 0]) or np.array_equal(vec, [0, 0, 1])):
                 for op in ops:
                     new_vec = op.translation_vector + vec
-                    new_op = MagSymmOp.from_rotation_and_translation_and_time_reversal(op.rotation_matrix,
-                                                                                       translation_vec=new_vec,
-                                                                                       time_reversal=op.time_reversal)
+                    new_op = MagSymmOp.from_rotation_and_translation_and_time_reversal(
+                        op.rotation_matrix,
+                        translation_vec=new_vec,
+                        time_reversal=op.time_reversal,
+                    )
                     centered_ops.append(new_op)
 
         ops = ops + centered_ops
@@ -346,7 +369,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         return ops
 
-    def get_orbit(self, p, m, tol=1e-5):
+    def get_orbit(self, p, magmom, tol: float = 1e-5):
         """
         Returns the orbit for a point and its associated magnetic moment.
 
@@ -359,21 +382,21 @@ class MagneticSpaceGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            (([array], [array])) Tuple of orbit for point and magnetic moments for orbit.
+            tuple[list, list]: orbit for point and magnetic moments for orbit.
         """
-        orbit = []
+        orbit: list[np.ndarray] = []
         orbit_magmoms = []
-        m = Magmom(m)
-        for o in self.symmetry_ops:
-            pp = o.operate(p)
+        magmom = Magmom(magmom)
+        for sym_op in self.symmetry_ops:
+            pp = sym_op.operate(p)
             pp = np.mod(np.round(pp, decimals=10), 1)
-            mm = o.operate_magmom(m)
+            mm = sym_op.operate_magmom(magmom)
             if not in_array_list(orbit, pp, tol=tol):
                 orbit.append(pp)
                 orbit_magmoms.append(mm)
         return orbit, orbit_magmoms
 
-    def is_compatible(self, lattice, tol=1e-5, angle_tol=5):
+    def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
         """
         Checks whether a particular lattice is compatible with the
         *conventional* unit cell.
@@ -383,6 +406,9 @@ class MagneticSpaceGroup(SymmetryGroup):
             tol (float): The tolerance to check for equality of lengths.
             angle_tol (float): The tolerance to check for equality of angles
                 in degrees.
+
+        Returns:
+            bool: True if the lattice is compatible with the conventional cell.
         """
         # function from pymatgen.symmetry.groups.SpaceGroup
         abc = lattice.lengths
@@ -390,8 +416,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
-            return all([abs(i - j) < tolerance for i, j in zip(param, ref)
-                        if j is not None])
+            return all(abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None)
 
         if crys_system == "cubic":
             a = abc[0]
@@ -416,7 +441,6 @@ class MagneticSpaceGroup(SymmetryGroup):
         Get description of all data, including information for OG setting.
         :return: str
         """
-
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
         # all stored data including OG setting
@@ -429,70 +453,98 @@ class MagneticSpaceGroup(SymmetryGroup):
         # indicate if non-standard setting specified
         if self.jf != JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0"):
             description += "Non-standard setting: .....\n"
-            description += self.jf.__repr__()
+            description += repr(self.jf)
             description += "\n\nStandard setting information: \n"
 
-        desc['magtype'] = self._data['magtype']
-        desc['bns_number'] = ".".join(map(str, self._data["bns_number"]))
-        desc['bns_label'] = self._data["bns_label"]
-        desc['og_id'] = ("\t\tOG: " + ".".join(map(str, self._data["og_number"])) + " " + self._data["og_label"]
-                         if include_og else '')
-        desc['bns_operators'] = ' '.join([op_data['str'] for op_data in self._data['bns_operators']])
+        desc["magtype"] = self._data["magtype"]
+        desc["bns_number"] = ".".join(map(str, self._data["bns_number"]))
+        desc["bns_label"] = self._data["bns_label"]
+        desc["og_id"] = (
+            "\t\tOG: " + ".".join(map(str, self._data["og_number"])) + " " + self._data["og_label"]
+            if include_og
+            else ""
+        )
+        desc["bns_operators"] = " ".join(op_data["str"] for op_data in self._data["bns_operators"])
 
-        desc['bns_lattice'] = (' '.join([lattice_data['str'] for lattice_data in self._data['bns_lattice'][3:]])
-                               if len(self._data['bns_lattice']) > 3 else '')  # don't show (1,0,0)+ (0,1,0)+ (0,0,1)+
+        desc["bns_lattice"] = (
+            " ".join(lattice_data["str"] for lattice_data in self._data["bns_lattice"][3:])
+            if len(self._data["bns_lattice"]) > 3
+            else ""
+        )  # don't show (1,0,0)+ (0,1,0)+ (0,0,1)+
 
-        desc['bns_wyckoff'] = '\n'.join([textwrap.fill(wyckoff_data['str'],
-                                                       initial_indent=wyckoff_data['label'] + "  ",
-                                                       subsequent_indent=" " * len(wyckoff_data['label'] + "  "),
-                                                       break_long_words=False, break_on_hyphens=False)
-                                         for wyckoff_data in self._data['bns_wyckoff']])
+        desc["bns_wyckoff"] = "\n".join(
+            [
+                textwrap.fill(
+                    wyckoff_data["str"],
+                    initial_indent=wyckoff_data["label"] + "  ",
+                    subsequent_indent=" " * len(wyckoff_data["label"] + "  "),
+                    break_long_words=False,
+                    break_on_hyphens=False,
+                )
+                for wyckoff_data in self._data["bns_wyckoff"]
+            ]
+        )
 
-        desc['og_bns_transformation'] = ('OG-BNS Transform: ({})\n'.format(self._data['og_bns_transform'])
-                                         if desc['magtype'] == 4 and include_og else '')
+        desc["og_bns_transformation"] = (
+            f"OG-BNS Transform: ({self._data['og_bns_transform']})\n" if desc["magtype"] == 4 and include_og else ""
+        )
 
-        bns_operators_prefix = "Operators{}: ".format(' (BNS)' if desc['magtype'] == 4 and include_og else '')
-        bns_wyckoff_prefix = "Wyckoff Positions{}: ".format(' (BNS)' if desc['magtype'] == 4 and include_og else '')
+        bns_operators_prefix = f"Operators{' (BNS)' if desc['magtype'] == 4 and include_og else ''}: "
+        bns_wyckoff_prefix = f"Wyckoff Positions{' (BNS)' if desc['magtype'] == 4 and include_og else ''}: "
 
         # apply textwrap on long lines
-        desc['bns_operators'] = textwrap.fill(desc['bns_operators'],
-                                              initial_indent=bns_operators_prefix,
-                                              subsequent_indent=" " * len(bns_operators_prefix),
-                                              break_long_words=False, break_on_hyphens=False)
+        desc["bns_operators"] = textwrap.fill(
+            desc["bns_operators"],
+            initial_indent=bns_operators_prefix,
+            subsequent_indent=" " * len(bns_operators_prefix),
+            break_long_words=False,
+            break_on_hyphens=False,
+        )
 
-        description += ("BNS: {d[bns_number]} {d[bns_label]}{d[og_id]}\n"
-                        "{d[og_bns_transformation]}"
-                        "{d[bns_operators]}\n"
-                        "{bns_wyckoff_prefix}{d[bns_lattice]}\n"
-                        "{d[bns_wyckoff]}").format(d=desc, bns_wyckoff_prefix=bns_wyckoff_prefix)
+        description += (
+            "BNS: {d[bns_number]} {d[bns_label]}{d[og_id]}\n"
+            "{d[og_bns_transformation]}"
+            "{d[bns_operators]}\n"
+            "{bns_wyckoff_prefix}{d[bns_lattice]}\n"
+            "{d[bns_wyckoff]}"
+        ).format(d=desc, bns_wyckoff_prefix=bns_wyckoff_prefix)
 
-        if desc['magtype'] == 4 and include_og:
-
-            desc['og_operators'] = ' '.join([op_data['str'] for op_data in self._data['og_operators']])
+        if desc["magtype"] == 4 and include_og:
+            desc["og_operators"] = " ".join(op_data["str"] for op_data in self._data["og_operators"])
 
             # include all lattice vectors because (1,0,0)+ (0,1,0)+ (0,0,1)+
             # not always present in OG setting
-            desc['og_lattice'] = ' '.join([lattice_data['str'] for lattice_data in self._data['og_lattice']])
+            desc["og_lattice"] = " ".join(lattice_data["str"] for lattice_data in self._data["og_lattice"])
 
-            desc['og_wyckoff'] = '\n'.join([textwrap.fill(wyckoff_data['str'],
-                                                          initial_indent=wyckoff_data['label'] + "  ",
-                                                          subsequent_indent=" " * len(wyckoff_data['label'] + "  "),
-                                                          break_long_words=False, break_on_hyphens=False)
-                                            for wyckoff_data in self._data['og_wyckoff']])
+            desc["og_wyckoff"] = "\n".join(
+                [
+                    textwrap.fill(
+                        wyckoff_data["str"],
+                        initial_indent=wyckoff_data["label"] + "  ",
+                        subsequent_indent=" " * len(wyckoff_data["label"] + "  "),
+                        break_long_words=False,
+                        break_on_hyphens=False,
+                    )
+                    for wyckoff_data in self._data["og_wyckoff"]
+                ]
+            )
 
             og_operators_prefix = "Operators (OG): "
 
             # apply textwrap on long lines
-            desc['og_operators'] = textwrap.fill(desc['og_operators'],
-                                                 initial_indent=og_operators_prefix,
-                                                 subsequent_indent=" " * len(og_operators_prefix),
-                                                 break_long_words=False, break_on_hyphens=False)
+            desc["og_operators"] = textwrap.fill(
+                desc["og_operators"],
+                initial_indent=og_operators_prefix,
+                subsequent_indent=" " * len(og_operators_prefix),
+                break_long_words=False,
+                break_on_hyphens=False,
+            )
 
-            description += ("\n{d[og_operators]}\n"
-                            "Wyckoff Positions (OG): {d[og_lattice]}\n"
-                            "{d[og_wyckoff]}").format(d=desc)
-        elif desc['magtype'] == 4:
-            description += '\nAlternative OG setting exists for this space group.'
+            description += ("\n{d[og_operators]}\nWyckoff Positions (OG): {d[og_lattice]}\n" "{d[og_wyckoff]}").format(
+                d=desc
+            )
+        elif desc["magtype"] == 4:
+            description += "\nAlternative OG setting exists for this space group."
 
         return description
 
@@ -513,15 +565,16 @@ def _write_all_magnetic_space_groups_to_file(filename):
     :param filename:
     :return:
     """
-    s = ('Data parsed from raw data from:\n'
-         'ISO-MAG, ISOTROPY Software Suite, iso.byu.edu\n'
-         'http://stokes.byu.edu/iso/magnetic_data.txt\n'
-         'Used with kind permission from Professor Branton Campbell, BYU\n\n')
+    s = (
+        "Data parsed from raw data from:\n"
+        "ISO-MAG, ISOTROPY Software Suite, iso.byu.edu\n"
+        "http://stokes.byu.edu/iso/magnetic_data.txt\n"
+        "Used with kind permission from Professor Branton Campbell, BYU\n\n"
+    )
     all_msgs = []
     for i in range(1, 1652):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
-        s += '\n{}\n\n--------\n'.format(msg.data_str())
-    f = open(filename, 'w')
-    f.write(s)
-    f.close()
+        s += f"\n{msg.data_str()}\n\n--------\n"
+    with open(filename, "w") as f:
+        f.write(s)

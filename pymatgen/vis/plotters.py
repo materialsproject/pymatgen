@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,8 +5,10 @@
 This module defines generic plotters.
 """
 
-import collections
+from __future__ import annotations
+
 import importlib
+
 from pymatgen.util.plotting import pretty_plot
 
 
@@ -29,8 +30,7 @@ class SpectrumPlotter:
         plotter.add_spectra({"dos1": dos1, "dos2": dos2})
     """
 
-    def __init__(self, xshift=0.0, yshift=0.0, stack=False,
-                 color_cycle=("qualitative", "Set1_9")):
+    def __init__(self, xshift=0.0, yshift=0.0, stack=False, color_cycle=("qualitative", "Set1_9")):
         """
         Args:
             xshift (float): A shift that is applied to the x values. This is
@@ -50,11 +50,10 @@ class SpectrumPlotter:
         self.yshift = yshift
         self.stack = stack
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" %
-                                      color_cycle[0])
+        mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         self.colors_cycle = getattr(mod, color_cycle[1]).mpl_colors
         self.colors = []
-        self._spectra = collections.OrderedDict()
+        self._spectra = {}
 
     def add_spectrum(self, label, spectrum, color=None):
         """
@@ -68,9 +67,7 @@ class SpectrumPlotter:
                 the default color cycle.
         """
         self._spectra[label] = spectrum
-        self.colors.append(
-            color or
-            self.colors_cycle[len(self._spectra) % len(self.colors_cycle)])
+        self.colors.append(color or self.colors_cycle[len(self._spectra) % len(self.colors_cycle)])
 
     def add_spectra(self, spectra_dict, key_sort_func=None):
         """
@@ -82,9 +79,9 @@ class SpectrumPlotter:
             key_sort_func: function used to sort the dos_dict keys.
         """
         if key_sort_func:
-            keys = sorted(spectra_dict.keys(), key=key_sort_func)
+            keys = sorted(spectra_dict, key=key_sort_func)
         else:
-            keys = spectra_dict.keys()
+            keys = list(spectra_dict)
         for label in keys:
             self.add_spectra(label, spectra_dict[label])
 
@@ -97,18 +94,27 @@ class SpectrumPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-
         plt = pretty_plot(12, 8)
         base = 0.0
         i = 0
         for key, sp in self._spectra.items():
             if not self.stack:
-                plt.plot(sp.x, sp.y + self.yshift * i, color=self.colors[i],
-                         label=str(key), linewidth=3)
+                plt.plot(
+                    sp.x,
+                    sp.y + self.yshift * i,
+                    color=self.colors[i],
+                    label=str(key),
+                    linewidth=3,
+                )
             else:
-                plt.fill_between(sp.x, base, sp.y + self.yshift * i,
-                                 color=self.colors[i],
-                                 label=str(key), linewidth=3)
+                plt.fill_between(
+                    sp.x,
+                    base,
+                    sp.y + self.yshift * i,
+                    color=self.colors[i],
+                    label=str(key),
+                    linewidth=3,
+                )
                 base = sp.y + base
             plt.xlabel(sp.XLABEL)
             plt.ylabel(sp.YLABEL)

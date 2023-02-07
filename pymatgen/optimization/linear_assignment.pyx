@@ -1,11 +1,15 @@
-# coding: utf-8
-
-from __future__ import division, unicode_literals
-
 """
 This module contains an algorithm to solve the Linear Assignment Problem
 """
 
+# isort: dont-add-imports
+
+import numpy as np
+
+cimport cython
+cimport numpy as np
+from libc.math cimport fabs
+from libc.stdlib cimport free, malloc
 
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -13,14 +17,6 @@ __version__ = "1.0"
 __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Jan 28, 2013"
-
-import numpy as np
-
-from libc.stdlib cimport malloc, free
-from libc.math cimport fabs
-cimport numpy as np
-cimport cython
-
 
 class LinearAssignment:
     """
@@ -51,13 +47,13 @@ class LinearAssignment:
     """
 
     def __init__(self, costs, epsilon=1e-13):
-        self.orig_c = np.array(costs, dtype=np.float_, copy=False, order='C')
+        self.orig_c = np.array(costs, dtype=np.float_, copy=False, order="C")
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
 
         self.epsilon = fabs(epsilon)
 
-        #check that cost matrix is square
+        # check that cost matrix is square
         if self.nx > self.ny:
             raise ValueError("cost matrix must have at least as many columns as rows")
 
@@ -67,9 +63,9 @@ class LinearAssignment:
             self.c = np.zeros((self.n, self.n), dtype=np.float_)
             self.c[:self.nx] = self.orig_c
 
-        #initialize solution vectors
-        self._x = np.empty(self.n, dtype=np.int)
-        self._y = np.empty(self.n, dtype=np.int)
+        # initialize solution vectors
+        self._x = np.empty(self.n, dtype=int)
+        self._y = np.empty(self.n, dtype=int)
 
         self.min_cost = compute(self.n, self.c, self._x, self._y, self.epsilon)
         self.solution = self._x[:self.nx]

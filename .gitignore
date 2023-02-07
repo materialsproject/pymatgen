@@ -10,6 +10,7 @@ dependencies/spglib*/build
 *.swp
 *.swo
 *.pyd
+*.c
 pymatgen/pymatgen.cfg
 dist
 _build
@@ -29,3 +30,12 @@ gulptmp_4_1
 .*_cache
 # VS Code
 .vscode/*
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/

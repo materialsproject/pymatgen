@@ -1,5 +1,7 @@
-pymatgen.analysis package
-=========================
+pymatgen.analysis namespace
+===========================
+
+.. py:module:: pymatgen.analysis
 
 Subpackages
 -----------
@@ -8,12 +10,13 @@ Subpackages
    :maxdepth: 7
 
    pymatgen.analysis.chemenv
-   pymatgen.analysis.defects
    pymatgen.analysis.diffraction
    pymatgen.analysis.elasticity
    pymatgen.analysis.ferroelectricity
    pymatgen.analysis.gb
+   pymatgen.analysis.interfaces
    pymatgen.analysis.magnetism
+   pymatgen.analysis.solar
    pymatgen.analysis.structure_prediction
    pymatgen.analysis.topological
    pymatgen.analysis.xas
@@ -27,14 +30,14 @@ Submodules
    pymatgen.analysis.adsorption
    pymatgen.analysis.bond_dissociation
    pymatgen.analysis.bond_valence
+   pymatgen.analysis.chempot_diagram
    pymatgen.analysis.cost
-   pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.dimensionality
+   pymatgen.analysis.disorder
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
    pymatgen.analysis.excitation
-   pymatgen.analysis.find_dimension
    pymatgen.analysis.fragmenter
    pymatgen.analysis.functional_groups
    pymatgen.analysis.graphs
@@ -60,11 +63,4 @@ Submodules
    pymatgen.analysis.thermochemistry
    pymatgen.analysis.transition_state
    pymatgen.analysis.wulff
-
-Module contents
----------------
-
-.. automodule:: pymatgen.analysis
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   pymatgen.analysis.xps

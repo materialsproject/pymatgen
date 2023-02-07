@@ -1,6 +1,13 @@
 pymatgen.analysis.elasticity package
 ====================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 7
+
+
 Submodules
 ----------
 

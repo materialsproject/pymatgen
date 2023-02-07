@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """
@@ -9,11 +8,12 @@ Part of this module is automatically generated so be careful when refactoring st
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
 
+from __future__ import annotations
+
 import json
 import os
-
-from io import open
 from enum import Enum
+
 from monty.json import MontyEncoder
 
 # The libxc version used to generate this file!
@@ -28,8 +28,7 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"),
-          "rt") as fh:
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
 
 
@@ -41,6 +40,7 @@ class LibxcFunc(Enum):
     This is a low level object, client code should not interact with LibxcFunc directly
     but use the API provided by Xcfunc.
     """
+
     # begin_include_dont_touch
     LDA_C_1D_CSC = 18
     LDA_C_1D_LOOS = 26
@@ -418,8 +418,7 @@ class LibxcFunc(Enum):
         self.family = info["Family"]
 
     def __str__(self):
-        return "name=%s, kind=%s, family=%s" % (
-            self.name, self.kind, self.family)
+        return f"name={self.name}, kind={self.kind}, family={self.family}"
 
     @staticmethod
     def all_families():
@@ -427,7 +426,7 @@ class LibxcFunc(Enum):
         List of strings with the libxc families.
         Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA
         """
-        return sorted(set(d["Family"] for d in _all_xcfuncs.values()))
+        return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
     @staticmethod
     def all_kinds():
@@ -436,7 +435,7 @@ class LibxcFunc(Enum):
         Also in this case, the string is obtained by remove the XC_ prefix.
         XC_CORRELATION --> CORRELATION
         """
-        return sorted(set(d["Kind"] for d in _all_xcfuncs.values()))
+        return sorted({d["Kind"] for d in _all_xcfuncs.values()})
 
     @property
     def info_dict(self):
@@ -444,47 +443,47 @@ class LibxcFunc(Enum):
         return _all_xcfuncs[self.value]
 
     @property
-    def is_x_kind(self):
+    def is_x_kind(self) -> bool:
         """True if this is an exchange-only functional"""
         return self.kind == "EXCHANGE"
 
     @property
-    def is_c_kind(self):
+    def is_c_kind(self) -> bool:
         """True if this is a correlation-only functional"""
         return self.kind == "CORRELATION"
 
     @property
-    def is_k_kind(self):
+    def is_k_kind(self) -> bool:
         """True if this is a kinetic functional"""
         return self.kind == "KINETIC"
 
     @property
-    def is_xc_kind(self):
+    def is_xc_kind(self) -> bool:
         """True if this is a exchange+correlation functional"""
         return self.kind == "EXCHANGE_CORRELATION"
 
     @property
-    def is_lda_family(self):
+    def is_lda_family(self) -> bool:
         """True if this functional belongs to the LDA family."""
         return self.family == "LDA"
 
     @property
-    def is_gga_family(self):
+    def is_gga_family(self) -> bool:
         """True if this functional belongs to the GGA family."""
         return self.family == "GGA"
 
     @property
-    def is_mgga_family(self):
+    def is_mgga_family(self) -> bool:
         """True if this functional belongs to the meta-GGA family."""
         return self.family == "MGGA"
 
     @property
-    def is_hyb_gga_family(self):
+    def is_hyb_gga_family(self) -> bool:
         """True if this functional belongs to the hybrid + GGA family."""
         return self.family == "HYB_GGA"
 
     @property
-    def is_hyb_mgga_family(self):
+    def is_hyb_mgga_family(self) -> bool:
         """True if this functional belongs to the hybrid + meta-GGA family."""
         return self.family == "HYB_MGGA"
 
@@ -493,9 +492,11 @@ class LibxcFunc(Enum):
         Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return {"name": self.name,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "name": self.name,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+        }
 
     @staticmethod
     def from_dict(d):

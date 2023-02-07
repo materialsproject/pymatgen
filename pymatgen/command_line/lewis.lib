@@ -2,10 +2,10 @@
 #  LEWIS library - collection of potentials based
 #  around the Catlow oxygen-oxygen potential
 #
-#  Taken from Tables 1 and 2 of Lewis and Catlow. 
-#  Potentials derived using method (a) Extrapolation 
-#  for systems with limited data - fit rho as being 
-#  common to all related oxides and only fit A for 
+#  Taken from Tables 1 and 2 of Lewis and Catlow.
+#  Potentials derived using method (a) Extrapolation
+#  for systems with limited data - fit rho as being
+#  common to all related oxides and only fit A for
 #  each system (b) fitting of both A and rho where
 #  structures are of low symmetry.
 #

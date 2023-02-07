@@ -1,16 +1,17 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
 This module implements a MolecularOrbital class to represent band character in
-solids. Usefull for predicting PDOS character from structural information.
+solids. Useful for predicting PDOS character from structural information.
 """
+
+from __future__ import annotations
 
 from itertools import chain, combinations
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 
 
 class MolecularOrbitals:
@@ -19,11 +20,11 @@ class MolecularOrbitals:
     formula, since no structural characteristics are taken into account.
 
     The band character of a crystal emerges from the atomic orbitals of the
-    constituant ions, hybridization/covalent bonds, and the spin-orbit
+    constituent ions, hybridization/covalent bonds, and the spin-orbit
     interaction (ex: Fe2O3). Right now the orbitals are only built from
     the uncharged atomic species. Functionality can be improved by:
     1) calculate charged ion orbital energies
-    2) incorportate the coordination enviornment to account for covalant bonds
+    2) incorporate the coordination environment to account for covalent bonds
 
     The atomic orbital energies are stored in pymatgen.core.periodic_table.JSON
 
@@ -42,24 +43,25 @@ class MolecularOrbitals:
             composition: the composition as a dictionary.
                          Ex: {'Sr': 1, 'Ti': 1, 'O', 3}
             elements:    the dictionary keys for the composition
-            elec_neg:    the maximum pairwise electronegetivity difference
+            elec_neg:    the maximum pairwise electronegativity difference
             aos:         the consituant atomic orbitals for each element as a
                          dictionary
             band_edges:  dictionary containing the highest occupied molecular
-                         orbital (HOMO), lowest unocupied molecular orbital
+                         orbital (HOMO), lowest unoccupied molecular orbital
                          (LUMO), and whether the material is predicted to be a
                          metal
         """
         self.composition = Composition(formula).as_dict()
-        self.elements = self.composition.keys()
+        self.elements = list(self.composition)
         for subscript in self.composition.values():
             if not float(subscript).is_integer():
-                raise ValueError('composition subscripts must be integers')
+                raise ValueError("composition subscripts must be integers")
 
         self.elec_neg = self.max_electronegativity()
-        self.aos = {str(el): [[str(el), k, v]
-                              for k, v in Element(el).atomic_orbitals.items()]
-                    for el in self.elements}
+        self.aos = {
+            str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()]  # pylint: disable=E1101
+            for el in self.elements
+        }
         self.band_edges = self.obtain_band_edges()
 
     def max_electronegativity(self):
@@ -83,9 +85,10 @@ class MolecularOrbitals:
             Data is obtained from
             https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
         """
-        return sorted(chain.from_iterable(
-            [self.aos[el] * int(self.composition[el]) for el in self.elements]
-        ), key=lambda x: x[2])
+        return sorted(
+            chain.from_iterable([self.aos[el] * int(self.composition[el]) for el in self.elements]),
+            key=lambda x: x[2],
+        )
 
     def obtain_band_edges(self):
         """
@@ -99,13 +102,13 @@ class MolecularOrbitals:
         for orbital in orbitals:
             if electrons <= 0:
                 break
-            if 's' in orbital[1]:
+            if "s" in orbital[1]:
                 electrons += -2
-            elif 'p' in orbital[1]:
+            elif "p" in orbital[1]:
                 electrons += -6
-            elif 'd' in orbital[1]:
+            elif "d" in orbital[1]:
                 electrons += -10
-            elif 'f' in orbital[1]:
+            elif "f" in orbital[1]:
                 electrons += -14
             partial_filled.append(orbital)
 
@@ -119,4 +122,4 @@ class MolecularOrbitals:
             except Exception:
                 lumo = None
 
-        return {'HOMO': homo, 'LUMO': lumo, 'metal': homo == lumo}
+        return {"HOMO": homo, "LUMO": lumo, "metal": homo == lumo}

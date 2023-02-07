@@ -1,0 +1,57 @@
+-------------------------------------
+CREGEN - CONFORMER SYMMETRY ANALYSIS
+-------------------------------------
+ =============================
+  # threads =          32
+ =============================
+ input  file name : crest_rotamers_2.xyz
+ output file name : crest_rotamers_3.xyz
+ number of atoms                :    14
+ number of points on xyz files  :    48
+ RMSD threshold                 :   0.1250
+ Bconst threshold               :   0.0200
+ population threshold           :   0.0500
+ conformer energy window  /kcal :   6.0000
+ # fragment in coord            :     1
+ number of reliable points      :    48
+ reference state Etot :  -13.6657973764000     
+ number of doubles removed by rot/RMSD         :          21
+ total number unique points considered further :          27
+   Erel/kcal     Etot      weight/tot conformer  set degen    origin
+    1   0.000   -13.66580    0.06585    0.59105    1    9     mtd6
+    2   0.001   -13.66580    0.06570                          mtd11
+    3   0.001   -13.66580    0.06569                          mtd12
+    4   0.001   -13.66580    0.06569                          mtd1
+    5   0.001   -13.66580    0.06568                          mtd1
+    6   0.002   -13.66579    0.06568                          input
+    7   0.002   -13.66579    0.06561                          mtd11
+    8   0.002   -13.66579    0.06560                          mtd2
+    9   0.003   -13.66579    0.06555                          mtd10
+   10   0.628   -13.66480    0.02283    0.40895    2   18     mtd9
+   11   0.629   -13.66480    0.02281                          mtd1
+   12   0.629   -13.66479    0.02280                          mtd11
+   13   0.630   -13.66479    0.02277                          mtd8
+   14   0.630   -13.66479    0.02275                          mtd1
+   15   0.630   -13.66479    0.02275                          mtd5
+   16   0.630   -13.66479    0.02275                          mtd6
+   17   0.630   -13.66479    0.02274                          mtd1
+   18   0.631   -13.66479    0.02273                          mtd10
+   19   0.631   -13.66479    0.02272                          mtd5
+   20   0.631   -13.66479    0.02271                          mtd2
+   21   0.632   -13.66479    0.02267                          mtd10
+   22   0.632   -13.66479    0.02267                          mtd8
+   23   0.632   -13.66479    0.02267                          mtd11
+   24   0.632   -13.66479    0.02267                          mtd9
+   25   0.633   -13.66479    0.02265                          mtd10
+   26   0.633   -13.66479    0.02264                          mtd2
+   27   0.633   -13.66479    0.02263                          mtd3
+T /K                                  :   298.15
+E lowest                              :   -13.66580
+ensemble average energy (kcal)        :    0.259
+ensemble entropy (J/mol K, cal/mol K) :   26.250    6.274
+ensemble free energy (kcal/mol)       :   -1.871
+population of lowest in %             :   59.105
+ number of unique conformers for further calc            2
+   1       0.000
+   2       0.628
+ Normal termination.

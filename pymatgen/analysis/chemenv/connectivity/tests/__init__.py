@@ -1,1 +1,3 @@
-__author__ = 'waroquiers'
+"""Tests"""
+
+from __future__ import annotations

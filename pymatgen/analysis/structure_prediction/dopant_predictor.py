@@ -2,19 +2,19 @@
 Predicting potential dopants
 """
 
+from __future__ import annotations
+
 import warnings
+
 import numpy as np
 
+from pymatgen.analysis.structure_prediction.substitution_probability import (
+    SubstitutionPredictor,
+)
+from pymatgen.core.periodic_table import Element, Species
 
-from pymatgen.analysis.structure_prediction.substitution_probability import \
-    SubstitutionPredictor
 
-from pymatgen.core.periodic_table import Species, Element
-
-
-def get_dopants_from_substitution_probabilities(structure, num_dopants=5,
-                                                threshold=0.001,
-                                                match_oxi_sign=False):
+def get_dopants_from_substitution_probabilities(structure, num_dopants=5, threshold=0.001, match_oxi_sign=False):
     """
     Get dopant suggestions based on substitution probabilities.
 
@@ -41,23 +41,26 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5,
     els_have_oxi_states = [hasattr(s, "oxi_state") for s in structure.species]
 
     if not all(els_have_oxi_states):
-        raise ValueError("All sites in structure must have oxidation states to "
-                         "predict dopants.")
+        raise ValueError("All sites in structure must have oxidation states to predict dopants.")
 
     sp = SubstitutionPredictor(threshold=threshold)
 
     subs = [sp.list_prediction([s]) for s in set(structure.species)]
-    subs = [{'probability': pred['probability'],
-             'dopant_species': list(pred['substitutions'].keys())[0],
-             'original_species': list(pred['substitutions'].values())[0]}
-            for species_preds in subs for pred in species_preds]
-    subs.sort(key=lambda x: x['probability'], reverse=True)
+    subs = [
+        {
+            "probability": pred["probability"],
+            "dopant_species": list(pred["substitutions"])[0],
+            "original_species": list(pred["substitutions"].values())[0],
+        }
+        for species_preds in subs
+        for pred in species_preds
+    ]
+    subs.sort(key=lambda x: x["probability"], reverse=True)
 
     return _get_dopants(subs, num_dopants, match_oxi_sign)
 
 
-def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
-                                   match_oxi_sign=False):
+def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_sign=False):
     """
     Get dopant suggestions based on Shannon radii differences.
 
@@ -65,7 +68,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
         bonded_structure (StructureGraph): A pymatgen structure graph
             decorated with oxidation states. For example, generated using the
             CrystalNN.get_bonded_structure() method.
-        num_dopants (int): The nummber of suggestions to return for
+        num_dopants (int): The number of suggestions to return for
             n- and p-type dopants.
         match_oxi_sign (bool): Whether to force the dopant and original species
             to have the same sign of oxidation state. E.g. If the original site
@@ -82,13 +85,16 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
         - "original_species": The substituted species.
     """
     # get a list of all Species for all elements in all their common oxid states
-    all_species = [Species(el, oxi) for el in Element
-                   for oxi in el.common_oxidation_states]
+    all_species = [Species(el, oxi) for el in Element for oxi in el.common_oxidation_states]
 
     # get a series of tuples with (coordination number, specie)
-    cn_and_species = set((bonded_structure.get_coordination_of_site(i),
-                          bonded_structure.structure[i].specie)
-                         for i in range(bonded_structure.structure.num_sites))
+    cn_and_species = {
+        (
+            bonded_structure.get_coordination_of_site(i),
+            bonded_structure.structure[i].specie,
+        )
+        for i in range(bonded_structure.structure.num_sites)
+    }
 
     cn_to_radii_map = {}
     possible_dopants = []
@@ -99,22 +105,24 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
         try:
             species_radius = species.get_shannon_radius(cn_roman)
         except KeyError:
-            warnings.warn("Shannon radius not found for {} with coordination "
-                          "number {}.\nSkipping...".format(species, cn))
+            warnings.warn(f"Shannon radius not found for {species} with coordination number {cn}.\nSkipping...")
             continue
 
         if cn not in cn_to_radii_map:
-            cn_to_radii_map[cn] = _shannon_radii_from_cn(
-                all_species, cn_roman, radius_to_compare=species_radius)
+            cn_to_radii_map[cn] = _shannon_radii_from_cn(all_species, cn_roman, radius_to_compare=species_radius)
 
         shannon_radii = cn_to_radii_map[cn]
 
-        possible_dopants += [{'radii_diff': p['radii_diff'],
-                              'dopant_species': p['species'],
-                              'original_species': species}
-                             for p in shannon_radii]
+        possible_dopants += [
+            {
+                "radii_diff": p["radii_diff"],
+                "dopant_species": p["species"],
+                "original_species": species,
+            }
+            for p in shannon_radii
+        ]
 
-    possible_dopants.sort(key=lambda x: abs(x['radii_diff']))
+    possible_dopants.sort(key=lambda x: abs(x["radii_diff"]))
 
     return _get_dopants(possible_dopants, num_dopants, match_oxi_sign)
 
@@ -123,20 +131,26 @@ def _get_dopants(substitutions, num_dopants, match_oxi_sign):
     """
     Utility method to get n- and p-type dopants from a list of substitutions.
     """
-    n_type = [pred for pred in substitutions
-              if pred['dopant_species'].oxi_state >
-              pred['original_species'].oxi_state
-              and (not match_oxi_sign or
-                   np.sign(pred['dopant_species'].oxi_state) ==
-                   np.sign(pred['original_species'].oxi_state))]
-    p_type = [pred for pred in substitutions
-              if pred['dopant_species'].oxi_state <
-              pred['original_species'].oxi_state
-              and (not match_oxi_sign or
-                   np.sign(pred['dopant_species'].oxi_state) ==
-                   np.sign(pred['original_species'].oxi_state))]
+    n_type = [
+        pred
+        for pred in substitutions
+        if pred["dopant_species"].oxi_state > pred["original_species"].oxi_state
+        and (
+            not match_oxi_sign
+            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
+        )
+    ]
+    p_type = [
+        pred
+        for pred in substitutions
+        if pred["dopant_species"].oxi_state < pred["original_species"].oxi_state
+        and (
+            not match_oxi_sign
+            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
+        )
+    ]
 
-    return {'n_type': n_type[:num_dopants], 'p_type': p_type[:num_dopants]}
+    return {"n_type": n_type[:num_dopants], "p_type": p_type[:num_dopants]}
 
 
 def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
@@ -169,9 +183,13 @@ def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
     for s in species_list:
         try:
             radius = s.get_shannon_radius(cn_roman)
-            shannon_radii.append({
-                'species': s, 'radius': radius,
-                'radii_diff': radius - radius_to_compare})
+            shannon_radii.append(
+                {
+                    "species": s,
+                    "radius": radius,
+                    "radii_diff": radius - radius_to_compare,
+                }
+            )
         except KeyError:
             pass
 
@@ -183,7 +201,7 @@ def _int_to_roman(number):
     roman_conv = [(10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
 
     result = []
-    for (arabic, roman) in roman_conv:
+    for arabic, roman in roman_conv:
         (factor, number) = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:

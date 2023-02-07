@@ -4,35 +4,37 @@ Note that not all the features of Abinit are supported by BasicAbinitInput.
 For a more comprehensive implementation, use the AbinitInput object provided by AbiPy.
 """
 
-import os
-import copy
-import abc
-import json
-import numpy as np
+from __future__ import annotations
 
+import abc
+import copy
+import json
+import logging
+import os
+from collections import namedtuple
+from collections.abc import Mapping, MutableMapping
 from enum import Enum
-from collections import OrderedDict, namedtuple
-from collections.abc import MutableMapping, Mapping
+
+import numpy as np
 from monty.collections import AttrDict
-from monty.string import list_strings, is_string
 from monty.json import MSONable
+from monty.string import is_string, list_strings
+
 from pymatgen.core.structure import Structure
-from pymatgen.util.serialization import pmg_serialize
-from pymatgen.io.abinit.pseudos import PseudoTable, Pseudo
 from pymatgen.io.abinit import abiobjects as aobj
+from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.io.abinit.variable import InputVariable
 
-import logging
 logger = logging.getLogger(__file__)
 
 
 # List of Abinit variables used to specify the structure.
 # This variables should not be passed to set_vars since
 # they will be generated with structure.to_abivars()
-GEOVARS = set([
+GEOVARS = {
     "acell",
     "rprim",
-    "rprimd"
+    "rprimd",
     "angdeg",
     "xred",
     "xcart",
@@ -41,31 +43,31 @@ GEOVARS = set([
     "typat",
     "ntypat",
     "natom",
-])
+}
 
 # Variables defining tolerances (used in pop_tolerances)
-_TOLVARS = set([
-    'toldfe',
-    'tolvrs',
-    'tolwfr',
-    'tolrff',
+_TOLVARS = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
     "toldff",
     "tolimg",
     "tolmxf",
     "tolrde",
-])
+}
 
 # Variables defining tolerances for the SCF cycle that are mutally exclusive
-_TOLVARS_SCF = set([
-    'toldfe',
-    'tolvrs',
-    'tolwfr',
-    'tolrff',
+_TOLVARS_SCF = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
     "toldff",
-])
+}
 
 # Variables determining if data files should be read in input
-_IRDVARS = set([
+_IRDVARS = {
     "irdbseig",
     "irdbsreso",
     "irdhaydock",
@@ -81,27 +83,28 @@ _IRDVARS = set([
     "irdwfkfine",
     "irdwfq",
     "ird1wf",
-])
+}
 
 # Name of the (default) tolerance used by the runlevels.
 _runl2tolname = {
-    "scf": 'tolvrs',
-    "nscf": 'tolwfr',
-    "dfpt": 'toldfe',        # ?
-    "screening": 'toldfe',   # dummy
-    "sigma": 'toldfe',       # dummy
-    "bse": 'toldfe',         # ?
-    "relax": 'tolrff',
+    "scf": "tolvrs",
+    "nscf": "tolwfr",
+    "dfpt": "toldfe",  # ?
+    "screening": "toldfe",  # dummy
+    "sigma": "toldfe",  # dummy
+    "bse": "toldfe",  # ?
+    "relax": "tolrff",
 }
 
 # Tolerances for the different levels of accuracy.
 
-T = namedtuple('Tolerance', "low normal high")
+T = namedtuple("T", "low normal high")
 _tolerances = {
-    "toldfe": T(1.e-7,  1.e-8,  1.e-9),
-    "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
-    "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
-    "tolrff": T(0.04,   0.02,   0.01)}
+    "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
+    "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
+    "tolwfr": T(1.0e-15, 1.0e-17, 1.0e-19),
+    "tolrff": T(0.04, 0.02, 0.01),
+}
 del T
 
 
@@ -128,10 +131,9 @@ def as_structure(obj):
     if isinstance(obj, Mapping):
         if "@module" in obj:
             return Structure.from_dict(obj)
-        else:
-            return aobj.structure_from_abivars(cls=None, **obj)
+        return aobj.structure_from_abivars(cls=None, **obj)
 
-    raise TypeError("Don't know how to convert %s into a structure" % type(obj))
+    raise TypeError(f"Don't know how to convert {type(obj)} into a structure")
 
 
 class ShiftMode(Enum):
@@ -143,10 +145,11 @@ class ShiftMode(Enum):
     O: OneSymmetric. Respects the chksymbreak with a single shift (as in 'S' if a single shift is given, gamma
         centered otherwise.
     """
-    GammaCentered = 'G'
-    MonkhorstPack = 'M'
-    Symmetric = 'S'
-    OneSymmetric = 'O'
+
+    GammaCentered = "G"
+    MonkhorstPack = "M"
+    Symmetric = "S"
+    OneSymmetric = "O"
 
     @classmethod
     def from_object(cls, obj):
@@ -158,10 +161,9 @@ class ShiftMode(Enum):
         """
         if isinstance(obj, cls):
             return obj
-        elif is_string(obj):
+        if is_string(obj):
             return cls(obj[0].upper())
-        else:
-            raise TypeError('The object provided is not handled: type %s' % type(obj))
+        raise TypeError(f"The object provided is not handled: type {type(obj)}")
 
 
 def _stopping_criterion(runlevel, accuracy):
@@ -213,11 +215,11 @@ def _find_scf_nband(structure, pseudos, electrons, spinat=None):
         # metallic occupation
         nband = max(np.ceil(nband * 1.2), nband + 10)
     else:
-        nband = max(np.ceil(nband*1.1), nband + 4)
+        nband = max(np.ceil(nband * 1.1), nband + 4)
 
     # Increase number of bands based on the starting magnetization
     if nsppol == 2 and spinat is not None:
-        nband += np.ceil(max(np.sum(spinat, axis=0)) / 2.)
+        nband += np.ceil(max(np.sum(spinat, axis=0)) / 2.0)
 
     # Force even nband (easier to divide among procs, mandatory if nspinor == 2)
     nband += nband % 2
@@ -237,24 +239,33 @@ def _get_shifts(shift_mode, structure):
         ``chksymbreak`` condition (Abinit input variable).
     """
     if shift_mode == ShiftMode.GammaCentered:
-        return ((0, 0, 0))
-    elif shift_mode == ShiftMode.MonkhorstPack:
-        return ((0.5, 0.5, 0.5))
-    elif shift_mode == ShiftMode.Symmetric:
+        return ((0, 0, 0),)
+    if shift_mode == ShiftMode.MonkhorstPack:
+        return ((0.5, 0.5, 0.5),)
+    if shift_mode == ShiftMode.Symmetric:
         return calc_shiftk(structure)
-    elif shift_mode == ShiftMode.OneSymmetric:
+    if shift_mode == ShiftMode.OneSymmetric:
         shifts = calc_shiftk(structure)
         if len(shifts) == 1:
             return shifts
-        else:
-            return ((0, 0, 0))
-    else:
-        raise ValueError("invalid shift_mode: `%s`" % str(shift_mode))
+        return ((0, 0, 0),)
+
+    raise ValueError(f"invalid shift_mode: `{str(shift_mode)}`")
 
 
-def gs_input(structure, pseudos,
-             kppa=None, ecut=None, pawecutdg=None, scf_nband=None, accuracy="normal", spin_mode="polarized",
-             smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None):
+def gs_input(
+    structure,
+    pseudos,
+    kppa=None,
+    ecut=None,
+    pawecutdg=None,
+    scf_nband=None,
+    accuracy="normal",
+    spin_mode="polarized",
+    smearing="fermi_dirac:0.1 eV",
+    charge=0.0,
+    scf_algorithm=None,
+):
     """
     Returns a |BasicAbinitInput| for ground-state calculation.
 
@@ -273,18 +284,40 @@ def gs_input(structure, pseudos,
         charge: Electronic charge added to the unit cell.
         scf_algorithm: Algorithm used for solving of the SCF cycle.
     """
-    multi = ebands_input(structure, pseudos,
-                         kppa=kppa, ndivsm=0,
-                         ecut=ecut, pawecutdg=pawecutdg, scf_nband=scf_nband, accuracy=accuracy, spin_mode=spin_mode,
-                         smearing=smearing, charge=charge, scf_algorithm=scf_algorithm)
+    multi = ebands_input(
+        structure,
+        pseudos,
+        kppa=kppa,
+        ndivsm=0,
+        ecut=ecut,
+        pawecutdg=pawecutdg,
+        scf_nband=scf_nband,
+        accuracy=accuracy,
+        spin_mode=spin_mode,
+        smearing=smearing,
+        charge=charge,
+        scf_algorithm=scf_algorithm,
+    )
 
     return multi[0]
 
 
-def ebands_input(structure, pseudos,
-                 kppa=None, nscf_nband=None, ndivsm=15,
-                 ecut=None, pawecutdg=None, scf_nband=None, accuracy="normal", spin_mode="polarized",
-                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, dos_kppa=None):
+def ebands_input(
+    structure,
+    pseudos,
+    kppa=None,
+    nscf_nband=None,
+    ndivsm=15,
+    ecut=None,
+    pawecutdg=None,
+    scf_nband=None,
+    accuracy="normal",
+    spin_mode="polarized",
+    smearing="fermi_dirac:0.1 eV",
+    charge=0.0,
+    scf_algorithm=None,
+    dos_kppa=None,
+):
     """
     Returns a |BasicMultiDataset| object for band structure calculations.
 
@@ -321,11 +354,17 @@ def ebands_input(structure, pseudos,
     # SCF calculation.
     kppa = _DEFAULTS.get("kppa") if kppa is None else kppa
     scf_ksampling = aobj.KSampling.automatic_density(structure, kppa, chksymbreak=0)
-    scf_electrons = aobj.Electrons(spin_mode=spin_mode, smearing=smearing, algorithm=scf_algorithm,
-                                   charge=charge, nband=scf_nband, fband=None)
+    scf_electrons = aobj.Electrons(
+        spin_mode=spin_mode,
+        smearing=smearing,
+        algorithm=scf_algorithm,
+        charge=charge,
+        nband=scf_nband,
+        fband=None,
+    )
 
     if scf_electrons.nband is None:
-        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get('spinat', None))
+        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat", None))
 
     multi[0].set_vars(scf_ksampling.to_abivars())
     multi[0].set_vars(scf_electrons.to_abivars())
@@ -336,8 +375,14 @@ def ebands_input(structure, pseudos,
     # Band structure calculation.
     nscf_ksampling = aobj.KSampling.path_from_structure(ndivsm, structure)
     nscf_nband = scf_electrons.nband + 10 if nscf_nband is None else nscf_nband
-    nscf_electrons = aobj.Electrons(spin_mode=spin_mode, smearing=smearing, algorithm={"iscf": -2},
-                                    charge=charge, nband=nscf_nband, fband=None)
+    nscf_electrons = aobj.Electrons(
+        spin_mode=spin_mode,
+        smearing=smearing,
+        algorithm={"iscf": -2},
+        charge=charge,
+        nband=nscf_nband,
+        fband=None,
+    )
 
     multi[1].set_vars(nscf_ksampling.to_abivars())
     multi[1].set_vars(nscf_electrons.to_abivars())
@@ -345,11 +390,16 @@ def ebands_input(structure, pseudos,
 
     # DOS calculation with different values of kppa.
     if dos_kppa is not None:
-        for i, kppa in enumerate(dos_kppa):
-            dos_ksampling = aobj.KSampling.automatic_density(structure, kppa, chksymbreak=0)
+        for i, kppa_ in enumerate(dos_kppa):
+            dos_ksampling = aobj.KSampling.automatic_density(structure, kppa_, chksymbreak=0)
             # dos_ksampling = aobj.KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
-            dos_electrons = aobj.Electrons(spin_mode=spin_mode, smearing=smearing, algorithm={"iscf": -2},
-                                           charge=charge, nband=nscf_nband)
+            dos_electrons = aobj.Electrons(
+                spin_mode=spin_mode,
+                smearing=smearing,
+                algorithm={"iscf": -2},
+                charge=charge,
+                nband=nscf_nband,
+            )
             dt = 2 + i
             multi[dt].set_vars(dos_ksampling.to_abivars())
             multi[dt].set_vars(dos_electrons.to_abivars())
@@ -358,10 +408,20 @@ def ebands_input(structure, pseudos,
     return multi
 
 
-def ion_ioncell_relax_input(structure, pseudos,
-                            kppa=None, nband=None,
-                            ecut=None, pawecutdg=None, accuracy="normal", spin_mode="polarized",
-                            smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, shift_mode='Monkhorst-pack'):
+def ion_ioncell_relax_input(
+    structure,
+    pseudos,
+    kppa=None,
+    nband=None,
+    ecut=None,
+    pawecutdg=None,
+    accuracy="normal",
+    spin_mode="polarized",
+    smearing="fermi_dirac:0.1 eV",
+    charge=0.0,
+    scf_algorithm=None,
+    shift_mode="Monkhorst-pack",
+):
     """
     Returns a |BasicMultiDataset| for a structural relaxation. The first dataset optmizes the
     atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.
@@ -388,11 +448,17 @@ def ion_ioncell_relax_input(structure, pseudos,
     shift_mode = ShiftMode.from_object(shift_mode)
     shifts = _get_shifts(shift_mode, structure)
     ksampling = aobj.KSampling.automatic_density(structure, kppa, chksymbreak=0, shifts=shifts)
-    electrons = aobj.Electrons(spin_mode=spin_mode, smearing=smearing, algorithm=scf_algorithm,
-                               charge=charge, nband=nband, fband=None)
+    electrons = aobj.Electrons(
+        spin_mode=spin_mode,
+        smearing=smearing,
+        algorithm=scf_algorithm,
+        charge=charge,
+        nband=nband,
+        fband=None,
+    )
 
     if electrons.nband is None:
-        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get('spinat', None))
+        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat", None))
 
     ion_relax = aobj.RelaxationMethod.atoms_only(atoms_constraints=None)
     ioncell_relax = aobj.RelaxationMethod.atoms_and_cell(atoms_constraints=None)
@@ -409,7 +475,7 @@ def ion_ioncell_relax_input(structure, pseudos,
     return multi
 
 
-def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
+def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     """
     Find the values of ``shiftk`` and ``nshiftk`` appropriated for the sampling of the Brillouin zone.
 
@@ -459,6 +525,7 @@ def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
     """
     # Find lattice type.
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
     sym = SpacegroupAnalyzer(structure, symprec=symprec, angle_tolerance=angle_tolerance)
     lattice_type, spg_symbol = sym.get_lattice_type(), sym.get_space_group_symbol()
 
@@ -472,15 +539,11 @@ def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
         if lattice_type == "cubic":
             if "F" in spg_symbol:
                 # FCC
-                shiftk = [0.5, 0.5, 0.5,
-                          0.5, 0.0, 0.0,
-                          0.0, 0.5, 0.0,
-                          0.0, 0.0, 0.5]
+                shiftk = [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
 
             elif "I" in spg_symbol:
                 # BCC
-                shiftk = [0.25,  0.25,  0.25,
-                          -0.25, -0.25, -0.25]
+                shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
                 # shiftk = [0.5, 0.5, 05])
 
         elif lattice_type == "hexagonal":
@@ -500,8 +563,7 @@ def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
         elif lattice_type == "tetragonal":
             if "I" in spg_symbol:
                 # BCT
-                shiftk = [0.25,  0.25,  0.25,
-                          -0.25, -0.25, -0.25]
+                shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
 
     if shiftk is None:
         # Use default value.
@@ -548,7 +610,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__setitem__(key, value)
 
     def __repr__(self):
-        return "<%s at %s>" % (self.__class__.__name__, id(self))
+        return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_string()
@@ -562,7 +624,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
             os.makedirs(dirname)
 
         # Write the input file.
-        with open(filepath, "wt") as fh:
+        with open(filepath, "w") as fh:
             fh.write(str(self))
 
     def deepcopy(self):
@@ -626,7 +688,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError("key: %s not in self:\n %s" % (key, list(self.keys())))
+                raise KeyError(f"key: {key} not in self:\n {list(self)}")
             if key in self:
                 removed[key] = self.pop(key)
 
@@ -653,10 +715,18 @@ class BasicAbinitInput(AbstractInput, MSONable):
     """
     This object stores the ABINIT variables for a single dataset.
     """
+
     Error = BasicAbinitInputError
 
-    def __init__(self, structure, pseudos, pseudo_dir=None, comment=None, abi_args=None,
-                 abi_kwargs=None):
+    def __init__(
+        self,
+        structure,
+        pseudos,
+        pseudo_dir=None,
+        comment=None,
+        abi_args=None,
+        abi_kwargs=None,
+    ):
         """
         Args:
             structure: Parameters defining the crystalline structure. Accepts |Structure| object
@@ -672,8 +742,8 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         # Internal dict with variables. we use an ordered dict so that
         # variables will be likely grouped by `topics` when we fill the input.
-        abi_args = [] if abi_args is None else abi_args
-        for key, value in abi_args:
+        abi_args = abi_args or []
+        for key, _value in abi_args:
             self._check_varname(key)
 
         abi_kwargs = {} if abi_kwargs is None else abi_kwargs
@@ -683,13 +753,13 @@ class BasicAbinitInput(AbstractInput, MSONable):
         args = list(abi_args)[:]
         args.extend(list(abi_kwargs.items()))
 
-        self._vars = OrderedDict(args)
+        self._vars = dict(args)
         self.set_structure(structure)
 
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.exists(pseudo_dir):
-                raise self.Error("Directory %s does not exist" % pseudo_dir)
+                raise self.Error(f"Directory {pseudo_dir} does not exist")
             pseudos = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
 
         try:
@@ -700,25 +770,29 @@ class BasicAbinitInput(AbstractInput, MSONable):
         if comment is not None:
             self.set_comment(comment)
 
-    @pmg_serialize
     def as_dict(self):
         """
         JSON interface used in pymatgen for easier serialization.
         """
-        # Use a list of (key, value) to serialize the OrderedDict
+        # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
             if isinstance(value, np.ndarray):
                 value = value.tolist()
             abi_args.append((key, value))
 
-        return dict(structure=self.structure.as_dict(),
-                    pseudos=[p.as_dict() for p in self.pseudos],
-                    comment=self.comment,
-                    abi_args=abi_args)
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "structure": self.structure.as_dict(),
+            "pseudos": [p.as_dict() for p in self.pseudos],
+            "comment": self.comment,
+            "abi_args": abi_args,
+        }
 
     @property
     def vars(self):
+        """Dictionary with variables."""
         return self._vars
 
     @classmethod
@@ -726,9 +800,8 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """
         JSON interface used in pymatgen for easier serialization.
         """
-        pseudos = [Pseudo.from_file(p['filepath']) for p in d['pseudos']]
-        return cls(d["structure"], pseudos,
-                   comment=d["comment"], abi_args=d["abi_args"])
+        pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
+        return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
         """
@@ -738,24 +811,25 @@ class BasicAbinitInput(AbstractInput, MSONable):
         d = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError("type %s: %s does not have `to_abivars` method" % (type(obj), repr(obj)))
+                raise TypeError(f"type {type(obj)}: {repr(obj)} does not have `to_abivars` method")
             d.update(self.set_vars(obj.to_abivars()))
         return d
 
     def __setitem__(self, key, value):
-        if key in _TOLVARS_SCF and hasattr(self, '_vars') and any(t in self._vars and t != key for t in _TOLVARS_SCF):
-            logger.info("Replacing previously set tolerance variable: {0}."
-                        .format(self.remove_vars(_TOLVARS_SCF, strict=False)))
+        if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
+            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
 
     def _check_varname(self, key):
         if key in GEOVARS:
-            raise self.Error("You cannot set the value of a variable associated to the structure.\n"
-                             "Use Structure objects to prepare the input file.")
+            raise self.Error(
+                "You cannot set the value of a variable associated to the structure.\n"
+                "Use Structure objects to prepare the input file."
+            )
 
     def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        r"""
+        """
         String representation.
 
         Args:
@@ -780,7 +854,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         exclude = set(exclude) if exclude is not None else set()
 
         # Default is no sorting else alphabetical order.
-        keys = sorted([k for k, v in self.items() if k not in exclude and v is not None])
+        keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
         items = [(k, self[k]) for k in keys]
@@ -859,9 +933,9 @@ class BasicAbinitInput(AbstractInput, MSONable):
             kptbounds: k-points defining the path in k-space.
                 If None, we use the default high-symmetry k-path defined in the pymatgen database.
         """
-
         if kptbounds is None:
             from pymatgen.symmetry.bandstructure import HighSymmKpath
+
             hsym_kpath = HighSymmKpath(self.structure)
 
             name2frac_coords = hsym_kpath.kpath["kpoints"]
@@ -941,7 +1015,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self.remove_vars(_IRDVARS, strict=False)
 
 
-class BasicMultiDataset(object):
+class BasicMultiDataset:
     """
     This object is essentially a list of BasicAbinitInput objects.
     that provides an easy-to-use interface to apply global changes to the
@@ -958,7 +1032,7 @@ class BasicMultiDataset(object):
         for i in range(multi.ndtset):
             multi[i].set_vars(ecut=1)
 
-    BasicMultiDataset provides its own implementaion of __getattr__ so that one can simply use:
+    BasicMultiDataset provides its own implementation of __getattr__ so that one can simply use:
 
         multi.set_vars(ecut=1)
 
@@ -977,6 +1051,7 @@ class BasicMultiDataset(object):
         The inputs can have different crystalline structures (as long as the atom types are equal)
         but each input in BasicMultiDataset must have the same set of pseudopotentials.
     """
+
     Error = BasicAbinitInputError
 
     @classmethod
@@ -987,7 +1062,11 @@ class BasicMultiDataset(object):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
 
         # Build BasicMultiDataset from input structures and pseudos and add inputs.
-        multi = cls(structure=[inp.structure for inp in inputs], pseudos=inputs[0].pseudos, ndtset=len(inputs))
+        multi = cls(
+            structure=[inp.structure for inp in inputs],
+            pseudos=inputs[0].pseudos,
+            ndtset=len(inputs),
+        )
 
         # Add variables
         for inp, new_inp in zip(inputs, multi):
@@ -1001,11 +1080,11 @@ class BasicMultiDataset(object):
         multi = cls(input.structure, input.pseudos, ndtset=ndtset)
 
         for inp in multi:
-            inp.set_vars({k: v for k, v in input.items()})
+            inp.set_vars(**input)
 
         return multi
 
-    def __init__(self, structure, pseudos, pseudo_dir="", ndtset=1):
+    def __init__(self, structure: Structure, pseudos, pseudo_dir="", ndtset=1):
         """
         Args:
             structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
@@ -1032,13 +1111,13 @@ class BasicMultiDataset(object):
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error("Cannot find the following pseudopotential files:\n%s" % str(missing))
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{str(missing)}")
 
             pseudos = PseudoTable(pseudo_paths)
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError("ndtset %d cannot be <=0" % ndtset)
+            raise ValueError(f"ndtset {ndtset} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
@@ -1079,8 +1158,9 @@ class BasicMultiDataset(object):
         _inputs = object.__getattribute__(self, "_inputs")
         m = getattr(_inputs[0], name)
         if m is None:
-            raise AttributeError("Cannot find attribute %s. Tried in %s and then in BasicAbinitInput object"
-                                 % (self.__class__.__name__, name))
+            raise AttributeError(
+                f"Cannot find attribute {type(self).__name__}. Tried in {name} and then in BasicAbinitInput object"
+            )
         isattr = not callable(m)
 
         def on_all(*args, **kwargs):
@@ -1106,12 +1186,12 @@ class BasicMultiDataset(object):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.append(other)
             return new_mds
-        elif isinstance(other, BasicMultiDataset):
+        if isinstance(other, BasicMultiDataset):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.extend(other)
             return new_mds
-        else:
-            raise NotImplementedError("Operation not supported")
+
+        raise NotImplementedError("Operation not supported")
 
     def __radd__(self, other):
         if isinstance(other, BasicAbinitInput):
@@ -1158,7 +1238,7 @@ class BasicMultiDataset(object):
     def __str__(self):
         return self.to_string()
 
-    def to_string(self,  with_pseudos=True):
+    def to_string(self, with_pseudos=True):
         """
         String representation i.e. the input file read by Abinit.
 
@@ -1167,7 +1247,7 @@ class BasicMultiDataset(object):
         """
         if self.ndtset > 1:
             # Multi dataset mode.
-            lines = ["ndtset %d" % self.ndtset]
+            lines = [f"ndtset {int(self.ndtset)}"]
 
             def has_same_variable(kref, vref, other_inp):
                 """True if variable kref is present in other_inp with the same value."""
@@ -1209,25 +1289,27 @@ class BasicMultiDataset(object):
                     lines.append(str(InputVariable(vname, value)))
 
             for i, inp in enumerate(self):
-                header = "### DATASET %d ###" % (i + 1)
+                header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
-                s = inp.to_string(post=str(i + 1), with_pseudos=is_last and with_pseudos,
-                                  with_structure=not has_same_structures, exclude=global_vars)
+                s = inp.to_string(
+                    post=str(i + 1),
+                    with_pseudos=is_last and with_pseudos,
+                    with_structure=not has_same_structures,
+                    exclude=global_vars,
+                )
                 if s:
-                    header = len(header) * "#" + "\n" + header + "\n" + len(header) * "#" + "\n"
-                    s = "\n" + header + s + "\n"
+                    s = f"\n{len(header) * '#'}\n{header}\n{len(header) * '#'}\n{s}\n"
 
                 lines.append(s)
 
             return "\n".join(lines)
 
-        else:
-            # single datasets ==> don't append the dataset index to the variables.
-            # this trick is needed because Abinit complains if ndtset is not specified
-            # and we have variables that end with the dataset index e.g. acell1
-            # We don't want to specify ndtset here since abinit will start to add DS# to
-            # the input and output files thus complicating the algorithms we have to use to locate the files.
-            return self[0].to_string(with_pseudos=with_pseudos)
+        # single datasets ==> don't append the dataset index to the variables.
+        # this trick is needed because Abinit complains if ndtset is not specified
+        # and we have variables that end with the dataset index e.g. acell1
+        # We don't want to specify ndtset here since abinit will start to add DS# to
+        # the input and output files thus complicating the algorithms we have to use to locate the files.
+        return self[0].to_string(with_pseudos=with_pseudos)
 
     def write(self, filepath="run.abi"):
         """
@@ -1236,5 +1318,5 @@ class BasicMultiDataset(object):
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):
-            p = root + "DS%d" % i + ext
+            p = f"{root}DS{i}" + ext
             inp.write(filepath=p)

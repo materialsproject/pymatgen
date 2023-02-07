@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,16 +5,20 @@
 This module implements methods for writing LAMMPS input files.
 """
 
+from __future__ import annotations
 
 import os
 import re
 import shutil
 import warnings
+from pathlib import Path
 from string import Template
 
+from monty.dev import deprecated
 from monty.json import MSONable
-from pymatgen.io.lammps.data import LammpsData
 
+from pymatgen.io.lammps.data import CombinedData, LammpsData
+from pymatgen.io.template import TemplateInputGen
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -28,17 +31,15 @@ __date__ = "Aug 1, 2018"
 class LammpsRun(MSONable):
     """
     Examples for various simple LAMMPS runs with given simulation box,
-    force field and a few more settings. Experience LAMMPS users should
+    force field and a few more settings. Experienced LAMMPS users should
     consider using write_lammps_inputs method with more sophisticated
     templates.
 
     """
 
-    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "templates")
+    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 
-    def __init__(self, script_template, settings, data,
-                 script_filename):
+    def __init__(self, script_template, settings, data, script_filename):
         """
         Base constructor.
 
@@ -53,7 +54,6 @@ class LammpsRun(MSONable):
                 None, i.e., no data file supplied. Useful only when
                 read_data cmd is in the script.
             script_filename (str): Filename for the input script.
-
         """
         self.script_template = script_template
         self.settings = settings
@@ -68,16 +68,18 @@ class LammpsRun(MSONable):
         Args:
             output_dir (str): Directory to output the input files.
             **kwargs: kwargs supported by LammpsData.write_file.
-
         """
-        write_lammps_inputs(output_dir=output_dir,
-                            script_template=self.script_template,
-                            settings=self.settings, data=self.data,
-                            script_filename=self.script_filename, **kwargs)
+        write_lammps_inputs(
+            output_dir=output_dir,
+            script_template=self.script_template,
+            settings=self.settings,
+            data=self.data,
+            script_filename=self.script_filename,
+            **kwargs,
+        )
 
     @classmethod
-    def md(cls, data, force_field, temperature, nsteps,
-           other_settings=None):
+    def md(cls, data, force_field, temperature, nsteps, other_settings=None):
         r"""
         Example for a simple MD run based on template md.txt.
 
@@ -90,22 +92,74 @@ class LammpsRun(MSONable):
             nsteps (int): No. of steps to run.
             other_settings (dict): other settings to be filled into
                 placeholders.
-
         """
         template_path = os.path.join(cls.template_dir, "md.txt")
         with open(template_path) as f:
             script_template = f.read()
         settings = other_settings.copy() if other_settings is not None else {}
-        settings.update({'force_field': force_field,
-                         "temperature": temperature, "nsteps": nsteps})
+        settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
         script_filename = "in.md"
-        return cls(script_template=script_template,
-                   settings=settings, data=data, script_filename=script_filename)
+        return cls(
+            script_template=script_template,
+            settings=settings,
+            data=data,
+            script_filename=script_filename,
+        )
 
 
-def write_lammps_inputs(output_dir, script_template, settings=None,
-                        data=None, script_filename="in.lammps",
-                        make_dir_if_not_present=True, **kwargs):
+class LammpsTemplateGen(TemplateInputGen):
+    """
+    Creates an InputSet object for a LAMMPS run based on a template file.
+    The input script is constructed by substituting variables into placeholders
+    in the template file using python's Template.safe_substitute() function.
+    The data file containing coordinates and topology information can be provided
+    as a LammpsData instance. Alternatively, you can include a read_data command
+    in the template file that points to an existing data file.
+    Other supporting files are not handled at the moment.
+
+    To write the input files to a directory, call LammpsTemplateSet.write_input()
+    See pymatgen.io.template.py for additional documentation of this method.
+    """
+
+    def get_input_set(  # type: ignore
+        self,
+        script_template: str | Path,
+        settings: dict | None = None,
+        script_filename: str = "in.lammps",
+        data: LammpsData | CombinedData | None = None,
+        data_filename: str = "system.data",
+    ):
+        """
+        Args:
+            script_template: String template for input script with
+                placeholders. The format for placeholders has to be
+                '$variable_name', e.g., '$temperature'
+            settings: Contains values to be written to the
+                placeholders, e.g., {'temperature': 1}. Default to None.
+            data: Data file as a LammpsData instance. Default to None, i.e., no
+                data file supplied. Note that a matching 'read_data' command
+                must be provided in the script template in order for the data
+                file to actually be read.
+            script_filename: Filename for the input file.
+            data_filename: Filename for the data file, if provided.
+        """
+        input_set = super().get_input_set(template=script_template, variables=settings, filename=script_filename)
+
+        if data:
+            input_set.update({data_filename: data})
+        return input_set
+
+
+@deprecated(LammpsTemplateGen, "This method will be retired in the future. Consider using LammpsTemplateSet instead.")
+def write_lammps_inputs(
+    output_dir,
+    script_template,
+    settings=None,
+    data=None,
+    script_filename="in.lammps",
+    make_dir_if_not_present=True,
+    **kwargs,
+):
     """
     Writes input files for a LAMMPS run. Input script is constructed
     from a str template with placeholders to be filled by custom
@@ -197,5 +251,4 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
         elif isinstance(data, str) and os.path.exists(data):
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
-            warnings.warn("No data file supplied. Skip writing %s."
-                          % data_filename)
+            warnings.warn(f"No data file supplied. Skip writing {data_filename}.")

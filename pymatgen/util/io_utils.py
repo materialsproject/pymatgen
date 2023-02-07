@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -7,13 +6,15 @@ This module provides utility classes for io operations.
 """
 
 
-import re
+from __future__ import annotations
+
+import codecs
 import errno
 import os
+import re
 import tempfile
-import codecs
-from monty.io import zopen
 
+from monty.io import zopen
 
 __author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -55,11 +56,11 @@ def clean_lines(string_list, remove_empty_lines=True):
 
     for s in string_list:
         clean_s = s
-        if '#' in s:
-            ind = s.index('#')
+        if "#" in s:
+            ind = s.index("#")
             clean_s = s[:ind]
         clean_s = clean_s.strip()
-        if (not remove_empty_lines) or clean_s != '':
+        if (not remove_empty_lines) or clean_s != "":
             yield clean_s
 
 
@@ -101,8 +102,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
         for line in f:
             for entry in search:
                 match = re.search(entry[0], line)
-                if match and (entry[1] is None
-                              or entry[1](results, line)):
+                if match and (entry[1] is None or entry[1](results, line)):
                     if debug is not None:
                         debug(results, match)
                     entry[2](results, match)
@@ -123,7 +123,7 @@ def _maketemp(name, createmode=None):
     Returns: the name of the temporary file.
     """
     d, fn = os.path.split(name)
-    fd, tempname = tempfile.mkstemp(prefix=".%s-" % fn, dir=d)
+    fd, tempname = tempfile.mkstemp(prefix=f".{fn}-", dir=d)
     os.close(fd)
 
     # Temporary files are created with mode 0600, which is usually not
@@ -168,9 +168,9 @@ class AtomicFile:
         self.__name = name  # permanent name
         self._tempname = _maketemp(name, createmode=createmode)
         if encoding:
-            self._fp = codecs.open(self._tempname, mode, encoding)
+            self._fp = codecs.open(self._tempname, mode, encoding)  # pylint: disable=R1732
         else:
-            self._fp = open(self._tempname, mode)
+            self._fp = open(self._tempname, mode)  # pylint: disable=R1732
 
         # delegated methods
         self.write = self._fp.write
@@ -194,7 +194,7 @@ class AtomicFile:
             #   FileExistsError: [WinError 183] Cannot create a file when that file already exists:
             # On Windows, if dst already exists, OSError will be raised even if it is a file;
             # there may be no way to implement an atomic rename when dst names an existing file.
-            if os.name == 'nt' and os.path.exists(self.__name):
+            if os.name == "nt" and os.path.exists(self.__name):
                 os.remove(self.__name)
             os.rename(self._tempname, self.__name)
 

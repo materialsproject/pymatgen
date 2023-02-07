@@ -1,86 +1,93 @@
-import unittest
-import os
+from __future__ import annotations
+
 import json
-from io import open
+import os
+import unittest
 
-from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
+from pytest import approx
+
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
 
 
 class PhononBandStructureSymmLineTest(PymatgenTest):
-
     def setUp(self):
-        with open(os.path.join(test_dir, "NaCl_phonon_bandstructure.json"),
-                  "r", encoding='utf-8') as f:
-            d = json.load(f)
-            self.bs = PhononBandStructureSymmLine.from_dict(d)
+        with open(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"),
+            encoding="utf-8",
+        ) as file:
+            dct = json.load(file)
+            self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
-        with open(os.path.join(test_dir, "Si_phonon_bandstructure.json"), "r",
-                  encoding='utf-8') as f:
-            d = json.load(f)
-            self.bs2 = PhononBandStructureSymmLine.from_dict(d)
+        with open(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Si_phonon_bandstructure.json"),
+            encoding="utf-8",
+        ) as file:
+            dct = json.load(file)
+            self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 
     def test_basic(self):
-        self.assertAlmostEqual(self.bs.bands[1][10], 0.7753555184)
-        self.assertAlmostEqual(self.bs.bands[5][100], 5.2548379776)
+        assert self.bs.bands[1][10] == approx(0.7753555184)
+        assert self.bs.bands[5][100] == approx(5.2548379776)
         self.assertArrayEqual(self.bs.bands.shape, (6, 204))
         self.assertArrayEqual(self.bs.eigendisplacements.shape, (6, 204, 2, 3))
-        self.assertArrayAlmostEqual(self.bs.eigendisplacements[3][50][0],
-                                    [0. + 0.j, 0.14166569 + 0.04098339j,
-                                     -0.14166569 - 0.04098339j])
-        self.assertTrue(self.bs.has_eigendisplacements, True)
+        self.assertArrayAlmostEqual(
+            self.bs.eigendisplacements[3][50][0],
+            [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
+        )
+        assert self.bs.has_eigendisplacements, True
 
         self.assertArrayEqual(self.bs.min_freq()[0].frac_coords, [0, 0, 0])
-        self.assertAlmostEqual(self.bs.min_freq()[1], -0.03700895020)
-        self.assertTrue(self.bs.has_imaginary_freq())
-        self.assertFalse(self.bs.has_imaginary_freq(tol=0.5))
+        assert self.bs.min_freq()[1] == approx(-0.03700895020)
+        assert self.bs.has_imaginary_freq()
+        assert not self.bs.has_imaginary_freq(tol=0.5)
         self.assertArrayAlmostEqual(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
 
-        self.assertEqual(self.bs.nb_bands, 6)
-        self.assertEqual(self.bs.nb_qpoints, 204)
+        assert self.bs.nb_bands == 6
+        assert self.bs.nb_qpoints == 204
 
         self.assertArrayAlmostEqual(self.bs.qpoints[1].frac_coords, [0.01, 0, 0])
 
     def test_nac(self):
-        self.assertTrue(self.bs.has_nac)
-        self.assertFalse(self.bs2.has_nac)
-        self.assertAlmostEqual(self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3], 4.6084532143)
-        self.assertIsNone(self.bs.get_nac_frequencies_along_dir([1, 1, 1]))
-        self.assertIsNone(self.bs2.get_nac_frequencies_along_dir([1, 1, 0]))
-        self.assertArrayAlmostEqual(self.bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
-                                    [(0.1063906409128248 + 0j), 0j, 0j])
-        self.assertIsNone(self.bs.get_nac_eigendisplacements_along_dir([1, 1, 1]))
-        self.assertIsNone(self.bs2.get_nac_eigendisplacements_along_dir([1, 1, 0]))
+        assert self.bs.has_nac
+        assert not self.bs2.has_nac
+        assert self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(4.6084532143)
+        assert self.bs.get_nac_frequencies_along_dir([0, 1, 1]) is None
+        assert self.bs2.get_nac_frequencies_along_dir([0, 0, 1]) is None
+        self.assertArrayAlmostEqual(
+            self.bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
+            [(0.1063906409128248 + 0j), 0j, 0j],
+        )
+        assert self.bs.get_nac_eigendisplacements_along_dir([0, 1, 1]) is None
+        assert self.bs2.get_nac_eigendisplacements_along_dir([0, 0, 1]) is None
 
     def test_branches(self):
-        self.assertEqual(self.bs.branches[0]['end_index'], 50)
-        self.assertEqual(self.bs.branches[1]['start_index'], 51)
-        self.assertEqual(self.bs.branches[2]['name'], 'Y-Gamma')
-        self.assertAlmostEqual(self.bs.get_branch(10)[0]['name'], "Gamma-X")
+        assert self.bs.branches[0]["end_index"] == 50
+        assert self.bs.branches[1]["start_index"] == 51
+        assert self.bs.branches[2]["name"] == "Y-Gamma"
+        assert self.bs.get_branch(10)[0]["name"] == "Gamma-X"
+        assert len(self.bs.branches) == 4
 
     def test_dict_methods(self):
         s = self.bs.as_dict()
-        self.assertIsNotNone(s)
-        self.assertIsNotNone(json.dumps(s))
+        assert s is not None
+        assert json.dumps(s) is not None
         s = self.bs2.as_dict()
-        self.assertIsNotNone(s)
-        self.assertIsNotNone(json.dumps(s))
+        assert s is not None
+        assert json.dumps(s) is not None
         s = self.bs2.as_phononwebsite()
-        self.assertIsNotNone(s)
-        self.assertIsNotNone(json.dumps(s))
+        assert s is not None
+        assert json.dumps(s) is not None
         self.assertMSONable(self.bs)
         self.assertMSONable(self.bs2)
 
     def test_write_methods(self):
-        self.bs2.write_phononwebsite('test.json')
+        self.bs2.write_phononwebsite("test.json")
 
     def tearDown(self):
-        if os.path.isfile('test.json'):
-            os.remove('test.json')
+        if os.path.isfile("test.json"):
+            os.remove("test.json")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,7 @@
-pymatgen package
-================
+pymatgen namespace
+==================
+
+.. py:module:: pymatgen
 
 Subpackages
 -----------
@@ -19,7 +21,6 @@ Subpackages
    pymatgen.io
    pymatgen.optimization
    pymatgen.phonon
-   pymatgen.plugins
    pymatgen.symmetry
    pymatgen.transformations
    pymatgen.util
@@ -32,11 +33,3 @@ Submodules
    :maxdepth: 7
 
    pymatgen.dao
-
-Module contents
----------------
-
-.. automodule:: pymatgen
-   :members:
-   :undoc-members:
-   :show-inheritance:

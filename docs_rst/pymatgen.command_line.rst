@@ -14,8 +14,8 @@ Submodules
 .. toctree::
    :maxdepth: 7
 
-   pymatgen.command_line.aconvasp_caller
    pymatgen.command_line.bader_caller
+   pymatgen.command_line.chargemol_caller
    pymatgen.command_line.critic2_caller
    pymatgen.command_line.enumlib_caller
    pymatgen.command_line.gulp_caller

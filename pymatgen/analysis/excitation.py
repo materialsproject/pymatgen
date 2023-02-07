@@ -1,10 +1,11 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
 This module defines an excitation spectrum class.
 """
+
+from __future__ import annotations
 
 from pymatgen.core.spectrum import Spectrum
 
@@ -20,8 +21,9 @@ class ExcitationSpectrum(Spectrum):
         The sequence of mu(E)
 
     """
-    XLABEL = 'Energy (eV)'
-    YLABEL = 'Intensity'
+
+    XLABEL = "Energy (eV)"
+    YLABEL = "Intensity"
 
     def __init__(self, x, y):
         """

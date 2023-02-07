@@ -1,48 +1,40 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
 """
 This module provides a base class for tensor-like objects and methods for
-basic tensor manipulation.  It also provides a class, SquareTensor,
+basic tensor manipulation. It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
 
-import itertools
-import warnings
+from __future__ import annotations
+
 import collections
-import string
+import itertools
 import os
+import string
+import warnings
+from typing import Sequence
 
 import numpy as np
-
-from scipy.linalg import polar
-
 from monty.json import MSONable
 from monty.serialization import loadfn
+from scipy.linalg import polar
 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Joseph Montoya"
-__copyright__ = "Copyright 2017, The Materials Project"
-__credits__ = ("Maarten de Jong, Shyam Dwaraknath, Wei Chen, "
-               "Mark Asta, Anubhav Jain, Terence Lew")
-__version__ = "1.0"
-__maintainer__ = "Joseph Montoya"
-__email__ = "montoyjh@lbl.gov"
-__status__ = "Production"
-__date__ = "July 24, 2018"
+__credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"
+
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
-reverse_voigt_map = np.array([[0, 5, 4],
-                              [5, 1, 3],
-                              [4, 3, 2]])
+reverse_voigt_map = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
 
-DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__),
-                                   "quad_data.json"))
+DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__), "quad_data.json"))
 
 
 class Tensor(np.ndarray, MSONable):
@@ -50,11 +42,12 @@ class Tensor(np.ndarray, MSONable):
     Base class for doing useful general operations on Nth order tensors,
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
+
     symbol = "T"
 
     def __new__(cls, input_array, vscale=None, check_rank=None):
         """
-        Create a Tensor object.  Note that the constructor uses __new__
+        Create a Tensor object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
@@ -63,60 +56,58 @@ class Tensor(np.ndarray, MSONable):
                 a tensor quantity in standard (i. e. non-voigt) notation
             vscale: (N x M array-like): a matrix corresponding
                 to the coefficients of the voigt-notation tensor
+            check_rank: (int): If not None, checks that input_array's rank == check_rank.
+                Defaults to None.
         """
         obj = np.asarray(input_array).view(cls)
         obj.rank = len(obj.shape)
 
         if check_rank and check_rank != obj.rank:
-            raise ValueError("{} input must be rank {}".format(
-                obj.__class__.__name__, check_rank))
+            raise ValueError(f"{type(obj).__name__} input must be rank {check_rank}")
 
         vshape = tuple([3] * (obj.rank % 2) + [6] * (obj.rank // 2))
         obj._vscale = np.ones(vshape)
         if vscale is not None:
             obj._vscale = vscale
         if obj._vscale.shape != vshape:
-            raise ValueError("Voigt scaling matrix must be the shape of the "
-                             "voigt notation matrix or vector.")
-        if not all([i == 3 for i in obj.shape]):
-            raise ValueError("Pymatgen only supports 3-dimensional tensors, "
-                             "and default tensor constructor uses standard "
-                             "notation.  To construct from voigt notation, use"
-                             " {}.from_voigt".format(obj.__class__.__name__))
+            raise ValueError("Voigt scaling matrix must be the shape of the voigt notation matrix or vector.")
+        if not all(i == 3 for i in obj.shape):
+            raise ValueError(
+                "Pymatgen only supports 3-dimensional tensors, "
+                "and default tensor constructor uses standard "
+                "notation. To construct from voigt notation, use"
+                f" {type(obj).__name__}.from_voigt"
+            )
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        self.rank = getattr(obj, 'rank', None)
-        self._vscale = getattr(obj, '_vscale', None)
-        self._vdict = getattr(obj, '_vdict', None)
+        self.rank = getattr(obj, "rank", None)
+        self._vscale = getattr(obj, "_vscale", None)
+        self._vdict = getattr(obj, "_vdict", None)
 
     def __array_wrap__(self, obj):
         """
         Overrides __array_wrap__ methods in ndarray superclass to avoid errors
         associated with functions that return scalar values
         """
-
         if len(obj.shape) == 0:
             return obj[()]
         return np.ndarray.__array_wrap__(self, obj)
 
     def __hash__(self):
         """
-        define a hash function, since numpy arrays
-        have their own __eq__ method
+        Define a hash function, since numpy arrays have their own __eq__ method
         """
         return hash(self.tostring())
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__,
-                               self.__str__())
+        return f"{type(self).__name__}({self})"
 
-    def zeroed(self, tol=1e-3):
+    def zeroed(self, tol: float = 1e-3):
         """
-        returns the matrix with all entries below a certain threshold
-        (i.e. tol) set to zero
+        Returns the matrix with all entries below a certain threshold (i.e. tol) set to zero.
         """
         new_tensor = self.copy()
         new_tensor[abs(new_tensor) < tol] = 0
@@ -131,7 +122,7 @@ class Tensor(np.ndarray, MSONable):
         """
         return self.__class__(symm_op.transform_tensor(self))
 
-    def rotate(self, matrix, tol=1e-3):
+    def rotate(self, matrix, tol: float = 1e-3):
         """
         Applies a rotation directly, and tests input matrix to ensure a valid
         rotation.
@@ -143,8 +134,7 @@ class Tensor(np.ndarray, MSONable):
         matrix = SquareTensor(matrix)
         if not matrix.is_rotation(tol):
             raise ValueError("Rotation matrix is not valid.")
-        sop = SymmOp.from_rotation_and_translation(matrix,
-                                                   [0., 0., 0.])
+        sop = SymmOp.from_rotation_and_translation(matrix, [0.0, 0.0, 0.0])
         return self.transform(sop)
 
     def einsum_sequence(self, other_arrays, einsum_string=None):
@@ -152,17 +142,16 @@ class Tensor(np.ndarray, MSONable):
         Calculates the result of an einstein summation expression
         """
         if not isinstance(other_arrays, list):
-            raise ValueError("other tensors must be list of "
-                             "tensors or tensor input")
+            raise ValueError("other tensors must be list of tensors or tensor input")
 
         other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:
             lc = string.ascii_lowercase
-            einsum_string = lc[:self.rank]
+            einsum_string = lc[: self.rank]
             other_ranks = [len(a.shape) for a in other_arrays]
             idx = self.rank - sum(other_ranks)
             for length in other_ranks:
-                einsum_string += ',' + lc[idx:idx + length]
+                einsum_string += "," + lc[idx : idx + length]
                 idx += length
 
         einsum_args = [self] + list(other_arrays)
@@ -171,7 +160,7 @@ class Tensor(np.ndarray, MSONable):
     def project(self, n):
         """
         Convenience method for projection of a tensor into a
-        vector.  Returns the tensor dotted into a unit vector
+        vector. Returns the tensor dotted into a unit vector
         along the input n.
 
         Args:
@@ -180,7 +169,6 @@ class Tensor(np.ndarray, MSONable):
         Returns (float):
             scalar value corresponding to the projection of
             the tensor into the vector
-
         """
         n = get_uvec(n)
         return self.einsum_sequence([n] * self.rank)
@@ -197,11 +185,10 @@ class Tensor(np.ndarray, MSONable):
 
         Returns:
             Average of tensor projected into vectors on the unit sphere
-
         """
         quad = quad or DEFAULT_QUAD
-        weights, points = quad['weights'], quad['points']
-        return sum([w * self.project(n) for w, n in zip(weights, points)])
+        weights, points = quad["weights"], quad["points"]
+        return sum(w * self.project(n) for w, n in zip(weights, points))
 
     def get_grouped_indices(self, voigt=False, **kwargs):
         """
@@ -211,7 +198,7 @@ class Tensor(np.ndarray, MSONable):
             voigt (bool): whether to get grouped indices
                 of voigt or full notation tensor, defaults
                 to false
-            **kwargs: keyword args for np.isclose.  Can take atol
+            **kwargs: keyword args for np.isclose. Can take atol
                 and rtol for absolute and relative tolerance, e. g.
 
                 >>> tensor.group_array_indices(atol=1e-8)
@@ -223,22 +210,20 @@ class Tensor(np.ndarray, MSONable):
         Returns:
             list of index groups where tensor values are equivalent to
             within tolerances
-
         """
         if voigt:
             array = self.voigt
         else:
             array = self
 
-        indices = list(itertools.product(*[range(n) for n in array.shape]))
+        indices = list(itertools.product(*(range(n) for n in array.shape)))
         remaining = indices.copy()
         # Start with everything near zero
         grouped = [list(zip(*np.where(np.isclose(array, 0, **kwargs))))]
         remaining = [i for i in remaining if i not in grouped[0]]
         # Iteratively run through remaining indices
         while remaining:
-            new = list(zip(*np.where(np.isclose(
-                array, array[remaining[0]], **kwargs))))
+            new = list(zip(*np.where(np.isclose(array, array[remaining[0]], **kwargs))))
             grouped.append(new)
             remaining = [i for i in remaining if i not in new]
         # Don't return any empty lists
@@ -255,7 +240,7 @@ class Tensor(np.ndarray, MSONable):
             zero_index (bool): whether to set initial index to zero,
                 defaults to false, since tensor notations tend to use
                 one-indexing, rather than zero indexing like python
-            **kwargs: keyword args for np.isclose.  Can take atol
+            **kwargs: keyword args for np.isclose. Can take atol
                 and rtol for absolute and relative tolerance, e. g.
 
                 >>> tensor.get_symbol_dict(atol=1e-8)
@@ -267,9 +252,6 @@ class Tensor(np.ndarray, MSONable):
         Returns:
             list of index groups where tensor values are equivalent to
             within tolerances
-
-        Returns:
-
         """
         d = {}
         if voigt:
@@ -282,8 +264,8 @@ class Tensor(np.ndarray, MSONable):
         else:
             p = 1
         for indices in grouped:
-            sym_string = self.symbol + '_'
-            sym_string += ''.join([str(i + p) for i in indices[0]])
+            sym_string = self.symbol + "_"
+            sym_string += "".join(str(i + p) for i in indices[0])
             value = array[indices[0]]
             if not np.isclose(value, 0):
                 d[sym_string] = array[indices[0]]
@@ -301,7 +283,6 @@ class Tensor(np.ndarray, MSONable):
 
         Returns (Tensor):
             rounded tensor of same type
-
         """
         return self.__class__(np.round(self, decimals=decimals))
 
@@ -313,7 +294,7 @@ class Tensor(np.ndarray, MSONable):
         possible permutations of indices
         """
         perms = list(itertools.permutations(range(self.rank)))
-        return sum([np.transpose(self, ind) for ind in perms]) / len(perms)
+        return sum(np.transpose(self, ind) for ind in perms) / len(perms)
 
     @property
     def voigt_symmetrized(self):
@@ -326,10 +307,10 @@ class Tensor(np.ndarray, MSONable):
 
         v = self.voigt
         perms = list(itertools.permutations(range(len(v.shape))))
-        new_v = sum([np.transpose(v, ind) for ind in perms]) / len(perms)
-        return self.__class__.from_voigt(new_v)
+        new_v = sum(np.transpose(v, ind) for ind in perms) / len(perms)
+        return type(self).from_voigt(new_v)
 
-    def is_symmetric(self, tol=1e-5):
+    def is_symmetric(self, tol: float = 1e-5):
         """
         Tests whether a tensor is symmetric or not based on the residual
         with its symmetric part, from self.symmetrized
@@ -339,7 +320,7 @@ class Tensor(np.ndarray, MSONable):
         """
         return (self - self.symmetrized < tol).all()
 
-    def fit_to_structure(self, structure, symprec=0.1):
+    def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
         """
         Returns a tensor that is invariant with respect to symmetry
         operations corresponding to a structure
@@ -352,10 +333,9 @@ class Tensor(np.ndarray, MSONable):
         """
         sga = SpacegroupAnalyzer(structure, symprec)
         symm_ops = sga.get_symmetry_operations(cartesian=True)
-        return sum([self.transform(symm_op)
-                    for symm_op in symm_ops]) / len(symm_ops)
+        return sum(self.transform(symm_op) for symm_op in symm_ops) / len(symm_ops)
 
-    def is_fit_to_structure(self, structure, tol=1e-2):
+    def is_fit_to_structure(self, structure: Structure, tol: float = 1e-2):
         """
         Tests whether a tensor is invariant with respect to the
         symmetry operations of a particular structure by testing
@@ -375,28 +355,26 @@ class Tensor(np.ndarray, MSONable):
         """
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
         this_voigt_map = self.get_voigt_dict(self.rank)
-        for ind in this_voigt_map:
-            v_matrix[this_voigt_map[ind]] = self[ind]
+        for ind, v in this_voigt_map.items():
+            v_matrix[v] = self[ind]
         if not self.is_voigt_symmetric():
-            warnings.warn("Tensor is not symmetric, information may "
-                          "be lost in voigt conversion.")
+            warnings.warn("Tensor is not symmetric, information may be lost in voigt conversion.")
         return v_matrix * self._vscale
 
-    def is_voigt_symmetric(self, tol=1e-6):
+    def is_voigt_symmetric(self, tol: float = 1e-6):
         """
         Tests symmetry of tensor to that necessary for voigt-conversion
         by grouping indices into pairs and constructing a sequence of
         possible permutations to be used in a tensor transpose
         """
         transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
-        transpose_pieces += [[range(j, j + 2)] for j in
-                             range(self.rank % 2, self.rank, 2)]
+        transpose_pieces += [[list(range(j, j + 2))] for j in range(self.rank % 2, self.rank, 2)]
         for n in range(self.rank % 2, len(transpose_pieces)):
             if len(transpose_pieces[n][0]) == 2:
                 transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
         for trans_seq in itertools.product(*transpose_pieces):
-            trans_seq = list(itertools.chain(*trans_seq))
-            if (self - self.transpose(trans_seq) > tol).any():
+            transpose_seq = list(itertools.chain(*trans_seq))
+            if (self - self.transpose(transpose_seq) > tol).any():  # type: ignore
                 return False
         return True
 
@@ -411,10 +389,10 @@ class Tensor(np.ndarray, MSONable):
         """
         vdict = {}
         for ind in itertools.product(*[range(3)] * rank):
-            v_ind = ind[:rank % 2]
+            v_ind = ind[: rank % 2]
             for j in range(rank // 2):
                 pos = rank % 2 + 2 * j
-                v_ind += (reverse_voigt_map[ind[pos:pos + 2]],)
+                v_ind += (reverse_voigt_map[ind[pos : pos + 2]],)
             vdict[ind] = v_ind
         return vdict
 
@@ -433,8 +411,8 @@ class Tensor(np.ndarray, MSONable):
             raise ValueError("Invalid shape for voigt matrix")
         voigt_input = voigt_input / t._vscale
         this_voigt_map = t.get_voigt_dict(rank)
-        for ind in this_voigt_map:
-            t[ind] = voigt_input[this_voigt_map[ind]]
+        for ind, v in this_voigt_map.items():
+            t[ind] = voigt_input[v]
         return cls(t)
 
     @staticmethod
@@ -453,9 +431,8 @@ class Tensor(np.ndarray, MSONable):
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
         dataset = sga.get_symmetry_dataset()
-        trans_mat = dataset['transformation_matrix']
-        conv_latt = Lattice(np.transpose(np.dot(np.transpose(
-            structure.lattice.matrix), np.linalg.inv(trans_mat))))
+        trans_mat = dataset["transformation_matrix"]
+        conv_latt = Lattice(np.transpose(np.dot(np.transpose(structure.lattice.matrix), np.linalg.inv(trans_mat))))
         xtal_sys = sga.get_crystal_system()
 
         vecs = conv_latt.matrix
@@ -469,9 +446,7 @@ class Tensor(np.ndarray, MSONable):
 
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
-            rotation = np.array([vec / mag for (mag, vec) in
-                                 sorted(zip(lengths, vecs),
-                                        key=lambda x: x[0])])
+            rotation = np.array([vec / mag for (mag, vec) in sorted(zip(lengths, vecs), key=lambda x: x[0])])
             if abs(lengths[2] - lengths[1]) < abs(lengths[1] - lengths[0]):
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
@@ -485,7 +460,7 @@ class Tensor(np.ndarray, MSONable):
         # Note this also includes rhombohedral crystal systems
         elif xtal_sys in ("trigonal", "hexagonal"):
             # find threefold axis:
-            tf_index = np.argmin(abs(angles - 120.))
+            tf_index = np.argmin(abs(angles - 120.0))
             non_tf_mask = np.logical_not(angles == angles[tf_index])
             rotation[2] = get_uvec(vecs[tf_index])
             rotation[0] = get_uvec(vecs[non_tf_mask][0])
@@ -494,12 +469,11 @@ class Tensor(np.ndarray, MSONable):
         # IEEE rules: b,c || x2,x3; alpha=beta=90, c<a
         elif xtal_sys == "monoclinic":
             # Find unique axis
-            u_index = np.argmax(abs(angles - 90.))
+            u_index = np.argmax(abs(angles - 90.0))
             n_umask = np.logical_not(angles == angles[u_index])
             rotation[1] = get_uvec(vecs[u_index])
             # Shorter of remaining lattice vectors for c axis
-            c = [vec / mag for (mag, vec) in
-                 sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
+            c = [vec / mag for (mag, vec) in sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
             rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
 
@@ -515,8 +489,7 @@ class Tensor(np.ndarray, MSONable):
 
         return rotation
 
-    def convert_to_ieee(self, structure, initial_fit=True,
-                        refine_rotation=True):
+    def convert_to_ieee(self, structure: Structure, initial_fit=True, refine_rotation=True):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -541,8 +514,7 @@ class Tensor(np.ndarray, MSONable):
             result = result.fit_to_structure(structure)
         return result.rotate(rotation, tol=1e-2)
 
-    def structure_transform(self, original_structure, new_structure,
-                            refine_rotation=True):
+    def structure_transform(self, original_structure, new_structure, refine_rotation=True):
         """
         Transforms a tensor from one basis for an original structure
         into a new basis defined by a new structure.
@@ -571,9 +543,16 @@ class Tensor(np.ndarray, MSONable):
         return new
 
     @classmethod
-    def from_values_indices(cls, values, indices, populate=False,
-                            structure=None, voigt_rank=None,
-                            vsym=True, verbose=False):
+    def from_values_indices(
+        cls,
+        values,
+        indices,
+        populate=False,
+        structure=None,
+        voigt_rank=None,
+        vsym=True,
+        verbose=False,
+    ):
         """
         Creates a tensor from values and indices, with options
         for populating the remainder of the tensor.
@@ -585,7 +564,7 @@ class Tensor(np.ndarray, MSONable):
             structure (Structure): structure to base population
                 or fit_to_structure on
             voigt_rank (int): full tensor rank to indicate the
-                shape of the resulting tensor.  This is necessary
+                shape of the resulting tensor. This is necessary
                 if one provides a set of indices more minimal than
                 the shape of the tensor they want, e.g.
                 Tensor.from_values_indices((0, 0), 100)
@@ -597,9 +576,9 @@ class Tensor(np.ndarray, MSONable):
         # TODO: refactor rank inheritance to make this easier
         indices = np.array(indices)
         if voigt_rank:
-            shape = ([3] * (voigt_rank % 2) + [6] * (voigt_rank // 2))
+            shape = [3] * (voigt_rank % 2) + [6] * (voigt_rank // 2)
         else:
-            shape = np.ceil(np.max(indices + 1, axis=0) / 3.) * 3
+            shape = np.ceil(np.max(indices + 1, axis=0) / 3.0) * 3
         base = np.zeros(shape.astype(int))
         for v, idx in zip(values, indices):
             base[tuple(idx)] = v
@@ -614,8 +593,15 @@ class Tensor(np.ndarray, MSONable):
             obj = obj.fit_to_structure(structure)
         return obj
 
-    def populate(self, structure, prec=1e-5, maxiter=200, verbose=False,
-                 precond=True, vsym=True):
+    def populate(
+        self,
+        structure: Structure,
+        prec: float = 1e-5,
+        maxiter: int = 200,
+        verbose: bool = False,
+        precond: bool = True,
+        vsym: bool = True,
+    ) -> Tensor:
         """
         Takes a partially populated tensor, and populates the non-zero
         entries according to the following procedure, iterated until
@@ -635,11 +621,14 @@ class Tensor(np.ndarray, MSONable):
                 all symmops and storing new nonzero values, default True
             vsym (bool): whether to enforce voigt symmetry, defaults
                 to True
+
+        Returns:
+            Tensor: Populated tensor
         """
+        guess = Tensor(np.zeros(self.shape))
         if precond:
             # Generate the guess from populated
             sops = SpacegroupAnalyzer(structure).get_symmetry_operations()
-            guess = Tensor(np.zeros(self.shape))
             mask = abs(self) > prec
             guess[mask] = self[mask]
 
@@ -648,11 +637,11 @@ class Tensor(np.ndarray, MSONable):
                 nmask = np.abs(new) > prec
                 new_mask = np.logical_not(gmask) * nmask
                 avg_mask = gmask * nmask
-                old[avg_mask] = (old[avg_mask] + new[avg_mask]) / 2.
+                old[avg_mask] = (old[avg_mask] + new[avg_mask]) / 2.0
                 old[new_mask] = new[new_mask]
 
             if verbose:
-                print("Preconditioning for {} symmops".format(len(sops)))
+                print(f"Preconditioning for {len(sops)} symmops")
             for sop in sops:
                 rot = guess.transform(sop)
                 # Store non-zero entries of new that weren't previously
@@ -667,14 +656,12 @@ class Tensor(np.ndarray, MSONable):
                     vtrans = np.transpose(v, perm)
                     merge(v, vtrans)
                 guess = Tensor.from_voigt(v)
-        else:
-            guess = np.zeros(self.shape)
 
         assert guess.shape == self.shape, "Guess must have same shape"
         converged = False
         test_new, test_old = [guess.copy()] * 2
-        for i in range(maxiter):
-            test_new = test_old.fit_to_structure(structure)
+        for idx in range(maxiter):
+            test_new = test_old.fit_to_structure(structure)  # pylint: disable=no-member
             if vsym:
                 test_new = test_new.voigt_symmetrized
             diff = np.abs(test_old - test_new)
@@ -684,11 +671,10 @@ class Tensor(np.ndarray, MSONable):
             test_new[mask] = self[mask]
             test_old = test_new
             if verbose:
-                print("Iteration {}: {}".format(i, np.max(diff)))
+                print(f"Iteration {idx}: {np.max(diff)}")
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
-            warnings.warn("Warning, populated tensor is not converged "
-                          "with max diff of {}".format(max_diff))
+            warnings.warn(f"Warning, populated tensor is not converged with max diff of {max_diff}")
         return self.__class__(test_new)
 
     def as_dict(self, voigt: bool = False) -> dict:
@@ -697,26 +683,30 @@ class Tensor(np.ndarray, MSONable):
 
         Args:
             voigt (bool): flag for whether to store entries in
-                voigt-notation.  Defaults to false, as information
+                voigt-notation. Defaults to false, as information
                 may be lost in conversion.
 
-        Returns (Dict):
+        Returns (dict):
             serialized format tensor object
-
         """
         input_array = self.voigt if voigt else self
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "input_array": input_array.tolist()}
+        d = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "input_array": input_array.tolist(),
+        }
         if voigt:
             d.update({"voigt": voigt})
         return d
 
     @classmethod
-    def from_dict(cls, d):
-        """MSONAble from_dict implementation."""
-        voigt = d.get('voigt')
-        if voigt:
+    def from_dict(cls, d) -> Tensor:
+        """Instantiate Tensors from dicts (using MSONAble API).
+
+        Returns:
+            Tensor: hydrated tensor object
+        """
+        if d.get("voigt"):
             return cls.from_voigt(d["input_array"])
         return cls(d["input_array"])
 
@@ -732,8 +722,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tensor_list: List of tensors.
         :param base_class: Class to be used.
         """
-        self.tensors = [base_class(t) if not isinstance(t, base_class)
-                        else t for t in tensor_list]
+        self.tensors = [base_class(t) if not isinstance(t, base_class) else t for t in tensor_list]
 
     def __len__(self):
         return len(self.tensors)
@@ -744,7 +733,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
     def __iter__(self):
         return self.tensors.__iter__()
 
-    def zeroed(self, tol=1e-3):
+    def zeroed(self, tol: float = 1e-3):
         """
         :param tol: Tolerance
         :return: TensorCollection where small values are set to 0.
@@ -760,7 +749,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return self.__class__([t.transform(symm_op) for t in self])
 
-    def rotate(self, matrix, tol=1e-3):
+    def rotate(self, matrix, tol: float = 1e-3):
         """
         Rotates TensorCollection.
 
@@ -777,14 +766,14 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return self.__class__([t.symmetrized for t in self])
 
-    def is_symmetric(self, tol=1e-5):
+    def is_symmetric(self, tol: float = 1e-5):
         """
         :param tol: tolerance
         :return: Whether all tensors are symmetric.
         """
-        return all([t.is_symmetric(tol) for t in self])
+        return all(t.is_symmetric(tol) for t in self)
 
-    def fit_to_structure(self, structure, symprec=0.1):
+    def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
         """
         Fits all tensors to a Structure.
 
@@ -792,16 +781,15 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param symprec: symmetry precision.
         :return: TensorCollection.
         """
-        return self.__class__([t.fit_to_structure(structure, symprec)
-                               for t in self])
+        return self.__class__([t.fit_to_structure(structure, symprec) for t in self])
 
-    def is_fit_to_structure(self, structure, tol=1e-2):
+    def is_fit_to_structure(self, structure: Structure, tol: float = 1e-2):
         """
         :param structure: Structure
         :param tol: tolerance
         :return: Whether all tensors are fitted to Structure.
         """
-        return all([t.is_fit_to_structure(structure, tol) for t in self])
+        return all(t.is_fit_to_structure(structure, tol) for t in self)
 
     @property
     def voigt(self):
@@ -817,12 +805,12 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return [t.rank for t in self]
 
-    def is_voigt_symmetric(self, tol=1e-6):
+    def is_voigt_symmetric(self, tol: float = 1e-6):
         """
         :param tol: tolerance
         :return: Whether all tensors are voigt symmetric.
         """
-        return all([t.is_voigt_symmetric(tol) for t in self])
+        return all(t.is_voigt_symmetric(tol) for t in self)
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
@@ -835,8 +823,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         return cls([base_class.from_voigt(v) for v in voigt_input_list])
 
-    def convert_to_ieee(self, structure, initial_fit=True,
-                        refine_rotation=True):
+    def convert_to_ieee(self, structure: Structure, initial_fit=True, refine_rotation=True):
         """
         Convert all tensors to IEEE.
 
@@ -845,9 +832,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param refine_rotation: Whether to refine the rotation.
         :return: TensorCollection.
         """
-        return self.__class__(
-            [t.convert_to_ieee(structure, initial_fit, refine_rotation)
-             for t in self])
+        return self.__class__([t.convert_to_ieee(structure, initial_fit, refine_rotation) for t in self])
 
     def round(self, *args, **kwargs):
         """
@@ -872,9 +857,11 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :return: Dict representation of TensorCollection.
         """
         tensor_list = self.voigt if voigt else self
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "tensor_list": [t.tolist() for t in tensor_list]}
+        d = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "tensor_list": [t.tolist() for t in tensor_list],
+        }
         if voigt:
             d.update({"voigt": voigt})
         return d
@@ -887,7 +874,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param d: dict
         :return: TensorCollection
         """
-        voigt = d.get('voigt')
+        voigt = d.get("voigt")
         if voigt:
             return cls.from_voigt(d["tensor_list"])
         return cls(d["tensor_list"])
@@ -901,10 +888,9 @@ class SquareTensor(Tensor):
 
     def __new__(cls, input_array, vscale=None):
         """
-        Create a SquareTensor object.  Note that the constructor uses __new__
-        rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.  Error is thrown when the class is
-        initialized with non-square matrix.
+        Create a SquareTensor object. Note that the constructor uses __new__ rather than
+        __init__ according to the standard method of subclassing numpy ndarrays. Error
+        is thrown when the class is initialized with non-square matrix.
 
         Args:
             input_array (3x3 array-like): the 3x3 array-like
@@ -912,35 +898,27 @@ class SquareTensor(Tensor):
             vscale (6x1 array-like): 6x1 array-like scaling the
                 voigt-notation vector with the tensor entries
         """
-
-        obj = super().__new__(cls, input_array, vscale,
-                              check_rank=2)
+        obj = super().__new__(cls, input_array, vscale, check_rank=2)
         return obj.view(cls)
 
     @property
     def trans(self):
-        """
-        shorthand for transpose on SquareTensor
-        """
+        """Shorthand for transpose on SquareTensor"""
         return SquareTensor(np.transpose(self))
 
     @property
     def inv(self):
-        """
-        shorthand for matrix inverse on SquareTensor
-        """
+        """Shorthand for matrix inverse on SquareTensor"""
         if self.det == 0:
             raise ValueError("SquareTensor is non-invertible")
         return SquareTensor(np.linalg.inv(self))
 
     @property
     def det(self):
-        """
-        shorthand for the determinant of the SquareTensor
-        """
+        """Shorthand for the determinant of the SquareTensor"""
         return np.linalg.det(self)
 
-    def is_rotation(self, tol=1e-3, include_improper=True):
+    def is_rotation(self, tol: float = 1e-3, include_improper=True):
         """
         Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose
@@ -957,12 +935,12 @@ class SquareTensor(Tensor):
         det = np.abs(np.linalg.det(self))
         if include_improper:
             det = np.abs(det)
-        return (np.abs(self.inv - self.trans) < tol).all() and (np.abs(det - 1.) < tol)
+        return (np.abs(self.inv - self.trans) < tol).all() and (np.abs(det - 1.0) < tol)
 
     def refine_rotation(self):
         """
         Helper method for refining rotation matrix by ensuring
-        that second and third rows are perpindicular to the first.
+        that second and third rows are perpendicular to the first.
         Gets new y vector from an orthogonal projection of x onto y
         and the new z vector from a cross product of the new x and y
 
@@ -997,22 +975,22 @@ class SquareTensor(Tensor):
         """
         return np.poly(self)[1:] * np.array([-1, 1, -1])
 
-    def polar_decomposition(self, side='right'):
+    def polar_decomposition(self, side="right"):
         """
-        calculates matrices for polar decomposition
+        Calculates matrices for polar decomposition
         """
         return polar(self, side=side)
 
 
 def get_uvec(vec):
-    """ Gets a unit vector parallel to input vector"""
+    """Gets a unit vector parallel to input vector"""
     l = np.linalg.norm(vec)
     if l < 1e-8:
         return vec
     return vec / l
 
 
-def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
+def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
     """
     Function that converts a list of tensors corresponding to a structure
     and returns a dictionary consisting of unique tensor keys with symmop
@@ -1026,7 +1004,7 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
         tol (float): tolerance for tensor equivalence
         kwargs: keyword arguments for the SpacegroupAnalyzer
 
-    returns:
+    Returns:
         dictionary consisting of unique tensors with symmetry operations
         corresponding to those which will reconstruct the remaining
         tensors as values
@@ -1053,33 +1031,33 @@ class TensorMapping(collections.abc.MutableMapping):
     equality to keys for getting and setting items.
 
     This is intended primarily for convenience with things like
-    stress-strain pairs and fitting data manipulation.  In general,
+    stress-strain pairs and fitting data manipulation. In general,
     it is significantly less robust than a typical hashing
     and should be used with care.
-
     """
 
-    def __init__(self, tensors=None, values=None, tol=1e-5):
-        """
-        Initialize a TensorMapping
+    def __init__(self, tensors: Sequence[Tensor] = (), values: Sequence = (), tol: float = 1e-5):
+        """Initialize a TensorMapping
 
         Args:
-            tensor_list ([Tensor]): list of tensors
-            value_list ([]): list of values to be associated with tensors
-            tol (float): an absolute tolerance for getting and setting
-                items in the mapping
+            tensors (Sequence[Tensor], optional): Defaults to (,).
+            values (Sequence, optional): Values to be associated with tensors. Defaults to (,).
+            tol (float, optional): an absolute tolerance for getting and setting items in the mapping.
+                Defaults to 1e-5.
+
+        Raises:
+            ValueError: if tensors and values are not the same length
         """
-        self._tensor_list = tensors or []
-        self._value_list = values or []
-        if not len(self._tensor_list) == len(self._value_list):
-            raise ValueError("TensorMapping must be initialized with tensors"
-                             "and values of equivalent length")
+        if len(values) != len(tensors):
+            raise ValueError("TensorMapping must be initialized with tensors and values of equivalent length")
+        self._tensor_list = list(tensors)  # needs to be a list
+        self._value_list = list(values)  # needs to be a list
         self.tol = tol
 
     def __getitem__(self, item):
         index = self._get_item_index(item)
         if index is None:
-            raise KeyError("{} not found in mapping.".format(item))
+            raise KeyError(f"{item} not found in mapping.")
         return self._value_list[index]
 
     def __setitem__(self, key, value):
@@ -1099,8 +1077,7 @@ class TensorMapping(collections.abc.MutableMapping):
         return len(self._tensor_list)
 
     def __iter__(self):
-        for item in self._tensor_list:
-            yield item
+        yield from self._tensor_list
 
     def values(self):
         """
@@ -1122,8 +1099,7 @@ class TensorMapping(collections.abc.MutableMapping):
             return None
         item = np.array(item)
         axis = tuple(range(1, len(item.shape) + 1))
-        mask = np.all(np.abs(np.array(self._tensor_list) - item) < self.tol,
-                      axis=axis)
+        mask = np.all(np.abs(np.array(self._tensor_list) - item) < self.tol, axis=axis)
         indices = np.where(mask)[0]
         if len(indices) > 1:
             raise ValueError("Tensor key collision.")

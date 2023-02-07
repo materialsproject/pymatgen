@@ -3,6 +3,8 @@ This module provides conversion between the JARVIS
 Atoms object and pymatgen Structure objects.
 """
 
+from __future__ import annotations
+
 from pymatgen.core.structure import Structure
 
 try:
@@ -32,10 +34,7 @@ class JarvisAtomsAdaptor:
         if not structure.is_ordered:
             raise ValueError("JARVIS Atoms only supports ordered structures")
         if not jarvis_loaded:
-            raise ImportError(
-                "JarvisAtomsAdaptor requires jarvis-tools package.\n"
-                "Use `pip install -U jarvis-tools`"
-            )
+            raise ImportError("JarvisAtomsAdaptor requires jarvis-tools package.\nUse `pip install -U jarvis-tools`")
         elements = [str(site.specie.symbol) for site in structure]
         coords = [site.frac_coords for site in structure]
         lattice_mat = structure.lattice.matrix
@@ -61,6 +60,4 @@ class JarvisAtomsAdaptor:
         coords = atoms.frac_coords
         lattice_mat = atoms.lattice_mat
 
-        return Structure(
-            lattice_mat, elements, coords, coords_are_cartesian=False
-        )
+        return Structure(lattice_mat, elements, coords, coords_are_cartesian=False)

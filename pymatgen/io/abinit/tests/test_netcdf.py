@@ -1,22 +1,24 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import unittest
-import numpy as np
 
-from pymatgen import Structure
-from pymatgen.util.testing import PymatgenTest
+import numpy as np
+import pytest
+
+from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import ETSF_Reader
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import netCDF4
 except ImportError:
     netCDF4 = None
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                         'test_files', "abinit")
+_test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit")
 
 
 def ref_file(filename):
@@ -24,9 +26,10 @@ def ref_file(filename):
 
 
 class ETSF_Reader_TestCase(PymatgenTest):
-
     def setUp(self):
-        formulas = ["Si2", ]
+        formulas = [
+            "Si2",
+        ]
         self.GSR_paths = d = {}
         for formula in formulas:
             d[formula] = ref_file(formula + "_GSR.nc")
@@ -35,9 +38,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
     def test_read_Si2(self):
         path = self.GSR_paths["Si2"]
 
-        ref_dims = {
-            "number_of_spins": 1
-        }
+        ref_dims = {"number_of_spins": 1}
 
         ref_int_values = {
             "space_group": 227,
@@ -46,12 +47,11 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
         ref_float_values = {
             "etotal": -8.85911566912484,
-            "primitive_vectors": np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125,
-                                             5.125, 5.125, 0], (3, 3)),
+            "primitive_vectors": np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125, 5.125, 5.125, 0], (3, 3)),
         }
 
         with ETSF_Reader(path) as data:
-            self.assertEqual(data.ngroups, 1)
+            assert data.ngroups == 1
             print(data.read_varnames())
 
             # Test dimensions.
@@ -74,10 +74,10 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             # Reading non-existent variables or dims should raise
             # a subclass of NetcdReaderError
-            with self.assertRaises(data.Error):
+            with pytest.raises(data.Error):
                 data.read_value("foobar")
 
-            with self.assertRaises(data.Error):
+            with pytest.raises(data.Error):
                 data.read_dimvalue("foobar")
 
             # Unless default is given
@@ -89,7 +89,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             # Initialize pymatgen structure from GSR.
             structure = data.read_structure()
-            self.assertTrue(isinstance(structure, Structure))
+            assert isinstance(structure, Structure)
 
             # Read ixc.
             # TODO: Upgrade GSR file.

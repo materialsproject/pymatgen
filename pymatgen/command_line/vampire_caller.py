@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -17,16 +16,17 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
-import subprocess
-import logging
-import pandas as pd
+from __future__ import annotations
 
+import logging
+import subprocess
+from shutil import which
+
+import pandas as pd
 from monty.dev import requires
-from monty.os.path import which
 from monty.json import MSONable
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -43,24 +43,24 @@ class VampireCaller:
     Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
     temperature with classical Monte Carlo.
     """
+
     @requires(
         VAMPEXE,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
     def __init__(
-            self,
-            ordered_structures=None,
-            energies=None,
-            mc_box_size=4.0,
-            equil_timesteps=2000,
-            mc_timesteps=4000,
-            save_inputs=False,
-            hm=None,
-            avg=True,
-            user_input_settings=None,
+        self,
+        ordered_structures=None,
+        energies=None,
+        mc_box_size=4.0,
+        equil_timesteps=2000,
+        mc_timesteps=4000,
+        save_inputs=False,
+        hm=None,
+        avg=True,
+        user_input_settings=None,
     ):
-
         """
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
@@ -83,7 +83,7 @@ class VampireCaller:
         Parameters:
             sgraph (StructureGraph): Ground state graph.
             unique_site_ids (dict): Maps each site to its unique identifier
-            nn_interacations (dict): {i: j} pairs of NN interactions
+            nn_interactions (dict): {i: j} pairs of NN interactions
                 between unique sites.
             ex_params (dict): Exchange parameter values (meV/atom)
             mft_t (float): Mean field theory estimate of critical T
@@ -93,9 +93,7 @@ class VampireCaller:
 
         TODO:
             * Create input files in a temp folder that gets cleaned up after run terminates
-
         """
-
         self.mc_box_size = mc_box_size
         self.equil_timesteps = equil_timesteps
         self.mc_timesteps = mc_timesteps
@@ -109,9 +107,7 @@ class VampireCaller:
 
         # Get exchange parameters and set instance variables
         if not hm:
-            hmapper = HeisenbergMapper(
-                ordered_structures, energies, cutoff=3.0, tol=0.02
-            )
+            hmapper = HeisenbergMapper(ordered_structures, energies, cutoff=3.0, tol=0.02)
 
             hm = hmapper.get_heisenberg_model()
 
@@ -140,11 +136,9 @@ class VampireCaller:
         self._create_ucf()
 
         # Call Vampire
-        process = subprocess.Popen(
-            ["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        stdout, stderr = process.communicate()
-        stdout = stdout.decode()
+        with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+            stdout, stderr = process.communicate()
+            stdout = stdout.decode()
 
         if stderr:
             vanhelsing = stderr.decode()
@@ -152,9 +146,7 @@ class VampireCaller:
                 logging.warning(vanhelsing)
 
         if process.returncode != 0:
-            raise RuntimeError(
-                "Vampire exited with return code {}.".format(process.returncode)
-            )
+            raise RuntimeError(f"Vampire exited with return code {process.returncode}.")
 
         self._stdout = stdout
         self._stderr = stderr
@@ -165,7 +157,6 @@ class VampireCaller:
         self.output = VampireOutput(parsed_out, nmats, critical_temp)
 
     def _create_mat(self):
-
         structure = self.structure
         mat_name = self.mat_name
         magmoms = structure.site_properties["magmom"]
@@ -194,7 +185,6 @@ class VampireCaller:
                 if spin_down and not spin_up:
                     mat_id_dict[site] = nmats
                 if spin_up and spin_down:
-
                     # Check if spin up or down shows up first
                     m0 = magmoms[key[0]]
                     if m > 0 and m0 > 0:
@@ -210,7 +200,7 @@ class VampireCaller:
             if spin_up and spin_down:
                 nmats += 1
 
-        mat_file = ["material:num-materials=%d" % (nmats)]
+        mat_file = [f"material:num-materials={nmats}"]
 
         for key in self.unique_site_ids:
             i = self.unique_site_ids[key]  # unique site id
@@ -228,13 +218,12 @@ class VampireCaller:
 
                 atom = structure[i].species.reduced_formula
 
-                mat_file += ["material[%d]:material-element=%s" % (mat_id, atom)]
+                mat_file += [f"material[{mat_id}]:material-element={atom}"]
                 mat_file += [
-                    "material[%d]:damping-constant=1.0" % (mat_id),
-                    "material[%d]:uniaxial-anisotropy-constant=1.0e-24"
-                    % (mat_id),  # xx - do we need this?
-                    "material[%d]:atomic-spin-moment=%.2f !muB" % (mat_id, m_magnitude),
-                    "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin),
+                    f"material[{mat_id}]:damping-constant=1.0",
+                    f"material[{mat_id}]:uniaxial-anisotropy-constant=1.0e-24",  # xx - do we need this?
+                    f"material[{mat_id}]:atomic-spin-moment={m_magnitude:.2f} !muB",
+                    f"material[{mat_id}]:initial-spin-direction=0,0,{spin}",
                 ]
 
         mat_file = "\n".join(mat_file)
@@ -246,15 +235,14 @@ class VampireCaller:
             f.write(mat_file)
 
     def _create_input(self):
-
         structure = self.structure
         mcbs = self.mc_box_size
         equil_timesteps = self.equil_timesteps
         mc_timesteps = self.mc_timesteps
         mat_name = self.mat_name
 
-        input_script = ["material:unit-cell-file=%s.ucf" % (mat_name)]
-        input_script += ["material:file=%s.mat" % (mat_name)]
+        input_script = [f"material:unit-cell-file={mat_name}.ucf"]
+        input_script += [f"material:file={mat_name}.mat"]
 
         # Specify periodic boundary conditions
         input_script += [
@@ -267,15 +255,15 @@ class VampireCaller:
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
 
-        input_script += ["dimensions:unit-cell-size-x = %.10f !A" % (ucx)]
-        input_script += ["dimensions:unit-cell-size-y = %.10f !A" % (ucy)]
-        input_script += ["dimensions:unit-cell-size-z = %.10f !A" % (ucz)]
+        input_script += [f"dimensions:unit-cell-size-x = {ucx:.10f} !A"]
+        input_script += [f"dimensions:unit-cell-size-y = {ucy:.10f} !A"]
+        input_script += [f"dimensions:unit-cell-size-z = {ucz:.10f} !A"]
 
         # System size in nm
         input_script += [
-            "dimensions:system-size-x = %.1f !nm" % (mcbs),
-            "dimensions:system-size-y = %.1f !nm" % (mcbs),
-            "dimensions:system-size-z = %.1f !nm" % (mcbs),
+            f"dimensions:system-size-x = {mcbs:.1f} !nm",
+            f"dimensions:system-size-y = {mcbs:.1f} !nm",
+            f"dimensions:system-size-z = {mcbs:.1f} !nm",
         ]
 
         # Critical temperature Monte Carlo calculation
@@ -286,8 +274,8 @@ class VampireCaller:
 
         # Default Monte Carlo params
         input_script += [
-            "sim:equilibration-time-steps = %d" % (equil_timesteps),
-            "sim:loop-time-steps = %d" % (mc_timesteps),
+            f"sim:equilibration-time-steps = {equil_timesteps}",
+            f"sim:loop-time-steps = {mc_timesteps}",
             "sim:time-steps-increment = 1",
         ]
 
@@ -308,9 +296,9 @@ class VampireCaller:
             temp_increment = 25
 
         input_script += [
-            "sim:minimum-temperature = %d" % (start_t),
-            "sim:maximum-temperature = %d" % (end_t),
-            "sim:temperature-increment = %d" % (temp_increment),
+            f"sim:minimum-temperature = {start_t}",
+            f"sim:maximum-temperature = {end_t}",
+            f"sim:temperature-increment = {temp_increment}",
         ]
 
         # Output to save
@@ -327,7 +315,6 @@ class VampireCaller:
             f.write(input_script)
 
     def _create_ucf(self):
-
         structure = self.structure
         mat_name = self.mat_name
 
@@ -335,39 +322,39 @@ class VampireCaller:
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
 
         ucf = ["# Unit cell size:"]
-        ucf += ["%.10f %.10f %.10f" % (ucx, ucy, ucz)]
+        ucf += [f"{ucx:.10f} {ucy:.10f} {ucz:.10f}"]
 
         ucf += ["# Unit cell lattice vectors:"]
         a1 = list(structure.lattice.matrix[0])
-        ucf += ["%.10f %.10f %.10f" % (a1[0], a1[1], a1[2])]
+        ucf += [f"{a1[0]:.10f} {a1[1]:.10f} {a1[2]:.10f}"]
         a2 = list(structure.lattice.matrix[1])
-        ucf += ["%.10f %.10f %.10f" % (a2[0], a2[1], a2[2])]
+        ucf += [f"{a2[0]:.10f} {a2[1]:.10f} {a2[2]:.10f}"]
         a3 = list(structure.lattice.matrix[2])
-        ucf += ["%.10f %.10f %.10f" % (a3[0], a3[1], a3[2])]
+        ucf += [f"{a3[0]:.10f} {a3[1]:.10f} {a3[2]:.10f}"]
 
         nmats = max(self.mat_id_dict.values())
 
         ucf += ["# Atoms num_materials; id cx cy cz mat cat hcat"]
-        ucf += ["%d %d" % (len(structure), nmats)]
+        ucf += [f"{len(structure)} {nmats}"]
 
         # Fractional coordinates of atoms
         for site, r in enumerate(structure.frac_coords):
             # Back to 0 indexing for some reason...
             mat_id = self.mat_id_dict[site] - 1
-            ucf += ["%d %.10f %.10f %.10f %d 0 0" % (site, r[0], r[1], r[2], mat_id)]
+            ucf += [f"{site} {r[0]:.10f} {r[1]:.10f} {r[2]:.10f} {mat_id} 0 0"]
 
         # J_ij exchange interaction matrix
         sgraph = self.sgraph
         ninter = 0
-        for i, node in enumerate(sgraph.graph.nodes):
-            ninter += sgraph.get_coordination_of_site(i)
+        for idx in range(len(sgraph.graph.nodes)):
+            ninter += sgraph.get_coordination_of_site(idx)
 
         ucf += ["# Interactions"]
-        ucf += ["%d isotropic" % (ninter)]
+        ucf += [f"{ninter} isotropic"]
 
         iid = 0  # counts number of interaction
-        for i, node in enumerate(sgraph.graph.nodes):
-            connections = sgraph.get_connected_sites(i)
+        for idx in range(len(sgraph.graph.nodes)):
+            connections = sgraph.get_connected_sites(idx)
             for c in connections:
                 jimage = c[1]  # relative integer coordinates of atom j
                 dx = jimage[0]
@@ -380,14 +367,14 @@ class VampireCaller:
                 if self.avg is True:  # Just use <J> estimate
                     j_exc = self.hm.javg
                 else:
-                    j_exc = self.hm._get_j_exc(i, j, dist)
+                    j_exc = self.hm._get_j_exc(idx, j, dist)
 
                 # Convert J_ij from meV to Joules
                 j_exc *= 1.6021766e-22
 
                 j_exc = str(j_exc)  # otherwise this rounds to 0
 
-                ucf += ["%d %d %d %d %d %d %s" % (iid, i, j, dx, dy, dz, j_exc)]
+                ucf += [f"{iid} {idx} {j} {dx} {dy} {dz} {j_exc}"]
                 iid += 1
 
         ucf = "\n".join(ucf)
@@ -407,14 +394,8 @@ class VampireCaller:
         Returns:
             parsed_out (DataFrame): MSONable vampire output.
             critical_temp (float): Calculated critical temp.
-
         """
-
-        names = (
-            ["T", "m_total"]
-            + ["m_" + str(i) for i in range(1, nmats + 1)]
-            + ["X_x", "X_y", "X_z", "X_m", "nan"]
-        )
+        names = ["T", "m_total"] + ["m_" + str(i) for i in range(1, nmats + 1)] + ["X_x", "X_y", "X_z", "X_m", "nan"]
 
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
@@ -440,9 +421,7 @@ class VampireOutput(MSONable):
             parsed_out (json): json rep of parsed stdout DataFrame.
             nmats (int): Number of distinct materials (1 for each specie and up/down spin).
             critical_temp (float): Monte Carlo Tc result.
-
         """
-
         self.parsed_out = parsed_out
         self.nmats = nmats
         self.critical_temp = critical_temp

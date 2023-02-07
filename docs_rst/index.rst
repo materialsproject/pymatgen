@@ -4,6 +4,8 @@
    introduction
    installation
    change_log
+   compatibility
+   contributing
    usage
    team
    references

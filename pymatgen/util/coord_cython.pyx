@@ -1,13 +1,9 @@
-# coding: utf-8
-
-#from __future__ import division, unicode_literals
-
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.
 """
 
-from six.moves import zip
+# isort: dont-add-imports
 
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -18,10 +14,10 @@ __date__ = "Nov 27, 2011"
 
 import numpy as np
 
-from libc.stdlib cimport malloc, free
-from libc.math cimport round, fabs, sqrt, acos, M_PI, cos, sin
-cimport numpy as np
 cimport cython
+cimport numpy as np
+from libc.math cimport fabs, round
+from libc.stdlib cimport free, malloc
 
 #create images, 2d array of all length 3 combinations of [-1,0,1]
 r = np.arange(-1, 2, dtype=np.float_)
@@ -92,13 +88,30 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
+    pbc = lattice.pbc
+    cdef int n_pbc = sum(pbc)
+    cdef int n_pbc_im = 3 ** n_pbc
+    cdef np.float_t[:, ::1] frac_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
 
-    fcoords1 = lattice.get_lll_frac_coords(fcoords1)
-    fcoords2 = lattice.get_lll_frac_coords(fcoords2)
+    cdef int i, j, k, l, I, J
 
-    cdef np.float_t[:, ::1] lat = np.array(lattice.lll_matrix, dtype=np.float_, copy=False, order='C')
+    if n_pbc == 3:
+        fcoords1 = lattice.get_lll_frac_coords(fcoords1)
+        fcoords2 = lattice.get_lll_frac_coords(fcoords2)
+        matrix = lattice.lll_matrix
+        frac_im = images_view
+    else:
+        matrix = lattice.matrix.copy()
+        k = 0
+        for i in range(27):
+            for j in range(3):
+                if not pbc[j] and images_view[i, j] != 0:
+                    break
+            else:
+                frac_im[k] = images_view[i]
+                k += 1
 
-    cdef int i, j, k, l, I, J, bestK
+    cdef np.float_t[:, ::1] lat = np.array(matrix, dtype=np.float_, copy=False, order="C")
 
     I = len(fcoords1)
     J = len(fcoords2)
@@ -108,28 +121,28 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
 
     cdef np.float_t[:, ::1] cart_f1 = <np.float_t[:I, :3]> malloc(3 * I * sizeof(np.float_t))
     cdef np.float_t[:, ::1] cart_f2 = <np.float_t[:J, :3]> malloc(3 * J * sizeof(np.float_t))
-    cdef np.float_t[:, ::1] cart_im = <np.float_t[:27, :3]> malloc(81 * sizeof(np.float_t))
+    cdef np.float_t[:, ::1] cart_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
 
     cdef bint has_mask = mask is not None
     cdef np.int_t[:, :] m
     if has_mask:
-        m = np.array(mask, dtype=np.int_, copy=False, order='C')
+        m = np.array(mask, dtype=np.int_, copy=False, order="C")
 
     cdef bint has_ftol = (lll_frac_tol is not None)
     cdef np.float_t[:] ftol
     if has_ftol:
-        ftol = np.array(lll_frac_tol, dtype=np.float_, order='C', copy=False)
+        ftol = np.array(lll_frac_tol, dtype=np.float_, order="C", copy=False)
 
 
     dot_2d_mod(fc1, lat, cart_f1)
     dot_2d_mod(fc2, lat, cart_f2)
-    dot_2d(images_view, lat, cart_im)
+    dot_2d(frac_im, lat, cart_im)
 
     vectors = np.empty((I, J, 3))
     d2 = np.empty((I, J))
     cdef np.float_t[:, :, ::1] vs = vectors
     cdef np.float_t[:, ::1] ds = d2
-    cdef np.float_t best, d, inc_d, da, db, dc, fdist
+    cdef np.float_t best, d, da, db, dc, fdist
     cdef bint within_frac = True
     cdef np.float_t[:] pre_im = <np.float_t[:3]> malloc(3 * sizeof(np.float_t))
 
@@ -148,7 +161,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
                     for l in range(3):
                         pre_im[l] = cart_f2[j, l] - cart_f1[i, l]
                     best = 1e100
-                    for k in range(27):
+                    for k in range(n_pbc_im):
                         # compilers have a hard time unrolling this
                         da = pre_im[0] + cart_im[k, 0]
                         db = pre_im[1] + cart_im[k, 1]
@@ -178,7 +191,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-def is_coord_subset_pbc(subset, superset, atol, mask):
+def is_coord_subset_pbc(subset, superset, atol, mask, pbc=(True, True, True)):
     """
     Tests if all fractional coords in subset are contained in superset.
     Allows specification of a mask determining pairs that are not
@@ -186,6 +199,8 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
 
     Args:
         subset, superset: List of fractional coords
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         True if all of subset is in superset.
@@ -194,24 +209,26 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order='C')
+    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order="C")
 
-    cdef int i, j, k, I, J
+    cdef int i, j, k, len_fc1, len_fc2
     cdef np.float_t d
-    cdef bint ok
+    cdef bint ok, pbc_int[3]
 
-    I = fc1.shape[0]
-    J = fc2.shape[0]
+    pbc_int = pbc
 
-    for i in range(I):
+    len_fc1 = fc1.shape[0]
+    len_fc2 = fc2.shape[0]
+
+    for i in range(len_fc1):
         ok = False
-        for j in range(J):
+        for j in range(len_fc2):
             if m[i, j]:
                 continue
             ok = True
             for k in range(3):
                 d = fc1[i, k] - fc2[j, k]
-                if fabs(d - round(d)) > t[k]:
+                if fabs(d - round(d) * pbc_int[k]) > t[k]:
                     ok = False
                     break
             if ok:
@@ -223,18 +240,20 @@ def is_coord_subset_pbc(subset, superset, atol, mask):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-def coord_list_mapping_pbc(subset, superset, atol=1e-8):
+def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     """
     Gives the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows
 
     Args:
         subset, superset: List of frac_coords
+        pbc: a tuple defining the periodic boundary conditions along the three
+            axis of the lattice.
 
     Returns:
         list of indices such that superset[indices] = subset
     """
-    inds = np.zeros(len(subset), dtype=np.int) - 1
+    inds = -np.ones(len(subset), dtype=int)
     subset = np.atleast_2d(subset)
     superset = np.atleast_2d(superset)
 
@@ -243,24 +262,25 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     cdef np.float_t[:] t = atol
     cdef np.int_t[:] c_inds = inds
     cdef np.float_t d
-    cdef bint ok_inner, ok_outer
+    cdef bint ok_inner, ok_outer, pbc_int[3]
 
-    I = fc1.shape[0]
-    J = fc2.shape[0]
+    pbc_int = pbc
 
-    for i in range(I):
+    len_fc1 = fc1.shape[0]
+    len_fc2 = fc2.shape[0]
+
+    for i in range(len_fc1):
         ok_outer = False
-        for j in range(J):
+        for j in range(len_fc2):
             ok_inner = True
             for k in range(3):
                 d = fc1[i, k] - fc2[j, k]
-                if fabs(d - round(d)) > t[k]:
+                if fabs(d - round(d) * pbc_int[k]) > t[k]:
                     ok_inner = False
                     break
             if ok_inner:
                 if c_inds[i] >= 0:
-                    raise ValueError("Something wrong with the inputs, likely duplicates "
-                             "in superset")
+                    raise ValueError("Something wrong with the inputs, likely duplicates in superset")
                 c_inds[i] = j
                 ok_outer = True
                 # we don't break here so we can check for duplicates in superset

@@ -3,30 +3,24 @@ This module calculates corrections for the species listed below, fitted to the e
 entries given to the CorrectionCalculator constructor.
 """
 
+from __future__ import annotations
+
+import os
 import warnings
-from collections import OrderedDict
-from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import plotly.graph_objects as go
-import ruamel.yaml
 from monty.serialization import loadfn
+from ruamel import yaml
 from scipy.optimize import curve_fit
 
-from pymatgen import Composition, Element
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
-
-
-def _func(x, *m):
-    """
-    Helper function for curve_fit.
-    """
-    return np.dot(x, m)
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 
 
 class CorrectionCalculator:
-
     """
     A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
 
@@ -44,87 +38,54 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species: List[str] = [
-            "oxide",
-            "peroxide",
-            "superoxide",
-            "S",
-            "F",
-            "Cl",
-            "Br",
-            "I",
-            "N",
-            "Se",
-            "Si",
-            "Sb",
-            "Te",
-            "V",
-            "Cr",
-            "Mn",
-            "Fe",
-            "Co",
-            "Ni",
-            "W",
-            "Mo",
-            "H",
-        ],
+        species: list[str] | None = None,
         max_error: float = 0.1,
-        allow_unstable: Union[float, bool] = 0.1,
-        exclude_polyanions: List[str] = [
-            "SO4",
-            "CO3",
-            "NO3",
-            "OCl3",
-            "SiO4",
-            "SeO3",
-            "TiO3",
-            "TiO4",
-        ]
+        allow_unstable: float | bool = 0.1,
+        exclude_polyanions: list[str] | None = None,
     ) -> None:
-
         """
         Initializes a CorrectionCalculator.
 
         Args:
             species: list of species to calculate corrections for
             max_error: maximum tolerable relative uncertainty in experimental energy.
-                    Compounds with relative uncertainty greater than this value will be excluded from the fit
+                Compounds with relative uncertainty greater than this value will be excluded from the fit
             allow_unstable: whether unstable entries are to be included in the fit. If True, all compounds will
-                            be included regardless of their energy above hull. If False or a float, compounds with
-                            energy above hull greater than the given value (defaults to 0.1 eV/atom) will be
-                            excluded
+                be included regardless of their energy above hull. If False or a float, compounds with
+                energy above hull greater than the given value (defaults to 0.1 eV/atom) will be
+                excluded
             exclude_polyanions: a list of polyanions that contain additional sources of error that may negatively
-                                influence the quality of the fitted corrections. Compounds with these polyanions
-                                will be excluded from the fit
-
+                influence the quality of the fitted corrections. Compounds with these polyanions
+                will be excluded from the fit
         """
+        self.species = species or "oxide peroxide superoxide S F Cl Br I N Se Si Sb Te V Cr Mn Fe Co Ni W Mo H".split()
 
-        self.species = species
         self.max_error = max_error
         if not allow_unstable:
             self.allow_unstable = 0.1
         else:
             self.allow_unstable = allow_unstable
-        self.exclude_polyanions = exclude_polyanions
+        self.exclude_polyanions = (
+            exclude_polyanions
+            if exclude_polyanions is not None
+            else "SO4 SO3 CO3 NO3 NO2 OCl3 ClO3 ClO4 HO ClO SeO3 TiO3 TiO4 WO4 SiO3 SiO4 Si2O5 PO3 PO4 P2O7".split()
+        )
 
-        self.corrections: List[float] = []
-        self.corrections_std_error: List[float] = []
-        self.corrections_dict: Dict[
-            str, Tuple[float, float]
-        ] = {}  # {'species': (value, uncertainty)}
+        self.corrections: list[float] = []
+        self.corrections_std_error: list[float] = []
+        self.corrections_dict: dict[str, tuple[float, float]] = {}  # {'species': (value, uncertainty)}
 
         # to help the graph_residual_error_per_species() method differentiate between oxygen containing compounds
         if "oxide" in self.species:
-            self.oxides: List[str] = []
+            self.oxides: list[str] = []
         if "peroxide" in self.species:
-            self.peroxides: List[str] = []
+            self.peroxides: list[str] = []
         if "superoxide" in self.species:
-            self.superoxides: List[str] = []
+            self.superoxides: list[str] = []
         if "S" in self.species:
-            self.sulfides: List[str] = []
+            self.sulfides: list[str] = []
 
     def compute_from_files(self, exp_gz: str, comp_gz: str):
-
         """
         Args:
             exp_gz: name of .json.gz file that contains experimental data
@@ -134,14 +95,12 @@ class CorrectionCalculator:
             comp_gz: name of .json.gz file that contains computed entries
                     data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}
         """
-
         exp_entries = loadfn(exp_gz)
         calc_entries = loadfn(comp_gz)
 
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-
         """
         Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
@@ -154,21 +113,19 @@ class CorrectionCalculator:
         Raises:
             ValueError: calc_compounds is missing an entry
         """
-
         self.exp_compounds = exp_entries
         self.calc_compounds = calc_entries
 
-        self.names: List[str] = []
-        self.diffs: List[float] = []
-        self.coeff_mat: List[List[float]] = []
-        self.exp_uncer: List[float] = []
+        self.names: list[str] = []
+        self.diffs: list[float] = []
+        self.coeff_mat: list[list[float]] = []
+        self.exp_uncer: list[float] = []
 
         # remove any corrections in calc_compounds
         for entry in self.calc_compounds.values():
             entry.correction = 0
 
         for cmpd_info in self.exp_compounds:
-
             # to get consistent element ordering in formula
             name = Composition(cmpd_info["formula"]).reduced_formula
 
@@ -176,49 +133,34 @@ class CorrectionCalculator:
 
             compound = self.calc_compounds.get(name, None)
             if not compound:
-                warnings.warn(
-                    "Compound {} is not found in provided computed entries and is excluded from the fit".format(
-                        name
-                    )
-                )
+                warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
                 continue
 
             # filter out compounds with large uncertainties
-            relative_uncertainty = abs(
-                cmpd_info["uncertainty"] / cmpd_info["exp energy"]
-            )
+            relative_uncertainty = abs(cmpd_info["uncertainty"] / cmpd_info["exp energy"])
             if relative_uncertainty > self.max_error:
                 allow = False
                 warnings.warn(
-                    "Compound {} is excluded from the fit due to high experimental uncertainty ({}%)".format(
-                        name, relative_uncertainty
-                    )
+                    f"Compound {name} is excluded from the fit due to high experimental "
+                    f"uncertainty ({relative_uncertainty:.1%})"
                 )
 
             # filter out compounds containing certain polyanions
             for anion in self.exclude_polyanions:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
-                    warnings.warn(
-                        "Compound {} contains the polyanion {} and is excluded from the fit".format(
-                            name, anion
-                        )
-                    )
+                    warnings.warn(f"Compound {name} contains the polyanion {anion} and is excluded from the fit")
                     break
 
             # filter out compounds that are unstable
-            if type(self.allow_unstable) == float:
+            if isinstance(self.allow_unstable, float):
                 try:
                     eah = compound.data["e_above_hull"]
                 except KeyError:
                     raise ValueError("Missing e above hull data")
                 if eah > self.allow_unstable:
                     allow = False
-                    warnings.warn(
-                        "Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(
-                            name, eah
-                        )
-                    )
+                    warnings.warn(f"Compound {name} is unstable and excluded from the fit (e_above_hull = {eah})")
 
             if allow:
                 comp = Composition(name)
@@ -274,7 +216,7 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError("We can't detect this specie: {}".format(specie))
+                            raise ValueError(f"We can't detect this specie: {specie}")
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -296,11 +238,11 @@ class CorrectionCalculator:
         if np.isnan(mean_uncer):
             # no uncertainty values for any compounds, don't try to weight
             popt, self.pcov = curve_fit(
-                _func, self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
+                lambda x, *m: np.dot(x, m), self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
             )
         else:
             popt, self.pcov = curve_fit(
-                _func,
+                lambda x, *m: np.dot(x, m),
                 self.coeff_mat,
                 self.diffs,
                 p0=np.ones(len(self.species)),
@@ -309,31 +251,28 @@ class CorrectionCalculator:
             )
         self.corrections = popt.tolist()
         self.corrections_std_error = np.sqrt(np.diag(self.pcov)).tolist()
-        for i in range(len(self.species)):
-            self.corrections_dict[self.species[i]] = (
+        for i, v in enumerate(self.species):
+            self.corrections_dict[v] = (
                 round(self.corrections[i], 3),
                 round(self.corrections_std_error[i], 4),
             )
+
+        # set ozonide correction to 0 so that this species does not receive a correction
+        # while other oxide types do
+        self.corrections_dict["ozonide"] = (0, 0)
+
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
-
         """
         Graphs the residual errors for all compounds after applying computed corrections.
         """
-
         if len(self.corrections) == 0:
-            raise RuntimeError(
-                "Please call compute_corrections or compute_from_files to calculate corrections first"
-            )
+            raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
-        abs_errors = [
-            abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))
-        ]
+        abs_errors = [abs(i) for i in self.diffs - np.dot(self.coeff_mat, self.corrections)]
         labels_graph = self.names.copy()
-        abs_errors, labels_graph = (
-            list(t) for t in zip(*sorted(zip(abs_errors, labels_graph)))
-        )  # sort by error
+        abs_errors, labels_graph = (list(t) for t in zip(*sorted(zip(abs_errors, labels_graph))))  # sort by error
 
         num = len(abs_errors)
         fig = go.Figure(
@@ -345,9 +284,7 @@ class CorrectionCalculator:
             ),
             layout=go.Layout(
                 title=go.layout.Title(text="Residual Errors"),
-                yaxis=go.layout.YAxis(
-                    title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")
-                ),
+                yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")),
             ),
         )
 
@@ -363,7 +300,6 @@ class CorrectionCalculator:
         return fig
 
     def graph_residual_error_per_species(self, specie: str) -> go.Figure:
-
         """
         Graphs the residual errors for each compound that contains specie after applying computed corrections.
 
@@ -373,28 +309,18 @@ class CorrectionCalculator:
         Raises:
             ValueError: the specie is not a valid specie that this class fits corrections for
         """
-
         if specie not in self.species:
             raise ValueError("not a valid specie")
 
         if len(self.corrections) == 0:
-            raise RuntimeError(
-                "Please call compute_corrections or compute_from_files to calculate corrections first"
-            )
+            raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
-        abs_errors = [
-            abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))
-        ]
+        abs_errors = [abs(i) for i in self.diffs - np.dot(self.coeff_mat, self.corrections)]
         labels_species = self.names.copy()
         diffs_cpy = self.diffs.copy()
         num = len(labels_species)
 
-        if (
-            specie == "oxide"
-            or specie == "peroxide"
-            or specie == "superoxide"
-            or specie == "S"
-        ):
+        if specie in ("oxide", "peroxide", "superoxide", "S"):
             if specie == "oxide":
                 compounds = self.oxides
             elif specie == "peroxide":
@@ -414,9 +340,7 @@ class CorrectionCalculator:
                     del labels_species[num - i - 1]
                     del abs_errors[num - i - 1]
                     del diffs_cpy[num - i - 1]
-        abs_errors, labels_species = (
-            list(t) for t in zip(*sorted(zip(abs_errors, labels_species)))
-        )  # sort by error
+        abs_errors, labels_species = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species))))  # sort by error
 
         num = len(abs_errors)
         fig = go.Figure(
@@ -428,9 +352,7 @@ class CorrectionCalculator:
             ),
             layout=go.Layout(
                 title=go.layout.Title(text="Residual Errors for " + specie),
-                yaxis=go.layout.YAxis(
-                    title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")
-                ),
+                yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")),
             ),
         )
 
@@ -445,34 +367,33 @@ class CorrectionCalculator:
 
         return fig
 
-    def make_yaml(self, name: str = "MP2020") -> None:
+    def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:
         """
         Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:
             name: str, alternate name for the created .yaml file.
-            Default: "MP2020"
+                Default: "MP2020"
+            dir: str, directory in which to save the file. Pass None (default) to
+                save the file in the current working directory.
         """
-
         if len(self.corrections) == 0:
-            raise RuntimeError(
-                "Please call compute_corrections or compute_from_files to calculate corrections first"
-            )
+            raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
         # elements with U values
-        ggaucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
+        ggau_correction_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
-        comp_corr: "OrderedDict[str, float]" = OrderedDict()
-        o: "OrderedDict[str, float]" = OrderedDict()
-        f: "OrderedDict[str, float]" = OrderedDict()
+        comp_corr: dict[str, float] = {}
+        o: dict[str, float] = {}
+        f: dict[str, float] = {}
 
-        comp_corr_error: "OrderedDict[str, float]" = OrderedDict()
-        o_error: "OrderedDict[str, float]" = OrderedDict()
-        f_error: "OrderedDict[str, float]" = OrderedDict()
+        comp_corr_error: dict[str, float] = {}
+        o_error: dict[str, float] = {}
+        f_error: dict[str, float] = {}
 
-        for specie in self.species:
-            if specie in ggaucorrection_species:
+        for specie in list(self.species) + ["ozonide"]:
+            if specie in ggau_correction_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
 
@@ -482,9 +403,6 @@ class CorrectionCalculator:
             else:
                 comp_corr[specie] = self.corrections_dict[specie][0]
                 comp_corr_error[specie] = self.corrections_dict[specie][1]
-
-        comp_corr["ozonide"] = 0  # do i need this??
-        comp_corr_error["ozonide"] = 0
 
         outline = """\
         Name:
@@ -499,32 +417,38 @@ class CorrectionCalculator:
                 F:
             CompositionCorrections:
         """
-
         fn = name + "Compatibility.yaml"
-        file = open(fn, "w")
-        yaml = ruamel.yaml.YAML()
-        yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
-        yaml.default_flow_style = False
-        contents = yaml.load(outline)
+        if dir:
+            path = os.path.join(dir, fn)
+        else:
+            path = fn
+
+        yml = yaml.YAML()
+        yml.default_flow_style = False
+        contents = yml.load(outline)
 
         contents["Name"] = name
 
         # make CommentedMap so comments can be added
-        contents["Corrections"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o)
-        contents["Corrections"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f)
-        contents["Corrections"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr)
-        contents["Uncertainties"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o_error)
-        contents["Uncertainties"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f_error)
-        contents["Uncertainties"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
+        contents["Corrections"]["GGAUMixingCorrections"]["O"] = yaml.comments.CommentedMap(o)
+        contents["Corrections"]["GGAUMixingCorrections"]["F"] = yaml.comments.CommentedMap(f)
+        contents["Corrections"]["CompositionCorrections"] = yaml.comments.CommentedMap(comp_corr)
+        contents["Uncertainties"]["GGAUMixingCorrections"]["O"] = yaml.comments.CommentedMap(o_error)
+        contents["Uncertainties"]["GGAUMixingCorrections"]["F"] = yaml.comments.CommentedMap(f_error)
+        contents["Uncertainties"]["CompositionCorrections"] = yaml.comments.CommentedMap(comp_corr_error)
 
         contents["Corrections"].yaml_set_start_comment("Energy corrections in eV/atom", indent=2)
         contents["Corrections"]["GGAUMixingCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to transition metal oxides\nand fluorides to " +
-            "make GGA and GGA+U energies compatible\nwhen compat_type = \"Advanced\" (default)", indent=4)
+            "Composition-based corrections applied to transition metal oxides\nand fluorides to "
+            + 'make GGA and GGA+U energies compatible\nwhen compat_type = "Advanced" (default)',
+            indent=4,
+        )
         contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to any compound containing\nthese species as anions", indent=4)
+            "Composition-based corrections applied to any compound containing\nthese species as anions",
+            indent=4,
+        )
         contents["Uncertainties"].yaml_set_start_comment(
-            "Uncertainties corresponding to each energy correction (eV/atom)", indent=2)
-
-        yaml.dump(contents, file)
-        file.close()
+            "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
+        )
+        with open(path, "w") as file:
+            yml.dump(contents, file)

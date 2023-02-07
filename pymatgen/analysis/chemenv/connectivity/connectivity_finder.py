@@ -1,6 +1,16 @@
-from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
+"""
+Module implementing connectivity finding.
+"""
+
+from __future__ import annotations
+
 import logging
+
 import numpy as np
+
+from pymatgen.analysis.chemenv.connectivity.structure_connectivity import (
+    StructureConnectivity,
+)
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -11,7 +21,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "June 25, 2019"
 
 
-class ConnectivityFinder(object):
+class ConnectivityFinder:
     """
     Main class used to find the structure connectivity of a structure
     """
@@ -36,24 +46,24 @@ class ConnectivityFinder(object):
         :return: a StructureConnectivity object describing the connectivity of
         the environments in the structure
         """
-        logging.info('Setup of structure connectivity graph')
+        logging.info("Setup of structure connectivity graph")
         structure_connectivity = StructureConnectivity(light_structure_environments)
         structure_connectivity.add_sites()
-        for isite, site in enumerate(light_structure_environments.structure):
+        for isite, _site in enumerate(light_structure_environments.structure):
             site_neighbors_sets = light_structure_environments.neighbors_sets[isite]
             if site_neighbors_sets is None:
                 continue
             if len(site_neighbors_sets) > 1:
                 if self.multiple_environments_choice is None:
-                    raise ValueError('Local environment of site {:d} is a mix and '
-                                     'nothing is asked about it'.format(isite))
-                elif self.multiple_environments_choice == 'TAKE_HIGHEST_FRACTION':
-                    imax = np.argmax([ee['ce_fraction']
-                                      for ee in light_structure_environments.coordination_environments[isite]])
-                    print('IMAX {:d}'.format(imax))
+                    raise ValueError(f"Local environment of site {isite:d} is a mix and nothing is asked about it")
+                if self.multiple_environments_choice == "TAKE_HIGHEST_FRACTION":
+                    imax = np.argmax(
+                        [ee["ce_fraction"] for ee in light_structure_environments.coordination_environments[isite]]
+                    )
+                    print(f"IMAX {imax:d}")
                     site_neighbors_set = site_neighbors_sets[imax]
                 else:
-                    raise RuntimeError('Should not be here')
+                    raise RuntimeError("Should not be here")
             else:
                 site_neighbors_set = site_neighbors_sets[0]
             structure_connectivity.add_bonds(isite, site_neighbors_set)
@@ -64,7 +74,8 @@ class ConnectivityFinder(object):
         Setup of the parameters for the connectivity finder.
         """
         if multiple_environments_choice is not None:
-            if multiple_environments_choice not in ['TAKE_HIGHEST_FRACTION']:
-                raise ValueError('Option "{}" for multiple_environments_choice is '
-                                 'not allowed'.format(self.multiple_environments_choice))
+            if multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
+                raise ValueError(
+                    f"Option {multiple_environments_choice!r} for multiple_environments_choice is not allowed"
+                )
         self.multiple_environments_choice = multiple_environments_choice

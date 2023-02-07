@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-# coding: utf-8
 
 """
 Implementation for `pmg potcar` CLI.
 """
 
+
+from __future__ import annotations
 
 import os
 
@@ -36,9 +37,8 @@ def gen_potcar(dirname, filename):
     """
     if filename == "POTCAR.spec":
         fullpath = os.path.join(dirname, filename)
-        f = open(fullpath, "r")
-        elements = f.readlines()
-        f.close()
+        with open(fullpath) as f:
+            elements = f.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)
         potcar.write_file(os.path.join(dirname, "POTCAR"))
@@ -58,7 +58,7 @@ def generate_potcar(args):
             p = Potcar(args.symbols, functional=args.functional)
             p.write_file("POTCAR")
         except Exception as ex:
-            print("An error has occurred: {}".format(str(ex)))
+            print(f"An error has occurred: {ex}")
 
     else:
         print("No valid options selected.")

@@ -1,15 +1,17 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
-# cython: cdivision=True
+# cython: cdivision=False
 # cython: profile=True
-# cython: language_level=3
 # distutils: language = c
-from __future__ import print_function
+
+# isort: dont-add-imports
+
 import numpy as np
+
 cimport numpy as np
-from libc.math cimport pi, sqrt, ceil, floor
-from libc.stdlib cimport malloc, free, realloc
+from libc.math cimport ceil, floor, pi, sqrt
+from libc.stdlib cimport free, malloc, realloc
 from libc.string cimport memset
 
 
@@ -19,7 +21,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
         return NULL
     cdef void *ptr = malloc(size)
     if ptr == NULL:
-        raise MemoryError("Memory allocation of %s bytes failed!" % size)
+        raise MemoryError(f"Memory allocation of {size} bytes failed!")
     return ptr
 
 
@@ -30,14 +32,16 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
         return NULL
     cdef void *ptr = realloc(ptr_orig, size)
     if ptr == NULL:
-        raise MemoryError("Realloc memory of %s bytes failed!" % size)
+        raise MemoryError(f"Realloc memory of {size} bytes failed!")
     return ptr
 
 
-def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):
+def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
+                           float r, long[:] pbc, double[:, ::1] lattice,
+                           double tol=1e-8, float min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
-    cutoff radius `r`. All the coordinates should be in cartesian.
+    cutoff radius `r`. All the coordinates should be in Cartesian.
 
     Args:
         all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,
@@ -46,11 +50,23 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         r: (float) cutoff radius
         pbc: (list of bool) whether to set periodic boundaries
         lattice: (np.ndarray[double, dim=2]) 3x3 lattice matrix
-        numerical_tol: (float) numerical tolerance
+        tol: (float) numerical tolerance
+        min_r: (float) minimal cutoff to calculate the neighbor list
+            directly. If the cutoff is less than this value, the algorithm
+            will calculate neighbor list using min_r as cutoff and discard
+            those that have larger distances.
     Returns:
         index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair
             offset_vectors are the periodic image offsets for the all_coords.
     """
+    if r < min_r:
+        findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
+            all_coords=all_coords, center_coords=center_coords,
+            r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+        mask = fdistances <= r
+        return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
+            mask]
+
     cdef int i, j, k, l, m, n
     cdef double maxr[3]
     # valid boundary, that is the minimum in center_coords - r
@@ -186,7 +202,6 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
     cdef double *distances = <double*> safe_malloc(n*sizeof(double))
-    cdef long[:] ncube_indices_map
     cdef long cube_index_temp
     cdef long link_index
     cdef double d_temp2
@@ -200,7 +215,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                 continue
             cube_index_temp = j
             link_index = head[cube_index_temp]
-            while (link_index != -1):
+            while link_index != -1:
                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
                 if d_temp2 < r2 + tol:
                     index_1[count] = i
@@ -373,7 +388,7 @@ cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):
     cdef int i, j
     for i in range(3):
         for j in range(3):
-            inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \
+            inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] -
                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
 
 cdef double matrix_det(double[:, ::1] matrix):
@@ -481,10 +496,8 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
 
 def compute_offset_vectors(long n):
     cdef long i, j, k
-    cdef long v[3]
     cdef double center[8][3] # center vertices coords
     cdef int ind
-    cdef bint is_within
     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
     cdef long count = 0
@@ -496,7 +509,7 @@ def compute_offset_vectors(long n):
                 center[ind][1] = j - 0.5
                 center[ind][2] = k - 0.5
 
-    cdef double off[8][3] # offseted vertices
+    cdef double off[8][3] # offsetted vertices
     for i in range(-n, n + 1):
         for j in range(-n, n + 1):
             for k in range(-n, n + 1):
@@ -523,12 +536,12 @@ cdef bint distance_vertices(double center[8][3], double off[8][3], double r):
                 return 1
     return 0
 
-cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):
+cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offsetted)[8][3]):
     cdef int i, j, k
     for i in range(2):
         for j in range(2):
             for k in range(2):
                 ind = i * 4 + j * 2 + k
-                offseted[ind][0] = center[ind][0] + n
-                offseted[ind][1] = center[ind][1] + m
-                offseted[ind][2] = center[ind][2] + l
+                offsetted[ind][0] = center[ind][0] + n
+                offsetted[ind][1] = center[ind][1] + m
+                offsetted[ind][2] = center[ind][2] + l

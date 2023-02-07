@@ -1,1 +1,3 @@
-__author__ = 'waroquiers'
+"""
+Coordination geometry files.
+"""

@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -8,18 +7,18 @@ files (log and dump).
 """
 
 
-import re
+from __future__ import annotations
+
 import glob
+import re
 from io import StringIO
 
 import numpy as np
 import pandas as pd
-
-from monty.json import MSONable
 from monty.io import zopen
+from monty.json import MSONable
 
 from pymatgen.io.lammps.data import LammpsBox
-
 
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -39,11 +38,10 @@ class LammpsDump(MSONable):
         Base constructor.
 
         Args:
-            timestep (int): Current timestep.
+            timestep (int): Current time step.
             natoms (int): Total number of atoms in the box.
             box (LammpsBox): Simulation box.
             data (pd.DataFrame): Dumped atomic data.
-
         """
         self.timestep = timestep
         self.natoms = natoms
@@ -57,11 +55,10 @@ class LammpsDump(MSONable):
 
         Args:
             string (str): Input string.
-
         """
         lines = string.split("\n")
         timestep = int(lines[1])
-        natoms = int(lines[3])
+        n_atoms = int(lines[3])
         box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
         bounds = box_arr[:, :2]
         tilt = None
@@ -72,9 +69,8 @@ class LammpsDump(MSONable):
             bounds -= np.array([[min(x), max(x)], [min(y), max(y)], [0, 0]])
         box = LammpsBox(bounds, tilt)
         data_head = lines[8].replace("ITEM: ATOMS", "").split()
-        data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head,
-                           delim_whitespace=True)
-        return cls(timestep, natoms, box, data)
+        data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, delim_whitespace=True)
+        return cls(timestep, n_atoms, box, data)
 
     @classmethod
     def from_dict(cls, d):
@@ -94,9 +90,9 @@ class LammpsDump(MSONable):
         """
         Returns: MSONable dict
         """
-        d = dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d = {}
+        d["@module"] = type(self).__module__
+        d["@class"] = type(self).__name__
         d["timestep"] = self.timestep
         d["natoms"] = self.natoms
         d["box"] = self.box.as_dict()
@@ -119,10 +115,8 @@ def parse_lammps_dumps(file_pattern):
     """
     files = glob.glob(file_pattern)
     if len(files) > 1:
-        pattern = r"%s" % file_pattern.replace("*", "([0-9]+)")
-        pattern = pattern.replace("\\", "\\\\")
-        files = sorted(files,
-                       key=lambda f: int(re.match(pattern, f).group(1)))
+        pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
+        files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
 
     for fname in files:
         with zopen(fname, "rt") as f:
@@ -155,10 +149,12 @@ def parse_lammps_log(filename="log.lammps"):
         [pd.DataFrame] containing thermo data for each completed run.
 
     """
-    with open(filename) as f:
+    with zopen(filename, "rt") as f:
         lines = f.readlines()
-    begin_flag = ("Memory usage per processor =",
-                  "Per MPI rank memory allocation (min/avg/max) =")
+    begin_flag = (
+        "Memory usage per processor =",
+        "Per MPI rank memory allocation (min/avg/max) =",
+    )
     end_flag = "Loop time of"
     begins, ends = [], []
     for i, l in enumerate(lines):
@@ -171,22 +167,18 @@ def parse_lammps_log(filename="log.lammps"):
         multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
         # multi line thermo data
         if re.match(multi_pattern, lines[0]):
-            timestep_marks = [i for i, l in enumerate(lines)
-                              if re.match(multi_pattern, l)]
+            timestep_marks = [i for i, l in enumerate(lines) if re.match(multi_pattern, l)]
             timesteps = np.split(lines, timestep_marks)[1:]
             dicts = []
             kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"
             for ts in timesteps:
                 data = {}
                 data["Step"] = int(re.match(multi_pattern, ts[0]).group(1))
-                data.update({k: float(v) for k, v
-                             in re.findall(kv_pattern, "".join(ts[1:]))})
+                data.update({k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))})
                 dicts.append(data)
             df = pd.DataFrame(dicts)
             # rearrange the sequence of columns
-            columns = ["Step"] + [k for k, v in
-                                  re.findall(kv_pattern,
-                                             "".join(timesteps[0][1:]))]
+            columns = ["Step"] + [k for k, v in re.findall(kv_pattern, "".join(timesteps[0][1:]))]
             df = df[columns]
         # one line thermo data
         else:
@@ -195,5 +187,5 @@ def parse_lammps_log(filename="log.lammps"):
 
     runs = []
     for b, e in zip(begins, ends):
-        runs.append(_parse_thermo(lines[b + 1:e]))
+        runs.append(_parse_thermo(lines[b + 1 : e]))
     return runs

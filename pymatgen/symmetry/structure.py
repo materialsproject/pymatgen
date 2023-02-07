@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -6,13 +5,14 @@
 This module implements symmetry-related structure forms.
 """
 
-from typing import Sequence, List
+from __future__ import annotations
+
+from typing import Sequence
 
 import numpy as np
-
 from tabulate import tabulate
 
-from pymatgen.core.structure import Structure, PeriodicSite
+from pymatgen.core.structure import PeriodicSite, Structure
 
 
 class SymmetrizedStructure(Structure):
@@ -27,10 +27,13 @@ class SymmetrizedStructure(Structure):
         indices of structure grouped by equivalency
     """
 
-    def __init__(self, structure: Structure,
-                 spacegroup,
-                 equivalent_positions: Sequence[int],
-                 wyckoff_letters: Sequence[str]):
+    def __init__(
+        self,
+        structure: Structure,
+        spacegroup,
+        equivalent_positions: Sequence[int],
+        wyckoff_letters: Sequence[str],
+    ):
         """
         Args:
             structure (Structure): Original structure
@@ -44,31 +47,36 @@ class SymmetrizedStructure(Structure):
         self.site_labels = equivalent_positions
 
         super().__init__(
-            structure.lattice, [site.species for site in structure],
-            structure.frac_coords, site_properties=structure.site_properties)
+            structure.lattice,
+            [site.species for site in structure],
+            structure.frac_coords,
+            site_properties=structure.site_properties,
+        )
 
         equivalent_indices = [[] for _ in range(len(u))]  # type: ignore
         equivalent_sites = [[] for _ in range(len(u))]  # type: ignore
         wyckoff_symbols = [[] for _ in range(len(u))]  # type: ignore
-        for i, inv in enumerate(inv):
-            equivalent_indices[inv].append(i)
-            equivalent_sites[inv].append(self.sites[i])
-            wyckoff_symbols[inv].append(wyckoff_letters[i])
-        self.equivalent_indices: List[int] = equivalent_indices  # type: ignore
-        self.equivalent_sites: List[PeriodicSite] = equivalent_sites  # type: ignore
+        for i, inv_ in enumerate(inv):
+            equivalent_indices[inv_].append(i)
+            equivalent_sites[inv_].append(self.sites[i])
+            wyckoff_symbols[inv_].append(wyckoff_letters[i])
+        self.equivalent_indices: list[int] = equivalent_indices  # type: ignore
+        self.equivalent_sites: list[PeriodicSite] = equivalent_sites  # type: ignore
         self.wyckoff_letters = wyckoff_letters
-        self.wyckoff_symbols = ["%d%s" % (len(w), w[0])
-                                for w in wyckoff_symbols]
+        self.wyckoff_symbols = [f"{len(w)}{w[0]}" for w in wyckoff_symbols]
 
     def copy(self):
         """
         :return: Copy of structure.
         """
-        return self.__class__(self, spacegroup=self.spacegroup,
-                              equivalent_positions=self.site_labels,
-                              wyckoff_letters=self.wyckoff_letters)
+        return SymmetrizedStructure(
+            self,
+            spacegroup=self.spacegroup,
+            equivalent_positions=self.site_labels,
+            wyckoff_letters=self.wyckoff_letters,
+        )
 
-    def find_equivalent_sites(self, site) -> List[PeriodicSite]:
+    def find_equivalent_sites(self, site) -> list[PeriodicSite]:
         """
         Finds all symmetrically equivalent sites for a particular site
 
@@ -85,29 +93,30 @@ class SymmetrizedStructure(Structure):
         raise ValueError("Site not in structure")
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         outs = [
             "SymmetrizedStructure",
-            "Full Formula ({s})".format(s=self.composition.formula),
-            "Reduced Formula: {}".format(self.composition.reduced_formula)]
+            f"Full Formula ({self.composition.formula})",
+            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"Spacegroup: {self.spacegroup.int_symbol} ({self.spacegroup.int_number})",
+        ]
 
         def to_s(x):
-            return "%0.6f" % x
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.angles]))
+            return f"{x:0.6f}"
+
+        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
         if self._charge:
             if self._charge >= 0:
-                outs.append("Overall Charge: +{}".format(self._charge))
+                outs.append(f"Overall Charge: +{self._charge}")
             else:
-                outs.append("Overall Charge: -{}".format(self._charge))
-        outs.append("Sites ({i})".format(i=len(self)))
+                outs.append(f"Overall Charge: -{self._charge}")
+        outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
-        keys = sorted(props.keys())
+        keys = sorted(props)
         for i, sites in enumerate(self.equivalent_sites):
             site = sites[0]
             row = [str(i), site.species_string]
@@ -116,19 +125,24 @@ class SymmetrizedStructure(Structure):
             for k in keys:
                 row.append(props[k][i])
             data.append(row)
-        outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,
-                             ))
+        outs.append(
+            tabulate(
+                data,
+                headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,
+            )
+        )
         return "\n".join(outs)
 
     def as_dict(self):
         """
         :return: MSONAble dict
         """
+        structure = Structure.from_sites(self.sites)
         return {
-            "structure": super().as_dict(),
+            "structure": structure.as_dict(),
             "spacegroup": self.spacegroup,
             "equivalent_positions": self.site_labels,
-            "wyckoff_letters": self.wyckoff_letters
+            "wyckoff_letters": self.wyckoff_letters,
         }
 
     @classmethod
@@ -137,9 +151,9 @@ class SymmetrizedStructure(Structure):
         :param d: Dict representation
         :return: SymmetrizedStructure
         """
-        return SymmetrizedStructure(
+        return cls(
             Structure.from_dict(d["structure"]),
             spacegroup=d["spacegroup"],
             equivalent_positions=d["equivalent_positions"],
-            wyckoff_letters=d["wyckoff_letters"]
+            wyckoff_letters=d["wyckoff_letters"],
         )

@@ -1,20 +1,28 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
-import unittest
 import tempfile
+
 import numpy as np
+import pytest
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
+from pymatgen.io.abinit.inputs import (
+    BasicAbinitInput,
+    BasicMultiDataset,
+    ShiftMode,
+    calc_shiftk,
+    ebands_input,
+    gs_input,
+    ion_ioncell_relax_input,
+    num_valence_electrons,
+)
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinit.inputs import (BasicAbinitInput, BasicMultiDataset, calc_shiftk,
-                                       num_valence_electrons, ShiftMode, gs_input, ebands_input,
-                                       ion_ioncell_relax_input)
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                         'test_files', "abinit")
+_test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit")
 
 
 def abiref_file(filename):
@@ -35,20 +43,17 @@ class AbinitInputTestCase(PymatgenTest):
         # Build simple input with structure and pseudos
         unit_cell = {
             "acell": 3 * [10.217],
-            'rprim': [[.0, .5, .5],
-                      [.5, .0, .5],
-                      [.5, .5, .0]],
-            'ntypat': 1,
-            'znucl': [14],
-            'natom': 2,
-            'typat': [1, 1],
-            'xred': [[.0, .0, .0],
-                     [.25, .25, .25]]
+            "rprim": [[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]],
+            "ntypat": 1,
+            "znucl": [14],
+            "natom": 2,
+            "typat": [1, 1],
+            "xred": [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
         }
 
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
-        shiftk = [[0.5, 0.5, 0.5], [0.5,  0., 0.], [0., 0.5, 0.], [0., 0., 0.5]]
+        shiftk = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
         self.assertArrayEqual(calc_shiftk(inp.structure), shiftk)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
@@ -61,7 +66,7 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp.isnc and not inp.ispaw
 
         inp["ecut"] = 1
-        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp.keys() and "foo" not in inp
+        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp and "foo" not in inp
 
         # Test to_string
         assert inp.to_string(with_structure=True, with_pseudos=True)
@@ -76,13 +81,13 @@ class AbinitInputTestCase(PymatgenTest):
         inp.write(filepath=tmpname)
 
         # Cannot change structure variables directly.
-        with self.assertRaises(inp.Error):
+        with pytest.raises(inp.Error):
             inp.set_vars(unit_cell)
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             inp.add_abiobjects({})
 
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             inp.remove_vars("foo", strict=True)
         assert not inp.remove_vars("foo", strict=False)
 
@@ -115,11 +120,11 @@ class AbinitInputTestCase(PymatgenTest):
         si_structure = Structure.from_file(abiref_file("si.cif"))
 
         # Ambiguous list of pseudos.
-        with self.assertRaises(BasicAbinitInput.Error):
+        with pytest.raises(BasicAbinitInput.Error):
             BasicAbinitInput(si_structure, pseudos=abiref_files("14si.pspnc", "14si.4.hgh"))
 
         # Pseudos do not match structure.
-        with self.assertRaises(BasicAbinitInput.Error):
+        with pytest.raises(BasicAbinitInput.Error):
             BasicAbinitInput(si_structure, pseudos=abiref_file("H-wdr.oncvpsp"))
 
         si1_negative_volume = dict(
@@ -127,15 +132,13 @@ class AbinitInputTestCase(PymatgenTest):
             natom=1,
             typat=[1],
             znucl=14,
-            acell=3*[7.60],
-            rprim=[[0.0, 0.5, 0.5],
-                   [-0.5, -0.0, -0.5],
-                   [0.5, 0.5, 0.0]],
+            acell=3 * [7.60],
+            rprim=[[0.0, 0.5, 0.5], [-0.5, -0.0, -0.5], [0.5, 0.5, 0.0]],
             xred=[[0.0, 0.0, 0.0]],
         )
 
         # Negative triple product.
-        with self.assertRaises(BasicAbinitInput.Error):
+        with pytest.raises(BasicAbinitInput.Error):
             BasicAbinitInput(si1_negative_volume, pseudos=abiref_files("14si.pspnc"))
 
     def test_helper_functions(self):
@@ -162,7 +165,7 @@ class TestMultiDataset(PymatgenTest):
         pseudo = abiref_file("14si.pspnc")
         pseudo_dir = os.path.dirname(pseudo)
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             BasicMultiDataset(structure=structure, pseudos=pseudo, ndtset=-1)
 
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir)
@@ -170,7 +173,7 @@ class TestMultiDataset(PymatgenTest):
         assert len(multi) == 1 and multi.ndtset == 1
         assert multi.isnc
         for i, inp in enumerate(multi):
-            assert list(inp.keys()) == list(multi[i].keys())
+            assert list(inp) == list(multi[i])
 
         multi.addnew_from(0)
         assert multi.ndtset == 2 and multi[0] is not multi[1]
@@ -179,17 +182,17 @@ class TestMultiDataset(PymatgenTest):
 
         multi.set_vars(ecut=2)
         assert all(inp["ecut"] == 2 for inp in multi)
-        self.assertEqual(multi.get("ecut"), [2, 2])
+        assert multi.get("ecut") == [2, 2]
 
         multi[1].set_vars(ecut=1)
         assert multi[0]["ecut"] == 2 and multi[1]["ecut"] == 1
-        self.assertEqual(multi.get("ecut"), [2, 1])
+        assert multi.get("ecut") == [2, 1]
 
-        self.assertEqual(multi.get("foo", "default"), ["default", "default"])
+        assert multi.get("foo", "default") == ["default", "default"]
 
         multi[1].set_vars(paral_kgb=1)
         assert "paral_kgb" not in multi[0]
-        self.assertEqual(multi.get("paral_kgb"), [None, 1])
+        assert multi.get("paral_kgb") == [None, 1]
 
         pert_structure = structure.copy()
         pert_structure.perturb(distance=0.1)
@@ -219,7 +222,7 @@ class TestMultiDataset(PymatgenTest):
 
         for old_inp, new_inp in zip(multi, new_multi):
             assert old_inp is not new_inp
-            self.assertDictEqual(old_inp.as_dict(), new_inp.as_dict())
+            assert old_inp.as_dict() == new_inp.as_dict()
 
         ref_input = multi[0]
         new_multi = BasicMultiDataset.replicate_input(input=ref_input, ndtset=4)
@@ -227,25 +230,23 @@ class TestMultiDataset(PymatgenTest):
         assert new_multi.ndtset == 4
         for inp in new_multi:
             assert ref_input is not inp
-            self.assertDictEqual(ref_input.as_dict(), inp.as_dict())
+            assert ref_input.as_dict() == inp.as_dict()
 
         # Compatible with Pickle and MSONable?
         self.serialize_with_pickle(multi, test_eq=False)
 
 
 class ShiftModeTest(PymatgenTest):
-
     def test_shiftmode(self):
         """Testing shiftmode"""
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
         assert ShiftMode.from_object(gamma) == gamma
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             ShiftMode.from_object({})
 
 
 class FactoryTest(PymatgenTest):
-
     def setUp(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))
@@ -267,17 +268,35 @@ class FactoryTest(PymatgenTest):
         scf_inp, nscf_inp = multi.split_datasets()
 
         # Test dos_kppa and other options.
-        multi_dos = ebands_input(self.si_structure, self.si_pseudo, nscf_nband=10, kppa=10, ecut=2,
-                                 spin_mode="unpolarized", smearing=None, charge=2.0, dos_kppa=50)
+        multi_dos = ebands_input(
+            self.si_structure,
+            self.si_pseudo,
+            nscf_nband=10,
+            kppa=10,
+            ecut=2,
+            spin_mode="unpolarized",
+            smearing=None,
+            charge=2.0,
+            dos_kppa=50,
+        )
         assert len(multi_dos) == 3
         assert all(i["charge"] == 2 for i in multi_dos)
-        self.assertEqual(multi_dos.get("nsppol"), [1, 1, 1])
-        self.assertEqual(multi_dos.get("iscf"), [None, -2, -2])
+        assert multi_dos.get("nsppol") == [1, 1, 1]
+        assert multi_dos.get("iscf") == [None, -2, -2]
 
-        multi_dos = ebands_input(self.si_structure, self.si_pseudo, nscf_nband=10, kppa=10, ecut=2,
-                                 spin_mode="unpolarized", smearing=None, charge=2.0, dos_kppa=[50, 100])
+        multi_dos = ebands_input(
+            self.si_structure,
+            self.si_pseudo,
+            nscf_nband=10,
+            kppa=10,
+            ecut=2,
+            spin_mode="unpolarized",
+            smearing=None,
+            charge=2.0,
+            dos_kppa=[50, 100],
+        )
         assert len(multi_dos) == 4
-        self.assertEqual(multi_dos.get("iscf"), [None, -2, -2, -2])
+        assert multi_dos.get("iscf") == [None, -2, -2, -2]
         str(multi_dos)
 
     def test_ion_ioncell_relax_input(self):

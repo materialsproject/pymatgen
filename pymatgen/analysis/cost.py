@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -10,35 +9,36 @@ optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
 
+from __future__ import annotations
+
 import abc
 import csv
 import itertools
 import os
 from collections import defaultdict
-from io import open
 
 import scipy.constants as const
 from monty.design_patterns import singleton
 from monty.string import unicode2str
 
-from pymatgen import Composition, Element
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.util.provenance import is_valid_bibtex
 
-__author__ = 'Anubhav Jain'
-__copyright__ = 'Copyright 2013, The Materials Project'
-__version__ = '0.1'
-__maintainer__ = 'Anubhav Jain'
-__email__ = 'ajain@lbl.gov'
-__date__ = 'Aug 27, 2013'
+__author__ = "Anubhav Jain"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Anubhav Jain"
+__email__ = "ajain@lbl.gov"
+__date__ = "Aug 27, 2013"
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class CostEntry(PDEntry):
     """
-    Extends PDEntry to include a BibTeX reference and include language about
-    cost
+    Extends PDEntry to include a BibTeX reference and include language about cost
     """
 
     def __init__(self, composition, cost, name, reference):
@@ -56,13 +56,11 @@ class CostEntry(PDEntry):
         """
         super().__init__(composition, cost, name)
         if reference and not is_valid_bibtex(reference):
-            raise ValueError(
-                "Invalid format for cost reference! Should be BibTeX string.")
+            raise ValueError("Invalid format for cost reference! Should be BibTeX string.")
         self.reference = reference
 
     def __repr__(self):
-        return "CostEntry : {} with cost = {:.4f}".format(self.composition,
-                                                          self.energy)
+        return f"CostEntry : {self.composition} with cost = {self.energy:.4f}"
 
 
 class CostDB(metaclass=abc.ABCMeta):
@@ -100,14 +98,13 @@ class CostDBCSV(CostDB):
         # read in data from file
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
-        with open(filename, "rt") as f:
+        with open(filename) as f:
             reader = csv.reader(f, quotechar=unicode2str("|"))
             for row in reader:
                 comp = Composition(row[0])
                 cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A
                 pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
-                chemsys = "-".join(sorted([el.symbol
-                                           for el in pde.composition.elements]))
+                chemsys = "-".join(sorted(el.symbol for el in pde.composition.elements))
                 self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
@@ -121,7 +118,7 @@ class CostDBCSV(CostDB):
         Returns:
             array of CostEntries
         """
-        chemsys = "-".join(sorted([el.symbol for el in chemsys]))
+        chemsys = "-".join(sorted(el.symbol for el in chemsys))
         return self._chemsys_entries[chemsys]
 
 
@@ -135,8 +132,7 @@ class CostDBElements(CostDBCSV):
         """
         Init
         """
-        CostDBCSV.__init__(
-            self, os.path.join(module_dir, "costdb_elements.csv"))
+        CostDBCSV.__init__(self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
 class CostAnalyzer:
@@ -161,7 +157,6 @@ class CostAnalyzer:
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
-
         entries_list = []
         elements = [e.symbol for e in composition.elements]
         for i in range(len(elements)):
@@ -173,8 +168,7 @@ class CostAnalyzer:
             pd = PhaseDiagram(entries_list)
             return pd.get_decomposition(composition)
         except IndexError:
-            raise ValueError("Error during PD building; most likely, "
-                             "cost data does not exist!")
+            raise ValueError("Error during PD building; most likely, cost data does not exist!")
 
     def get_cost_per_mol(self, comp):
         """
@@ -186,11 +180,9 @@ class CostAnalyzer:
         Returns:
             float of cost/mol
         """
-
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         decomp = self.get_lowest_decomposition(comp)
-        return sum(k.energy_per_atom * v * comp.num_atoms for k, v in
-                   decomp.items())
+        return sum(k.energy_per_atom * v * comp.num_atoms for k, v in decomp.items())
 
     def get_cost_per_kg(self, comp):
         """
@@ -203,5 +195,4 @@ class CostAnalyzer:
             float of cost/kg
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
-        return self.get_cost_per_mol(comp) / (
-                comp.weight.to("kg") * const.N_A)
+        return self.get_cost_per_mol(comp) / (comp.weight.to("kg") * const.N_A)

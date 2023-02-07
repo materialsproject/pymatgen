@@ -1,7 +1,5 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module implements the Quasi-harmonic Debye approximation that can
@@ -9,22 +7,23 @@ be used to compute thermal properties.
 
 See the following papers for more info:
 
-    http://doi.org/10.1016/j.comphy.2003.12.001 (2004)
-    http://doi.org/10.1103/PhysRevB.90.174107 (2014)
+    https://doi.org/10.1016/j.comphy.2003.12.001 (2004)
+    https://doi.org/10.1103/PhysRevB.90.174107 (2014)
 """
 
-from collections import defaultdict
+from __future__ import annotations
+
 import logging
+from collections import defaultdict
 
 import numpy as np
-
 from scipy.constants import physical_constants
 from scipy.integrate import quadrature
 from scipy.misc import derivative
 from scipy.optimize import minimize
 
-from pymatgen.core.units import FloatWithUnit
 from pymatgen.analysis.eos import EOS, PolynomialEOS
+from pymatgen.core.units import FloatWithUnit
 
 __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
@@ -38,9 +37,20 @@ class QuasiharmonicDebyeApprox:
     Quasiharmonic approximation.
     """
 
-    def __init__(self, energies, volumes, structure, t_min=300.0, t_step=100,
-                 t_max=300.0, eos="vinet", pressure=0.0, poisson=0.25,
-                 use_mie_gruneisen=False, anharmonic_contribution=False):
+    def __init__(
+        self,
+        energies,
+        volumes,
+        structure,
+        t_min=300.0,
+        t_step=100,
+        t_max=300.0,
+        eos="vinet",
+        pressure=0.0,
+        poisson=0.25,
+        use_mie_gruneisen=False,
+        anharmonic_contribution=False,
+    ):
         """
         Args:
             energies (list): list of DFT energies in eV
@@ -75,14 +85,16 @@ class QuasiharmonicDebyeApprox:
         self.use_mie_gruneisen = use_mie_gruneisen
         self.anharmonic_contribution = anharmonic_contribution
         if self.use_mie_gruneisen and self.anharmonic_contribution:
-            raise ValueError('The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and '
-                             'cannot be used together.')
-        self.mass = sum([e.atomic_mass for e in self.structure.species])
+            raise ValueError(
+                "The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and "
+                "cannot be used together."
+            )
+        self.mass = sum(e.atomic_mass for e in self.structure.species)
         self.natoms = self.structure.composition.num_atoms
         self.avg_mass = physical_constants["atomic mass constant"][0] * self.mass / self.natoms  # kg
         self.kb = physical_constants["Boltzmann constant in eV/K"][0]
         self.hbar = physical_constants["Planck constant over 2 pi in eV s"][0]
-        self.gpa_to_ev_ang = 1./160.21766208  # 1 GPa in ev/Ang^3
+        self.gpa_to_ev_ang = 1.0 / 160.21766208  # 1 GPa in ev/Ang^3
         self.gibbs_free_energy = []  # optimized values, eV
         # list of temperatures for which the optimized values are available, K
         self.temperatures = []
@@ -97,7 +109,7 @@ class QuasiharmonicDebyeApprox:
 
     def optimize_gibbs_free_energy(self):
         """
-        Evaluate the gibbs free energy as a function of V, T and P i.e
+        Evaluate the Gibbs free energy as a function of V, T and P i.e
         G(V, T, P), minimize G(V, T, P) wrt V for each T and store the
         optimum values.
 
@@ -105,8 +117,10 @@ class QuasiharmonicDebyeApprox:
             are skipped.
         """
         temperatures = np.linspace(
-            self.temperature_min,  self.temperature_max,
-            int(np.ceil((self.temperature_max - self.temperature_min) / self.temperature_step) + 1))
+            self.temperature_min,
+            self.temperature_max,
+            int(np.ceil((self.temperature_max - self.temperature_min) / self.temperature_step) + 1),
+        )
 
         for t in temperatures:
             try:
@@ -114,7 +128,7 @@ class QuasiharmonicDebyeApprox:
             except Exception:
                 if len(temperatures) <= 1:
                     raise
-                logger.info("EOS fitting failed, so skipping this data point, {}".format(t))
+                logger.info(f"EOS fitting failed, so skipping this data point, {t}")
             self.gibbs_free_energy.append(G_opt)
             self.temperatures.append(t)
             self.optimum_volumes.append(V_opt)
@@ -124,11 +138,11 @@ class QuasiharmonicDebyeApprox:
         Evaluate G(V, T, P) at the given temperature(and pressure) and
         minimize it wrt V.
 
-        1. Compute the  vibrational helmholtz free energy, A_vib.
-        2. Compute the gibbs free energy as a function of volume, temperature
+        1. Compute the  vibrational Helmholtz free energy, A_vib.
+        2. Compute the Gibbs free energy as a function of volume, temperature
             and pressure, G(V,T,P).
-        3. Preform an equation of state fit to get the functional form of
-            gibbs free energy:G(V, T, P).
+        3. Perform an equation of state fit to get the functional form of
+            Gibbs free energy:G(V, T, P).
         4. Finally G(V, P, T) is minimized with respect to V.
 
         Args:
@@ -140,9 +154,9 @@ class QuasiharmonicDebyeApprox:
         G_V = []  # G for each volume
         # G = E(V) + PV + A_vib(V, T)
         for i, v in enumerate(self.volumes):
-            G_V.append(self.energies[i] +
-                       self.pressure * v * self.gpa_to_ev_ang +
-                       self.vibrational_free_energy(temperature, v))
+            G_V.append(
+                self.energies[i] + self.pressure * v * self.gpa_to_ev_ang + self.vibrational_free_energy(temperature, v)
+            )
 
         # fit equation of state, G(V, T, P)
         eos_fit = self.eos.fit(self.volumes, G_V)
@@ -167,8 +181,9 @@ class QuasiharmonicDebyeApprox:
             float: vibrational free energy in eV
         """
         y = self.debye_temperature(volume) / temperature
-        return self.kb * self.natoms * temperature * (
-            9./8. * y + 3 * np.log(1 - np.exp(-y)) - self.debye_integral(y))
+        return (
+            self.kb * self.natoms * temperature * (9.0 / 8.0 * y + 3 * np.log(1 - np.exp(-y)) - self.debye_integral(y))
+        )
 
     def vibrational_internal_energy(self, temperature, volume):
         """
@@ -183,8 +198,7 @@ class QuasiharmonicDebyeApprox:
             float: vibrational internal energy in eV
         """
         y = self.debye_temperature(volume) / temperature
-        return self.kb * self.natoms * temperature * (9./8. * y +
-                                                      3*self.debye_integral(y))
+        return self.kb * self.natoms * temperature * (9.0 / 8.0 * y + 3 * self.debye_integral(y))
 
     def debye_temperature(self, volume):
         """
@@ -205,11 +219,11 @@ class QuasiharmonicDebyeApprox:
 
         Returns:
             float: debye temperature in K
-         """
-        term1 = (2./3. * (1. + self.poisson) / (1. - 2. * self.poisson))**1.5
-        term2 = (1./3. * (1. + self.poisson) / (1. - self.poisson))**1.5
-        f = (3. / (2. * term1 + term2))**(1. / 3.)
-        debye = 2.9772e-11 * (volume / self.natoms) ** (-1. / 6.) * f * np.sqrt(self.bulk_modulus/self.avg_mass)
+        """
+        term1 = (2.0 / 3.0 * (1.0 + self.poisson) / (1.0 - 2.0 * self.poisson)) ** 1.5
+        term2 = (1.0 / 3.0 * (1.0 + self.poisson) / (1.0 - self.poisson)) ** 1.5
+        f = (3.0 / (2.0 * term1 + term2)) ** (1.0 / 3.0)
+        debye = 2.9772e-11 * (volume / self.natoms) ** (-1.0 / 6.0) * f * np.sqrt(self.bulk_modulus / self.avg_mass)
         if self.anharmonic_contribution:
             gamma = self.gruneisen_parameter(0, self.ev_eos_fit.v0)  # 0K equilibrium Gruneisen parameter
             return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
@@ -229,16 +243,16 @@ class QuasiharmonicDebyeApprox:
         # floating point limit is reached around y=155, so values beyond that
         # are set to the limiting value(T-->0, y --> \infty) of
         # 6.4939394 (from wolfram alpha).
-        factor = 3. / y ** 3
+        factor = 3.0 / y**3
         if y < 155:
-            integral = quadrature(lambda x: x ** 3 / (np.exp(x) - 1.), 0, y)
+            integral = quadrature(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
             return list(integral)[0] * factor
         return 6.493939 * factor
 
     def gruneisen_parameter(self, temperature, volume):
         """
         Slater-gamma formulation(the default):
-            gruneisen paramter = - d log(theta)/ d log(V)
+            gruneisen parameter = - d log(theta)/ d log(V)
                                = - ( 1/6 + 0.5 d log(B)/ d log(V) )
                                = - (1/6 + 0.5 V/B dB/dV),
                                     where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
@@ -278,15 +292,17 @@ class QuasiharmonicDebyeApprox:
         # Mie-gruneisen formulation
         if self.use_mie_gruneisen:
             p0 = dEdV
-            return (self.gpa_to_ev_ang * volume *
-                    (self.pressure + p0 / self.gpa_to_ev_ang) /
-                    self.vibrational_internal_energy(temperature, volume))
+            return (
+                self.gpa_to_ev_ang
+                * volume
+                * (self.pressure + p0 / self.gpa_to_ev_ang)
+                / self.vibrational_internal_energy(temperature, volume)
+            )
 
         # Slater-gamma formulation
         # first derivative of bulk modulus wrt volume, eV/Ang^6
         dBdV = d2EdV2 + d3EdV3 * volume
-        return -(1./6. + 0.5 * volume * dBdV /
-                 FloatWithUnit(self.ev_eos_fit.b0_GPa, "GPa").to("eV ang^-3"))
+        return -(1.0 / 6.0 + 0.5 * volume * dBdV / FloatWithUnit(self.ev_eos_fit.b0_GPa, "GPa").to("eV ang^-3"))
 
     def thermal_conductivity(self, temperature, volume):
         """
@@ -301,14 +317,14 @@ class QuasiharmonicDebyeApprox:
         """
         gamma = self.gruneisen_parameter(temperature, volume)
         theta_d = self.debye_temperature(volume)  # K
-        theta_a = theta_d * self.natoms**(-1./3.)  # K
-        prefactor = (0.849 * 3 * 4**(1./3.)) / (20. * np.pi**3)
+        theta_a = theta_d * self.natoms ** (-1.0 / 3.0)  # K
+        prefactor = (0.849 * 3 * 4 ** (1.0 / 3.0)) / (20.0 * np.pi**3)
         # kg/K^3/s^3
-        prefactor = prefactor * (self.kb/self.hbar)**3 * self.avg_mass
+        prefactor = prefactor * (self.kb / self.hbar) ** 3 * self.avg_mass
         kappa = prefactor / (gamma**2 - 0.514 * gamma + 0.228)
         # kg/K/s^3 * Ang = (kg m/s^2)/(Ks)*1e-10
         # = N/(Ks)*1e-10 = Nm/(Kms)*1e-10 = W/K/m*1e-10
-        kappa = kappa * theta_a**2 * volume**(1./3.) * 1e-10
+        kappa = kappa * theta_a**2 * volume ** (1.0 / 3.0) * 1e-10
         return kappa
 
     def get_summary_dict(self):

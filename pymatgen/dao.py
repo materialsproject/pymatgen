@@ -1,10 +1,11 @@
-# coding: utf-8
-
 """
 The dao for pymatgen.
 """
 
-print("""
+from __future__ import annotations
+
+print(
+    """
 The 道 of Pymatgen
 
 1.  Great code enables great materials science.
@@ -20,4 +21,5 @@ The 道 of Pymatgen
 
 ---
 First Coder
-""")
+"""
+)

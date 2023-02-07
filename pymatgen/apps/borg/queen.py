@@ -1,20 +1,20 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 
 """
 This module defines the BorgQueen class, which manages drones to assimilate
 data using Python's multiprocessing.
 """
 
-import os
+from __future__ import annotations
+
 import json
 import logging
+import os
 from multiprocessing import Manager, Pool
 
 from monty.io import zopen
-from monty.json import MontyEncoder, MontyDecoder
+from monty.json import MontyDecoder, MontyEncoder
 
 logger = logging.getLogger("BorgQueen")
 
@@ -56,31 +56,31 @@ class BorgQueen:
         """
         Assimilate the entire subdirectory structure in rootpath.
         """
-        logger.info('Scanning for valid paths...')
+        logger.info("Scanning for valid paths...")
         valid_paths = []
-        for (parent, subdirs, files) in os.walk(rootpath):
-            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs,
-                                                            files)))
+        for parent, subdirs, files in os.walk(rootpath):
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         manager = Manager()
         data = manager.list()
         status = manager.dict()
-        status['count'] = 0
-        status['total'] = len(valid_paths)
-        logger.info('{} valid paths found.'.format(len(valid_paths)))
-        p = Pool(self._num_drones)
-        p.map(order_assimilation, ((path, self._drone, data, status)
-                                   for path in valid_paths))
-        for d in data:
-            self._data.append(json.loads(d, cls=MontyDecoder))
+        status["count"] = 0
+        status["total"] = len(valid_paths)
+        logger.info(f"{len(valid_paths)} valid paths found.")
+        with Pool(self._num_drones) as p:
+            p.map(
+                order_assimilation,
+                ((path, self._drone, data, status) for path in valid_paths),
+            )
+            for d in data:
+                self._data.append(json.loads(d, cls=MontyDecoder))
 
     def serial_assimilate(self, rootpath):
         """
         Assimilate the entire subdirectory structure in rootpath serially.
         """
         valid_paths = []
-        for (parent, subdirs, files) in os.walk(rootpath):
-            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs,
-                                                            files)))
+        for parent, subdirs, files in os.walk(rootpath):
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         data = []
         count = 0
         total = len(valid_paths)
@@ -88,8 +88,7 @@ class BorgQueen:
             newdata = self._drone.assimilate(path)
             self._data.append(newdata)
             count += 1
-            logger.info('{}/{} ({:.2f}%) done'.format(count, total,
-                                                      count / total * 100))
+            logger.info(f"{count}/{total} ({count / total :.2%}) done")
         for d in data:
             self._data.append(json.loads(d, cls=MontyDecoder))
 
@@ -127,8 +126,7 @@ def order_assimilation(args):
     newdata = drone.assimilate(path)
     if newdata:
         data.append(json.dumps(newdata, cls=MontyEncoder))
-    status['count'] += 1
-    count = status['count']
-    total = status['total']
-    logger.info('{}/{} ({:.2f}%) done'.format(count, total,
-                                              count / total * 100))
+    status["count"] += 1
+    count = status["count"]
+    total = status["total"]
+    logger.info(f"{count}/{total} ({count / total :.2%}) done")

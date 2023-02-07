@@ -2,10 +2,11 @@
 Get help with VASP parameters from VASP wiki.
 """
 
+from __future__ import annotations
+
 import re
 
 import requests
-import urllib3
 from bs4 import BeautifulSoup
 
 
@@ -19,7 +20,6 @@ class VaspDoc:
         Init for VaspDoc.
         """
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"
-        urllib3.disable_warnings()
 
     def print_help(self, tag):
         """
@@ -38,7 +38,8 @@ class VaspDoc:
             tag (str): Tag used in VASP.
         """
         help = self.get_help(tag, "html")
-        from IPython.core.display import display, HTML
+        from IPython.core.display import HTML, display
+
         display(HTML(help))
 
     @classmethod
@@ -53,7 +54,7 @@ class VaspDoc:
             Help text.
         """
         tag = tag.upper()
-        r = requests.get("http://www.vasp.at/wiki/index.php/%s" % tag, verify=False)
+        r = requests.get(f"https://www.vasp.at/wiki/index.php/{tag}", verify=False)
         soup = BeautifulSoup(r.text)
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
@@ -70,12 +71,14 @@ class VaspDoc:
         Returns: All incar tags
         """
         tags = []
-        for page in ["http://www.vasp.at/wiki/index.php/Category:INCAR",
-                     "http://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages"]:
+        for page in [
+            "https://www.vasp.at/wiki/index.php/Category:INCAR",
+            "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
+        ]:
             r = requests.get(page, verify=False)
             soup = BeautifulSoup(r.text)
-            for div in soup.findAll('div', {'class': 'mw-category-group'}):
-                children = div.findChildren('li')
+            for div in soup.findAll("div", {"class": "mw-category-group"}):
+                children = div.findChildren("li")
                 for child in children:
                     tags.append(child.text.strip())
         return tags
