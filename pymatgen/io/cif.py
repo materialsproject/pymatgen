@@ -1132,8 +1132,9 @@ class CifParser:
             if skip_checks:
                 struct_2 = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
                 for i, _ in enumerate(struct_2):
-                    struct_2[i] = PeriodicSite(allspecies_noedit[i], allcoords[i], lattice, properties=site_properties,
-                                               skip_checks=True)
+                    struct_2[i] = PeriodicSite(
+                        allspecies_noedit[i], allcoords[i], lattice, properties=site_properties, skip_checks=True
+                    )
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
@@ -1149,9 +1150,9 @@ class CifParser:
                 if skip_checks:
                     struct_2 = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
                     for i, _ in enumerate(struct_2):
-                        struct_2[i] = PeriodicSite(allspecies_noedit[i], allcoords[i], lattice,
-                                                   properties=site_properties,
-                                                   skip_checks=True)
+                        struct_2[i] = PeriodicSite(
+                            allspecies_noedit[i], allcoords[i], lattice, properties=site_properties, skip_checks=True
+                        )
                     return struct_2
                 else:
                     return struct
