@@ -999,13 +999,25 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
+    def unset_charge(self):
+        """
+        Reset the charge to None, i.e., computed dynamically based on oxidation states.
+        """
+        self._charge = None
+
     @property
     def charge(self) -> float:
         """
         Overall charge of the structure
         """
+        formal_charge = super().charge
         if self._charge is None:
             return super().charge
+        if formal_charge != self._charge:
+            warnings.warn(
+                f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
+                f" ({formal_charge}). Use `unset_charge` if this is not desired."
+            )
         return self._charge
 
     @property
