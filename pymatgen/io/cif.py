@@ -218,7 +218,7 @@ class CifBlock:
                     data[columns[-1]] = []
                 while q:
                     s = q[0]
-                    if s[0].startswith("loop_") or s[0].startswith("_"):
+                    if s[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(q.popleft()))
                 n = len(items) // len(columns)
@@ -226,8 +226,8 @@ class CifBlock:
                 loops.append(columns)
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
-            elif "".join(s).strip() != "":
-                warnings.warn(f"Possible issue in cif file at line: {''.join(s).strip()}")
+            elif issue := "".join(s).strip():
+                warnings.warn(f"Possible issue in cif file at line: {issue}")
         return cls(data, loops, header)
 
 

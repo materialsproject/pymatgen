@@ -1369,7 +1369,7 @@ class MinimumDistanceNN(NearNeighbors):
         """
         return True
 
-    def get_nn_info(self, structure: Structure, n: int):
+    def get_nn_info(self, structure: Structure, n: int) -> list[dict[str, Any]]:
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the closest neighbor
@@ -1381,9 +1381,8 @@ class MinimumDistanceNN(NearNeighbors):
                 neighbors.
 
         Returns:
-            siw (list of tuples (Site, array, float)): tuples, each one
-                of which represents a neighbor site, its image location,
-                and its weight.
+            siw (list[dict]): dicts with (Site, array, float) each one of which represents a
+                neighbor site, its image location, and its weight.
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
@@ -1391,12 +1390,12 @@ class MinimumDistanceNN(NearNeighbors):
         siw = []
         if self.get_all_sites:
             for nn in neighs_dists:
-                w = nn.nn_distance
+                weight = nn.nn_distance
                 siw.append(
                     {
                         "site": nn,
                         "image": self._get_image(structure, nn) if is_periodic else None,
-                        "weight": w,
+                        "weight": weight,
                         "site_index": self._get_original_site(structure, nn),
                     }
                 )
@@ -1405,12 +1404,12 @@ class MinimumDistanceNN(NearNeighbors):
             for nn in neighs_dists:
                 dist = nn.nn_distance
                 if dist < (1.0 + self.tol) * min_dist:
-                    w = min_dist / dist
+                    weight = min_dist / dist
                     siw.append(
                         {
                             "site": nn,
                             "image": self._get_image(structure, nn) if is_periodic else None,
-                            "weight": w,
+                            "weight": weight,
                             "site_index": self._get_original_site(structure, nn),
                         }
                     )

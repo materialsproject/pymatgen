@@ -71,7 +71,7 @@ repos:
         exclude: tests
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: v0.11.1
+    rev: v0.12.4
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
