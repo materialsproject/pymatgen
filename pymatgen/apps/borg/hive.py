@@ -58,7 +58,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
         paths, depending on what kind of data you are assimilating. For
         example, if you are assimilating VASP runs, you are only interested in
         directories containing vasprun.xml files. On the other hand, if you are
-        interested converting all POSCARs in a directory tree to cifs for
+        interested converting all POSCARs in a directory tree to CIFs for
         example, you will want the file paths.
 
         Args:
@@ -73,7 +73,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 
 class VaspToComputedEntryDrone(AbstractDrone):
     """
-    VaspToEntryDrone assimilates directories containing vasp output to
+    VaspToEntryDrone assimilates directories containing VASP output to
     ComputedEntry/ComputedStructureEntry objects. There are some restrictions
     on the valid directory structures:
 
