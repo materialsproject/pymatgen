@@ -101,6 +101,8 @@ Implementation Notes
 
 from __future__ import annotations
 
+import copy
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -1286,6 +1288,13 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         # entries unmodified. gga-6 should be corrected to the R2SCAN hull
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
+
+    def test_processing_entries_inplace(self, ms_complete):
+        # check whether the compatibility scheme can keep input entries unchanged
+        entries = ms_complete.all_entries
+        entries_copy = copy.deepcopy(entries)
+        MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
+        assert all([e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy)])
 
 
 class TestMaterialsProjectDFTMixingSchemeStates:
