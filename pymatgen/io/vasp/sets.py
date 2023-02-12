@@ -15,7 +15,7 @@ Read the following carefully before implementing new input sets:
 1. 99% of what needs to be done can be done by specifying user_incar_settings
    to override some of the defaults of various input sets. Unless there is an
    extremely good reason to add a new set, DO NOT add one. E.g., if you want
-   to turn the hubbard U off, just set "LDAU": False as a user_incar_setting.
+   to turn the Hubbard U off, just set "LDAU": False as a user_incar_setting.
 2. All derivative input sets should inherit from one of the usual MPRelaxSet or
    MITRelaxSet, and proper superclass delegation should be used where possible.
    In particular, you are not supposed to implement your own as_dict or
@@ -111,7 +111,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         return potcar_symbols
 
     @property
-    def potcar(self):
+    def potcar(self) -> Potcar:
         """
         Potcar object.
         """
@@ -146,12 +146,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
     def write_input(
         self,
-        output_dir,
-        make_dir_if_not_present=True,
-        include_cif=False,
-        potcar_spec=False,
-        zip_output=False,
-    ):
+        output_dir: str,
+        make_dir_if_not_present: bool = True,
+        include_cif: bool = False,
+        potcar_spec: bool = False,
+        zip_output: bool = False,
+    ) -> None:
         """
         Writes a set of VASP input to a directory.
 
@@ -174,17 +174,13 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             if make_dir_if_not_present and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
-                f.write("\n".join(self.potcar_symbols))
+            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as file:
+                file.write("\n".join(self.potcar_symbols))
 
-            for k, v in {
-                "INCAR": self.incar,
-                "POSCAR": self.poscar,
-                "KPOINTS": self.kpoints,
-            }.items():
-                if v is not None:
-                    with zopen(os.path.join(output_dir, k), "wt") as f:
-                        f.write(str(v))
+            for key in ["INCAR", "POSCAR", "KPOINTS"]:
+                if (val := getattr(self, key.lower())) is not None:
+                    with zopen(os.path.join(output_dir, key), "wt") as file:
+                        file.write(str(val))
         else:
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
@@ -198,14 +194,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         if zip_output:
             filename = type(self).__name__ + ".zip"
             with ZipFile(os.path.join(output_dir, filename), "w") as zip:
-                for file in [
-                    "INCAR",
-                    "POSCAR",
-                    "KPOINTS",
-                    "POTCAR",
-                    "POTCAR.spec",
-                    cif_name,
-                ]:
+                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
                     try:
                         zip.write(os.path.join(output_dir, file), arcname=file)
                     except FileNotFoundError:
