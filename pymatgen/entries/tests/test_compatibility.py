@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
 import unittest
 import warnings
@@ -1196,8 +1197,11 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         assert isinstance(temp_compat, MaterialsProject2020Compatibility)
 
     def test_processing_entries_inplace(self):
+        # load two entries in GGA_GGA_U_R2SCAN thermo type
+        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermoType_GGA_GGA_U_R2SCAN.json")
+        with open(entriesJson) as file:
+            entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
-        entries = [self.entry1, self.entry2, self.entry3]
         entries_copy = copy.deepcopy(entries)
         self.compat.process_entries(entries, inplace=False)
         assert all([e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy)])

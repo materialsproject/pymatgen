@@ -102,10 +102,13 @@ Implementation Notes
 from __future__ import annotations
 
 import copy
+import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
+from monty.json import MontyDecoder
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -118,6 +121,7 @@ from pymatgen.entries.computed_entries import (
     ComputedStructureEntry,
 )
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Ryan Kingsbury"
 __copyright__ = "Copyright 2019-2021, The Materials Project"
@@ -1289,9 +1293,12 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
 
-    def test_processing_entries_inplace(self, ms_complete):
+    def test_processing_entries_inplace(self):
+        # load two entries in GGA_GGA_U_R2SCAN thermo type
+        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermoType_GGA_GGA_U_R2SCAN.json")
+        with open(entriesJson) as file:
+            entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
-        entries = ms_complete.all_entries
         entries_copy = copy.deepcopy(entries)
         MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
         assert all([e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy)])
