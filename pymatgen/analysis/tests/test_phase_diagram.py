@@ -246,14 +246,10 @@ class PhaseDiagramTest(unittest.TestCase):
         assert len(self.pd.all_entries_hulldata) == 490
 
     def test_planar_inputs(self):
-        e1 = PDEntry("H", 0)
-        e2 = PDEntry("He", 0)
-        e3 = PDEntry("Li", 0)
-        e4 = PDEntry("Be", 0)
-        e5 = PDEntry("B", 0)
-        e6 = PDEntry("Rb", 0)
+        elems = ["H", "He", "Li", "Be", "B", "Rb"]
+        e1, e2, e3, e4, e5, e6 = (PDEntry(elem, 0) for elem in elems)
 
-        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6], map(Element, ["Rb", "He", "B", "Be", "Li", "H"]))
+        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6], map(Element, elems))
 
         assert len(pd.facets) == 1
 
@@ -264,7 +260,7 @@ class PhaseDiagramTest(unittest.TestCase):
         for entry in self.pd.all_entries:
             for entry in self.pd.stable_entries:
                 decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
-                assert e_hull < 1e-11, "Stable entries should have e above hull of zero!"
+                assert e_hull < 1e-11, "Stable entries should have e_above_hull of zero!"
                 assert decomp[entry] == 1, "Decomposition of stable entry should be itself."
             else:
                 e_ah = self.pd.get_e_above_hull(entry)
@@ -762,7 +758,7 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
     def test_get_decomp_and_e_above_hull(self):
         for entry in self.pd.stable_entries:
             decomp_pd, e_above_hull_pd = self.pd.get_decomp_and_e_above_hull(entry)
-            decomp_ppd, e_above_hull_ppd = self.ppd.get_decomp_and_e_above_hull(entry)
+            decomp_ppd, e_above_hull_ppd = self.ppd.get_decomp_and_e_above_hull(entry, check_stable=True)
             assert decomp_pd == decomp_ppd
             assert np.isclose(e_above_hull_pd, e_above_hull_ppd)
 
