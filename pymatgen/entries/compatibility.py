@@ -571,17 +571,17 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Args:
             entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
                 Computed(Structure)Entry objects.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose: bool, whether to display progress bar for processing multiple entries.
+            verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
-            inplace: bool, whether to adjust input entries in place.
+            inplace (bool): Whether to adjust input entries in place.
                 Default is True.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         # if single entry convert to list
         if isinstance(entries, ComputedEntry):  # True for ComputedStructureEntry too
@@ -1410,15 +1410,15 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Args:
             entries (list[ComputedEntry | ComputedStructureEntry]): Entries to be processed.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is False.
-            verbose: bool, whether to display progress bar for processing multiple entries.
+            verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         # convert input arg to a list if not already
         if isinstance(entries, ComputedEntry):

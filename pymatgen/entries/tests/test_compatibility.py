@@ -1198,13 +1198,13 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
-        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermoType_GGA_GGA_U_R2SCAN.json")
+        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermo_type_GGA_GGA_U_R2SCAN.json")
         with open(entriesJson) as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
         entries_copy = copy.deepcopy(entries)
         self.compat.process_entries(entries, inplace=False)
-        assert all([e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy)])
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -2143,7 +2143,7 @@ class TestMaterialsProjectAqueousCompatibility:
         entries = [h2o_entry, o2_entry]
         entries_copy = copy.deepcopy(entries)
         MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
-        assert all([e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy)])
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
 class AqueousCorrectionTest(unittest.TestCase):

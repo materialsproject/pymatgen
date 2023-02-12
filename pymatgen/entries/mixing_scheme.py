@@ -18,12 +18,12 @@ import pandas as pd
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.entries.compatibility import (
+    AnyComputedEntry,
     Compatibility,
     CompatibilityError,
     MaterialsProject2020Compatibility,
 )
 from pymatgen.entries.computed_entries import (
-    ComputedEntry,
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
 )
@@ -124,12 +124,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def process_entries(
         self,
-        entries: ComputedStructureEntry | ComputedEntry | list,
+        entries: AnyComputedEntry | list[AnyComputedEntry],
         clean: bool = True,
         verbose: bool = True,
         inplace: bool = True,
         mixing_state_data=None,
-    ):
+    ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the DFT mixing scheme. Note
         that this method will change the data of the original entries.
@@ -142,11 +142,11 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
                 Note that under typical use, when mixing_state_data=None, the entries MUST be
                 ComputedStructureEntry. They will be matched using structure_matcher.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose: bool, whether to print verbose error messages about the mixing scheme. Default is True.
-            inplace: bool, whether to adjust input entries in place. Default is True.
+            verbose (bool): Whether to print verbose error messages about the mixing scheme. Default is True.
+            inplace (bool): Whether to adjust input entries in place. Default is True.
             mixing_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
                 the respective run_types, etc. If None (default), it will be generated from the
@@ -158,8 +158,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 ComputedStructureEntry in entries.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         processed_entry_list: list = []
 
@@ -495,9 +495,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         for entry in entries:
             if not isinstance(entry, ComputedStructureEntry):
                 warnings.warn(
-                    f"Entry {entry.entry_id} is not a ComputedStructureEntry and will be"
-                    "ignored. The DFT mixing scheme requires structures for"
-                    " all entries"
+                    f"Entry {entry.entry_id} is not a ComputedStructureEntry and will be ignored. "
+                    "The DFT mixing scheme requires structures for all entries"
                 )
                 continue
 
