@@ -8,6 +8,7 @@ functionals.
 from __future__ import annotations
 
 import abc
+import copy
 import os
 import warnings
 from collections import defaultdict
@@ -555,7 +556,11 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return None
 
     def process_entries(
-        self, entries: AnyComputedEntry | list[AnyComputedEntry], clean: bool = True, verbose: bool = False
+        self,
+        entries: AnyComputedEntry | list[AnyComputedEntry],
+        clean: bool = True,
+        verbose: bool = False,
+        inplace: bool = True,
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -566,21 +571,27 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Args:
             entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
                 Computed(Structure)Entry objects.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose: bool, whether to display progress bar for processing multiple entries.
+            verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
+            inplace (bool): Whether to adjust input entries in place.
+                Default is True.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         # if single entry convert to list
         if isinstance(entries, ComputedEntry):  # True for ComputedStructureEntry too
             entries = [entries]
 
         processed_entry_list: list[AnyComputedEntry] = []
+
+        # if inplace = False, process entries on a copy
+        if not inplace:
+            entries = copy.deepcopy(entries)
 
         for entry in tqdm(entries, disable=not verbose):
             ignore_entry = False
@@ -1392,26 +1403,30 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         return adjustments
 
     def process_entries(
-        self, entries: list[AnyComputedEntry], clean: bool = False, verbose: bool = False
+        self, entries: list[AnyComputedEntry], clean: bool = False, verbose: bool = False, inplace: bool = True
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:
             entries (list[ComputedEntry | ComputedStructureEntry]): Entries to be processed.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is False.
-            verbose: bool, whether to display progress bar for processing multiple entries.
+            verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         # convert input arg to a list if not already
         if isinstance(entries, ComputedEntry):
             entries = [entries]
+
+        # if inplace = False, process entries on a copy
+        if not inplace:
+            entries = copy.deepcopy(entries)
 
         # pre-process entries with the given solid compatibility class
         if self.solid_compat:
@@ -1449,4 +1464,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
             self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]
 
-        return super().process_entries(entries, clean=clean, verbose=verbose)
+        return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace)
