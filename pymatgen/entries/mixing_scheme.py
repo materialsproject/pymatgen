@@ -7,6 +7,7 @@ functionals.
 
 from __future__ import annotations
 
+import copy
 import os
 import warnings
 from itertools import groupby
@@ -126,6 +127,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         entries: ComputedStructureEntry | ComputedEntry | list,
         clean: bool = True,
         verbose: bool = True,
+        inplace: bool = True,
         mixing_state_data=None,
     ):
         """
@@ -144,6 +146,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
             verbose: bool, whether to print verbose error messages about the mixing scheme. Default is True.
+            inplace: bool, whether to adjust input entries in place. Default is True.
             mixing_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
                 the respective run_types, etc. If None (default), it will be generated from the
@@ -164,6 +167,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if len(entries) == 1:
             warnings.warn(f"{type(self).__name__} cannot process single entries. Supply a list of entries.")
             return processed_entry_list
+
+        # if inplace = False, process entries on a copy
+        if not inplace:
+            entries = copy.deepcopy(entries)
 
         # if clean is True, remove all previous adjustments from the entry
         # this code must be placed before the next block, because we don't want to remove
@@ -534,7 +541,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         ]
 
         def _get_sg(struct) -> int:
-            """helper function to get spacegroup with a loose tolerance"""
+            """Helper function to get spacegroup with a loose tolerance"""
             try:
                 return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
@@ -668,7 +675,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
         """
-        helper function to populate a row of the mixing state DataFrame, given
+        Helper function to populate a row of the mixing state DataFrame, given
         a list of matched structures
         """
         # within the group of matched structures, keep the lowest energy entry from
