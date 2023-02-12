@@ -1722,77 +1722,91 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
+    def get_decomp_and_e_above_hull(
+        self,
+        entry: PDEntry,
+        allow_negative: bool = False,
+        check_stable: bool = False,
+        on_error: Literal["raise", "warn", "ignore"] = "raise",
+    ) -> tuple[dict[PDEntry, float], float] | tuple[None, None]:
+        """Same as method on parent class PhaseDiagram except check_stable defaults to False
+        for speed. See https://github.com/materialsproject/pymatgen/issues/2840 for details.
+        """
+        return super().get_decomp_and_e_above_hull(
+            entry=entry, allow_negative=allow_negative, check_stable=check_stable, on_error=on_error
+        )
+
     def _get_facet_and_simplex(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_facet_and_simplex` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_facet_and_simplex() not implemented for PatchedPhaseDiagram")
 
     def _get_all_facets_and_simplexes(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_all_facets_and_simplexes` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_all_facets_and_simplexes() not implemented for PatchedPhaseDiagram")
 
     def _get_facet_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_facet_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_facet_chempots() not implemented for PatchedPhaseDiagram")
 
     def _get_simplex_intersections(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_simplex_intersections` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_simplex_intersections() not implemented for PatchedPhaseDiagram")
 
     def get_composition_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_composition_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_composition_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_all_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_all_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_all_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_transition_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_transition_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_transition_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_critical_compositions(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_critical_compositions` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_critical_compositions() not implemented for PatchedPhaseDiagram")
 
     def get_element_profile(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_element_profile` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_element_profile() not implemented for PatchedPhaseDiagram")
 
     def get_chempot_range_map(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_chempot_range_map` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_chempot_range_map() not implemented for PatchedPhaseDiagram")
 
     def getmu_vertices_stability_phase(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`getmu_vertices_stability_phase` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("getmu_vertices_stability_phase() not implemented for PatchedPhaseDiagram")
 
     def get_chempot_range_stability_phase(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_chempot_range_stability_phase` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_chempot_range_stability_phase() not implemented for PatchedPhaseDiagram")
 
     def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
         """
