@@ -526,7 +526,7 @@ class MPResterOldTest(PymatgenTest):
         # Test against ion sets with multiple equivalent ions (Bi-V regression)
         entries = self.rester.get_pourbaix_entries(["Bi", "V"])
         pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
-        assert all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries])
+        assert all("Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries)
 
 
 if __name__ == "__main__":
