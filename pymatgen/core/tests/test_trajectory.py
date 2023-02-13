@@ -41,14 +41,14 @@ class TrajectoryTest(PymatgenTest):
         return lattice, species, frac_coords
 
     def test_single_index_slice(self):
-        assert all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)])
+        assert all(self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
+            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -56,7 +56,7 @@ class TrajectoryTest(PymatgenTest):
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
+            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -65,7 +65,7 @@ class TrajectoryTest(PymatgenTest):
         sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))])
+            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -74,7 +74,7 @@ class TrajectoryTest(PymatgenTest):
         self.traj.to_displacements()
         self.traj.to_positions()
 
-        assert all([struct == self.structures[i] for i, struct in enumerate(self.traj)])
+        assert all(struct == self.structures[i] for i, struct in enumerate(self.traj))
 
     def test_site_properties(self):
         lattice, species, frac_coords = self._get_lattice_species_and_coords()

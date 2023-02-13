@@ -177,7 +177,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
 
 def _decide_fontcolor(rgba: tuple) -> Literal["black", "white"]:
     red, green, blue, _ = rgba
-    if (red * 0.299 + green * 0.587 + blue * 0.114) * 255 > 186:
+    if red * 0.299 + green * 0.587 + blue * 0.114 > (186 / 255):
         return "black"
 
     return "white"
@@ -230,7 +230,6 @@ def periodic_table_heatmap(
          readable_fontcolor (bool): Whether to use readable font color depending
             on background color. Default is False.
     """
-
     # Convert primitive_elemental data in the form of numpy array for plotting.
     if cmap_range is not None:
         max_val = cmap_range[1]
@@ -338,7 +337,6 @@ def format_formula(formula):
     Args:
         formula (str): Chemical formula
     """
-
     formatted_formula = ""
     number_format = ""
     for i, s in enumerate(formula):
@@ -378,18 +376,12 @@ def van_arkel_triangle(list_of_materials, annotate=True):
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
     """
-
     # F-Fr has the largest X difference. We set this
     # as our top corner of the triangle (most ionic)
     pt1 = np.array([(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)])
     # Cs-Fr has the lowest average X. We set this as our
     # bottom left corner of the triangle (most metallic)
-    pt2 = np.array(
-        [
-            (Element("Cs").X + Element("Fr").X) / 2,
-            abs(Element("Cs").X - Element("Fr").X),
-        ]
-    )
+    pt2 = np.array([(Element("Cs").X + Element("Fr").X) / 2, abs(Element("Cs").X - Element("Fr").X)])
     # O-F has the highest average X. We set this as our
     # bottom right corner of the triangle (most covalent)
     pt3 = np.array([(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)])
@@ -427,7 +419,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     plt.xticks(fontsize=15)
     plt.yticks(fontsize=15)
 
-    # Shade with appropriate colors corresponding to ionic, metallci and covalent
+    # Shade with appropriate colors corresponding to ionic, metallic and covalent
     ax = plt.gca()
     # ionic filling
     ax.fill_between(

@@ -792,7 +792,7 @@ class MillerIndexFinderTests(PymatgenTest):
         # Now try a trigonal system.
         indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2, return_hkil=True)
         assert len(indices) == 17
-        assert all([len(hkl) == 4 for hkl in indices])
+        assert all(len(hkl) == 4 for hkl in indices)
 
     def test_get_symmetrically_equivalent_miller_indices(self):
         # Tests to see if the function obtains all equivalent hkl for cubic (100)
@@ -805,14 +805,14 @@ class MillerIndexFinderTests(PymatgenTest):
             (-1, 0, 0),
         ]
         indices = get_symmetrically_equivalent_miller_indices(self.cscl, (1, 0, 0))
-        assert all([hkl in indices for hkl in indices001])
+        assert all(hkl in indices for hkl in indices001)
 
         # Tests to see if it captures expanded Miller indices in the family e.g. (001) == (002)
         hcp_indices_100 = get_symmetrically_equivalent_miller_indices(self.Mg, (1, 0, 0))
         hcp_indices_200 = get_symmetrically_equivalent_miller_indices(self.Mg, (2, 0, 0))
         assert len(hcp_indices_100) * 2 == len(hcp_indices_200)
         assert len(hcp_indices_100) == 6
-        assert all([len(hkl) == 4 for hkl in hcp_indices_100])
+        assert all(len(hkl) == 4 for hkl in hcp_indices_100)
 
     def test_generate_all_slabs(self):
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
