@@ -129,15 +129,15 @@ class DosPlotter:
 
     def get_plot(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
         """
-                Get a matplotlib plot showing the DOS.
+        Get a matplotlib plot showing the DOS.
 
-                Args:
-                    xlim: Specifies the energy axis limits. Set to None for automatic
-                        determination.
-                    ylim: Specifies the density axis limits.
-                    invert_axes: Enables chemist style DOS plotting. Defaults to False.
-                    beta_dashed: Plots the beta spin channel with a dashed line. Defaults to False.
-                """
+        Args:
+            xlim: Specifies the energy axis limits. Set to None for automatic
+                determination.
+            ylim: Specifies the density axis limits.
+            invert_axes: Enables chemist style DOS plotting. Defaults to False.
+            beta_dashed: Plots the beta spin channel with a dashed line. Defaults to False.
+        """
 
         ncolors = max(3, len(self._doses))
         ncolors = min(9, ncolors)
@@ -217,7 +217,7 @@ class DosPlotter:
             plt.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else plt.plot([0, 0], ylim, "k--", linewidth=2)
 
         if invert_axes:
-            plt.ylabel("Energies (eV)")            
+            plt.ylabel("Energies (eV)")
             if self._norm_val:
                 plt.xlabel("Density of states (states/eV/Å³)")
             else:
