@@ -5,12 +5,7 @@
 Development script to test the algorithms of all the model coordination environments
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import itertools
 from math import factorial
@@ -24,8 +19,14 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     LocalGeometryFinder,
 )
 
-if __name__ == "__main__":
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
+if __name__ == "__main__":
     allcg = AllCoordinationGeometries()
 
     test = input('Standard ("s", all permutations for cn <= 6, 500 random permutations for cn > 6) or on demand')
@@ -94,7 +95,6 @@ if __name__ == "__main__":
             # Loop on the permutations
             iperm = 1
             for indices_perm in perms_iterator:
-
                 lgf.setup_test_perfect_environment(
                     cg_symbol,
                     indices=indices_perm,

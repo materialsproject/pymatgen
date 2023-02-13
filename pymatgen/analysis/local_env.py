@@ -289,7 +289,7 @@ class NearNeighbors:
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         raise NotImplementedError("extend_structures_molecule is not defined!")
 
@@ -306,7 +306,7 @@ class NearNeighbors:
         Args:
             structure (Structure): input structure.
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True) to use weights for computing the coordination
+            use_weights (bool): flag indicating whether (True) to use weights for computing the coordination
                 number or not (False, default: each coordinated site has equal weight).
             on_disorder ('take_majority_strict' | 'take_majority_drop' | 'take_max_species' | 'error'):
                 What to do when encountering a disordered structure. 'error' will raise ValueError.
@@ -329,7 +329,7 @@ class NearNeighbors:
         Args:
             structure (Structure): input structure
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
+            use_weights (bool): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
@@ -498,7 +498,7 @@ class NearNeighbors:
             raise ValueError("Shell must be positive")
 
         # Append this site to the list of previously-visited sites
-        _previous_steps = _previous_steps.union({(site_idx, _cur_image)})
+        _previous_steps = _previous_steps | {(site_idx, _cur_image)}
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])
@@ -1263,7 +1263,7 @@ class JmolNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -1337,7 +1337,7 @@ class MinimumDistanceNN(NearNeighbors):
                 (default: 0.1).
             cutoff (float): cutoff radius in Angstrom to look for trial
                 near-neighbor sites (default: 10.0).
-            get_all_sites (boolean): If this is set to True then the neighbor
+            get_all_sites (bool): If this is set to True then the neighbor
                 sites are only determined by the cutoff radius, tol is ignored
         """
         self.tol = tol
@@ -1365,11 +1365,11 @@ class MinimumDistanceNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
-    def get_nn_info(self, structure: Structure, n: int):
+    def get_nn_info(self, structure: Structure, n: int) -> list[dict[str, Any]]:
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the closest neighbor
@@ -1381,9 +1381,8 @@ class MinimumDistanceNN(NearNeighbors):
                 neighbors.
 
         Returns:
-            siw (list of tuples (Site, array, float)): tuples, each one
-                of which represents a neighbor site, its image location,
-                and its weight.
+            siw (list[dict]): dicts with (Site, array, float) each one of which represents a
+                neighbor site, its image location, and its weight.
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
@@ -1391,12 +1390,12 @@ class MinimumDistanceNN(NearNeighbors):
         siw = []
         if self.get_all_sites:
             for nn in neighs_dists:
-                w = nn.nn_distance
+                weight = nn.nn_distance
                 siw.append(
                     {
                         "site": nn,
                         "image": self._get_image(structure, nn) if is_periodic else None,
-                        "weight": w,
+                        "weight": weight,
                         "site_index": self._get_original_site(structure, nn),
                     }
                 )
@@ -1405,12 +1404,12 @@ class MinimumDistanceNN(NearNeighbors):
             for nn in neighs_dists:
                 dist = nn.nn_distance
                 if dist < (1.0 + self.tol) * min_dist:
-                    w = min_dist / dist
+                    weight = min_dist / dist
                     siw.append(
                         {
                             "site": nn,
                             "image": self._get_image(structure, nn) if is_periodic else None,
-                            "weight": w,
+                            "weight": weight,
                             "site_index": self._get_original_site(structure, nn),
                         }
                     )
@@ -1460,7 +1459,7 @@ class OpenBabelNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return False
 
@@ -1621,7 +1620,7 @@ class CovalentBondNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return False
 
@@ -1769,7 +1768,7 @@ class MinimumOKeeffeNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -2008,7 +2007,7 @@ def get_okeeffe_params(el_symbol):
     if el not in list(BV_PARAMS):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            f' "{el_symbol}" in "BV_PARAMS"dictionary'
+            f' {el_symbol!r} in "BV_PARAMS"dictionary'
             " provided by pymatgen"
         )
 
@@ -2975,7 +2974,6 @@ class LocalStructOrderParams:
             thetas = []
             phis = []
             for vec in rijnorm:
-
                 # z is North pole --> theta between vec and (0, 0, 1)^T.
                 # Because vec is normalized, dot product is simply vec[2].
                 thetas.append(acos(max(-1.0, min(vec[2], 1.0))))
@@ -3660,7 +3658,7 @@ class EconNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -4028,7 +4026,7 @@ class CrystalNN(NearNeighbors):
         Args:
             structure (Structure): input structure.
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
+            use_weights (bool): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
@@ -4056,7 +4054,7 @@ class CrystalNN(NearNeighbors):
         Args:
             structure (Structure): input structure
             n (int): index of site for which to determine CN.
-            use_weights (boolean): flag indicating whether (True)
+            use_weights (bool): flag indicating whether (True)
                 to use weights for computing the coordination number
                 or not (False, default: each coordinated site has equal
                 weight).
@@ -4227,7 +4225,7 @@ class CutOffDictNN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 
@@ -4330,7 +4328,7 @@ class Critic2NN(NearNeighbors):
         """
         Boolean property: Do Molecules need to be converted to Structures to use
         this NearNeighbors class? Note: this property is not defined for classes
-        for which molecules_allowed == False.
+        for which molecules_allowed is False.
         """
         return True
 

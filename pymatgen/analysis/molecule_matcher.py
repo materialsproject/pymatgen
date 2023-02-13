@@ -12,10 +12,7 @@ The implementation is based on an excellent python package called `rmsd` that
 you can find at https://github.com/charnley/rmsd.
 """
 
-__author__ = "Xiaohui Qu, Adam Fekete"
-__version__ = "1.0"
-__email__ = "xhqu1981@gmail.com"
-
+from __future__ import annotations
 
 import abc
 import copy
@@ -39,6 +36,10 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
 from pymatgen.core.structure import Molecule  # pylint: disable=ungrouped-imports
+
+__author__ = "Xiaohui Qu, Adam Fekete"
+__version__ = "1.0"
+__email__ = "xhqu1981@gmail.com"
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +93,6 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             AbstractMolAtomMapper
         """
         for trans_modules in ["molecule_matcher"]:
-
             level = 0  # Python 3.x
             mod = __import__(
                 "pymatgen.analysis." + trans_modules,
@@ -910,7 +910,6 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         # Generate all permutation grouped/sorted by the elements
         for p_inds_test in self.permutations(p_atoms):
-
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
 
@@ -1008,7 +1007,6 @@ class HungarianOrderMatcher(KabschMatcher):
 
         # Generate all permutation grouped/sorted by the elements
         for p_inds_test in self.permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
-
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
 
@@ -1128,7 +1126,6 @@ class HungarianOrderMatcher(KabschMatcher):
         Ixx = Iyy = Izz = Ixy = Ixz = Iyz = 0.0
 
         for (x, y, z), wt in zip(coords, weights):
-
             Ixx += wt * (y * y + z * z)
             Iyy += wt * (x * x + z * z)
             Izz += wt * (x * x + y * y)
@@ -1292,9 +1289,7 @@ class GeneticOrderMatcher(KabschMatcher):
 
             matches = []
             for indices in partial_matches:
-
                 for jdx in range(self.N):
-
                     # skipping if the this index is already matched
                     if jdx in indices:
                         continue

@@ -8,7 +8,7 @@ import numpy as np
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[SymmOp]]:
@@ -23,28 +23,27 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
     Return:
         list of lists of point operations for each atomic site
     """
-
     point_ops: list[list[SymmOp]] = []
 
     # Point symmetries of each atom
-    for site1 in range(len(struct.sites)):
+    for idx1, _site1 in enumerate(struct):
         temp_struct = struct.copy()
 
         # Place the origin of the cell at each atomic site
         point_ops.append([])
 
-        for site2 in range(len(struct.sites)):  # pylint: disable=C0200
+        for idx2, site2 in enumerate(struct):  # pylint: disable=C0200
             temp_struct.replace(
-                site2,
-                temp_struct.sites[site2].specie,
-                temp_struct.frac_coords[site2] - struct.frac_coords[site1],
+                idx2,
+                site2.specie,
+                temp_struct.frac_coords[idx2] - struct.frac_coords[idx1],
             )
 
-        sgastruc = sga(temp_struct, symprec=precision)
-        ops = sgastruc.get_symmetry_operations(cartesian=True)
+        sga_struct = SpacegroupAnalyzer(temp_struct, symprec=precision)
+        ops = sga_struct.get_symmetry_operations(cartesian=True)
         for op in ops:
-            if all(op.translation_vector == [0, 0, 0]):
-                point_ops[site1].append(op)
+            if list(op.translation_vector) == [0, 0, 0]:
+                point_ops[idx1].append(op)
     return point_ops
 
 
@@ -56,6 +55,7 @@ def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp
     Args:
         struct: Pymatgen structure
         pointops: list of point group operations from get_site_symmetries method
+        tol (float): tolerance to find symmetry operations
 
     Return:
         list of lists of shared point operations for each pair of atomic sites
@@ -65,10 +65,10 @@ def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp
     for site1 in range(num_sites):
         for site2 in range(num_sites):
             shared_ops[site1][site2] = []
-            for pop1 in pointops[site1]:
-                for pop2 in pointops[site2]:
-                    if np.allclose(pop1.rotation_matrix, pop2.rotation_matrix):
-                        shared_ops[site1][site2].append(pop1)
+            for point_op1 in pointops[site1]:
+                for point_op2 in pointops[site2]:
+                    if np.allclose(point_op1.rotation_matrix, point_op2.rotation_matrix):
+                        shared_ops[site1][site2].append(point_op1)
 
     for site1, sops in enumerate(shared_ops):
         for site2, sop in enumerate(sops):

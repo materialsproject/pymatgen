@@ -8,6 +8,8 @@ installed. Please consult the
 `openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
 """
 
+from __future__ import annotations
+
 import copy
 import warnings
 

@@ -962,7 +962,7 @@ class Lattice(MSONable):
         return 7
 
     def __str__(self):
-        return "\n".join([" ".join([f"{i:.6f}" for i in row]) for row in self._matrix])
+        return "\n".join(" ".join([f"{i:.6f}" for i in row]) for row in self._matrix)
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """
@@ -1676,7 +1676,7 @@ class Lattice(MSONable):
                     images[within_r[1:]],
                 )
             )
-        return (
+        return (  # type: ignore
             shifted_coords[within_r],
             np.sqrt(d_2[within_r]),
             indices[within_r[0]],

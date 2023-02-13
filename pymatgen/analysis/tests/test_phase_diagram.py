@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import collections
 import os
 import unittest
@@ -244,14 +246,10 @@ class PhaseDiagramTest(unittest.TestCase):
         assert len(self.pd.all_entries_hulldata) == 490
 
     def test_planar_inputs(self):
-        e1 = PDEntry("H", 0)
-        e2 = PDEntry("He", 0)
-        e3 = PDEntry("Li", 0)
-        e4 = PDEntry("Be", 0)
-        e5 = PDEntry("B", 0)
-        e6 = PDEntry("Rb", 0)
+        elems = ["H", "He", "Li", "Be", "B", "Rb"]
+        e1, e2, e3, e4, e5, e6 = (PDEntry(elem, 0) for elem in elems)
 
-        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6], map(Element, ["Rb", "He", "B", "Be", "Li", "H"]))
+        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6], map(Element, elems))
 
         assert len(pd.facets) == 1
 
@@ -262,7 +260,7 @@ class PhaseDiagramTest(unittest.TestCase):
         for entry in self.pd.all_entries:
             for entry in self.pd.stable_entries:
                 decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
-                assert e_hull < 1e-11, "Stable entries should have e above hull of zero!"
+                assert e_hull < 1e-11, "Stable entries should have e_above_hull of zero!"
                 assert decomp[entry] == 1, "Decomposition of stable entry should be itself."
             else:
                 e_ah = self.pd.get_e_above_hull(entry)
@@ -270,12 +268,10 @@ class PhaseDiagramTest(unittest.TestCase):
                 assert e_ah >= 0
 
     def test_get_decomp_and_e_above_hull_on_error(self):
-
         for method, expected in (
             (self.pd.get_e_above_hull, None),
             (self.pd.get_decomp_and_e_above_hull, (None, None)),
         ):
-
             # test raises ValueError on entry with element not in the phase diagram
             U_entry = PDEntry("U", 0)
             with pytest.raises(ValueError, match="Unable to get decomposition for PDEntry : U1 with energy"):
@@ -619,6 +615,21 @@ class PhaseDiagramTest(unittest.TestCase):
             dumpfn(self.pd, "pd.json")
             loadfn("pd.json")
 
+    def test_el_refs(self):
+        # Create an imitation of pre_computed phase diagram with el_refs keys being
+        # tuple[str, PDEntry] instead of tuple[Element, PDEntry].
+        mock_el_refs = [(str(el), entry) for el, entry in self.pd.el_refs.items()]
+        mock_computed_data = {**self.pd.computed_data, "el_refs": mock_el_refs}
+        pd = PhaseDiagram(self.entries, computed_data=mock_computed_data)
+        # Check the keys in el_refs dict have been updated to Element object via PhaseDiagram class.
+        assert all(isinstance(el, Element) for el in pd.el_refs)
+
+    def test_val_err_on_no_entries(self):
+        # check that PhaseDiagram raises ValueError when building phase diagram with no entries
+        for entries in [None, [], set(), tuple()]:
+            with pytest.raises(ValueError, match="Unable to build phase diagram without entries."):
+                PhaseDiagram(entries=entries)
+
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
@@ -747,7 +758,7 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
     def test_get_decomp_and_e_above_hull(self):
         for entry in self.pd.stable_entries:
             decomp_pd, e_above_hull_pd = self.pd.get_decomp_and_e_above_hull(entry)
-            decomp_ppd, e_above_hull_ppd = self.ppd.get_decomp_and_e_above_hull(entry)
+            decomp_ppd, e_above_hull_ppd = self.ppd.get_decomp_and_e_above_hull(entry, check_stable=True)
             assert decomp_pd == decomp_ppd
             assert np.isclose(e_above_hull_pd, e_above_hull_ppd)
 

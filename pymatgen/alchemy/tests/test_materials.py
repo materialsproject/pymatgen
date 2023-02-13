@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -46,8 +48,7 @@ class TransformedStructureTest(PymatgenTest):
         ts = TransformedStructure(struct, [])
         ts.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
         alt = ts.append_transformation(
-            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
-            5,
+            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5
         )
         assert len(alt) == 2
 
@@ -58,7 +59,7 @@ class TransformedStructureTest(PymatgenTest):
     def test_get_vasp_input(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = PymatgenTest.TEST_FILES_DIR
         potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
-        assert "Na_pv\nFe_pv\nP\nO" == "\n".join([p.symbol for p in potcar])
+        assert "Na_pv\nFe_pv\nP\nO" == "\n".join(p.symbol for p in potcar)
         assert len(self.trans.structures) == 2
 
     def test_final_structure(self):

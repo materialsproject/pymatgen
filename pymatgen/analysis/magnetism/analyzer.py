@@ -245,7 +245,6 @@ class CollinearMagneticStructureAnalyzer:
             raise ValueError("Unsupported mode.")
 
         for idx, site in enumerate(structure):
-
             if site.species_string in self.default_magmoms:
                 # look for species first, e.g. Fe2+
                 default_magmom = self.default_magmoms[site.species_string]
@@ -308,14 +307,11 @@ class CollinearMagneticStructureAnalyzer:
         intelligently by grouping magmoms.
         """
         if isinstance(round_magmoms_mode, int):
-
             # simple rounding to number of decimal places
             magmoms = np.around(magmoms, decimals=round_magmoms_mode)
 
         elif isinstance(round_magmoms_mode, float):
-
             try:
-
                 # get range of possible magmoms, pad by 50% just to be safe
                 range_m = max([max(magmoms), abs(min(magmoms))]) * 1.5
 
@@ -333,7 +329,6 @@ class CollinearMagneticStructureAnalyzer:
                 magmoms = [extrema[(np.abs(extrema - m)).argmin()] for m in magmoms]
 
             except Exception as e:
-
                 # TODO: typically a singular matrix warning, investigate this
                 warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.")
                 warnings.warn(str(e))
@@ -858,7 +853,7 @@ class MagneticStructureEnumerator:
             fm_structure = analyzer.get_ferromagnetic_structure()
             # store magmom as spin property, to be consistent with output from
             # other transformations
-            fm_structure.add_spin_by_site(fm_structure.site_properties["magmom"])
+            fm_structure.add_spin_by_site(fm_structure.site_properties["magmom"])  # type: ignore[arg-type]
             fm_structure.remove_site_property("magmom")
 
             # we now have our first magnetic ordering...
@@ -871,7 +866,6 @@ class MagneticStructureEnumerator:
 
         # ...to which we can add simple AFM cases first...
         if "antiferromagnetic" in self.strategies:
-
             constraint = MagOrderParameterConstraint(
                 0.5,
                 # TODO: update MagOrderParameterConstraint in
@@ -890,7 +884,6 @@ class MagneticStructureEnumerator:
         # ...and then we also try ferrimagnetic orderings by motif if a
         # single magnetic species is present...
         if "ferrimagnetic_by_motif" in self.strategies and len(wyckoff_symbols) > 1:
-
             # these orderings are AFM on one local environment, and FM on the rest
             for symbol in wyckoff_symbols:
                 constraints = [
@@ -906,7 +899,6 @@ class MagneticStructureEnumerator:
 
         # and also try ferrimagnetic when there are multiple magnetic species
         if "ferrimagnetic_by_species" in self.strategies:
-
             sp_list = [str(site.specie) for site in structure]
             num_sp = {sp: sp_list.count(str(sp)) for sp in types_mag_species}
             total_mag_sites = sum(num_sp.values())
@@ -931,7 +923,6 @@ class MagneticStructureEnumerator:
         # environment, and non-magnetic on the rest -- this is less common
         # but unless explicitly attempted, these states are unlikely to be found
         if "antiferromagnetic_by_motif" in self.strategies:
-
             for symbol in wyckoff_symbols:
                 constraints = [
                     MagOrderParameterConstraint(0.5, site_constraint_name="wyckoff", site_constraints=symbol)
@@ -1023,7 +1014,6 @@ class MagneticStructureEnumerator:
 
         # also remove low symmetry structures
         if self.truncate_by_symmetry:
-
             # by default, keep structures with 5 most symmetric space groups
             if not isinstance(self.truncate_by_symmetry, int):
                 self.truncate_by_symmetry = 5

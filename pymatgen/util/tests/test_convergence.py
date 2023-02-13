@@ -1,9 +1,12 @@
-__author__ = "setten"
+from __future__ import annotations
+
 import numpy
 import pytest
 
 from pymatgen.util.convergence import determine_convergence
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "setten"
 
 
 class ConvergenceTest(PymatgenTest):

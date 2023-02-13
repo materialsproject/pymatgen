@@ -1,4 +1,4 @@
-__author__ = "waroquiers"
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -10,6 +10,8 @@ from pymatgen.analysis.chemenv.utils.graph_utils import (
     get_delta,
 )
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 
 class FakeNode:
@@ -654,7 +656,7 @@ class GraphUtilsTest(PymatgenTest):
                 [FakeNodeWithEqLtMethods(inode) for inode in inodes],
                 edge_indices=[iedge for iedge in iedges],
             )
-            strnodes = ", ".join([str(i) for i in inodes])
+            strnodes = ", ".join(str(i) for i in inodes)
             assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in inodes])})"
             assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({strnodes})"
 

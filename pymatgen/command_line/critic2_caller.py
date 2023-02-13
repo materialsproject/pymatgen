@@ -193,7 +193,7 @@ class Critic2Caller:
         if chgcar:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = " zpsp " + " ".join([f"{symbol} {zval}" for symbol, zval in zpsp.items()])
+                zpsp_str = " zpsp " + " ".join(f"{symbol} {zval}" for symbol, zval in zpsp.items())
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
@@ -220,7 +220,6 @@ class Critic2Caller:
         input_script = "\n".join(input_script)
 
         with ScratchDir(".") as temp_dir:
-
             os.chdir(temp_dir)
 
             structure.to(filename="POSCAR")
@@ -275,7 +274,6 @@ class Critic2Caller:
         chgcar_ref = None
 
         if not zpsp:
-
             potcar_path = get_filepath(
                 "POTCAR",
                 "Could not find POTCAR, will not be able to calculate charge transfer.",
@@ -559,7 +557,6 @@ class Critic2Analysis(MSONable):
             unique_idx = self.nodes[idx]["unique_idx"]
             # only add edges representing bonds, not rings
             if self.critical_points[unique_idx].type == CriticalPointType.bond:
-
                 from_idx = edge["from_idx"]
                 to_idx = edge["to_idx"]
 
@@ -708,7 +705,6 @@ class Critic2Analysis(MSONable):
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
-
         volume_idx = None
         charge_idx = None
 
@@ -761,7 +757,6 @@ class Critic2Analysis(MSONable):
         return structure
 
     def _parse_stdout(self, stdout):
-
         warnings.warn(
             "Parsing critic2 standard output is deprecated and will not be maintained, "
             "please use the native JSON output in future."
@@ -852,7 +847,6 @@ class Critic2Analysis(MSONable):
 
         for i, line in enumerate(stdout):
             if start_i <= i <= end_i:
-
                 l = line.replace("(", "").replace(")", "").split()
 
                 idx = int(l[0]) - 1

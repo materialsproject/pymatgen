@@ -2,6 +2,8 @@
 Piezo sensitivity analysis module.
 """
 
+from __future__ import annotations
+
 import warnings
 
 import numpy as np
@@ -137,7 +139,6 @@ class BornEffectiveCharge:
             else:
                 tempfcm = np.zeros([3, 3])
                 for op in ops[2]:
-
                     tempfcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
                 BEC[ops[0]] = tempfcm
                 if len(ops[2]) != 0:
@@ -148,7 +149,6 @@ class BornEffectiveCharge:
         add = np.zeros([l, 3, 3])
 
         for atom, ops in enumerate(self.BEC_operations):
-
             if ops[0] == ops[1]:
                 temp_tensor = Tensor(disp_charge)
                 temp_tensor = sum(temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]) / len(
@@ -158,7 +158,6 @@ class BornEffectiveCharge:
             else:
                 temp_tensor = np.zeros([3, 3])
                 for op in ops[2]:
-
                     temp_tensor += op.transform_tensor(add[self.BEC_operations[atom][1]])
 
                 add[ops[0]] = temp_tensor
@@ -391,7 +390,6 @@ class ForceConstantMatrix:
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-
                     tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
                     D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
@@ -412,7 +410,6 @@ class ForceConstantMatrix:
             temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
             if op[0] != op[1]:
                 for pair in range(len(op[4])):
-
                     temp_tensor2 = temp_tensor_sum.T
                     temp_tensor2 = op[4][pair].transform_tensor(temp_tensor2)
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor2) / 2
@@ -449,7 +446,6 @@ class ForceConstantMatrix:
                 D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-
                     tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
 
@@ -471,9 +467,7 @@ class ForceConstantMatrix:
 
             # Apply the proper transformation if there is an equivalent already
             if op[0] != op[1]:
-
                 for pair in range(len(op[4])):
-
                     temp_tensor2 = temp_tensor_sum.T
                     temp_tensor2 = op[4][pair].transform_tensor(temp_tensor2)
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor2) / 2
@@ -576,7 +570,6 @@ class ForceConstantMatrix:
                     D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                     for symop in op[4]:
-
                         tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
                         tempfcm = symop.transform_tensor(tempfcm)
 
@@ -610,9 +603,7 @@ class ForceConstantMatrix:
 
                 # Apply the proper transformation if there is an equivalent already
                 if op[0] != op[1]:
-
                     for pair in range(len(op[4])):
-
                         temp_tensor2 = temp_tensor_sum.T
                         temp_tensor2 = op[4][pair].transform_tensor(temp_tensor2)
                         temp_tensor_sum = (temp_tensor_sum + temp_tensor2) / 2

@@ -5,6 +5,8 @@
 This module provides classes to define a Grueneisen band structure.
 """
 
+from __future__ import annotations
+
 import numpy as np
 import scipy.constants as const
 from monty.dev import requires
@@ -163,6 +165,7 @@ class GruneisenParameter(MSONable):
         """
         The total DOS (re)constructed from the gruneisen.yaml file
         """
+
         # Here, we will reuse phonopy classes
         class TempMesh:
             """

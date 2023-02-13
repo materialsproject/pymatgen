@@ -126,7 +126,6 @@ class CorrectionCalculator:
             entry.correction = 0
 
         for cmpd_info in self.exp_compounds:
-
             # to get consistent element ordering in formula
             name = Composition(cmpd_info["formula"]).reduced_formula
 
@@ -383,7 +382,7 @@ class CorrectionCalculator:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
         # elements with U values
-        ggaucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
+        ggau_correction_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
         comp_corr: dict[str, float] = {}
         o: dict[str, float] = {}
@@ -394,7 +393,7 @@ class CorrectionCalculator:
         f_error: dict[str, float] = {}
 
         for specie in list(self.species) + ["ozonide"]:
-            if specie in ggaucorrection_species:
+            if specie in ggau_correction_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
 

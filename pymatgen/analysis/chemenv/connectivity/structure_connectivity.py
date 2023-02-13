@@ -2,6 +2,8 @@
 Structure connectivity class.
 """
 
+from __future__ import annotations
+
 import collections
 import logging
 
@@ -120,7 +122,7 @@ class StructureConnectivity(MSONable):
                         break
             else:
                 if isite == nb_index_unitcell:
-                    for (isite1, ineighb1, data1) in existing_edges:
+                    for isite1, ineighb1, data1 in existing_edges:
                         if isite1 == ineighb1:
                             if np.allclose(data1["delta"], nb_image_cell) or np.allclose(
                                 data1["delta"], -nb_image_cell
@@ -314,7 +316,7 @@ class StructureConnectivity(MSONable):
         print("Links in graph :")
         for node in nodes:
             print(node.isite, " is connected with : ")
-            for (n1, n2, data) in self.environment_subgraph().edges(node, data=True):
+            for n1, n2, data in self.environment_subgraph().edges(node, data=True):
                 if n1.isite == data["start"]:
                     print(
                         f"  - {n2.isite} by {len(data['ligands'])} ligands ({data['delta'][0]} "

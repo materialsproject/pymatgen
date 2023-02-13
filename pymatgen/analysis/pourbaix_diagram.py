@@ -133,8 +133,6 @@ class PourbaixEntry(MSONable, Stringify):
     @property
     def energy(self):
         """
-        returns energy
-
         Returns (float): total energy of the Pourbaix
             entry (at pH, V = 0 vs. SHE)
         """
@@ -337,7 +335,7 @@ class MultiEntry(PourbaixEntry):
         """
         MultiEntry name, i. e. the name of each entry joined by ' + '
         """
-        return " + ".join([e.name for e in self.entry_list])
+        return " + ".join(e.name for e in self.entry_list)
 
     def __repr__(self):
         return (
@@ -448,6 +446,7 @@ ELEMENTS_HO = {Element("H"), Element("O")}
 # TODO: the solids filter breaks some of the functionality of the
 #       heatmap plotter, because the reference states for decomposition
 #       don't include oxygen/hydrogen in the OER/HER regions
+
 
 # TODO: create a from_phase_diagram class method for non-formation energy
 #       invocation
@@ -1159,7 +1158,7 @@ def generate_entry_label(entry):
         entry (PourbaixEntry or MultiEntry): entry to get a label for
     """
     if isinstance(entry, MultiEntry):
-        return " + ".join([e.name for e in entry.entry_list])
+        return " + ".join(e.name for e in entry.entry_list)
 
     # TODO - a more elegant solution could be added later to Stringify
     # for example, the pattern re.sub(r"([-+][\d\.]*)", r"$^{\1}$", )

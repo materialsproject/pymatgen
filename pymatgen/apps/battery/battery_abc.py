@@ -9,9 +9,10 @@ can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
 
+from __future__ import annotations
+
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Tuple
 
 from monty.json import MSONable
 from scipy.constants import N_A
@@ -55,16 +56,17 @@ class AbstractVoltagePair(MSONable):
     frac_charge: float
     frac_discharge: float
     working_ion_entry: ComputedEntry
-    framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+    framework_formula: str
 
     def __post_init__(self):
         # ensure the frame work is a reduced composition
-        self.framework_formula = self.framework.reduced_formula
+        fw = Composition(self.framework_formula)
+        self.framework_formula = fw.reduced_formula
 
     @property
     def working_ion(self) -> Element:
         """
-        working ion as pymatgen Element object
+        Working ion as pymatgen Element object
         """
         return self.working_ion_entry.composition.elements[0]
 
@@ -128,6 +130,7 @@ class AbstractElectrode(Sequence, MSONable):
 
     Developers implementing a new battery (other than the two general ones
     already implemented) need to implement a VoltagePair and an Electrode.
+
     Attributes:
         voltage_pairs: Objects that represent each voltage step
         working_ion: Representation of the working ion that only contains element type
@@ -135,7 +138,7 @@ class AbstractElectrode(Sequence, MSONable):
         framework_formula: The compositions of one formula unit of the host material
     """
 
-    voltage_pairs: Tuple[AbstractVoltagePair, ...]
+    voltage_pairs: tuple[AbstractVoltagePair, ...]
     working_ion_entry: ComputedEntry
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
@@ -158,7 +161,7 @@ class AbstractElectrode(Sequence, MSONable):
     @property
     def working_ion(self):
         """
-        working ion as pymatgen Element object
+        Working ion as pymatgen Element object
         """
         return self.working_ion_entry.composition.elements[0]
 

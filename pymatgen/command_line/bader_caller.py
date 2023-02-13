@@ -15,6 +15,8 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
+from __future__ import annotations
+
 import glob
 import os
 import shutil
@@ -530,7 +532,6 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     """
 
     with ScratchDir(".") as temp_dir:
-
         if aeccar0 and aeccar2:
             # construct reference file
             chgref = aeccar0.linear_add(aeccar2)

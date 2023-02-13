@@ -12,7 +12,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Sequence, Tuple, Union
 
 import numpy as np
 from monty.io import zopen
@@ -34,7 +34,7 @@ __date__ = "Jun 29, 2022"
 
 Vector3D = Tuple[float, float, float]
 Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
-SitePropsType = Union[List[Dict[Any, List[Any]]], Dict[Any, List[Any]]]
+SitePropsType = Union[List[Dict[Any, Sequence[Any]]], Dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
@@ -183,7 +183,6 @@ class Trajectory(MSONable):
         This is the opposite operation of `to_positions()`.
         """
         if not self.coords_are_displacement:
-
             displacements = np.subtract(
                 self.frac_coords,
                 np.roll(self.frac_coords, 1, axis=0),
@@ -283,7 +282,6 @@ class Trajectory(MSONable):
 
         # For integer input, return the structure at that frame
         if isinstance(frames, int):
-
             if frames >= len(self):
                 raise IndexError(f"Frame index {frames} out of range.")
 
@@ -299,7 +297,6 @@ class Trajectory(MSONable):
 
         # For slice input, return a trajectory
         if isinstance(frames, (slice, list, np.ndarray)):
-
             if isinstance(frames, slice):
                 start, stop, step = frames.indices(len(self))
                 selected = list(range(start, stop, step))
@@ -384,9 +381,9 @@ class Trajectory(MSONable):
 
             lines.append(f"Direct configuration=     {si + 1}")
 
-            for (frac_coord, specie) in zip(frac_coords, self.species):
+            for frac_coord, specie in zip(frac_coords, self.species):
                 coords = frac_coord
-                line = f'{" ".join([format_str.format(c) for c in coords])} {specie}'
+                line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
                 lines.append(line)
 
         xdatcar_string = "\n".join(lines) + "\n"
@@ -445,7 +442,7 @@ class Trajectory(MSONable):
             lattice,
             species,  # type: ignore
             frac_coords,
-            site_properties=site_properties,
+            site_properties=site_properties,  # type: ignore
             constant_lattice=constant_lattice,
             **kwargs,
         )
@@ -503,7 +500,9 @@ class Trajectory(MSONable):
         return lat, constant_lat
 
     @staticmethod
-    def _combine_site_props(prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int):
+    def _combine_site_props(
+        prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int
+    ) -> SitePropsType | None:
         """
         Combine site properties.
 
@@ -515,7 +514,7 @@ class Trajectory(MSONable):
         if prop1 is None and prop2 is None:
             return None
 
-        if isinstance(prop1, dict) and isinstance(prop2, dict) and prop1 == prop2:
+        if isinstance(prop1, dict) and prop1 == prop2:
             return prop1
 
         # general case

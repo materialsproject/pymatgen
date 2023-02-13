@@ -2,6 +2,8 @@
 Environment nodes module.
 """
 
+from __future__ import annotations
+
 import abc
 
 from monty.json import MSONable

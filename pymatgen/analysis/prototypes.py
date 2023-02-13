@@ -14,6 +14,8 @@ Computational Materials Science, 136, S1-S828.
 https://doi.org/10.1016/j.commatsci.2017.01.017
 """
 
+from __future__ import annotations
+
 import os
 
 from monty.serialization import loadfn

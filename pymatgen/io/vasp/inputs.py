@@ -479,7 +479,7 @@ class Poscar(MSONable):
         format_str = f"{{:{significant_figures+5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
         for v in latt.matrix:
-            lines.append(" ".join([format_str.format(c) for c in v]))
+            lines.append(" ".join(format_str.format(c) for c in v))
 
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
@@ -489,9 +489,9 @@ class Poscar(MSONable):
         lines.append("direct" if direct else "cartesian")
 
         selective_dynamics = self.selective_dynamics
-        for (i, site) in enumerate(self.structure):
+        for i, site in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
-            line = " ".join([format_str.format(c) for c in coords])
+            line = " ".join(format_str.format(c) for c in coords)
             if selective_dynamics is not None:
                 sd = ["T" if j else "F" for j in selective_dynamics[i]]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
@@ -502,7 +502,7 @@ class Poscar(MSONable):
             try:
                 lines.append("")
                 for v in self.velocities:
-                    lines.append(" ".join([format_str.format(i) for i in v]))
+                    lines.append(" ".join(format_str.format(i) for i in v))
             except Exception:
                 warnings.warn("Velocities are missing or corrupted.")
 
@@ -513,7 +513,7 @@ class Poscar(MSONable):
                 pred = np.array(self.predictor_corrector)
                 for col in range(3):
                     for z in pred[:, col]:
-                        lines.append(" ".join([format_str.format(i) for i in z]))
+                        lines.append(" ".join(format_str.format(i) for i in z))
             else:
                 warnings.warn(
                     "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data."
@@ -645,7 +645,6 @@ class Incar(dict, MSONable):
         """
         super().__init__()
         if params:
-
             # if Incar contains vector-like magmoms given as a list
             # of floats, convert to a list of lists
             if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (
@@ -1702,6 +1701,7 @@ class PotcarSingle:
         "RRKJ": _parse_list,
         "GGA": _parse_list,
         "SHA256": _parse_string,
+        "COPYR": _parse_string,
     }
 
     def __init__(self, data, symbol=None):
@@ -2013,7 +2013,7 @@ class PotcarSingle:
             # file with known potcar file hashes.
             md5_file_hash = self.file_hash
             hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
-            if md5_file_hash in hash_db.keys():
+            if md5_file_hash in hash_db:
                 passed_hash_check = True
             else:
                 passed_hash_check = False
@@ -2185,9 +2185,9 @@ class PotcarSingle:
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
-            # for newer POTCARS we have to exclude 'SHA256' lines
+            # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
             # since they were not used in the initial hashing
-            if k in ("nentries", "Orbitals", "SHA256"):
+            if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
                 continue
             hash_str += f"{k}"
             if isinstance(v, bool):
@@ -2297,7 +2297,7 @@ class Potcar(list, MSONable):
                 fdata = f.read()
 
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)", re.S).findall(fdata)
+        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
         functionals = []
         for p in potcar_strings:
             single = PotcarSingle(p)
@@ -2309,7 +2309,7 @@ class Potcar(list, MSONable):
         return potcar
 
     def __str__(self):
-        return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
+        return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
 
     def write_file(self, filename):
         """

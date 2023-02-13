@@ -6,6 +6,8 @@ This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
 
+from __future__ import annotations
+
 from enum import Enum, unique
 
 import numpy as np
@@ -172,7 +174,6 @@ class Magmom(MSONable):
 
     @classmethod
     def _get_transformation_matrix(cls, saxis):
-
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])
@@ -193,7 +194,6 @@ class Magmom(MSONable):
 
     @classmethod
     def _get_transformation_matrix_inv(cls, saxis):
-
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])
@@ -364,7 +364,7 @@ class Magmom(MSONable):
         return np.array([0, 0, 1], dtype="d")
 
     @staticmethod
-    def are_collinear(magmoms):
+    def are_collinear(magmoms) -> bool:
         """
         Method checks to see if a set of magnetic moments are collinear
         with each other.

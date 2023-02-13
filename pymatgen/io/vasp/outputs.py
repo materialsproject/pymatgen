@@ -693,6 +693,17 @@ class Vasprun(MSONable):
         return CompleteDos(self.final_structure, self.tdos, pdoss)
 
     @property
+    def complete_dos_normalized(self) -> CompleteDos:
+        """
+        A CompleteDos object which incorporates the total DOS and all
+        projected DOS. Normalized by the volume of the unit cell with
+        units of states/eV/unit cell volume.
+        """
+        final_struct = self.final_structure
+        pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
+        return CompleteDos(self.final_structure, self.tdos, pdoss, normalize=True)
+
+    @property
     def hubbards(self):
         """
         Hubbard U values used if a vasprun is a GGA+U run. {} otherwise.
@@ -795,7 +806,7 @@ class Vasprun(MSONable):
         return rt
 
     @property
-    def is_hubbard(self):
+    def is_hubbard(self) -> bool:
         """
         True if run is a DFT+U run.
         """
@@ -804,7 +815,7 @@ class Vasprun(MSONable):
         return sum(self.hubbards.values()) > 1e-8
 
     @property
-    def is_spin(self):
+    def is_spin(self) -> bool:
         """
         True if run is spin-polarized.
         """
@@ -1027,7 +1038,7 @@ class Vasprun(MSONable):
                 vbm = -float("inf")
                 cbm = float("inf")
             for k, val in enumerate(d):
-                for (eigenval, occu) in val:
+                for eigenval, occu in val:
                     if occu > self.occu_tol and eigenval > vbm:
                         vbm = eigenval
                         vbm_kpoint = k
@@ -1374,9 +1385,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
                 # opticaltransitions array contains oscillator strength and probability of transition
-                oscillator_strength = np.array(_parse_varray(va))[
-                    0:,
-                ]
+                oscillator_strength = np.array(_parse_varray(va))[0:]
                 probability_transition = np.array(_parse_varray(va))[0:, 1]
         return oscillator_strength, probability_transition
 
@@ -2015,7 +2024,7 @@ class Outcar:
             )
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
-        for (n, nplwv) in enumerate(nplwvs_at_kpoints):
+        for n, nplwv in enumerate(nplwvs_at_kpoints):
             try:
                 self.data["nplwvs_at_kpoints"][n] = int(nplwv)
             except ValueError:
@@ -3543,7 +3552,6 @@ class VolumetricData(BaseVolumetricData):
                         all_dataset_aug[key] = []
                     all_dataset_aug[key].append(original_line)
             if len(all_dataset) == 4:
-
                 data = {
                     "total": all_dataset[0],
                     "diff_x": all_dataset[1],
@@ -3616,8 +3624,8 @@ class VolumetricData(BaseVolumetricData):
             for vec in self.structure.lattice.matrix:
                 lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
             if not vasp4_compatible:
-                lines += "".join([f"{s:5}" for s in p.site_symbols]) + "\n"
-            lines += "".join([f"{x:6}" for x in p.natoms]) + "\n"
+                lines += "".join(f"{s:5}" for s in p.site_symbols) + "\n"
+            lines += "".join(f"{x:6}" for x in p.natoms) + "\n"
             lines += "Direct\n"
             for site in self.structure:
                 a, b, c = site.frac_coords
@@ -3630,7 +3638,7 @@ class VolumetricData(BaseVolumetricData):
                 lines = []
                 count = 0
                 f.write(f"   {a[0]}   {a[1]}   {a[2]}\n")
-                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])), list(range(a[0]))):
+                for k, j, i in itertools.product(list(range(a[2])), list(range(a[1])), list(range(a[0]))):
                     lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
                     if count % 5 == 0:
@@ -4334,7 +4342,7 @@ class Xdatcar:
             latt = Lattice(-latt.matrix)
         lines = [self.comment, "1.0", str(latt)]
         lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join([str(x) for x in self.natoms]))
+        lines.append(" ".join(str(x) for x in self.natoms))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
@@ -4345,7 +4353,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             else:
@@ -4353,7 +4361,7 @@ class Xdatcar:
                     lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
                     for site in structure:
                         coords = site.frac_coords
-                        line = " ".join([format_str.format(c) for c in coords])
+                        line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
         return "\n".join(lines) + "\n"
@@ -4607,7 +4615,7 @@ class Wavecar:
             # read the header information
             recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
             if verbose:
-                print(f"recl={recl}, spin={spin}, rtag={rtag}")
+                print(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
             self.spin = spin
 
@@ -4621,7 +4629,7 @@ class Wavecar:
                 raise ValueError(f"invalid rtag of {rtag}")
 
             # padding to end of fortran REC=1
-            np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
+            np.fromfile(f, dtype=np.float64, count=recl8 - 3)
 
             # extract kpoint, bands, energy, and lattice information
             self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
@@ -4725,7 +4733,7 @@ class Wavecar:
                             self.Gpoints[ink],
                             extra_gpoints,
                             extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=(self.vasp_type.lower()[0] == "g"))
+                        ) = self._generate_G_points(kpoint, gamma=self.vasp_type.lower()[0] == "g")
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(
@@ -4980,7 +4988,7 @@ class Wavecar:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
         if phase and not np.all(self.kpoints[kpoint] == 0.0):
-            warnings.warn("phase == True should only be used for the Gamma kpoint! I hope you know what you're doing!")
+            warnings.warn("phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!")
 
         # scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
@@ -5183,7 +5191,7 @@ class Eigenval:
                 vbm = -float("inf")
                 cbm = float("inf")
             for k, val in enumerate(d):
-                for (eigenval, occu) in val:
+                for eigenval, occu in val:
                     if occu > self.occu_tol and eigenval > vbm:
                         vbm = eigenval
                         vbm_kpoint = k
@@ -5341,11 +5349,11 @@ class Waveder(MSONable):
         between bands band_i and band_j for k-point index, spin-channel and Cartesian direction.
 
         Args:
-            band_i (Integer): Index of band i
-            band_j (Integer): Index of band j
-            kpoint (Integer): Index of k-point
-            spin   (Integer): Index of spin-channel (0 or 1)
-            cart_dir (Integer): Index of Cartesian direction (0,1,2)
+            band_i (int): Index of band i
+            band_j (int): Index of band j
+            kpoint (int): Index of k-point
+            spin   (int): Index of spin-channel (0 or 1)
+            cart_dir (int): Index of Cartesian direction (0,1,2)
 
         Returns:
             a float value

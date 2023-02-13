@@ -4,6 +4,8 @@
 """This module provides classes used to enumerate surface sites and to find
 adsorption sites on slabs."""
 
+from __future__ import annotations
+
 import itertools
 import os
 
@@ -494,7 +496,6 @@ class AdsorbateSiteFinder:
 
         new_ad_slabss = []
         for ad_slabs in ad_slabss:
-
             # Find the adsorbate sites and indices in each slab
             _, adsorbates, indices = False, [], []
             for i, site in enumerate(ad_slabs.sites):

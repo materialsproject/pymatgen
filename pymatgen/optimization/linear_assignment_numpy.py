@@ -7,14 +7,16 @@ It has the same functionality as linear_assignment.pyx, but is much slower
 as it is vectorized in numpy rather than cython
 """
 
+from __future__ import annotations
+
+import numpy as np
+
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Jan 28, 2013"
-
-import numpy as np
 
 
 class LinearAssignment:

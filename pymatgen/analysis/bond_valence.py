@@ -5,6 +5,8 @@
 This module implements classes to perform bond valence analyses.
 """
 
+from __future__ import annotations
+
 import collections
 import functools
 import operator
@@ -284,7 +286,7 @@ class BVAnalyzer:
                 all_prob.append(prob)
                 full_all_prob.extend(prob.values())
                 vals = []
-                for (elsp, _) in get_z_ordered_elmap(test_site.species):
+                for elsp, _ in get_z_ordered_elmap(test_site.species):
                     val = list(prob[elsp.symbol])
                     # Sort valences in order of decreasing probability.
                     val = sorted(val, key=lambda v: -prob[elsp.symbol][v])

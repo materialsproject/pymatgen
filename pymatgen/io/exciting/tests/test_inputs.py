@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import os
 import unittest
 import xml.etree.ElementTree as ET
@@ -32,8 +34,8 @@ class ExcitingInputTest(PymatgenTest):
         atoms = ["Na", "Cl"]
         fraccoords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
         self.assertArrayAlmostEqual(lattice, excin.structure.lattice.matrix.tolist())
-        self.assertEqual(atoms, [site.specie.symbol for site in excin.structure])
-        self.assertEqual(fraccoords, [site.frac_coords.tolist() for site in excin.structure])
+        assert atoms == [site.specie.symbol for site in excin.structure]
+        assert fraccoords == [site.frac_coords.tolist() for site in excin.structure]
 
     def test_writestring(self):
         # Test for the string export of s atructure into the exciting input xml schema
@@ -75,7 +77,7 @@ class ExcitingInputTest(PymatgenTest):
         excin = ExcitingInput(structure)
         for l1, l2 in zip(input_string.split("\n"), excin.write_string("unchanged").split("\n")):
             if not l1.strip().startswith("<crystal scale"):
-                self.assertEqual(l1.strip(), l2.strip())
+                assert l1.strip() == l2.strip()
 
     def test_writebandstr(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "CsI3Pb.cif")
@@ -127,8 +129,8 @@ class ExcitingInputTest(PymatgenTest):
             for point in plot1d.iter("point"):
                 coord.append([float(i) for i in point.get("coord").split()])
                 label.append(point.get("label"))
-        self.assertEqual(label, label_ref)
-        self.assertEqual(coord, coord_ref)
+        assert label == label_ref
+        assert coord == coord_ref
 
     def test_paramdict(self):
         coords = [[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
@@ -164,7 +166,7 @@ class ExcitingInputTest(PymatgenTest):
         root = tree.getroot()
         ref_string = ET.tostring(root, encoding="unicode")
 
-        self.assertEqual(ref_string.strip(), test_string.strip())
+        assert ref_string.strip() == test_string.strip()
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 IO for ADF files.
 """
 
+from __future__ import annotations
+
 import os
 import re
 from typing import Generator
@@ -15,7 +17,7 @@ from pymatgen.core.structure import Molecule
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-def is_numeric(s):
+def is_numeric(s) -> bool:
     """
     Return True is the string ``s`` is a numeric string.
 
@@ -148,7 +150,7 @@ class AdfKey(MSONable):
             return s.strip()
         return ""
 
-    def is_block_key(self):
+    def is_block_key(self) -> bool:
         """
         Return True if this key is a block key.
         """
@@ -395,7 +397,7 @@ class AdfKey(MSONable):
         Only the first block key will be returned.
         """
 
-        def is_float(s):
+        def is_float(s) -> bool:
             return "." in s or "E" in s or "e" in s
 
         if string.find("\n") == -1:

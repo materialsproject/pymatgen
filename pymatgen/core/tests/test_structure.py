@@ -1,6 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import annotations
+
 import json
 import os
 import random
@@ -42,10 +44,10 @@ class NeighborTest(PymatgenTest):
     def test_msonable(self):
         s = PymatgenTest.get_structure("Li2O")
         nn = s.get_neighbors(s[0], r=3)
-        self.assertIsInstance(nn[0], PeriodicNeighbor)
+        assert isinstance(nn[0], PeriodicNeighbor)
         str_ = json.dumps(nn, cls=MontyEncoder)
         nn = json.loads(str_, cls=MontyDecoder)
-        self.assertIsInstance(nn[0], PeriodicNeighbor)
+        assert isinstance(nn[0], PeriodicNeighbor)
 
 
 class IStructureTest(PymatgenTest):
@@ -219,7 +221,6 @@ class IStructureTest(PymatgenTest):
         assert "xyz" not in d["sites"][0]
 
     def test_from_dict(self):
-
         d = self.propertied_structure.as_dict()
         s = IStructure.from_dict(d)
         assert s[0].magmom == 5
@@ -913,7 +914,6 @@ class StructureTest(PymatgenTest):
             assert i.specie in [Species("Li", 1), Species("O", -2)]
 
     def test_add_remove_spin_states(self):
-
         latt = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1122,7 +1122,6 @@ class StructureTest(PymatgenTest):
         assert len(s) == 8
 
     def test_from_magnetic_spacegroup(self):
-
         # AFM MnF
         s1 = Structure.from_magnetic_spacegroup(
             "P4_2'/mnm'",

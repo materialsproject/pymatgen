@@ -457,7 +457,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return list(self)
 
     def __str__(self):
-        return " ".join([f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items()])
+        return " ".join(f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items())
 
     def to_pretty_string(self) -> str:
         """
@@ -580,7 +580,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             if m.group(2) != "":
                 factor = float(m.group(2))
             unit_sym_dict = get_sym_dict(m.group(1), factor)
-            expanded_sym = "".join([f"{el}{amt}" for el, amt in unit_sym_dict.items()])
+            expanded_sym = "".join(f"{el}{amt}" for el, amt in unit_sym_dict.items())
             expanded_formula = formula.replace(m.group(), expanded_sym)
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)
@@ -643,6 +643,25 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return cls(d)
 
+    @classmethod
+    def from_weight_dict(cls, weight_dict) -> Composition:
+        """
+        Creates a Composition based on a dict of atomic fractions calculated
+        from a dict of weight fractions. Allows for quick creation of the class
+        from weight-based notations commonly used in the industry, such as
+        Ti6V4Al and Ni60Ti40.
+
+        Args:
+            weight_dict (dict): {symbol: weight_fraction} dict.
+
+        Returns:
+            Composition
+        """
+        weight_sum = sum(val / Element(el).atomic_mass for el, val in weight_dict.items())
+        comp_dict = {el: val / Element(el).atomic_mass / weight_sum for el, val in weight_dict.items()}
+
+        return cls(comp_dict)
+
     def get_el_amt_dict(self) -> dict[str, float]:
         """
         Returns:
@@ -673,6 +692,15 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             {"Fe": 2.0, "O":3.0}
         """
         return self.get_reduced_composition_and_factor()[0].as_dict()
+
+    @property
+    def to_weight_dict(self) -> dict:
+        """
+        Returns:
+            Dict with weight fraction of each component
+            {"Ti": 0.90, "V": 0.06, "Al": 0.04}
+        """
+        return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
     def to_data_dict(self) -> dict:
@@ -757,7 +785,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         new_comp = {elem: amount for elem, amount in self.as_dict().items() if elem not in elem_map}
 
         for old_elem, new_elem in elem_map.items():
-
             amount = self[old_elem]
 
             # build a dictionary of substitutions to be made
@@ -932,7 +959,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             # get all possible combinations of oxidation states
             # and sum each combination
             for oxid_combo in combinations_with_replacement(oxids, int(el_amt[el])):
-
                 # List this sum as a possible option
                 oxid_sum = sum(oxid_combo)
                 if oxid_sum not in el_sums[idx]:
@@ -1249,13 +1275,13 @@ class ChemicalPotential(dict, MSONable):
 
     def __sub__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self).union(other)
+            els = {*self} | {*other}
             return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0) for e in els})
         return NotImplemented
 
     def __add__(self, other: object) -> ChemicalPotential:
         if isinstance(other, ChemicalPotential):
-            els = set(self).union(other)
+            els = {*self} | {*other}
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0) for e in els})
         return NotImplemented
 

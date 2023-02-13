@@ -5,6 +5,8 @@
 This module defines generic plotters.
 """
 
+from __future__ import annotations
+
 import importlib
 
 from pymatgen.util.plotting import pretty_plot

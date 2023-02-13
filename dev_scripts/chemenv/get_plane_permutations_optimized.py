@@ -6,6 +6,8 @@ Development script of the ChemEnv utility to get the optimized explicit permutat
 identified with the separation plane algorithms (typically with coordination numbers >= 6)
 """
 
+from __future__ import annotations
+
 import itertools
 import json
 import os
@@ -46,8 +48,15 @@ def prt2(string, printing_volume):
 
 
 # Iterator function for the random permutations
-def random_permutations_iterator(initial_permutation, npermutations):
-    for _ in range(npermutations):
+def random_permutations_iterator(initial_permutation, n_permutations):
+    """
+    It takes a list and returns an iterator that yields random permutations of that list
+
+    Args:
+        initial_permutation: the initial permutation of the data
+        n_permutations: the number of permutations to generate
+    """
+    for _ in range(n_permutations):
         shuffle(initial_permutation)
         yield initial_permutation
 
@@ -155,7 +164,7 @@ if __name__ == "__main__":
 
         cg = all_cg[cg_symbol]
 
-        print(f'Getting explicit permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
+        print(f"Getting explicit permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
 
         # Setup of the local geometry finder
         lgf = LocalGeometryFinder()
@@ -272,8 +281,8 @@ if __name__ == "__main__":
 
         while True:
             test = input(
-                f'Get the explicit optimized permutations for geometry "{cg.name}" (symbol : '
-                f'"{cg_symbol}") ? ("y" to confirm, "q" to quit)\n'
+                f"Get the explicit optimized permutations for geometry {cg.name!r} (symbol : "
+                f'{cg_symbol!r}) ? ("y" to confirm, "q" to quit)\n'
             )
             if test not in ["y", "q"]:
                 print("Wrong key, try again")
@@ -283,7 +292,7 @@ if __name__ == "__main__":
             elif test == "q":
                 exit()
         # 2. Optimization of the permutations
-        print(f'Getting explicit optimized permutations for geometry "{cg.name}" (symbol : "{cg_symbol}")\n')
+        print(f"Getting explicit optimized permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
         perms_used_algos = [dict() for algo in cg.algorithms]
 
         # Loop on algorithms
@@ -334,7 +343,6 @@ if __name__ == "__main__":
             t0 = time.process_time()
             timeleft = "Unknown"
             for indices_perm in perms_iterator:
-
                 prt1(
                     string=f"Perm # {iperm:d}/{npermutations:d} : "
                     f"{'-'.join(map(str, indices_perm))} "
@@ -422,7 +430,7 @@ if __name__ == "__main__":
                 algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
 
         test = input(
-            f'Save coordination geometry "{cg.name}" (symbol "{cg_symbol}") and new explicit and optimized '
+            f"Save coordination geometry {cg.name!r} (symbol {cg_symbol!r}) and new explicit and optimized "
             'permutations ? ("y" to confirm)'
         )
         if test == "y":

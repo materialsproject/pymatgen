@@ -1,5 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+from __future__ import annotations
+
+import os
 import random
 import re
 import unittest
@@ -40,7 +43,8 @@ if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
     msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
     if len(PMG_MAPI_KEY) == 32:
         msg += " (this looks like a new API key)"
-    raise ValueError(msg)
+    if os.environ.get("CI"):
+        raise ValueError(msg)
 
 
 @unittest.skipIf(
@@ -487,7 +491,6 @@ class MPResterOldTest(PymatgenTest):
         assert "user-agent" not in self.rester.session.headers, "user-agent header unwanted"
 
     def test_database_version(self):
-
         with _MPResterLegacy(notify_db_version=True) as mpr:
             db_version = mpr.get_database_version()
 
@@ -500,7 +503,6 @@ class MPResterOldTest(PymatgenTest):
         assert isinstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
     def test_pourbaix_heavy(self):
-
         entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
         _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
@@ -511,7 +513,6 @@ class MPResterOldTest(PymatgenTest):
         _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
 
     def test_pourbaix_mpr_pipeline(self):
-
         data = self.rester.get_pourbaix_entries(["Zn"])
         pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
         pbx.find_stable_entry(10, 0)
@@ -525,7 +526,7 @@ class MPResterOldTest(PymatgenTest):
         # Test against ion sets with multiple equivalent ions (Bi-V regression)
         entries = self.rester.get_pourbaix_entries(["Bi", "V"])
         pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
-        assert all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries])
+        assert all("Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries)
 
 
 if __name__ == "__main__":

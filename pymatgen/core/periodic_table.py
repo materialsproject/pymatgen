@@ -516,7 +516,6 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-
                         comb_counter[(ML, MS)] -= 1
                         if comb_counter[(ML, MS)] == 0:
                             del comb_counter[(ML, MS)]
@@ -1185,7 +1184,6 @@ class Species(MSONable, Stringify):
 
         m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
-
             # parse symbol
             sym = m.group(1)
 

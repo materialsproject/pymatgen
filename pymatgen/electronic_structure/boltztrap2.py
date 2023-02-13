@@ -26,6 +26,8 @@ Todo:
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
+from __future__ import annotations
+
 import warnings
 
 import matplotlib.pyplot as plt

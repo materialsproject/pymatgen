@@ -173,7 +173,7 @@ class GrandPotPDEntry(PDEntry):
         output = [
             f"GrandPotPDEntry with original composition {self.original_entry.composition}, "
             f"energy = {self.original_entry.energy:.4f}, ",
-            "chempots = " + ", ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()]),
+            "chempots = " + ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()),
         ]
         return "".join(output)
 
@@ -360,13 +360,18 @@ class PhaseDiagram(MSONable):
                 PhaseDiagram._compute() method and is stored in PhaseDiagram.computed_data
                 when generated for the first time.
         """
+        if not entries:
+            raise ValueError("Unable to build phase diagram without entries.")
+
         self.elements = elements
         self.entries = entries
         if computed_data is None:
             computed_data = self._compute()
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
-        assert isinstance(computed_data, dict)  # mypy type narrowing
+            assert isinstance(computed_data, dict)
+            # update keys to be Element objects in case they are strings in pre-computed data
+            computed_data["el_refs"] = [(Element(el_str), entry) for el_str, entry in computed_data["el_refs"]]
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
@@ -406,7 +411,7 @@ class PhaseDiagram(MSONable):
         computed_data = d.get("computed_data")
         return cls(entries, elements, computed_data=computed_data)
 
-    def _compute(self):
+    def _compute(self) -> dict[str, Any]:
         if self.elements == ():
             self.elements = sorted({els for e in self.entries for els in e.composition.elements})
 
@@ -415,23 +420,21 @@ class PhaseDiagram(MSONable):
 
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs = {}
-        min_entries = []
-        all_entries = []
-        for composition, group in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
-            group = list(group)
+        el_refs: dict[Element, PDEntry] = {}
+        min_entries: list[PDEntry] = []
+        all_entries: list[PDEntry] = []
+        for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
+            group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
             if composition.is_element:
                 el_refs[composition.elements[0]] = min_entry
             min_entries.append(min_entry)
             all_entries.extend(group)
 
-        if len(el_refs) < dim:
-            missing = set(elements) - set(el_refs)
+        if missing := set(elements) - set(el_refs):
             raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
-        if len(el_refs) > dim:
-            extra = set(el_refs) - set(elements)
-            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
+        if extra := set(el_refs) - set(elements):
+            raise ValueError(f"There are more terminal elements than dimensions: {sorted(map(str, extra))}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -579,7 +582,7 @@ class PhaseDiagram(MSONable):
         output = [
             f"{'-'.join(symbols)} phase diagram",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in sorted(self.stable_entries, key=str)]),
+            ", ".join(entry.name for entry in sorted(self.stable_entries, key=str)),
         ]
         return "\n".join(output)
 
@@ -597,7 +600,7 @@ class PhaseDiagram(MSONable):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
                 return f, s
 
-        raise RuntimeError(f"No facet found for comp = {comp}")
+        raise RuntimeError(f"No facet found for {comp = }")
 
     def _get_all_facets_and_simplexes(self, comp):
         """
@@ -613,7 +616,7 @@ class PhaseDiagram(MSONable):
         ]
 
         if not all_facets:
-            raise RuntimeError(f"No facets found for comp = {comp}")
+            raise RuntimeError(f"No facets found for {comp = }")
 
         return all_facets
 
@@ -627,16 +630,16 @@ class PhaseDiagram(MSONable):
         Returns:
             {element: chempot} for all elements in the phase diagram.
         """
-        complist = [self.qhull_entries[i].composition for i in facet]
-        energylist = [self.qhull_entries[i].energy_per_atom for i in facet]
-        m = [[c.get_atomic_fraction(e) for e in self.elements] for c in complist]
-        chempots = np.linalg.solve(m, energylist)
+        comp_list = [self.qhull_entries[i].composition for i in facet]
+        energy_list = [self.qhull_entries[i].energy_per_atom for i in facet]
+        m = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
+        chempots = np.linalg.solve(m, energy_list)
 
         return dict(zip(self.elements, chempots))
 
     def _get_simplex_intersections(self, c1, c2):
         """
-        Returns coordinates of the itersection of the tie line between two compositions
+        Returns coordinates of the intersection of the tie line between two compositions
         and the simplexes of the PhaseDiagram.
 
         Args:
@@ -895,16 +898,15 @@ class PhaseDiagram(MSONable):
                 "additional unstable entries"
             )
 
-            reduced_space = (
-                set(competing_entries)
-                .difference(self._get_stable_entries_in_space(entry_elems))
-                .union(self.el_refs.values())
-            )
+            reduced_space = competing_entries - {*self._get_stable_entries_in_space(entry_elems)} | {
+                *self.el_refs.values()
+            }
+
             # NOTE calling PhaseDiagram is only reasonable if the composition has fewer than 5 elements
-            # TODO can we call PatchedPhaseDiagram in the here?
+            # TODO can we call PatchedPhaseDiagram here?
             inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = inner_hull.stable_entries.union(self._get_stable_entries_in_space(entry_elems))
+            competing_entries = inner_hull.stable_entries | {*self._get_stable_entries_in_space(entry_elems)}
             competing_entries = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
 
         if len(competing_entries) > space_limit:
@@ -979,7 +981,7 @@ class PhaseDiagram(MSONable):
 
         chempots = {}
         for facet in all_facets:
-            facet_name = "-".join([self.qhull_entries[j].name for j in facet])
+            facet_name = "-".join(self.qhull_entries[j].name for j in facet)
             chempots[facet_name] = self._get_facet_chempots(facet)
 
         return chempots
@@ -1100,25 +1102,26 @@ class PhaseDiagram(MSONable):
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
 
-        gccomp = Composition({el: amt for el, amt in comp.items() if el != element})
-        elref = self.el_refs[element]
-        elcomp = Composition(element.symbol)
+        gc_comp = Composition({el: amt for el, amt in comp.items() if el != element})
+        el_ref = self.el_refs[element]
+        el_comp = Composition(element.symbol)
         evolution = []
 
-        for cc in self.get_critical_compositions(elcomp, gccomp)[1:]:
-            decomp_entries = self.get_decomposition(cc).keys()
+        for cc in self.get_critical_compositions(el_comp, gc_comp)[1:]:
+            decomp_entries = list(self.get_decomposition(cc))
             decomp = [k.composition for k in decomp_entries]
-            rxn = Reaction([comp], decomp + [elcomp])
+            rxn = Reaction([comp], decomp + [el_comp])
             rxn.normalize_to(comp)
-            c = self.get_composition_chempots(cc + elcomp * 1e-5)[element]
-            amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
+            c = self.get_composition_chempots(cc + el_comp * 1e-5)[element]
+            amt = -rxn.coeffs[rxn.all_comp.index(el_comp)]
             evolution.append(
                 {
                     "chempot": c,
                     "evolution": amt,
-                    "element_reference": elref,
+                    "element_reference": el_ref,
                     "reaction": rxn,
                     "entries": decomp_entries,
+                    "critical_composition": cc,
                 }
             )
         return evolution
@@ -1136,7 +1139,7 @@ class PhaseDiagram(MSONable):
                 [Element("Li"), Element("O")]
             referenced: If True, gives the results with a reference being the
                 energy of the elemental phase. If False, gives absolute values.
-            joggle (boolean): Whether to joggle the input to avoid precision
+            joggle (bool): Whether to joggle the input to avoid precision
                 errors.
 
         Returns:
@@ -1341,13 +1344,13 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         super().__init__(all_entries, elements, computed_data=None)
 
     def __repr__(self):
-        chemsys = "-".join([el.symbol for el in self.elements])
-        chempots = ", ".join([f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items()])
+        chemsys = "-".join(el.symbol for el in self.elements)
+        chempots = ", ".join(f"mu_{el} = {mu:.4f}" for el, mu in self.chempots.items())
 
         output = [
-            f"{chemsys} GrandPotentialPhaseDiagram with chempots = {chempots}",
+            f"{chemsys} GrandPotentialPhaseDiagram with {chempots = }",
             f"{len(self.stable_entries)} stable phases: ",
-            ", ".join([entry.name for entry in self.stable_entries]),
+            ", ".join(entry.name for entry in self.stable_entries),
         ]
         return "".join(output)
 
@@ -1585,7 +1588,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         # TODO comprhys: refactor to have self._compute method to allow serialisation
         self.spaces = sorted(spaces, key=len, reverse=False)  # Calculate pds for smaller dimension spaces first
-        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=(not verbose)))
+        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
         self.all_entries = all_entries
         self.el_refs = el_refs
         self.elements = elements
@@ -1593,7 +1596,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Add terminal elements as we may not have PD patches including them
         # NOTE add el_refs in case no multielement entries are present for el
         _stable_entries = {se for pd in self.pds.values() for se in pd._stable_entries}
-        self._stable_entries = tuple(_stable_entries.union(self.el_refs.values()))
+        self._stable_entries = tuple(_stable_entries | {*self.el_refs.values()})
         self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
 
     def __repr__(self):
@@ -1719,77 +1722,91 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
+    def get_decomp_and_e_above_hull(
+        self,
+        entry: PDEntry,
+        allow_negative: bool = False,
+        check_stable: bool = False,
+        on_error: Literal["raise", "warn", "ignore"] = "raise",
+    ) -> tuple[dict[PDEntry, float], float] | tuple[None, None]:
+        """Same as method on parent class PhaseDiagram except check_stable defaults to False
+        for speed. See https://github.com/materialsproject/pymatgen/issues/2840 for details.
+        """
+        return super().get_decomp_and_e_above_hull(
+            entry=entry, allow_negative=allow_negative, check_stable=check_stable, on_error=on_error
+        )
+
     def _get_facet_and_simplex(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_facet_and_simplex` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_facet_and_simplex() not implemented for PatchedPhaseDiagram")
 
     def _get_all_facets_and_simplexes(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_all_facets_and_simplexes` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_all_facets_and_simplexes() not implemented for PatchedPhaseDiagram")
 
     def _get_facet_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_facet_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_facet_chempots() not implemented for PatchedPhaseDiagram")
 
     def _get_simplex_intersections(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`_get_simplex_intersections` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("_get_simplex_intersections() not implemented for PatchedPhaseDiagram")
 
     def get_composition_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_composition_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_composition_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_all_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_all_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_all_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_transition_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_transition_chempots` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_transition_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_critical_compositions(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_critical_compositions` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_critical_compositions() not implemented for PatchedPhaseDiagram")
 
     def get_element_profile(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_element_profile` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_element_profile() not implemented for PatchedPhaseDiagram")
 
     def get_chempot_range_map(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_chempot_range_map` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_chempot_range_map() not implemented for PatchedPhaseDiagram")
 
     def getmu_vertices_stability_phase(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`getmu_vertices_stability_phase` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("getmu_vertices_stability_phase() not implemented for PatchedPhaseDiagram")
 
     def get_chempot_range_stability_phase(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError("`get_chempot_range_stability_phase` not implemented for `PatchedPhaseDiagram`")
+        raise NotImplementedError("get_chempot_range_stability_phase() not implemented for PatchedPhaseDiagram")
 
     def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
         """
@@ -1867,7 +1884,6 @@ class ReactionDiagram:
                     continue
 
                 try:
-
                     mat = []
                     for e in face_entries:
                         mat.append([e.composition.get_atomic_fraction(el) for el in elements])
@@ -1878,7 +1894,6 @@ class ReactionDiagram:
                     x = coeffs[-1]
                     # pylint: disable=R1716
                     if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
-
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
                         factor = 1 / (c1 + c2)
@@ -1977,7 +1992,7 @@ def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
         qhull_data (np.ndarray): The data from which to construct the convex
             hull as a Nxd array (N being number of data points and d being the
             dimension)
-        joggle (boolean): Whether to joggle the input to avoid precision
+        joggle (bool): Whether to joggle the input to avoid precision
             errors.
 
     Returns:
@@ -2510,10 +2525,10 @@ class PDPlotter:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
             cbar.set_label(
-                "Energy [meV/at] above hull (in red)\nInverse energy [ meV/at] above hull (in green)",
+                "Energy [meV/at] above hull (positive values)\nInverse energy [meV/at] above hull (negative values)",
                 rotation=-90,
-                ha="left",
-                va="center",
+                ha="center",
+                va="bottom",
             )
         f = plt.gcf()
         f.set_size_inches((8, 6))
@@ -2724,8 +2739,8 @@ class PDPlotter:
 
         f = interpolate.LinearNDInterpolator(data[:, 0:2], data[:, 2])
         znew = np.zeros((len(ynew), len(xnew)))
-        for (i, xval) in enumerate(xnew):
-            for (j, yval) in enumerate(ynew):
+        for i, xval in enumerate(xnew):
+            for j, yval in enumerate(ynew):
                 znew[j, i] = f(xval, yval)
 
         # pylint: disable=E1101
@@ -3370,7 +3385,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     if (nameup not in ordering) or (nameright not in ordering) or (nameleft not in ordering):
         raise ValueError(
             "Error in ordering_phase_diagram :\n"
-            f"'{nameup}', '{nameleft}' and '{nameright}' should be in ordering : {ordering}"
+            f"{nameup!r}, {nameleft!r} and {nameright!r} should be in ordering : {ordering}"
         )
 
     cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float_)

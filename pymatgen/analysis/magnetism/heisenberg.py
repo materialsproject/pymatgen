@@ -7,6 +7,8 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
 """
 
+from __future__ import annotations
+
 import copy
 import logging
 import sys
@@ -415,7 +417,6 @@ class HeisenbergMapper:
         # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
 
         for s, e in zip(self.ordered_structures, self.energies):
-
             ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, make_primitive=False).ordering
             magmoms = s.site_properties["magmom"]
 

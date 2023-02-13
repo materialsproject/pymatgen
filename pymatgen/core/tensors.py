@@ -265,7 +265,7 @@ class Tensor(np.ndarray, MSONable):
             p = 1
         for indices in grouped:
             sym_string = self.symbol + "_"
-            sym_string += "".join([str(i + p) for i in indices[0]])
+            sym_string += "".join(str(i + p) for i in indices[0])
             value = array[indices[0]]
             if not np.isclose(value, 0):
                 d[sym_string] = array[indices[0]]

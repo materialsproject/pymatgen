@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 
 import numpy as np
@@ -40,7 +42,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             max_normal_search=1,
             center_slab=True,
         )
-        self.slab_dict = {"".join([str(i) for i in slab.miller_index]): slab for slab in slabs}
+        self.slab_dict = {"".join(str(i) for i in slab.miller_index): slab for slab in slabs}
         self.asf_211 = AdsorbateSiteFinder(self.slab_dict["211"])
         self.asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         self.asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
@@ -120,7 +122,6 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.assertArrayAlmostEqual(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
 
     def test_adsorb_both_surfaces(self):
-
         # Test out for monatomic adsorption
         o = Molecule("O", [[0, 0, 0]])
         ad_slabs = self.asf_100.adsorb_both_surfaces(o)
@@ -146,7 +147,6 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             assert sg.is_laue()
 
     def test_generate_substitution_structures(self):
-
         # Test this for a low miller index halite structure
         slabs = generate_all_slabs(self.MgO, 1, 10, 10, center_slab=True, max_normal_search=1)
         for slab in slabs:

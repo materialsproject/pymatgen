@@ -9,6 +9,8 @@ optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
 
+from __future__ import annotations
+
 import abc
 import csv
 import itertools

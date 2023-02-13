@@ -16,6 +16,8 @@ as well as::
     Surface Science, 2013, 617, 53-59, doi:10.1016/j.susc.2013.05.016.
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 import json
@@ -403,7 +405,7 @@ class Slab(Structure):
             dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
         return dipole
 
-    def is_polar(self, tol_dipole_per_unit_area=1e-3):
+    def is_polar(self, tol_dipole_per_unit_area=1e-3) -> bool:
         """
         Checks whether the surface is polar by computing the dipole per unit
         area. Note that the Slab must be oxidation state-decorated for this
@@ -478,8 +480,8 @@ class Slab(Structure):
         def to_s(x):
             return f"{x:0.6f}"
 
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
         outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
@@ -487,7 +489,7 @@ class Slab(Structure):
                     [
                         str(i + 1),
                         site.species_string,
-                        " ".join([to_s(j).rjust(12) for j in site.frac_coords]),
+                        " ".join(to_s(j).rjust(12) for j in site.frac_coords),
                     ]
                 )
             )
@@ -868,7 +870,6 @@ class SlabGenerator:
         if max_normal_search is None:
             slab_scale_factor.append(eye[c_index])
         else:
-
             index_range = sorted(
                 reversed(range(-max_normal_search, max_normal_search + 1)),
                 key=lambda x: abs(x),
@@ -1192,7 +1193,6 @@ class SlabGenerator:
                 for site in self.oriented_unit_cell:
                     poly_coord = 0
                     if site.species_string == el:
-
                         for nn in self.oriented_unit_cell.get_neighbors(site, blength):
                             if nn[0].species_string == pair[i - 1]:
                                 poly_coord += 1

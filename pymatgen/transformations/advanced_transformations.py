@@ -103,7 +103,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: False"""
         return False
 
@@ -149,12 +149,7 @@ class SuperTransformation(AbstractTransformation):
                     d["transformation"] = t
                     structures.append(d)
             else:
-                structures.append(
-                    {
-                        "transformation": t,
-                        "structure": t.apply_transformation(structure),
-                    }
-                )
+                structures.append({"transformation": t, "structure": t.apply_transformation(structure)})
         return structures
 
     def __str__(self):
@@ -169,7 +164,7 @@ class SuperTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -281,7 +276,7 @@ class MultipleSubstitutionTransformation:
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -433,7 +428,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 if structures:
                     break
             except EnumError:
-                warnings.warn(f"Unable to enumerate for max_cell_size = {max_cell_size}")
+                warnings.warn(f"Unable to enumerate for {max_cell_size = }")
 
         if structures is None:
             raise ValueError("Unable to enumerate")
@@ -521,7 +516,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -589,7 +584,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -964,7 +959,7 @@ class MagOrderingTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -1190,7 +1185,7 @@ class DopingTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -1268,7 +1263,7 @@ class SlabTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: False"""
         return False
 
@@ -1328,7 +1323,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -1528,7 +1523,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: False"""
         return False
 
@@ -1676,7 +1671,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns:
             False
@@ -1769,7 +1764,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -1836,7 +1831,6 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
 
     # Repeat process for zero columns
     if (~arr_rounded.any(axis=0)).any():
-
         # Check for zero columns in T_rounded
         zero_col_idxs = np.where(~arr_rounded.any(axis=0))[0]
         for zero_col_idx in zero_col_idxs:
@@ -1929,7 +1923,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -2165,7 +2159,6 @@ class SQSTransformation(AbstractTransformation):
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
 
         for d in to_return:
-
             # delete temporary objective_function attribute
             del d["structure"].objective_function
 
@@ -2183,7 +2176,7 @@ class SQSTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """Returns: True"""
         return True
 
@@ -2272,7 +2265,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         return None
 
     @property
-    def is_one_to_many(self):
+    def is_one_to_many(self) -> bool:
         """
         Returns: False
         """

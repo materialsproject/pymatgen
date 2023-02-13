@@ -2,12 +2,7 @@
 # Distributed under the terms of the MIT License.
 
 
-__author__ = "Nils Edvin Richard Zimmermann"
-__copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Nils Edvin Richard Zimmermann"
-__email__ = "nils.e.r.zimmermann@gmail.com"
-__date__ = "June 23, 2016"
+from __future__ import annotations
 
 import os
 import unittest
@@ -16,6 +11,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Nils Edvin Richard Zimmermann"
+__copyright__ = "Copyright 2016, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Nils Edvin Richard Zimmermann"
+__email__ = "nils.e.r.zimmermann@gmail.com"
+__date__ = "June 23, 2016"
 
 
 class XrTest(unittest.TestCase):
@@ -59,14 +61,14 @@ class XrTest(unittest.TestCase):
 10.4118 0.0000 0.0000
 0.0000 6.0672 0.0000
 0.0000 0.0000 4.7595"""
-        self.assertEqual(str(self.xr), expected_string)
+        assert str(self.xr) == expected_string
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.xr")
         xr = Xr.from_file(filename)
-        self.assertIsInstance(xr.structure, Structure)
+        assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)
-        self.assertIsInstance(xr2.structure, Structure)
+        assert isinstance(xr2.structure, Structure)
 
 
 if __name__ == "__main__":

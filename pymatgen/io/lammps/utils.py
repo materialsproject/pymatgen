@@ -5,6 +5,8 @@
 This module defines utility classes and functions.
 """
 
+from __future__ import annotations
+
 import os
 import tempfile
 from shutil import which
@@ -267,7 +269,7 @@ class PackmolRunner:
         Write the packmol input file to the input directory.
 
         Args:
-            input_dir (string): path to the input directory
+            input_dir (str): path to the input directory
         """
         with open(os.path.join(input_dir, self.input_file), "w", encoding="utf-8") as inp:
             for k, v in self.control_params.items():
@@ -385,7 +387,6 @@ class PackmolRunner:
         mol = Molecule(zs, coords)
 
         if restore_site_props:
-
             props = []
 
             ref = self.map_residue_to_mol[residue_name].copy()
@@ -446,8 +447,8 @@ class LammpsRunner:
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         Args:
-            input_filename (string): input file name
-            bin (string): command to run, excluding the input file name
+            input_filename (str): input file name
+            bin (str): command to run, excluding the input file name
         """
         self.lammps_bin = bin.split()
         if not which(self.lammps_bin[-1]):

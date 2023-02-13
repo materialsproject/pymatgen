@@ -5,6 +5,8 @@
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
+from __future__ import annotations
+
 import itertools
 import math
 import os
@@ -93,7 +95,6 @@ class StructureVis:
         self.ren_win.AddRenderer(self.ren)
         self.ren.SetBackground(1, 1, 1)
         self.title = "Structure Visualizer"
-        # create a renderwindowinteractor
         self.iren = vtk.vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.ren_win)
         self.mapper_map = {}
@@ -192,7 +193,7 @@ class StructureVis:
         """
         Display the help for various keyboard shortcuts.
         """
-        helptxt = [
+        help_text = [
             "h : Toggle help",
             "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
             "# : Toggle showing of polyhedrons",
@@ -204,7 +205,7 @@ class StructureVis:
             "s: Save view to image.png",
             "o: Orthogonalize structure",
         ]
-        self.helptxt_mapper.SetInput("\n".join(helptxt))
+        self.helptxt_mapper.SetInput("\n".join(help_text))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
 
@@ -247,9 +248,9 @@ class StructureVis:
                 self.add_line((0, 0, 0), vec, colors[count])
                 self.add_text(vec, labels[count], colors[count])
                 count += 1
-            for (vec1, vec2) in itertools.permutations(matrix, 2):
+            for vec1, vec2 in itertools.permutations(matrix, 2):
                 self.add_line(vec1, vec1 + vec2)
-            for (vec1, vec2, vec3) in itertools.permutations(matrix, 3):
+            for vec1, vec2, vec3 in itertools.permutations(matrix, 3):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
@@ -739,8 +740,8 @@ class StructureVis:
                     for site in self.mapper_map[mapper]:
                         row = [
                             f"{site.species_string} - ",
-                            ", ".join([f"{c:.3f}" for c in site.frac_coords]),
-                            "[" + ", ".join([f"{c:.3f}" for c in site.coords]) + "]",
+                            ", ".join(f"{c:.3f}" for c in site.frac_coords),
+                            "[" + ", ".join(f"{c:.3f}" for c in site.coords) + "]",
                         ]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
@@ -780,7 +781,7 @@ class StructureVis:
                     site = self.mapper_map[mapper]
                     output = [
                         site.species_string,
-                        "Frac. coords: " + " ".join([f"{c:.4f}" for c in site.frac_coords]),
+                        "Frac. coords: " + " ".join(f"{c:.4f}" for c in site.frac_coords),
                     ]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
@@ -1207,7 +1208,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
     Interactor for MultiStructureVis.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         """
         Args:
             parent ():
@@ -1238,7 +1239,6 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                 parent.display_warning("FIRST STRUCTURE")
                 parent.ren_win.Render()
             else:
-
                 parent.istruct -= 1
                 parent.current_structure = parent.structures[parent.istruct]
                 parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)

@@ -2,6 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 
+from __future__ import annotations
+
 import json
 import os
 import unittest
@@ -86,15 +88,15 @@ class SpecieProximityFilterTest(PymatgenTest):
 
 class RemoveDuplicatesFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
-            entries = json.load(fp, cls=MontyDecoder)
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as file:
+            entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
 
     def test_filter(self):
         transmuter = StandardTransmuter.from_structures(self._struct_list)
-        fil = RemoveDuplicatesFilter()
-        transmuter.apply_filter(fil)
+        dup_filter = RemoveDuplicatesFilter()
+        transmuter.apply_filter(dup_filter)
         assert len(transmuter.transformed_structures) == 11
 
     def test_to_from_dict(self):

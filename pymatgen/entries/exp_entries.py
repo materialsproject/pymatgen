@@ -5,19 +5,20 @@
 This module defines Entry classes for containing experimental data.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jun 27, 2012"
-
+from __future__ import annotations
 
 from monty.json import MSONable
 
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.thermochemistry import ThermoData
 from pymatgen.core.composition import Composition
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Jun 27, 2012"
 
 
 class ExpEntry(PDEntry, MSONable):

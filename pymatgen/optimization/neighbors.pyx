@@ -5,6 +5,8 @@
 # cython: profile=True
 # distutils: language = c
 
+# isort: dont-add-imports
+
 import numpy as np
 
 cimport numpy as np

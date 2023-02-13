@@ -224,7 +224,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
                 # only keeping string representation of Wyckoff sites for now
                 # could do something else with these in future
-                wyckoff_sites.append({"label": label, "str": " ".join([s["str"] for s in sites])})
+                wyckoff_sites.append({"label": label, "str": " ".join(s["str"] for s in sites)})
                 n += 1
                 o += m * 22 + 2
 
@@ -464,10 +464,10 @@ class MagneticSpaceGroup(SymmetryGroup):
             if include_og
             else ""
         )
-        desc["bns_operators"] = " ".join([op_data["str"] for op_data in self._data["bns_operators"]])
+        desc["bns_operators"] = " ".join(op_data["str"] for op_data in self._data["bns_operators"])
 
         desc["bns_lattice"] = (
-            " ".join([lattice_data["str"] for lattice_data in self._data["bns_lattice"][3:]])
+            " ".join(lattice_data["str"] for lattice_data in self._data["bns_lattice"][3:])
             if len(self._data["bns_lattice"]) > 3
             else ""
         )  # don't show (1,0,0)+ (0,1,0)+ (0,0,1)+
@@ -510,12 +510,11 @@ class MagneticSpaceGroup(SymmetryGroup):
         ).format(d=desc, bns_wyckoff_prefix=bns_wyckoff_prefix)
 
         if desc["magtype"] == 4 and include_og:
-
-            desc["og_operators"] = " ".join([op_data["str"] for op_data in self._data["og_operators"]])
+            desc["og_operators"] = " ".join(op_data["str"] for op_data in self._data["og_operators"])
 
             # include all lattice vectors because (1,0,0)+ (0,1,0)+ (0,0,1)+
             # not always present in OG setting
-            desc["og_lattice"] = " ".join([lattice_data["str"] for lattice_data in self._data["og_lattice"]])
+            desc["og_lattice"] = " ".join(lattice_data["str"] for lattice_data in self._data["og_lattice"])
 
             desc["og_wyckoff"] = "\n".join(
                 [

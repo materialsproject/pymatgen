@@ -5,6 +5,8 @@
 Support for reading XCrysDen files.
 """
 
+from __future__ import annotations
+
 from pymatgen.core.periodic_table import Element
 
 __author__ = "Matteo Giantomassi"

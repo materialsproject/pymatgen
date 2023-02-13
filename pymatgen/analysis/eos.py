@@ -29,7 +29,7 @@ logger = logging.getLogger(__file__)
 
 class EOSBase(metaclass=ABCMeta):
     """
-    Abstract class that must be subcalssed by all equation of state
+    Abstract class that must be subclassed by all equation of state
     implementations.
     """
 
@@ -598,7 +598,7 @@ class EOS:
         """
         if eos_name not in self.MODELS:
             raise EOSError(
-                f"The equation of state '{eos_name}' is not supported. "
+                f"The equation of state {eos_name!r} is not supported. "
                 f"Please choose one from the following list: {list(self.MODELS)}"
             )
         self._eos_name = eos_name
