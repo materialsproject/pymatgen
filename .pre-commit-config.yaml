@@ -5,6 +5,11 @@ ci:
   skip: [mypy, pylint, codespell, pydocstyle]
 
 repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.245
+    hooks:
+      - id: ruff
+
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.1
     hooks:
