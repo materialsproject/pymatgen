@@ -1410,9 +1410,9 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.original_entries = entries
         self.terminal_compositions = terminal_compositions
         self.normalize_terminals = normalize_terminal_compositions
-        (pentries, species_mapping) = self.transform_entries(entries, terminal_compositions)
+        p_entries, species_mapping = self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
-        super().__init__(pentries, elements=species_mapping.values())
+        super().__init__(p_entries, elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):
         """
@@ -2354,10 +2354,10 @@ class PDPlotter:
         from matplotlib.font_manager import FontProperties
 
         if ordering is None:
-            (lines, labels, unstable) = self.pd_plot_data
+            lines, labels, unstable = self.pd_plot_data
         else:
-            (_lines, _labels, _unstable) = self.pd_plot_data
-            (lines, labels, unstable) = order_phase_diagram(_lines, _labels, _unstable, ordering)
+            _lines, _labels, _unstable = self.pd_plot_data
+            lines, labels, unstable = order_phase_diagram(_lines, _labels, _unstable, ordering)
         if energy_colormap is None:
             if process_attributes:
                 for x, y in lines:
@@ -2662,7 +2662,7 @@ class PDPlotter:
         # Shade the forbidden chemical potential regions.
         excluded_region.append([xlim[1], ylim[1]])
         excluded_region = sorted(excluded_region, key=lambda c: c[0])
-        (x, y) = np.transpose(excluded_region)
+        x, y = np.transpose(excluded_region)
         plt.fill(x, y, "0.80")
 
         # The hull does not generate the missing horizontal and vertical lines.

@@ -226,15 +226,12 @@ class WulffShape:
 
     def _get_all_miller_e(self):
         """
-        from self:
-            get miller_list(unique_miller), e_surf_list and symmetry
-            operations(symmops) according to lattice
-        apply symmops to get all the miller index, then get normal,
-        get all the facets functions for wulff shape calculation:
-            |normal| = 1, e_surf is plane's distance to (0, 0, 0),
-            normal[0]x + normal[1]y + normal[2]z = e_surf
+        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symmops)
+        according to lattice apply symmops to get all the miller index, then get normal, get
+        all the facets functions for Wulff shape calculation: |normal| = 1, e_surf is plane's
+        distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf
 
-        return:
+        Returns:
             [WulffFacet]
         """
         all_hkl = []
@@ -305,11 +302,11 @@ class WulffShape:
 
     def _get_colors(self, color_set, alpha, off_color, custom_colors=None):
         """
-        assign colors according to the surface energies of on_wulff facets.
+        Assign colors according to the surface energies of on_wulff facets.
 
-        return:
-            (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
-            e_surf_on_wulff_list)
+        Returns:
+            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
+            e_surf_on_wulff_list
         """
         import matplotlib as mpl
         import matplotlib.pyplot as plt
@@ -430,13 +427,9 @@ class WulffShape:
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d as mpl3
 
-        (
-            color_list,
-            color_proxy,
-            color_proxy_on_wulff,
-            miller_on_wulff,
-            e_surf_on_wulff,
-        ) = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
+        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+            color_set, alpha, off_color, custom_colors=custom_colors or {}
+        )
 
         if not direction:
             # If direction is not specified, use the miller indices of

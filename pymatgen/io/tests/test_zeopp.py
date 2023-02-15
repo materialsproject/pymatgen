@@ -256,11 +256,9 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
             print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):
-        (
-            vor_node_struct,
-            vor_edge_center_struct,
-            vor_face_center_struct,
-        ) = get_voronoi_nodes(self.structure, self.rad_dict)
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
+            self.structure, self.rad_dict
+        )
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
