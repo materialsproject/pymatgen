@@ -197,7 +197,7 @@ class CompositionTest(PymatgenTest):
             "ZnHO",
         ]
         for idx, comp in enumerate(self.comp):
-            assert comp.get_reduced_composition_and_factor()[0] == Composition(correct_reduced_formulas[idx])
+            assert comp.reduced_composition == Composition(correct_reduced_formulas[idx])
 
     def test_reduced_formula(self):
         correct_reduced_formulas = [
