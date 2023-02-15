@@ -251,9 +251,9 @@ class QChemDictSet(QCInput):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
+                Each entry in the main list represents one state (allowing for multi-configuration
                 calculations using constrained density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -746,9 +746,9 @@ class SinglePointSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
+                Each entry in the main list represents one state (allowing for multi-configuration
                 calculations using constrained density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -981,9 +981,9 @@ class OptSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
+                Each entry in the main list represents one state (allowing for multi-configuration
                 calculations using constrained density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -1317,9 +1317,9 @@ class ForceSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
+                Each entry in the main list represents one state (allowing for multi-configuration
                 calculations using constrained density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -1509,9 +1509,9 @@ class FreqSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
+                Each entry in the main list represents one state (allowing for multi-configuration
                 calculations using constrained density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
