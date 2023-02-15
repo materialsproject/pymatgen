@@ -1042,8 +1042,9 @@ class QCOutput(MSONable):
             ).get("key")
             temp_RESP_dipole = read_pattern(
                 self.text,
-                {  # pylint: disable=line-too-long
-                    "key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\)"
+                {
+                    "key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)"
+                    r"\s*Z\s*([\d\-\.]+)\)"
                 },
             ).get("key")
             if temp_RESP_dipole is not None:
@@ -1222,12 +1223,18 @@ class QCOutput(MSONable):
                 )
 
             # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-            if self.data.get("new_optimizer") is None:  # pylint: disable-next=line-too-long
-                header_pattern = r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            if self.data.get("new_optimizer") is None:
+                header_pattern = (
+                    r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates "
+                    r"\(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+                )
                 table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 footer_pattern = r"\s+Z-matrix Print:"
-            else:  # pylint: disable-next=line-too-long
-                header_pattern = r"(OPTIMIZATION|TRANSITION STATE)\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            else:
+                header_pattern = (
+                    r"(OPTIMIZATION|TRANSITION STATE)\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard "
+                    r"Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+                )
                 table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
                 footer_pattern = r"\s*-+"
             parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
@@ -1795,8 +1802,10 @@ class QCOutput(MSONable):
                 "final_soln_phase_e": r"\s*The Final Solution-Phase Energy\s+=\s+([\d\-\.]+)\s*",
                 "solute_internal_e": r"\s*The Solute Internal Energy\s+=\s+([\d\-\.]+)\s*",
                 "total_solvation_free_e": r"\s*The Total Solvation Free Energy\s+=\s+([\d\-\.]+)\s*",
-                "change_solute_internal_e": r"\s*The Change in Solute Internal Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
-                "reaction_field_free_e": r"\s*The Reaction Field Free Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "change_solute_internal_e": r"\s*The Change in Solute Internal Energy\s+=\s+(\s+[\d\-\.]+)"
+                r"\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "reaction_field_free_e": r"\s*The Reaction Field Free Energy\s+=\s+(\s+[\d\-\.]+)\s+"
+                r"\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
                 "isosvp_dielectric": r"\s*DIELST=\s+(\s+[\d\-\.]+)\s*",
             },
         )
@@ -1841,8 +1850,10 @@ class QCOutput(MSONable):
             {
                 "dispersion_e": r"\s*The Dispersion Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
                 "exchange_e": r"\s*The Exchange Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
-                "min_neg_field_e": r"\s*Min. Negative Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
-                "max_pos_field_e": r"\s*Max. Positive Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "min_neg_field_e": r"\s*Min. Negative Field Energy\s+=\s+(\s+[\d\-\.]+)\s+"
+                r"\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "max_pos_field_e": r"\s*Max. Positive Field Energy\s+=\s+(\s+[\d\-\.]+)\s+"
+                r"\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
             },
         )
 

@@ -982,24 +982,9 @@ class Lobsterout:
                 if "sys" in splitrow:
                     sys_time = splitrow[0:8]
 
-        wall_time_dict = {
-            "h": wall_time[0],
-            "min": wall_time[2],
-            "s": wall_time[4],
-            "ms": wall_time[6],
-        }
-        user_time_dict = {
-            "h": user_time[0],
-            "min": user_time[2],
-            "s": user_time[4],
-            "ms": user_time[6],
-        }
-        sys_time_dict = {
-            "h": sys_time[0],
-            "min": sys_time[2],
-            "s": sys_time[4],
-            "ms": sys_time[6],
-        }
+        wall_time_dict = {"h": wall_time[0], "min": wall_time[2], "s": wall_time[4], "ms": wall_time[6]}
+        user_time_dict = {"h": user_time[0], "min": user_time[2], "s": user_time[4], "ms": user_time[6]}
+        sys_time_dict = {"h": sys_time[0], "min": sys_time[2], "s": sys_time[4], "ms": sys_time[6]}
 
         return wall_time_dict, user_time_dict, sys_time_dict
 
@@ -1321,7 +1306,7 @@ class Bandoverlaps:
             elif "maxDeviation" in line:
                 if spin not in self.bandoverlapsdict:
                     self.bandoverlapsdict[spin] = {}
-                if not " ".join(kpoint_array) in self.bandoverlapsdict[spin]:
+                if " ".join(kpoint_array) not in self.bandoverlapsdict[spin]:
                     self.bandoverlapsdict[spin][" ".join(kpoint_array)] = {}
                 maxdev = line.split(" ")[2]
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["maxDeviation"] = float(maxdev)

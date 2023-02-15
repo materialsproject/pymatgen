@@ -611,7 +611,7 @@ class PourbaixDiagram(MSONable):
         hull = ConvexHull(points, qhull_options="QJ i")
 
         # Create facets and remove top
-        facets = [facet for facet in hull.simplices if not len(points) - 1 in facet]
+        facets = [facet for facet in hull.simplices if len(points) - 1 not in facet]
 
         if self.dim > 1:
             logger.debug("Filtering facets by Pourbaix composition")
