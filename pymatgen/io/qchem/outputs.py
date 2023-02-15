@@ -1268,6 +1268,10 @@ class QCOutput(MSONable):
                 "key"
             ) == [[]]:
                 self.data["errors"] += ["back_transform_error"]
+            elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True,).get(
+                "key"
+            ) == [[]]:
+                self.data["errors"] += ["svd_failed"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
             for ii, entry in enumerate(temp_energy_trajectory):
