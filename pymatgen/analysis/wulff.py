@@ -4,7 +4,7 @@
 """
 This module define a WulffShape class to generate the Wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
-and the total area and volume of the wulff shape,the weighted surface energy,
+and the total area and volume of the Wulff shape, the weighted surface energy,
 the anisotropy and shape_factor can also be calculated.
 In support of plotting from a given view in terms of miller index.
 
@@ -202,8 +202,8 @@ class WulffShape:
         # simplices	(ndarray of ints, shape (nfacet, ndim))
         # list of [i, j, k] , ndim = 3
         # i, j, k: ind for normal_e_m
-        # recalculate the dual of dual, get the wulff shape.
-        # conner <-> surface
+        # recalculate the dual of dual, get the Wulff shape.
+        # corner <-> surface
         # get cross point from the simplices of the dual convex hull
         wulff_pt_list = [self._get_cross_pt_dual_simp(dual_simp) for dual_simp in dual_cv_simp]
 
@@ -637,22 +637,20 @@ class WulffShape:
         planes_data.append(colorbar)
 
         # Format aesthetics: background, axis, etc.
-        axis_dict = dict(
-            title="",
-            autorange=True,
-            showgrid=False,
-            zeroline=False,
-            ticks="",
-            showline=False,
-            showticklabels=False,
-            showbackground=False,
-        )
+        axis_dict = {
+            "title": "",
+            "autorange": True,
+            "showgrid": False,
+            "zeroline": False,
+            "ticks": "",
+            "showline": False,
+            "showticklabels": False,
+            "showbackground": False,
+        }
         fig = go.Figure(data=planes_data)
-        fig.update_layout(
-            dict(
-                showlegend=True,
-                scene=dict(xaxis=axis_dict, yaxis=axis_dict, zaxis=axis_dict),
-            )
+        fig.layout.update(
+            showlegend=True,
+            scene={"xaxis": axis_dict, "yaxis": axis_dict, "zaxis": axis_dict},
         )
 
         return fig
@@ -793,7 +791,7 @@ class WulffShape:
             for idx, _ in enumerate(pt):
                 if idx == len(pt) / 2:
                     break
-                lines.append(tuple(sorted(tuple([tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])]))))
+                lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))
 
             for p in lines:
                 if p not in all_edges:

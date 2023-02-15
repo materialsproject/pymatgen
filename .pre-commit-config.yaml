@@ -9,6 +9,7 @@ repos:
     rev: v0.0.245
     hooks:
       - id: ruff
+        args: [--fix]
 
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.1
