@@ -837,7 +837,7 @@ class ConnectedComponent(MSONable):
             dict: Edge data dictionary with the lists transformed back into tuples when applicable.
         """
         edata["delta"] = tuple(edata["delta"])
-        edata["ligands"] = [tuple([lig[0], tuple(lig[1]), tuple(lig[2])]) for lig in edata["ligands"]]
+        edata["ligands"] = [(lig[0], tuple(lig[1]), tuple(lig[2])) for lig in edata["ligands"]]
         return edata
 
     def as_dict(self):

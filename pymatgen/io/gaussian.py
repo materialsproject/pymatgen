@@ -1210,7 +1210,7 @@ class GaussianOutput:
         d["errors"] = self.errors
         d["Mulliken_charges"] = self.Mulliken_charges
 
-        unique_symbols = sorted(list(d["unit_cell_formula"]))
+        unique_symbols = sorted(d["unit_cell_formula"])
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
         d["charge"] = self.charge

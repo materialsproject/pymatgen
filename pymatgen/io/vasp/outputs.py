@@ -1201,7 +1201,7 @@ class Vasprun(MSONable):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = self.hubbards
 
-        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        unique_symbols = sorted(set(self.atomic_symbols))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
@@ -1251,7 +1251,7 @@ class Vasprun(MSONable):
             eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 vout["projected_eigenvalues"] = {
@@ -1629,7 +1629,7 @@ class BSVasprun(Vasprun):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = self.hubbards
 
-        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        unique_symbols = sorted(set(self.atomic_symbols))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
@@ -1664,7 +1664,7 @@ class BSVasprun(Vasprun):
                     eigen[i][str(spin)] = v
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 peigen = [{} for _ in eigen]

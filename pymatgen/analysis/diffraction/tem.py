@@ -147,7 +147,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points_filtered = self.zone_axis_filter(points)
         if (0, 0, 0) in points_filtered:
             points_filtered.remove((0, 0, 0))
-        interplanar_spacings_val = np.array(list(map(lambda x: structure.lattice.d_hkl(x), points_filtered)))
+        interplanar_spacings_val = np.array([structure.lattice.d_hkl(x) for x in points_filtered])
         interplanar_spacings = dict(zip(points_filtered, interplanar_spacings_val))
         return interplanar_spacings
 
@@ -550,13 +550,13 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 text=hkls,
                 hoverinfo="text",
                 mode="markers",
-                marker=dict(
-                    size=8,
-                    cmax=1,
-                    cmin=0,
-                    color=intensities,
-                    colorscale=[[0, "black"], [1.0, "white"]],
-                ),
+                marker={
+                    "size": 8,
+                    "cmax": 1,
+                    "cmin": 0,
+                    "color": intensities,
+                    "colorscale": [[0, "black"], [1.0, "white"]],
+                },
                 showlegend=False,
             ),
             go.Scatter(
@@ -565,30 +565,30 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 text="(0, 0, 0): Direct beam",
                 hoverinfo="text",
                 mode="markers",
-                marker=dict(size=14, cmax=1, cmin=0, color="white"),
+                marker={"size": 14, "cmax": 1, "cmin": 0, "color": "white"},
                 showlegend=False,
             ),
         ]
         layout = go.Layout(
             title="2D Diffraction Pattern<br>Beam Direction: " + "".join(str(e) for e in self.beam_direction),
-            font=dict(size=14, color="#7f7f7f"),
+            font={"size": 14, "color": "#7f7f7f"},
             hovermode="closest",
-            xaxis=dict(
-                range=[-4, 4],
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks="",
-                showticklabels=False,
-            ),
-            yaxis=dict(
-                range=[-4, 4],
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks="",
-                showticklabels=False,
-            ),
+            xaxis={
+                "range": [-4, 4],
+                "showgrid": False,
+                "zeroline": False,
+                "showline": False,
+                "ticks": "",
+                "showticklabels": False,
+            },
+            yaxis={
+                "range": [-4, 4],
+                "showgrid": False,
+                "zeroline": False,
+                "showline": False,
+                "ticks": "",
+                "showticklabels": False,
+            },
             width=550,
             height=550,
             paper_bgcolor="rgba(100,110,110,0.5)",
@@ -628,33 +628,33 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 text=hkls,
                 mode="markers",
                 hoverinfo="skip",
-                marker=dict(
-                    size=4,
-                    cmax=1,
-                    cmin=0,
-                    color=intensities,
-                    colorscale=[[0, "black"], [1.0, "white"]],
-                ),
+                marker={
+                    "size": 4,
+                    "cmax": 1,
+                    "cmin": 0,
+                    "color": intensities,
+                    "colorscale": [[0, "black"], [1.0, "white"]],
+                },
                 showlegend=False,
             )
         ]
         layout = go.Layout(
-            xaxis=dict(
-                range=[-4, 4],
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks="",
-                showticklabels=False,
-            ),
-            yaxis=dict(
-                range=[-4, 4],
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks="",
-                showticklabels=False,
-            ),
+            xaxis={
+                "range": [-4, 4],
+                "showgrid": False,
+                "zeroline": False,
+                "showline": False,
+                "ticks": "",
+                "showticklabels": False,
+            },
+            yaxis={
+                "range": [-4, 4],
+                "showgrid": False,
+                "zeroline": False,
+                "showline": False,
+                "ticks": "",
+                "showticklabels": False,
+            },
             plot_bgcolor="black",
             margin={"l": 0, "r": 0, "t": 0, "b": 0},
             width=121,

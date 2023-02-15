@@ -774,7 +774,7 @@ class LammpsData(MSONable):
         atom_types = set.union(*(t.species for t in topologies))
         assert atom_types.issubset(ff.maps["Atoms"]), "Unknown atom type found in topologies"
 
-        items = dict(box=box, atom_style=atom_style, masses=ff.masses, force_field=ff.force_field)
+        items = {"box": box, "atom_style": atom_style, "masses": ff.masses, "force_field": ff.force_field}
 
         mol_ids, charges, coords, labels = [], [], [], []
         v_collector = [] if topologies[0].velocities else None

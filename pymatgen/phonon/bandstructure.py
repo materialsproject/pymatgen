@@ -262,12 +262,12 @@ class PhononBandStructure(MSONable):
             d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
 
         # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = dict(
-            real=np.real(self.eigendisplacements).tolist(),
-            imag=np.imag(self.eigendisplacements).tolist(),
-        )
+        d["eigendisplacements"] = {
+            "real": np.real(self.eigendisplacements).tolist(),
+            "imag": np.imag(self.eigendisplacements).tolist(),
+        }
         d["nac_eigendisplacements"] = [
-            (direction, dict(real=np.real(e).tolist(), imag=np.imag(e).tolist()))
+            (direction, {"real": np.real(e).tolist(), "imag": np.imag(e).tolist()})
             for direction, e in self.nac_eigendisplacements
         ]
         d["nac_frequencies"] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]

@@ -474,16 +474,16 @@ class PhaseDiagram(MSONable):
 
         simplexes = [Simplex(qhull_data[f, :-1]) for f in facets]
         self.elements = elements
-        return dict(
-            facets=facets,
-            simplexes=simplexes,
-            all_entries=all_entries,
-            qhull_data=qhull_data,
-            dim=dim,
+        return {
+            "facets": facets,
+            "simplexes": simplexes,
+            "all_entries": all_entries,
+            "qhull_data": qhull_data,
+            "dim": dim,
             # Dictionary with Element keys is not JSON-serializable
-            el_refs=list(el_refs.items()),
-            qhull_entries=qhull_entries,
-        )
+            "el_refs": list(el_refs.items()),
+            "qhull_entries": qhull_entries,
+        }
 
     def pd_coords(self, comp: Composition) -> np.ndarray:
         """
@@ -2779,12 +2779,12 @@ class PDPlotter:
                 )
                 z.extend(list(line[2]) + [None])
 
-        plot_args = dict(
-            mode="lines",
-            hoverinfo="none",
-            line={"color": "rgba(0,0,0,1.0)", "width": 7.0},
-            showlegend=False,
-        )
+        plot_args = {
+            "mode": "lines",
+            "hoverinfo": "none",
+            "line": {"color": "rgba(0,0,0,1.0)", "width": 7.0},
+            "showlegend": False,
+        }
 
         if self._dim == 2:
             line_plot = go.Scatter(x=x, y=y, **plot_args)
@@ -2863,16 +2863,16 @@ class PDPlotter:
         if not label_stable or self._dim == 4:
             visible = "legendonly"
 
-        plot_args = dict(
-            text=text,
-            textposition=textpositions,
-            mode="text",
-            name="Labels (stable)",
-            hoverinfo="skip",
-            opacity=1.0,
-            visible=visible,
-            showlegend=True,
-        )
+        plot_args = {
+            "text": text,
+            "textposition": textpositions,
+            "mode": "text",
+            "name": "Labels (stable)",
+            "hoverinfo": "skip",
+            "opacity": 1.0,
+            "visible": visible,
+            "showlegend": True,
+        }
 
         if self._dim == 2:
             stable_labels_plot = go.Scatter(x=x, y=y, **plot_args)
@@ -2938,7 +2938,7 @@ class PDPlotter:
 
         # extra point ensures equilateral triangular scaling is displayed
         if self._dim == 3:
-            annotations_list.append(dict(x=1, y=1, z=0, opacity=0, text=""))
+            annotations_list.append({"x": 1, "y": 1, "z": 0, "opacity": 0, "text": ""})
 
         return annotations_list
 
@@ -3046,117 +3046,117 @@ class PDPlotter:
         if self._dim == 2:
             stable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             stable_markers.update(
-                dict(
-                    x=list(stable_props["x"]),
-                    y=list(stable_props["y"]),
-                    name="Stable",
-                    marker=dict(color="darkgreen", size=11, line=dict(color="black", width=2)),
-                    opacity=0.9,
-                    hovertext=stable_props["texts"],
-                    error_y=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="gray",
-                        thickness=2.5,
-                        width=5,
-                    ),
-                )
+                {
+                    "x": list(stable_props["x"]),
+                    "y": list(stable_props["y"]),
+                    "name": "Stable",
+                    "marker": {"color": "darkgreen", "size": 11, "line": {"color": "black", "width": 2}},
+                    "opacity": 0.9,
+                    "hovertext": stable_props["texts"],
+                    "error_y": {
+                        "array": list(stable_props["uncertainties"]),
+                        "type": "data",
+                        "color": "gray",
+                        "thickness": 2.5,
+                        "width": 5,
+                    },
+                }
             )
 
             unstable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             unstable_markers.update(
-                dict(
-                    x=list(unstable_props["x"]),
-                    y=list(unstable_props["y"]),
-                    name="Above Hull",
-                    marker=dict(
-                        color=unstable_props["energies"],
-                        colorscale=plotly_layouts["unstable_colorscale"],
-                        size=6,
-                        symbol="diamond",
-                    ),
-                    hovertext=unstable_props["texts"],
-                )
+                {
+                    "x": list(unstable_props["x"]),
+                    "y": list(unstable_props["y"]),
+                    "name": "Above Hull",
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 6,
+                        "symbol": "diamond",
+                    },
+                    "hovertext": unstable_props["texts"],
+                }
             )
 
         elif self._dim == 3:
             stable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
             stable_markers.update(
-                dict(
-                    x=list(stable_props["y"]),
-                    y=list(stable_props["x"]),
-                    z=list(stable_props["z"]),
-                    name="Stable",
-                    marker=dict(
-                        color="black",
-                        size=12,
-                        opacity=0.8,
-                        line=dict(color="black", width=3),
-                    ),
-                    hovertext=stable_props["texts"],
-                    error_z=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="darkgray",
-                        width=10,
-                        thickness=5,
-                    ),
-                )
+                {
+                    "x": list(stable_props["y"]),
+                    "y": list(stable_props["x"]),
+                    "z": list(stable_props["z"]),
+                    "name": "Stable",
+                    "marker": {
+                        "color": "black",
+                        "size": 12,
+                        "opacity": 0.8,
+                        "line": {"color": "black", "width": 3},
+                    },
+                    "hovertext": stable_props["texts"],
+                    "error_z": {
+                        "array": list(stable_props["uncertainties"]),
+                        "type": "data",
+                        "color": "darkgray",
+                        "width": 10,
+                        "thickness": 5,
+                    },
+                }
             )
 
             unstable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
             unstable_markers.update(
-                dict(
-                    x=unstable_props["y"],
-                    y=unstable_props["x"],
-                    z=unstable_props["z"],
-                    name="Above Hull",
-                    marker=dict(
-                        color=unstable_props["energies"],
-                        colorscale=plotly_layouts["unstable_colorscale"],
-                        size=6,
-                        symbol="diamond",
-                        colorbar=dict(title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75),
-                    ),
-                    hovertext=unstable_props["texts"],
-                )
+                {
+                    "x": unstable_props["y"],
+                    "y": unstable_props["x"],
+                    "z": unstable_props["z"],
+                    "name": "Above Hull",
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 6,
+                        "symbol": "diamond",
+                        "colorbar": {"title": "Energy Above Hull<br>(eV/atom)", "x": 0.05, "len": 0.75},
+                    },
+                    "hovertext": unstable_props["texts"],
+                }
             )
 
         elif self._dim == 4:
             stable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             stable_markers.update(
-                dict(
-                    x=stable_props["x"],
-                    y=stable_props["y"],
-                    z=stable_props["z"],
-                    name="Stable",
-                    marker=dict(
-                        color=stable_props["energies"],
-                        colorscale=plotly_layouts["stable_markers_colorscale"],
-                        size=8,
-                        opacity=0.9,
-                    ),
-                    hovertext=stable_props["texts"],
-                )
+                {
+                    "x": stable_props["x"],
+                    "y": stable_props["y"],
+                    "z": stable_props["z"],
+                    "name": "Stable",
+                    "marker": {
+                        "color": stable_props["energies"],
+                        "colorscale": plotly_layouts["stable_markers_colorscale"],
+                        "size": 8,
+                        "opacity": 0.9,
+                    },
+                    "hovertext": stable_props["texts"],
+                }
             )
 
             unstable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             unstable_markers.update(
-                dict(
-                    x=unstable_props["x"],
-                    y=unstable_props["y"],
-                    z=unstable_props["z"],
-                    name="Above Hull",
-                    marker=dict(
-                        color=unstable_props["energies"],
-                        colorscale=plotly_layouts["unstable_colorscale"],
-                        size=5,
-                        symbol="diamond",
-                        colorbar=dict(title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75),
-                    ),
-                    hovertext=unstable_props["texts"],
-                    visible="legendonly",
-                )
+                {
+                    "x": unstable_props["x"],
+                    "y": unstable_props["y"],
+                    "z": unstable_props["z"],
+                    "name": "Above Hull",
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 5,
+                        "symbol": "diamond",
+                        "colorbar": {"title": "Energy Above Hull<br>(eV/atom)", "x": 0.05, "len": 0.75},
+                    },
+                    "hovertext": unstable_props["texts"],
+                    "visible": "legendonly",
+                }
             )
 
         stable_marker_plot = go.Scatter(**stable_markers) if self._dim == 2 else go.Scatter3d(**stable_markers)
@@ -3209,7 +3209,7 @@ class PDPlotter:
                 name="Uncertainty (window)",
                 fill="toself",
                 mode="lines",
-                line=dict(width=0),
+                line={"width": 0},
                 fillcolor="lightblue",
                 hoverinfo="skip",
                 opacity=0.4,
@@ -3248,7 +3248,7 @@ class PDPlotter:
             z=list(z),
             mode="lines",
             hoverinfo="none",
-            line=dict(color="rgba (0, 0, 0, 0.4)", dash="solid", width=1.0),
+            line={"color": "rgba (0, 0, 0, 0.4)", "dash": "solid", "width": 1.0},
             showlegend=False,
         )
 
@@ -3273,9 +3273,9 @@ class PDPlotter:
             opacity=0.8,
             intensity=list(energies),
             colorscale=plotly_layouts["stable_colorscale"],
-            colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.9, len=0.75),
+            colorbar={"title": "Formation energy<br>(eV/atom)", "x": 0.9, "len": 0.75},
             hoverinfo="none",
-            lighting=dict(diffuse=0.0, ambient=1.0),
+            lighting={"diffuse": 0.0, "ambient": 1.0},
             name="Convex Hull (shading)",
             flatshading=True,
             showlegend=True,

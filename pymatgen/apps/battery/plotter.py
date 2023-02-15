@@ -139,7 +139,7 @@ class VoltageProfilePlotter:
 
         Returns:
         """
-        font_dict = dict(family="Arial", size=24, color="#000000") if font_dict is None else font_dict
+        font_dict = {"family": "Arial", "size": 24, "color": "#000000"} if font_dict is None else font_dict
         hover_temp = "Voltage : %{y:.2f} V"
 
         data = []
@@ -166,8 +166,8 @@ class VoltageProfilePlotter:
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis=dict(title=self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)),
-                yaxis=dict(title="Voltage (V)"),
+                xaxis={"title": self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)},
+                yaxis={"title": "Voltage (V)"},
                 **kwargs,
             ),
         )

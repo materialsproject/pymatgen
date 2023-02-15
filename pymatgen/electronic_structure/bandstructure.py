@@ -493,7 +493,7 @@ class BandStructure:
             return {"energy": 0.0, "direct": False, "transition": None}
         cbm = self.get_cbm()
         vbm = self.get_vbm()
-        result = dict(direct=False, energy=0.0, transition=None)
+        result = {"direct": False, "energy": 0.0, "transition": None}
 
         result["energy"] = cbm["energy"] - vbm["energy"]
 

@@ -237,7 +237,7 @@ class Cohpcar:
 
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs]
+            orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
             orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
 
         else:

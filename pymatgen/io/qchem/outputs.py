@@ -1888,7 +1888,7 @@ class QCOutput(MSONable):
             self.text, {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)", "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
         )
 
-        self.data["cdft_constraints_multipliers"] = list()
+        self.data["cdft_constraints_multipliers"] = []
         for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", [])):
             entry = {"index": int(const[0]), "constraint": float(const[1]), "multiplier": float(multip[0])}
             self.data["cdft_constraints_multipliers"].append(entry)
@@ -1906,14 +1906,14 @@ class QCOutput(MSONable):
             self.data["cdft_becke_population"] = None
             self.data["cdft_becke_net_spin"] = None
         else:
-            self.data["cdft_becke_excess_electrons"] = list()
-            self.data["cdft_becke_population"] = list()
-            self.data["cdft_becke_net_spin"] = list()
+            self.data["cdft_becke_excess_electrons"] = []
+            self.data["cdft_becke_population"] = []
+            self.data["cdft_becke_net_spin"] = []
 
             for table in becke_table:
-                excess = list()
-                population = list()
-                spin = list()
+                excess = []
+                population = []
+                spin = []
 
                 for row in table:
                     excess.append(float(row[0]))

@@ -193,13 +193,13 @@ class HeisenbergMapper:
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
             dists = [round(cs[-1], 2) for cs in connected_sites]  # i<->j distances
-            dists = sorted(list(set(dists)))  # NN, NNN, NNNN, etc.
+            dists = sorted(set(dists))  # NN, NNN, NNNN, etc.
 
             dists = dists[:3]  # keep up to NNNN
             all_dists += dists
 
         # Keep only up to NNNN and call dists equal if they are within tol
-        all_dists = sorted(list(set(all_dists)))
+        all_dists = sorted(set(all_dists))
         rm_list = []
         for idx, d in enumerate(all_dists[:-1]):
             if abs(d - all_dists[idx + 1]) < tol:
@@ -931,7 +931,7 @@ class HeisenbergModel(MSONable):
         for k, v in d["unique_site_ids"].items():
             key = literal_eval(k)
             if isinstance(key, int):
-                usids[tuple([key])] = v
+                usids[(key,)] = v
             elif isinstance(key, tuple):
                 usids[key] = v
 

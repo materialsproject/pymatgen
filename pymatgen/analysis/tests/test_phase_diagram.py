@@ -626,7 +626,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_val_err_on_no_entries(self):
         # check that PhaseDiagram raises ValueError when building phase diagram with no entries
-        for entries in [None, [], set(), tuple()]:
+        for entries in [None, [], set(), ()]:
             with pytest.raises(ValueError, match="Unable to build phase diagram without entries."):
                 PhaseDiagram(entries=entries)
 

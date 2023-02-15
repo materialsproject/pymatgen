@@ -1353,13 +1353,11 @@ class IStructure(SiteCollection, MSONable):
                     points_indices.append(n.index)
                     offsets.append(n.image)
                     distances.append(n.nn_distance)
-        return tuple(
-            (
-                np.array(center_indices),
-                np.array(points_indices),
-                np.array(offsets),
-                np.array(distances),
-            )
+        return (
+            np.array(center_indices),
+            np.array(points_indices),
+            np.array(offsets),
+            np.array(distances),
         )
 
     def get_neighbor_list(
@@ -1418,13 +1416,11 @@ class IStructure(SiteCollection, MSONable):
             if exclude_self:
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
-            return tuple(
-                (
-                    center_indices[cond],
-                    points_indices[cond],
-                    images[cond],
-                    distances[cond],
-                )
+            return (
+                center_indices[cond],
+                points_indices[cond],
+                images[cond],
+                distances[cond],
             )
 
     def get_symmetric_neighbor_list(

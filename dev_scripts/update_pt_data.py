@@ -176,11 +176,11 @@ def parse_shannon_radii():
             el = sheet[f"A{i}"].value
         if sheet[f"B{i}"].value:
             charge = int(sheet[f"B{i}"].value)
-            radii[el][charge] = dict()
+            radii[el][charge] = {}
         if sheet[f"C{i}"].value:
             cn = sheet[f"C{i}"].value
             if cn not in radii[el][charge]:
-                radii[el][charge][cn] = dict()
+                radii[el][charge][cn] = {}
 
         if sheet[f"D{i}"].value is not None:
             spin = sheet[f"D{i}"].value
