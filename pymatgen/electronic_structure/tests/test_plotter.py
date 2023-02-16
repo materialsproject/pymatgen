@@ -96,10 +96,7 @@ class DosPlotterTest(unittest.TestCase):
     def get_plot_attributes(plt):
         if plt.axes:
             ax = plt.gca()
-            return {
-                "xaxis_limits": list(ax.get_xlim()),
-                "yaxis_limits": list(ax.get_ylim())
-            }
+            return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
         else:
             return None
 
