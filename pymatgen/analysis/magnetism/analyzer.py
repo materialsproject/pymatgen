@@ -413,7 +413,6 @@ class CollinearMagneticStructureAnalyzer:
     @property
     def magmoms(self) -> np.ndarray:
         """Convenience property, returns magmoms as a numpy array."""
-
         return np.array(self.structure.site_properties["magmom"])
 
     @property
@@ -1087,7 +1086,6 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
 
     Returns: Magnetic deformation
     """
-
     # retrieve orderings of both input structures
     ordering_a = CollinearMagneticStructureAnalyzer(structure_A, overwrite_magmom_mode="none").ordering
     ordering_b = CollinearMagneticStructureAnalyzer(structure_B, overwrite_magmom_mode="none").ordering

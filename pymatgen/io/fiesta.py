@@ -591,6 +591,7 @@ $geometry
 
         Args:
             string_input: string_input to parse.
+
         Returns:
             FiestaInput object
         """

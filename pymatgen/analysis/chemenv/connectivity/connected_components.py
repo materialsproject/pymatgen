@@ -901,6 +901,7 @@ class ConnectedComponent(MSONable):
 
         Args:
             g (MultiGraph): Graph of the connected component.
+
         Returns:
             ConnectedComponent: The connected component representing the links of a given set of environments.
         """

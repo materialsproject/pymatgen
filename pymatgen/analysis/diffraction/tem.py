@@ -83,6 +83,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Calculates the wavelength of the electron beam with relativistic kinematic effects taken
             into account.
+
         Args:
             none
         Returns:
@@ -101,9 +102,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
         """
         Generates a bunch of 3D points that span a cube.
+
         Args:
             coord_left (int): The minimum coordinate value.
             coord_right (int): The maximum coordinate value.
+
         Returns:
             Numpy 2d array
         """
@@ -119,9 +122,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> list[tuple[int, int, int]]:
         """
         Filters out all points that exist within the specified Laue zone according to the zone axis rule.
+
         Args:
             points (np.ndarray): The list of points to be filtered.
             laue_zone (int): The desired Laue zone.
+
         Returns:
             list of 3-tuples
         """
@@ -141,6 +146,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Args:
             structure (Structure): the input structure.
             points (tuple): the desired hkl indices.
+
         Returns:
             Dict of hkl to its interplanar spacing, in angstroms (float).
         """
@@ -156,6 +162,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> dict[tuple[int, int, int], float]:
         """
         Gets the Bragg angles for every hkl point passed in (where n = 1).
+
         Args:
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
         Returns:
@@ -170,8 +177,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def get_s2(self, bragg_angles: dict[tuple[int, int, int], float]) -> dict[tuple[int, int, int], float]:
         """
         Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
+
         Args:
             bragg_angles (dict): The bragg angles for each hkl plane.
+
         Returns:
             Dict of hkl plane to s2 parameter, calculates the s squared parameter
                 (= square of sin theta over lambda).
@@ -188,9 +197,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Calculates x-ray factors, which are required to calculate atomic scattering factors. Method partially inspired
         by the equivalent process in the xrd module.
+
         Args:
             structure (Structure): The input structure.
             bragg_angles (dict): Dictionary of hkl plane to Bragg angle.
+
         Returns:
             dict of atomic symbol to another dict of hkl plane to x-ray factor (in angstroms).
         """
@@ -214,9 +225,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> dict[str, dict[tuple[int, int, int], float]]:
         """
         Calculates atomic scattering factors for electrons using the Mott-Bethe formula (1st order Born approximation).
+
         Args:
             structure (Structure): The input structure.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
+
         Returns:
             dict from atomic symbol to another dict of hkl plane to factor (in angstroms)
         """
@@ -239,9 +252,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> dict[tuple[int, int, int], int]:
         """
         Calculates the scattering factor for the whole cell.
+
         Args:
             structure (Structure): The input structure.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
+
         Returns:
             dict of hkl plane (3-tuple) to scattering factor (in angstroms).
         """
@@ -264,9 +279,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> dict[tuple[int, int, int], float]:
         """
         Calculates cell intensity for each hkl plane. For simplicity's sake, take I = |F|**2.
+
         Args:
             structure (Structure): The input structure.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
+
         Returns:
             dict of hkl plane to cell intensity
         """
@@ -284,6 +301,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> pd.DataFrame:
         """
         Returns all relevant TEM DP info in a pandas dataframe.
+
         Args:
             structure (Structure): The input structure.
             scaled (bool): Required value for inheritance, does nothing in TEM pattern
@@ -321,9 +339,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> dict[tuple[int, int, int], float]:
         """
         Normalizes the cell_intensity dict to 1, for use in plotting.
+
         Args:
             structure (Structure): The input structure.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
+
         Returns:
             dict of hkl plane to normalized cell intensity
         """
@@ -343,10 +363,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     ) -> bool:
         """
         Checks if two hkl planes are parallel in reciprocal space.
+
         Args:
             structure (Structure): The input structure.
             plane (3-tuple): The first plane to be compared.
             other_plane (3-tuple): The other plane to be compared.
+
         Returns:
             boolean
         """
@@ -356,9 +378,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def get_first_point(self, structure: Structure, points: list) -> dict[tuple[int, int, int], float]:
         """
         Gets the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
+
         Args:
             structure (Structure): The input structure.
             points (list): All points to be checked.
+
         Returns:
             dict of a hkl plane to max interplanar distance.
         """
@@ -377,6 +401,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Returns the interplanar angle (in degrees) between the normal of two crystal planes.
         Formulas from International Tables for Crystallography Volume C pp. 2-9.
+
         Args:
             structure (Structure): The input structure.
             p1 (3-tuple): plane 1
@@ -433,10 +458,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Calculates coefficients of the vector addition required to generate positions for each DP point
         by the Moore-Penrose inverse method.
+
         Args:
             p1 (3-tuple): The first point. Fixed.
             p2 (3-tuple): The second point. Fixed.
             p3 (3-tuple): The point whose coefficients are to be calculted.
+
         Returns:
             Numpy array
         """
@@ -450,9 +477,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Calculates all the positions of each hkl point in the 2D diffraction pattern by vector addition.
         Distance in centimeters.
+
         Args:
             structure (Structure): The input structure.
             points (list): All points to be checked.
+
         Returns:
             dict of hkl plane to xy-coordinates.
         """
@@ -500,9 +529,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def tem_dots(self, structure: Structure, points) -> list:
         """
         Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
+
         Args:
             structure (Structure): The input structure.
             points (list): All points to be checked.
+
         Returns:
             list of TEM_dots
         """
@@ -523,8 +554,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def get_plot_2d(self, structure: Structure) -> go.Figure:
         """
         Generates the 2D diffraction pattern of the input structure.
+
         Args:
             structure (Structure): The input structure.
+
         Returns:
             Figure
         """
@@ -601,8 +634,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Generates the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
         Does not display.
+
         Args:
             structure (Structure): The input structure.
+
         Returns:
             Figure
         """

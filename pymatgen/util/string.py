@@ -210,7 +210,6 @@ def unicodeify(formula):
     :param formula:
     :return:
     """
-
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
 
@@ -252,7 +251,6 @@ def unicodeify_spacegroup(spacegroup_symbol):
     Returns:
         A unicode spacegroup with proper subscripts and overlines.
     """
-
     if not spacegroup_symbol:
         return ""
 
@@ -287,7 +285,6 @@ def unicodeify_species(specie_string):
     Returns:
         Species string, e.g. O²⁻
     """
-
     if not specie_string:
         return ""
 
@@ -367,7 +364,6 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
 
     Returns (str): a disordered formula string
     """
-
     # this is in string utils and not in
     # Composition because we need to have access
     # to site occupancies to calculate this, so

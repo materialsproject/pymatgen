@@ -32,7 +32,6 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if `cls` is None
 
     Example:
-
         lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
     """
     cls = Lattice if cls is None else cls
@@ -107,8 +106,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     Args:
         cls: Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None
 
-    example:
-
+    Example:
         al_structure = structure_from_abivars(
             acell=3*[7.5],
             rprim=[0.0, 0.5, 0.5,
@@ -176,7 +174,6 @@ def species_by_znucl(structure: Structure) -> list[Species]:
     Return list of unique specie found in structure **ordered according to sites**.
 
     Example:
-
         Site0: 0.5 0 0 O
         Site1: 0   0 0 Si
 
@@ -1055,7 +1052,6 @@ class RelaxationMethod(AbivarAble, MSONable):
 
     def __init__(self, *args, **kwargs):
         """Initialize object."""
-
         # Initialize abivars with the default values.
         self.abivars = self._default_vars
 

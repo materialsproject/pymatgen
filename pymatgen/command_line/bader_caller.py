@@ -530,7 +530,6 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     :param aeccar2: (optional) Chgcar object from aeccar2 file
     :return: summary dict
     """
-
     with ScratchDir(".") as temp_dir:
         if aeccar0 and aeccar2:
             # construct reference file

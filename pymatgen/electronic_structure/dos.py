@@ -1442,6 +1442,7 @@ class LobsterCompleteDos(CompleteDos):
     def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> dict[str, Dos]:
         """
         Get the t2g, eg projected DOS for a particular site.
+
         Args:
             site: Site in Structure associated with CompleteDos.
 

@@ -32,6 +32,7 @@ class CRESTOutput(MSONable):
     def __init__(self, output_filename, path="."):
         """
         Assumes runtype is iMTD-GC [default]
+
         Args:
             output_filename (str): Filename to parse
             path (str): Path to directory including output_filename and all

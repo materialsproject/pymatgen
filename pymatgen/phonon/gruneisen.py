@@ -209,6 +209,7 @@ class GruneisenParameter(MSONable):
     def debye_temp_phonopy(self, freq_max_fit=None):
         """
         Get Debye temperature in K as implemented in phonopy.
+
         Args:
             freq_max_fit: Maximum frequency to include for fitting.
                           Defaults to include first quartile of frequencies.

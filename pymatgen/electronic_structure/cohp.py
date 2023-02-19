@@ -1195,6 +1195,7 @@ class IcohpCollection(MSONable):
     ):
         """
         get a dict of IcohpValue for a certain site (indicated by integer)
+
         Args:
             site: integer describing the site of interest, order as in Icohplist.lobster/Icooplist.lobster, starts at 0
             minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value
@@ -1204,6 +1205,7 @@ class IcohpCollection(MSONable):
             minbondlength: float, defines the minimum of the bond lengths of the bonds
             maxbondlength: float, defines the maximum of the bond lengths of the bonds
             only_bonds_to: list of strings describing the bonding partners that are allowed, e.g. ['O']
+
         Returns:
              dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
