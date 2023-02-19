@@ -13,6 +13,8 @@
 import os
 import sys
 
+from pymatgen.core import __author__, __file__, __version__
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -20,8 +22,6 @@ sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.dirname(".."))
 sys.path.insert(0, os.path.dirname("../pymatgen"))
 sys.path.insert(0, os.path.dirname("../.."))
-
-from pymatgen.core import __author__, __file__, __version__
 
 # -- General configuration -----------------------------------------------------
 
@@ -318,9 +318,11 @@ epub_copyright = copyright
 # Allow duplicate toc entries.
 # epub_tocdup = True
 
-# Resolve function for the linkcode extension.
-# Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+
 def linkcode_resolve(domain, info):
+    # Resolve function for the linkcode extension.
+    # Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+
     def find_source():
         # try to find the file and line number, based on code from numpy:
         # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286

@@ -9,3 +9,32 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 120
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120
+select = [
+  "F",   # pyflakes
+  "E",   # pycodestyle
+  "W",   # pycodestyle
+  "I",   # isort
+  "YTT", # flake8-2020
+  "B",   # flake8-bugbear
+  "Q",   # flake8-quotes
+  "PLE", # pylint error
+  "PLW", # pylint warning
+  "TID", # tidy imports
+  # "D",   # pydocstyle
+]
+ignore = [
+  "B019",    # functools.lru_cache on methods can lead to memory leaks
+  "B904",    # Within an except clause, raise exceptions with ...
+  "PLR2004", # Magic number
+  "B023",    # Function definition does not bind loop variable
+  "PLW0120", # tmp: awaiting bug fix https://github.com/charliermarsh/ruff/issues/3019
+  "E741",    # tmp: we should fix all ambiguous variable names
+]
+pydocstyle.convention = "google"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]

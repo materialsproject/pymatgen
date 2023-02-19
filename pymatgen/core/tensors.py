@@ -1092,7 +1092,7 @@ class TensorMapping(collections.abc.MutableMapping):
         return zip(self._tensor_list, self._value_list)
 
     def __contains__(self, item):
-        return not self._get_item_index(item) is None
+        return self._get_item_index(item) is not None
 
     def _get_item_index(self, item):
         if len(self._tensor_list) == 0:

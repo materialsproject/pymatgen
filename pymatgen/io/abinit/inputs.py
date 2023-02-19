@@ -109,9 +109,9 @@ del T
 
 
 # Default values used if user does not specify them
-_DEFAULTS = dict(
-    kppa=1000,
-)
+_DEFAULTS = {
+    "kppa": 1000,
+}
 
 
 def as_structure(obj):

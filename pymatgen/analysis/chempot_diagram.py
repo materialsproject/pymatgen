@@ -85,10 +85,10 @@ class ChemicalPotentialDiagram(MSONable):
             default_min_limit (float): Default minimum chemical potential limit (i.e.,
                 lower bound) for unspecified elements within the "limits" argument.
         """
-        self.entries = list(sorted(entries, key=lambda e: e.composition.reduced_composition))
+        self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
-        self.elements = list(sorted({els for e in self.entries for els in e.composition.elements}))
+        self.elements = sorted({els for e in self.entries for els in e.composition.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
         self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
@@ -350,11 +350,11 @@ class ChemicalPotentialDiagram(MSONable):
 
         if label_stable:
             layout["scene"].update({"annotations": annotations})
-        layout["scene_camera"] = dict(
-            eye=dict(x=5, y=5, z=5),  # zoomed out
-            projection=dict(type="orthographic"),
-            center=dict(x=0, y=0, z=0),
-        )
+        layout["scene_camera"] = {
+            "eye": {"x": 5, "y": 5, "z": 5},  # zoomed out
+            "projection": {"type": "orthographic"},
+            "center": {"x": 0, "y": 0, "z": 0},
+        }
 
         data = self._get_3d_domain_lines(domain_simplexes)
 
@@ -410,7 +410,7 @@ class ChemicalPotentialDiagram(MSONable):
                 x=x,
                 y=y,
                 mode="lines+markers",
-                line=dict(color="black", width=3),
+                line={"color": "black", "width": 3},
                 showlegend=False,
             )
         ]
@@ -436,7 +436,7 @@ class ChemicalPotentialDiagram(MSONable):
                 y=y,
                 z=z,
                 mode="lines",
-                line=dict(color="black", width=4.5),
+                line={"color": "black", "width": 4.5},
                 showlegend=False,
             )
         ]
@@ -482,7 +482,7 @@ class ChemicalPotentialDiagram(MSONable):
                 z=points_3d[:, 2],
                 alphahull=0,
                 showlegend=True,
-                lighting=dict(fresnel=1.0),
+                lighting={"fresnel": 1.0},
                 color=formula_colors[idx],
                 name=f"{formula} (mesh)",
                 opacity=0.13,

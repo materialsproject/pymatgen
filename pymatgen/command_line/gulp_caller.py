@@ -629,7 +629,7 @@ class GulpIO:
                 fields = line.split()
                 if fields[2] == "c":
                     sp.append(fields[1])
-                    coords.append(list(float(x) for x in fields[3:6]))
+                    coords.append([float(x) for x in fields[3:6]])
         else:
             raise OSError("No structure found")
 

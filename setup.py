@@ -46,16 +46,12 @@ setup(
         "relaxation": ["m3gnet"],
         "dev": [
             "black",
-            "coverage",
-            "coveralls",
-            "flake8",
             "mypy",
             "pre-commit",
-            "pydocstyle",
-            "pylint",
-            "pytest",
             "pytest-cov",
             "pytest-split",
+            "pytest",
+            "ruff",
         ],
         "docs": [
             "sphinx",

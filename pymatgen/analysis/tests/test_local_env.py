@@ -1199,12 +1199,12 @@ class LocalStructOrderParamsTest(PymatgenTest):
         assert int(op_vals[22] * 1000 + 0.5) == approx(1000)
 
         # Cuboctahedral motif.
-        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=[i for i in range(1, 13)])
+        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=list(range(1, 13)))
         assert int(op_vals[24] * 1000 + 0.5) == approx(1000)
         assert int(op_vals[32] * 1000 + 0.5) == approx(1000)
 
         # See-saw motif.
-        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=[i for i in range(1, 5)])
+        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=list(range(1, 5)))
         assert int(op_vals[25] * 1000 + 0.5) == approx(1000)
 
         # Hexagonal planar motif.
@@ -1212,9 +1212,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         assert int(op_vals[26] * 1000 + 0.5) == approx(1000)
 
         # Square face capped trigonal prism.
-        op_vals = ops_101.get_order_parameters(
-            self.sq_face_capped_trig_pris, 0, indices_neighs=[i for i in range(1, 8)]
-        )
+        op_vals = ops_101.get_order_parameters(self.sq_face_capped_trig_pris, 0, indices_neighs=list(range(1, 8)))
         assert int(op_vals[34] * 1000 + 0.5) == approx(1000)
 
         # Test providing explicit neighbor lists.

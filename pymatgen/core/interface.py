@@ -321,12 +321,12 @@ class Interface(Structure):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
 
-        optional = dict(
-            in_plane_offset=d.get("in_plane_offset"),
-            gap=d.get("gap"),
-            vacuum_over_film=d.get("vacuum_over_film"),
-            interface_properties=d.get("interface_properties"),
-        )
+        optional = {
+            "in_plane_offset": d.get("in_plane_offset"),
+            "gap": d.get("gap"),
+            "vacuum_over_film": d.get("vacuum_over_film"),
+            "interface_properties": d.get("interface_properties"),
+        }
         return Interface(
             lattice=lattice,
             species=s.species_and_occu,

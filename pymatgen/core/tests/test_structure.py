@@ -779,7 +779,7 @@ class StructureTest(PymatgenTest):
 
     def test_non_hash(self):
         with pytest.raises(TypeError):
-            dict([(self.structure, 1)])
+            {self.structure: 1}
 
     def test_sort(self):
         s = self.structure
@@ -1647,7 +1647,7 @@ class MoleculeTest(PymatgenTest):
         mol.append("N", [1, 1, 1])
         assert mol.formula == "H3 C1 N1 O1"
         with pytest.raises(TypeError):
-            dict([(mol, 1)])
+            {mol: 1}
         mol.remove_sites([0, 1])
         assert mol.formula == "H3 N1"
 

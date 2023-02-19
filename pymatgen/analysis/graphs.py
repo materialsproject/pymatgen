@@ -1075,7 +1075,7 @@ class StructureGraph(MSONable):
             motif = f"{centre_sp}-{','.join(labels)}"
             motifs.add(motif)
 
-        return sorted(list(motifs))
+        return sorted(motifs)
 
     def as_dict(self):
         """
@@ -2030,7 +2030,7 @@ class MoleculeGraph(MSONable):
         subgraphs = [original.graph.subgraph(c) for c in nx.weakly_connected_components(original.graph)]
 
         for subg in subgraphs:
-            nodes = sorted(list(subg.nodes))
+            nodes = sorted(subg.nodes)
 
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0

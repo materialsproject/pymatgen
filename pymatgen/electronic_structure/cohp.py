@@ -536,11 +536,11 @@ class CompleteCohp(Cohp):
             orbs = []
             for orbital in orbitals:
                 if isinstance(orbital[1], int):
-                    orbs.append(tuple((orbital[0], Orbital(orbital[1]))))
+                    orbs.append((orbital[0], Orbital(orbital[1])))
                 elif isinstance(orbital[1], Orbital):
-                    orbs.append(tuple((orbital[0], orbital[1])))
+                    orbs.append((orbital[0], orbital[1]))
                 elif isinstance(orbital[1], str):
-                    orbs.append(tuple((orbital[0], Orbital[orbital[1]])))
+                    orbs.append((orbital[0], Orbital[orbital[1]]))
                 else:
                     raise TypeError("Orbital must be str, int, or Orbital.")
             orb_index = cohp_orbs.index(orbs)
@@ -622,7 +622,7 @@ class CompleteCohp(Cohp):
                         }
                     except KeyError:
                         icohp = None
-                    orbitals = [tuple((int(o[0]), Orbital[o[1]])) for o in d["orb_res_cohp"][label][orb]["orbitals"]]
+                    orbitals = [(int(o[0]), Orbital[o[1]]) for o in d["orb_res_cohp"][label][orb]["orbitals"]]
                     orb_cohp[label][orb] = {
                         "COHP": cohp,
                         "ICOHP": icohp,

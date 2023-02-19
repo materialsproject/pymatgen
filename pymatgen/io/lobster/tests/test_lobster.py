@@ -200,7 +200,7 @@ class CohpcarTest(PymatgenTest):
                     assert len(val["ICOHP"][Spin.up]) == 6
 
     def test_orbital_resolved_cohp(self):
-        orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4) for i in range(4)]
+        orbitals = [(Orbital(i), Orbital(j)) for j in range(4) for i in range(4)]
         assert self.cohp_bise.orb_res_cohp is None
         assert self.coop_bise.orb_res_cohp is None
         assert self.cohp_fe.orb_res_cohp is None
@@ -211,7 +211,7 @@ class CohpcarTest(PymatgenTest):
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
             assert orb_set[0][0] == 4
             assert orb_set[1][0] == 4
-            assert tuple((orb_set[0][1], orb_set[1][1])) in orbitals
+            assert (orb_set[0][1], orb_set[1][1]) in orbitals
 
         # test d and f orbitals
         comparelist = [

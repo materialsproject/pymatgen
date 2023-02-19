@@ -223,7 +223,7 @@ class AdfKey(MSONable):
         else:
             raise ValueError("The subkey should be an AdfKey or a string!")
         if len(self.subkeys) > 0:
-            if key in map(lambda k: k.key, self.subkeys):
+            if key in (k.key for k in self.subkeys):
                 return True
         return False
 
@@ -366,7 +366,7 @@ class AdfKey(MSONable):
         options = d.get("options", None)
         subkey_list = d.get("subkeys", [])
         if len(subkey_list) > 0:
-            subkeys = list(map(lambda k: AdfKey.from_dict(k), subkey_list))
+            subkeys = [AdfKey.from_dict(k) for k in subkey_list]
         else:
             subkeys = None
         return cls(key, options, subkeys)
@@ -404,7 +404,7 @@ class AdfKey(MSONable):
             el = string.split()
             if len(el) > 1:
                 if string.find("=") != -1:
-                    options = list(map(lambda s: s.split("="), el[1:]))
+                    options = [s.split("=") for s in el[1:]]
                 else:
                     options = el[1:]
                 for i, op in enumerate(options):

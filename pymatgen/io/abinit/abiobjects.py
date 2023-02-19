@@ -255,13 +255,13 @@ or the Virtual Crystal Approximation."""
     xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
 
     # Info on atoms.
-    d = dict(
-        natom=natom,
-        ntypat=ntypat,
-        typat=typat,
-        znucl=znucl_type,
-        xred=xred,
-    )
+    d = {
+        "natom": natom,
+        "ntypat": ntypat,
+        "typat": typat,
+        "znucl": znucl_type,
+        "xred": xred,
+    }
 
     # Add info on the lattice.
     # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
@@ -520,18 +520,18 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
     """Variables controlling the SCF/NSCF algorithm."""
 
     # None indicates that we use abinit defaults.
-    _DEFAULT = dict(
-        iprcell=None,
-        iscf=None,
-        diemac=None,
-        diemix=None,
-        diemixmag=None,
-        dielam=None,
-        diegap=None,
-        dielng=None,
-        diecut=None,
-        nstep=50,
-    )
+    _DEFAULT = {
+        "iprcell": None,
+        "iscf": None,
+        "diemac": None,
+        "diemix": None,
+        "diemixmag": None,
+        "dielam": None,
+        "diegap": None,
+        "dielng": None,
+        "diecut": None,
+        "nstep": 50,
+    }
 
     def __init__(self, *args, **kwargs):
         """Initialize object."""
@@ -1532,20 +1532,20 @@ class SelfEnergy(AbivarAble):
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables."""
-        abivars = dict(
-            gwcalctyp=self.gwcalctyp,
-            ecuteps=self.ecuteps,
-            ecutsigx=self.ecutsigx,
-            symsigma=self.symsigma,
-            gw_qprange=self.gw_qprange,
-            gwpara=self.gwpara,
-            optdriver=self.optdriver,
-            nband=self.nband
+        abivars = {
+            "gwcalctyp": self.gwcalctyp,
+            "ecuteps": self.ecuteps,
+            "ecutsigx": self.ecutsigx,
+            "symsigma": self.symsigma,
+            "gw_qprange": self.gw_qprange,
+            "gwpara": self.gwpara,
+            "optdriver": self.optdriver,
+            "nband": self.nband
             # "ecutwfn"  : self.ecutwfn,
             # "kptgw"    : self.kptgw,
             # "nkptgw"   : self.nkptgw,
             # "bdgw"     : self.bdgw,
-        )
+        }
 
         # FIXME: problem with the spin
         # assert len(self.bdgw) == self.nkptgw
@@ -1670,22 +1670,22 @@ class ExcHamiltonian(AbivarAble):
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables."""
-        abivars = dict(
-            bs_calctype=1,
-            bs_loband=self.bs_loband,
+        abivars = {
+            "bs_calctype": 1,
+            "bs_loband": self.bs_loband,
             # nband=self.nband,
-            mbpt_sciss=self.mbpt_sciss,
-            ecuteps=self.ecuteps,
-            bs_algorithm=self._ALGO2VAR[self.algo],
-            bs_coulomb_term=21,
-            mdf_epsinf=self.mdf_epsinf,
-            bs_exchange_term=1 if self.with_lf else 0,
-            inclvkb=self.inclvkb,
-            zcut=self.zcut,
-            bs_freq_mesh=self.bs_freq_mesh,
-            bs_coupling=self._EXC_TYPES[self.exc_type],
-            optdriver=self.optdriver,
-        )
+            "mbpt_sciss": self.mbpt_sciss,
+            "ecuteps": self.ecuteps,
+            "bs_algorithm": self._ALGO2VAR[self.algo],
+            "bs_coulomb_term": 21,
+            "mdf_epsinf": self.mdf_epsinf,
+            "bs_exchange_term": 1 if self.with_lf else 0,
+            "inclvkb": self.inclvkb,
+            "zcut": self.zcut,
+            "bs_freq_mesh": self.bs_freq_mesh,
+            "bs_coupling": self._EXC_TYPES[self.exc_type],
+            "optdriver": self.optdriver,
+        }
 
         if self.use_haydock:
             # FIXME

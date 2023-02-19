@@ -428,7 +428,7 @@ class CollinearMagneticStructureAnalyzer:
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
             return tuple(sorted(structure.types_of_species))
-        return tuple()
+        return ()
 
     @property
     def types_of_magnetic_specie(
@@ -459,7 +459,7 @@ class CollinearMagneticStructureAnalyzer:
             if len(magmoms) == 1:
                 magtypes[sp] = magmoms.pop()
             else:
-                magtypes[sp] = sorted(list(magmoms))
+                magtypes[sp] = sorted(magmoms)
 
         return magtypes
 
