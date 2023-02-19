@@ -1995,7 +1995,7 @@ class PotcarSingle:
         If no SHA256 hash is found in the file, the file hash (md5 hash of the
         whole file) is checked against all POTCAR file hashes known to pymatgen.
 
-        Returns
+        Returns:
         -------
         (bool, bool)
             has_sh256 and passed_hash_check are returned.

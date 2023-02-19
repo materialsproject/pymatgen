@@ -542,6 +542,7 @@ class BoltztrapRunner(MSONable):
         """
         Write inputs (optional), run BoltzTraP, and ensure
         convergence (optional)
+
         Args:
             path_dir (str): directory in which to run BoltzTraP
             convergence (bool): whether to check convergence and make
@@ -1357,6 +1358,7 @@ class BoltztrapAnalyzer:
             temp:   temperature of calculated seebeck.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
                     relaxation time).
+
         Returns:
             a list of values for the seebeck effective mass w.r.t the chemical potential,
             if doping_levels is set at False;
@@ -1413,6 +1415,7 @@ class BoltztrapAnalyzer:
             temp:   temperature of calculated seebeck and conductivity.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
                     relaxation time).
+
         Returns:
             a list of values for the complexity factor w.r.t the chemical potential,
             if doping_levels is set at False;
@@ -1680,7 +1683,7 @@ class BoltztrapAnalyzer:
         """
         gives the carrier concentration (in cm^-3)
 
-        Returns
+        Returns:
             a dictionary {temp:[]} with an array of carrier concentration
             (in cm^-3) at each temperature
             The array relates to each step of electron chemical potential
@@ -1693,7 +1696,7 @@ class BoltztrapAnalyzer:
         the Hall tensor (see Boltztrap source code) Hall carrier concentration
         are not always exactly the same than carrier concentration.
 
-        Returns
+        Returns:
             a dictionary {temp:[]} with an array of Hall carrier concentration
             (in cm^-3) at each temperature The array relates to each step of
             electron chemical potential
@@ -1841,6 +1844,7 @@ class BoltztrapAnalyzer:
     def parse_struct(path_dir):
         """
         Parses boltztrap.struct file (only the volume)
+
         Args:
             path_dir: (str) dir containing the boltztrap.struct file
 
@@ -2286,7 +2290,6 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     sym line, for all bands and locally (for each branches) the difference
     squared (%) if nb is specified.
     """
-
     if bands_ref_obj.is_spin_polarized:
         nbands = min(bands_obj.nb_bands, 2 * bands_ref_obj.nb_bands)
     else:

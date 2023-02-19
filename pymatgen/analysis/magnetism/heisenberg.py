@@ -249,7 +249,7 @@ class HeisenbergMapper:
         Returns:
             None: (sets self.ex_mat instance variable)
 
-        TODO:
+        Todo:
             * Deal with large variance in |S| across configs
         """
         sgraphs = self.sgraphs
@@ -557,6 +557,7 @@ class HeisenbergMapper:
 
         Args:
             filename (str): if not None, save interaction graph to filename.
+
         Returns:
             igraph (StructureGraph): Exchange interaction graph.
         """
@@ -915,7 +916,6 @@ class HeisenbergModel(MSONable):
     @classmethod
     def from_dict(cls, d):
         """Create a HeisenbergModel from a dict."""
-
         # Reconstitute the site ids
         usids = {}
         wids = {}

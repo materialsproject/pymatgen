@@ -543,16 +543,16 @@ class Slab(Structure):
         site as well. This will work for elemental systems only for now. Useful
         for analysis involving broken bonds and for finding adsorption sites.
 
-            Args:
+        Args:
                 tag (bool): Option to adds site attribute "is_surfsite" (bool)
                     to all sites of slab. Defaults to False
 
-            Returns:
+        Returns:
                 A dictionary grouping sites on top and bottom of the slab
                 together.
                 {"top": [sites with indices], "bottom": [sites with indices}
 
-        TODO:
+        Todo:
             Is there a way to determine site equivalence between sites in a slab
             and bulk system? This would allow us get the coordination number of
             a specific site for multi-elemental systems or systems with more
@@ -1360,7 +1360,7 @@ class ReconstructionGenerator:
 
         The index of the termination of the slab
 
-    TODO:
+    Todo:
     - Right now there is no way to specify what atom is being
         added. In the future, use basis sets?
     """
@@ -1602,7 +1602,6 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
         return_hkil (bool): If true, return hkil form of Miller
             index for hexagonal systems, otherwise return hkl
     """
-
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     miller_index = (miller_index[0], miller_index[1], miller_index[3]) if len(miller_index) == 4 else miller_index
     mmi = max(np.abs(miller_index))
@@ -1640,6 +1639,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
     Returns all symmetrically distinct indices below a certain max-index for
     a given structure. Analysis is based on the symmetry of the reciprocal
     lattice of the structure.
+
     Args:
         structure (Structure): input structure.
         max_index (int): The maximum index. For example, a max_index of 1
@@ -1648,7 +1648,6 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
         return_hkil (bool): If true, return hkil form of Miller
             index for hexagonal systems, otherwise return hkl
     """
-
     r = list(range(-max_index, max_index + 1))
     r.reverse()
 
@@ -1848,7 +1847,6 @@ def get_slab_regions(slab, blength=3.5):
             want this value to be larger than the actual bondlengths in
             order to find atoms that are part of the slab
     """
-
     fcoords, indices, all_indices = [], [], []
     for site in slab:
         # find sites with c < 0 (noncontiguous)
@@ -1957,7 +1955,6 @@ def center_slab(slab):
     Returns:
         Returns a centered slab structure
     """
-
     # get a reasonable r cutoff to sample neighbors
     bdists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
     r = bdists[0] * 3

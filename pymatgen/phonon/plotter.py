@@ -35,7 +35,6 @@ def freq_units(units):
         Returns conversion factor from THz to the required units and the label in the form of a namedtuple
 
     """
-
     d = {
         "thz": FreqUnits(1, "THz"),
         "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
@@ -685,6 +684,7 @@ class ThermoPlotter:
             label: label of the plot
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
@@ -722,6 +722,7 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
@@ -747,6 +748,7 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
@@ -772,6 +774,7 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
@@ -797,6 +800,7 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
@@ -824,6 +828,7 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """

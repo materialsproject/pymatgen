@@ -91,7 +91,7 @@ class VampireCaller:
             mat_id_dict (dict): Maps sites to material id # for vampire
                 indexing.
 
-        TODO:
+        Todo:
             * Create input files in a temp folder that gets cleaned up after run terminates
         """
         self.mc_box_size = mc_box_size

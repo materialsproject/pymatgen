@@ -901,6 +901,7 @@ class StructureMatcher(MSONable):
     ):
         """
         Tries all permutations of matching struct1 to struct2.
+
         Args:
             struct1 (Structure): First structure
             struct2 (Structure): Second structure

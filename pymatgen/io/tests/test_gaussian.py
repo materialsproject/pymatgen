@@ -198,7 +198,6 @@ H 0
 
     def test_no_molecule(self):
         """Test that we can write input files without a geometry"""
-
         # Makes a file without geometry
         input_file = GaussianInput(None, charge=0, spin_multiplicity=2)
         input_str = input_file.to_string().strip()

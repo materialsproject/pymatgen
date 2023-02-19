@@ -501,7 +501,7 @@ class ChargemolAnalysis:
         Takes CHGCAR's structure object and updates it with properties
         from the Chargemol analysis.
 
-        Returns
+        Returns:
             Pymatgen structure with site properties added
         """
         struct = self.structure.copy()

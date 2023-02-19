@@ -1882,6 +1882,7 @@ class LightStructureEnvironments(MSONable):
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
         """
         Get the statistics of environments for this structure.
+
         Args:
             statistics_fields: Which statistics to get.
             bson_compatible: Whether to make the dictionary BSON-compatible.

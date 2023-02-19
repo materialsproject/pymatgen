@@ -637,7 +637,6 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         Return dict with the variables added to the input.
 
         Example:
-
             input.set_vars(ecut=10, ionmov=3)
         """
         kwargs.update(dict(*args))
@@ -651,7 +650,6 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         Return dict with the variables added to the input.
 
         Example:
-
             input.set_vars(ecut=10, ionmov=3)
         """
         kwargs.update(dict(*args))

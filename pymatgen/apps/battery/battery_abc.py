@@ -249,6 +249,7 @@ class AbstractElectrode(Sequence, MSONable):
         If this electrode contains multiple voltage steps, then it is possible
         to use only a subset of the voltage steps to define other electrodes.
         Must be implemented for each electrode object.
+
         Args:
             adjacent_only: Only return electrodes from compounds that are
                 adjacent on the convex hull, i.e. no electrodes returned

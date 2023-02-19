@@ -862,6 +862,7 @@ class DetailedVoronoiContainer(MSONable):
     def get_sadf_figure(self, isite, normalized=True, figsize=None, step_function=None):
         """
         Get the Solid Angle Distribution Figure for a given site.
+
         Args:
             isite: Index of the site.
             normalized: Whether to normalize angles.

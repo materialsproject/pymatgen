@@ -26,7 +26,7 @@ def is_numeric(s) -> bool:
     s : str
         A string.
 
-    Returns
+    Returns:
     -------
     res : bool
         If True, ``s`` is a numeric string and can be converted to an int or a
@@ -120,7 +120,7 @@ class AdfKey(MSONable):
         subkeys : Sized
             The subkeys for this key.
 
-        Raises
+        Raises:
         ------
         ValueError
             If elements in ``subkeys`` are not ``AdfKey`` objects.
@@ -170,7 +170,7 @@ class AdfKey(MSONable):
         """
         Return the string representation of this ``AdfKey``.
 
-        Notes
+        Notes:
         -----
         If this key is 'Atoms' and the coordinates are in Cartesian form, a
         different string format will be used.
@@ -211,7 +211,7 @@ class AdfKey(MSONable):
         subkey : str or AdfKey
             A key name or an AdfKey object.
 
-        Returns
+        Returns:
         -------
         has : bool
             True if this key contains the given key. Otherwise False.
@@ -236,7 +236,7 @@ class AdfKey(MSONable):
         subkey : AdfKey
             A new subkey.
 
-        Notes
+        Notes:
         -----
         Duplicate check will not be performed if this is an 'Atoms' block.
         """
@@ -269,7 +269,7 @@ class AdfKey(MSONable):
             A new option to add. This must have the same format with existing
             options.
 
-        Raises
+        Raises:
         ------
         TypeError
             If the format of the given ``option`` is different.
@@ -291,7 +291,7 @@ class AdfKey(MSONable):
         option : str or int
             The name (str) or index (int) of the option to remove.
 
-        Raises
+        Raises:
         ------
         TypeError
             If the option has a wrong type.
@@ -318,7 +318,7 @@ class AdfKey(MSONable):
         option : str
             The option.
 
-        Returns
+        Returns:
         -------
         has : bool
             True if the option can be found. Otherwise False will be returned.
@@ -357,7 +357,7 @@ class AdfKey(MSONable):
         d : dict
             A dict of saved attributes.
 
-        Returns
+        Returns:
         -------
         adfkey : AdfKey
             An AdfKey object recovered from the JSON dict ``d``.
@@ -381,18 +381,18 @@ class AdfKey(MSONable):
         string : str
             A string.
 
-        Returns
+        Returns:
         -------
         adfkey : AdfKey
             An AdfKey object recovered from the string.
 
-        Raises
+        Raises:
         ------
         ValueError
             Currently nested subkeys are not supported. If ``subend`` was found
             a ValueError would be raised.
 
-        Notes
+        Notes:
         -----
         Only the first block key will be returned.
         """
@@ -443,7 +443,7 @@ class AdfTask(MSONable):
     """
     Basic task for ADF. All settings in this class are independent of molecules.
 
-    Notes
+    Notes:
     -----
     Unlike other quantum chemistry packages (NWChem, Gaussian, ...), ADF does
     not support calculating force/gradient.
@@ -546,7 +546,7 @@ class AdfTask(MSONable):
         geo_subkeys : Sized
             User-defined subkeys for the block 'Geometry'.
 
-        Notes
+        Notes:
         -----
         Most of the run types of ADF are specified in the Geometry block except
         the 'AnalyticFreq'.
@@ -608,7 +608,7 @@ class AdfTask(MSONable):
         d : dict
             A dict of saved attributes.
 
-        Returns
+        Returns:
         -------
         task : AdfTask
             An AdfTask object recovered from the JSON dict ``d``.
@@ -682,7 +682,7 @@ class AdfOutput:
     """
     A basic ADF output file parser.
 
-    Attributes
+    Attributes:
     ----------
     is_failed : bool
         True is the ADF job is terminated without success. Otherwise False.
@@ -761,7 +761,7 @@ class AdfOutput:
         sites : list
             A list of sites.
 
-        Returns
+        Returns:
         -------
         mol : Molecule
             A ``Molecule`` object.

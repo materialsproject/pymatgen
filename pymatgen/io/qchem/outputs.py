@@ -657,8 +657,8 @@ class QCOutput(MSONable):
 
     def _read_eigenvalues(self):
         """Parse the orbital energies from the output file. An array of the
-        dimensions of the number of orbitals used in the calculation is stored."""
-
+        dimensions of the number of orbitals used in the calculation is stored.
+        """
         # Find the pattern corresponding to the "Final Alpha MO Eigenvalues" section
         header_pattern = r"Final Alpha MO Eigenvalues"
         # The elements of the matrix are always floats, they are surrounded by
@@ -695,8 +695,8 @@ class QCOutput(MSONable):
 
     def _read_fock_matrix(self):
         """Parses the Fock matrix. The matrix is read in whole
-        from the output file and then transformed into the right dimensions."""
-
+        from the output file and then transformed into the right dimensions.
+        """
         # The header is the same for both spin-restricted and spin-unrestricted calculations.
         header_pattern = r"Final Alpha Fock Matrix"
         # The elements of the matrix are always floats, they are surrounded by
@@ -734,7 +734,8 @@ class QCOutput(MSONable):
 
     def _read_coefficient_matrix(self):
         """Parses the coefficient matrix from the output file. Done is much
-        the same was as the Fock matrix."""
+        the same was as the Fock matrix.
+        """
         # The header is the same for both spin-restricted and spin-unrestricted calculations.
         header_pattern = r"Final Alpha MO Coefficients"
         # The elements of the matrix are always floats, they are surrounded by
@@ -967,7 +968,6 @@ class QCOutput(MSONable):
         Parses associated dipoles.
         Also parses spins given an unrestricted SCF.
         """
-
         self.data["dipoles"] = {}
         temp_dipole_total = read_pattern(
             self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
@@ -1882,7 +1882,6 @@ class QCOutput(MSONable):
         """
         Parses output from charge- or spin-constrained DFT (CDFT) calculations.
         """
-
         # Parse constraint and optimization parameters
         temp_dict = read_pattern(
             self.text, {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)", "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
@@ -1930,7 +1929,6 @@ class QCOutput(MSONable):
         """
         Parse output of ALMO(MSDFT) calculations for coupling between diabatic states
         """
-
         temp_dict = read_pattern(
             self.text,
             {
@@ -2170,6 +2168,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
     Args:
         mol1: Pymatgen Molecule object to be compared.
         mol2: Pymatgen Molecule object to be compared.
+
     Returns:
         One of ["unconnected_fragments", "fewer_bonds", "more_bonds",
         "bond_change", "no_change"]
@@ -2231,7 +2230,6 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
     Raises:
             RuntimeError
     """
-
     # Search for the header
     for i, line in enumerate(lines):
         if header in line.strip():
@@ -2255,7 +2253,6 @@ def get_percentage(line: str, orbital: str) -> str:
     Raises:
             n/a
     """
-
     # Locate orbital in line
     index = line.find(orbital)
     line = line[index:]
@@ -2301,7 +2298,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     no_failures = True
     pop_dfs = []
 
@@ -2362,7 +2358,6 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     no_failures = True
     hyperbond_dfs = []
 
@@ -2444,7 +2439,6 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     # Orbitals
     orbitals = ["s", "p", "d", "f"]
 
@@ -2680,7 +2674,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     no_failures = True
     e2_dfs = []
 
@@ -2832,7 +2825,6 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     Raises:
             RuntimeError
     """
-
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
         lines = f.readlines()

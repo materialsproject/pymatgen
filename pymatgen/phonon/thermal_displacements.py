@@ -240,6 +240,7 @@ class ThermalDisplacementMatrices(MSONable):
         """
         Will compute directionality of prolate displacement ellipsoids as described in
         https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/
+
         Args:
             other: ThermalDisplacementMatrix
             please make sure that the order of the atoms in both objects that are compared

@@ -83,7 +83,6 @@ def _c2index_isreverse(c1, c2):
     cycle c2 : if it is *just after* the c2_0_index, reverse is False, if it is
     *just before* the c2_0_index, reverse is True, otherwise the function returns None).
     """
-
     c1_0 = c1.nodes[0]
     c1_1 = c1.nodes[1]
     if c1_0 not in c2.nodes:

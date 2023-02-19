@@ -215,7 +215,6 @@ on_disorder_options = Literal["take_majority_strict", "take_majority_drop", "tak
 
 def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
     """What to do in bonding and coordination number analysis if a site is disordered."""
-
     if all(site.is_ordered for site in structure):
         return structure
 
@@ -315,6 +314,7 @@ class NearNeighbors:
                 on each site. For {{Fe: 0.4, O: 0.4, C: 0.2}}, 'error' and 'take_majority_strict'
                 will raise ValueError, while 'take_majority_drop' ignores this site altogether and
                 'take_max_species' will use Fe as the site specie.
+
         Returns:
             cn (int or float): coordination number.
         """
@@ -362,6 +362,7 @@ class NearNeighbors:
             structure (Structure): input structure.
             n (int): index of site in structure for which to determine
                     neighbors.
+
         Returns:
             sites (list of Site objects): near neighbors.
         """
@@ -375,6 +376,7 @@ class NearNeighbors:
         Args:
             structure (Structure): input structure.
             n (int): index of site for which to determine the weights.
+
         Returns:
             weights (list of floats): near-neighbor weights.
         """
@@ -389,6 +391,7 @@ class NearNeighbors:
             structure (Structure): input structure.
             n (int): index of site for which to determine the image
                 location of near neighbors.
+
         Returns:
             images (list of 3D integer array): image locations of
                 near neighbors.
@@ -447,6 +450,7 @@ class NearNeighbors:
             site_idx (int): index of site for which to determine neighbor
                 information.
             shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)
+
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
@@ -578,7 +582,8 @@ class NearNeighbors:
     @staticmethod
     def _get_original_site(structure, site):
         """Private convenience method for get_nn_info,
-        gives original site index from ProvidedPeriodicSite."""
+        gives original site index from ProvidedPeriodicSite.
+        """
         if isinstance(structure, (IStructure, Structure)):
             for i, s in enumerate(structure):
                 if site.is_periodic_image(s):
@@ -1560,6 +1565,7 @@ class OpenBabelNN(NearNeighbors):
             site_idx (int): index of site for which to determine neighbor
                 information.
             shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)
+
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
@@ -1709,6 +1715,7 @@ class CovalentBondNN(NearNeighbors):
             site_idx (int): index of site for which to determine neighbor
                 information.
             shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)
+
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
@@ -1944,7 +1951,6 @@ def solid_angle(center, coords):
     Returns:
         The solid angle.
     """
-
     # Compute the displacement from the center
     r = [np.subtract(c, center) for c in coords]
 
@@ -1976,11 +1982,13 @@ def vol_tetra(vt1, vt2, vt3, vt4):
     """
     Calculate the volume of a tetrahedron, given the four vertices of vt1,
     vt2, vt3 and vt4.
+
     Args:
         vt1 (array-like): coordinates of vertex 1.
         vt2 (array-like): coordinates of vertex 2.
         vt3 (array-like): coordinates of vertex 3.
         vt4 (array-like): coordinates of vertex 4.
+
     Returns:
         (float): volume of the tetrahedron.
     """
@@ -1998,11 +2006,11 @@ def get_okeeffe_params(el_symbol):
 
     Args:
         el_symbol (str): element symbol.
+
     Returns:
         (dict): atom-size ('r') and electronegativity-related ('c')
                 parameter.
     """
-
     el = Element(el_symbol)
     if el not in list(BV_PARAMS):
         raise RuntimeError(
@@ -2097,7 +2105,6 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10.0
 
     Returns: motif type (str).
     """
-
     if thresh is None:
         thresh = {
             "qtet": 0.5,
@@ -2160,7 +2167,6 @@ def gramschmidt(vin, uin):
         uin (numpy array):
             second input vector
     """
-
     vin_uin = np.inner(vin, uin)
     uin_uin = np.inner(uin, uin)
     if uin_uin <= 0.0:
@@ -2808,6 +2814,7 @@ class LocalStructOrderParams:
         Args:
             index (int): index of order parameter for which type is
                 to be returned.
+
         Returns:
             str: OP type.
         """
@@ -2828,6 +2835,7 @@ class LocalStructOrderParams:
             index (int):
                 index of order parameter for which associated parameters
                 are to be returned.
+
         Returns:
             [float]: parameters of a given OP.
         """
@@ -3857,6 +3865,7 @@ class CrystalNN(NearNeighbors):
     def get_nn_info(self, structure: Structure, n: int) -> list[dict]:
         """
         Get all near-neighbor information.
+
         Args:
             structure: (Structure) pymatgen Structure
             n: (int) index of target site
@@ -4072,6 +4081,7 @@ class CrystalNN(NearNeighbors):
         """
         An internal method to get an integral between two bounds of a unit
         semicircle. Used in algorithm to determine bond probabilities.
+
         Args:
             dist_bins: (float) list of all possible bond weights
             idx: (float) index of starting bond weight
@@ -4133,6 +4143,7 @@ def _get_radius(site):
     """
     An internal method to get the expected radius for a site with
     oxidation state.
+
     Args:
         site: (Site)
 

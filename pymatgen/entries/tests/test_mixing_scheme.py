@@ -220,7 +220,6 @@ def ms_complete():
     """
     Mixing state where we have R2SCAN for all GGA
     """
-
     gga_entries = [
         ComputedStructureEntry(
             Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"

@@ -41,7 +41,7 @@ def read_route_line(route):
     Args:
         route (str) : the route line
 
-    return
+    Return:
         functional (str) : the method (HF, PBE ...)
         basis_set (str) : the basis set
         route (dict) : dictionary of parameters
@@ -543,7 +543,6 @@ class GaussianOutput:
         Still in early beta.
 
     Attributes:
-
     .. attribute:: structures
 
         All structures from the calculation in the standard orientation. If the
@@ -714,7 +713,6 @@ class GaussianOutput:
         that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
-
     .. method:: to_input()
 
         Return a GaussianInput object using the last geometry and the same
@@ -1248,7 +1246,6 @@ class GaussianOutput:
         Read a potential energy surface from a gaussian scan calculation.
 
         Returns:
-
             A dict: {"energies": [ values ],
                      "coords": {"d1": [ values ], "A2", [ values ], ... }}
 
@@ -1354,7 +1351,6 @@ class GaussianOutput:
         Read a excitation energies after a TD-DFT calculation.
 
         Returns:
-
             A list: A list of tuple for each transition such as
                     [(energie (eV), lambda (nm), oscillatory strength), ... ]
         """
@@ -1464,7 +1460,7 @@ class GaussianOutput:
         the output file and with the same calculation parameters. Arguments
         are the same as GaussianInput class.
 
-        Returns
+        Returns:
             gaunip (GaussianInput) : the gaussian input object
         """
         if not mol:

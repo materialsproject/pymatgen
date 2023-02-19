@@ -487,6 +487,7 @@ class Critic2Analysis(MSONable):
         """
         A StructureGraph object describing bonding information
         in the crystal.
+
         Args:
             include_critical_points: add DummySpecies for
             the critical points themselves, a list of

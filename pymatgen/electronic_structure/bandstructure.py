@@ -698,6 +698,7 @@ class BandStructure:
         Args:
             d (dict): A dict with all data for a band structure symm line
                 object.
+
         Returns:
             A BandStructureSymmLine object
         """
@@ -1045,6 +1046,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         Args:
             d (dict): A dict with all data for a band structure symm line
                 object.
+
         Returns:
             A BandStructureSymmLine object
         """

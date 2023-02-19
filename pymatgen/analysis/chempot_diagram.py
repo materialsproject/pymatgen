@@ -293,7 +293,6 @@ class ChemicalPotentialDiagram(MSONable):
         element_padding: float | None,
     ) -> Figure:
         """Returns a Plotly figure for a 3-dimensional chemical potential diagram."""
-
         if not formulas_to_draw:
             formulas_to_draw = []
 

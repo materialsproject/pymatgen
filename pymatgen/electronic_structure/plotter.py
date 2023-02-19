@@ -1553,7 +1553,8 @@ class BSPlotterProjected(BSPlotter):
                 {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]}
                 will give projections for Cu on site-1
                 and on site-5, O on site-3 and on site-4 in the cell.
-                Attention:
+
+        Attention:
                 The correct site numbers of atoms are consistent with
                 themselves in the structure computed. Normally,
                 the structure should be totally similar with POSCAR file,
@@ -2286,6 +2287,7 @@ class BSDOSPlotter:
     def get_plot(self, bs: BandStructureSymmLine, dos: Dos | CompleteDos | None = None):
         """
         Get a matplotlib plot object.
+
         Args:
             bs (BandStructureSymmLine): the bandstructure to plot. Projection
                 data must exist for projected plots.

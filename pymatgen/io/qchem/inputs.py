@@ -379,6 +379,7 @@ class QCInput(InputFile):
     def from_file(filename: str | Path) -> QCInput:
         """
         Create QcInput from file.
+
         Args:
             filename (str): Filename
 
@@ -392,6 +393,7 @@ class QCInput(InputFile):
     def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
         """
         Create list of QcInput from a file.
+
         Args:
             filename (str): Filename
 
@@ -680,7 +682,6 @@ class QCInput(InputFile):
         Returns:
             (str)
         """
-
         cdft_list = []
         cdft_list.append("$cdft")
         for ii, state in enumerate(cdft):
@@ -725,7 +726,6 @@ class QCInput(InputFile):
         Returns:
             (str)
         """
-
         almo_list = []
         almo_list.append("$almo_coupling")
 
@@ -1156,7 +1156,6 @@ class QCInput(InputFile):
         Returns:
              (list of lists of dicts) cdft parameters
         """
-
         pattern_sec = {
             "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|"
             r"(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
@@ -1215,7 +1214,6 @@ class QCInput(InputFile):
         Returns:
             (list of lists of int 2-tuples) almo_coupling parameters
         """
-
         pattern = {
             "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-"
             r"((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"

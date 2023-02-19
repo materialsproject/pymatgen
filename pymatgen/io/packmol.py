@@ -44,9 +44,11 @@ class PackmolSet(InputSet):
 
     def run(self, path: str | Path, timeout=30):
         """Run packmol and write out the packed structure.
+
         Args:
             path: The path in which packmol input files are located.
             timeout: Timeout in seconds.
+
         Raises:
             ValueError if packmol does not succeed in packing the box.
             TimeoutExpiredError if packmold does not finish within the timeout.
@@ -148,7 +150,8 @@ class PackmolBoxGen(InputGenerator):
                     2. "number" - the number of that molecule to pack into the box
                     3. "coords" - Coordinates in the form of either a Molecule object or
                         a path to a file.
-                Example:
+
+        Example:
                     {"name": "water",
                      "number": 500,
                      "coords": "/path/to/input/file.xyz"}

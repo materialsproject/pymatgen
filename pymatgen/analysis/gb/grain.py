@@ -162,6 +162,7 @@ class GrainBoundary(Structure):
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species. Note that Slab has to override this
         because of the different __init__ args.
+
         Args:
             key: Specifies a function of one argument that is used to extract
                 a comparison key from each list element: key=str.lower. The
@@ -811,11 +812,13 @@ class GrainBoundaryGenerator:
     def get_ratio(self, max_denominator=5, index_none=None):
         """
         find the axial ratio needed for GB generator input.
+
         Args:
             max_denominator (int): the maximum denominator for
                 the computed ratio, default to be 5.
             index_none (int): specify the irrational axis.
                 0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
+
         Returns:
                axial ratio needed for GB generator (list of integers).
         """
@@ -930,6 +933,7 @@ class GrainBoundaryGenerator:
                 to the plane.
             quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
                 find the smallest cell.
+
         Returns:
             t1 (3 by 3 integer array):
                     The transformation array for one grain.
@@ -1327,10 +1331,12 @@ class GrainBoundaryGenerator:
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in cubic system.
         The algorithm for this code is from reference, Acta Cryst, A40,108(1984)
+
         Args:
             cutoff (int): the cutoff of sigma values.
             r_axis (list of three integers, e.g. u, v, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w].
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1532,6 +1538,7 @@ class GrainBoundaryGenerator:
             ratio_alpha (list of two integers, e.g. mu, mv):
                     mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha) with rational number.
                     If irrational, set ratio_alpha = None.
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1782,6 +1789,7 @@ class GrainBoundaryGenerator:
                     mu:lam:mv is the square of the orthorhombic axial ratio with rational
                     numbers. If irrational for one axis, set it to None.
                     e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1923,6 +1931,7 @@ class GrainBoundaryGenerator:
             r_axis (list of three integers, e.g. u, v, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w].
             r_angle (float): rotation angle of the GBs.
+
         Returns:
             all_combinations (dict):
                     dictionary with keys as GB type, e.g. 'Twist','Symmetric tilt',etc.
@@ -2368,7 +2377,6 @@ def fix_pbc(structure, matrix=None):
     Return:
         new structure with fixed frac_coords and lattice matrix
     """
-
     spec = []
     coords = []
     if matrix is None:

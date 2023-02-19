@@ -53,7 +53,6 @@ def clean_lines(string_list, remove_empty_lines=True):
     Returns:
         List of clean strings with no whitespaces.
     """
-
     for s in string_list:
         clean_s = s
         if "#" in s:

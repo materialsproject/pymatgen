@@ -241,6 +241,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         Simple and safe permutations for this separation plane.
 
         This is not meant to be used in production. Default configuration for ChemEnv does not use this method.
+
         Args:
             ordered_plane: Whether the order of the points in the plane can be used to reduce the
                 number of permutations.

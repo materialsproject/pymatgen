@@ -67,6 +67,7 @@ class CovalentBond:
             default_bl: If a particular type of bond does not exist,
                 use this bond length as a default value
                 (bond order = 1). If None, a ValueError will be thrown.
+
         Returns:
             Float value of bond order. For example, for C-C bond in
             benzene, return 1.7.
@@ -80,6 +81,7 @@ class CovalentBond:
     def is_bonded(site1, site2, tol: float = 0.2, bond_order: float | None = None, default_bl: float | None = None):
         """
         Test if two sites are bonded, up to a certain limit.
+
         Args:
             site1 (Site): First site
             site2 (Site): Second site
@@ -91,6 +93,7 @@ class CovalentBond:
                 against all possible bond data. Defaults to None.
             default_bl: If a particular type of bond does not exist, use this
                 bond length. If None, a ValueError will be thrown.
+
         Returns:
             Boolean indicating whether two sites are bonded.
         """
