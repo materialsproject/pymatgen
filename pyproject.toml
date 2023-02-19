@@ -24,7 +24,7 @@ select = [
   "PLE", # pylint error
   "PLW", # pylint warning
   "TID", # tidy imports
-  # "D",   # pydocstyle
+  "D",   # pydocstyle
 ]
 ignore = [
   "B019",    # functools.lru_cache on methods can lead to memory leaks
@@ -33,6 +33,14 @@ ignore = [
   "B023",    # Function definition does not bind loop variable
   "PLW0120", # tmp: awaiting bug fix https://github.com/charliermarsh/ruff/issues/3019
   "E741",    # tmp: we should fix all ambiguous variable names
+  "D100",
+  "D104",
+  "D105",
+  "D107",
+  "D200",
+  "D205",
+  "D212",
+  "D415",
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
