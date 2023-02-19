@@ -9,6 +9,7 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
+from __future__ import annotations
 
 import os
 import sys
@@ -347,5 +348,4 @@ def linkcode_resolve(domain, info):
         # no need to be relative to core here as module includes full path.
         filename = info["module"].replace(".", "/") + ".py"
 
-    tag = "v" + __version__
-    return f"https://github.com/materialsproject/pymatgen/blob/{tag}/{filename}"
+    return f"https://github.com/materialsproject/pymatgen/blob/v{__version__}/{filename}"
