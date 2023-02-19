@@ -35,6 +35,7 @@ ignore = [
   "E741",    # tmp: we should fix all ambiguous variable names
 ]
 pydocstyle.convention = "google"
+isort.required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
