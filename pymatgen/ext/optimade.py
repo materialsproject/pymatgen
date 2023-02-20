@@ -172,7 +172,7 @@ class OptimadeRester:
         if elements:
             if isinstance(elements, str):
                 elements = [elements]
-            elements_str = ", ".join(f"{el!r}" for el in elements)
+            elements_str = ", ".join(f'"{el}"' for el in elements)
             filters.append(f"(elements HAS ALL {elements_str})")
 
         if nsites:
@@ -188,10 +188,10 @@ class OptimadeRester:
                 filters.append(f"({nelements=})")
 
         if chemical_formula_anonymous:
-            filters.append(f"(chemical_formula_anonymous={chemical_formula_anonymous!r})")
+            filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')
 
         if chemical_formula_hill:
-            filters.append(f"(chemical_formula_hill={chemical_formula_anonymous!r})")
+            filters.append(f'(chemical_formula_hill="{chemical_formula_anonymous}")')
 
         return " AND ".join(filters)
 
