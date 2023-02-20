@@ -14,17 +14,18 @@ line-length = 120
 target-version = "py38"
 line-length = 120
 select = [
-  "F",   # pyflakes
-  "E",   # pycodestyle
-  "W",   # pycodestyle
-  "I",   # isort
-  "YTT", # flake8-2020
   "B",   # flake8-bugbear
-  "Q",   # flake8-quotes
+  "D",   # pydocstyle
+  "E",   # pycodestyle
+  "F",   # pyflakes
+  "I",   # isort
   "PLE", # pylint error
   "PLW", # pylint warning
+  "Q",   # flake8-quotes
   "TID", # tidy imports
-  "D",   # pydocstyle
+  "UP",  # pyupgrade
+  "W",   # pycodestyle
+  "YTT", # flake8-2020
 ]
 ignore = [
   "B019",    # functools.lru_cache on methods can lead to memory leaks
