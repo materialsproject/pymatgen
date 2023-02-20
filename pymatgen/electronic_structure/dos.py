@@ -849,7 +849,7 @@ class CompleteDos(Dos):
         spin: Spin | None = None,
     ) -> float:
         """
-        Computes the orbital-projected band filling, defined as the zeroth moment
+        Compute the orbital-projected band filling, defined as the zeroth moment
         up to the Fermi level
 
         Args:
@@ -865,16 +865,16 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities = None
+        densities: dict[Spin, ArrayLike] = None
         if elements:
-            for i, el in enumerate(elements):
+            for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            for i, site in enumerate(sites):
+            for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -899,7 +899,7 @@ class CompleteDos(Dos):
         erange: list[float] | None = None,
     ) -> float:
         """
-        Computes the orbital-projected band center, defined as the first moment
+        Compute the orbital-projected band center, defined as the first moment
         relative to the Fermi level
             int_{-inf}^{+inf} rho(E)*E dE/int_{-inf}^{+inf} rho(E) dE
         based on the work of Hammer and Norskov, Surf. Sci., 343 (1995) where the
@@ -1057,7 +1057,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities = None
+        densities: Mapping[Spin, ArrayLike] = {}
         if elements:
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1097,8 +1097,7 @@ class CompleteDos(Dos):
         elements: list[SpeciesLike] | None = None,
         sites: list[PeriodicSite] | None = None,
     ) -> Dos:
-        """
-        Returns the Hilbert transform of the orbital-projected density of states,
+        """Return the Hilbert transform of the orbital-projected density of states,
         often plotted for a Newns-Anderson analysis.
 
         Args:
@@ -1113,9 +1112,8 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities = None
+        densities: Mapping[Spin, ArrayLike] = {}
         if elements:
-            densities: Mapping[Spin, ArrayLike]
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
                 densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
@@ -1459,7 +1457,7 @@ class LobsterCompleteDos(CompleteDos):
                 else:
                     spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
 
-        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}  # type: ignore
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
         """
@@ -1487,9 +1485,7 @@ class LobsterCompleteDos(CompleteDos):
 
     @classmethod
     def from_dict(cls, d) -> LobsterCompleteDos:
-        """
-        Returns: CompleteDos object from dict representation.
-        """
+        """Hydrate CompleteDos object from dict representation."""
         tdos = Dos.from_dict(d)
         struct = Structure.from_dict(d["structure"])
         pdoss = {}
@@ -1504,8 +1500,7 @@ class LobsterCompleteDos(CompleteDos):
 
 
 def add_densities(density1: Mapping[Spin, ArrayLike], density2: Mapping[Spin, ArrayLike]) -> dict[Spin, np.ndarray]:
-    """
-    Method to sum two densities.
+    """Sum two densities.
 
     Args:
         density1: First density.
@@ -1517,7 +1512,7 @@ def add_densities(density1: Mapping[Spin, ArrayLike], density2: Mapping[Spin, Ar
     return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1}
 
 
-def _get_orb_type(orb):
+def _get_orb_type(orb) -> OrbitalType:
     try:
         return orb.orbital_type
     except AttributeError:
@@ -1525,7 +1520,7 @@ def _get_orb_type(orb):
 
 
 def f0(E, fermi, T) -> float:
-    """Returns the equilibrium fermi-dirac.
+    """Return the equilibrium fermi-dirac.
 
     Args:
         E (float): energy in eV
@@ -1538,31 +1533,16 @@ def f0(E, fermi, T) -> float:
     return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
 
 
-def _get_orb_type_lobster(orb):
+def _get_orb_type_lobster(orb) -> OrbitalType | None:
     """
     Args:
         orb: string representation of orbital
+
     Returns:
         OrbitalType
     """
-    orb_labs = [
-        "s",
-        "p_y",
-        "p_z",
-        "p_x",
-        "d_xy",
-        "d_yz",
-        "d_z^2",
-        "d_xz",
-        "d_x^2-y^2",
-        "f_y(3x^2-y^2)",
-        "f_xyz",
-        "f_yz^2",
-        "f_z^3",
-        "f_xz^2",
-        "f_z(x^2-y^2)",
-        "f_x(x^2-3y^2)",
-    ]
+    orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2", "d_xz", "d_x^2-y^2"]
+    orb_labs += ["f_y(3x^2-y^2)", "f_xyz", "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
 
     try:
         orbital = Orbital(orb_labs.index(orb[1:]))

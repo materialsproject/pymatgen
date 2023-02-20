@@ -120,9 +120,7 @@ def _parse_varray(elem):
 
 
 def _parse_from_incar(filename, key):
-    """
-    Helper function to parse a parameter from the INCAR.
-    """
+    """Helper function to parse a parameter from the INCAR."""
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
         if re.search(r"INCAR", f):
@@ -860,8 +858,7 @@ class Vasprun(MSONable):
         line_mode: bool = False,
         force_hybrid_mode: bool = False,
     ):
-        """
-        Returns the band structure as a BandStructure object
+        """Get the band structure as a BandStructure object.
 
         Args:
             kpoints_filename: Full path of the KPOINTS file from which
@@ -907,7 +904,7 @@ class Vasprun(MSONable):
         else:
             e_fermi = efermi
 
-        kpoint_file = None
+        kpoint_file: Kpoints = None
         if kpoints_filename and os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
