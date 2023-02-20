@@ -865,6 +865,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
+        densities = None
         if elements:
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1056,6 +1057,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
+        densities = None
         if elements:
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1111,6 +1113,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
+        densities = None
         if elements:
             densities: Mapping[Spin, ArrayLike]
             for i, el in enumerate(elements):
