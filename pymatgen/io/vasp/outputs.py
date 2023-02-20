@@ -904,7 +904,7 @@ class Vasprun(MSONable):
         else:
             e_fermi = efermi
 
-        kpoint_file: Kpoints = None
+        kpoint_file: Kpoints = None  # type: ignore
         if kpoints_filename and os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
