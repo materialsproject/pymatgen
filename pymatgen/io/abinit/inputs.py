@@ -560,10 +560,9 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
             shiftk = [0.0, 0.0, 0.0]
             shiftk[hex_ax] = 0.5
 
-        elif lattice_type == "tetragonal":
-            if "I" in spg_symbol:
-                # BCT
-                shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
+        elif lattice_type == "tetragonal" and "I" in spg_symbol:
+            # BCT
+            shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
 
     if shiftk is None:
         # Use default value.

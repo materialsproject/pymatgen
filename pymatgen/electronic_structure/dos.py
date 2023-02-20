@@ -464,10 +464,7 @@ class FermiDos(Dos, MSONable):
         self.A_to_cm = 1e-8
 
         if bandgap:
-            if evbm < self.efermi < ecbm:
-                eref = self.efermi
-            else:
-                eref = (evbm + ecbm) / 2.0
+            eref = self.efermi if evbm < self.efermi < ecbm else (evbm + ecbm) / 2.0
 
             idx_fermi = int(np.argmin(abs(self.energies - eref)))
 
@@ -871,18 +868,12 @@ class CompleteDos(Dos):
         if elements:
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                if i == 0:
-                    densities = spd_dos.densities
-                else:
-                    densities = add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             for i, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                if i == 0:
-                    densities = spd_dos.densities
-                else:
-                    densities = add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -1068,18 +1059,12 @@ class CompleteDos(Dos):
         if elements:
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                if i == 0:
-                    densities = spd_dos.densities
-                else:
-                    densities = add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             for i, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                if i == 0:
-                    densities = spd_dos.densities
-                else:
-                    densities = add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -1130,18 +1115,12 @@ class CompleteDos(Dos):
             densities: Mapping[Spin, ArrayLike]
             for i, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                if i == 0:
-                    densities = spd_dos.densities
-                else:
-                    densities = add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
             for i, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                if i == 0:
-                    densities = spd_dos.densities
-                else:
-                    densities = add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -1318,15 +1297,9 @@ class CompleteDos(Dos):
         Returns:
         Similarity index (float): The value of dot product
         """
-        if not isinstance(fp1, dict):
-            fp1_dict = CompleteDos.fp_to_dict(fp1)
-        else:
-            fp1_dict = fp1
+        fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
 
-        if not isinstance(fp2, dict):
-            fp2_dict = CompleteDos.fp_to_dict(fp2)
-        else:
-            fp2_dict = fp2
+        fp2_dict = CompleteDos.fp_to_dict(fp2) if not isinstance(fp2, dict) else fp2
 
         if pt == "All":
             vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()

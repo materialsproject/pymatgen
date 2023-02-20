@@ -534,28 +534,21 @@ class GrainBoundaryGenerator:
         if reduce(gcd, rotation_axis) != 1:
             rotation_axis = [int(round(x / reduce(gcd, rotation_axis))) for x in rotation_axis]
         # transform four index notation to three index notation for plane
-        if plane is not None:
-            if len(plane) == 4:
-                u1 = plane[0]
-                v1 = plane[1]
-                w1 = plane[3]
-                plane = [u1, v1, w1]
+        if plane is not None and len(plane) == 4:
+            u1 = plane[0]
+            v1 = plane[1]
+            w1 = plane[3]
+            plane = [u1, v1, w1]
         # set the plane for grain boundary when plane is None.
         if plane is None:
             if lat_type.lower() == "c":
                 plane = rotation_axis
             else:
                 if lat_type.lower() == "h":
-                    if ratio is None:
-                        c2_a2_ratio = 1.0
-                    else:
-                        c2_a2_ratio = ratio[0] / ratio[1]
+                    c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, -0.5, 0], [-0.5, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type.lower() == "r":
-                    if ratio is None:
-                        cos_alpha = 0.5
-                    else:
-                        cos_alpha = 1.0 / (ratio[0] / ratio[1] - 2)
+                    cos_alpha = 0.5 if ratio is None else 1.0 / (ratio[0] / ratio[1] - 2)
                     metric = np.array(
                         [
                             [1, cos_alpha, cos_alpha],
@@ -564,10 +557,7 @@ class GrainBoundaryGenerator:
                         ]
                     )
                 elif lat_type.lower() == "t":
-                    if ratio is None:
-                        c2_a2_ratio = 1.0
-                    else:
-                        c2_a2_ratio = ratio[0] / ratio[1]
+                    c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type.lower() == "o":
                     for i in range(3):
@@ -962,28 +952,21 @@ class GrainBoundaryGenerator:
         if reduce(gcd, r_axis) != 1:
             r_axis = [int(round(x / reduce(gcd, r_axis))) for x in r_axis]
 
-        if surface is not None:
-            if len(surface) == 4:
-                u1 = surface[0]
-                v1 = surface[1]
-                w1 = surface[3]
-                surface = [u1, v1, w1]
+        if surface is not None and len(surface) == 4:
+            u1 = surface[0]
+            v1 = surface[1]
+            w1 = surface[3]
+            surface = [u1, v1, w1]
         # set the surface for grain boundary.
         if surface is None:
             if lat_type.lower() == "c":
                 surface = r_axis
             else:
                 if lat_type.lower() == "h":
-                    if ratio is None:
-                        c2_a2_ratio = 1.0
-                    else:
-                        c2_a2_ratio = ratio[0] / ratio[1]
+                    c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, -0.5, 0], [-0.5, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type.lower() == "r":
-                    if ratio is None:
-                        cos_alpha = 0.5
-                    else:
-                        cos_alpha = 1.0 / (ratio[0] / ratio[1] - 2)
+                    cos_alpha = 0.5 if ratio is None else 1.0 / (ratio[0] / ratio[1] - 2)
                     metric = np.array(
                         [
                             [1, cos_alpha, cos_alpha],
@@ -992,10 +975,7 @@ class GrainBoundaryGenerator:
                         ]
                     )
                 elif lat_type.lower() == "t":
-                    if ratio is None:
-                        c2_a2_ratio = 1.0
-                    else:
-                        c2_a2_ratio = ratio[0] / ratio[1]
+                    c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type.lower() == "o":
                     for i in range(3):
@@ -1027,9 +1007,8 @@ class GrainBoundaryGenerator:
             # make sure mu, mv are coprime integers.
             if ratio is None:
                 mu, mv = [1, 1]
-                if w != 0:
-                    if u != 0 or (v != 0):
-                        raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
+                if w != 0 and (u != 0 or (v != 0)):
+                    raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
             else:
                 mu, mv = ratio
             if gcd(mu, mv) != 1:
@@ -1084,11 +1063,10 @@ class GrainBoundaryGenerator:
             # make sure mu, mv are coprime integers.
             if ratio is None:
                 mu, mv = [1, 1]
-                if u + v + w != 0:
-                    if u != v or u != w:
-                        raise RuntimeError(
-                            "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
-                        )
+                if u + v + w != 0 and (u != v or u != w):
+                    raise RuntimeError(
+                        "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
+                    )
             else:
                 mu, mv = ratio
             if gcd(mu, mv) != 1:
@@ -1161,9 +1139,8 @@ class GrainBoundaryGenerator:
             elif lat_type.lower() == "t":
                 if ratio is None:
                     mu, mv = [1, 1]
-                    if w != 0:
-                        if u != 0 or (v != 0):
-                            raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
+                    if w != 0 and (u != 0 or (v != 0)):
+                        raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
                 else:
                     mu, mv = ratio
                 lam = mv
@@ -1178,23 +1155,20 @@ class GrainBoundaryGenerator:
                         lam = non1
                         mv = non2
                         mu = 1
-                        if w != 0:
-                            if u != 0 or (v != 0):
-                                raise RuntimeError("For irrational c2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
+                        if w != 0 and (u != 0 or (v != 0)):
+                            raise RuntimeError("For irrational c2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
                     elif lam is None:
                         mu = non1
                         mv = non2
                         lam = 1
-                        if v != 0:
-                            if u != 0 or (w != 0):
-                                raise RuntimeError("For irrational b2, CSL only exist for [0,1,0] or [u,0,w] and m = 0")
+                        if v != 0 and (u != 0 or (w != 0)):
+                            raise RuntimeError("For irrational b2, CSL only exist for [0,1,0] or [u,0,w] and m = 0")
                     elif mv is None:
                         mu = non1
                         lam = non2
                         mv = 1
-                        if u != 0:
-                            if w != 0 or (v != 0):
-                                raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
+                        if u != 0 and (w != 0 or (v != 0)):
+                            raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
                 else:
                     mu, lam, mv = ratio
                     if u == 0 and v == 0:
@@ -1306,10 +1280,7 @@ class GrainBoundaryGenerator:
             if lat_type.lower() == "h":
                 trans_cry = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0], [0, 0, np.sqrt(mu / mv)]])
             elif lat_type.lower() == "r":
-                if ratio is None:
-                    c2_a2_ratio = 1.0
-                else:
-                    c2_a2_ratio = 3.0 / (2 - 6 * mv / mu)
+                c2_a2_ratio = 1.0 if ratio is None else 3.0 / (2 - 6 * mv / mu)
                 trans_cry = np.array(
                     [
                         [0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
@@ -1371,10 +1342,7 @@ class GrainBoundaryGenerator:
             m_max = int(np.sqrt(cutoff * a_max - n**2 * sum(np.array(r_axis) ** 2)))
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
-                    if m == 0:
-                        n = 1
-                    else:
-                        n = n_loop
+                    n = 1 if m == 0 else n_loop
                     # construct the quadruple [m, U,V,W], count the number of odds in
                     # quadruple to determine the parameter a, refer to the reference
                     quadruple = [m] + [x * n for x in r_axis]
@@ -1448,9 +1416,8 @@ class GrainBoundaryGenerator:
         # make sure mu, mv are coprime integers.
         if c2_a2_ratio is None:
             mu, mv = [1, 1]
-            if w != 0:
-                if u != 0 or (v != 0):
-                    raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
+            if w != 0 and (u != 0 or (v != 0)):
+                raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
         else:
             mu, mv = c2_a2_ratio
             if gcd(mu, mv) != 1:
@@ -1506,16 +1473,10 @@ class GrainBoundaryGenerator:
                     sigma = int(round((3 * mu * m**2 + d * n**2) / com_fac))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
-                            if m == 0:
-                                angle = 180.0
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / 3.0 / mu)) / np.pi * 180
+                            angle = 180.0 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / 3.0 / mu)) / np.pi * 180
                             sigmas[sigma] = [angle]
                         else:
-                            if m == 0:
-                                angle = 180.0
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / 3.0 / mu)) / np.pi * 180
+                            angle = 180.0 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / 3.0 / mu)) / np.pi * 180
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -1531,7 +1492,7 @@ class GrainBoundaryGenerator:
 
         Args:
             cutoff (int): the cutoff of sigma values.
-            r_axis (list of three integers, e.g. u, v, w
+            r_axis (list[int]): of three integers, e.g. u, v, w
                     or four integers, e.g. u, v, t, w):
                     the rotation axis of the grain boundary, with the format of [u,v,w]
                     or Weber indices [u, v, t, w].
@@ -1569,11 +1530,8 @@ class GrainBoundaryGenerator:
         # make sure mu, mv are coprime integers.
         if ratio_alpha is None:
             mu, mv = [1, 1]
-            if u + v + w != 0:
-                if u != v or u != w:
-                    raise RuntimeError(
-                        "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
-                    )
+            if u + v + w != 0 and (u != v or u != w):
+                raise RuntimeError("For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0")
         else:
             mu, mv = ratio_alpha
             if gcd(mu, mv) != 1:
@@ -1646,16 +1604,10 @@ class GrainBoundaryGenerator:
                     sigma = int(round(abs(F / com_fac)))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
-                            if m == 0:
-                                angle = 180.0
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
+                            angle = 180.0 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
                             sigmas[sigma] = [angle]
                         else:
-                            if m == 0:
-                                angle = 180
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180.0
+                            angle = 180 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180.0
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -1699,9 +1651,8 @@ class GrainBoundaryGenerator:
         # make sure mu, mv are coprime integers.
         if c2_a2_ratio is None:
             mu, mv = [1, 1]
-            if w != 0:
-                if u != 0 or (v != 0):
-                    raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
+            if w != 0 and (u != 0 or (v != 0)):
+                raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
         else:
             mu, mv = c2_a2_ratio
             if gcd(mu, mv) != 1:
@@ -1717,10 +1668,7 @@ class GrainBoundaryGenerator:
 
         # Enumerate all possible n, m to give possible sigmas within the cutoff.
         for n in range(1, n_max + 1):
-            if c2_a2_ratio is None and w == 0:
-                m_max = 0
-            else:
-                m_max = int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
+            m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
@@ -1757,16 +1705,10 @@ class GrainBoundaryGenerator:
                     sigma = int(round((mu * m**2 + d * n**2) / com_fac))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
-                            if m == 0:
-                                angle = 180.0
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
+                            angle = 180.0 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
                             sigmas[sigma] = [angle]
                         else:
-                            if m == 0:
-                                angle = 180.0
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
+                            angle = 180.0 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -1824,23 +1766,20 @@ class GrainBoundaryGenerator:
                 lam = non1
                 mv = non2
                 mu = 1
-                if w != 0:
-                    if u != 0 or (v != 0):
-                        raise RuntimeError("For irrational c2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
+                if w != 0 and (u != 0 or (v != 0)):
+                    raise RuntimeError("For irrational c2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
             elif lam is None:
                 mu = non1
                 mv = non2
                 lam = 1
-                if v != 0:
-                    if u != 0 or (w != 0):
-                        raise RuntimeError("For irrational b2, CSL only exist for [0,1,0] or [u,0,w] and m = 0")
+                if v != 0 and (u != 0 or (w != 0)):
+                    raise RuntimeError("For irrational b2, CSL only exist for [0,1,0] or [u,0,w] and m = 0")
             elif mv is None:
                 mu = non1
                 lam = non2
                 mv = 1
-                if u != 0:
-                    if w != 0 or (v != 0):
-                        raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
+                if u != 0 and (w != 0 or (v != 0)):
+                    raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
         else:
             mu, lam, mv = c2_b2_a2_ratio
             if reduce(gcd, c2_b2_a2_ratio) != 1:
@@ -1902,16 +1841,10 @@ class GrainBoundaryGenerator:
                     sigma = int(round((mu * lam * m**2 + d * n**2) / com_fac))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
-                            if m == 0:
-                                angle = 180.0
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu / lam)) / np.pi * 180
+                            angle = 180.0 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / mu / lam)) / np.pi * 180
                             sigmas[sigma] = [angle]
                         else:
-                            if m == 0:
-                                angle = 180.0
-                            else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu / lam)) / np.pi * 180
+                            angle = 180.0 if m == 0 else 2 * np.arctan(n / m * np.sqrt(d / mu / lam)) / np.pi * 180
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -2155,10 +2088,7 @@ class GrainBoundaryGenerator:
                     mil2 = int(round(miller_nonzero[j] / com_gcd))
                     lcm_miller.append(max(abs(mil1), abs(mil2)))
             lcm_sorted = sorted(lcm_miller)
-            if index_len == 2:
-                max_j = lcm_sorted[0]
-            else:
-                max_j = lcm_sorted[1]
+            max_j = lcm_sorted[0] if index_len == 2 else lcm_sorted[1]
         else:
             if not normal:
                 t_matrix[0] = ab_vector[0]
@@ -2379,10 +2309,7 @@ def fix_pbc(structure, matrix=None):
     """
     spec = []
     coords = []
-    if matrix is None:
-        latte = Lattice(structure.lattice.matrix)
-    else:
-        latte = Lattice(matrix)
+    latte = Lattice(structure.lattice.matrix) if matrix is None else Lattice(matrix)
 
     for site in structure:
         spec.append(site.specie)

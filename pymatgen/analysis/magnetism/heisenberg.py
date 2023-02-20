@@ -449,11 +449,10 @@ class HeisenbergMapper:
                     afm_e = e
                     mag_min = abs(sum(magmoms))
                     afm_e_min = e
-                elif abs(sum(magmoms)) == 0 and mag_min == 0:
-                    if e < afm_e_min:
-                        afm_struct = s
-                        afm_e = e
-                        afm_e_min = e
+                elif abs(sum(magmoms)) == 0 and mag_min == 0 and e < afm_e_min:
+                    afm_struct = s
+                    afm_e = e
+                    afm_e_min = e
 
         # Convert to magnetic structures with 'magmom' site property
         fm_struct = CollinearMagneticStructureAnalyzer(

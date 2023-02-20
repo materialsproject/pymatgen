@@ -124,9 +124,8 @@ class MagneticSpaceGroup(SymmetryGroup):
         if isinstance(setting_transformation, str):
             if setting_transformation != "a,b,c;0,0,0":
                 self.jf = JonesFaithfulTransformation.from_transformation_string(setting_transformation)
-        elif isinstance(setting_transformation, JonesFaithfulTransformation):
-            if setting_transformation != self.jf:
-                self.jf = setting_transformation
+        elif isinstance(setting_transformation, JonesFaithfulTransformation) and setting_transformation != self.jf:
+            self.jf = setting_transformation
 
         self._data["magtype"] = raw_data[0]  # int from 1 to 4
         self._data["bns_number"] = [raw_data[1], raw_data[2]]

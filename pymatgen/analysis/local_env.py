@@ -142,10 +142,7 @@ class ValenceIonicRadiusEvaluator:
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                if vnn.get_cn(self._structure, i) - coord_no > 0:
-                    new_coord_no = coord_no + 1
-                else:
-                    new_coord_no = coord_no - 1
+                new_coord_no = coord_no + 1 if vnn.get_cn(self._structure, i) - coord_no > 0 else coord_no - 1
                 try:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
@@ -759,10 +756,7 @@ class VoronoiNN(NearNeighbors):
         """
         # Assemble the list of neighbors used in the tessellation
         #   Gets all atoms within a certain radius
-        if self.targets is None:
-            targets = structure.composition.elements
-        else:
-            targets = self.targets
+        targets = structure.composition.elements if self.targets is None else self.targets
         center = structure[n]
 
         cutoff = self.cutoff
@@ -820,10 +814,7 @@ class VoronoiNN(NearNeighbors):
             return [self.get_voronoi_polyhedra(structure, 0)]
 
         # Assemble the list of neighbors used in the tessellation
-        if self.targets is None:
-            targets = structure.composition.elements
-        else:
-            targets = self.targets
+        targets = structure.composition.elements if self.targets is None else self.targets
 
         # Initialize the list of sites with the atoms in the origin unit cell
         # The `get_all_neighbors` function returns neighbors for each site's image in
@@ -1033,10 +1024,7 @@ class VoronoiNN(NearNeighbors):
             (list of tuples (Site, array, float)): See nn_info
         """
         # Get the target information
-        if self.targets is None:
-            targets = structure.composition.elements
-        else:
-            targets = self.targets
+        targets = structure.composition.elements if self.targets is None else self.targets
 
         # Extract the NN info
         siw = []
@@ -1144,10 +1132,7 @@ class IsayevNN(VoronoiNN):
             See get_nn_info for the format of the returned data.
         """
         # Get the target information
-        if self.targets is None:
-            targets = structure.composition.elements
-        else:
-            targets = self.targets
+        targets = structure.composition.elements if self.targets is None else self.targets
 
         site = structure[n]
 
@@ -1188,10 +1173,7 @@ def _is_in_targets(site, targets):
          (boolean) Whether this site contains a certain list of elements
     """
     elems = _get_elements(site)
-    for elem in elems:
-        if elem not in targets:
-            return False
-    return True
+    return all(elem in targets for elem in elems)
 
 
 def _get_elements(site):
@@ -1657,10 +1639,7 @@ class CovalentBondNN(NearNeighbors):
 
             if capture_bond:
                 index = structure.index(site)
-                if self.order:
-                    weight = bond.get_bond_order()
-                else:
-                    weight = bond.length
+                weight = bond.get_bond_order() if self.order else bond.length
 
                 siw.append({"site": site, "image": (0, 0, 0), "weight": weight, "site_index": index})
 
@@ -1969,10 +1948,7 @@ def solid_angle(center, coords):
             + r_norm[i] * np.dot(r[0], r[j])
             + r_norm[0] * np.dot(r[i], r[j])
         )
-        if de == 0:
-            my_angle = 0.5 * pi if tp > 0 else -0.5 * pi
-        else:
-            my_angle = np.arctan(tp / de)
+        my_angle = (0.5 * pi if tp > 0 else -0.5 * pi) if de == 0 else np.arctan(tp / de)
         angle += (my_angle if my_angle > 0 else my_angle + np.pi) * 2
 
     return angle
@@ -3106,11 +3082,10 @@ class LocalStructOrderParams:
                                     tmp = self._params[i]["IGW_SPP"] * (thetak * ipi - 1.0)
                                     qsptheta[i][j][kc] += self._params[i]["w_SPP"] * exp(-0.5 * tmp * tmp)
                                     norms[i][j][kc] += self._params[i]["w_SPP"]
-                            elif t == "sq_face_cap_trig_pris":
-                                if thetak < self._params[i]["TA3"]:
-                                    tmp = self._params[i]["IGW_TA1"] * (thetak * ipi - self._params[i]["TA1"])
-                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                    norms[i][j][kc] += 1
+                            elif t == "sq_face_cap_trig_pris" and thetak < self._params[i]["TA3"]:
+                                tmp = self._params[i]["IGW_TA1"] * (thetak * ipi - self._params[i]["TA1"])
+                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                norms[i][j][kc] += 1
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -3130,20 +3105,23 @@ class LocalStructOrderParams:
                                             np.dot(xtwoaxis, xaxis),
                                         )
                                 # South pole contributions of m.
-                                if t in [
-                                    "tri_bipyr",
-                                    "sq_bipyr",
-                                    "pent_bipyr",
-                                    "hex_bipyr",
-                                    "oct_max",
-                                    "sq_plan_max",
-                                    "hex_plan_max",
-                                    "see_saw_rect",
-                                ]:
-                                    if thetam >= self._params[i]["min_SPP"]:
-                                        tmp = self._params[i]["IGW_SPP"] * (thetam * ipi - 1.0)
-                                        qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                        norms[i][j][kc] += 1
+                                if (
+                                    t
+                                    in [
+                                        "tri_bipyr",
+                                        "sq_bipyr",
+                                        "pent_bipyr",
+                                        "hex_bipyr",
+                                        "oct_max",
+                                        "sq_plan_max",
+                                        "hex_plan_max",
+                                        "see_saw_rect",
+                                    ]
+                                    and thetam >= self._params[i]["min_SPP"]
+                                ):
+                                    tmp = self._params[i]["IGW_SPP"] * (thetam * ipi - 1.0)
+                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                    norms[i][j][kc] += 1
 
                                 # Contributions of j-i-m angle and
                                 # angles between plane j-i-k and i-m vector.
@@ -3217,10 +3195,7 @@ class LocalStructOrderParams:
                                                     norms[i][j][kc] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._params[i]["min_SPP"]:
-                                                if thetak > piover2:
-                                                    fac = 1.0
-                                                else:
-                                                    fac = -1.0
+                                                fac = 1.0 if thetak > piover2 else -1.0
                                                 tmp = (thetam - piover2) / asin(1 / 3)
                                                 qsptheta[i][j][kc] += (
                                                     fac * cos(3 * phi) * fac_bcc * tmp * exp(-0.5 * tmp * tmp)
@@ -4446,12 +4421,11 @@ def metal_edge_extender(
     for sites in metal_sites.values():
         for idx, indices in sites.items():
             for ii, site in enumerate(mol_graph.molecule):
-                if ii != idx and ii not in indices:
-                    if str(site.specie) in coordinators:
-                        if site.distance(mol_graph.molecule[idx]) < cutoff:
-                            mol_graph.add_edge(idx, ii)
-                            num_new_edges += 1
-                            indices.append(ii)
+                if ii != idx and ii not in indices and str(site.specie) in coordinators:
+                    if site.distance(mol_graph.molecule[idx]) < cutoff:
+                        mol_graph.add_edge(idx, ii)
+                        num_new_edges += 1
+                        indices.append(ii)
     # If no metal edges are found, increase cutoff by 1 Ang and repeat analysis
     total_metal_edges = 0
     for sites in metal_sites.values():
@@ -4461,11 +4435,10 @@ def metal_edge_extender(
         for sites in metal_sites.values():
             for idx, indices in sites.items():
                 for ii, site in enumerate(mol_graph.molecule):
-                    if ii != idx and ii not in indices:
-                        if str(site.specie) in coordinators:
-                            if site.distance(mol_graph.molecule[idx]) < (cutoff + 1):
-                                mol_graph.add_edge(idx, ii)
-                                num_new_edges += 1
-                                indices.append(ii)
+                    if ii != idx and ii not in indices and str(site.specie) in coordinators:
+                        if site.distance(mol_graph.molecule[idx]) < (cutoff + 1):
+                            mol_graph.add_edge(idx, ii)
+                            num_new_edges += 1
+                            indices.append(ii)
 
     return mol_graph

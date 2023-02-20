@@ -318,15 +318,14 @@ class ChemicalPotentialDiagram(MSONable):
 
             contains_target_elems = set(entry.composition.elements).issubset(elements)
 
-            if formulas_to_draw:
-                if entry.composition.reduced_composition in draw_comps:
-                    domain_simplexes[formula] = None
-                    draw_domains[formula] = pts_3d
+            if formulas_to_draw and entry.composition.reduced_composition in draw_comps:
+                domain_simplexes[formula] = None
+                draw_domains[formula] = pts_3d
 
-                    if contains_target_elems:
-                        domains[formula] = pts_3d
-                    else:
-                        continue
+                if contains_target_elems:
+                    domains[formula] = pts_3d
+                else:
+                    continue
 
             if not contains_target_elems:
                 domain_simplexes[formula] = None
@@ -701,10 +700,7 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
     x_diff = abs(x[1] - x[0])
     y_diff = abs(y[1] - y[0])
 
-    if np.isclose(x_diff, 0):
-        theta = np.pi / 2
-    else:
-        theta = np.arctan(y_diff / x_diff)
+    theta = np.pi / 2 if np.isclose(x_diff, 0) else np.arctan(y_diff / x_diff)
 
     vec = np.array([np.sin(theta), np.cos(theta)])
 

@@ -110,10 +110,7 @@ class PhononDosPlotter:
             dos_dict: dict of {label: Dos}
             key_sort_func: function used to sort the dos_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(dos_dict, key=key_sort_func)
-        else:
-            keys = list(dos_dict)
+        keys = sorted(dos_dict, key=key_sort_func) if key_sort_func else list(dos_dict)
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
@@ -728,10 +725,7 @@ class ThermoPlotter:
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$C_v$ (J/K/mol)"
-        else:
-            ylabel = r"$C_v$ (J/K/mol-c)"
+        ylabel = "$C_v$ (J/K/mol)" if self.structure else "$C_v$ (J/K/mol-c)"
 
         fig = self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
@@ -754,10 +748,7 @@ class ThermoPlotter:
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$S$ (J/K/mol)"
-        else:
-            ylabel = r"$S$ (J/K/mol-c)"
+        ylabel = "$S$ (J/K/mol)" if self.structure else "$S$ (J/K/mol-c)"
 
         fig = self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
@@ -780,10 +771,7 @@ class ThermoPlotter:
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$\Delta E$ (kJ/mol)"
-        else:
-            ylabel = r"$\Delta E$ (kJ/mol-c)"
+        ylabel = "$\\Delta E$ (kJ/mol)" if self.structure else "$\\Delta E$ (kJ/mol-c)"
 
         fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs)
 
@@ -806,10 +794,7 @@ class ThermoPlotter:
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$\Delta F$ (kJ/mol)"
-        else:
-            ylabel = r"$\Delta F$ (kJ/mol-c)"
+        ylabel = "$\\Delta F$ (kJ/mol)" if self.structure else "$\\Delta F$ (kJ/mol-c)"
 
         fig = self._plot_thermo(
             self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs

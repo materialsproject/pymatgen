@@ -280,20 +280,11 @@ class VampireCaller:
         ]
 
         # Set temperature range and step size of simulation
-        if "start_t" in self.user_input_settings:
-            start_t = self.user_input_settings["start_t"]
-        else:
-            start_t = 0
+        start_t = self.user_input_settings["start_t"] if "start_t" in self.user_input_settings else 0
 
-        if "end_t" in self.user_input_settings:
-            end_t = self.user_input_settings["end_t"]
-        else:
-            end_t = 1500
+        end_t = self.user_input_settings["end_t"] if "end_t" in self.user_input_settings else 1500
 
-        if "temp_increment" in self.user_input_settings:
-            temp_increment = self.user_input_settings["temp_increment"]
-        else:
-            temp_increment = 25
+        temp_increment = self.user_input_settings.get("temp_increment", 25)
 
         input_script += [
             f"sim:minimum-temperature = {start_t}",

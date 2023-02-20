@@ -234,10 +234,7 @@ class MultipleSubstitutionTransformation:
             )
         outputs = []
         for charge, el_list in self.substitution_dict.items():
-            if charge > 0:
-                sign = "+"
-            else:
-                sign = "-"
+            sign = "+" if charge > 0 else "-"
             dummy_sp = f"X{charge}{sign}"
             mapping = {
                 self.sp_to_replace: {
@@ -255,10 +252,7 @@ class MultipleSubstitutionTransformation:
                 dummy_structure = trans.apply_transformation(dummy_structure)
 
             for el in el_list:
-                if charge > 0:
-                    sign = "+"
-                else:
-                    sign = "-"
+                sign = "+" if charge > 0 else "-"
                 st = SubstitutionTransformation({f"X{charge}+": f"{el}{charge}{sign}"})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})

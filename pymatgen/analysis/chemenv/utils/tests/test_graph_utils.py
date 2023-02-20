@@ -373,7 +373,7 @@ class GraphUtilsTest(PymatgenTest):
 
         #   Test different cycle lengths inequality
         mg_cycle2 = MultiGraphCycle([2, 3, 4, 5, 6], [1, 0, 2, 0, 0])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
 
         #   Test equality
         mg_cycle2 = MultiGraphCycle([2, 4, 3, 5], [1, 0, 2, 0])
@@ -395,26 +395,26 @@ class GraphUtilsTest(PymatgenTest):
         assert mg_cycle1 == mg_cycle2
         #   Test inequality
         mg_cycle2 = MultiGraphCycle([2, 5, 3, 4], [0, 1, 0, 1])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
         mg_cycle2 = MultiGraphCycle([2, 5, 3, 4], [1, 0, 2, 0])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
         mg_cycle2 = MultiGraphCycle([3, 5, 2, 4], [1, 0, 2, 0])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
 
         #   Test Self-loop case
         assert MultiGraphCycle([2], [1]) == MultiGraphCycle([2], [1])
-        assert not MultiGraphCycle([1], [1]) == MultiGraphCycle([2], [1])
-        assert not MultiGraphCycle([2], [1]) == MultiGraphCycle([2], [0])
-        assert not MultiGraphCycle([2], [1]) == MultiGraphCycle([1], [1])
-        assert not MultiGraphCycle([2], [0]) == MultiGraphCycle([2], [1])
+        assert MultiGraphCycle([1], [1]) != MultiGraphCycle([2], [1])
+        assert MultiGraphCycle([2], [1]) != MultiGraphCycle([2], [0])
+        assert MultiGraphCycle([2], [1]) != MultiGraphCycle([1], [1])
+        assert MultiGraphCycle([2], [0]) != MultiGraphCycle([2], [1])
 
         #   Test special case with two nodes
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [1, 3])
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [3, 1])
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [3, 1])
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 3])
-        assert not MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 2])
-        assert not MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 0], [1, 3])
+        assert MultiGraphCycle([2, 4], [1, 3]) != MultiGraphCycle([4, 2], [1, 2])
+        assert MultiGraphCycle([2, 4], [1, 3]) != MultiGraphCycle([4, 0], [1, 3])
 
         # Test hashing function
         assert hash(mg_cycle1) == 4

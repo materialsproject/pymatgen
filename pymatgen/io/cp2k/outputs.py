@@ -243,9 +243,8 @@ class Cp2kOutput:
     def is_hubbard(self) -> bool:
         """Returns True if hubbard +U correction was used"""
         for v in self.data.get("atomic_kind_info", {}).values():
-            if "DFT_PLUS_U" in v:
-                if v.get("DFT_PLUS_U").get("U_MINUS_J") > 0:
-                    return True
+            if "DFT_PLUS_U" in v and v.get("DFT_PLUS_U").get("U_MINUS_J") > 0:
+                return True
         return False
 
     def parse_files(self):
@@ -1532,10 +1531,7 @@ class Cp2kOutput:
             elif "LOCAL" in first:
                 dat = "chi_local"
             elif "Total" in first:
-                if "ppm" in first:
-                    dat = "chi_total_ppm_cgs"
-                else:
-                    dat = "chi_total"
+                dat = "chi_total_ppm_cgs" if "ppm" in first else "chi_total"
             elif first.startswith("PV1"):
                 splt = [postprocessor(s) for s in line.split()]
                 splt = [s for s in splt if isinstance(s, float)]
@@ -1701,10 +1697,7 @@ class Cp2kOutput:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
             tables.append(table_contents)
-        if last_one_only:
-            retained_data = tables[-1]
-        else:
-            retained_data = tables
+        retained_data = tables[-1] if last_one_only else tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
@@ -1808,10 +1801,7 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         DOS object is not created here
 
     """
-    if spin_channel:
-        spin = Spin(spin_channel)
-    else:
-        spin = Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
+    spin = Spin(spin_channel) if spin_channel else Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
 
     with zopen(dos_file, "rt") as f:
         lines = f.readlines()

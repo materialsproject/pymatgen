@@ -2725,10 +2725,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                             dict_fractions["Fraction"] = nb_set_fraction * fraction
                             ce_dict_fractions.append(dict_fractions)
                             ce_maps.append(cn_map)
-        if ordered:
-            indices = np.argsort(ce_fractions)[::-1]
-        else:
-            indices = list(range(len(ce_fractions)))
+        indices = np.argsort(ce_fractions)[::-1] if ordered else list(range(len(ce_fractions)))
 
         fractions_info_list = [
             {

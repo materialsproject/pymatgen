@@ -57,10 +57,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         if not isinstance(item, SymmOp):
             return NotImplemented
 
-        for i in self.symmetry_ops:
-            if np.allclose(i.affine_matrix, item.affine_matrix):
-                return True
-        return False
+        return any(np.allclose(i.affine_matrix, item.affine_matrix) for i in self.symmetry_ops)
 
     def __hash__(self) -> int:
         return len(self)

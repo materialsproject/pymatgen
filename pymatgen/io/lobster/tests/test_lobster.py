@@ -644,14 +644,14 @@ class IcohplistTest(unittest.TestCase):
         assert icooplist_fe == self.icoop_fe.icohplist
         assert -0.29919 == self.icoop_fe.icohpcollection.extremum_icohpvalue()
         assert icooplist_bise == self.icoop_bise.icohplist
-        assert 0.24714 == self.icoop_bise.icohpcollection.extremum_icohpvalue()
+        assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == 0.24714
         assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
-        assert 0.58649 == self.icobi.icohpcollection.extremum_icohpvalue()
+        assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
 
 
 class DoscarTest(unittest.TestCase):
@@ -2073,13 +2073,9 @@ class LobsterinTest(unittest.TestCase):
                 np.isclose(-kpoint[0], kpoint2[0])
                 and np.isclose(-kpoint[1], kpoint2[1])
                 and np.isclose(-kpoint[2], kpoint2[2])
-            ):
-                if weight == weightlist[ikpoint2]:
-                    found += 1
-        if found == 1:
-            return True
-        else:
-            return False
+            ) and weight == weightlist[ikpoint2]:
+                found += 1
+        return found == 1
 
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods

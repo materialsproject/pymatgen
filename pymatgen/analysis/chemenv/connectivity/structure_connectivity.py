@@ -123,12 +123,11 @@ class StructureConnectivity(MSONable):
             else:
                 if isite == nb_index_unitcell:
                     for isite1, ineighb1, data1 in existing_edges:
-                        if isite1 == ineighb1:
-                            if np.allclose(data1["delta"], nb_image_cell) or np.allclose(
-                                data1["delta"], -nb_image_cell
-                            ):
-                                exists = True
-                                break
+                        if isite1 == ineighb1 and (
+                            np.allclose(data1["delta"], nb_image_cell) or np.allclose(data1["delta"], -nb_image_cell)
+                        ):
+                            exists = True
+                            break
                 else:
                     for _, ineighb1, data1 in existing_edges:
                         if nb_index_unitcell == ineighb1:

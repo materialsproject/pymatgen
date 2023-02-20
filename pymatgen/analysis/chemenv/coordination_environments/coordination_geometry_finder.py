@@ -880,10 +880,7 @@ class LocalGeometryFinder:
         if ce is not None and not recompute:
             return ce
         ce = ChemicalEnvironments()
-        if optimization == 2:
-            neighb_coords = nb_set.neighb_coordsOpt
-        else:
-            neighb_coords = nb_set.neighb_coords
+        neighb_coords = nb_set.neighb_coordsOpt if optimization == 2 else nb_set.neighb_coords
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
         if optimization > 0:
             logging.debug("Getting StructureEnvironments with optimized algorithm")
@@ -982,10 +979,7 @@ class LocalGeometryFinder:
         else:
             raise ValueError("Wrong mp_symbol to setup coordination geometry")
         neighb_coords = []
-        if points is not None:
-            mypoints = points
-        else:
-            mypoints = cg.points
+        mypoints = points if points is not None else cg.points
         if randomness:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
@@ -1190,10 +1184,7 @@ class LocalGeometryFinder:
             if only_minimum:
                 if len(result) > 0:
                     imin = np.argmin([rr["symmetry_measure"] for rr in result])
-                    if geometry.algorithms is not None:
-                        algo = algos[imin]
-                    else:
-                        algo = algos
+                    algo = algos[imin] if geometry.algorithms is not None else algos
                     result_dict[geometry.mp_symbol] = {
                         "csm": result[imin]["symmetry_measure"],
                         "indices": permutations[imin],
@@ -1305,25 +1296,21 @@ class LocalGeometryFinder:
                 optimization=optimization,
             )
             result, permutations, algos, local2perfect_maps, perfect2local_maps = cgsm
-            if only_minimum:
-                if len(result) > 0:
-                    imin = np.argmin([rr["symmetry_measure"] for rr in result])
-                    if geometry.algorithms is not None:
-                        algo = algos[imin]
-                    else:
-                        algo = algos
-                    result_dict[geometry.mp_symbol] = {
-                        "csm": result[imin]["symmetry_measure"],
-                        "indices": permutations[imin],
-                        "algo": algo,
-                        "local2perfect_map": local2perfect_maps[imin],
-                        "perfect2local_map": perfect2local_maps[imin],
-                        "scaling_factor": 1.0 / result[imin]["scaling_factor"],
-                        "rotation_matrix": np.linalg.inv(result[imin]["rotation_matrix"]),
-                        "translation_vector": result[imin]["translation_vector"],
-                    }
-                    if all_csms:
-                        self._update_results_all_csms(result_dict, permutations, imin, geometry)
+            if only_minimum and len(result) > 0:
+                imin = np.argmin([rr["symmetry_measure"] for rr in result])
+                algo = algos[imin] if geometry.algorithms is not None else algos
+                result_dict[geometry.mp_symbol] = {
+                    "csm": result[imin]["symmetry_measure"],
+                    "indices": permutations[imin],
+                    "algo": algo,
+                    "local2perfect_map": local2perfect_maps[imin],
+                    "perfect2local_map": perfect2local_maps[imin],
+                    "scaling_factor": 1.0 / result[imin]["scaling_factor"],
+                    "rotation_matrix": np.linalg.inv(result[imin]["rotation_matrix"]),
+                    "translation_vector": result[imin]["translation_vector"],
+                }
+                if all_csms:
+                    self._update_results_all_csms(result_dict, permutations, imin, geometry)
         return result_dict
 
     def coordination_geometry_symmetry_measures(

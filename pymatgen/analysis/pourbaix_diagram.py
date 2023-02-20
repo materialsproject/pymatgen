@@ -228,10 +228,7 @@ class PourbaixEntry(MSONable, Stringify):
         Invokes a PourbaixEntry from a dictionary
         """
         entry_type = d["entry_type"]
-        if entry_type == "Ion":
-            entry = IonEntry.from_dict(d["entry"])
-        else:
-            entry = MontyDecoder().process_decoded(d["entry"])
+        entry = IonEntry.from_dict(d["entry"]) if entry_type == "Ion" else MontyDecoder().process_decoded(d["entry"])
         entry_id = d["entry_id"]
         concentration = d["concentration"]
         return cls(entry, entry_id, concentration)
@@ -314,10 +311,7 @@ class MultiEntry(PourbaixEntry):
             "uncorrected_energy",
         ]:
             # TODO: Composition could be changed for compat with sum
-            if item == "composition":
-                start = Composition({})
-            else:
-                start = 0
+            start = Composition({}) if item == "composition" else 0
             return sum(
                 (getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)),
                 start,

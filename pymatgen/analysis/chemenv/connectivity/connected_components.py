@@ -240,10 +240,7 @@ class ConnectedComponent(MSONable):
             for edge in links:
                 env_node1 = edge[0]
                 env_node2 = edge[1]
-                if len(edge) == 2:
-                    key = None
-                else:
-                    key = edge[2]
+                key = None if len(edge) == 2 else edge[2]
                 if (not self._connected_subgraph.has_node(env_node1)) or (
                     not self._connected_subgraph.has_node(env_node2)
                 ):
@@ -550,10 +547,7 @@ class ConnectedComponent(MSONable):
         """
         import matplotlib.pyplot as plt
 
-        if graph is None:
-            shown_graph = self._connected_subgraph
-        else:
-            shown_graph = graph
+        shown_graph = self._connected_subgraph if graph is None else graph
 
         plt.figure()
         # pos = nx.spring_layout(shown_graph)

@@ -50,15 +50,16 @@ class LatticeTestCase(PymatgenTest):
         assert not any(self.cubic_partial_pbc == x for x in self.families.values())
 
     def test_format(self):
-        assert "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]" == format(
-            self.lattice, ".3fl"
+        assert (
+            format(self.lattice, ".3fl") == "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
         )
-        assert """10.000 0.000 0.000
+        assert (
+            format(self.lattice, ".3f")
+            == """10.000 0.000 0.000
 0.000 10.000 0.000
-0.000 0.000 10.000""" == format(
-            self.lattice, ".3f"
+0.000 0.000 10.000"""
         )
-        assert "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}" == format(self.lattice, ".1fp")
+        assert format(self.lattice, ".1fp") == "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
 
     def test_init(self):
         a = 9.026
@@ -364,7 +365,7 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_wigner_seitz_cell(self):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]).get_wigner_seitz_cell()
-        assert 6 == len(ws_cell)
+        assert len(ws_cell) == 6
         for l in ws_cell[3]:
             assert [abs(i) for i in l] == [5.0, 2.5, 0.5]
 

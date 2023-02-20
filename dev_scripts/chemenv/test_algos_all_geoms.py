@@ -46,10 +46,7 @@ if __name__ == "__main__":
         symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
 
         if perms_def == "standard":
-            if coordination > 6:
-                test = "500"
-            else:
-                test = "all"
+            test = "500" if coordination > 6 else "all"
         elif perms_def == "ndefined":
             test = nperms  # type: ignore[assignment]
         else:

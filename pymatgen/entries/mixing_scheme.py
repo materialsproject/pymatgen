@@ -289,12 +289,11 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 "WARNING! `mixing_state_data` DataFrame is None. No energy adjustments will be applied."
             )
 
-        if not all(mixing_state_data["hull_energy_1"].notna()):
-            if any(mixing_state_data["entry_id_1"].notna()):
-                raise CompatibilityError(
-                    f"WARNING! {self.run_type_1} entries do not form a complete PhaseDiagram."
-                    " No energy adjustments will be applied."
-                )
+        if not all(mixing_state_data["hull_energy_1"].notna()) and any(mixing_state_data["entry_id_1"].notna()):
+            raise CompatibilityError(
+                f"WARNING! {self.run_type_1} entries do not form a complete PhaseDiagram."
+                " No energy adjustments will be applied."
+            )
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(

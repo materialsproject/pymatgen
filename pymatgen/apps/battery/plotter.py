@@ -181,15 +181,9 @@ class VoltageProfilePlotter:
         if self.xaxis == "capacity_vol":
             return "Capacity (Ah/l)"
 
-        if len(formula) == 1:
-            formula = formula.pop()
-        else:
-            formula = None
+        formula = formula.pop() if len(formula) == 1 else None
 
-        if len(wion_symbol) == 1:
-            wion_symbol = wion_symbol.pop()
-        else:
-            wion_symbol = None
+        wion_symbol = wion_symbol.pop() if len(wion_symbol) == 1 else None
 
         if self.xaxis == "x_form":
             if formula and wion_symbol:

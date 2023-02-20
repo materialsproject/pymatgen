@@ -865,10 +865,7 @@ class IStructure(SiteCollection, MSONable):
         except ValueError:
             spg = SpaceGroup(sg)
 
-        if isinstance(lattice, Lattice):
-            latt = lattice
-        else:
-            latt = Lattice(lattice)
+        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         if not spg.is_compatible(latt):
             raise ValueError(
@@ -963,10 +960,7 @@ class IStructure(SiteCollection, MSONable):
         if not isinstance(msg, MagneticSpaceGroup):
             msg = MagneticSpaceGroup(msg)
 
-        if isinstance(lattice, Lattice):
-            latt = lattice
-        else:
-            latt = Lattice(lattice)
+        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         if not msg.is_compatible(latt):
             raise ValueError(
@@ -1114,10 +1108,7 @@ class IStructure(SiteCollection, MSONable):
             return False
         if self.lattice != other.lattice:
             return False
-        for site in self:
-            if site not in other:
-                return False
-        return True
+        return all(site in other for site in self)
 
     def __hash__(self) -> int:
         # For now, just use the composition hash code.
@@ -1501,7 +1492,7 @@ class IStructure(SiteCollection, MSONable):
                     for it2, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
                         bool1 = i == j2
                         bool2 = j == i2
-                        bool3 = (R == -R2).all()
+                        bool3 = (-R2 == R).all()
                         bool4 = np.isclose(d, d2, atol=numerical_tol)
                         if bool1 and bool2 and bool3 and bool4:
                             redundant.append(it2)
@@ -1652,7 +1643,7 @@ class IStructure(SiteCollection, MSONable):
                 # returns True immediately once one of the conditions are satisfied.
                 psite.species != csite.species
                 or (not np.allclose(psite.coords, csite.coords, atol=atol))
-                or (not psite.properties == csite.properties)
+                or (psite.properties != csite.properties)
             ):
                 neighbor_dict[cindex].append(
                     PeriodicNeighbor(
@@ -2917,10 +2908,7 @@ class IMolecule(SiteCollection, MSONable):
         sites = [site for i, site in enumerate(self._sites) if i not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
-            for test_site in cluster:
-                if CovalentBond.is_bonded(site, test_site, tol=tol):
-                    return True
-            return False
+            return any(CovalentBond.is_bonded(site, test_site, tol=tol) for test_site in cluster)
 
         while len(sites) > 0:
             unmatched = []
@@ -2969,10 +2957,7 @@ class IMolecule(SiteCollection, MSONable):
             return False
         if self.spin_multiplicity != other.spin_multiplicity:
             return False
-        for site in self:
-            if site not in other:
-                return False
-        return True
+        return all(site in other for site in self)
 
     def __hash__(self):
         # For now, just use the composition hash code.

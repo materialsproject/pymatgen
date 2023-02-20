@@ -1744,10 +1744,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
         """
-        for z in range(1, zmax):
-            if not self[z]:
-                return False
-        return True
+        return all(self[z] for z in range(1, zmax))
 
     def all_combinations_for_elements(self, element_symbols):
         """

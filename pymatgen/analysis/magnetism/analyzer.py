@@ -281,9 +281,8 @@ class CollinearMagneticStructureAnalyzer:
 
             # overwrite_magmom_mode = "normalize" set magmoms magnitude to 1
 
-            elif overwrite_magmom_mode == "normalize":
-                if magmoms[idx] != 0:
-                    magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
+            elif overwrite_magmom_mode == "normalize" and magmoms[idx] != 0:
+                magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
         # round magmoms, used to smooth out computational data
         magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms  # type: ignore
@@ -592,10 +591,7 @@ class CollinearMagneticStructureAnalyzer:
         outs = ["Structure Summary", repr(s.lattice)]
         outs.append("Magmoms Sites")
         for site in s:
-            if site.properties["magmom"] != 0:
-                prefix = f"{site.properties['magmom']:+.2f}   "
-            else:
-                prefix = "        "
+            prefix = f"{site.properties['magmom']:+.2f}   " if site.properties["magmom"] != 0 else "        "
             outs.append(prefix + repr(site))
         return "\n".join(outs)
 

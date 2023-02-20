@@ -66,10 +66,7 @@ def read_route_line(route):
                 route_params[m.group(1)] = m.group(2)
             elif tok.upper() in ["#", "#N", "#P", "#T"]:
                 # does not store # in route to avoid error in input
-                if tok == "#":
-                    dieze_tag = "#N"
-                else:
-                    dieze_tag = tok
+                dieze_tag = "#N" if tok == "#" else tok
                 continue
             else:
                 m = re.match(multi_params_patt, tok.strip("#"))
@@ -1364,10 +1361,9 @@ class GaussianOutput:
                 if re.search(r"^\sExcitation energies and oscillator strengths:", line):
                     td = True
 
-                if td:
-                    if re.search(r"^\sExcited State\s*\d", line):
-                        val = [float(v) for v in float_patt.findall(line)]
-                        transitions.append(tuple(val[0:3]))
+                if td and re.search(r"^\sExcited State\s*\d", line):
+                    val = [float(v) for v in float_patt.findall(line)]
+                    transitions.append(tuple(val[0:3]))
                 line = f.readline()
         return transitions
 

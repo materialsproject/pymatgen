@@ -617,11 +617,8 @@ class Vasprun(MSONable):
             True if electronic step convergence has been reached in the final
             ionic step
         """
-        if self.incar not in ["CHI"]:
-            final_esteps = self.ionic_steps[-1]["electronic_steps"]
-        else:
-            final_esteps = 0
-            # In a response function run there is no ionic steps, there is no scf step
+        final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
+        # In a response function run there is no ionic steps, there is no scf step
         if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
@@ -900,9 +897,8 @@ class Vasprun(MSONable):
         """
         if not kpoints_filename:
             kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
-        if kpoints_filename:
-            if not os.path.exists(kpoints_filename) and line_mode is True:
-                raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
+        if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
+            raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
@@ -947,9 +943,8 @@ class Vasprun(MSONable):
         if self.parameters.get("LHFCALC", False) or 0.0 in self.actual_kpoints_weights:
             hybrid_band = True
 
-        if kpoint_file is not None:
-            if kpoint_file.style == Kpoints.supported_modes.Line_mode:
-                line_mode = True
+        if kpoint_file is not None and kpoint_file.style == Kpoints.supported_modes.Line_mode:
+            line_mode = True
 
         if line_mode:
             labels_dict = {}
@@ -1463,10 +1458,7 @@ class Vasprun(MSONable):
                     data = np.array(_parse_varray(ss))
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
-                        if lm:
-                            orb = Orbital(j - 1)
-                        else:
-                            orb = OrbitalType(j - 1)
+                        orb = Orbital(j - 1) if lm else OrbitalType(j - 1)
                         pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
@@ -2234,10 +2226,7 @@ class Outcar:
             tables.append(table_contents)
             if first_one_only:
                 break
-        if last_one_only or first_one_only:
-            retained_data = tables[-1]
-        else:
-            retained_data = tables
+        retained_data = tables[-1] if last_one_only or first_one_only else tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
@@ -4821,10 +4810,7 @@ class Wavecar:
         Returns:
             a list containing valid G-points
         """
-        if gamma:
-            kmax = self._nbmax[0] + 1
-        else:
-            kmax = 2 * self._nbmax[0] + 1
+        kmax = self._nbmax[0] + 1 if gamma else 2 * self._nbmax[0] + 1
 
         gpoints = []
         extra_gpoints = []
@@ -4842,7 +4828,7 @@ class Wavecar:
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
                     E = g**2 / self._C
-                    if E < self.encut:
+                    if self.encut > E:
                         gpoints.append(G)
                         if gamma and (k1, j2, i3) != (0, 0, 0):
                             extra_gpoints.append(-G)

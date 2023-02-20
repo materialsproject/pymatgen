@@ -202,10 +202,7 @@ class Lobsterin(dict, MSONable):
         for k2, v2 in other.items():
             if k2.upper() not in similar_param and k2.upper() not in different_param:
                 for key_here in self:
-                    if k2.lower() == key_here.lower():
-                        new_key = key_here
-                    else:
-                        new_key = k2
+                    new_key = key_here if k2.lower() == key_here.lower() else k2
                 if new_key not in self:
                     different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}

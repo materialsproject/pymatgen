@@ -1033,7 +1033,7 @@ class PointGroupAnalyzer:
         else:
             for v in self.principal_axes:
                 mirror_type = self._find_mirror(v)
-                if not mirror_type == "":
+                if mirror_type != "":
                     self.sch_symbol = "Cs"
                     break
 
@@ -1046,9 +1046,8 @@ class PointGroupAnalyzer:
             self.sch_symbol += "h"
         elif mirror_type == "v":
             self.sch_symbol += "v"
-        elif mirror_type == "":
-            if self.is_valid_op(SymmOp.rotoreflection(main_axis, angle=180 / rot)):
-                self.sch_symbol = f"S{2 * rot}"
+        elif mirror_type == "" and self.is_valid_op(SymmOp.rotoreflection(main_axis, angle=180 / rot)):
+            self.sch_symbol = f"S{2 * rot}"
 
     def _proc_dihedral(self):
         """Handles dihedral group molecules, i.e those with intersecting R2 axes and a
@@ -1059,7 +1058,7 @@ class PointGroupAnalyzer:
         mirror_type = self._find_mirror(main_axis)
         if mirror_type == "h":
             self.sch_symbol += "h"
-        elif not mirror_type == "":
+        elif mirror_type != "":
             self.sch_symbol += "d"
 
     def _check_R2_axes_asym(self):
@@ -1098,10 +1097,9 @@ class PointGroupAnalyzer:
                             if len(self.rot_sym) > 1:
                                 mirror_type = "d"
                                 for v, _ in self.rot_sym:
-                                    if np.linalg.norm(v - axis) >= self.tol:
-                                        if np.dot(v, normal) < self.tol:
-                                            mirror_type = "v"
-                                            break
+                                    if np.linalg.norm(v - axis) >= self.tol and np.dot(v, normal) < self.tol:
+                                        mirror_type = "v"
+                                        break
                             else:
                                 mirror_type = "v"
                             break
@@ -1529,10 +1527,7 @@ def cluster_sites(mol, tol, give_only_index=False):
     origin_site = None
     for idx, site in enumerate(mol):
         if avg_dist[f[idx]] < tol:
-            if give_only_index:
-                origin_site = idx
-            else:
-                origin_site = site
+            origin_site = idx if give_only_index else site
         else:
             if give_only_index:
                 clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
@@ -1618,10 +1613,7 @@ class SpacegroupOperations(list):
         """
 
         def in_sites(site):
-            for test_site in sites1:
-                if test_site.is_periodic_image(site, symm_prec, False):
-                    return True
-            return False
+            return any(test_site.is_periodic_image(site, symm_prec, False) for test_site in sites1)
 
         for op in self:
             newsites2 = [PeriodicSite(site.species, op.operate(site.frac_coords), site.lattice) for site in sites2]

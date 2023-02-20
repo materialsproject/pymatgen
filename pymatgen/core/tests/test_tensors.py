@@ -182,7 +182,7 @@ class TensorTest(PymatgenTest):
         x = [1, 0, 0]
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         self.assertArrayAlmostEqual([0, 27, 54], test.einsum_sequence([x] * 3))
-        assert 360 == test.einsum_sequence([np.eye(3)] * 2)
+        assert test.einsum_sequence([np.eye(3)] * 2) == 360
         with pytest.raises(ValueError):
             test.einsum_sequence(Tensor(np.zeros(3)))
 

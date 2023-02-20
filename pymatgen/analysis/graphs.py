@@ -1737,10 +1737,7 @@ class MoleculeGraph(MSONable):
             structure = None
 
         for n in range(len(molecule)):
-            if structure is None:
-                neighbors = strategy.get_nn_info(molecule, n)
-            else:
-                neighbors = strategy.get_nn_info(structure, n)
+            neighbors = strategy.get_nn_info(molecule, n) if structure is None else strategy.get_nn_info(structure, n)
             for neighbor in neighbors:
                 # all bonds in molecules should not cross
                 # (artificial) periodic boundaries
@@ -2040,10 +2037,7 @@ class MoleculeGraph(MSONable):
 
             # just give charge to whatever subgraph has node with index 0
             # TODO: actually figure out how to distribute charge
-            if 0 in nodes:
-                charge = self.molecule.charge
-            else:
-                charge = 0
+            charge = self.molecule.charge if 0 in nodes else 0
 
             # relabel nodes in graph to match mapping
             new_graph = nx.relabel_nodes(subg, mapping)
@@ -2612,10 +2606,7 @@ class MoleculeGraph(MSONable):
         # add display options for edges
         for u, v, k, d in g.edges(keys=True, data=True):
             # retrieve from/to images, set as origin if not defined
-            if "to_image" in d:
-                to_image = d["to_jimage"]
-            else:
-                to_image = (0, 0, 0)
+            to_image = d["to_jimage"] if "to_image" in d else (0, 0, 0)
 
             # set edge style
             d["style"] = "solid"
