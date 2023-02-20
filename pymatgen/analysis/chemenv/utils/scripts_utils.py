@@ -101,30 +101,26 @@ def draw_cg(
     if len(neighbors) < 3:
         if show_distorted:
             vis.add_bonds(neighbors, site, color=[0.0, 1.0, 0.0], opacity=0.4, radius=0.175)
-        if show_perfect:
-            if len(neighbors) == 2:
-                perfect_geometry = AbstractGeometry.from_cg(cg)
-                trans = csm_info["other_symmetry_measures"][f"translation_vector_{csm_suffix}"]
-                rot = csm_info["other_symmetry_measures"][f"rotation_matrix_{csm_suffix}"]
-                scale = csm_info["other_symmetry_measures"][f"scaling_factor_{csm_suffix}"]
-                points = perfect_geometry.points_wcs_ctwcc()
-                rotated_points = rotateCoords(points, rot)
-                points = [scale * pp + trans for pp in rotated_points]
-                if "wcs" in csm_suffix:
-                    ef_points = points[1:]
-                else:
-                    ef_points = points
-                edges = cg.edges(ef_points, input="coords")
-                vis.add_edges(edges, color=[1.0, 0.0, 0.0])
-                for point in points:
-                    vis.add_partial_sphere(
-                        coords=point,
-                        radius=perf_radius,
-                        color=[0.0, 0.0, 0.0],
-                        start=0,
-                        end=360,
-                        opacity=1,
-                    )
+        if show_perfect and len(neighbors) == 2:
+            perfect_geometry = AbstractGeometry.from_cg(cg)
+            trans = csm_info["other_symmetry_measures"][f"translation_vector_{csm_suffix}"]
+            rot = csm_info["other_symmetry_measures"][f"rotation_matrix_{csm_suffix}"]
+            scale = csm_info["other_symmetry_measures"][f"scaling_factor_{csm_suffix}"]
+            points = perfect_geometry.points_wcs_ctwcc()
+            rotated_points = rotateCoords(points, rot)
+            points = [scale * pp + trans for pp in rotated_points]
+            ef_points = points[1:] if "wcs" in csm_suffix else points
+            edges = cg.edges(ef_points, input="coords")
+            vis.add_edges(edges, color=[1.0, 0.0, 0.0])
+            for point in points:
+                vis.add_partial_sphere(
+                    coords=point,
+                    radius=perf_radius,
+                    color=[0.0, 0.0, 0.0],
+                    start=0,
+                    end=360,
+                    opacity=1,
+                )
     else:
         if show_distorted:
             if perm is not None:
@@ -151,10 +147,7 @@ def draw_cg(
             points = perfect_geometry.points_wcs_ctwcc()
             rotated_points = rotateCoords(points, rot)
             points = [scale * pp + trans for pp in rotated_points]
-            if "wcs" in csm_suffix:
-                ef_points = points[1:]
-            else:
-                ef_points = points
+            ef_points = points[1:] if "wcs" in csm_suffix else points
             edges = cg.edges(ef_points, input="coords")
             vis.add_edges(edges, color=[1.0, 0.0, 0.0])
             for point in points:

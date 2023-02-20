@@ -630,7 +630,7 @@ class LammpsData(MSONable):
             for kw in SECTION_KEYWORDS["topology"]:
                 if data.get(kw):
                     topologies[kw] = (np.array(data[kw]) - shift).tolist()
-            topologies = None if not topologies else topologies
+            topologies = topologies if topologies else None
             topo_list.append(
                 Topology(
                     sites=m,
@@ -836,10 +836,7 @@ class LammpsData(MSONable):
                 "charge" (charged). Default to "charge".
             is_sort (bool): whether to sort sites
         """
-        if is_sort:
-            s = structure.get_sorted_structure()
-        else:
-            s = structure.copy()
+        s = structure.get_sorted_structure() if is_sort else structure.copy()
         box, symm_op = lattice_2_lmpbox(s.lattice)
         coords = symm_op.operate_multi(s.cart_coords)
         site_properties = s.site_properties
@@ -903,10 +900,7 @@ class Topology(MSONable):
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
-        if ff_label:
-            type_by_sites = sites.site_properties.get(ff_label)
-        else:
-            type_by_sites = [site.specie.symbol for site in sites]
+        type_by_sites = sites.site_properties.get(ff_label) if ff_label else [site.specie.symbol for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")

@@ -418,10 +418,7 @@ class CorrectionCalculator:
             CompositionCorrections:
         """
         fn = name + "Compatibility.yaml"
-        if dir:
-            path = os.path.join(dir, fn)
-        else:
-            path = fn
+        path = os.path.join(dir, fn) if dir else fn
 
         yml = yaml.YAML()
         yml.default_flow_style = False

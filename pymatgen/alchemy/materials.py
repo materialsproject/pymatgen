@@ -247,7 +247,7 @@ class TransformedStructure(MSONable):
         is in the case of performing a substitution transformation on the
         structure when the specie to replace isn't in the structure.
         """
-        return not self.final_structure == self.structures[-2]
+        return self.final_structure != self.structures[-2]
 
     @property
     def structures(self) -> list[Structure]:

@@ -182,10 +182,7 @@ def parse_shannon_radii():
             if cn not in radii[el][charge]:
                 radii[el][charge][cn] = {}
 
-        if sheet[f"D{i}"].value is not None:
-            spin = sheet[f"D{i}"].value
-        else:
-            spin = ""
+        spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
 
         radii[el][charge][cn][spin] = {
             "crystal_radius": float(sheet[f"E{i}"].value),
@@ -300,10 +297,7 @@ def add_ionization_energies():
         if row:
             Z = int(row[0])
             val = re.sub(r"\s", "", row[8].strip("()[]"))
-            if val == "":
-                val = None
-            else:
-                val = float(val)
+            val = None if val == "" else float(val)
             data[Z].append(val)
     print(data)
     print(data[51])

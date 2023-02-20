@@ -105,10 +105,7 @@ class CovalentBond:
             all_lengths = bond_lengths[syms]
             if bond_order:
                 return dist < (1 + tol) * all_lengths[bond_order]
-            for v in all_lengths.values():
-                if dist < (1 + tol) * v:
-                    return True
-            return False
+            return any(dist < (1 + tol) * v for v in all_lengths.values())
         if default_bl:
             return dist < (1 + tol) * default_bl
         raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")

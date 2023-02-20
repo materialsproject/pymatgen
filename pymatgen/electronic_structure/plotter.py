@@ -108,10 +108,7 @@ class DosPlotter:
             dos_dict: dict of {label: Dos}
             key_sort_func: function used to sort the dos_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(dos_dict, key=key_sort_func)
-        else:
-            keys = list(dos_dict)
+        keys = sorted(dos_dict, key=key_sort_func) if key_sort_func else list(dos_dict)
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
@@ -448,18 +445,14 @@ class BSPlotter:
 
         zero_energy = 0.0
         if zero_to_efermi:
-            if bs_is_metal:
-                zero_energy = bs.efermi
-            else:
-                zero_energy = vbm["energy"]
+            zero_energy = bs.efermi if bs_is_metal else vbm["energy"]
 
         # rescale distances when a bs_ref is given as reference,
         # and when bs and bs_ref have different points in branches.
         # Usually bs_ref is the first one in self._bs list is bs_ref
         distances = bs.distance
-        if bs_ref is not None:
-            if bs_ref.branches != bs.branches:
-                distances = self._rescale_distances(bs_ref, bs)
+        if bs_ref is not None and bs_ref.branches != bs.branches:
+            distances = self._rescale_distances(bs_ref, bs)
 
         if split_branches:
             steps = [br["end_index"] + 1 for br in bs.branches][:-1]
@@ -1760,9 +1753,8 @@ class BSPlotterProjected(BSPlotter):
                             )
                         if orb not in all_orbitals:
                             raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
-                        if orb in individual_orbs:
-                            if len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
-                                raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
+                        if orb in individual_orbs and len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
+                            raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
                     nelems = Counter(dictio[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError(f"You put in at least two similar orbitals in dictio[{elt}].")
@@ -3760,10 +3752,7 @@ class CohpPlotter:
 
             key_sort_func: function used to sort the cohp_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(cohp_dict, key=key_sort_func)
-        else:
-            keys = list(cohp_dict)
+        keys = sorted(cohp_dict, key=key_sort_func) if key_sort_func else list(cohp_dict)
         for label in keys:
             self.add_cohp(label, cohp_dict[label])
 
@@ -3826,10 +3815,7 @@ class CohpPlotter:
         if plot_negative:
             cohp_label = "-" + cohp_label
 
-        if self.zero_at_efermi:
-            energy_label = "$E - E_f$ (eV)"
-        else:
-            energy_label = "$E$ (eV)"
+        energy_label = "$E - E_f$ (eV)" if self.zero_at_efermi else "$E$ (eV)"
 
         ncolors = max(3, len(self._cohps))
         ncolors = min(9, ncolors)
@@ -3845,10 +3831,7 @@ class CohpPlotter:
         keys = list(self._cohps)
         for i, key in enumerate(keys):
             energies = self._cohps[key]["energies"]
-            if not integrated:
-                populations = self._cohps[key]["COHP"]
-            else:
-                populations = self._cohps[key]["ICOHP"]
+            populations = self._cohps[key]["COHP"] if not integrated else self._cohps[key]["ICOHP"]
             for spin in [Spin.up, Spin.down]:
                 if spin in populations:
                     if invert_axes:
@@ -4305,10 +4288,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
     Returns:
         The Cartesian coordinates folded inside the first Brillouin zone
     """
-    if coords_are_cartesian:
-        p = lattice.get_fractional_coords(p)
-    else:
-        p = np.array(p)
+    p = lattice.get_fractional_coords(p) if coords_are_cartesian else np.array(p)
 
     p = np.mod(p + 0.5 - 1e-10, 1) - 0.5 + 1e-10
     p = lattice.get_cartesian_coords(p)

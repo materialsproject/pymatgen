@@ -195,10 +195,7 @@ class NEBPathfinder:
         # logger.debug("Getting path from {} to {} (coords wrt V grid)".format(start, end))
 
         # Set parameters
-        if not dr:
-            dr = np.array([1.0 / V.shape[0], 1.0 / V.shape[1], 1.0 / V.shape[2]])
-        else:
-            dr = np.array(dr, dtype=float)
+        dr = np.array([1.0 / V.shape[0], 1.0 / V.shape[1], 1.0 / V.shape[2]]) if not dr else np.array(dr, dtype=float)
         keff = k * dr * n_images
         h0 = h
 

@@ -222,9 +222,8 @@ class AdfKey(MSONable):
             key = subkey.key
         else:
             raise ValueError("The subkey should be an AdfKey or a string!")
-        if len(self.subkeys) > 0:
-            if key in (k.key for k in self.subkeys):
-                return True
+        if len(self.subkeys) > 0 and key in (k.key for k in self.subkeys):
+            return True
         return False
 
     def add_subkey(self, subkey):
@@ -325,10 +324,7 @@ class AdfKey(MSONable):
         """
         if len(self.options) == 0:
             return False
-        for op in self.options:
-            if (self._sized_op and op[0] == option) or (op == option):
-                return True
-        return False
+        return any(self._sized_op and op[0] == option or op == option for op in self.options)
 
     def as_dict(self):
         """
@@ -365,10 +361,7 @@ class AdfKey(MSONable):
         key = d.get("name")
         options = d.get("options", None)
         subkey_list = d.get("subkeys", [])
-        if len(subkey_list) > 0:
-            subkeys = [AdfKey.from_dict(k) for k in subkey_list]
-        else:
-            subkeys = None
+        subkeys = [AdfKey.from_dict(k) for k in subkey_list] if len(subkey_list) > 0 else None
         return cls(key, options, subkeys)
 
     @staticmethod
@@ -403,10 +396,7 @@ class AdfKey(MSONable):
         if string.find("\n") == -1:
             el = string.split()
             if len(el) > 1:
-                if string.find("=") != -1:
-                    options = [s.split("=") for s in el[1:]]
-                else:
-                    options = el[1:]
+                options = [s.split("=") for s in el[1:]] if string.find("=") != -1 else el[1:]
                 for i, op in enumerate(options):
                     if isinstance(op, list) and is_numeric(op[1]):
                         op[1] = float(op[1]) if is_float(op[1]) else int(op[1])

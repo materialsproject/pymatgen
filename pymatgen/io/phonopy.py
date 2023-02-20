@@ -463,10 +463,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
     for p in gruneisen_dict["phonon"]:
         q = p["q-position"]
         qpts.append(q)
-        if "multiplicity" in p:
-            m = p["multiplicity"]
-        else:
-            m = 1
+        m = p["multiplicity"] if "multiplicity" in p else 1
         multiplicities.append(m)
         bands, gruneisenband = [], []
         for b in p["band"]:

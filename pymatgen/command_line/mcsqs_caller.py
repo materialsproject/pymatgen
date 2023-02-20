@@ -199,10 +199,7 @@ def _parse_sqs_path(path) -> Sqs:
 
     objective_function_str = lines[-1].split("=")[-1].strip()
     objective_function: float | str
-    if objective_function_str != "Perfect_match":
-        objective_function = float(objective_function_str)
-    else:
-        objective_function = "Perfect_match"
+    objective_function = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
 
     # Get all SQS structures and objective functions
     allsqs = []
@@ -221,10 +218,7 @@ def _parse_sqs_path(path) -> Sqs:
 
         objective_function_str = lines[-1].split("=")[-1].strip()
         obj: float | str
-        if objective_function_str != "Perfect_match":
-            obj = float(objective_function_str)
-        else:
-            obj = "Perfect_match"
+        obj = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
         allsqs.append({"structure": sqs, "objective_function": obj})
 
     clusters = _parse_clusters(path / "clusters.out")

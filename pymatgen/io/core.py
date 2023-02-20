@@ -179,9 +179,8 @@ class InputSet(MSONable, MutableMapping):
         for fname, contents in self.inputs.items():
             file = path / fname
 
-            if not path.exists():
-                if make_dir:
-                    path.mkdir(parents=True, exist_ok=True)
+            if not path.exists() and make_dir:
+                path.mkdir(parents=True, exist_ok=True)
 
             if file.exists() and not overwrite:
                 raise FileExistsError(f"File {str(fname)} already exists!")

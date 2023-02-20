@@ -161,14 +161,12 @@ class BaderAnalysis:
 
         with ScratchDir("."):
             tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
-            with zopen(fpath, "rt") as f_in:
-                with open(tmpfile, "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+            with zopen(fpath, "rt") as f_in, open(tmpfile, "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
             args = [BADEREXE, tmpfile]
             if chgref_filename:
-                with zopen(chgrefpath, "rt") as f_in:
-                    with open("CHGCAR_ref", "w") as f_out:
-                        shutil.copyfileobj(f_in, f_out)
+                with zopen(chgrefpath, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
                 args += ["-ref", "CHGCAR_ref"]
             if parse_atomic_densities:
                 args += ["-p", "all_atom"]

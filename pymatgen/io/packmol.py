@@ -186,10 +186,7 @@ class PackmolBoxGen(InputGenerator):
             # estimate the total volume of all molecules in cubic Å
             net_volume = 0.0
             for d in molecules:
-                if not isinstance(d["coords"], Molecule):
-                    mol = Molecule.from_file(d["coords"])
-                else:
-                    mol = d["coords"]
+                mol = Molecule.from_file(d["coords"]) if not isinstance(d["coords"], Molecule) else d["coords"]
                 # pad the calculated length by an amount related to the tolerance parameter
                 # the amount to add was determined arbitrarily
                 length = (

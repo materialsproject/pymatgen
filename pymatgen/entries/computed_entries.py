@@ -501,9 +501,8 @@ class ComputedEntry(Entry):
         # However, if entry_id is same, they may have different corrections (e.g., due
         # to mixing scheme used) and thus should be compared on corrected energy.
 
-        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None):
-            if self.entry_id != other.entry_id:
-                return False
+        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None) and self.entry_id != other.entry_id:
+            return False
 
         if not math.isclose(self.energy, other.energy):
             return False

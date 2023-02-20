@@ -2297,10 +2297,7 @@ class PDPlotter:
             x1 = v
             y1 = d["evolution"] / num_atoms
 
-            if i != len(evolution) - 1:
-                x2 = -(evolution[i + 1]["chempot"] - element_energy)
-            else:
-                x2 = 5.0
+            x2 = -(evolution[i + 1]["chempot"] - element_energy) if i != len(evolution) - 1 else 5.0
             if show_label_index is not None and i in show_label_index:
                 products = [
                     re.sub(r"(\d+)", r"$_{\1}$", p.reduced_formula)

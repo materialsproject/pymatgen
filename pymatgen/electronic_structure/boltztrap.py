@@ -280,10 +280,7 @@ class BoltztrapRunner(MSONable):
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
                     eigs = []
-                    if self.run_type == "DOS":
-                        spin_lst = [self.spin]
-                    else:
-                        spin_lst = self._bs.bands
+                    spin_lst = [self.spin] if self.run_type == "DOS" else self._bs.bands
 
                     for spin in spin_lst:
                         # use 90% of bottom bands since highest eigenvalues
@@ -1545,10 +1542,7 @@ class BoltztrapAnalyzer:
                             isotropic = is_isotropic(evs, isotropy_tolerance)
                             if absval:
                                 evs = [abs(x) for x in evs]
-                            if use_average:
-                                val = float(sum(evs)) / len(evs)
-                            else:
-                                val = max(evs)
+                            val = float(sum(evs)) / len(evs) if use_average else max(evs)
                             if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
                                 x_val = val
                                 x_temp = t

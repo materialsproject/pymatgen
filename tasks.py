@@ -106,7 +106,7 @@ def make_dash(ctx):
             if l.strip() == "<dict>":
                 xml.append("<key>dashIndexFilePath</key>")
                 xml.append("<string>index.html</string>")
-    with open(plist, "wt") as f:
+    with open(plist, "w") as f:
         f.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
     # xml = []
@@ -131,7 +131,7 @@ def contribute_dash(ctx, version):
         with open("docset.json") as f:
             data = json.load(f)
             data["version"] = version
-        with open("docset.json", "wt") as f:
+        with open("docset.json", "w") as f:
             json.dump(data, f, indent=4)
         ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
         ctx.run("git push")
@@ -185,14 +185,14 @@ def set_ver(ctx, version):
         contents = f.read()
         contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
-    with open("pymatgen/core/__init__.py", "wt") as f:
+    with open("pymatgen/core/__init__.py", "w") as f:
         f.write(contents)
 
     with open("setup.py") as f:
         contents = f.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", "wt") as f:
+    with open("setup.py", "w") as f:
         f.write(contents)
 
 

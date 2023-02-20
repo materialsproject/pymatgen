@@ -131,7 +131,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         self.miller_index = miller_index
         self.label = label
-        self.adsorbates = [] if not adsorbates else adsorbates
+        self.adsorbates = adsorbates if adsorbates else []
         self.clean_entry = clean_entry
         self.ads_entries_dict = {str(list(ads.composition.as_dict())[0]): ads for ads in self.adsorbates}
         self.mark = marker
@@ -191,7 +191,7 @@ class SlabEntry(ComputedStructureEntry):
         Returns (Add (Sympy class)): Surface energy
         """
         # Set up
-        ref_entries = [] if not ref_entries else ref_entries
+        ref_entries = ref_entries if ref_entries else []
 
         # Check if appropriate ref_entries are present if the slab is non-stoichiometric
         # TODO: There should be a way to identify which specific species are
@@ -988,7 +988,7 @@ class SurfaceEnergyPlotter:
             delu_dict = {}
         chempot_range = sorted(chempot_range)
 
-        plt = pretty_plot(width=8, height=7) if not plt else plt
+        plt = plt if plt else pretty_plot(width=8, height=7)
         axes = plt.gca()
 
         for hkl in self.all_slab_entries:
@@ -1224,7 +1224,7 @@ class SurfaceEnergyPlotter:
         """
         # Set up
         delu_dict = delu_dict or {}
-        plt = pretty_plot(12, 8) if not plt else plt
+        plt = plt if plt else pretty_plot(12, 8)
         el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol(f"delu_{str(elements[0])}")
         delu2 = Symbol(f"delu_{str(elements[1])}")
@@ -1384,10 +1384,7 @@ def entry_dict_from_list(all_slab_entries):
         hkl = tuple(entry.miller_index)
         if hkl not in entry_dict:
             entry_dict[hkl] = {}
-        if entry.clean_entry:
-            clean = entry.clean_entry
-        else:
-            clean = entry
+        clean = entry.clean_entry if entry.clean_entry else entry
         if clean not in entry_dict[hkl]:
             entry_dict[hkl][clean] = []
         if entry.adsorbates:
@@ -1522,7 +1519,7 @@ class WorkFunctionAnalyzer:
 
         Returns plt of the locpot vs c axis
         """
-        plt = pretty_plot(width=6, height=4) if not plt else plt
+        plt = plt if plt else pretty_plot(width=6, height=4)
 
         # plot the raw locpot signal along c
         plt.plot(self.along_c, self.locpot_along_c, "b--")

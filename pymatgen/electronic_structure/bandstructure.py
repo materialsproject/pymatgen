@@ -325,9 +325,8 @@ class BandStructure:
                 sp = structure[k].specie
                 for orb_i in range(len(v[i][j])):
                     o = Orbital(orb_i).name[0]
-                    if sp in el_orb_spec:
-                        if o in el_orb_spec[sp]:
-                            result[spin][i][j][str(sp)][o] += v[i][j][orb_i][k]
+                    if sp in el_orb_spec and o in el_orb_spec[sp]:
+                        result[spin][i][j][str(sp)][o] += v[i][j][orb_i][k]
         return result
 
     def is_metal(self, efermi_tol=1e-4) -> bool:
@@ -806,11 +805,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 self.distance.append(np.linalg.norm(kpt.cart_coords - previous_kpoint.cart_coords) + previous_distance)
             previous_kpoint = kpt
             previous_distance = self.distance[i]
-            if label:
-                if previous_label:
-                    if len(one_group) != 0:
-                        branches_tmp.append(one_group)
-                    one_group = []
+            if label and previous_label:
+                if len(one_group) != 0:
+                    branches_tmp.append(one_group)
+                one_group = []
             previous_label = label
             one_group.append(i)
 
@@ -909,10 +907,9 @@ class BandStructureSymmLine(BandStructure, MSONable):
                         below = True
                     if self.bands[Spin.up][i][j] > self.efermi:
                         above = True
-                if above and below:
-                    if i > max_index:
-                        max_index = i
-                        # spin_index = Spin.up
+                if above and below and i > max_index:
+                    max_index = i
+                    # spin_index = Spin.up
                 if self.is_spin_polarized:
                     below = False
                     above = False
@@ -921,10 +918,9 @@ class BandStructureSymmLine(BandStructure, MSONable):
                             below = True
                         if self.bands[Spin.down][i][j] > self.efermi:
                             above = True
-                    if above and below:
-                        if i > max_index:
-                            max_index = i
-                            # spin_index = Spin.down
+                    if above and below and i > max_index:
+                        max_index = i
+                        # spin_index = Spin.down
             old_dict = self.as_dict()
             shift = new_band_gap
             for spin in old_dict["bands"]:
@@ -1128,9 +1124,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 for key, item in v[i][j].items():
                     for key2, item2 in item.items():
                         specie = str(Element(re.split(r"[0-9]+", key)[0]))
-                        if get_el_sp(str(specie)) in el_orb_spec:
-                            if key2 in el_orb_spec[get_el_sp(str(specie))]:
-                                result[spin][i][j][specie][key2] += item2
+                        if get_el_sp(str(specie)) in el_orb_spec and key2 in el_orb_spec[get_el_sp(str(specie))]:
+                            result[spin][i][j][specie][key2] += item2
         return result
 
 

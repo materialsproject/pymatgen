@@ -1566,7 +1566,7 @@ def get_d(slab):
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
     for i, site in enumerate(sorted_sites):
-        if not f"{site.frac_coords[2]:.6f}" == f"{sorted_sites[i + 1].frac_coords[2]:.6f}":
+        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[i + 1].frac_coords[2]:.6f}":
             d = abs(site.frac_coords[2] - sorted_sites[i + 1].frac_coords[2])
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
@@ -1585,10 +1585,7 @@ def is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) 
         symm_ops (list): Symmetry operations of a
             lattice, used to define family of indices
     """
-    for op in symm_ops:
-        if in_coord_list(miller_list, op.operate(miller_index)):
-            return True
-    return False
+    return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
 
 
 def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True):

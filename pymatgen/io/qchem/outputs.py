@@ -70,15 +70,14 @@ class QCOutput(MSONable):
         self.data["multiple_outputs"] = read_pattern(
             self.text, {"key": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True
         ).get("key")
-        if self.data.get("multiple_outputs") is not None:
-            if self.data.get("multiple_outputs") != [["1"]]:
-                raise ValueError(
-                    "ERROR: multiple calculation outputs found in file "
-                    + filename
-                    + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
-                    + filename
-                    + "')"
-                )
+        if self.data.get("multiple_outputs") is not None and self.data.get("multiple_outputs") != [["1"]]:
+            raise ValueError(
+                "ERROR: multiple calculation outputs found in file "
+                + filename
+                + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
+                + filename
+                + "')"
+            )
 
         # Parse the Q-Chem major version
         if read_pattern(
@@ -1716,11 +1715,10 @@ class QCOutput(MSONable):
                         self.data["scan_constraint_sets"]["bend"].append(
                             {"atoms": atoms, "current": current, "target": target}
                         )
-                elif entry[0] == "Dihedral":
-                    if len(atoms) == 4:
-                        self.data["scan_constraint_sets"]["tors"].append(
-                            {"atoms": atoms, "current": current, "target": target}
-                        )
+                elif entry[0] == "Dihedral" and len(atoms) == 4:
+                    self.data["scan_constraint_sets"]["tors"].append(
+                        {"atoms": atoms, "current": current, "target": target}
+                    )
 
     def _read_pcm_information(self):
         """
@@ -2133,9 +2131,8 @@ class QCOutput(MSONable):
                 {"key": r"\d+\s+failed line searches\.\s+Resetting"},
                 terminate_on_match=False,
             ).get("key")
-            if tmp_failed_line_searches is not None:
-                if len(tmp_failed_line_searches) > 10:
-                    self.data["errors"] += ["SCF_failed_to_converge"]
+            if tmp_failed_line_searches is not None and len(tmp_failed_line_searches) > 10:
+                self.data["errors"] += ["SCF_failed_to_converge"]
         if self.data.get("errors") == []:
             self.data["errors"] += ["unknown_error"]
 

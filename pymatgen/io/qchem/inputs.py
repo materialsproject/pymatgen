@@ -191,9 +191,8 @@ class QCInput(InputFile):
 
         if "basis" not in self.rem:
             raise ValueError("The rem dictionary must contain a 'basis' entry")
-        if "method" not in self.rem:
-            if "exchange" not in self.rem:
-                raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
+        if "method" not in self.rem and "exchange" not in self.rem:
+            raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
         if "job_type" not in self.rem:
             raise ValueError("The rem dictionary must contain a 'job_type' entry")
         if self.rem.get("job_type").lower() not in valid_job_types:
@@ -422,9 +421,8 @@ class QCInput(InputFile):
         mol_list.append("$molecule")
 
         # Edge case; can't express molecule as fragments with only one fragment
-        if isinstance(molecule, list):
-            if len(molecule) == 1:
-                molecule = molecule[0]
+        if isinstance(molecule, list) and len(molecule) == 1:
+            molecule = molecule[0]
 
         if isinstance(molecule, str):
             if molecule == "read":
@@ -829,10 +827,7 @@ class QCInput(InputFile):
             charge = float(matches["charge"][0][0])
         if "spin_mult" in matches:
             spin_mult = int(matches["spin_mult"][0][0])
-        if "fragment" in matches:
-            multi_mol = True
-        else:
-            multi_mol = False
+        multi_mol = "fragment" in matches
 
         if not multi_mol:
             header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s+(?:\-)*\d+"
@@ -985,10 +980,7 @@ class QCInput(InputFile):
             print("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
             return "", {}
 
-        if vdw_table[0][0][0] == 2:
-            mode = "sequential"
-        else:
-            mode = "atomic"
+        mode = "sequential" if vdw_table[0][0][0] == 2 else "atomic"
 
         return mode, dict(vdw_table[0][1:])
 
