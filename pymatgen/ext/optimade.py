@@ -181,7 +181,7 @@ class OptimadeRester:
         if elements:
             if isinstance(elements, str):
                 elements = [elements]
-            elements_str = ", ".join(f"{el!r}" for el in elements)
+            elements_str = ", ".join(f'"{el}"' for el in elements)
             filters.append(f"(elements HAS ALL {elements_str})")
 
         if nsites:
@@ -197,10 +197,10 @@ class OptimadeRester:
                 filters.append(f"({nelements=})")
 
         if chemical_formula_anonymous:
-            filters.append(f"(chemical_formula_anonymous={chemical_formula_anonymous!r})")
+            filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')
 
         if chemical_formula_hill:
-            filters.append(f"(chemical_formula_hill={chemical_formula_anonymous!r})")
+            filters.append(f'(chemical_formula_hill="{chemical_formula_hill}")')
 
         return " AND ".join(filters)
 
@@ -313,7 +313,7 @@ class OptimadeRester:
         response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
-            url = join(resource, f"v1/structures?filter={optimade_filter}&{response_fields=}")
+            url = join(resource, f'v1/structures?filter={optimade_filter}&response_fields="{response_fields}"')
 
             try:
                 json = self._get_json(url)
