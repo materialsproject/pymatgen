@@ -22,6 +22,7 @@ select = [
   "PLE", # pylint error
   "PLW", # pylint warning
   "Q",   # flake8-quotes
+  "SIM", # flake8-simplify
   "TID", # tidy imports
   "UP",  # pyupgrade
   "W",   # pycodestyle
