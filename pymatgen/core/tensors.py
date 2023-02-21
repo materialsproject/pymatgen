@@ -154,7 +154,7 @@ class Tensor(np.ndarray, MSONable):
                 einsum_string += "," + lc[idx : idx + length]
                 idx += length
 
-        einsum_args = [self] + list(other_arrays)
+        einsum_args = [self, *other_arrays]
         return np.einsum(einsum_string, *einsum_args)
 
     def project(self, n):
@@ -211,10 +211,7 @@ class Tensor(np.ndarray, MSONable):
             list of index groups where tensor values are equivalent to
             within tolerances
         """
-        if voigt:
-            array = self.voigt
-        else:
-            array = self
+        array = self.voigt if voigt else self
 
         indices = list(itertools.product(*(range(n) for n in array.shape)))
         remaining = indices.copy()
@@ -254,15 +251,9 @@ class Tensor(np.ndarray, MSONable):
             within tolerances
         """
         d = {}
-        if voigt:
-            array = self.voigt
-        else:
-            array = self
+        array = self.voigt if voigt else self
         grouped = self.get_grouped_indices(voigt=voigt, **kwargs)
-        if zero_index:
-            p = 0
-        else:
-            p = 1
+        p = 0 if zero_index else 1
         for indices in grouped:
             sym_string = self.symbol + "_"
             sym_string += "".join(str(i + p) for i in indices[0])
@@ -582,10 +573,7 @@ class Tensor(np.ndarray, MSONable):
         base = np.zeros(shape.astype(int))
         for v, idx in zip(values, indices):
             base[tuple(idx)] = v
-        if 6 in shape:
-            obj = cls.from_voigt(base)
-        else:
-            obj = cls(base)
+        obj = cls.from_voigt(base) if 6 in shape else cls(base)
         if populate:
             assert structure, "Populate option must include structure input"
             obj = obj.populate(structure, vsym=vsym, verbose=verbose)
@@ -1092,7 +1080,7 @@ class TensorMapping(collections.abc.MutableMapping):
         return zip(self._tensor_list, self._value_list)
 
     def __contains__(self, item):
-        return not self._get_item_index(item) is None
+        return self._get_item_index(item) is not None
 
     def _get_item_index(self, item):
         if len(self._tensor_list) == 0:

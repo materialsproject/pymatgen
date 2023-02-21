@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import abc
 import itertools
-import operator
 from math import ceil, cos, e, pi, sin, tan
 from typing import Any
 from warnings import warn
@@ -1299,23 +1298,19 @@ class KPathLatimerMunro(KPathBase):
         for orbit in key_points_inds_orbits[:-1]:
             orbit_cosines.append(
                 sorted(
-                    sorted(
+                    (
                         (
-                            (
-                                j,
-                                np.round(
-                                    np.dot(key_points[k], self.LabelPoints(j))
-                                    / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
-                                    decimals=3,
-                                ),
-                            )
-                            for k in orbit
-                            for j in range(26)
-                        ),
-                        key=operator.itemgetter(0),
+                            j,
+                            np.round(
+                                np.dot(key_points[k], self.LabelPoints(j))
+                                / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
+                                decimals=3,
+                            ),
+                        )
+                        for k in orbit
+                        for j in range(26)
                     ),
-                    key=operator.itemgetter(1),
-                    reverse=True,
+                    key=lambda x: (-x[1], x[0]),
                 )
             )
 

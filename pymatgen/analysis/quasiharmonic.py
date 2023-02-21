@@ -261,7 +261,7 @@ class QuasiharmonicDebyeApprox:
             Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
             Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)
                 368 (1996) 245-255
-            Also se J.P. Poirier, Introduction to the Physics of the Earth’s
+            Also se J.P. Poirier, Introduction to the Physics of the Earth's
                 Interior, 2nd ed. (Cambridge University Press, Cambridge,
                 2000) Eq(3.53)
 

@@ -327,7 +327,7 @@ class EnumlibAdaptor:
             options = ["struct_enum.out", str(0), str(num_structs - 1)]
 
         with subprocess.Popen(
-            [makestr_cmd] + options,
+            [makestr_cmd, *options],
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
             close_fds=True,

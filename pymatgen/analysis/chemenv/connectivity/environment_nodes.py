@@ -65,7 +65,8 @@ class AbstractEnvironmentNode(MSONable):
 
     def everything_equal(self, other):
         """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
-        as well as the central site itself."""
+        as well as the central site itself.
+        """
         return self == other and self.central_site == other.central_site
 
     @property
@@ -169,6 +170,7 @@ def get_environment_node(central_site, i_central_site, ce_symbol):
         central_site (Site or subclass of Site): Central site of the environment.
         i_central_site (int): Index of the central site in the structure.
         ce_symbol: Symbol of the environment.
+
     Returns:
         An EnvironmentNode object.
     """

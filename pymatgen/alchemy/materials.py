@@ -247,7 +247,7 @@ class TransformedStructure(MSONable):
         is in the case of performing a substitution transformation on the
         structure when the specie to replace isn't in the structure.
         """
-        return not self.final_structure == self.structures[-2]
+        return self.final_structure != self.structures[-2]
 
     @property
     def structures(self) -> list[Structure]:
@@ -256,7 +256,7 @@ class TransformedStructure(MSONable):
         structure is stored after every single transformation.
         """
         h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
-        return h_structs + [self.final_structure]
+        return [*h_structs, self.final_structure]
 
     @staticmethod
     def from_cif_string(

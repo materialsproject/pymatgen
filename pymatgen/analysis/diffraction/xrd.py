@@ -104,7 +104,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
        .. math::
 
-           P( \theta) =  \frac{1 +  \cos^2(2 \theta)}
+           P( \theta) = \frac{1 +  \cos^2(2 \theta)}
            { \sin^2( \theta) \cos( \theta)}
     """
 

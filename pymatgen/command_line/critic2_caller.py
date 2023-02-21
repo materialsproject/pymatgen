@@ -102,16 +102,10 @@ class Critic2Caller:
         self._stdout = stdout
         self._stderr = stderr
 
-        if os.path.exists("cpreport.json"):
-            cpreport = loadfn("cpreport.json")
-        else:
-            cpreport = None
+        cpreport = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
         self._cpreport = cpreport
 
-        if os.path.exists("yt.json"):
-            yt = loadfn("yt.json")
-        else:
-            yt = None
+        yt = loadfn("yt.json") if os.path.exists("yt.json") else None
         self._yt = yt
 
     @classmethod
@@ -487,6 +481,7 @@ class Critic2Analysis(MSONable):
         """
         A StructureGraph object describing bonding information
         in the crystal.
+
         Args:
             include_critical_points: add DummySpecies for
             the critical points themselves, a list of
@@ -534,21 +529,20 @@ class Critic2Analysis(MSONable):
         for idx, edge in edges.items():
             unique_idx = self.nodes[idx]["unique_idx"]
             # only check edges representing bonds, not rings
-            if self.critical_points[unique_idx].type == CriticalPointType.bond:
-                if idx not in idx_to_delete:
-                    for idx2, edge2 in edges.items():
-                        if idx != idx2 and edge == edge2:
-                            idx_to_delete.append(idx2)
-                            warnings.warn(
-                                "Duplicate edge detected, try re-running "
-                                "critic2 with custom parameters to fix this. "
-                                "Mostly harmless unless user is also "
-                                "interested in rings/cages."
-                            )
-                            logger.debug(
-                                f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
-                                f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
-                            )
+            if self.critical_points[unique_idx].type == CriticalPointType.bond and idx not in idx_to_delete:
+                for idx2, edge2 in edges.items():
+                    if idx != idx2 and edge == edge2:
+                        idx_to_delete.append(idx2)
+                        warnings.warn(
+                            "Duplicate edge detected, try re-running "
+                            "critic2 with custom parameters to fix this. "
+                            "Mostly harmless unless user is also "
+                            "interested in rings/cages."
+                        )
+                        logger.debug(
+                            f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
+                            f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
+                        )
         # and remove any duplicate bonds present
         for idx in idx_to_delete:
             del edges[idx]

@@ -298,8 +298,8 @@ class InsertionElectrode(AbstractElectrode):
             entry_discharge = pair.entry_discharge if adjacent_only else pair[1].entry_discharge
 
             def in_range(entry):
-                chg_frac = entry_charge.composition.get_atomic_fraction(ion)  # noqa: B023
-                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)  # noqa: B023
+                chg_frac = entry_charge.composition.get_atomic_fraction(ion)
+                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)
                 frac = entry.composition.get_atomic_fraction(ion)
                 return chg_frac <= frac <= dischg_frac
 

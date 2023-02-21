@@ -258,10 +258,7 @@ class StructureVis:
             anion = elements[-1]
 
             def contains_anion(site):
-                for sp in site.species:
-                    if sp.symbol == anion.symbol:
-                        return True
-                return False
+                return any(sp.symbol == anion.symbol for sp in site.species)
 
             anion_radius = anion.average_ionic_radius
             for site in s:
@@ -1052,9 +1049,8 @@ class MultiStructuresVis(StructureVis):
         tags = {}
         for tag in self.tags:
             istruct = tag.get("istruct", "all")
-            if istruct != "all":
-                if istruct != self.istruct:
-                    continue
+            if istruct != "all" and istruct != self.istruct:
+                continue
             site_index = tag["site_index"]
             color = tag.get("color", [0.5, 0.5, 0.5])
             opacity = tag.get("opacity", 0.5)

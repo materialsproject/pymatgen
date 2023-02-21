@@ -251,9 +251,9 @@ class QChemDictSet(QCInput):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -391,24 +391,18 @@ class QChemDictSet(QCInput):
 
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
-        if self.opt_variables is None:
-            myopt = {}
-        else:
-            myopt = self.opt_variables
+        myopt = {} if self.opt_variables is None else self.opt_variables
 
-        if self.scan_variables is None:
-            myscan = {}
-        else:
-            myscan = self.scan_variables
+        myscan = {} if self.scan_variables is None else self.scan_variables
 
-        mypcm: dict = dict()
-        mysolvent: dict = dict()
-        mysmx: dict = dict()
-        myvdw: dict = dict()
-        myplots: dict = dict()
-        myrem: dict = dict()
-        mysvp: dict = dict()
-        mypcm_nonels: dict = dict()
+        mypcm: dict = {}
+        mysolvent: dict = {}
+        mysmx: dict = {}
+        myvdw: dict = {}
+        myplots: dict = {}
+        myrem: dict = {}
+        mysvp: dict = {}
+        mypcm_nonels: dict = {}
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
@@ -581,16 +575,15 @@ class QChemDictSet(QCInput):
                 if sec == "svp":
                     temp_svp = lower_and_check_unique(sec_dict)
                     for k, v in temp_svp.items():
-                        if k == "rhoiso":
-                            if self.cmirs_solvent is not None:
-                                # must update both svp and pcm_nonels sections
-                                if v not in ["0.001", "0.0005"]:
-                                    raise RuntimeError(
-                                        "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
-                                    )
-                                for k2, _v2 in mypcm_nonels.items():
-                                    if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
-                                        mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
+                        if k == "rhoiso" and self.cmirs_solvent is not None:
+                            # must update both svp and pcm_nonels sections
+                            if v not in ["0.001", "0.0005"]:
+                                raise RuntimeError(
+                                    "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
+                                )
+                            for k2, _v2 in mypcm_nonels.items():
+                                if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
+                                    mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
                         if k == "idefesr":
                             if self.cmirs_solvent is not None and v == "0":
                                 warnings.warn(
@@ -746,9 +739,9 @@ class SinglePointSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -981,9 +974,9 @@ class OptSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -1317,9 +1310,9 @@ class ForceSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -1509,9 +1502,9 @@ class FreqSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:

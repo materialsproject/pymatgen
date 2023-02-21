@@ -4,7 +4,7 @@
 """
 This module define a WulffShape class to generate the Wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
-and the total area and volume of the wulff shape,the weighted surface energy,
+and the total area and volume of the Wulff shape, the weighted surface energy,
 the anisotropy and shape_factor can also be calculated.
 In support of plotting from a given view in terms of miller index.
 
@@ -202,8 +202,8 @@ class WulffShape:
         # simplices	(ndarray of ints, shape (nfacet, ndim))
         # list of [i, j, k] , ndim = 3
         # i, j, k: ind for normal_e_m
-        # recalculate the dual of dual, get the wulff shape.
-        # conner <-> surface
+        # recalculate the dual of dual, get the Wulff shape.
+        # corner <-> surface
         # get cross point from the simplices of the dual convex hull
         wulff_pt_list = [self._get_cross_pt_dual_simp(dual_simp) for dual_simp in dual_cv_simp]
 
@@ -226,15 +226,12 @@ class WulffShape:
 
     def _get_all_miller_e(self):
         """
-        from self:
-            get miller_list(unique_miller), e_surf_list and symmetry
-            operations(symmops) according to lattice
-        apply symmops to get all the miller index, then get normal,
-        get all the facets functions for wulff shape calculation:
-            |normal| = 1, e_surf is plane's distance to (0, 0, 0),
-            normal[0]x + normal[1]y + normal[2]z = e_surf
+        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symmops)
+        according to lattice apply symmops to get all the miller index, then get normal, get
+        all the facets functions for Wulff shape calculation: |normal| = 1, e_surf is plane's
+        distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf
 
-        return:
+        Returns:
             [WulffFacet]
         """
         all_hkl = []
@@ -305,11 +302,11 @@ class WulffShape:
 
     def _get_colors(self, color_set, alpha, off_color, custom_colors=None):
         """
-        assign colors according to the surface energies of on_wulff facets.
+        Assign colors according to the surface energies of on_wulff facets.
 
-        return:
-            (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
-            e_surf_on_wulff_list)
+        Returns:
+            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
+            e_surf_on_wulff_list
         """
         import matplotlib as mpl
         import matplotlib.pyplot as plt
@@ -430,13 +427,9 @@ class WulffShape:
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d as mpl3
 
-        (
-            color_list,
-            color_proxy,
-            color_proxy_on_wulff,
-            miller_on_wulff,
-            e_surf_on_wulff,
-        ) = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
+        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+            color_set, alpha, off_color, custom_colors=custom_colors or {}
+        )
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -513,7 +506,7 @@ class WulffShape:
                 ax1,
                 cmap=cmap,
                 norm=norm,
-                boundaries=[0] + bounds + [10],
+                boundaries=[0, *bounds] + [10],
                 extend="both",
                 ticks=bounds[:-1],
                 spacing="proportional",
@@ -602,7 +595,7 @@ class WulffShape:
                     i=tri_indices[0],
                     j=tri_indices[1],
                     k=tri_indices[2],
-                    hovertemplate=f"<br>%{{text}}<br>γ={plane.e_surf:.3f} {units}<br>",
+                    hovertemplate=f"<br>%{{text}}<br>y={plane.e_surf:.3f} {units}<br>",
                     color=color,
                     text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
@@ -633,7 +626,7 @@ class WulffShape:
                 ticktext=ticktext,
                 tickvals=tickvals,
             ),
-            colorscale=[[0, "rgb(255,255,255, 255)"]] + color_scale,  # fix the scale
+            colorscale=[[0, "rgb(255,255,255, 255)"], *color_scale],  # fix the scale
             intensity=[0, 0.33, 0.66, 1],
             i=[0],
             j=[0],
@@ -644,22 +637,20 @@ class WulffShape:
         planes_data.append(colorbar)
 
         # Format aesthetics: background, axis, etc.
-        axis_dict = dict(
-            title="",
-            autorange=True,
-            showgrid=False,
-            zeroline=False,
-            ticks="",
-            showline=False,
-            showticklabels=False,
-            showbackground=False,
-        )
+        axis_dict = {
+            "title": "",
+            "autorange": True,
+            "showgrid": False,
+            "zeroline": False,
+            "ticks": "",
+            "showline": False,
+            "showticklabels": False,
+            "showbackground": False,
+        }
         fig = go.Figure(data=planes_data)
-        fig.update_layout(
-            dict(
-                showlegend=True,
-                scene=dict(xaxis=axis_dict, yaxis=axis_dict, zaxis=axis_dict),
-            )
+        fig.layout.update(
+            showlegend=True,
+            scene={"xaxis": axis_dict, "yaxis": axis_dict, "zaxis": axis_dict},
         )
 
         return fig
@@ -800,7 +791,7 @@ class WulffShape:
             for idx, _ in enumerate(pt):
                 if idx == len(pt) / 2:
                     break
-                lines.append(tuple(sorted(tuple([tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])]))))
+                lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))
 
             for p in lines:
                 if p not in all_edges:

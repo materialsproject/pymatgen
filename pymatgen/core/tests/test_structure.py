@@ -110,11 +110,11 @@ class IStructureTest(PymatgenTest):
         struct = self.struct
         assert struct == struct
         assert struct == struct.copy()
-        assert not struct == 2 * struct
+        assert struct != 2 * struct
 
-        assert not struct == "a" * len(struct)  # GH-2584
+        assert struct != "a" * len(struct)  # GH-2584
         assert struct is not None
-        assert not struct == 42  # GH-2587
+        assert struct != 42  # GH-2587
 
         assert struct == Structure.from_dict(struct.as_dict())
 
@@ -500,7 +500,7 @@ class IStructureTest(PymatgenTest):
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for idx, site in enumerate(s):
-            assert 4 == len(all_nn[idx][0])
+            assert len(all_nn[idx][0]) == 4
             assert len(all_nn[idx]) == len(s.get_neighbors(site, r))
 
         for site, nns in zip(s, all_nn):
@@ -779,7 +779,7 @@ class StructureTest(PymatgenTest):
 
     def test_non_hash(self):
         with pytest.raises(TypeError):
-            dict([(self.structure, 1)])
+            {self.structure: 1}
 
     def test_sort(self):
         s = self.structure
@@ -1647,7 +1647,7 @@ class MoleculeTest(PymatgenTest):
         mol.append("N", [1, 1, 1])
         assert mol.formula == "H3 C1 N1 O1"
         with pytest.raises(TypeError):
-            dict([(mol, 1)])
+            {mol: 1}
         mol.remove_sites([0, 1])
         assert mol.formula == "H3 N1"
 
@@ -1761,7 +1761,7 @@ class MoleculeTest(PymatgenTest):
 
     def test_extract_cluster(self):
         species = self.mol.species * 2
-        coords = list(self.mol.cart_coords) + list(self.mol.cart_coords + [10, 0, 0])
+        coords = [*self.mol.cart_coords, *(self.mol.cart_coords + [10, 0, 0])]  # noqa: RUF005
         mol = Molecule(species, coords)
         cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         assert mol.formula == "H8 C2"

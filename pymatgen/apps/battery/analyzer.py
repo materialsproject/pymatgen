@@ -252,7 +252,6 @@ def is_redox_active_intercalation(element) -> bool:
     Args:
         element: Element object
     """
-
     ns = [
         "Ti",
         "V",

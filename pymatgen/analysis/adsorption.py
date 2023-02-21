@@ -2,7 +2,8 @@
 # Distributed under the terms of the MIT License.
 
 """This module provides classes used to enumerate surface sites and to find
-adsorption sites on slabs."""
+adsorption sites on slabs.
+"""
 
 from __future__ import annotations
 
@@ -590,7 +591,8 @@ class AdsorbateSiteFinder:
 
 def get_mi_vec(slab):
     """Convenience function which returns the unit vector aligned with the
-    miller index."""
+    miller index.
+    """
     mvec = np.cross(slab.lattice.matrix[0], slab.lattice.matrix[1])
     return mvec / np.linalg.norm(mvec)
 
@@ -616,7 +618,8 @@ def put_coord_inside(lattice, cart_coordinate):
 
 def reorient_z(structure):
     """reorients a structure such that the z axis is concurrent with the normal
-    to the A-B plane."""
+    to the A-B plane.
+    """
     struct = structure.copy()
     sop = get_rot(struct)
     struct.apply_operation(sop)
@@ -702,7 +705,7 @@ def plot_slab(
     if draw_unit_cell:
         verts = np.insert(verts, 1, lattsum, axis=0).tolist()
         verts += [[0.0, 0.0]]
-        verts = [[0.0, 0.0]] + verts
+        verts = [[0.0, 0.0], *verts]
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         verts = [(np.array(vert) + corner).tolist() for vert in verts]
         path = Path(verts, codes)

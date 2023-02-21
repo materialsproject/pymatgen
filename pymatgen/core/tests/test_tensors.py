@@ -182,7 +182,7 @@ class TensorTest(PymatgenTest):
         x = [1, 0, 0]
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         self.assertArrayAlmostEqual([0, 27, 54], test.einsum_sequence([x] * 3))
-        assert 360 == test.einsum_sequence([np.eye(3)] * 2)
+        assert test.einsum_sequence([np.eye(3)] * 2) == 360
         with pytest.raises(ValueError):
             test.einsum_sequence(Tensor(np.zeros(3)))
 
@@ -289,7 +289,7 @@ class TensorTest(PymatgenTest):
         for k, v in reduced.items():
             reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
         reconstructed = sorted(reconstructed, key=lambda x: np.argmax(x))
-        self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6) * 0.01)
+        self.assertArrayAlmostEqual(list(reconstructed), np.eye(6) * 0.01)
 
     def test_tensor_mapping(self):
         # Test get
@@ -392,9 +392,9 @@ class TensorTest(PymatgenTest):
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
-        self.seq_tc = [t for t in np.arange(4 * 3**3).reshape((4, 3, 3, 3))]
+        self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
-        self.rand_tc = TensorCollection([t for t in np.random.random((4, 3, 3))])
+        self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
         ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json")
@@ -467,7 +467,7 @@ class TensorCollectionTest(PymatgenTest):
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt
-        tc_input = [t for t in np.random.random((3, 6, 6))]
+        tc_input = list(np.random.random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
         for t_input, t in zip(tc_input, tc):
             self.assertArrayAlmostEqual(Tensor.from_voigt(t_input), t)

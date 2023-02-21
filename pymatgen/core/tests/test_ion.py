@@ -30,11 +30,11 @@ class IonTest(unittest.TestCase):
     def test_init_(self):
         c = Composition({"Fe": 4, "O": 16, "P": 4})
         charge = 4
-        assert "Fe4 P4 O16 +4" == Ion(c, charge).formula
+        assert Ion(c, charge).formula == "Fe4 P4 O16 +4"
         f = {1: 1, 8: 1}
         charge = -1
-        assert "H1 O1 -1" == Ion(Composition(f), charge).formula
-        assert "S2 O3 -2" == Ion(Composition(S=2, O=3), -2).formula
+        assert Ion(Composition(f), charge).formula == "H1 O1 -1"
+        assert Ion(Composition(S=2, O=3), -2).formula == "S2 O3 -2"
 
     def test_charge_from_formula(self):
         assert Ion.from_formula("Li+").charge == 1
@@ -173,8 +173,8 @@ class IonTest(unittest.TestCase):
 
     def test_equality(self):
         assert self.comp[0] == (self.comp[0])
-        assert not self.comp[0] == (self.comp[1])
-        assert not self.comp[0] != (self.comp[0])
+        assert self.comp[0] != self.comp[1]
+        assert self.comp[0] == self.comp[0]
         assert self.comp[0] != (self.comp[1])
 
     def test_mul(self):

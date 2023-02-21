@@ -120,9 +120,7 @@ def _parse_varray(elem):
 
 
 def _parse_from_incar(filename, key):
-    """
-    Helper function to parse a parameter from the INCAR.
-    """
+    """Helper function to parse a parameter from the INCAR."""
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
         if re.search(r"INCAR", f):
@@ -432,11 +430,7 @@ class Vasprun(MSONable):
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
                         if not hasattr(self, "kpoints"):
-                            (
-                                self.kpoints,
-                                self.actual_kpoints,
-                                self.actual_kpoints_weights,
-                            ) = self._parse_kpoints(elem)
+                            self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == "initialpos":
@@ -460,10 +454,7 @@ class Vasprun(MSONable):
                 elif parse_eigen and tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    (
-                        self.projected_eigenvalues,
-                        self.projected_magnetisation,
-                    ) = self._parse_projected_eigen(elem)
+                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
                 elif tag == "dielectricfunction":
                     if (
                         "comment" not in elem.attrib
@@ -624,11 +615,8 @@ class Vasprun(MSONable):
             True if electronic step convergence has been reached in the final
             ionic step
         """
-        if self.incar not in ["CHI"]:
-            final_esteps = self.ionic_steps[-1]["electronic_steps"]
-        else:
-            final_esteps = 0
-            # In a response function run there is no ionic steps, there is no scf step
+        final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
+        # In a response function run there is no ionic steps, there is no scf step
         if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
@@ -870,8 +858,7 @@ class Vasprun(MSONable):
         line_mode: bool = False,
         force_hybrid_mode: bool = False,
     ):
-        """
-        Returns the band structure as a BandStructure object
+        """Get the band structure as a BandStructure object.
 
         Args:
             kpoints_filename: Full path of the KPOINTS file from which
@@ -907,9 +894,8 @@ class Vasprun(MSONable):
         """
         if not kpoints_filename:
             kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
-        if kpoints_filename:
-            if not os.path.exists(kpoints_filename) and line_mode is True:
-                raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
+        if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
+            raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
@@ -918,7 +904,7 @@ class Vasprun(MSONable):
         else:
             e_fermi = efermi
 
-        kpoint_file = None
+        kpoint_file: Kpoints = None  # type: ignore
         if kpoints_filename and os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
@@ -954,9 +940,8 @@ class Vasprun(MSONable):
         if self.parameters.get("LHFCALC", False) or 0.0 in self.actual_kpoints_weights:
             hybrid_band = True
 
-        if kpoint_file is not None:
-            if kpoint_file.style == Kpoints.supported_modes.Line_mode:
-                line_mode = True
+        if kpoint_file is not None and kpoint_file.style == Kpoints.supported_modes.Line_mode:
+            line_mode = True
 
         if line_mode:
             labels_dict = {}
@@ -1208,7 +1193,7 @@ class Vasprun(MSONable):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = self.hubbards
 
-        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        unique_symbols = sorted(set(self.atomic_symbols))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
@@ -1258,7 +1243,7 @@ class Vasprun(MSONable):
             eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 vout["projected_eigenvalues"] = {
@@ -1470,10 +1455,7 @@ class Vasprun(MSONable):
                     data = np.array(_parse_varray(ss))
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
-                        if lm:
-                            orb = Orbital(j - 1)
-                        else:
-                            orb = OrbitalType(j - 1)
+                        orb = Orbital(j - 1) if lm else OrbitalType(j - 1)
                         pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
@@ -1636,7 +1618,7 @@ class BSVasprun(Vasprun):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = self.hubbards
 
-        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        unique_symbols = sorted(set(self.atomic_symbols))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
@@ -1671,7 +1653,7 @@ class BSVasprun(Vasprun):
                     eigen[i][str(spin)] = v
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 peigen = [{} for _ in eigen]
@@ -2241,10 +2223,7 @@ class Outcar:
             tables.append(table_contents)
             if first_one_only:
                 break
-        if last_one_only or first_one_only:
-            retained_data = tables[-1]
-        else:
-            retained_data = tables
+        retained_data = tables[-1] if last_one_only or first_one_only else tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
@@ -4197,7 +4176,7 @@ class Xdatcar:
                     title = l
                 elif title == l:
                     preamble_done = False
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4222,7 +4201,7 @@ class Xdatcar:
                     else:
                         preamble.append(l)
                 elif l == "" or "Direct configuration=" in l:
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4235,7 +4214,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(l)
-            p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4304,7 +4283,7 @@ class Xdatcar:
                     else:
                         preamble.append(l)
                 elif l == "" or "Direct configuration=" in l:
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4315,7 +4294,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(l)
-            p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4828,10 +4807,7 @@ class Wavecar:
         Returns:
             a list containing valid G-points
         """
-        if gamma:
-            kmax = self._nbmax[0] + 1
-        else:
-            kmax = 2 * self._nbmax[0] + 1
+        kmax = self._nbmax[0] + 1 if gamma else 2 * self._nbmax[0] + 1
 
         gpoints = []
         extra_gpoints = []
@@ -4849,7 +4825,7 @@ class Wavecar:
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
                     E = g**2 / self._C
-                    if E < self.encut:
+                    if self.encut > E:
                         gpoints.append(G)
                         if gamma and (k1, j2, i3) != (0, 0, 0):
                             extra_gpoints.append(-G)

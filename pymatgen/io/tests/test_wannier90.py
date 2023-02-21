@@ -112,28 +112,28 @@ class UnkTest(PymatgenTest):
 
     def test_eq(self):
         # not implemented
-        assert not self.unk_std == "poop"
+        assert self.unk_std != "poop"
 
         # ng
         tmp_unk = Unk(1, np.random.rand(10, 5, 5, 4))
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
 
         # ik
         tmp_unk = Unk(2, self.data_std)
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
 
         # noncol
-        assert not self.unk_std == self.unk_ncl
+        assert self.unk_std != self.unk_ncl
 
         # nbnd
         tmp_unk = Unk(1, np.random.rand(9, 5, 5, 5))
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
 
         # data
         tmp_unk = Unk(1, np.random.rand(10, 5, 5, 5))
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
         tmp_unk = Unk(1, np.random.rand(10, 2, 5, 5, 5))
-        assert not self.unk_ncl == tmp_unk
+        assert self.unk_ncl != tmp_unk
 
         # same
         assert self.unk_std == self.unk_std

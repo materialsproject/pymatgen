@@ -122,13 +122,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         res = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
             coordination_geometry=cg_tet, NRANDOM=5, points_perfect=points_perfect_tet
         )
-        (
-            permutations_symmetry_measures,
-            permutations,
-            algos,
-            local2perfect_maps,
-            perfect2local_maps,
-        ) = res
+        permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps = res
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == pytest.approx(0.140355832317)
 

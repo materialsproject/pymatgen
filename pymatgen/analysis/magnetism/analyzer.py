@@ -281,9 +281,8 @@ class CollinearMagneticStructureAnalyzer:
 
             # overwrite_magmom_mode = "normalize" set magmoms magnitude to 1
 
-            elif overwrite_magmom_mode == "normalize":
-                if magmoms[idx] != 0:
-                    magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
+            elif overwrite_magmom_mode == "normalize" and magmoms[idx] != 0:
+                magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
         # round magmoms, used to smooth out computational data
         magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms  # type: ignore
@@ -413,7 +412,6 @@ class CollinearMagneticStructureAnalyzer:
     @property
     def magmoms(self) -> np.ndarray:
         """Convenience property, returns magmoms as a numpy array."""
-
         return np.array(self.structure.site_properties["magmom"])
 
     @property
@@ -428,7 +426,7 @@ class CollinearMagneticStructureAnalyzer:
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
             return tuple(sorted(structure.types_of_species))
-        return tuple()
+        return ()
 
     @property
     def types_of_magnetic_specie(
@@ -459,7 +457,7 @@ class CollinearMagneticStructureAnalyzer:
             if len(magmoms) == 1:
                 magtypes[sp] = magmoms.pop()
             else:
-                magtypes[sp] = sorted(list(magmoms))
+                magtypes[sp] = sorted(magmoms)
 
         return magtypes
 
@@ -593,10 +591,7 @@ class CollinearMagneticStructureAnalyzer:
         outs = ["Structure Summary", repr(s.lattice)]
         outs.append("Magmoms Sites")
         for site in s:
-            if site.properties["magmom"] != 0:
-                prefix = f"{site.properties['magmom']:+.2f}   "
-            else:
-                prefix = "        "
+            prefix = f"{site.properties['magmom']:+.2f}   " if site.properties["magmom"] != 0 else "        "
             outs.append(prefix + repr(site))
         return "\n".join(outs)
 
@@ -1027,7 +1022,7 @@ class MagneticStructureEnumerator:
             num_sym_ops = [len(SpaceGroup.from_int_number(n).symmetry_ops) for n in symmetry_int_numbers]
 
             # find the largest values...
-            max_symmetries = sorted(list(set(num_sym_ops)), reverse=True)
+            max_symmetries = sorted(set(num_sym_ops), reverse=True)
 
             # ...and decide which ones to keep
             if len(max_symmetries) > self.truncate_by_symmetry:
@@ -1087,7 +1082,6 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
 
     Returns: Magnetic deformation
     """
-
     # retrieve orderings of both input structures
     ordering_a = CollinearMagneticStructureAnalyzer(structure_A, overwrite_magmom_mode="none").ordering
     ordering_b = CollinearMagneticStructureAnalyzer(structure_B, overwrite_magmom_mode="none").ordering

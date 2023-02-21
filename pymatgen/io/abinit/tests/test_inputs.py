@@ -127,15 +127,15 @@ class AbinitInputTestCase(PymatgenTest):
         with pytest.raises(BasicAbinitInput.Error):
             BasicAbinitInput(si_structure, pseudos=abiref_file("H-wdr.oncvpsp"))
 
-        si1_negative_volume = dict(
-            ntypat=1,
-            natom=1,
-            typat=[1],
-            znucl=14,
-            acell=3 * [7.60],
-            rprim=[[0.0, 0.5, 0.5], [-0.5, -0.0, -0.5], [0.5, 0.5, 0.0]],
-            xred=[[0.0, 0.0, 0.0]],
-        )
+        si1_negative_volume = {
+            "ntypat": 1,
+            "natom": 1,
+            "typat": [1],
+            "znucl": 14,
+            "acell": 3 * [7.60],
+            "rprim": [[0.0, 0.5, 0.5], [-0.5, -0.0, -0.5], [0.5, 0.5, 0.0]],
+            "xred": [[0.0, 0.0, 0.0]],
+        }
 
         # Negative triple product.
         with pytest.raises(BasicAbinitInput.Error):
@@ -216,7 +216,7 @@ class TestMultiDataset(PymatgenTest):
         inp.write(filepath=filepath)
         multi.write(filepath=filepath)
 
-        new_multi = BasicMultiDataset.from_inputs([inp for inp in multi])
+        new_multi = BasicMultiDataset.from_inputs(list(multi))
         assert new_multi.ndtset == multi.ndtset
         assert new_multi.structure == multi.structure
 

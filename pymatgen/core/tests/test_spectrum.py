@@ -6,7 +6,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
-import scipy.stats as stats
+from scipy import stats
 
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.testing import PymatgenTest

@@ -114,10 +114,7 @@ class DetailedVoronoiContainer(MSONable):
         self.valences = valences
         self.maximum_distance_factor = maximum_distance_factor
         self.minimum_angle_factor = minimum_angle_factor
-        if isites is None:
-            indices = list(range(len(structure)))
-        else:
-            indices = isites
+        indices = list(range(len(structure))) if isites is None else isites
         self.structure = structure
         logging.debug("Setting Voronoi list")
         if voronoi_list2 is not None:
@@ -235,13 +232,12 @@ class DetailedVoronoiContainer(MSONable):
             dnb_indices = {int(isorted_distances[0])}
             for idist in iter(isorted_distances):
                 wd = normalized_distances[idist]
-                if self.maximum_distance_factor is not None:
-                    if wd > self.maximum_distance_factor:
-                        self.neighbors_normalized_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_normalized_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        break
+                if self.maximum_distance_factor is not None and wd > self.maximum_distance_factor:
+                    self.neighbors_normalized_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_normalized_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    break
                 if np.isclose(
                     wd,
                     self.neighbors_normalized_distances[isite][icurrent]["max"],
@@ -306,13 +302,12 @@ class DetailedVoronoiContainer(MSONable):
             dnb_indices = {int(isorted_angles[0])}
             for iang in iter(isorted_angles):
                 wa = normalized_angles[iang]
-                if self.minimum_angle_factor is not None:
-                    if wa < self.minimum_angle_factor:
-                        self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        break
+                if self.minimum_angle_factor is not None and wa < self.minimum_angle_factor:
+                    self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    break
                 if np.isclose(
                     wa,
                     self.neighbors_normalized_angles[isite][icurrent]["min"],
@@ -344,10 +339,7 @@ class DetailedVoronoiContainer(MSONable):
                 nang_dict = self.neighbors_normalized_angles[isite][iang]
                 nang_dict_next = self.neighbors_normalized_angles[isite][iang + 1]
                 nang_dict["next"] = nang_dict_next["max"]
-            if self.minimum_angle_factor is not None:
-                afact = self.minimum_angle_factor
-            else:
-                afact = 0.0
+            afact = self.minimum_angle_factor if self.minimum_angle_factor is not None else 0.0
             self.neighbors_normalized_angles[isite][-1]["next"] = afact
             self.neighbors_angles[isite][-1]["next"] = afact * self.neighbors_angles[isite][0]["max"]
 
@@ -499,14 +491,8 @@ class DetailedVoronoiContainer(MSONable):
             dp2 = distance_bounds[idp + 1]
             if dp2 < mindist or dp1 > maxdist:
                 continue
-            if dp1 < mindist:
-                d1 = mindist
-            else:
-                d1 = dp1
-            if dp2 > maxdist:
-                d2 = maxdist
-            else:
-                d2 = dp2
+            d1 = mindist if dp1 < mindist else dp1
+            d2 = maxdist if dp2 > maxdist else dp2
             for iap in range(len(angle_bounds) - 1):
                 ap1 = angle_bounds[iap]
                 ap2 = angle_bounds[iap + 1]
@@ -822,15 +808,9 @@ class DetailedVoronoiContainer(MSONable):
             step_function = {"type": "normal_cdf", "scale": 0.0001}
 
         # Initializes the figure
-        if figsize is None:
-            fig = plt.figure()
-        else:
-            fig = plt.figure(figsize=figsize)
+        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
-        if normalized:
-            dists = self.neighbors_normalized_distances[isite]
-        else:
-            dists = self.neighbors_distances[isite]
+        dists = self.neighbors_normalized_distances[isite] if normalized else self.neighbors_distances[isite]
 
         if step_function["type"] == "step_function":
             isorted = np.argsort([dd["min"] for dd in dists])
@@ -862,6 +842,7 @@ class DetailedVoronoiContainer(MSONable):
     def get_sadf_figure(self, isite, normalized=True, figsize=None, step_function=None):
         """
         Get the Solid Angle Distribution Figure for a given site.
+
         Args:
             isite: Index of the site.
             normalized: Whether to normalize angles.
@@ -881,15 +862,9 @@ class DetailedVoronoiContainer(MSONable):
             step_function = {"type": "step_function", "scale": 0.0001}
 
         # Initializes the figure
-        if figsize is None:
-            fig = plt.figure()
-        else:
-            fig = plt.figure(figsize=figsize)
+        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
-        if normalized:
-            angs = self.neighbors_normalized_angles[isite]
-        else:
-            angs = self.neighbors_angles[isite]
+        angs = self.neighbors_normalized_angles[isite] if normalized else self.neighbors_angles[isite]
 
         if step_function["type"] == "step_function":
             isorted = np.argsort([ap_func(aa["min"]) for aa in angs])

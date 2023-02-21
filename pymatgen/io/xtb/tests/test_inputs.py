@@ -34,7 +34,7 @@ class TestCRESTInput(PymatgenTest):
         cin = CRESTInput(molecule=mol, coords_filename="crest_in.xyz")
 
         assert mol.as_dict() == cin.molecule.as_dict()
-        assert "crest_in.xyz" == cin.coords_filename
+        assert cin.coords_filename == "crest_in.xyz"
 
     def test_constraints_file(self):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}

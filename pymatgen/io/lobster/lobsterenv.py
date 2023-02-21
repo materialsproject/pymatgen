@@ -508,10 +508,7 @@ class LobsterNeighbors(NearNeighbors):
 
         if only_bonds_to is None:
             # sort by anion type
-            if per_bond:
-                divisor = len(labels)
-            else:
-                divisor = 1
+            divisor = len(labels) if per_bond else 1
 
             plotlabel = self._get_plot_label(atoms, per_bond)
             summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
@@ -549,10 +546,7 @@ class LobsterNeighbors(NearNeighbors):
                     new_atoms.append(atompair)
             # print(new_labels)
             if len(new_labels) > 0:
-                if per_bond:
-                    divisor = len(new_labels)
-                else:
-                    divisor = 1
+                divisor = len(new_labels) if per_bond else 1
 
                 plotlabel = self._get_plot_label(new_atoms, per_bond)
                 summed_cohp = self.completecohp.get_summed_cohp_by_label_list(

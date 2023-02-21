@@ -419,7 +419,8 @@ class ElementBase(Enum):
     @property
     def icsd_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all oxidation states with at least 10 instances in
-        ICSD database AND at least 1% of entries for that element"""
+        ICSD database AND at least 1% of entries for that element
+        """
         return tuple(self._data.get("ICSD oxidation states", []))
 
     @property
@@ -606,6 +607,7 @@ class ElementBase(Enum):
         Args:
             name: Long name of the element, e.g. 'Hydrogen' or
                   'Iron'. Not case-sensitive.
+
         Returns:
             Element with the name 'name'
         """
