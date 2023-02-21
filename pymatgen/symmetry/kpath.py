@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import abc
 import itertools
-import operator
 from math import ceil, cos, e, pi, sin, tan
 from typing import Any
 from warnings import warn
@@ -1311,9 +1310,8 @@ class KPathLatimerMunro(KPathBase):
                         for k in orbit
                         for j in range(26)
                     ),
-                    key=operator.itemgetter(0),
-                ),
-                key=-operator.itemgetter(1),
+                    key=lambda x: (-x[1], x[0]),
+                )
             )
 
         orbit_labels = self._get_orbit_labels(orbit_cosines, key_points_inds_orbits, atol)
