@@ -308,7 +308,7 @@ class LammpsData(MSONable):
         masses = self.masses
         atoms = self.atoms.copy()
         if "nx" in atoms.columns:
-            atoms.drop(["nx", "ny", "nz"], axis=1, inplace=True)
+            atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
         ld_copy = self.__class__(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
@@ -717,9 +717,9 @@ class LammpsData(MSONable):
             df.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
-                df.sort_values(sort_by, inplace=True)
+                df = df.sort_values(sort_by)
             if "id" in df.columns:
-                df.set_index("id", drop=True, inplace=True)
+                df = df.set_index("id", drop=True)
                 df.index.name = None
             return kw, df
 
@@ -812,8 +812,8 @@ class LammpsData(MSONable):
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
             if any(pd.isnull(df["type"])):  # Throw away undefined topologies
                 warnings.warn(f"Undefined {k.lower()} detected and removed")
-                df.dropna(subset=["type"], inplace=True)
-                df.reset_index(drop=True, inplace=True)
+                df = df.dropna(subset=["type"])
+                df = df.reset_index(drop=True)
             df.index += 1
             topology[k] = df[SECTION_HEADERS[k]]
         topology = {k: v for k, v in topology.items() if not v.empty}
