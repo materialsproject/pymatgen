@@ -1029,7 +1029,7 @@ class CifParser:
         if coord_to_species.items():
             for idx, (comp, group) in enumerate(
                 groupby(
-                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    sorted(coord_to_species.items(), key=lambda x: x[1]),
                     key=lambda x: x[1],
                 )
             ):

@@ -506,7 +506,7 @@ class WulffShape:
                 ax1,
                 cmap=cmap,
                 norm=norm,
-                boundaries=[0] + bounds + [10],
+                boundaries=[0, *bounds] + [10],
                 extend="both",
                 ticks=bounds[:-1],
                 spacing="proportional",
@@ -595,7 +595,7 @@ class WulffShape:
                     i=tri_indices[0],
                     j=tri_indices[1],
                     k=tri_indices[2],
-                    hovertemplate=f"<br>%{{text}}<br>γ={plane.e_surf:.3f} {units}<br>",
+                    hovertemplate=f"<br>%{{text}}<br>y={plane.e_surf:.3f} {units}<br>",
                     color=color,
                     text=[f"Miller index: {hkl}"] * len(x_pts),
                     hoverinfo="name",
@@ -626,7 +626,7 @@ class WulffShape:
                 ticktext=ticktext,
                 tickvals=tickvals,
             ),
-            colorscale=[[0, "rgb(255,255,255, 255)"]] + color_scale,  # fix the scale
+            colorscale=[[0, "rgb(255,255,255, 255)"], *color_scale],  # fix the scale
             intensity=[0, 0.33, 0.66, 1],
             i=[0],
             j=[0],

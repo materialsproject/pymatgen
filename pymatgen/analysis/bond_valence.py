@@ -353,7 +353,7 @@ class BVAnalyzer:
                     return None
                 for v in valences[i]:
                     new_assigned = list(assigned)
-                    _recurse(new_assigned + [v])
+                    _recurse([*new_assigned, v])
                 return None
 
         else:
@@ -434,7 +434,7 @@ class BVAnalyzer:
 
                 for v in new_valences[i]:
                     new_assigned = list(assigned)
-                    _recurse(new_assigned + [v])
+                    _recurse([*new_assigned, v])
 
                 return None
 

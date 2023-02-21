@@ -1100,7 +1100,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = mixing_scheme_no_compat.process_entries(
-            ms_complete.all_entries + [foreign_entry], mixing_state_data=ms_complete.state_data
+            [*ms_complete.all_entries, foreign_entry], mixing_state_data=ms_complete.state_data
         )
         assert len(entries) == 7
         for e in entries:

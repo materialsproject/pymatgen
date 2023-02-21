@@ -429,7 +429,7 @@ class PhononBSPlotter:
         Args:
             site_comb: a list of list, for example, [[0],[1],[2,3,4]];
                 the numbers in each sublist represents the indices of atoms;
-                the atoms in a same sublist will be plotted in a same color；
+                the atoms in a same sublist will be plotted in a same color;
                 if not specified, unique elements are automatically grouped.
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.

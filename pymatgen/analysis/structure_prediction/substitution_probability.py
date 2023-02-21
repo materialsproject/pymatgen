@@ -241,7 +241,7 @@ class SubstitutionPredictor:
                 for sp in self.p.species:
                     i = len(output_prob)
                     prob = self.p.cond_prob(sp, species[i]) if to_this_composition else self.p.cond_prob(species[i], sp)
-                    _recurse(output_prob + [prob], output_species + [sp])
+                    _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
         logging.info(f"{len(output)} substitutions found")

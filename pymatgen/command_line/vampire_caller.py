@@ -390,7 +390,7 @@ class VampireCaller:
 
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
-        df.drop("nan", axis=1, inplace=True)
+        df = df.drop("nan", axis=1)
 
         parsed_out = df.to_json()
 

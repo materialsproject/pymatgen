@@ -128,7 +128,7 @@ class SymmetrizedStructure(Structure):
         outs.append(
             tabulate(
                 data,
-                headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,
+                headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys],
             )
         )
         return "\n".join(outs)

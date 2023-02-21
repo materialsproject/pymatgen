@@ -1018,7 +1018,7 @@ class GaussianOutput:
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = f.readline()
 
-                            #  read normal modes
+                            # read normal modes
                             line = f.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
@@ -1031,8 +1031,8 @@ class GaussianOutput:
                         frequencies = []
 
                     elif parse_hessian:
-                        #  read Hessian matrix under "Force constants in Cartesian coordinates"
-                        #  Hessian matrix is in the input  orientation framework
+                        # read Hessian matrix under "Force constants in Cartesian coordinates"
+                        # Hessian matrix is in the input  orientation framework
                         # WARNING : need #P in the route line
                         parse_hessian = False
                         ndf = 3 * len(input_structures[0])
@@ -1136,7 +1136,7 @@ class GaussianOutput:
                         while not resume_end_patt.search(line):
                             resume.append(line)
                             line = f.readline()
-                            #  security if \\@ not in one line !
+                            # security if \\@ not in one line !
                             if line == "\n":
                                 break
                         resume.append(line)

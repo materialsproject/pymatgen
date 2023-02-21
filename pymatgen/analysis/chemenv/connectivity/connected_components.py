@@ -331,10 +331,10 @@ class ConnectedComponent(MSONable):
         # One possible quotient graph of this periodic net :
         #          __           __
         # (0,1,0) /  \         /  \ (0,1,0)
-        #         `<--A--->---B--<´
+        #         `<--A--->---B--<`
         #            / (0,0,0) \
         #            \         /
-        #             `--->---´
+        #             `--->---`
         #              (1,0,0)
         #
         # The "number" coordination sequence starting from any environment is : 4-8-12-16-...

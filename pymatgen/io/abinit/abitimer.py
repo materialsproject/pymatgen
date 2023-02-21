@@ -557,7 +557,7 @@ class ParallelEfficiency(dict):
             osects = osects[:stop]
 
         n = len(self.filenames)
-        table = [["AbinitTimerSection"] + alternate(self.filenames, n * ["%"])]
+        table = [["AbinitTimerSection", *alternate(self.filenames, n * ["%"])]]
         for sect_name in osects:
             peff = self[sect_name]["wall_time"]
             fract = self[sect_name]["wall_fract"]

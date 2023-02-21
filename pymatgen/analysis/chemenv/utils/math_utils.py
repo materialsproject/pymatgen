@@ -33,7 +33,7 @@ def _append_es2sequences(sequences, es):
             result.append([e])
     else:
         for e in es:
-            result += [seq + [e] for seq in sequences]
+            result += [[*seq, e] for seq in sequences]
     return result
 
 

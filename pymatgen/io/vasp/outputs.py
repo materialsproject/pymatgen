@@ -4176,7 +4176,7 @@ class Xdatcar:
                     title = l
                 elif title == l:
                     preamble_done = False
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4201,7 +4201,7 @@ class Xdatcar:
                     else:
                         preamble.append(l)
                 elif l == "" or "Direct configuration=" in l:
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4214,7 +4214,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(l)
-            p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4283,7 +4283,7 @@ class Xdatcar:
                     else:
                         preamble.append(l)
                 elif l == "" or "Direct configuration=" in l:
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4294,7 +4294,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(l)
-            p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)

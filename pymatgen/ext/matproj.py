@@ -539,7 +539,7 @@ class _MPResterLegacy:
             "potcar_symbols",
             "oxide_type",
         ]
-        props = ["energy", "unit_cell_formula", "task_id"] + params
+        props = ["energy", "unit_cell_formula", "task_id", *params]
         if sort_by_e_above_hull:
             if property_data and "e_above_hull" not in property_data:
                 property_data.append("e_above_hull")

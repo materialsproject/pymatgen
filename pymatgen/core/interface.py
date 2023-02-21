@@ -292,7 +292,7 @@ class Interface(Structure):
         if new_c <= 0:
             raise ValueError("New c-length must be greater than 0")
 
-        new_latt_matrix = self.lattice.matrix[:2].tolist() + [[0, 0, new_c]]
+        new_latt_matrix = [*self.lattice.matrix[:2].tolist(), [0, 0, new_c]]
         new_latice = Lattice(new_latt_matrix)
         self._lattice = new_latice
 

@@ -542,7 +542,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
         # For the moment, should also fail even if compositions are in the gppd
         # because it isn't handled properly
-        gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {"Xe": 1}, self.pd.elements + [Element("Xe")])
+        gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {"Xe": 1}, [*self.pd.elements, Element("Xe")])
         with pytest.raises(ValueError):
             gppd.get_critical_compositions(
                 Composition("Fe2O3"),

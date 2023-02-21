@@ -1339,9 +1339,9 @@ class DisorderOrderedTransformation(AbstractTransformation):
             for smaller in _partition(collection[1:]):
                 # insert `first` in each of the subpartition's subsets
                 for n, subset in enumerate(smaller):
-                    yield smaller[:n] + [[first] + subset] + smaller[n + 1 :]
+                    yield smaller[:n] + [[first, *subset]] + smaller[n + 1 :]
                 # put `first` in its own subset
-                yield [[first]] + smaller
+                yield [[first], *smaller]
 
         def _sort_partitions(partitions_to_sort):
             """

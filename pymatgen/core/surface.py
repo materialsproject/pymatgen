@@ -277,7 +277,7 @@ class Slab(Structure):
                             break
                     else:
                         # Move unselected atom to the opposite surface.
-                        fcoords.append(s.frac_coords + [0, 0, shift])
+                        fcoords.append(s.frac_coords + [0, 0, shift])  # noqa: RUF005
 
                 # sort by species to put all similar species together.
                 sp_fcoord = sorted(zip(species, fcoords), key=lambda x: x[0])
@@ -871,12 +871,12 @@ class SlabGenerator:
             slab_scale_factor.append(eye[c_index])
         else:
             index_range = sorted(
-                reversed(range(-max_normal_search, max_normal_search + 1)),
-                key=lambda x: abs(x),
+                range(-max_normal_search, max_normal_search + 1),
+                key=lambda x: -abs(x),
             )
             candidates = []
             for uvw in itertools.product(index_range, index_range, index_range):
-                if (not any(uvw)) or abs(np.linalg.det(slab_scale_factor + [uvw])) < 1e-8:
+                if (not any(uvw)) or abs(np.linalg.det([*slab_scale_factor, uvw])) < 1e-8:
                     continue
                 vec = latt.get_cartesian_coords(uvw)
                 l = np.linalg.norm(vec)
