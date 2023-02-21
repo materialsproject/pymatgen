@@ -1298,7 +1298,7 @@ class GeneticOrderMatcher(KabschMatcher):
                     if p_atoms[jdx] != f_atom:
                         continue
 
-                    inds = indices + [jdx]
+                    inds = [*indices, jdx]
                     P = p_coords[inds]
 
                     # Both sets of coordinates must be translated first, so that

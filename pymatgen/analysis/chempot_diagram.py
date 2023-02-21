@@ -400,8 +400,8 @@ class ChemicalPotentialDiagram(MSONable):
         x, y = [], []
 
         for pts in draw_domains.values():
-            x.extend(pts[:, 0].tolist() + [None])
-            y.extend(pts[:, 1].tolist() + [None])
+            x.extend([*pts[:, 0].tolist(), None])
+            y.extend([*pts[:, 1].tolist(), None])
 
         lines = [
             Scatter(
@@ -424,9 +424,9 @@ class ChemicalPotentialDiagram(MSONable):
         for simplexes in domains.values():
             if simplexes:
                 for s in simplexes:
-                    x.extend(s.coords[:, 0].tolist() + [None])
-                    y.extend(s.coords[:, 1].tolist() + [None])
-                    z.extend(s.coords[:, 2].tolist() + [None])
+                    x.extend([*s.coords[:, 0].tolist(), None])
+                    y.extend([*s.coords[:, 1].tolist(), None])
+                    z.extend([*s.coords[:, 2].tolist(), None])
 
         lines = [
             Scatter3d(
@@ -505,9 +505,9 @@ class ChemicalPotentialDiagram(MSONable):
 
             x, y, z = [], [], []
             for s in simplexes:
-                x.extend(s.coords[:, 0].tolist() + [None])
-                y.extend(s.coords[:, 1].tolist() + [None])
-                z.extend(s.coords[:, 2].tolist() + [None])
+                x.extend([*s.coords[:, 0].tolist(), None])
+                y.extend([*s.coords[:, 1].tolist(), None])
+                z.extend([*s.coords[:, 2].tolist(), None])
 
             line = Scatter3d(
                 x=x,

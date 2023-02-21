@@ -816,7 +816,7 @@ class HeisenbergScreener:
         # Prioritize structures with fewer magmoms < 1 uB
         df_high_energy = df_high_energy.sort_values(by="n_below_1ub")
 
-        index = [0, 1] + list(df_high_energy.index)
+        index = [0, 1, *list(df_high_energy.index)]
 
         # sort
         df = df.reindex(index)

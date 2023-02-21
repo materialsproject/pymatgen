@@ -2322,7 +2322,7 @@ class IStructure(SiteCollection, MSONable):
         outs.append(
             tabulate(
                 data,
-                headers=["#", "SP", "a", "b", "c"] + keys,
+                headers=["#", "SP", "a", "b", "c", *keys],
             )
         )
         return "\n".join(outs)
@@ -2429,13 +2429,13 @@ class IStructure(SiteCollection, MSONable):
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
-            row = [site.species] + list(site.frac_coords) + list(site.coords)
+            row = [site.species, *list(site.frac_coords), *list(site.coords)]
             for k in prop_keys:
                 row.append(site.properties.get(k))
             data.append(row)
         import pandas as pd
 
-        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z"] + prop_keys)
+        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z", *prop_keys])
         df.attrs["Reduced Formula"] = self.composition.reduced_formula
         df.attrs["Lattice"] = self.lattice
         return df

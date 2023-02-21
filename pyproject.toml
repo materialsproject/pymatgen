@@ -23,6 +23,7 @@ select = [
   "PLE", # pylint error
   "PLW", # pylint warning
   "Q",   # flake8-quotes
+  "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
   "TID", # tidy imports
   "UP",  # pyupgrade

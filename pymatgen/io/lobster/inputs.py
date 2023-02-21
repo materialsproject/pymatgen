@@ -868,7 +868,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
                     if not isinstance(elbasis, list):
                         new_start_basis.append([elbasis, elbasis2])
                     else:
-                        new_start_basis.append(elbasis.copy() + [elbasis2])
+                        new_start_basis.append([*elbasis.copy(), elbasis2])
             start_basis = new_start_basis
         return start_basis
     return [[basis] for basis in start_basis]

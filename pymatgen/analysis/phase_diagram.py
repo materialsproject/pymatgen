@@ -1110,7 +1110,7 @@ class PhaseDiagram(MSONable):
         for cc in self.get_critical_compositions(el_comp, gc_comp)[1:]:
             decomp_entries = list(self.get_decomposition(cc))
             decomp = [k.composition for k in decomp_entries]
-            rxn = Reaction([comp], decomp + [el_comp])
+            rxn = Reaction([comp], [*decomp, el_comp])
             rxn.normalize_to(comp)
             c = self.get_composition_chempots(cc + el_comp * 1e-5)[element]
             amt = -rxn.coeffs[rxn.all_comp.index(el_comp)]
@@ -1860,7 +1860,7 @@ class ReactionDiagram:
 
         logger.debug(f"{len(all_entries)} total entries.")
 
-        pd = PhaseDiagram(all_entries + [entry1, entry2])
+        pd = PhaseDiagram([*all_entries, entry1, entry2])
         terminal_formulas = [
             entry1.composition.reduced_formula,
             entry2.composition.reduced_formula,
@@ -1968,7 +1968,7 @@ class ReactionDiagram:
         entry2 = PDEntry(self.entry2.composition, 0)
 
         cpd = CompoundPhaseDiagram(
-            self.rxn_entries + [entry1, entry2],
+            [*self.rxn_entries, entry1, entry2],
             [
                 Composition(entry1.composition.reduced_formula),
                 Composition(entry2.composition.reduced_formula),
@@ -2757,8 +2757,8 @@ class PDPlotter:
         x, y, z, energies = [], [], [], []
 
         for line in self.pd_plot_data[0]:
-            x.extend(list(line[0]) + [None])
-            y.extend(list(line[1]) + [None])
+            x.extend([*list(line[0]), None])
+            y.extend([*list(line[1]), None])
 
             if self._dim == 3:
                 z.extend(
@@ -2774,7 +2774,7 @@ class PDPlotter:
                     ]
                     + [None]
                 )
-                z.extend(list(line[2]) + [None])
+                z.extend([*list(line[2]), None])
 
         plot_args = {
             "mode": "lines",

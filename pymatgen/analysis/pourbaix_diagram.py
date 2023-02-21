@@ -744,7 +744,7 @@ class PourbaixDiagram(MSONable):
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
             react_coeffs = [-rxn.get_coeff(comp) for comp in entry_comps]
-            all_coeffs = react_coeffs + [rxn.get_coeff(prod_comp)]
+            all_coeffs = [*react_coeffs, rxn.get_coeff(prod_comp)]
 
             # Check if reaction coeff threshold met for Pourbaix compounds
             # All reactant/product coefficients must be positive nonzero
@@ -804,7 +804,7 @@ class PourbaixDiagram(MSONable):
             [0, 0, -1, 2 * g_max],
         ]
         hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
-        interior_point = np.average(limits, axis=1).tolist() + [g_max]
+        interior_point = [*np.average(limits, axis=1).tolist(), g_max]
         hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
         # organize the boundary points by entry

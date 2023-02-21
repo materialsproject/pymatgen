@@ -665,7 +665,7 @@ class NearNeighbors:
                 tmp = cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
                 params.append(tmp)
             lostops = LocalStructOrderParams(types, parameters=params)
-            sites = [structure[n]] + self.get_nn(structure, n)
+            sites = [structure[n], *self.get_nn(structure, n)]
             lostop_vals = lostops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
             d = {}
             for i, lostop in enumerate(lostop_vals):
