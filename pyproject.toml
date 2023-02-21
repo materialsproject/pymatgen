@@ -15,6 +15,7 @@ target-version = "py38"
 line-length = 120
 select = [
   "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
   "D",   # pydocstyle
   "E",   # pycodestyle
   "F",   # pyflakes

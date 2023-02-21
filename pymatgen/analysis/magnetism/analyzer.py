@@ -1022,7 +1022,7 @@ class MagneticStructureEnumerator:
             num_sym_ops = [len(SpaceGroup.from_int_number(n).symmetry_ops) for n in symmetry_int_numbers]
 
             # find the largest values...
-            max_symmetries = sorted(list(set(num_sym_ops)), reverse=True)
+            max_symmetries = sorted(set(num_sym_ops), reverse=True)
 
             # ...and decide which ones to keep
             if len(max_symmetries) > self.truncate_by_symmetry:

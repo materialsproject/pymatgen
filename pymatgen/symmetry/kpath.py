@@ -1299,24 +1299,21 @@ class KPathLatimerMunro(KPathBase):
         for orbit in key_points_inds_orbits[:-1]:
             orbit_cosines.append(
                 sorted(
-                    sorted(
+                    (
                         (
-                            (
-                                j,
-                                np.round(
-                                    np.dot(key_points[k], self.LabelPoints(j))
-                                    / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
-                                    decimals=3,
-                                ),
-                            )
-                            for k in orbit
-                            for j in range(26)
-                        ),
-                        key=operator.itemgetter(0),
+                            j,
+                            np.round(
+                                np.dot(key_points[k], self.LabelPoints(j))
+                                / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
+                                decimals=3,
+                            ),
+                        )
+                        for k in orbit
+                        for j in range(26)
                     ),
-                    key=operator.itemgetter(1),
-                    reverse=True,
-                )
+                    key=operator.itemgetter(0),
+                ),
+                key=-operator.itemgetter(1),
             )
 
         orbit_labels = self._get_orbit_labels(orbit_cosines, key_points_inds_orbits, atol)

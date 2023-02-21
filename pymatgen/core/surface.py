@@ -871,8 +871,8 @@ class SlabGenerator:
             slab_scale_factor.append(eye[c_index])
         else:
             index_range = sorted(
-                reversed(range(-max_normal_search, max_normal_search + 1)),
-                key=lambda x: abs(x),
+                range(-max_normal_search, max_normal_search + 1),
+                key=lambda x: -abs(x),
             )
             candidates = []
             for uvw in itertools.product(index_range, index_range, index_range):
