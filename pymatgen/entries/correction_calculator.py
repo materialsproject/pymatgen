@@ -392,7 +392,7 @@ class CorrectionCalculator:
         o_error: dict[str, float] = {}
         f_error: dict[str, float] = {}
 
-        for specie in [*list(self.species), "ozonide"]:
+        for specie in [*self.species, "ozonide"]:
             if specie in ggau_correction_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]

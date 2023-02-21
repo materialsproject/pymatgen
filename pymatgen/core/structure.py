@@ -2419,17 +2419,18 @@ class IStructure(SiteCollection, MSONable):
 
     def as_dataframe(self):
         """
-        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:
+        Create a Pandas dataframe of the sites. Structure-level attributes are stored in DataFrame.attrs.
 
-        Species    a    b             c    x             y             z  magmom
-        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
-        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+        Example:
+            Species    a    b             c    x             y             z  magmom
+            0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
+            1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
         """
         data = []
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
-            row = [site.species, *list(site.frac_coords), *list(site.coords)]
+            row = [site.species, *site.frac_coords, *site.coords]
             for k in prop_keys:
                 row.append(site.properties.get(k))
             data.append(row)
@@ -2743,9 +2744,9 @@ class IMolecule(SiteCollection, MSONable):
         validate_proximity: bool = False,
         site_properties: dict | None = None,
         charge_spin_check: bool = True,
-    ):
+    ) -> None:
         """
-        Creates a Molecule.
+        Create a Molecule.
 
         Args:
             species: list of atomic species. Possible kinds of input include a
@@ -2770,11 +2771,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                (
-                    "The list of atomic species must be of the",
-                    " same length as the list of fractional ",
-                    "coordinates.",
-                )
+                "The list of atomic species must be of the same length as the list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
@@ -2801,8 +2798,8 @@ class IMolecule(SiteCollection, MSONable):
         if spin_multiplicity:
             if charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is not possible for "
-                    "this molecule!"
+                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} "
+                    "is not possible for this molecule!"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:

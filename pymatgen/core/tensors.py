@@ -154,7 +154,7 @@ class Tensor(np.ndarray, MSONable):
                 einsum_string += "," + lc[idx : idx + length]
                 idx += length
 
-        einsum_args = [self, *list(other_arrays)]
+        einsum_args = [self, *other_arrays]
         return np.einsum(einsum_string, *einsum_args)
 
     def project(self, n):

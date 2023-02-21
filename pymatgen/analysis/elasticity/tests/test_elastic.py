@@ -157,7 +157,7 @@ class ElasticTensorTest(PymatgenTest):
         test_et[0][0][0][0] = -100000
         prop_dict = test_et.property_dict
         for attr_name in sprop_dict:
-            if attr_name not in ([*list(prop_dict), "structure"]):
+            if attr_name not in ([*prop_dict, "structure"]):
                 with pytest.raises(ValueError):
                     getattr(test_et, attr_name)(self.structure)
         with pytest.raises(ValueError):

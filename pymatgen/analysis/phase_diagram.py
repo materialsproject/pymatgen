@@ -2748,7 +2748,7 @@ class PDPlotter:
 
     def _create_plotly_lines(self):
         """
-        Creates Plotly scatter (line) plots for all phase diagram facets.
+        Create Plotly scatter (line) plots for all phase diagram facets.
 
         Returns:
             go.Scatter (or go.Scatter3d) plot
@@ -2757,24 +2757,22 @@ class PDPlotter:
         x, y, z, energies = [], [], [], []
 
         for line in self.pd_plot_data[0]:
-            x.extend([*list(line[0]), None])
-            y.extend([*list(line[1]), None])
+            x.extend([*line[0], None])
+            y.extend([*line[1], None])
 
             if self._dim == 3:
-                z.extend(
-                    [self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord]) for coord in zip(line[0], line[1])]
-                    + [None]
-                )
+                form_enes = [
+                    self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord]) for coord in zip(line[0], line[1])
+                ]
+                z.extend([*form_enes, None])
 
             elif self._dim == 4:
-                energies.extend(
-                    [
-                        self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord])
-                        for coord in zip(line[0], line[1], line[2])
-                    ]
-                    + [None]
-                )
-                z.extend([*list(line[2]), None])
+                form_enes = [
+                    self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord])
+                    for coord in zip(line[0], line[1], line[2])
+                ]
+                energies.extend([*form_enes, None])
+                z.extend([*line[2], None])
 
         plot_args = {
             "mode": "lines",
