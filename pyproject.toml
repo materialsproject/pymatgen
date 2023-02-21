@@ -30,19 +30,19 @@ select = [
 ]
 ignore = [
   "B019",    # functools.lru_cache on methods can lead to memory leaks
-  "B904",    # Within an except clause, raise exceptions with ...
-  "PLR2004", # Magic number
   "B023",    # Function definition does not bind loop variable
-  "PLW0120", # tmp: awaiting bug fix https://github.com/charliermarsh/ruff/issues/3019
+  "B904",    # Within an except clause, raise exceptions with ...
+  "D100",    # Missing docstring in public module
+  "D104",    # Missing docstring in public package
+  "D105",    # Missing docstring in magic method
+  "D107",    # Missing docstring in __init__
+  "D200",    # One-line docstring should fit on one line with quotes
+  "D205",    # 1 blank line required between summary line and description
+  "D212",    # Multi-line docstring summary should start at the first line
+  "D415",    # First line should end with a period, question mark, or exclamation point
   "E741",    # tmp: we should fix all ambiguous variable names
-  "D100",
-  "D104",
-  "D105",
-  "D107",
-  "D200",
-  "D205",
-  "D212",
-  "D415",
+  "PLR2004", # Magic number
+  "PLW0120", # awaiting bug fix https://github.com/charliermarsh/ruff/issues/3019
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]

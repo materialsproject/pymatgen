@@ -307,9 +307,10 @@ def stream_has_colours(stream):
         import curses
 
         curses.setupterm()
-        return curses.tigetnum("colors") > 2
     except Exception:
         return False  # guess false in case of error
+    else:
+        return curses.tigetnum("colors") > 2
 
 
 def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x", "y", "z"), c="", delim=","):
