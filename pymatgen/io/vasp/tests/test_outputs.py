@@ -217,7 +217,7 @@ class VasprunTest(PymatgenTest):
 
         pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
         self.assertAlmostEqual(pdos0_norm[Orbital.s][Spin.up][16], 0.0026)  # the site data should not change
-        self.assertEqual(pdos0_norm[Orbital.s][Spin.up].shape, (301,))
+        assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
 
         cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
