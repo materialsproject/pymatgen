@@ -313,7 +313,7 @@ class OptimadeRester:
         response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
-            url = join(resource, f'v1/structures?filter={optimade_filter}&response_fields="{response_fields}"')
+            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={response_fields}")
 
             try:
                 json = self._get_json(url)
