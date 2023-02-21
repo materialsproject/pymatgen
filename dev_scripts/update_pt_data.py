@@ -11,8 +11,8 @@ import json
 import re
 from itertools import product
 
-import ruamel.yaml as yaml
 from monty.serialization import dumpfn, loadfn
+from ruamel import yaml
 
 from pymatgen.core import Element
 from pymatgen.core.periodic_table import get_el_sp
