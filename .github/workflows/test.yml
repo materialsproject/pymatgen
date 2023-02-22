@@ -26,10 +26,29 @@ jobs:
     if: github.repository == 'materialsproject/pymatgen'
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8', '3.11']
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        include:
+          # this list is meant to maximize CI coverage of different platforms and python versions
+          # while minimizing the total number of jobs. make sure we run all splits on the oldest and
+          # newest supported python versions 3.8 - 3.11
+          - os: windows-latest # run all splits on windows + python 3.8
+            python-version: '3.8'
+          - os: ubuntu-latest # run all splits on ubuntu + python 3.11
+            python-version: '3.11'
+          # sample some splits on macos for all python versions
+          - os: macos-latest
+            python-version: '3.8'
+            split: 1
+          - os: macos-latest
+            python-version: '3.9'
+            split: 2
+          - os: macos-latest
+            python-version: '3.10'
+            split: 3
+          - os: macos-latest
+            python-version: '3.11'
+            split: 4
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
