@@ -516,11 +516,11 @@ class LammpsDataTest(unittest.TestCase):
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
         ff = self.ethane.force_field
-        key, target_df = random.sample(ff.items(), 1)[0]
+        key, target_df = random.sample(sorted(ff.items()), 1)[0]
         c2h6.force_field[key].index = c2h6.force_field[key].index.map(int)
         assert pd.testing.assert_frame_equal(c2h6.force_field[key], target_df, check_dtype=False) is None, key
         topo = self.ethane.topology
-        key, target_df = random.sample(topo.items(), 1)[0]
+        key, target_df = random.sample(sorted(topo.items()), 1)[0]
         c2h6.topology[key].index = c2h6.topology[key].index.map(int)
         assert pd.testing.assert_frame_equal(c2h6.topology[key], target_df) is None, key
 
@@ -1069,24 +1069,24 @@ class CombinedDataTest(unittest.TestCase):
         pd.testing.assert_frame_equal(lic3o3h4.masses, self.li_ec.masses)
         pd.testing.assert_frame_equal(lic3o3h4.atoms, self.li_ec.atoms)
         ff = self.li_ec.force_field
-        key, target_df = random.sample(ff.items(), 1)[0]
+        key, target_df = random.sample(sorted(ff.items()), 1)[0]
         lic3o3h4.force_field[key].index = lic3o3h4.force_field[key].index.map(int)
         assert pd.testing.assert_frame_equal(lic3o3h4.force_field[key], target_df, check_dtype=False) is None, key
         topo = self.li_ec.topology
-        key, target_df = random.sample(topo.items(), 1)[0]
+        key, target_df = random.sample(sorted(topo.items()), 1)[0]
         assert pd.testing.assert_frame_equal(lic3o3h4.topology[key], target_df) is None, key
         lic3o3h4.mols[1].masses.index = lic3o3h4.mols[1].masses.index.map(int)
         lic3o3h4.mols[1].atoms.index = lic3o3h4.mols[1].atoms.index.map(int)
         pd.testing.assert_frame_equal(lic3o3h4.mols[1].masses, self.li_ec.mols[1].masses)
         pd.testing.assert_frame_equal(lic3o3h4.mols[1].atoms, self.li_ec.mols[1].atoms)
         ff_1 = self.li_ec.mols[1].force_field
-        key, target_df = random.sample(ff_1.items(), 1)[0]
+        key, target_df = random.sample(sorted(ff_1.items()), 1)[0]
         lic3o3h4.mols[1].force_field[key].index = lic3o3h4.mols[1].force_field[key].index.map(int)
         assert (
             pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False) is None
         ), key
         topo_1 = self.li_ec.mols[1].topology
-        key, target_df = random.sample(topo_1.items(), 1)[0]
+        key, target_df = random.sample(sorted(topo_1.items()), 1)[0]
         lic3o3h4.mols[1].topology[key].index = lic3o3h4.mols[1].topology[key].index.map(int)
         assert pd.testing.assert_frame_equal(lic3o3h4.mols[1].topology[key], target_df) is None, key
 
