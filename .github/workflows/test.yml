@@ -27,9 +27,9 @@ jobs:
     strategy:
       matrix:
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
-        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         os: [ubuntu-latest, windows-latest]
         python-version: ['3.8', '3.11']
+        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         # include/exclude is meant to maximize CI coverage of different platforms and python
         # versions while minimizing the total number of jobs. We run all pytest splits with the
         # oldest supported python version (currently 3.8) on windows (seems most likely to surface

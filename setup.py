@@ -12,6 +12,8 @@ from setuptools import Extension, find_namespace_packages, setup
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
 extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 
+with open("README.md") as file:
+    long_description = file.read()
 
 setup(
     name="pymatgen",
@@ -119,7 +121,7 @@ setup(
     "structure codes. It is currently the core analysis code "
     "powering the Materials Project "
     "(https://materialsproject.org).",
-    long_description=open("README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     keywords=[
         "ABINIT",

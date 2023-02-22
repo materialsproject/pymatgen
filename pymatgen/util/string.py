@@ -414,16 +414,16 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     remainder = formula_double_format(total_disordered_occu, ignore_ones=False) + "-" + "-".join(symbols)
 
     for sp, occu in comp:
-        sp = str(sp)
-        if sp not in disordered_species:
-            disordered_comp.append((sp, formula_double_format(occu / factor)))
+        species = str(sp)
+        if species not in disordered_species:
+            disordered_comp.append((species, formula_double_format(occu / factor)))
         else:
             if len(symbols) > 0:
                 symbol = symbols.pop(0)
-                disordered_comp.append((sp, symbol))
+                disordered_comp.append((species, symbol))
                 variable_map[symbol] = occu / total_disordered_occu / factor
             else:
-                disordered_comp.append((sp, remainder))
+                disordered_comp.append((species, remainder))
 
     if fmt == "LaTeX":
         sub_start = "_{"
