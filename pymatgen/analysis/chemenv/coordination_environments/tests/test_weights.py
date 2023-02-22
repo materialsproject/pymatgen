@@ -131,7 +131,7 @@ class StrategyWeightsTest(PymatgenTest):
         with pytest.raises(ValueError, match="Both exponents are 0."):
             NormalizedAngleDistanceNbSetWeight(average_type="arithmetic", aa=0, bb=0)
         with pytest.raises(
-            ValueError, match='Average type is "arithmetix" ' 'while it should be "geometric" or "arithmetic"'
+            ValueError, match="Average type is 'arithmetix' while it should be 'geometric' or 'arithmetic'"
         ):
             NormalizedAngleDistanceNbSetWeight(average_type="arithmetix", aa=1, bb=1)
 
@@ -545,7 +545,6 @@ class StrategyWeightsTest(PymatgenTest):
         assert abs(delta_w - 1.0) < 1e-8
 
     def test_dist_angle_area_weight(self):
-
         surface_definition = {
             "type": "standard_elliptic",
             "distance_bounds": {"lower": 1.2, "upper": 1.8},
@@ -589,7 +588,6 @@ class StrategyWeightsTest(PymatgenTest):
         assert da_area_weight.rectangle_crosses_area(d1=d1, d2=d2, a1=a1, a2=a2)
 
     def test_dist_nb_set_weight(self):
-
         dnbset_weight = DistanceNbSetWeight()
         dnbset_weight2 = DistanceNbSetWeight(
             weight_function={

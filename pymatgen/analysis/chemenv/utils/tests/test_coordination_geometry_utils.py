@@ -23,7 +23,7 @@ class PlanesUtilsTest(PymatgenTest):
 
     def test_factors_abcd_normal_vector(self):
         factors = self.plane.coefficients / self.expected_coefficients
-        self.assertArrayAlmostEqual([factors[0]] * 4, [ff for ff in factors])
+        self.assertArrayAlmostEqual([factors[0]] * 4, list(factors))
         assert np.allclose([2.0 / 3.0, 1.0 / 3.0, -2.0 / 3.0], self.plane.normal_vector)
 
     def test_from_npoints_plane(self):

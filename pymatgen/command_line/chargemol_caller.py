@@ -45,12 +45,6 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 """
 from __future__ import annotations
 
-__author__ = "Martin Siron, Andrew S. Rosen"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "01/18/21"
-
 import glob
 import os
 import shutil
@@ -65,6 +59,12 @@ from monty.tempfile import ScratchDir
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
+
+__author__ = "Martin Siron, Andrew S. Rosen"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "01/18/21"
 
 CHARGEMOLEXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
@@ -183,18 +183,14 @@ class ChargemolAnalysis:
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
         with ScratchDir("."):
-            with zopen(self._chgcarpath, "rt") as f_in:
-                with open("CHGCAR", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._potcarpath, "rt") as f_in:
-                with open("POTCAR", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar0path, "rt") as f_in:
-                with open("AECCAR0", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar2path, "rt") as f_in:
-                with open("AECCAR2", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+            with zopen(self._chgcarpath, "rt") as f_in, open("CHGCAR", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            with zopen(self._potcarpath, "rt") as f_in, open("POTCAR", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            with zopen(self._aeccar0path, "rt") as f_in, open("AECCAR0", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            with zopen(self._aeccar2path, "rt") as f_in, open("AECCAR2", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
 
             # write job_script file:
             self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
@@ -354,10 +350,7 @@ class ChargemolAnalysis:
         """
         bonded_set = self.bond_order_dict[index_from]["bonded_to"]
         bond_orders = [v["bond_order"] for v in bonded_set if v["index"] == index_to]
-        if bond_orders == []:
-            sum_bo = 0.0
-        else:
-            sum_bo = np.sum(bond_orders)
+        sum_bo = 0.0 if bond_orders == [] else np.sum(bond_orders)
         return sum_bo
 
     def _write_jobscript_for_chargemol(
@@ -501,7 +494,7 @@ class ChargemolAnalysis:
         Takes CHGCAR's structure object and updates it with properties
         from the Chargemol analysis.
 
-        Returns
+        Returns:
             Pymatgen structure with site properties added
         """
         struct = self.structure.copy()
@@ -554,10 +547,7 @@ class ChargemolAnalysis:
         if self.bond_order_dict:
             ddec_summary["bond_order_dict"] = self.bond_order_dict
 
-        if self.cm5_charges:
-            cm5_summary = {"partial_charges": self.cm5_charges}
-        else:
-            cm5_summary = None
+        cm5_summary = {"partial_charges": self.cm5_charges} if self.cm5_charges else None
 
         summary["ddec"] = ddec_summary
         summary["cm5"] = cm5_summary

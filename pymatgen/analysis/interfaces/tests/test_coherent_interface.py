@@ -19,14 +19,12 @@ from pymatgen.util.testing import PymatgenTest
 class InterfaceBuilderTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-
         si_struct = cls.get_structure("Si")
         sio2_struct = cls.get_structure("SiO2")
         cls.si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
         cls.sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()
 
     def test_utils(self):
-
         self.assertArrayAlmostEqual(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
         self.assertArrayAlmostEqual(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
         self.assertArrayAlmostEqual(

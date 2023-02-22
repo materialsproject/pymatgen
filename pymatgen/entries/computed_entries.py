@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import abc
 import json
+import math
 import os
 import warnings
 from itertools import combinations
@@ -493,21 +494,23 @@ class ComputedEntry(Entry):
 
         other = cast(ComputedEntry, other)
 
-        # Equality is defined based on composition and energy
+        # Equality is defined based on composition and energy.
         # If structures are involved, it is assumed that a {composition, energy} is
-        # vanishingly unlikely to be the same if the structures are different
-        # if entry_ids are equivalent, skip the more expensive composition check
+        # vanishingly unlikely to be the same if the structures are different.
+        # If entry_ids are different, assume that the entries are different.
+        # However, if entry_id is same, they may have different corrections (e.g., due
+        # to mixing scheme used) and thus should be compared on corrected energy.
 
-        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None):
-            return self.entry_id == other.entry_id
+        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None) and self.entry_id != other.entry_id:
+            return False
 
-        if not np.allclose(self.energy, other.energy):
+        if not math.isclose(self.energy, other.energy):
             return False
 
         if self.composition != other.composition:
             return False
 
-        # assumes that data, parameters, corrections are equivalent
+        # assumes that data, parameters are equivalent
         return True
 
     @classmethod

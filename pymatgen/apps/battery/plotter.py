@@ -8,17 +8,16 @@ This module provides plotting capabilities for battery related applications.
 
 from __future__ import annotations
 
+import plotly.graph_objects as go
+
+from pymatgen.util.plotting import pretty_plot
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 12, 2012"
-
-
-import plotly.graph_objects as go
-
-from pymatgen.util.plotting import pretty_plot
 
 
 class VoltageProfilePlotter:
@@ -140,7 +139,7 @@ class VoltageProfilePlotter:
 
         Returns:
         """
-        font_dict = dict(family="Arial", size=24, color="#000000") if font_dict is None else font_dict
+        font_dict = {"family": "Arial", "size": 24, "color": "#000000"} if font_dict is None else font_dict
         hover_temp = "Voltage : %{y:.2f} V"
 
         data = []
@@ -167,8 +166,8 @@ class VoltageProfilePlotter:
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis=dict(title=self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)),
-                yaxis=dict(title="Voltage (V)"),
+                xaxis={"title": self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)},
+                yaxis={"title": "Voltage (V)"},
                 **kwargs,
             ),
         )
@@ -182,15 +181,9 @@ class VoltageProfilePlotter:
         if self.xaxis == "capacity_vol":
             return "Capacity (Ah/l)"
 
-        if len(formula) == 1:
-            formula = formula.pop()
-        else:
-            formula = None
+        formula = formula.pop() if len(formula) == 1 else None
 
-        if len(wion_symbol) == 1:
-            wion_symbol = wion_symbol.pop()
-        else:
-            wion_symbol = None
+        wion_symbol = wion_symbol.pop() if len(wion_symbol) == 1 else None
 
         if self.xaxis == "x_form":
             if formula and wion_symbol:

@@ -7,6 +7,8 @@ Development script of the ChemEnv utility to get the equivalent indices of the m
 
 from __future__ import annotations
 
+import numpy as np
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "2.0"
@@ -14,10 +16,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-import numpy as np
-
 if __name__ == "__main__":
-
     cg_symbol = "O:6"
     equiv_list = []
 

@@ -3,13 +3,6 @@
 
 from __future__ import annotations
 
-__author__ = "Shyam Dwaraknath"
-__copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyam Dwaraknath"
-__email__ = "shyamd@lbl.gov"
-__date__ = "2/5/16"
-
 import unittest
 
 import pytest
@@ -24,6 +17,13 @@ from pymatgen.analysis.interfaces.zsl import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
+__author__ = "Shyam Dwaraknath"
+__copyright__ = "Copyright 2016, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyam Dwaraknath"
+__email__ = "shyamd@lbl.gov"
+__date__ = "2/5/16"
+
 
 class ZSLGenTest(PymatgenTest):
     def setUp(self):
@@ -36,7 +36,6 @@ class ZSLGenTest(PymatgenTest):
         ).get_conventional_standard_structure()
 
     def test_zsl(self):
-
         z = ZSLGenerator()
 
         assert fast_norm([3, 2, 1]) == pytest.approx(3.74165738)
@@ -50,7 +49,6 @@ class ZSLGenTest(PymatgenTest):
         assert len(matches) == 8
 
     def test_bidirectional(self):
-
         z = ZSLGenerator(max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05)
 
         matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))

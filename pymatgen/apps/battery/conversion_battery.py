@@ -54,15 +54,11 @@ class ConversionElectrode(AbstractElectrode):
         composition and a phase diagram.
 
         Args:
-            comp:
-                Starting composition for ConversionElectrode, e.g.,
+            comp: Starting composition for ConversionElectrode, e.g.,
                 Composition("FeF3")
-            pd:
-                A PhaseDiagram of the relevant system (e.g., Li-Fe-F)
-            working_ion_symbol:
-                Element symbol of working ion. Defaults to Li.
-            allow_unstable:
-                Allow compositions that are unstable
+            pd: A PhaseDiagram of the relevant system (e.g., Li-Fe-F)
+            working_ion_symbol: Element symbol of working ion. Defaults to Li.
+            allow_unstable: Allow compositions that are unstable
         """
         working_ion = Element(working_ion_symbol)
         entry = None
@@ -274,6 +270,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
     """
     A VoltagePair representing a Conversion Reaction with a defined voltage.
     Typically not initialized directly but rather used by ConversionElectrode.
+
     Attributes:
         rxn (BalancedReaction): BalancedReaction for the step
         voltage (float): Voltage for the step
@@ -284,8 +281,14 @@ class ConversionVoltagePair(AbstractVoltagePair):
         mass_discharge (float): Mass of discharged state
         frac_charge (float): Fraction of working ion in the charged state
         frac_discharge (float): Fraction of working ion in the discharged state
-        entries_charge ([ComputedEntry]): Entries in the charged state
-        entries_discharge ([ComputedEntry]): Entries in discharged state
+        entries_charge ([ComputedEntry]): Entries representing decompositions products
+            in the charged state. Enumerates the decompositions products at the tieline,
+            so the number of entries will be one fewer than the dimensions of the phase
+            diagram
+        entries_discharge ([ComputedEntry]): Entries representing decompositions products
+            in the discharged state. Enumerates the decompositions products at the tieline,
+            so the number of entries will be one fewer than the dimensions of the phase
+            diagram
         working_ion_entry (ComputedEntry): Entry of the working ion.
     """
 
@@ -294,7 +297,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
     entries_discharge: Iterable[ComputedEntry]
 
     @classmethod
-    def from_steps(cls, step1, step2, normalization_els, framework_formula=None):
+    def from_steps(cls, step1, step2, normalization_els, framework_formula):
         """
         Creates a ConversionVoltagePair from two steps in the element profile
         from a PD analysis.
@@ -304,6 +307,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
             step2: Ending step
             normalization_els: Elements to normalize the reaction by. To
                 ensure correct capacities.
+            framework_formula: Formula of the framework.
         """
         working_ion_entry = step1["element_reference"]
         working_ion = working_ion_entry.composition.elements[0].symbol

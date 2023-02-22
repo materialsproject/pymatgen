@@ -510,12 +510,11 @@ class DftSet(Cp2kInput):
                 else:
                     raise ValueError("No explicit basis found and matching has failed.")
 
-            if aux_basis is None:
-                if basis_and_potential.get(el, {}).get("aux_basis"):
-                    warnings.warn(
-                        f"Unable to validate auxiliary basis for {el}. Exact name provided will be put in input file."
-                    )
-                    aux_basis = basis_and_potential[el].get("aux_basis")
+            if aux_basis is None and basis_and_potential.get(el, {}).get("aux_basis"):
+                warnings.warn(
+                    f"Unable to validate auxiliary basis for {el}. Exact name provided will be put in input file."
+                )
+                aux_basis = basis_and_potential[el].get("aux_basis")
 
             if potential is None:
                 if basis_and_potential.get(el, {}).get("potential"):
@@ -1352,10 +1351,9 @@ class DftSet(Cp2kInput):
             raise Cp2kValidationError("Does not support hartree fock with kpoints")
 
         for _, v in self["force_eval"]["subsys"].subsections.items():
-            if v.name.upper() == "KIND":
-                if v["POTENTIAL"].values[0].upper() == "ALL":
-                    if self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW":
-                        raise Cp2kValidationError("All electron basis sets require GAPW method")
+            if v.name.upper() == "KIND" and v["POTENTIAL"].values[0].upper() == "ALL":
+                if self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW":
+                    raise Cp2kValidationError("All electron basis sets require GAPW method")
 
 
 class StaticSet(DftSet):

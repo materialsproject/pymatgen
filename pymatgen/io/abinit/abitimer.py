@@ -44,7 +44,6 @@ class AbinitTimerParser(collections.abc.Iterable):
     Assume the Abinit output files have been produced with `timopt -1`.
 
     Example:
-
         parser = AbinitTimerParser()
         parser.parse(list_of_files)
 
@@ -223,10 +222,10 @@ class AbinitTimerParser(collections.abc.Iterable):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
                 # check = section_names
-                # else:
-                #  new_set = set( [s.name for s in timer.order_sections(ordkey)])
-                #  section_names.intersection_update(new_set)
-                #  check = check.union(new_set)
+            # else:
+            #     new_set = {s.name for s in timer.order_sections(ordkey)}
+            #     section_names.intersection_update(new_set)
+            #     check = check | new_set
 
         # if check != section_names:
         #  print("sections", section_names)
@@ -467,7 +466,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             else:
                 rest += svals
 
-        names.append(f"others (nmax={nmax})")
+        names.append(f"others ({nmax=})")
         values.append(rest)
 
         # The dataset is stored in values. Now create the stacked histogram.
@@ -524,7 +523,6 @@ class ParallelEfficiency(dict):
         self._ref_idx = ref_idx
 
     def _order_by_peff(self, key, criterion, reverse=True):
-
         self.estimator = {
             "min": min,
             "max": max,
@@ -532,7 +530,7 @@ class ParallelEfficiency(dict):
         }[criterion]
 
         data = []
-        for (sect_name, peff) in self.items():
+        for sect_name, peff in self.items():
             # Ignore values where we had a division by zero.
             if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
@@ -559,7 +557,7 @@ class ParallelEfficiency(dict):
             osects = osects[:stop]
 
         n = len(self.filenames)
-        table = [["AbinitTimerSection"] + alternate(self.filenames, n * ["%"])]
+        table = [["AbinitTimerSection", *alternate(self.filenames, n * ["%"])]]
         for sect_name in osects:
             peff = self[sect_name]["wall_time"]
             fract = self[sect_name]["wall_fract"]

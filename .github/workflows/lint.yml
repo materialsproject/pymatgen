@@ -16,29 +16,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11'
           cache: pip
           cache-dependency-path: setup.py
+
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
           pip install -e '.[dev]'
-      - name: pylint
+
+      - name: ruff
         run: |
-          pylint pymatgen
+          ruff --version
+          ruff check . --ignore 'D,SIM'
+
       - name: black
         run: |
           black --version
           black --check --diff --color pymatgen
-      - name: flake8
-        run: |
-          flake8 --version
-          flake8 --count --show-source --statistics pymatgen
-          # exit-zero treats all errors as warnings.
-          flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+
       - name: mypy
         run: |
           mypy --version

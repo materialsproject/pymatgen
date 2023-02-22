@@ -7,13 +7,6 @@ Script to visualize the model coordination environments
 
 from __future__ import annotations
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
 import copy
 import json
 from typing import Sequence
@@ -39,6 +32,14 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 )
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 allcg = AllCoordinationGeometries()
 
@@ -151,23 +152,23 @@ class CoordinationEnvironmentMorphing:
 
     def get_structure(self, morphing_factor):
         lattice = Lattice.cubic(5.0)
-        myspecies = ["O"] * (self.coordination_geometry.coordination_number + 1)
-        myspecies[0] = "Cu"
+        species = ["O"] * (self.coordination_geometry.coordination_number + 1)
+        species[0] = "Cu"
 
         coords = copy.deepcopy(self.abstract_geometry.points_wcs_ctwcc())
         bare_points = self.abstract_geometry.bare_points_with_centre
 
         for morphing in self.morphing_description:
             if morphing["site_type"] == "neighbor":
-                isite = morphing["ineighbor"] + 1
+                i_site = morphing["ineighbor"] + 1
                 if morphing["expansion_origin"] == "central_site":
                     origin = bare_points[0]
-                vector = bare_points[isite] - origin
-                coords[isite] += vector * (morphing_factor - 1.0)
+                vector = bare_points[i_site] - origin
+                coords[i_site] += vector * (morphing_factor - 1.0)
             else:
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
-        structure = Structure(lattice=lattice, species=myspecies, coords=coords, coords_are_cartesian=True)
+        structure = Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
         return structure
 
     def estimate_parameters(self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"):
@@ -286,11 +287,11 @@ if __name__ == "__main__":
     alldeltacsmmins = []
     all_cn_pairs = []
     for ii in range(1, 14):
-        self_weight_max_csms_per_cn[str(ii)] = list()
+        self_weight_max_csms_per_cn[str(ii)] = []
         for jj in range(ii + 1, 14):
             cn_pair = f"{ii:d}_{jj:d}"
-            self_weight_max_csms[cn_pair] = list()
-            delta_csm_mins[cn_pair] = list()
+            self_weight_max_csms[cn_pair] = []
+            delta_csm_mins[cn_pair] = []
             all_cn_pairs.append(cn_pair)
     for ce_pair_dict in ce_pairs:
         ce1 = ce_pair_dict["initial_environment_symbol"]

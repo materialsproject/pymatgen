@@ -95,9 +95,8 @@ def coord_list_mapping(subset, superset, atol=1e-8):
     c2 = np.array(superset)
     inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol), axis=2))[1]
     result = c2[inds]
-    if not np.allclose(c1, result, atol=atol):
-        if not is_coord_subset(subset, superset):
-            raise ValueError("subset is not a subset of superset")
+    if not np.allclose(c1, result, atol=atol) and not is_coord_subset(subset, superset):
+        raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
         raise ValueError("Something wrong with the inputs, likely duplicates in superset")
     return inds
@@ -204,7 +203,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         mask (boolean array): Mask of matches that are not allowed.
             i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
-        return_d2 (boolean): whether to also return the squared distances
+        return_d2 (bool): whether to also return the squared distances
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2
@@ -274,10 +273,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
     # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
-    if mask is not None:
-        m = np.array(mask, dtype=int)
-    else:
-        m = np.zeros((len(subset), len(superset)), dtype=int)
+    m = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)
     atol = np.zeros(3, dtype=np.float64) + atol
     return cuc.is_coord_subset_pbc(c1, c2, atol, m, pbc)
 
@@ -483,10 +479,7 @@ class Simplex(MSONable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Simplex):
             return NotImplemented
-        for p in itertools.permutations(self._coords):
-            if np.allclose(p, other.coords):
-                return True
-        return False
+        return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
 
     def __hash__(self):
         return len(self._coords)

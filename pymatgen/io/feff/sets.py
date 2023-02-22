@@ -333,7 +333,6 @@ class FEFFDictSet(AbstractFeffInputSet):
             )
 
             for site_index, site in enumerate(sub_d["header"].struct):
-
                 if site.specie == input_atoms[0].specie:
                     site_atoms = Atoms(sub_d["header"].struct, absorbing_atom=site_index, radius=radius)
                     site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util.plotting module &mdash; pymatgen 2023.1.9 documentation</title>
+  <title>pymatgen.util.plotting module &mdash; pymatgen 2023.1.30 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,15 +14,15 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.util.provenance module" href="pymatgen.util.provenance.html" />
     <link rel="prev" title="pymatgen.util.num module" href="pymatgen.util.num.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.9
+                2023.1.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -51,326 +52,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">v2023.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-7">v2022.11.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-1">v2022.11.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-10-22">v2022.10.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-21">v2022.9.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-8">v2022.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-8-23">v2022.8.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-25">v2022.7.25</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24-1">v2022.7.24.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24">v2022.7.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-19">v2022.7.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-8">v2022.7.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-26">v2022.5.26</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-19">v2022.5.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18-1">v2022.5.18.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18">v2022.5.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-17">v2022.5.17</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-26">v2022.4.26</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-19">v2022.4.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-29">v2022.3.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-24">v2022.3.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-22">v2022.3.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-7">v2022.3.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-10">v2022.2.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-7">v2022.2.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-1">v2022.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-24">v2022.1.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-20">v2022.1.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-9">v2022.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-8">v2022.1.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-17">v2022.0.17</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-16">v2022.0.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-15">v2022.0.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-14">v2022.0.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-13">v2022.0.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-12">v2022.0.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-11">v2022.0.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-10">v2022.0.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-9">v2022.0.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-8">v2022.0.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-7">v2022.0.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-6">v2022.0.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-5">v2022.0.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-3">v2022.0.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-2-yanked">v2022.0.2 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-1-yanked">v2022.0.1 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-0-yanked">v2022.0.0 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-5">v2021.3.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-4-yanked">v2021.3.4 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-3">v2021.3.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-16">v2021.2.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-14">v2021.2.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-12">v2021.2.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8-1">v2021.2.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8">v2021.2.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-1-28">v2021.1.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-31">v2020.12.31</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-18">v2020.12.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-3">v2020.12.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-11-11">v2020.11.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-20">v2020.10.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-9">v2020.10.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-9-14">v2020.9.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-13">v2020.8.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-3">v2020.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-18">v2020.7.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-16">v2020.7.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-14">v2020.7.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-10">v2020.7.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-3">v2020.7.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-6-8">v2020.6.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-29">v2020.4.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-2">v2020.4.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-13">v2020.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-2">v2020.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-28">v2020.1.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-10">v2020.1.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-22">v2019.12.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-3">v2019.12.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-11-11">v2019.11.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-16">v2019.10.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-4">v2019.10.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-3">v2019.10.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-2">v2019.10.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-16">v2019.9.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-12">v2019.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-8">v2019.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-7">v2019.9.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-23">v2019.8.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-14">v2019.8.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-30">v2019.7.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-21">v2019.7.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-2">v2019.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-20">v2019.6.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-5">v2019.6.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-28">v2019.5.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-8">v2019.5.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-1">v2019.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-4-11">v2019.4.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-27">v2019.3.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-13">v2019.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-28">v2019.2.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-24">v2019.2.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-4">v2019.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-24">v2019.1.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-13">v2019.1.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-12-12">v2018.12.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-30">v2018.11.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-6">v2018.11.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-10-18">v2018.10.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-30">v2018.9.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-19">v2018.9.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-12">v2018.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-10">v2018.8.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-7">v2018.8.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-7-15">v2018.7.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-27">v2018.6.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-11">v2018.6.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-22">v2018.5.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-21">v2018.5.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-14">v2018.5.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-3">v2018.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-20">v2018.4.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-6">v2018.4.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-22">v2018.3.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-14">v2018.3.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-13">v2018.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-2">v2018.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-2-13">v2018.2.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-29">v2018.1.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-19">v2018.1.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-30">v2017.12.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-16">v2017.12.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-15">v2017.12.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-8">v2017.12.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-6">v2017.12.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-30">v2017.11.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-27">v2017.11.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-9">v2017.11.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-6">v2017.11.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-10-16">v2017.10.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-29">v2017.9.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-23">v2017.9.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-3">v2017.9.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-1">v2017.9.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-21">v2017.8.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-20">v2017.8.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-16">v2017.8.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-14">v2017.8.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-4">v2017.8.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-21">v2017.7.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-4">v2017.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-24">v2017.6.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-22">v2017.6.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-8">v2017.6.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-7">v4.7.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-6">v4.7.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-5">v4.7.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-4">v4.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-3">v4.7.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-2">v4.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-1">v4.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-0">v4.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-2">v4.6.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-1">v4.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-0">v4.6.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-7">v4.5.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-6">v4.5.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-5">v4.5.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-4">v4.5.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-3">v4.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-2">v4.5.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-1">v4.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-0">v4.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-12">v4.4.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-11">v4.4.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-10">v4.4.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-9">v4.4.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-8">v4.4.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-7">v4.4.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-6">v4.4.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-5">v4.4.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-4">v4.4.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-3">v4.4.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-2">v4.4.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-1">v4.4.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-0">v4.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-2">v4.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-1">v4.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-0">v4.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-5">v4.2.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-4">v4.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-3">v4.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-2">v4.2.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-1">v4.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-0">v4.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-1">v4.1.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-0">v4.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-2">v4.0.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-1">v4.0.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-0">v4.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-1">v3.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-0">v3.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-1">v3.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-0">v3.6.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-3">v3.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-2">v3.5.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-1">v3.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-0">v3.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-4-0">v3.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-6">v3.3.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-5">v3.3.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-4">v3.3.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-3">v3.3.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-2">v3.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-1">v3.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-0">v3.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-10">v3.2.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-9">v3.2.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-8">v3.2.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-7">v3.2.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-6">v3.2.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-5">v3.2.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-4">v3.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-3">v3.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-1">v3.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-0">v3.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-9">v3.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-7">v3.1.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-6">v3.1.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-5">v3.1.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-4">v3.1.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-3">v3.1.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-2">v3.1.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-1">v3.1.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-0">v3.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-13">v3.0.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-11">v3.0.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-10">v3.0.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-9">v3.0.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-8">v3.0.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-7">v3.0.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-6">v3.0.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-5">v3.0.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-4">v3.0.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-3">v3.0.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-2">v3.0.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-1">v3.0.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-0">v3.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-6">v2.10.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-5">v2.10.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-3">v2.10.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-2">v2.10.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-1">v2.10.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-0">v2.10.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-14">v2.9.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-13">v2.9.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-12">v2.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-11">v2.9.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-10">v2.9.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-9">v2.9.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-8">v2.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-7">v2.9.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-6">v2.9.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-5">v2.9.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-4">v2.9.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-3">v2.9.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-2">v2.9.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-1">v2.9.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-0">v2.9.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-10">v2.8.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-9">v2.8.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-8">v2.8.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-7">v2.8.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-6">v2.8.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-4">v2.8.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-3">v2.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-2">v2.8.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-1">v2.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-0">v2.8.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-9">v2.7.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-7">v2.7.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-6">v2.7.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-5">v2.7.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-4">v2.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-2">v2.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-1">v2.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-0">v2.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-6">v2.6.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-5">v2.6.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-4">v2.6.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-3">v2.6.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-2">v2.6.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-1">v2.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-5">v2.5.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-4">v2.5.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-3">v2.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-1">v2.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-0">v2.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-3">v2.4.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-0">v2.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-2">v2.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-1">v2.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-0">v2.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-6">v2.2.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-4">v2.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-3">v2.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-2">v2.2.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-1">v2.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-0">v2.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-1-2">v2.1.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-0-0">v2.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-9-0">v1.9.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-3">v1.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-1">v1.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-0">v1.8.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-2">v1.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-0">v1.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-6-0">v1.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -431,12 +113,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="module-pymatgen.util.plotting">
-<span id="pymatgen-util-plotting-module"></span><h1>pymatgen.util.plotting module<a class="headerlink" href="#module-pymatgen.util.plotting" title="Permalink to this headline"></a></h1>
+  <section id="module-pymatgen.util.plotting">
+<span id="pymatgen-util-plotting-module"></span><h1>pymatgen.util.plotting module<a class="headerlink" href="#module-pymatgen.util.plotting" title="Permalink to this heading"></a></h1>
 <p>Utilities for generating nicer plots.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.add_fig_kwargs">
-<span class="sig-name descname"><span class="pre">add_fig_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L590-L690"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.add_fig_kwargs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_fig_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L590-L690"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.add_fig_kwargs" title="Permalink to this definition"></a></dt>
 <dd><p>Decorator that adds keyword arguments for functions returning matplotlib
 figures.</p>
 <p>The function should return either a matplotlib figure or None to signal
@@ -446,11 +128,11 @@ See doc string below for the list of supported options.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.format_formula">
-<span class="sig-name descname"><span class="pre">format_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L333-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.format_formula" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">format_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L333-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.format_formula" title="Permalink to this definition"></a></dt>
 <dd><p>Converts str of chemical formula into
 latex format for labelling purposes</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>formula</strong> (<em>str</em>) – Chemical formula</p>
 </dd>
 </dl>
@@ -458,20 +140,20 @@ latex format for labelling purposes</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.get_ax3d_fig_plt">
-<span class="sig-name descname"><span class="pre">get_ax3d_fig_plt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L525-L548"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax3d_fig_plt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_ax3d_fig_plt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L525-L548"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax3d_fig_plt" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function used in plot functions supporting an optional Axes3D
 argument. If ax is None, we build the <cite>matplotlib</cite> figure and create the
 Axes3D else we return the current active figure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> object
 figure: matplotlib figure
 plt: matplotlib pyplot module.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ax</p>
 </dd>
 </dl>
@@ -479,20 +161,20 @@ plt: matplotlib pyplot module.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.get_ax_fig_plt">
-<span class="sig-name descname"><span class="pre">get_ax_fig_plt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L500-L522"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax_fig_plt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_ax_fig_plt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L500-L522"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax_fig_plt" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function used in plot functions supporting an optional Axes argument.
 If ax is None, we build the <cite>matplotlib</cite> figure and create the Axes else
 we return the current active figure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> object
 figure: matplotlib figure
 plt: matplotlib pyplot module.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ax</p>
 </dd>
 </dl>
@@ -500,18 +182,18 @@ plt: matplotlib pyplot module.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.get_axarray_fig_plt">
-<span class="sig-name descname"><span class="pre">get_axarray_fig_plt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridspec_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fig_kw</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L551-L587"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.get_axarray_fig_plt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_axarray_fig_plt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridspec_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fig_kw</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L551-L587"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.get_axarray_fig_plt" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function used in plot functions that accept an optional array of Axes
 as argument. If ax_array is None, we build the <cite>matplotlib</cite> figure and
 create the array of Axes by calling plt.subplots else we return the
 current active figure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array of <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> objects
 figure: matplotlib figure
 plt: matplotlib pyplot module.</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>ax</p>
 </dd>
 </dl>
@@ -519,37 +201,37 @@ plt: matplotlib pyplot module.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.periodic_table_heatmap">
-<span class="sig-name descname"><span class="pre">periodic_table_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elemental_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'YlOrRd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blank_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grey'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_row</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">readable_fontcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L186-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">periodic_table_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elemental_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'YlOrRd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blank_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grey'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_row</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">readable_fontcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L186-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition"></a></dt>
 <dd><p>A static method that generates a heat map overlaid on a periodic table.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>elemental_data</strong> (<em>dict</em>) – A dictionary with the element as a key and a
 value assigned to it, e.g. surface energy and frequency, etc.
 Elements missing in the elemental_data will be grey by default
 in the final table elemental_data={“Fe”: 4.2, “O”: 5.0}.</p></li>
-<li><p><strong>cbar_label</strong> (<em>string</em>) – Label of the colorbar. Default is “”.</p></li>
-<li><p><strong>cbar_label_size</strong> (<em>float</em>) – Font size for the colorbar label. Default is 14.</p></li>
-<li><p><strong>cmap_range</strong> (<em>tuple</em>) – Minimum and maximum value of the colormap scale.
-If None, the colormap will automatically scale to the range of the
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of the color bar. Default is “”.</p></li>
+<li><p><strong>cbar_label_size</strong> (<em>float</em>) – Font size for the color bar label. Default is 14.</p></li>
+<li><p><strong>cmap_range</strong> (<em>tuple</em>) – Minimum and maximum value of the color map scale.
+If None, the color map will automatically scale to the range of the
 data.</p></li>
 <li><p><strong>show_plot</strong> (<em>bool</em>) – Whether to show the heatmap. Default is False.</p></li>
 <li><p><strong>value_format</strong> (<em>str</em>) – Formatting string to show values. If None, no value
 is shown. Example: “%.4f” shows float to four decimals.</p></li>
 <li><p><strong>value_fontsize</strong> (<em>float</em>) – Font size for values. Default is 10.</p></li>
 <li><p><strong>symbol_fontsize</strong> (<em>float</em>) – Font size for element symbols. Default is 14.</p></li>
-<li><p><strong>cmap</strong> (<em>string</em>) – Color scheme of the heatmap. Default is ‘YlOrRd’.
+<li><p><strong>cmap</strong> (<em>str</em>) – Color scheme of the heatmap. Default is ‘YlOrRd’.
 Refer to the matplotlib documentation for other options.</p></li>
-<li><p><strong>blank_color</strong> (<em>string</em>) – Color assigned for the missing elements in
+<li><p><strong>blank_color</strong> (<em>str</em>) – Color assigned for the missing elements in
 elemental_data. Default is “grey”.</p></li>
-<li><p><strong>edge_color</strong> (<em>string</em>) – Color assigned for the edge of elements in the
+<li><p><strong>edge_color</strong> (<em>str</em>) – Color assigned for the edge of elements in the
 periodic table. Default is “white”.</p></li>
-<li><p><strong>max_row</strong> (<em>integer</em>) – Maximum number of rows of the periodic table to be
+<li><p><strong>max_row</strong> (<em>int</em>) – Maximum number of rows of the periodic table to be
 shown. Default is 9, which means the periodic table heat map covers
 the standard 7 rows of the periodic table + 2 rows for the lanthanides
 and actinides. Use a value of max_row = 7 to exclude the lanthanides and
 actinides.</p></li>
-<li><p><strong>readable_fontcolor</strong> (<em>bool</em>) – Whether to use readable fontcolor depending
+<li><p><strong>readable_fontcolor</strong> (<em>bool</em>) – Whether to use readable font color depending
 on background color. Default is False.</p></li>
 </ul>
 </dd>
@@ -558,10 +240,10 @@ on background color. Default is False.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.pretty_plot">
-<span class="sig-name descname"><span class="pre">pretty_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('qualitative',</span> <span class="pre">'Set1_9')</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L17-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pretty_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('qualitative',</span> <span class="pre">'Set1_9')</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L17-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Provides a publication quality plot, with nice defaults for font sizes etc.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
@@ -573,7 +255,7 @@ existing plot. Otherwise, a new plot will be created.</p></li>
 color sets in palettable. Defaults to a qualitative Set1_9.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Matplotlib plot object with properly sized fonts.</p>
 </dd>
 </dl>
@@ -581,11 +263,11 @@ color sets in palettable. Defaults to a qualitative Set1_9.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.pretty_plot_two_axis">
-<span class="sig-name descname"><span class="pre">pretty_plot_two_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L70-L149"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot_two_axis" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pretty_plot_two_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L70-L149"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot_two_axis" title="Permalink to this definition"></a></dt>
 <dd><p>Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
 examples. Makes it easier to create plots with different axes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<em>np.ndarray/list</em>) – Data for x-axis.</p></li>
 <li><p><strong>y1</strong> (<em>dict/np.ndarray/list</em>) – Data for y1 axis (left). If a dict, it will
@@ -603,7 +285,7 @@ ratio.</p></li>
 linewidth, etc.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib.pyplot</p>
 </dd>
 </dl>
@@ -611,10 +293,10 @@ linewidth, etc.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.pretty_polyfit_plot">
-<span class="sig-name descname"><span class="pre">pretty_polyfit_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L152-L175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_polyfit_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pretty_polyfit_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L152-L175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_polyfit_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to plot data with trend lines based on polynomial fit.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> – Sequence of x data.</p></li>
 <li><p><strong>y</strong> – Sequence of y data.</p></li>
@@ -624,7 +306,7 @@ linewidth, etc.</p></li>
 <li><p><strong>kwargs</strong> – Keyword args passed to pretty_plot.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib.pyplot object.</p>
 </dd>
 </dl>
@@ -632,7 +314,7 @@ linewidth, etc.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.plotting.van_arkel_triangle">
-<span class="sig-name descname"><span class="pre">van_arkel_triangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_materials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.9/pymatgen/core/../util/plotting.py#L362-L497"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.van_arkel_triangle" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">van_arkel_triangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_materials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../util/plotting.py#L362-L497"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.plotting.van_arkel_triangle" title="Permalink to this definition"></a></dt>
 <dd><dl>
 <dt>A static method that generates a binary van Arkel-Ketelaar triangle to</dt><dd><p>quantify the ionic, metallic and covalent character of a compound
 by plotting the electronegativity difference (y) vs average (x).
@@ -653,7 +335,7 @@ See:</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_of_materials</strong> (<em>list</em>) – A list of computed entries of binary
 materials or a list of lists containing two elements (str).</p></li>
@@ -665,7 +347,7 @@ of elements (if list of list of str).</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>

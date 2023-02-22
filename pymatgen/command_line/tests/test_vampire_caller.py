@@ -9,6 +9,7 @@ import warnings
 from shutil import which
 
 import pandas as pd
+from pytest import approx
 
 import pymatgen.command_line.vampire_caller as vampirecaller
 from pymatgen.core.structure import Structure
@@ -21,7 +22,6 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 class VampireCallerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-
         print("Testing with: ", which("vampire-serial"))
 
         cls.Mn3Al = pd.read_json(os.path.join(test_dir, "Mn3Al.json"))
@@ -59,7 +59,7 @@ class VampireCallerTest(unittest.TestCase):
 
             voutput = vc.output
             critical_temp = voutput.critical_temp
-            self.assertAlmostEqual(400, critical_temp, delta=100)
+            assert approx(critical_temp) == 400
 
         if os.path.exists("Mn3Al.mat"):
             os.remove("Mn3Al.mat")

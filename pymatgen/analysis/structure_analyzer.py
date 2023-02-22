@@ -483,10 +483,9 @@ class OxideType:
         elif np.any(dist_matrix < relative_cutoff * 1.49):
             is_peroxide = True
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.49)[0]
-        if is_superoxide:
-            if len(bond_atoms) > len(set(bond_atoms)):
-                is_superoxide = False
-                is_ozonide = True
+        if is_superoxide and len(bond_atoms) > len(set(bond_atoms)):
+            is_superoxide = False
+            is_ozonide = True
         try:
             n_bonds = len(set(bond_atoms))
         except UnboundLocalError:
@@ -549,7 +548,6 @@ def sulfide_type(structure):
         s_sites = [site for site in structure if site.specie == s]
 
     def process_site(site):
-
         # in an exceptionally rare number of structures, the search
         # radius needs to be increased to find a neighbor atom
         search_radius = 4

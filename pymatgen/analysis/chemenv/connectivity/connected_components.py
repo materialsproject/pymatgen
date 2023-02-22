@@ -41,7 +41,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         ax.annotate(str(n), pos[n], ha="center", va="center", xycoords="data")
     seen = {}
     e = None
-    for (u, v, d) in env_graph.edges(data=True):
+    for u, v, d in env_graph.edges(data=True):
         n1 = env_graph.node[u]["patch"]
         n2 = env_graph.node[v]["patch"]
         rad = 0.1
@@ -78,7 +78,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=15.0,
                     lw=2,
                     alpha=alpha,
@@ -92,7 +92,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     patchA=n1,
                     patchB=n2,
                     arrowstyle="-|>",
-                    connectionstyle=f"arc3,rad={rad}",
+                    connectionstyle=f"arc3,{rad=}",
                     mutation_scale=10.0,
                     lw=2,
                     alpha=alpha,
@@ -106,7 +106,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                 patchA=n1,
                 patchB=n2,
                 arrowstyle="-|>",
-                connectionstyle=f"arc3,rad={rad}",
+                connectionstyle=f"arc3,{rad=}",
                 mutation_scale=10.0,
                 lw=2,
                 alpha=alpha,
@@ -147,7 +147,7 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
         edges = graph.edges(data=True, keys=True)
         connecting_edges = []
         other_edges = []
-        for (n1, n2, key, data) in edges:
+        for n1, n2, key, data in edges:
             print(n1, n2, key, data)
             if np.all(np.array(data["delta"]) == np.array(periodicity_vectors[0])):
                 connecting_edges.append((n1, n2, key, data))
@@ -210,7 +210,7 @@ class ConnectedComponent(MSONable):
         environments_data=None,
         links_data=None,
         graph=None,
-    ):
+    ) -> None:
         """
         Constructor for the ConnectedComponent object.
 
@@ -240,10 +240,7 @@ class ConnectedComponent(MSONable):
             for edge in links:
                 env_node1 = edge[0]
                 env_node2 = edge[1]
-                if len(edge) == 2:
-                    key = None
-                else:
-                    key = edge[2]
+                key = None if len(edge) == 2 else edge[2]
                 if (not self._connected_subgraph.has_node(env_node1)) or (
                     not self._connected_subgraph.has_node(env_node2)
                 ):
@@ -334,10 +331,10 @@ class ConnectedComponent(MSONable):
         # One possible quotient graph of this periodic net :
         #          __           __
         # (0,1,0) /  \         /  \ (0,1,0)
-        #         `<--A--->---B--<´
+        #         `<--A--->---B--<`
         #            / (0,0,0) \
         #            \         /
-        #             `--->---´
+        #             `--->---`
         #              (1,0,0)
         #
         # The "number" coordination sequence starting from any environment is : 4-8-12-16-...
@@ -354,7 +351,7 @@ class ConnectedComponent(MSONable):
             elif coordination == "env:number":
                 cseq[0] = {source_node.coordination_environment: 1}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         while path_len < path_size:
             new_ends = []
             for current_node_end, current_delta_end in current_ends:
@@ -377,7 +374,7 @@ class ConnectedComponent(MSONable):
                 myenvs = [myend.coordination_environment for myend, _ in current_ends]
                 cseq[path_len] = {myenv: myenvs.count(myenv) for myenv in set(myenvs)}
             else:
-                raise ValueError(f'Coordination type "{coordination}" is not valid for coordination_sequence.')
+                raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         return cseq
 
     def __len__(self):
@@ -395,7 +392,7 @@ class ConnectedComponent(MSONable):
         elif algorithm == "cycle_basis":
             self.compute_periodicity_cycle_basis()
         else:
-            raise ValueError(f'Algorithm "{algorithm}" is not allowed to compute periodicity')
+            raise ValueError(f"Algorithm {algorithm!r} is not allowed to compute periodicity")
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
@@ -457,7 +454,7 @@ class ConnectedComponent(MSONable):
                     # TODO: there are some paths that appears twice for cycles, and there are some paths that should
                     # probably not be considered
                     this_path_deltas = [np.zeros(3, int)]
-                    for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
+                    for node1, node2 in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
                         this_path_deltas_new = []
                         for edge_data in self._connected_subgraph[node1][node2].values():
                             delta = get_delta(node1, node2, edge_data)
@@ -496,7 +493,7 @@ class ConnectedComponent(MSONable):
             mycyc = list(cyc)
             mycyc.append(cyc[0])
             this_cycle_deltas = [np.zeros(3, int)]
-            for (node1, node2) in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
+            for node1, node2 in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
                 this_cycle_deltas_new = []
                 for edge_data in self._connected_subgraph[node1][node2].values():
                     delta = get_delta(node1, node2, edge_data)
@@ -540,22 +537,17 @@ class ConnectedComponent(MSONable):
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
 
-    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True):
+    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
         """
         Args:
             graph ():
             save_file ():
             drawing_type ():
             pltshow ():
-
-        Returns:
         """
         import matplotlib.pyplot as plt
 
-        if graph is None:
-            shown_graph = self._connected_subgraph
-        else:
-            shown_graph = graph
+        shown_graph = self._connected_subgraph if graph is None else graph
 
         plt.figure()
         # pos = nx.spring_layout(shown_graph)
@@ -689,6 +681,7 @@ class ConnectedComponent(MSONable):
             start_node ():
 
         Returns:
+            nx.MultiGraph: Elastic centered subgraph.
         """
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
@@ -838,7 +831,7 @@ class ConnectedComponent(MSONable):
             dict: Edge data dictionary with the lists transformed back into tuples when applicable.
         """
         edata["delta"] = tuple(edata["delta"])
-        edata["ligands"] = [tuple([lig[0], tuple(lig[1]), tuple(lig[2])]) for lig in edata["ligands"]]
+        edata["ligands"] = [(lig[0], tuple(lig[1]), tuple(lig[2])) for lig in edata["ligands"]]
         return edata
 
     def as_dict(self):
@@ -902,6 +895,7 @@ class ConnectedComponent(MSONable):
 
         Args:
             g (MultiGraph): Graph of the connected component.
+
         Returns:
             ConnectedComponent: The connected component representing the links of a given set of environments.
         """

@@ -226,7 +226,6 @@ class PhononBandStructure(MSONable):
         """
         for i in range(self.nb_qpoints):
             if np.allclose(self.qpoints[i].frac_coords, (0, 0, 0)):
-
                 if self.has_eigendisplacements:
                     acoustic_modes_index = []
                     for j in range(self.nb_bands):
@@ -263,12 +262,12 @@ class PhononBandStructure(MSONable):
             d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
 
         # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = dict(
-            real=np.real(self.eigendisplacements).tolist(),
-            imag=np.imag(self.eigendisplacements).tolist(),
-        )
+        d["eigendisplacements"] = {
+            "real": np.real(self.eigendisplacements).tolist(),
+            "imag": np.imag(self.eigendisplacements).tolist(),
+        }
         d["nac_eigendisplacements"] = [
-            (direction, dict(real=np.real(e).tolist(), imag=np.imag(e).tolist()))
+            (direction, {"real": np.real(e).tolist(), "imag": np.imag(e).tolist()})
             for direction, e in self.nac_eigendisplacements
         ]
         d["nac_frequencies"] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
@@ -378,11 +377,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 )
             previous_qpoint = self.qpoints[i]
             previous_distance = self.distance[i]
-            if label:
-                if previous_label:
-                    if len(one_group) != 0:
-                        branches_tmp.append(one_group)
-                    one_group = []
+            if label and previous_label:
+                if len(one_group) != 0:
+                    branches_tmp.append(one_group)
+                one_group = []
             previous_label = label
             one_group.append(i)
         if len(one_group) != 0:

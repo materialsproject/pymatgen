@@ -7,14 +7,6 @@ This module contains some utility functions and classes that are used in the che
 
 from __future__ import annotations
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
 import math
 
 import numpy as np
@@ -24,6 +16,14 @@ from scipy.interpolate import UnivariateSpline
 from scipy.spatial import ConvexHull
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 
 def get_lower_and_upper_f(surface_calculation_options):
@@ -339,14 +339,8 @@ def rectangle_surface_intersection(
         raise NotImplementedError("Bounds should be given right now ...")
     if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
         return 0.0, 0.0
-    if x1 < bounds_lower[0]:
-        xmin = bounds_lower[0]
-    else:
-        xmin = x1
-    if x2 > bounds_lower[1]:
-        xmax = bounds_lower[1]
-    else:
-        xmax = x2
+    xmin = bounds_lower[0] if x1 < bounds_lower[0] else x1
+    xmax = bounds_lower[1] if x2 > bounds_lower[1] else x2
 
     def diff(x):
         flwx = f_lower(x)
@@ -706,10 +700,7 @@ class Plane:
         :param plane_list: List of Planes to be compared to
         :return: True if the plane is in the list, False otherwise
         """
-        for plane in plane_list:
-            if self.is_same_plane_as(plane):
-                return True
-        return False
+        return any(self.is_same_plane_as(plane) for plane in plane_list)
 
     def indices_separate(self, points, dist_tolerance):
         """

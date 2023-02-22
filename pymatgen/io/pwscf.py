@@ -107,7 +107,7 @@ class PWInput:
 
         def to_str(v):
             if isinstance(v, str):
-                return f"'{v}'"
+                return f"{v!r}"
             if isinstance(v, float):
                 return f"{str(v).replace('e', 'd')}"
             if isinstance(v, bool):
@@ -141,10 +141,7 @@ class PWInput:
         out.append("ATOMIC_SPECIES")
         for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
             e = re.match(r"[A-Z][a-z]?", k).group(0)
-            if self.pseudo is not None:
-                p = v
-            else:
-                p = v["pseudo"]
+            p = v if self.pseudo is not None else v["pseudo"]
             out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
 
         out.append("ATOMIC_POSITIONS crystal")

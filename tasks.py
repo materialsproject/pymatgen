@@ -97,7 +97,7 @@ def make_dash(ctx):
     ctx.run("cp docs_rst/conf-docset.py docs_rst/conf.py")
     make_doc(ctx)
     ctx.run("rm docs/_static/pymatgen.docset.tgz", warn=True)
-    ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/")
+    ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.svg -u https://pymatgen.org/")
     plist = "pymatgen.docset/Contents/Info.plist"
     xml = []
     with open(plist) as f:
@@ -106,7 +106,7 @@ def make_dash(ctx):
             if l.strip() == "<dict>":
                 xml.append("<key>dashIndexFilePath</key>")
                 xml.append("<string>index.html</string>")
-    with open(plist, "wt") as f:
+    with open(plist, "w") as f:
         f.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
     # xml = []
@@ -131,7 +131,7 @@ def contribute_dash(ctx, version):
         with open("docset.json") as f:
             data = json.load(f)
             data["version"] = version
-        with open("docset.json", "wt") as f:
+        with open("docset.json", "w") as f:
             json.dump(data, f, indent=4)
         ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
         ctx.run("git push")
@@ -183,16 +183,16 @@ def publish(ctx):
 def set_ver(ctx, version):
     with open("pymatgen/core/__init__.py") as f:
         contents = f.read()
-        contents = re.sub(r"__version__ = .*\n", f'__version__ = "{version}"\n', contents)
+        contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
-    with open("pymatgen/core/__init__.py", "wt") as f:
+    with open("pymatgen/core/__init__.py", "w") as f:
         f.write(contents)
 
     with open("setup.py") as f:
         contents = f.read()
-        contents = re.sub(r"version=([^,]+),", f'version="{version}",', contents)
+        contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", "wt") as f:
+    with open("setup.py", "w") as f:
         f.write(contents)
 
 
@@ -274,7 +274,7 @@ def update_changelog(ctx, version=None, dry_run=False):
                     ll = ll.strip()
                     if ll in ["", "## Summary"]:
                         continue
-                    elif ll.startswith("## Checklist") or ll.startswith("## TODO"):
+                    elif ll.startswith(("## Checklist", "## TODO")):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)
@@ -305,6 +305,8 @@ def release(ctx, version=None, nodoc=False):
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
+    ctx.run("black setup.py")
+    ctx.run("black pymatgen/core/__init__.py")
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
@@ -352,7 +354,7 @@ def check_egg_sources_txt_for_completeness():
 
     for ext in ("py", "json", "json.gz", "yaml", "csv"):
         for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
-            if "/tests/" in filepath:
+            if "/tests/" in filepath or "dao" in filepath:
                 continue
             if filepath not in sources:
                 raise ValueError(f"{filepath} not found in {src_txt}")

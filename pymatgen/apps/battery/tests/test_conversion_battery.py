@@ -9,6 +9,7 @@ import os
 import unittest
 
 from monty.json import MontyDecoder
+from pytest import approx
 
 from pymatgen.apps.battery.conversion_battery import (
     ConversionElectrode,
@@ -20,11 +21,9 @@ from pymatgen.util.testing import PymatgenTest
 
 class ConversionElectrodeTest(unittest.TestCase):
     def setUp(self):
-
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_eletrodes = {}
         for f in self.formulas:
-
             with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json")) as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
@@ -78,28 +77,28 @@ class ConversionElectrodeTest(unittest.TestCase):
         for f in self.formulas:
             c = self.conversion_eletrodes[f]["CE"]
 
-            self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
-            self.assertEqual(len(c.get_sub_electrodes(False)), sum(range(1, c.num_steps + 1)))
-            self.assertIsNotNone(str(c))
+            assert len(c.get_sub_electrodes(True)) == c.num_steps
+            assert len(c.get_sub_electrodes(False)) == sum(range(1, c.num_steps + 1))
+            assert str(c) is not None
             p = self.expected_properties[f]
 
             for k, v in p.items():
-                self.assertAlmostEqual(getattr(c, "get_" + k)(), v, 2)
+                assert getattr(c, "get_" + k)() == approx(v, abs=1e-2)
 
-            self.assertIsNotNone(c.get_summary_dict(True))
+            assert c.get_summary_dict(True) is not None
 
             # try to export/import a voltage pair via a dict
             pair = c.voltage_pairs[0]
             d = pair.as_dict()
             pair2 = ConversionVoltagePair.from_dict(d)
             for prop in ["voltage", "mass_charge", "mass_discharge"]:
-                self.assertEqual(getattr(pair, prop), getattr(pair2, prop), 2)
+                assert getattr(pair, prop) == getattr(pair2, prop), 2
 
             # try to create an electrode from a dict and test methods
             d = c.as_dict()
             electrode = ConversionElectrode.from_dict(d)
             for k, v in p.items():
-                self.assertAlmostEqual(getattr(electrode, "get_" + k)(), v, 2)
+                assert getattr(electrode, "get_" + k)() == approx(v, abs=1e-2)
 
     def test_summary(self):
         kmap = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
@@ -109,7 +108,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             p = self.expected_properties[f]
             for k, v in p.items():
                 summary_key = kmap.get(k, k)
-                self.assertAlmostEqual(d[summary_key], v, 2)
+                assert d[summary_key] == approx(v, abs=1e-2)
 
     def test_composite(self):
         # check entries in charged/discharged state
@@ -121,7 +120,7 @@ class ConversionElectrodeTest(unittest.TestCase):
                 for attri in ["entries_charge", "entries_discharge"]:
                     # composite at each discharge step, of which entry object is simplified to reduced formula
                     entries_formula_list = [entry.composition.reduced_formula for entry in getattr(vpair, attri)]
-                    self.assertEqual(entries_formula_list, composite_dict[attri][step])
+                    assert entries_formula_list == composite_dict[attri][step]
 
 
 if __name__ == "__main__":

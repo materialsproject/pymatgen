@@ -1061,10 +1061,7 @@ class Lattice(MSONable):
 
                 aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
 
-                if skip_rotation_matrix:
-                    rotation_m = None
-                else:
-                    rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+                rotation_m = None if skip_rotation_matrix else np.linalg.solve(aligned_m, other_lattice.matrix)
 
                 yield Lattice(aligned_m), rotation_m, scale_m
 
@@ -1244,11 +1241,11 @@ class Lattice(MSONable):
                 2 * G[0, 1],
             )
 
-            if A > B + e or (abs(A - B) < e and abs(E) > abs(N) + e):
+            if B + e < A or (abs(A - B) < e and abs(E) > abs(N) + e):
                 # A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
                 G = dot(transpose(M), dot(G, M))
-            if (B > C + e) or (abs(B - C) < e and abs(N) > abs(Y) + e):
+            if (C + e < B) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 # A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
                 G = dot(transpose(M), dot(G, M))
@@ -1290,19 +1287,19 @@ class Lattice(MSONable):
             )
 
             # A5
-            if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or (abs(E + B) < e and Y < -e):
+            if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or (abs(E + B) < e and -e > Y):
                 M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             # A6
-            if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or (abs(A + N) < e and Y < -e):
+            if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or (abs(A + N) < e and -e > Y):
                 M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             # A7
-            if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or (abs(A + Y) < e and N < -e):
+            if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or (abs(A + Y) < e and -e > N):
                 M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
@@ -2071,10 +2068,7 @@ def find_neighbors(label: np.ndarray, nx: int, ny: int, nz: int) -> list[np.ndar
     """
     array = [[-1, 0, 1]] * 3
     neighbor_vectors = np.array(list(itertools.product(*array)), dtype=int)
-    if np.shape(label)[1] == 1:
-        label3d = _one_to_three(label, ny, nz)
-    else:
-        label3d = label
+    label3d = _one_to_three(label, ny, nz) if np.shape(label)[1] == 1 else label
     all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
     filtered_labels = []
     # filter out out-of-bound labels i.e., label < 0

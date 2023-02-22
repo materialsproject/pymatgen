@@ -381,7 +381,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         charge = 0
         for site in self:
             for specie, amt in site.species.items():
-                charge += getattr(specie, "oxi_state", 0) * amt
+                charge += (getattr(specie, "oxi_state", 0) or 0) * amt
+
         return charge
 
     @property
@@ -864,10 +865,7 @@ class IStructure(SiteCollection, MSONable):
         except ValueError:
             spg = SpaceGroup(sg)
 
-        if isinstance(lattice, Lattice):
-            latt = lattice
-        else:
-            latt = Lattice(lattice)
+        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         if not spg.is_compatible(latt):
             raise ValueError(
@@ -962,10 +960,7 @@ class IStructure(SiteCollection, MSONable):
         if not isinstance(msg, MagneticSpaceGroup):
             msg = MagneticSpaceGroup(msg)
 
-        if isinstance(lattice, Lattice):
-            latt = lattice
-        else:
-            latt = Lattice(lattice)
+        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         if not msg.is_compatible(latt):
             raise ValueError(
@@ -998,13 +993,25 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
+    def unset_charge(self):
+        """
+        Reset the charge to None, i.e., computed dynamically based on oxidation states.
+        """
+        self._charge = None
+
     @property
     def charge(self) -> float:
         """
         Overall charge of the structure
         """
+        formal_charge = super().charge
         if self._charge is None:
             return super().charge
+        if formal_charge != self._charge:
+            warnings.warn(
+                f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
+                f" ({formal_charge}). Use `unset_charge` if this is not desired."
+            )
         return self._charge
 
     @property
@@ -1090,7 +1097,6 @@ class IStructure(SiteCollection, MSONable):
         return m.fit_anonymous(self, other)
 
     def __eq__(self, other: object) -> bool:
-
         # check for valid operand following class Student example from official functools docs
         # https://docs.python.org/3/library/functools.html#functools.total_ordering
         if not isinstance(other, IStructure):
@@ -1102,10 +1108,7 @@ class IStructure(SiteCollection, MSONable):
             return False
         if self.lattice != other.lattice:
             return False
-        for site in self:
-            if site not in other:
-                return False
-        return True
+        return all(site in other for site in self)
 
     def __hash__(self) -> int:
         # For now, just use the composition hash code.
@@ -1341,13 +1344,11 @@ class IStructure(SiteCollection, MSONable):
                     points_indices.append(n.index)
                     offsets.append(n.image)
                     distances.append(n.nn_distance)
-        return tuple(
-            (
-                np.array(center_indices),
-                np.array(points_indices),
-                np.array(offsets),
-                np.array(distances),
-            )
+        return (
+            np.array(center_indices),
+            np.array(points_indices),
+            np.array(offsets),
+            np.array(distances),
         )
 
     def get_neighbor_list(
@@ -1406,13 +1407,11 @@ class IStructure(SiteCollection, MSONable):
             if exclude_self:
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
-            return tuple(
-                (
-                    center_indices[cond],
-                    points_indices[cond],
-                    images[cond],
-                    distances[cond],
-                )
+            return (
+                center_indices[cond],
+                points_indices[cond],
+                images[cond],
+                distances[cond],
             )
 
     def get_symmetric_neighbor_list(
@@ -1493,7 +1492,7 @@ class IStructure(SiteCollection, MSONable):
                     for it2, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
                         bool1 = i == j2
                         bool2 = j == i2
-                        bool3 = (R == -R2).all()
+                        bool3 = (-R2 == R).all()
                         bool4 = np.isclose(d, d2, atol=numerical_tol)
                         if bool1 and bool2 and bool3 and bool4:
                             redundant.append(it2)
@@ -1644,7 +1643,7 @@ class IStructure(SiteCollection, MSONable):
                 # returns True immediately once one of the conditions are satisfied.
                 psite.species != csite.species
                 or (not np.allclose(psite.coords, csite.coords, atol=atol))
-                or (not psite.properties == csite.properties)
+                or (psite.properties != csite.properties)
             ):
                 neighbor_dict[cindex].append(
                     PeriodicNeighbor(
@@ -1796,7 +1795,7 @@ class IStructure(SiteCollection, MSONable):
             all_dists = all_distances(coords, site_coords)
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
-            for (j, d, within_r) in zip(indices, all_dists, all_within_r):
+            for j, d, within_r in zip(indices, all_dists, all_within_r):
                 if include_site:
                     nnsite = PeriodicSite(
                         self[j].species,
@@ -2323,7 +2322,7 @@ class IStructure(SiteCollection, MSONable):
         outs.append(
             tabulate(
                 data,
-                headers=["#", "SP", "a", "b", "c"] + keys,
+                headers=["#", "SP", "a", "b", "c", *keys],
             )
         )
         return "\n".join(outs)
@@ -2420,23 +2419,24 @@ class IStructure(SiteCollection, MSONable):
 
     def as_dataframe(self):
         """
-        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:
+        Create a Pandas dataframe of the sites. Structure-level attributes are stored in DataFrame.attrs.
 
-        Species    a    b             c    x             y             z  magmom
-        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
-        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+        Example:
+            Species    a    b             c    x             y             z  magmom
+            0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
+            1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
         """
         data = []
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
-            row = [site.species] + list(site.frac_coords) + list(site.coords)
+            row = [site.species, *site.frac_coords, *site.coords]
             for k in prop_keys:
                 row.append(site.properties.get(k))
             data.append(row)
         import pandas as pd
 
-        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z"] + prop_keys)
+        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z", *prop_keys])
         df.attrs["Reduced Formula"] = self.composition.reduced_formula
         df.attrs["Lattice"] = self.lattice
         return df
@@ -2572,6 +2572,7 @@ class IStructure(SiteCollection, MSONable):
         primitive: bool = False,
         sort: bool = False,
         merge_tol: float = 0.0,
+        **kwargs,
     ) -> Structure | IStructure:
         """
         Reads a structure from a string.
@@ -2587,6 +2588,7 @@ class IStructure(SiteCollection, MSONable):
             merge_tol (float): If this is some positive number, sites that
                 are within merge_tol from each other will be merged. Usually
                 0.01 should be enough to deal with common numerical issues.
+            **kwargs: Passthrough to relevant parser.
 
         Returns:
             IStructure | Structure
@@ -2595,16 +2597,16 @@ class IStructure(SiteCollection, MSONable):
         if fmt_low == "cif":
             from pymatgen.io.cif import CifParser
 
-            parser = CifParser.from_string(input_string)
+            parser = CifParser.from_string(input_string, **kwargs)
             s = parser.get_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            s = Poscar.from_string(input_string, False, read_velocities=False).structure
+            s = Poscar.from_string(input_string, False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
-            cssr = Cssr.from_string(input_string)
+            cssr = Cssr.from_string(input_string, **kwargs)
             s = cssr.structure
         elif fmt_low == "json":
             d = json.loads(input_string)
@@ -2616,15 +2618,15 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            s = XSF.from_string(input_string).structure
+            s = XSF.from_string(input_string, **kwargs).structure
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
-            s = Mcsqs.structure_from_string(input_string)
+            s = Mcsqs.structure_from_string(input_string, **kwargs)
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=True).structure
+            s = FleurInput.from_string(input_string, inpgen_input=True, **kwargs).structure
         elif fmt == "fleur":
             from pymatgen.io.fleur import FleurInput
 
@@ -2632,7 +2634,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res":
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_str(input_string)
+            s = ResIO.structure_from_str(input_string, **kwargs)
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
@@ -2643,7 +2645,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0):
+    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs):
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -2652,12 +2654,12 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             filename (str): The filename to read from.
-            primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs. Defaults to False.
+            primitive (bool): Whether to convert to a primitive cell. Only available for cifs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
-            merge_tol (float): If this is some positive number, sites that
-                are within merge_tol from each other will be merged. Usually
-                0.01 should be enough to deal with common numerical issues.
+            merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
+                merged. Usually 0.01 should be enough to deal with common numerical issues.
+            **kwargs: Passthrough to relevant reader. E.g., if it is CIF, the kwargs will be passed through to
+                CifParser.
 
         Returns:
             Structure.
@@ -2680,66 +2682,36 @@ class IStructure(SiteCollection, MSONable):
         with zopen(filename, "rt") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
-            return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol)
+            return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
-            s = cls.from_str(
-                contents,
-                fmt="poscar",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            s = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
-            s = Chgcar.from_file(filename).structure
+            s = Chgcar.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "vasprun*.xml*"):
-            s = Vasprun(filename).final_structure
+            s = Vasprun(filename, **kwargs).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
-            return cls.from_str(
-                contents,
-                fmt="cssr",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="cssr", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return cls.from_str(
-                contents,
-                fmt="json",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="json", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
-            return cls.from_str(
-                contents,
-                fmt="yaml",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="yaml", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.xsf"):
-            return cls.from_str(contents, fmt="xsf", primitive=primitive, sort=sort, merge_tol=merge_tol)
+            return cls.from_str(contents, fmt="xsf", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "input*.xml"):
-            return ExcitingInput.from_file(fname).structure
+            return ExcitingInput.from_file(fname, **kwargs).structure
         elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
-            return cls.from_str(
-                contents,
-                fmt="mcsqs",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-            )
+            return cls.from_str(contents, fmt="mcsqs", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "CTRL*"):
-            return LMTOCtrl.from_file(filename=filename).structure
+            return LMTOCtrl.from_file(filename=filename, **kwargs).structure
         elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_file(filename).structure
+            s = FleurInput.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_file(filename)
+            s = ResIO.structure_from_file(filename, **kwargs)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
@@ -2772,9 +2744,9 @@ class IMolecule(SiteCollection, MSONable):
         validate_proximity: bool = False,
         site_properties: dict | None = None,
         charge_spin_check: bool = True,
-    ):
+    ) -> None:
         """
-        Creates a Molecule.
+        Create a Molecule.
 
         Args:
             species: list of atomic species. Possible kinds of input include a
@@ -2799,11 +2771,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                (
-                    "The list of atomic species must be of the",
-                    " same length as the list of fractional ",
-                    "coordinates.",
-                )
+                "The list of atomic species must be of the same length as the list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
@@ -2830,8 +2798,8 @@ class IMolecule(SiteCollection, MSONable):
         if spin_multiplicity:
             if charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is not possible for "
-                    "this molecule!"
+                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} "
+                    "is not possible for this molecule!"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:
@@ -2937,10 +2905,7 @@ class IMolecule(SiteCollection, MSONable):
         sites = [site for i, site in enumerate(self._sites) if i not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
-            for test_site in cluster:
-                if CovalentBond.is_bonded(site, test_site, tol=tol):
-                    return True
-            return False
+            return any(CovalentBond.is_bonded(site, test_site, tol=tol) for test_site in cluster)
 
         while len(sites) > 0:
             unmatched = []
@@ -2989,10 +2954,7 @@ class IMolecule(SiteCollection, MSONable):
             return False
         if self.spin_multiplicity != other.spin_multiplicity:
             return False
-        for site in self:
-            if site not in other:
-                return False
-        return True
+        return all(site in other for site in self)
 
     def __hash__(self):
         # For now, just use the composition hash code.
@@ -4224,7 +4186,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             if isinstance(site, Site):
                 self._sites[ii] = site
             else:
-                if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
+                if isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
                     self._sites[ii].species = site  # type: ignore
                 else:
                     self._sites[ii].species = site[0]  # type: ignore
@@ -4243,7 +4205,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
-    ):
+    ) -> Molecule:
         """
         Appends a site to the molecule.
 
@@ -4301,7 +4263,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
-    ):
+    ) -> Molecule:
         """
         Insert a site to the molecule.
 
@@ -4322,6 +4284,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
         self._sites.insert(i, new_site)
+
+        return self
 
     def remove_species(self, species: Sequence[SpeciesLike]):
         """

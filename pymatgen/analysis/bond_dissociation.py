@@ -207,10 +207,9 @@ class BondDissociationEnergies(MSONable):
                     if frag_pair[1].isomorphic_to(frags[1]):
                         frags_done = True
                         break
-                elif frag_pair[1].isomorphic_to(frags[0]):
-                    if frag_pair[0].isomorphic_to(frags[1]):
-                        frags_done = True
-                        break
+                elif frag_pair[1].isomorphic_to(frags[0]) and frag_pair[0].isomorphic_to(frags[1]):
+                    frags_done = True
+                    break
             if not frags_done:
                 # If we haven't, we save this pair and search for the relevant fragment entries:
                 self.done_frag_pairs += [frags]
@@ -343,20 +342,19 @@ class BondDissociationEnergies(MSONable):
             found_similar_entry = False
             # Check for uniqueness
             for ii, filtered_entry in enumerate(self.filtered_entries):
-                if filtered_entry["formula_pretty"] == entry["formula_pretty"]:
-                    if (
-                        filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"])
-                        and filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"])
-                        and filtered_entry["initial_molecule"]["charge"] == entry["initial_molecule"]["charge"]
-                    ):
-                        found_similar_entry = True
-                        # If two entries are found that pass the above similarity check, take the one with the lower
-                        # energy:
-                        if entry["final_energy"] < filtered_entry["final_energy"]:
-                            self.filtered_entries[ii] = entry
-                        # Note that this will essentially choose between singlet and triplet entries assuming both have
-                        # the same structural details
-                        break
+                if filtered_entry["formula_pretty"] == entry["formula_pretty"] and (
+                    filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"])
+                    and filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"])
+                    and filtered_entry["initial_molecule"]["charge"] == entry["initial_molecule"]["charge"]
+                ):
+                    found_similar_entry = True
+                    # If two entries are found that pass the above similarity check, take the one with the lower
+                    # energy:
+                    if entry["final_energy"] < filtered_entry["final_energy"]:
+                        self.filtered_entries[ii] = entry
+                    # Note that this will essentially choose between singlet and triplet entries assuming both have
+                    # the same structural details
+                    break
             if not found_similar_entry:
                 self.filtered_entries += [entry]
 

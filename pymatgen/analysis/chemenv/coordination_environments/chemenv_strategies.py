@@ -91,7 +91,8 @@ class DistanceCutoffFloat(float, StrategyOption):
     def from_dict(cls, d):
         """Initialize distance cutoff from dict.
 
-        :param d: Dict representation of the distance cutoff."""
+        :param d: Dict representation of the distance cutoff.
+        """
         return cls(d["value"])
 
 
@@ -103,7 +104,8 @@ class AngleCutoffFloat(float, StrategyOption):
     def __new__(cls, myfloat):
         """Special float that should be between 0.0 and 1.0.
 
-        :param myfloat: Angle cutoff."""
+        :param myfloat: Angle cutoff.
+        """
         flt = float.__new__(cls, myfloat)
         if flt < 0.0 or flt > 1.0:
             raise ValueError("Angle cutoff should be between 0.0 and 1.0")
@@ -134,7 +136,8 @@ class CSMFloat(float, StrategyOption):
     def __new__(cls, myfloat):
         """Special float that should be between 0.0 and 100.0.
 
-        :param myfloat: CSM."""
+        :param myfloat: CSM.
+        """
         flt = float.__new__(cls, myfloat)
         if flt < 0.0 or flt > 100.0:
             raise ValueError("Continuous symmetry measure limits should be between 0.0 and 100.0")
@@ -162,7 +165,7 @@ class AdditionalConditionInt(int, StrategyOption):
 
     allowed_values = "Integer amongst :\n"
     for integer, description in AdditionalConditions.CONDITION_DESCRIPTION.items():
-        allowed_values += f' - {integer:d} for "{description}"\n'
+        allowed_values += f" - {integer:d} for {description!r}\n"
 
     def __new__(cls, integer):
         """Special int representing additional conditions."""
@@ -442,7 +445,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def __str__(self):
-        out = f'  Chemenv Strategy "{type(self).__name__}"\n'
+        out = f"  Chemenv Strategy {type(self).__name__!r}\n"
         out += f"  {'=' * (19 + len(type(self).__name__))}\n\n"
         out += f"  Description :\n  {'-' * 13}\n"
         out += self.STRATEGY_DESCRIPTION
@@ -1335,7 +1338,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         elif self.average_type == "arithmetic":
             self.eval = self.aweight
         else:
-            raise ValueError(f'Average type is "{average_type}" while it should be "geometric" or "arithmetic"')
+            raise ValueError(f"Average type is {average_type!r} while it should be 'geometric' or 'arithmetic'")
         self.aa = aa
         self.bb = bb
         if self.aa == 0:
@@ -2046,7 +2049,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             raise NotImplementedError()
             # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
-            raise ValueError(f'Weight type is "{weight_type}" while it should be "has_intersection"')
+            raise ValueError(f'Weight type is {weight_type!r} while it should be "has_intersection"')
         self.surface_definition = surface_definition
         self.nb_sets_from_hints = nb_sets_from_hints
         self.other_nb_sets = other_nb_sets
@@ -2722,10 +2725,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                             dict_fractions["Fraction"] = nb_set_fraction * fraction
                             ce_dict_fractions.append(dict_fractions)
                             ce_maps.append(cn_map)
-        if ordered:
-            indices = np.argsort(ce_fractions)[::-1]
-        else:
-            indices = list(range(len(ce_fractions)))
+        indices = np.argsort(ce_fractions)[::-1] if ordered else list(range(len(ce_fractions)))
 
         fractions_info_list = [
             {

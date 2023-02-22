@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-__author__ = "waroquiers"
-
 import numpy as np
 import pytest
 
@@ -12,6 +10,8 @@ from pymatgen.analysis.chemenv.utils.graph_utils import (
     get_delta,
 )
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "waroquiers"
 
 
 class FakeNode:
@@ -307,7 +307,7 @@ class GraphUtilsTest(PymatgenTest):
         assert not sgc.ordered
         sgc.order()
         assert sgc.ordered
-        assert sgc.nodes == tuple([FakeNodeWithEqLtMethods(85)])
+        assert sgc.nodes == (FakeNodeWithEqLtMethods(85),)
 
         sgc = SimpleGraphCycle(
             [
@@ -326,17 +326,15 @@ class GraphUtilsTest(PymatgenTest):
         assert not sgc.ordered
         sgc.order()
         assert sgc.ordered
-        assert sgc.nodes == tuple(
-            [
-                FakeNodeWithEqLtMethods(1),
-                FakeNodeWithEqLtMethods(4),
-                FakeNodeWithEqLtMethods(3),
-                FakeNodeWithEqLtMethods(6),
-                FakeNodeWithEqLtMethods(2),
-                FakeNodeWithEqLtMethods(8),
-                FakeNodeWithEqLtMethods(32),
-                FakeNodeWithEqLtMethods(64),
-            ]
+        assert sgc.nodes == (
+            FakeNodeWithEqLtMethods(1),
+            FakeNodeWithEqLtMethods(4),
+            FakeNodeWithEqLtMethods(3),
+            FakeNodeWithEqLtMethods(6),
+            FakeNodeWithEqLtMethods(2),
+            FakeNodeWithEqLtMethods(8),
+            FakeNodeWithEqLtMethods(32),
+            FakeNodeWithEqLtMethods(64),
         )
 
         # Test str method
@@ -375,7 +373,7 @@ class GraphUtilsTest(PymatgenTest):
 
         #   Test different cycle lengths inequality
         mg_cycle2 = MultiGraphCycle([2, 3, 4, 5, 6], [1, 0, 2, 0, 0])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
 
         #   Test equality
         mg_cycle2 = MultiGraphCycle([2, 4, 3, 5], [1, 0, 2, 0])
@@ -397,26 +395,26 @@ class GraphUtilsTest(PymatgenTest):
         assert mg_cycle1 == mg_cycle2
         #   Test inequality
         mg_cycle2 = MultiGraphCycle([2, 5, 3, 4], [0, 1, 0, 1])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
         mg_cycle2 = MultiGraphCycle([2, 5, 3, 4], [1, 0, 2, 0])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
         mg_cycle2 = MultiGraphCycle([3, 5, 2, 4], [1, 0, 2, 0])
-        assert not mg_cycle1 == mg_cycle2
+        assert mg_cycle1 != mg_cycle2
 
         #   Test Self-loop case
         assert MultiGraphCycle([2], [1]) == MultiGraphCycle([2], [1])
-        assert not MultiGraphCycle([1], [1]) == MultiGraphCycle([2], [1])
-        assert not MultiGraphCycle([2], [1]) == MultiGraphCycle([2], [0])
-        assert not MultiGraphCycle([2], [1]) == MultiGraphCycle([1], [1])
-        assert not MultiGraphCycle([2], [0]) == MultiGraphCycle([2], [1])
+        assert MultiGraphCycle([1], [1]) != MultiGraphCycle([2], [1])
+        assert MultiGraphCycle([2], [1]) != MultiGraphCycle([2], [0])
+        assert MultiGraphCycle([2], [1]) != MultiGraphCycle([1], [1])
+        assert MultiGraphCycle([2], [0]) != MultiGraphCycle([2], [1])
 
         #   Test special case with two nodes
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [1, 3])
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([2, 4], [3, 1])
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [3, 1])
         assert MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 3])
-        assert not MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 2], [1, 2])
-        assert not MultiGraphCycle([2, 4], [1, 3]) == MultiGraphCycle([4, 0], [1, 3])
+        assert MultiGraphCycle([2, 4], [1, 3]) != MultiGraphCycle([4, 2], [1, 2])
+        assert MultiGraphCycle([2, 4], [1, 3]) != MultiGraphCycle([4, 0], [1, 3])
 
         # Test hashing function
         assert hash(mg_cycle1) == 4
@@ -604,8 +602,8 @@ class GraphUtilsTest(PymatgenTest):
         assert not mgc.ordered
         mgc.order()
         assert mgc.ordered
-        assert mgc.nodes == tuple([FakeNodeWithEqLtMethods(85)])
-        assert mgc.edge_indices == tuple([7])
+        assert mgc.nodes == (FakeNodeWithEqLtMethods(85),)
+        assert mgc.edge_indices == (7,)
 
         mgc = MultiGraphCycle(
             [
@@ -625,19 +623,17 @@ class GraphUtilsTest(PymatgenTest):
         assert not mgc.ordered
         mgc.order()
         assert mgc.ordered
-        assert mgc.nodes == tuple(
-            [
-                FakeNodeWithEqLtMethods(1),
-                FakeNodeWithEqLtMethods(4),
-                FakeNodeWithEqLtMethods(3),
-                FakeNodeWithEqLtMethods(6),
-                FakeNodeWithEqLtMethods(2),
-                FakeNodeWithEqLtMethods(8),
-                FakeNodeWithEqLtMethods(32),
-                FakeNodeWithEqLtMethods(64),
-            ]
+        assert mgc.nodes == (
+            FakeNodeWithEqLtMethods(1),
+            FakeNodeWithEqLtMethods(4),
+            FakeNodeWithEqLtMethods(3),
+            FakeNodeWithEqLtMethods(6),
+            FakeNodeWithEqLtMethods(2),
+            FakeNodeWithEqLtMethods(8),
+            FakeNodeWithEqLtMethods(32),
+            FakeNodeWithEqLtMethods(64),
         )
-        assert mgc.edge_indices == tuple([0, 1, 4, 0, 2, 2, 5, 3])
+        assert mgc.edge_indices == (0, 1, 4, 0, 2, 2, 5, 3)
 
         # Testing all cases for a length-4 cycle
         nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in range(4))
@@ -654,7 +650,7 @@ class GraphUtilsTest(PymatgenTest):
         ]:
             mgc = MultiGraphCycle(
                 [FakeNodeWithEqLtMethods(inode) for inode in inodes],
-                edge_indices=[iedge for iedge in iedges],
+                edge_indices=list(iedges),
             )
             strnodes = ", ".join(str(i) for i in inodes)
             assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in inodes])})"

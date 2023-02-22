@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.transformations package &mdash; pymatgen 2023.1.9 documentation</title>
+  <title>pymatgen.transformations package &mdash; pymatgen 2023.1.30 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,15 +14,15 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.transformations.advanced_transformations module" href="pymatgen.transformations.advanced_transformations.html" />
     <link rel="prev" title="pymatgen.symmetry.structure module" href="pymatgen.symmetry.structure.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.9
+                2023.1.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -51,326 +52,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">v2023.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-7">v2022.11.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-11-1">v2022.11.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-10-22">v2022.10.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-21">v2022.9.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-9-8">v2022.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-8-23">v2022.8.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-25">v2022.7.25</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24-1">v2022.7.24.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-24">v2022.7.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-19">v2022.7.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-7-8">v2022.7.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-26">v2022.5.26</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-19">v2022.5.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18-1">v2022.5.18.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-18">v2022.5.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-5-17">v2022.5.17</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-26">v2022.4.26</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-4-19">v2022.4.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-29">v2022.3.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-24">v2022.3.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-22">v2022.3.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-3-7">v2022.3.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-10">v2022.2.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-7">v2022.2.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-2-1">v2022.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-24">v2022.1.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-20">v2022.1.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-9">v2022.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-1-8">v2022.1.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-17">v2022.0.17</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-16">v2022.0.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-15">v2022.0.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-14">v2022.0.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-13">v2022.0.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-12">v2022.0.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-11">v2022.0.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-10">v2022.0.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-9">v2022.0.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-8">v2022.0.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-7">v2022.0.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-6">v2022.0.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-5">v2022.0.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-3">v2022.0.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-2-yanked">v2022.0.2 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-1-yanked">v2022.0.1 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2022-0-0-yanked">v2022.0.0 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-5">v2021.3.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-4-yanked">v2021.3.4 (Yanked)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-3-3">v2021.3.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-16">v2021.2.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-14">v2021.2.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-12">v2021.2.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8-1">v2021.2.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-2-8">v2021.2.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2021-1-28">v2021.1.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-31">v2020.12.31</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-18">v2020.12.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-12-3">v2020.12.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-11-11">v2020.11.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-20">v2020.10.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-10-9">v2020.10.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-9-14">v2020.9.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-13">v2020.8.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-8-3">v2020.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-18">v2020.7.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-16">v2020.7.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-14">v2020.7.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-10">v2020.7.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-7-3">v2020.7.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-6-8">v2020.6.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-29">v2020.4.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-4-2">v2020.4.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-13">v2020.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-3-2">v2020.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-28">v2020.1.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2020-1-10">v2020.1.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-22">v2019.12.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-12-3">v2019.12.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-11-11">v2019.11.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-16">v2019.10.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-4">v2019.10.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-3">v2019.10.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-10-2">v2019.10.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-16">v2019.9.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-12">v2019.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-8">v2019.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-9-7">v2019.9.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-23">v2019.8.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-8-14">v2019.8.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-30">v2019.7.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-21">v2019.7.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-7-2">v2019.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-20">v2019.6.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-6-5">v2019.6.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-28">v2019.5.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-8">v2019.5.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-5-1">v2019.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-4-11">v2019.4.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-27">v2019.3.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-3-13">v2019.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-28">v2019.2.28</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-24">v2019.2.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-2-4">v2019.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-24">v2019.1.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2019-1-13">v2019.1.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-12-12">v2018.12.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-30">v2018.11.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-11-6">v2018.11.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-10-18">v2018.10.18</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-30">v2018.9.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-19">v2018.9.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-9-12">v2018.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-10">v2018.8.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-8-7">v2018.8.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-7-15">v2018.7.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-27">v2018.6.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-6-11">v2018.6.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-22">v2018.5.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-21">v2018.5.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-14">v2018.5.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-5-3">v2018.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-20">v2018.4.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-4-6">v2018.4.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-22">v2018.3.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-14">v2018.3.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-13">v2018.3.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-3-2">v2018.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-2-13">v2018.2.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-29">v2018.1.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2018-1-19">v2018.1.19</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-30">v2017.12.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-16">v2017.12.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-15">v2017.12.15</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-8">v2017.12.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-12-6">v2017.12.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-30">v2017.11.30</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-27">v2017.11.27</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-9">v2017.11.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-11-6">v2017.11.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-10-16">v2017.10.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-29">v2017.9.29</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-23">v2017.9.23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-3">v2017.9.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-9-1">v2017.9.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-21">v2017.8.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-20">v2017.8.20</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-16">v2017.8.16</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-14">v2017.8.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-8-4">v2017.8.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-21">v2017.7.21</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-7-4">v2017.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-24">v2017.6.24</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-22">v2017.6.22</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2017-6-8">v2017.6.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-7">v4.7.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-6">v4.7.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-5">v4.7.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-4">v4.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-3">v4.7.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-2">v4.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-1">v4.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-7-0">v4.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-2">v4.6.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-1">v4.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-6-0">v4.6.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-7">v4.5.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-6">v4.5.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-5">v4.5.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-4">v4.5.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-3">v4.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-2">v4.5.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-1">v4.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-5-0">v4.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-12">v4.4.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-11">v4.4.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-10">v4.4.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-9">v4.4.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-8">v4.4.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-7">v4.4.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-6">v4.4.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-5">v4.4.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-4">v4.4.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-3">v4.4.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-2">v4.4.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-1">v4.4.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-4-0">v4.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-2">v4.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-1">v4.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-3-0">v4.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-5">v4.2.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-4">v4.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-3">v4.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-2">v4.2.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-1">v4.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-2-0">v4.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-1">v4.1.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-1-0">v4.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-2">v4.0.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-1">v4.0.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v4-0-0">v4.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-1">v3.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-7-0">v3.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-1">v3.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-6-0">v3.6.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-3">v3.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-2">v3.5.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-1">v3.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-5-0">v3.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-4-0">v3.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-6">v3.3.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-5">v3.3.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-4">v3.3.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-3">v3.3.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-2">v3.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-1">v3.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-3-0">v3.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-10">v3.2.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-9">v3.2.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-8">v3.2.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-7">v3.2.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-6">v3.2.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-5">v3.2.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-4">v3.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-3">v3.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-1">v3.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-2-0">v3.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-9">v3.1.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-7">v3.1.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-6">v3.1.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-5">v3.1.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-4">v3.1.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-3">v3.1.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-2">v3.1.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-1">v3.1.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-1-0">v3.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-13">v3.0.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-11">v3.0.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-10">v3.0.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-9">v3.0.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-8">v3.0.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-7">v3.0.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-6">v3.0.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-5">v3.0.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-4">v3.0.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-3">v3.0.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-2">v3.0.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-1">v3.0.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v3-0-0">v3.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-6">v2.10.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-5">v2.10.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-3">v2.10.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-2">v2.10.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-1">v2.10.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-10-0">v2.10.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-14">v2.9.14</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-13">v2.9.13</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-12">v2.9.12</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-11">v2.9.11</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-10">v2.9.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-9">v2.9.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-8">v2.9.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-7">v2.9.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-6">v2.9.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-5">v2.9.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-4">v2.9.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-3">v2.9.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-2">v2.9.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-1">v2.9.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-9-0">v2.9.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-10">v2.8.10</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-9">v2.8.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-8">v2.8.8</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-7">v2.8.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-6">v2.8.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-4">v2.8.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-3">v2.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-2">v2.8.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-1">v2.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-8-0">v2.8.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-9">v2.7.9</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-7">v2.7.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-6">v2.7.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-5">v2.7.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-4">v2.7.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-2">v2.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-1">v2.7.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-7-0">v2.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-6">v2.6.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-5">v2.6.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-4">v2.6.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-3">v2.6.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-2">v2.6.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-6-1">v2.6.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-5">v2.5.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-4">v2.5.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-3">v2.5.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-1">v2.5.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-5-0">v2.5.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-3">v2.4.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-4-0">v2.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-2">v2.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-1">v2.3.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-3-0">v2.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-6">v2.2.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-4">v2.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-3">v2.2.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-2">v2.2.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-1">v2.2.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-2-0">v2.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-1-2">v2.1.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v2-0-0">v2.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-9-0">v1.9.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-3">v1.8.3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-1">v1.8.1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-8-0">v1.8.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-2">v1.7.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-7-0">v1.7.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html#v1-6-0">v1.6.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -430,30 +112,293 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="pymatgen-transformations-package">
-<h1>pymatgen.transformations package<a class="headerlink" href="#pymatgen-transformations-package" title="Permalink to this headline"></a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+  <section id="pymatgen-transformations-package">
+<h1>pymatgen.transformations package<a class="headerlink" href="#pymatgen-transformations-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html">pymatgen.transformations.advanced_transformations module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.site_transformations.html">pymatgen.transformations.site_transformations module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html">pymatgen.transformations.standard_transformations module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html">pymatgen.transformations.transformation_abc module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html">pymatgen.transformations.advanced_transformations module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AddAdsorbateTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ChargeBalanceTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">CubicSupercellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DisorderOrderedTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation"><code class="docutils literal notranslate"><span class="pre">DopingTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DopingTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DopingTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.DopingTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DopingTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">EnumerateStructureTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">GrainBoundaryTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint"><code class="docutils literal notranslate"><span class="pre">MagOrderParameterConstraint</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint.satisfies_constraint"><code class="docutils literal notranslate"><span class="pre">MagOrderParameterConstraint.satisfies_constraint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.determine_min_cell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">MagOrderingTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">MonteCarloRattleTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">MultipleSubstitutionTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation"><code class="docutils literal notranslate"><span class="pre">SQSTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SQSTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SQSTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SQSTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SQSTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation"><code class="docutils literal notranslate"><span class="pre">SlabTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SlabTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SlabTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SlabTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SubstituteSurfaceSiteTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictorTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation"><code class="docutils literal notranslate"><span class="pre">SuperTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SuperTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SuperTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SuperTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.site_transformations.html">pymatgen.transformations.site_transformations module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AddSitePropertyTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">InsertSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_BEST_FIRST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_BEST_FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_COMPLETE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_COMPLETE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_ENUMERATE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_ENUMERATE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_FAST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.ALGO_FAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.is_one_to_many</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RadialSiteDistortionTransformation.use_multiprocessing"><code class="docutils literal notranslate"><span class="pre">RadialSiteDistortionTransformation.use_multiprocessing</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RemoveSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ReplaceSiteSpeciesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.as_dict"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">TranslateSitesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html">pymatgen.transformations.standard_transformations module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AutoOxiStateDecorationTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ChargedCellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ConventionalCellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DeformStructureTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">DiscretizeOccupanciesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.ALGO_BEST_FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.ALGO_COMPLETE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.ALGO_FAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.is_one_to_many</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure"><code class="docutils literal notranslate"><span class="pre">OrderDisorderedStructureTransformation.lowest_energy_structure</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">OxidationStateDecorationTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">OxidationStateRemovalTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_BEST_FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_COMPLETE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_ENUMERATE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.ALGO_FAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PartialRemoveSpecieTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PerturbStructureTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">PrimitiveCellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RemoveSpeciesTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation"><code class="docutils literal notranslate"><span class="pre">RotationTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">RotationTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">RotationTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">RotationTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">ScaleToRelaxedTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SubstitutionTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.from_scaling_factors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SupercellTransformation.is_one_to_many</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html">pymatgen.transformations.transformation_abc module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.apply_transformation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.inverse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.is_one_to_many</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.use_multiprocessing"><code class="docutils literal notranslate"><span class="pre">AbstractTransformation.use_multiprocessing</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
-</div>
-<div class="section" id="module-pymatgen.transformations">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.transformations" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-pymatgen.transformations">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.transformations" title="Permalink to this heading"></a></h2>
 <p>The transformations package defines various transformations that can be applied
 on structures, i.e., converting one structure to another.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

@@ -9,10 +9,8 @@ import sys
 import numpy
 from setuptools import Extension, find_namespace_packages, setup
 
-extra_link_args: list[str] = []
-if sys.platform.startswith("win") and platform.machine().endswith("64"):
-    extra_link_args = ["-Wl,--allow-multiple-definition"]
-
+is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
+extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 
 setup(
     name="pymatgen",
@@ -20,7 +18,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.1.9",
+    version="2023.1.30",
     python_requires=">=3.8",
     install_requires=[
         "matplotlib>=1.5",
@@ -48,16 +46,12 @@ setup(
         "relaxation": ["m3gnet"],
         "dev": [
             "black",
-            "coverage",
-            "coveralls",
-            "flake8",
-            "mypy==0.991",  # pinned due to long list of errors starting with mypy 0.990
+            "mypy",
             "pre-commit",
-            "pydocstyle",
-            "pylint",
-            "pytest",
             "pytest-cov",
             "pytest-split",
+            "pytest",
+            "ruff",
         ],
         "docs": [
             "sphinx",

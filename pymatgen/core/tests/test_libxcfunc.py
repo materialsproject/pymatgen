@@ -10,7 +10,6 @@ from pymatgen.util.testing import PymatgenTest
 class LibxcFuncTest(PymatgenTest):
     def test_libxcfunc_api(self):
         """Testing libxcfunc_api."""
-
         # LDA correlation: Hedin & Lundqvist
         xc = LibxcFunc.LDA_C_HL
         print(xc)

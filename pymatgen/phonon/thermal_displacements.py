@@ -43,7 +43,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     An earlier implementation based on Matlab can be found here:
     https://github.com/JaGeo/MolecularToolbox
-    ( J. George, A. Wang, V. L. Deringer, R. Wang, R. Dronskowski, U. Englert, CrystEngComm, 2015, 17, 7414–7422.)
+    ( J. George, A. Wang, V. L. Deringer, R. Wang, R. Dronskowski, U. Englert, CrystEngComm, 2015, 17, 7414-7422.)
     """
 
     def __init__(self, thermal_displacement_matrix_cart, structure, temperature, thermal_displacement_matrix_cif=None):
@@ -128,7 +128,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def Ustar(self):
         """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: Ustar as a numpy array, first dimension are the atoms in the structure
         """
         A = self.structure.lattice.matrix.T
@@ -142,11 +142,11 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def Ucif(self):
         """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: Ucif as a numpy array, first dimension are the atoms in the structure
         """
         if self.thermal_displacement_matrix_cif is None:
-            # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+            # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
             # will compute Ucif based on Ustar for each atom in the structure
 
             A = self.structure.lattice.matrix.T  # check this again?
@@ -164,7 +164,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def B(self):
         """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: B as a numpy array, first dimension are the atoms in the structure
         """
         B = []
@@ -176,7 +176,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def beta(self):
         """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: beta as a numpy array, first dimension are the atoms in the structure
         """
         # will compute beta based on Ustar
@@ -189,7 +189,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def U1U2U3(self):
         """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477–480.
+        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure
         """
         U1U2U3 = []
@@ -240,6 +240,7 @@ class ThermalDisplacementMatrices(MSONable):
         """
         Will compute directionality of prolate displacement ellipsoids as described in
         https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/
+
         Args:
             other: ThermalDisplacementMatrix
             please make sure that the order of the atoms in both objects that are compared
@@ -521,7 +522,6 @@ class ThermalDisplacementMatrices(MSONable):
             allcoords = []
             allspecies = []
             for i in range(len(data["_atom_site_label"])):
-
                 try:
                     # If site type symbol exists, use it. Otherwise, we use the
                     # label.

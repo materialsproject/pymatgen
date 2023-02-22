@@ -8,9 +8,7 @@ import logging
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.connectivity.structure_connectivity import (
-    StructureConnectivity,
-)
+from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -73,9 +71,6 @@ class ConnectivityFinder:
         """
         Setup of the parameters for the connectivity finder.
         """
-        if multiple_environments_choice is not None:
-            if multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
-                raise ValueError(
-                    f'Option "{multiple_environments_choice}" for multiple_environments_choice is not allowed'
-                )
+        if multiple_environments_choice is not None and multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
+            raise ValueError(f"Option {multiple_environments_choice!r} for multiple_environments_choice is not allowed")
         self.multiple_environments_choice = multiple_environments_choice

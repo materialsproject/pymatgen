@@ -35,7 +35,6 @@ def freq_units(units):
         Returns conversion factor from THz to the required units and the label in the form of a namedtuple
 
     """
-
     d = {
         "thz": FreqUnits(1, "THz"),
         "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
@@ -111,10 +110,7 @@ class PhononDosPlotter:
             dos_dict: dict of {label: Dos}
             key_sort_func: function used to sort the dos_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(dos_dict, key=key_sort_func)
-        else:
-            keys = list(dos_dict)
+        keys = sorted(dos_dict, key=key_sort_func) if key_sort_func else list(dos_dict)
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
@@ -317,7 +313,6 @@ class PhononBSPlotter:
         ticks = self.get_ticks()
 
         for b in self._bs.branches:
-
             frequency.append([])
             distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
 
@@ -434,7 +429,7 @@ class PhononBSPlotter:
         Args:
             site_comb: a list of list, for example, [[0],[1],[2,3,4]];
                 the numbers in each sublist represents the indices of atoms;
-                the atoms in a same sublist will be plotted in a same color；
+                the atoms in a same sublist will be plotted in a same color;
                 if not specified, unique elements are automatically grouped.
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
@@ -686,6 +681,7 @@ class ThermoPlotter:
             label: label of the plot
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
@@ -723,15 +719,13 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$C_v$ (J/K/mol)"
-        else:
-            ylabel = r"$C_v$ (J/K/mol-c)"
+        ylabel = "$C_v$ (J/K/mol)" if self.structure else "$C_v$ (J/K/mol-c)"
 
         fig = self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
@@ -748,15 +742,13 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$S$ (J/K/mol)"
-        else:
-            ylabel = r"$S$ (J/K/mol-c)"
+        ylabel = "$S$ (J/K/mol)" if self.structure else "$S$ (J/K/mol-c)"
 
         fig = self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
@@ -773,15 +765,13 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$\Delta E$ (kJ/mol)"
-        else:
-            ylabel = r"$\Delta E$ (kJ/mol-c)"
+        ylabel = "$\\Delta E$ (kJ/mol)" if self.structure else "$\\Delta E$ (kJ/mol-c)"
 
         fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs)
 
@@ -798,15 +788,13 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
-        if self.structure:
-            ylabel = r"$\Delta F$ (kJ/mol)"
-        else:
-            ylabel = r"$\Delta F$ (kJ/mol-c)"
+        ylabel = "$\\Delta F$ (kJ/mol)" if self.structure else "$\\Delta F$ (kJ/mol-c)"
 
         fig = self._plot_thermo(
             self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs
@@ -825,6 +813,7 @@ class ThermoPlotter:
             ntemp: number of steps
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
+
         Returns:
             matplotlib figure
         """
@@ -976,7 +965,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         ticks = self.get_ticks()
 
         for b in self._bs.branches:
-
             frequency.append([])
             gruneisen.append([])
             distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])

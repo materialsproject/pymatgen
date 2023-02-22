@@ -1,5 +1,8 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.png" alt="Logo" height="70">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen-white.svg">
+    <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg" height="70">
+  </picture>
 </h1>
 
 <h4 align="center">
@@ -27,7 +30,7 @@ Pymatgen is free to use. However, we also welcome your help to improve this libr
 - Bug reports or feature requests: Please submit a [GitHub Issue](https://github.com/materialsproject/pymatgen/issues).
 - Code contributions via [pull requests](https://github.com/materialsproject/pymatgen/pulls) are welcome.
 - For help with usage that is unrelated to bugs or feature requests, please use the `pymatgen` [MatSci page](https://discuss.matsci.org/c/pymatgen).
-- [`matgenb`](https://matgenb.materialsvirtuallab.org) provides some Jupyter notebooks demonstrating functionality.
+- [`matgenb`](https://github.com/materialsvirtuallab/matgenb#introduction) provides some Jupyter notebooks demonstrating functionality.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 ## Why use pymatgen?

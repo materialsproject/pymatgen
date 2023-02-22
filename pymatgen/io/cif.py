@@ -139,10 +139,7 @@ class CifBlock:
         if v == "":
             return '""'
         if (" " in v or v[0] == "_") and not (v[0] == "'" and v[-1] == "'") and not (v[0] == '"' and v[-1] == '"'):
-            if "'" in v:
-                q = '"'
-            else:
-                q = "'"
+            q = '"' if "'" in v else "'"
             v = q + v + q
         return v
 
@@ -218,7 +215,7 @@ class CifBlock:
                     data[columns[-1]] = []
                 while q:
                     s = q[0]
-                    if s[0].startswith("loop_") or s[0].startswith("_"):
+                    if s[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(q.popleft()))
                 n = len(items) // len(columns)
@@ -226,8 +223,8 @@ class CifBlock:
                 loops.append(columns)
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
-            elif "".join(s).strip() != "":
-                warnings.warn(f"Possible issue in cif file at line: {''.join(s).strip()}")
+            elif issue := "".join(s).strip():
+                warnings.warn(f"Possible issue in cif file at line: {issue}")
         return cls(data, loops, header)
 
 
@@ -261,7 +258,6 @@ class CifFile:
         """
         d = {}
         for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
-
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
             # Springer materials/Pauling file DBs.
@@ -292,18 +288,21 @@ class CifParser:
     CifParser's errors attribute.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4):
+    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4, frac_tolerance=1e-4):
         """
         Args:
             filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
-            occupancy_tolerance (float): If total occupancy of a site is between 1
-                and occupancy_tolerance, the occupancies will be scaled down to 1.
-            site_tolerance (float): This tolerance is used to determine if two
-                sites are sitting in the same position, in which case they will be
-                combined to a single disordered site. Defaults to 1e-4.
+            occupancy_tolerance (float): If total occupancy of a site is between 1 and occupancy_tolerance, the
+                occupancies will be scaled down to 1.
+            site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
+                in which case they will be combined to a single disordered site. Defaults to 1e-4.
+            frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
+                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                However, for very large CIF files, this may need to be set to 0.
         """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
+        self._frac_tolerance = frac_tolerance
         if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
@@ -359,21 +358,19 @@ class CifParser:
             self._cif.data[k] = self._sanitize_data(self._cif.data[k])
 
     @staticmethod
-    def from_string(cif_string, occupancy_tolerance=1.0):
+    def from_string(cif_string, **kwargs):
         """
         Creates a CifParser from a string.
 
         Args:
             cif_string (str): String representation of a CIF.
-            occupancy_tolerance (float): If total occupancy of a site is
-                between 1 and occupancy_tolerance, the occupancies will be
-                scaled down to 1.
+            **kwargs: Passthrough of all kwargs supported by CifParser.
 
         Returns:
             CifParser
         """
         stream = StringIO(cif_string)
-        return CifParser(stream, occupancy_tolerance)
+        return CifParser(stream, **kwargs)
 
     def _sanitize_data(self, data):
         """
@@ -404,7 +401,6 @@ class CifParser:
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
         if "_atom_site_type_symbol" in data.data:
-
             # Keep a track of which data row needs to be removed.
             # Example of a row: Nb,Zr '0.8Nb + 0.2Zr' .2a .m-3m 0 0 0 1 14
             # 'rhombic dodecahedron, Nb<sub>14</sub>'
@@ -424,7 +420,6 @@ class CifParser:
             new_fract_z = []
 
             for idx, el_row in enumerate(data["_atom_site_label"]):
-
                 # CIF files from the Springer Materials/Pauling File have
                 # switched the label and symbol. Thus, in the
                 # above shown example row, '0.8Nb + 0.2Zr' is the symbol.
@@ -432,7 +427,6 @@ class CifParser:
                 # check if the length (or number of elements) in the label and
                 # symbol are equal.
                 if len(data["_atom_site_type_symbol"][idx].split(" + ")) > len(el_row.split(" + ")):
-
                     # Dictionary to hold extracted elements and occupancies
                     els_occu = {}
 
@@ -492,7 +486,6 @@ class CifParser:
         specification being finalized (on advice of Branton Campbell).
         """
         if self.feature_flags["magcif"]:
-
             # CIF-1 style has all underscores, interim standard
             # had period before magn instead of before the final
             # component (e.g. xyz)
@@ -542,7 +535,7 @@ class CifParser:
 
         # check for finite precision frac coordinates (e.g. 0.6667 instead of 0.6666666...7)
         # this can sometimes cause serious issues when applying symmetry operations
-        important_fracs = (1 / 3.0, 2 / 3.0)
+        important_fracs = (1 / 3, 2 / 3)
         fracs_to_change = {}
         for label in ("_atom_site_fract_x", "_atom_site_fract_y", "_atom_site_fract_z"):
             if label in data.data:
@@ -553,7 +546,7 @@ class CifParser:
                         # coordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac / comparison_frac) < 1e-4:
+                        if abs(1 - frac / comparison_frac) < self._frac_tolerance:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
@@ -613,7 +606,6 @@ class CifParser:
         and necessary parameters are parsed
         """
         try:
-
             return self.get_lattice_no_exception(
                 data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
             )
@@ -627,7 +619,6 @@ class CifParser:
                 if data.data.get(lattice_lable):
                     lattice_type = data.data.get(lattice_lable).lower()
                     try:
-
                         required_args = getargspec(getattr(Lattice, lattice_type)).args
 
                         lengths = (l for l in length_strings if l in required_args)
@@ -646,15 +637,16 @@ class CifParser:
         data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
     ):
         """
-        Generate the lattice from the provided lattice parameters.
+        Take a dictionary of CIF data and returns a pymatgen Lattice object
+
         Args:
-            data:
-            length_strings:
-            angle_strings:
-            lattice_type:
+            data: a dictionary of the CIF file
+            length_strings: The strings that are used to identify the length parameters in the CIF file.
+            angle_strings: The strings that are used to identify the angles in the CIF file.
+            lattice_type: The type of lattice.  This is a string, and can be any of the following:
 
         Returns:
-
+            Lattice object
         """
         lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
         angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
@@ -768,14 +760,12 @@ class CifParser:
 
         # check to see if magCIF file explicitly contains magnetic symmetry operations
         if data.data.get("_space_group_symop_magn_operation.xyz"):
-
             xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
             if isinstance(xyzt, str):
                 xyzt = [xyzt]
             magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
-
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
                 if isinstance(xyzt, str):
                     xyzt = [xyzt]
@@ -799,7 +789,6 @@ class CifParser:
 
         # else check to see if it specifies a magnetic space group
         elif data.data.get("_space_group_magn.name_BNS") or data.data.get("_space_group_magn.number_BNS"):
-
             if data.data.get("_space_group_magn.name_BNS"):
                 # get BNS label for MagneticSpaceGroup()
                 id = data.data.get("_space_group_magn.name_BNS")
@@ -810,7 +799,6 @@ class CifParser:
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
                 if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-
                     jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
                     msg = MagneticSpaceGroup(id, jf)
 
@@ -955,7 +943,6 @@ class CifParser:
             return False
 
         for i in range(len(data["_atom_site_label"])):
-
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
@@ -1011,7 +998,7 @@ class CifParser:
                     coord_to_magmoms[match] = None
 
         sum_occu = [
-            sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
+            sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
         if any(o > 1 for o in sum_occu):
             msg = (
@@ -1042,7 +1029,7 @@ class CifParser:
         if coord_to_species.items():
             for idx, (comp, group) in enumerate(
                 groupby(
-                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    sorted(coord_to_species.items(), key=lambda x: x[1]),
                     key=lambda x: x[1],
                 )
             ):
@@ -1099,7 +1086,6 @@ class CifParser:
             struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
 
             if symmetrized:
-
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
                 # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
                 wyckoffs = ["Not Parsed"] * len(struct)
@@ -1203,7 +1189,6 @@ class CifParser:
         # TODO: CIF specification supports multiple citations.
 
         for idx, data in enumerate(self._cif.data.values()):
-
             # convert to lower-case keys, some cif files inconsistent
             data = {k.lower(): v for k, v in data.data.items()}
 
@@ -1220,9 +1205,8 @@ class CifParser:
             # convert to bibtex author format ('and' delimited)
             if "author" in bibtex_entry:
                 # separate out semicolon authors
-                if isinstance(bibtex_entry["author"], str):
-                    if ";" in bibtex_entry["author"]:
-                        bibtex_entry["author"] = bibtex_entry["author"].split(";")
+                if isinstance(bibtex_entry["author"], str) and ";" in bibtex_entry["author"]:
+                    bibtex_entry["author"] = bibtex_entry["author"].split(";")
 
                 if isinstance(bibtex_entry["author"], list):
                     bibtex_entry["author"] = " and ".join(bibtex_entry["author"])
@@ -1467,7 +1451,6 @@ def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
-
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
         # been modified to treat it as optional. Same logic applies to lists.

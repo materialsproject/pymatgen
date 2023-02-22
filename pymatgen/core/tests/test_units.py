@@ -189,7 +189,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         # here there's a minor difference because we have a ndarray with
         # dtype=int.
         a = TimeArray(20, "h")
-        assert pytest.approx(a.to("s")) == 3600 * 20
+        assert a.to("s") == 3600 * 20
         # Test left and right multiplication.
         assert str(a * 3) == "60 h"
         assert str(3 * a) == "60 h"
@@ -267,7 +267,6 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 class DataPersistenceTest(PymatgenTest):
     def test_pickle(self):
         """Test whether FloatWithUnit and ArrayWithUnit support pickle"""
-
         for cls in [FloatWithUnit, ArrayWithUnit]:
             a = cls(1, "eV")
             b = cls(10, "N bohr")

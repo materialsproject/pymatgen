@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+from pytest import approx
 
 from pymatgen.analysis.nmr import ChemicalShielding, ElectricFieldGradient
 from pymatgen.util.testing import PymatgenTest
@@ -11,10 +12,10 @@ from pymatgen.util.testing import PymatgenTest
 class TestChemicalShieldingNotation(PymatgenTest):
     def test_construction(self):
         cs = ChemicalShielding(np.arange(9).reshape((3, 3)))
-        self.assertEqual(cs.shape, (3, 3))
+        assert cs.shape == (3, 3)
 
         cs = ChemicalShielding([1, 2, 3])
-        self.assertEqual(cs.shape, (3, 3))
+        assert cs.shape == (3, 3)
         self.assertArrayEqual(np.diag(cs), [1, 2, 3])
 
     def test_principal_axis_system(self):
@@ -31,28 +32,28 @@ class TestChemicalShieldingNotation(PymatgenTest):
     def test_notations(self):
         cs = ChemicalShielding.from_maryland_notation(195.0788, 68.1733, 0.8337)
         hae1 = cs.haeberlen_values
-        self.assertAlmostEqual(hae1.sigma_iso, 195.0788, places=5)
-        self.assertAlmostEqual(hae1.delta_sigma_iso, -65.33899505250002, places=5)
-        self.assertAlmostEqual(hae1.zeta, -43.559330035000016, places=5)
-        self.assertAlmostEqual(hae1.eta, 0.13013537835511454, places=5)
+        assert hae1.sigma_iso == approx(195.0788, abs=1e-5)
+        assert hae1.delta_sigma_iso == approx(-65.33899505250002, abs=1e-5)
+        assert hae1.zeta == approx(-43.559330035000016, abs=1e-5)
+        assert hae1.eta == approx(0.13013537835511454, abs=1e-5)
         meh1 = cs.mehring_values
-        self.assertAlmostEqual(meh1.sigma_iso, 195.0788, places=5)
-        self.assertAlmostEqual(meh1.sigma_11, 151.51946996499998, places=5)
-        self.assertAlmostEqual(meh1.sigma_22, 214.02416007, places=5)
-        self.assertAlmostEqual(meh1.sigma_33, 219.69276996500002, places=5)
+        assert meh1.sigma_iso == approx(195.0788, abs=1e-5)
+        assert meh1.sigma_11 == approx(151.51946996499998, abs=1e-5)
+        assert meh1.sigma_22 == approx(214.02416007, abs=1e-5)
+        assert meh1.sigma_33 == approx(219.69276996500002, abs=1e-5)
         mary1 = cs.maryland_values
-        self.assertAlmostEqual(mary1.sigma_iso, 195.0788, places=5)
-        self.assertAlmostEqual(mary1.omega, 68.1733, places=5)
-        self.assertAlmostEqual(mary1.kappa, 0.8337, places=5)
+        assert mary1.sigma_iso == approx(195.0788, abs=1e-5)
+        assert mary1.omega == approx(68.1733, abs=1e-5)
+        assert mary1.kappa == approx(0.8337, abs=1e-5)
 
 
 class TestElectricFieldGradient(PymatgenTest):
     def test_construction(self):
         efg = ElectricFieldGradient(np.arange(9).reshape((3, 3)))
-        self.assertEqual(efg.shape, (3, 3))
+        assert efg.shape == (3, 3)
 
         efg = ElectricFieldGradient([1, 2, 3])
-        self.assertEqual(efg.shape, (3, 3))
+        assert efg.shape == (3, 3)
 
     def test_principal_axis_system(self):
         efg = ElectricFieldGradient([1, 2, 3])
@@ -66,13 +67,12 @@ class TestElectricFieldGradient(PymatgenTest):
         )
 
     def test_Attributes(self):
-
         efg = ElectricFieldGradient([[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]])
-        self.assertAlmostEqual(efg.V_yy, 11.516, places=3)
-        self.assertAlmostEqual(efg.V_xx, 4.204, places=3)
-        self.assertAlmostEqual(efg.V_zz, -15.721, places=3)
-        self.assertAlmostEqual(efg.asymmetry, 0.465, places=3)
-        self.assertAlmostEqual(efg.coupling_constant("Al"), 5.573, places=3)
+        assert efg.V_yy == approx(11.516, abs=1e-3)
+        assert efg.V_xx == approx(4.204, abs=1e-3)
+        assert efg.V_zz == approx(-15.721, abs=1e-3)
+        assert efg.asymmetry == approx(0.465, abs=1e-3)
+        assert efg.coupling_constant("Al") == approx(5.573, abs=1e-3)
 
 
 if __name__ == "__main__":

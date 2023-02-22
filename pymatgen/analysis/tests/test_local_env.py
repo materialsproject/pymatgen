@@ -11,6 +11,7 @@ from typing import get_args
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
@@ -68,12 +69,12 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
     def test_valences_ionic_structure(self):
         valence_dict = self._mgo_valrad_evaluator.valences
         for val in list(valence_dict.values()):
-            self.assertTrue(val in {2, -2})
+            assert val in {2, -2}
 
     def test_radii_ionic_structure(self):
         radii_dict = self._mgo_valrad_evaluator.radii
         for rad in list(radii_dict.values()):
-            self.assertTrue(rad in {0.86, 1.26})
+            assert rad in {0.86, 1.26}
 
     def tearDown(self):
         del self._mgo_uc
@@ -89,17 +90,17 @@ class VoronoiNNTest(PymatgenTest):
         self.nn_sic = VoronoiNN()
 
     def test_get_voronoi_polyhedra(self):
-        self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
+        assert len(self.nn.get_voronoi_polyhedra(self.s, 0).items()) == 8
 
     def test_get_cn(self):
         site_0_coord_num = self.nn.get_cn(self.s, 0, use_weights=True, on_disorder="take_max_species")
-        self.assertAlmostEqual(site_0_coord_num, 5.809265748999465, 7)
+        assert site_0_coord_num == approx(5.809265748999465, abs=1e-7)
 
         site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take_max_species")
-        self.assertAlmostEqual(site_0_coord_num, 4.5381161643940668, 7)
+        assert site_0_coord_num == approx(4.5381161643940668, abs=1e-7)
 
     def test_get_coordinated_sites(self):
-        self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
+        assert len(self.nn.get_nn(self.s, 0)) == 8
 
     def test_volume(self):
         self.nn.targets = None
@@ -107,7 +108,7 @@ class VoronoiNNTest(PymatgenTest):
         for n in range(len(self.s)):
             for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
                 volume += nn["volume"]
-        self.assertAlmostEqual(self.s.volume, volume)
+        assert self.s.volume == approx(volume)
 
     def test_solid_angle(self):
         self.nn.targets = None
@@ -115,8 +116,8 @@ class VoronoiNNTest(PymatgenTest):
             angle = 0
             for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
                 angle += nn["solid_angle"]
-            self.assertAlmostEqual(4 * np.pi, angle)
-        self.assertEqual(solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]), pi)
+            assert 4 * np.pi == approx(angle)
+        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == pi
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
@@ -125,11 +126,11 @@ class VoronoiNNTest(PymatgenTest):
         # Get the 1NN shell
         self.nn.targets = None
         nns = self.nn.get_nn_shell_info(s, 0, 1)
-        self.assertEqual(6, len(nns))
+        assert len(nns) == 6
 
         # Test the 2nd NN shell
         nns = self.nn.get_nn_shell_info(s, 0, 2)
-        self.assertEqual(18, len(nns))
+        assert len(nns) == 18
         self.assertArrayAlmostEqual([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
         self.assertArrayAlmostEqual([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
 
@@ -151,19 +152,15 @@ class VoronoiNNTest(PymatgenTest):
         )
         self.nn.weight = "area"
         nns = self.nn.get_nn_shell_info(cscl, 0, 1)
-        self.assertEqual(14, len(nns))
-        self.assertEqual(6, np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum())  # Square faces
-        self.assertEqual(8, np.isclose([x["weight"] for x in nns], 1).sum())
+        assert len(nns) == 14
+        assert np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum() == 6  # Square faces
+        assert np.isclose([x["weight"] for x in nns], 1).sum() == 8
 
         nns = self.nn.get_nn_shell_info(cscl, 0, 2)
         # Weight of getting back on to own site
         #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
         #  Hex-hex hop: 8*7 options times 1 weight each
-        self.assertAlmostEqual(
-            60.4444,
-            np.sum([x["weight"] for x in nns if x["site_index"] == 0]),
-            places=3,
-        )
+        assert approx(np.sum([x["weight"] for x in nns if x["site_index"] == 0]), abs=1e-3) == 60.4444
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
@@ -175,10 +172,10 @@ class VoronoiNNTest(PymatgenTest):
 
         # Each neighbor has 4 adjacent neighbors, all orthogonal
         for nn_info in neighbors.values():
-            self.assertEqual(4, len(nn_info["adj_neighbors"]))
+            assert len(nn_info["adj_neighbors"]) == 4
 
             for adj_key in nn_info["adj_neighbors"]:
-                self.assertEqual(0, np.dot(nn_info["normal"], neighbors[adj_key]["normal"]))
+                assert np.dot(nn_info["normal"], neighbors[adj_key]["normal"]) == 0
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
@@ -222,7 +219,7 @@ class VoronoiNNTest(PymatgenTest):
 
         # Compute the voronoi tessellation
         result = VoronoiNN().get_all_voronoi_polyhedra(strc)
-        self.assertEqual(3, len(result))
+        assert len(result) == 3
 
     def test_filtered(self):
         nn = VoronoiNN(weight="area")
@@ -243,22 +240,18 @@ class VoronoiNNTest(PymatgenTest):
         # Run one test where you get the small neighbors
         nn.tol = little_weight * 0.99
         nns = nn.get_nn_info(bcc, 0)
-        self.assertEqual(14, len(nns))
+        assert len(nns) == 14
 
         # Run a second test where we screen out little faces
         nn.tol = little_weight * 1.01
         nns = nn.get_nn_info(bcc, 0)
-        self.assertEqual(8, len(nns))
+        assert len(nns) == 8
 
         # Make sure it works for the `get_all` operation
         all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
-        self.assertEqual(
-            [
-                8,
-            ]
-            * 16,
-            [len(x) for x in all_nns],
-        )
+        assert [
+            8,
+        ] * 16 == [len(x) for x in all_nns]
 
     def tearDown(self):
         del self.s
@@ -278,21 +271,21 @@ class JmolNNTest(PymatgenTest):
 
         for site_idx, site in enumerate(s):
             if site.specie == Element("Li"):
-                self.assertEqual(self.jmol.get_cn(s, site_idx), 0)
+                assert self.jmol.get_cn(s, site_idx) == 0
                 nsites_checked += 1
             elif site.specie == Element("Fe"):
-                self.assertEqual(self.jmol.get_cn(s, site_idx), 6)
+                assert self.jmol.get_cn(s, site_idx) == 6
                 nsites_checked += 1
             elif site.specie == Element("P"):
-                self.assertEqual(self.jmol.get_cn(s, site_idx), 4)
+                assert self.jmol.get_cn(s, site_idx) == 4
                 nsites_checked += 1
-        self.assertEqual(nsites_checked, 12)
+        assert nsites_checked == 12
 
         # Test a user override that would cause Li to show up as 2-coordinated
-        self.assertEqual(self.jmol_update.get_cn(s, 0), 2)
+        assert self.jmol_update.get_cn(s, 0) == 2
 
         # Verify get_nn function works
-        self.assertEqual(len(self.jmol_update.get_nn(s, 0)), 2)
+        assert len(self.jmol_update.get_nn(s, 0)) == 2
 
     def tearDown(self):
         del self.jmol
@@ -304,10 +297,10 @@ class TestIsayevNN(PymatgenTest):
         inn = IsayevNN()
         s = self.get_structure("LiFePO4")
 
-        self.assertEqual(inn.get_cn(s, 0), 2)
-        self.assertEqual(inn.get_cn(s, 5), 6)
-        self.assertEqual(inn.get_cn(s, 10), 4)
-        self.assertEqual(len(inn.get_nn(s, 0)), 2)
+        assert inn.get_cn(s, 0) == 2
+        assert inn.get_cn(s, 5) == 6
+        assert inn.get_cn(s, 10) == 4
+        assert len(inn.get_nn(s, 0)) == 2
 
 
 class OpenBabelNNTest(PymatgenTest):
@@ -319,17 +312,14 @@ class OpenBabelNNTest(PymatgenTest):
     def test_nn_orders(self):
         strategy = OpenBabelNN()
         acetylene = strategy.get_nn_info(self.acetylene, 0)
-        self.assertEqual(acetylene[0]["weight"], 3)
-        self.assertEqual(acetylene[1]["weight"], 1)
+        assert acetylene[0]["weight"] == 3
+        assert acetylene[1]["weight"] == 1
 
         # Currently, benzene bonds register either as double or single,
         # not aromatic
         # Instead of searching for aromatic bonds, we check that bonds are
         # detected in the same way from both sides
-        self.assertEqual(
-            strategy.get_nn_info(self.benzene, 0)[0]["weight"],
-            strategy.get_nn_info(self.benzene, 1)[0]["weight"],
-        )
+        assert strategy.get_nn_info(self.benzene, 0)[0]["weight"] == strategy.get_nn_info(self.benzene, 1)[0]["weight"]
 
     def test_nn_length(self):
         strategy = OpenBabelNN(order=False)
@@ -339,10 +329,10 @@ class OpenBabelNNTest(PymatgenTest):
         c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
         h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
 
-        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
-        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
+        assert c_bonds[0]["weight"] == approx(1.41, abs=1e-2)
+        assert h_bonds[0]["weight"] == approx(1.02, abs=1e-2)
 
-        self.assertAlmostEqual(strategy.get_nn_info(self.acetylene, 0)[0]["weight"], 1.19, 2)
+        assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(1.19, abs=1e-2)
 
     def tearDown(self):
         del self.benzene
@@ -358,11 +348,11 @@ class CovalentBondNNTest(PymatgenTest):
         strategy = CovalentBondNN()
 
         acetylene = strategy.get_nn_info(self.acetylene, 0)
-        self.assertEqual(acetylene[0]["weight"], 3)
-        self.assertEqual(acetylene[1]["weight"], 1)
+        assert acetylene[0]["weight"] == 3
+        assert acetylene[1]["weight"] == 1
 
         benzene = strategy.get_nn_info(self.benzene, 0)
-        self.assertAlmostEqual(benzene[0]["weight"], 1.6596, places=4)
+        assert benzene[0]["weight"] == approx(1.6596, abs=1e-4)
 
     def test_nn_length(self):
         strategy = CovalentBondNN(order=False)
@@ -372,20 +362,20 @@ class CovalentBondNNTest(PymatgenTest):
         c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
         h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
 
-        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
-        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
+        assert c_bonds[0]["weight"] == approx(1.41, abs=1e-2)
+        assert h_bonds[0]["weight"] == approx(1.02, abs=1e-2)
 
         acetylene = strategy.get_nn_info(self.acetylene, 0)
-        self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
+        assert acetylene[0]["weight"] == approx(1.19, abs=1e-2)
 
     def test_bonded_structure(self):
         strategy = CovalentBondNN()
 
         benzene = strategy.get_bonded_structure(self.benzene)
-        self.assertEqual(len(benzene.find_rings()), 1)
+        assert len(benzene.find_rings()) == 1
 
         acetylene = strategy.get_bonded_structure(self.acetylene)
-        self.assertEqual(len(acetylene.graph.nodes), 4)
+        assert len(acetylene.graph.nodes) == 4
 
     def tearDown(self):
         del self.benzene
@@ -431,71 +421,71 @@ class MiniDistNNTest(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
 
     def test_all_nn_classes(self):
-        self.assertEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(self.cscl, 0), 14)
-        self.assertEqual(MinimumDistanceNN().get_cn(self.diamond, 0), 4)
-        self.assertEqual(MinimumDistanceNN().get_cn(self.nacl, 0), 6)
-        self.assertEqual(MinimumDistanceNN().get_cn(self.lifepo4, 0), 6)
-        self.assertEqual(MinimumDistanceNN(tol=0.01).get_cn(self.cscl, 0), 8)
-        self.assertEqual(MinimumDistanceNN(tol=0.1).get_cn(self.mos2, 0), 6)
+        assert MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(self.cscl, 0) == 14
+        assert MinimumDistanceNN().get_cn(self.diamond, 0) == 4
+        assert MinimumDistanceNN().get_cn(self.nacl, 0) == 6
+        assert MinimumDistanceNN().get_cn(self.lifepo4, 0) == 6
+        assert MinimumDistanceNN(tol=0.01).get_cn(self.cscl, 0) == 8
+        assert MinimumDistanceNN(tol=0.1).get_cn(self.mos2, 0) == 6
 
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            self.assertTrue(image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)])
+            assert image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)]
 
         okeeffe = MinimumOKeeffeNN(tol=0.01)
-        self.assertEqual(okeeffe.get_cn(self.diamond, 0), 4)
-        self.assertEqual(okeeffe.get_cn(self.nacl, 0), 6)
-        self.assertEqual(okeeffe.get_cn(self.cscl, 0), 8)
-        self.assertEqual(okeeffe.get_cn(self.lifepo4, 0), 2)
+        assert okeeffe.get_cn(self.diamond, 0) == 4
+        assert okeeffe.get_cn(self.nacl, 0) == 6
+        assert okeeffe.get_cn(self.cscl, 0) == 8
+        assert okeeffe.get_cn(self.lifepo4, 0) == 2
 
         virenn = MinimumVIRENN(tol=0.01)
-        self.assertEqual(virenn.get_cn(self.diamond, 0), 4)
-        self.assertEqual(virenn.get_cn(self.nacl, 0), 6)
-        self.assertEqual(virenn.get_cn(self.cscl, 0), 8)
-        self.assertEqual(virenn.get_cn(self.lifepo4, 0), 2)
+        assert virenn.get_cn(self.diamond, 0) == 4
+        assert virenn.get_cn(self.nacl, 0) == 6
+        assert virenn.get_cn(self.cscl, 0) == 8
+        assert virenn.get_cn(self.lifepo4, 0) == 2
 
         brunner_recip = BrunnerNN_reciprocal(tol=0.01)
-        self.assertEqual(brunner_recip.get_cn(self.diamond, 0), 4)
-        self.assertEqual(brunner_recip.get_cn(self.nacl, 0), 6)
-        self.assertEqual(brunner_recip.get_cn(self.cscl, 0), 14)
-        self.assertEqual(brunner_recip.get_cn(self.lifepo4, 0), 6)
+        assert brunner_recip.get_cn(self.diamond, 0) == 4
+        assert brunner_recip.get_cn(self.nacl, 0) == 6
+        assert brunner_recip.get_cn(self.cscl, 0) == 14
+        assert brunner_recip.get_cn(self.lifepo4, 0) == 6
 
         brunner_rel = BrunnerNN_relative(tol=0.01)
-        self.assertEqual(brunner_rel.get_cn(self.diamond, 0), 4)
-        self.assertEqual(brunner_rel.get_cn(self.nacl, 0), 6)
-        self.assertEqual(brunner_rel.get_cn(self.cscl, 0), 14)
-        self.assertEqual(brunner_rel.get_cn(self.lifepo4, 0), 6)
+        assert brunner_rel.get_cn(self.diamond, 0) == 4
+        assert brunner_rel.get_cn(self.nacl, 0) == 6
+        assert brunner_rel.get_cn(self.cscl, 0) == 14
+        assert brunner_rel.get_cn(self.lifepo4, 0) == 6
 
         brunner_real = BrunnerNN_real(tol=0.01)
-        self.assertEqual(brunner_real.get_cn(self.diamond, 0), 4)
-        self.assertEqual(brunner_real.get_cn(self.nacl, 0), 6)
-        self.assertEqual(brunner_real.get_cn(self.cscl, 0), 14)
-        self.assertEqual(brunner_real.get_cn(self.lifepo4, 0), 30)
+        assert brunner_real.get_cn(self.diamond, 0) == 4
+        assert brunner_real.get_cn(self.nacl, 0) == 6
+        assert brunner_real.get_cn(self.cscl, 0) == 14
+        assert brunner_real.get_cn(self.lifepo4, 0) == 30
 
         econn = EconNN()
-        self.assertEqual(econn.get_cn(self.diamond, 0), 4)
-        self.assertEqual(econn.get_cn(self.nacl, 0), 6)
-        self.assertEqual(econn.get_cn(self.cscl, 0), 14)
-        self.assertEqual(econn.get_cn(self.lifepo4, 0), 6)
+        assert econn.get_cn(self.diamond, 0) == 4
+        assert econn.get_cn(self.nacl, 0) == 6
+        assert econn.get_cn(self.cscl, 0) == 14
+        assert econn.get_cn(self.lifepo4, 0) == 6
 
         voroinn = VoronoiNN(tol=0.5)
-        self.assertEqual(voroinn.get_cn(self.diamond, 0), 4)
-        self.assertEqual(voroinn.get_cn(self.nacl, 0), 6)
-        self.assertEqual(voroinn.get_cn(self.cscl, 0), 8)
-        self.assertEqual(voroinn.get_cn(self.lifepo4, 0), 6)
+        assert voroinn.get_cn(self.diamond, 0) == 4
+        assert voroinn.get_cn(self.nacl, 0) == 6
+        assert voroinn.get_cn(self.cscl, 0) == 8
+        assert voroinn.get_cn(self.lifepo4, 0) == 6
 
         crystalnn = CrystalNN()
-        self.assertEqual(crystalnn.get_cn(self.diamond, 0), 4)
-        self.assertEqual(crystalnn.get_cn(self.nacl, 0), 6)
-        self.assertEqual(crystalnn.get_cn(self.cscl, 0), 8)
-        self.assertEqual(crystalnn.get_cn(self.lifepo4, 0), 6)
+        assert crystalnn.get_cn(self.diamond, 0) == 4
+        assert crystalnn.get_cn(self.nacl, 0) == 6
+        assert crystalnn.get_cn(self.cscl, 0) == 8
+        assert crystalnn.get_cn(self.lifepo4, 0) == 6
 
     def test_get_local_order_params(self):
         nn = MinimumDistanceNN()
         ops = nn.get_local_order_parameters(self.diamond, 0)
-        self.assertAlmostEqual(ops["tetrahedral"], 0.9999934389036574)
+        assert ops["tetrahedral"] == approx(0.9999934389036574)
 
         ops = nn.get_local_order_parameters(self.nacl, 0)
-        self.assertAlmostEqual(ops["octahedral"], 0.9999995266669)
+        assert ops["octahedral"] == approx(0.9999995266669)
 
 
 class MotifIdentificationTest(PymatgenTest):
@@ -573,36 +563,27 @@ class MotifIdentificationTest(PymatgenTest):
 
     def test_site_is_of_motif_type(self):
         for i in range(self.diamond.num_sites):
-            self.assertEqual(site_is_of_motif_type(self.diamond, i), "tetrahedral")
+            assert site_is_of_motif_type(self.diamond, i) == "tetrahedral"
         for i in range(self.nacl.num_sites):
-            self.assertEqual(site_is_of_motif_type(self.nacl, i), "octahedral")
+            assert site_is_of_motif_type(self.nacl, i) == "octahedral"
         for i in range(self.cscl.num_sites):
-            self.assertEqual(site_is_of_motif_type(self.cscl, i), "bcc")
-        self.assertEqual(site_is_of_motif_type(self.square_pyramid, 0), "square pyramidal")
+            assert site_is_of_motif_type(self.cscl, i) == "bcc"
+        assert site_is_of_motif_type(self.square_pyramid, 0) == "square pyramidal"
         for i in range(1, self.square_pyramid.num_sites):
-            self.assertEqual(site_is_of_motif_type(self.square_pyramid, i), "unrecognized")
-        self.assertEqual(site_is_of_motif_type(self.trigonal_bipyramid, 0), "trigonal bipyramidal")
+            assert site_is_of_motif_type(self.square_pyramid, i) == "unrecognized"
+        assert site_is_of_motif_type(self.trigonal_bipyramid, 0) == "trigonal bipyramidal"
         for i in range(1, self.trigonal_bipyramid.num_sites):
-            self.assertEqual(site_is_of_motif_type(self.trigonal_bipyramid, i), "unrecognized")
+            assert site_is_of_motif_type(self.trigonal_bipyramid, i) == "unrecognized"
 
     def test_get_neighbors_of_site_with_index(self):
-        self.assertEqual(len(get_neighbors_of_site_with_index(self.diamond, 0)), 4)
-        self.assertEqual(len(get_neighbors_of_site_with_index(self.nacl, 0)), 6)
-        self.assertEqual(len(get_neighbors_of_site_with_index(self.cscl, 0)), 8)
-        self.assertEqual(len(get_neighbors_of_site_with_index(self.diamond, 0, delta=0.01)), 4)
-        self.assertEqual(len(get_neighbors_of_site_with_index(self.diamond, 0, cutoff=6)), 4)
-        self.assertEqual(
-            len(get_neighbors_of_site_with_index(self.diamond, 0, approach="voronoi")),
-            4,
-        )
-        self.assertEqual(
-            len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_OKeeffe")),
-            4,
-        )
-        self.assertEqual(
-            len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_VIRE")),
-            4,
-        )
+        assert len(get_neighbors_of_site_with_index(self.diamond, 0)) == 4
+        assert len(get_neighbors_of_site_with_index(self.nacl, 0)) == 6
+        assert len(get_neighbors_of_site_with_index(self.cscl, 0)) == 8
+        assert len(get_neighbors_of_site_with_index(self.diamond, 0, delta=0.01)) == 4
+        assert len(get_neighbors_of_site_with_index(self.diamond, 0, cutoff=6)) == 4
+        assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="voronoi")) == 4
+        assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_OKeeffe")) == 4
+        assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_VIRE")) == 4
 
     def tearDown(self):
         del self.silicon
@@ -624,7 +605,6 @@ class NearNeighborTest(PymatgenTest):
         )
 
     def set_nn_info(self):
-
         # check conformance
         # implicitly assumes that all NearNeighbors subclasses
         # will correctly identify bonds in diamond, if it
@@ -634,8 +614,8 @@ class NearNeighborTest(PymatgenTest):
             # Critic2NN has external dependency, is tested separately
             if "Critic2" not in str(subclass):
                 nn_info = subclass().get_nn_info(self.diamond, 0)
-                self.assertEqual(nn_info[0]["site_index"], 1)
-                self.assertEqual(nn_info[0]["image"][0], 1)
+                assert nn_info[0]["site_index"] == 1
+                assert nn_info[0]["image"][0] == 1
 
     def test_on_disorder_options(self):
         assert get_args(on_disorder_options) == (
@@ -1013,13 +993,13 @@ class LocalStructOrderParamsTest(PymatgenTest):
         )
 
     def test_init(self):
-        self.assertIsNotNone(LocalStructOrderParams(["cn"], parameters=None, cutoff=0.99))
+        assert LocalStructOrderParams(["cn"], parameters=None, cutoff=0.99) is not None
 
         parameters = [{"norm": 2}]
         lostops = LocalStructOrderParams(["cn"], parameters=parameters)
         tmp = lostops.get_parameters(0)
         parameters[0]["norm"] = 3
-        self.assertEqual(tmp, lostops.get_parameters(0))
+        assert tmp == lostops.get_parameters(0)
 
     def test_get_order_parameters(self):
         # Set up everything.
@@ -1079,169 +1059,167 @@ class LocalStructOrderParamsTest(PymatgenTest):
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)
-        self.assertAlmostEqual(int(op_vals[13] * 1000), 1000)
+        assert int(op_vals[13] * 1000) == approx(1000)
         op_vals = ops_501.get_order_parameters(self.single_bond, 0)
-        self.assertAlmostEqual(int(op_vals[13] * 1000), 799)
+        assert int(op_vals[13] * 1000) == approx(799)
         op_vals = ops_101.get_order_parameters(self.linear, 0)
-        self.assertAlmostEqual(int(op_vals[13] * 1000), 0)
+        assert int(op_vals[13] * 1000) == approx(0)
 
         # Linear motif.
         op_vals = ops_101.get_order_parameters(self.linear, 0)
-        self.assertAlmostEqual(int(op_vals[1] * 1000), 1000)
+        assert int(op_vals[1] * 1000) == approx(1000)
 
         # 45 degrees-bent motif.
         op_vals = ops_101.get_order_parameters(self.bent45, 0)
-        self.assertAlmostEqual(int(op_vals[2] * 1000), 1000)
+        assert int(op_vals[2] * 1000) == approx(1000)
 
         # T-shape motif.
         op_vals = ops_101.get_order_parameters(self.T_shape, 0, indices_neighs=[1, 2, 3])
-        self.assertAlmostEqual(int(op_vals[23] * 1000), 1000)
+        assert int(op_vals[23] * 1000) == approx(1000)
 
         # Cubic structure.
         op_vals = ops_099.get_order_parameters(self.cubic, 0)
-        self.assertAlmostEqual(op_vals[0], 0.0)
-        self.assertIsNone(op_vals[3])
-        self.assertIsNone(op_vals[4])
-        self.assertIsNone(op_vals[5])
-        self.assertIsNone(op_vals[6])
-        self.assertIsNone(op_vals[7])
-        self.assertIsNone(op_vals[8])
+        assert op_vals[0] == approx(0.0)
+        assert op_vals[3] is None
+        assert op_vals[4] is None
+        assert op_vals[5] is None
+        assert op_vals[6] is None
+        assert op_vals[7] is None
+        assert op_vals[8] is None
         op_vals = ops_101.get_order_parameters(self.cubic, 0)
-        self.assertAlmostEqual(op_vals[0], 6.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 23)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 1000)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), 333)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 763)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 353)
-        self.assertAlmostEqual(int(op_vals[28] * 1000), 1000)
+        assert op_vals[0] == approx(6.0)
+        assert int(op_vals[3] * 1000) == approx(23)
+        assert int(op_vals[4] * 1000) == approx(1000)
+        assert int(op_vals[5] * 1000) == approx(333)
+        assert int(op_vals[6] * 1000) == approx(0)
+        assert int(op_vals[7] * 1000) == approx(763)
+        assert int(op_vals[8] * 1000) == approx(353)
+        assert int(op_vals[28] * 1000) == approx(1000)
 
         # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
-        self.assertAlmostEqual(op_vals[0], 8.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 200)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 145)
-        self.assertAlmostEqual(int(op_vals[5] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
+        assert op_vals[0] == approx(8.0)
+        assert int(op_vals[3] * 1000) == approx(200)
+        assert int(op_vals[4] * 1000) == approx(145)
+        assert int(op_vals[5] * 1000 + 0.5) == approx(1000)
+        assert int(op_vals[6] * 1000) == approx(0)
+        assert int(op_vals[7] * 1000) == approx(509)
+        assert int(op_vals[8] * 1000) == approx(628)
 
         # Fcc structure.
         op_vals = ops_071.get_order_parameters(self.fcc, 0)
-        self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 36)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 78)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), -2)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 190)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 574)
+        assert op_vals[0] == approx(12.0)
+        assert int(op_vals[3] * 1000) == approx(36)
+        assert int(op_vals[4] * 1000) == approx(78)
+        assert int(op_vals[5] * 1000) == approx(-2)
+        assert int(op_vals[6] * 1000) == approx(0)
+        assert int(op_vals[7] * 1000) == approx(190)
+        assert int(op_vals[8] * 1000) == approx(574)
 
         # Hcp structure.
         op_vals = ops_101.get_order_parameters(self.hcp, 0)
-        self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 33)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 82)
+        assert op_vals[0] == approx(12.0)
+        assert int(op_vals[3] * 1000) == approx(33)
+        assert int(op_vals[4] * 1000) == approx(82)
         # self.assertAlmostEqual(int(op_vals[5] * 1000), -26)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 97)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 484)
+        assert int(op_vals[6] * 1000) == approx(0)
+        assert int(op_vals[7] * 1000) == approx(97)
+        assert int(op_vals[8] * 1000) == approx(484)
 
         # Diamond structure.
         op_vals = ops_044.get_order_parameters(self.diamond, 0)
-        self.assertAlmostEqual(op_vals[0], 4.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 37)
-        self.assertAlmostEqual(op_vals[5], 0.75)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
-        self.assertAlmostEqual(int(op_vals[27] * 1000), 1000)
+        assert op_vals[0] == approx(4.0)
+        assert int(op_vals[3] * 1000) == approx(1000)
+        assert int(op_vals[4] * 1000) == approx(37)
+        assert op_vals[5] == approx(0.75)
+        assert int(op_vals[6] * 1000) == approx(0)
+        assert int(op_vals[7] * 1000) == approx(509)
+        assert int(op_vals[8] * 1000) == approx(628)
+        assert int(op_vals[27] * 1000) == approx(1000)
 
         # Trigonal off-plane molecule.
         op_vals = ops_044.get_order_parameters(self.trigonal_off_plane, 0)
-        self.assertAlmostEqual(op_vals[0], 3.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
-        self.assertAlmostEqual(int(op_vals[33] * 1000), 1000)
+        assert op_vals[0] == approx(3.0)
+        assert int(op_vals[3] * 1000) == approx(1000)
+        assert int(op_vals[33] * 1000) == approx(1000)
 
         # Trigonal-planar motif.
         op_vals = ops_101.get_order_parameters(self.trigonal_planar, 0)
-        self.assertEqual(int(op_vals[0] + 0.5), 3)
-        self.assertAlmostEqual(int(op_vals[14] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[29] * 1000 + 0.5), 1000)
+        assert int(op_vals[0] + 0.5) == 3
+        assert int(op_vals[14] * 1000 + 0.5) == approx(1000)
+        assert int(op_vals[29] * 1000 + 0.5) == approx(1000)
 
         # Regular triangle motif.
         op_vals = ops_101.get_order_parameters(self.regular_triangle, 0)
-        self.assertAlmostEqual(int(op_vals[9] * 1000), 999)
+        assert int(op_vals[9] * 1000) == approx(999)
 
         # Square-planar motif.
         op_vals = ops_101.get_order_parameters(self.square_planar, 0)
-        self.assertAlmostEqual(int(op_vals[15] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[30] * 1000 + 0.5), 1000)
+        assert int(op_vals[15] * 1000 + 0.5) == approx(1000)
+        assert int(op_vals[30] * 1000 + 0.5) == approx(1000)
 
         # Square motif.
         op_vals = ops_101.get_order_parameters(self.square, 0)
-        self.assertAlmostEqual(int(op_vals[10] * 1000), 1000)
+        assert int(op_vals[10] * 1000) == approx(1000)
 
         # Pentagonal planar.
         op_vals = ops_101.get_order_parameters(self.pentagonal_planar.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 126)
-        self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[31] * 1000 + 0.5), 1000)
+        assert int(op_vals[12] * 1000 + 0.5) == approx(126)
+        assert int(op_vals[16] * 1000 + 0.5) == approx(1000)
+        assert int(op_vals[31] * 1000 + 0.5) == approx(1000)
 
         # Trigonal pyramid motif.
         op_vals = ops_101.get_order_parameters(self.trigonal_pyramid, 0, indices_neighs=[1, 2, 3, 4])
-        self.assertAlmostEqual(int(op_vals[18] * 1000 + 0.5), 1000)
+        assert int(op_vals[18] * 1000 + 0.5) == approx(1000)
 
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
-        self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 667)
-        self.assertAlmostEqual(int(op_vals[17] * 1000 + 0.5), 1000)
+        assert int(op_vals[11] * 1000 + 0.5) == approx(1000)
+        assert int(op_vals[12] * 1000 + 0.5) == approx(667)
+        assert int(op_vals[17] * 1000 + 0.5) == approx(1000)
 
         # Pentagonal pyramid motif.
         op_vals = ops_101.get_order_parameters(self.pentagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
-        self.assertAlmostEqual(int(op_vals[19] * 1000 + 0.5), 1000)
+        assert int(op_vals[19] * 1000 + 0.5) == approx(1000)
 
         # Hexagonal pyramid motif.
         op_vals = ops_101.get_order_parameters(self.hexagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
-        self.assertAlmostEqual(int(op_vals[20] * 1000 + 0.5), 1000)
+        assert int(op_vals[20] * 1000 + 0.5) == approx(1000)
 
         # Trigonal bipyramidal.
         op_vals = ops_101.get_order_parameters(self.trigonal_bipyramidal.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 1000)
+        assert int(op_vals[12] * 1000 + 0.5) == approx(1000)
 
         # Pentagonal bipyramidal.
         op_vals = ops_101.get_order_parameters(self.pentagonal_bipyramid.sites, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
-        self.assertAlmostEqual(int(op_vals[21] * 1000 + 0.5), 1000)
+        assert int(op_vals[21] * 1000 + 0.5) == approx(1000)
 
         # Hexagonal bipyramid motif.
         op_vals = ops_101.get_order_parameters(self.hexagonal_bipyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7, 8])
-        self.assertAlmostEqual(int(op_vals[22] * 1000 + 0.5), 1000)
+        assert int(op_vals[22] * 1000 + 0.5) == approx(1000)
 
         # Cuboctahedral motif.
-        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=[i for i in range(1, 13)])
-        self.assertAlmostEqual(int(op_vals[24] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[32] * 1000 + 0.5), 1000)
+        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=list(range(1, 13)))
+        assert int(op_vals[24] * 1000 + 0.5) == approx(1000)
+        assert int(op_vals[32] * 1000 + 0.5) == approx(1000)
 
         # See-saw motif.
-        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=[i for i in range(1, 5)])
-        self.assertAlmostEqual(int(op_vals[25] * 1000 + 0.5), 1000)
+        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=list(range(1, 5)))
+        assert int(op_vals[25] * 1000 + 0.5) == approx(1000)
 
         # Hexagonal planar motif.
         op_vals = ops_101.get_order_parameters(self.hexagonal_planar, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
-        self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)
+        assert int(op_vals[26] * 1000 + 0.5) == approx(1000)
 
         # Square face capped trigonal prism.
-        op_vals = ops_101.get_order_parameters(
-            self.sq_face_capped_trig_pris, 0, indices_neighs=[i for i in range(1, 8)]
-        )
-        self.assertAlmostEqual(int(op_vals[34] * 1000 + 0.5), 1000)
+        op_vals = ops_101.get_order_parameters(self.sq_face_capped_trig_pris, 0, indices_neighs=list(range(1, 8)))
+        assert int(op_vals[34] * 1000 + 0.5) == approx(1000)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])
-        self.assertIsNotNone(op_vals[0])
-        self.assertIsNone(op_vals[3])
-        with self.assertRaises(ValueError):
+        assert op_vals[0] is not None
+        assert op_vals[3] is None
+        with pytest.raises(ValueError):
             ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
 
     def tearDown(self):
@@ -1288,11 +1266,11 @@ class CrystalNNTest(PymatgenTest):
         warnings.filters = self.prev_warnings
 
     def test_sanity(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             cnn = CrystalNN()
             cnn.get_cn(self.lifepo4, 0, use_weights=True)
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             cnn = CrystalNN(weighted_cn=True)
             cnn.get_cn(self.lifepo4, 0, use_weights=False)
 
@@ -1303,7 +1281,7 @@ class CrystalNNTest(PymatgenTest):
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx))
 
-        self.assertSequenceEqual(cn_array, expected_array)
+        assert cn_array == expected_array
 
     def test_weighted_cn(self):
         cnn = CrystalNN(weighted_cn=True)
@@ -1341,24 +1319,24 @@ class CrystalNNTest(PymatgenTest):
     def test_fixed_length(self):
         cnn = CrystalNN(fingerprint_length=30)
         nndata = cnn.get_nn_data(self.lifepo4, 0)
-        self.assertEqual(len(nndata.cn_weights), 30)
-        self.assertEqual(len(nndata.cn_nninfo), 30)
+        assert len(nndata.cn_weights) == 30
+        assert len(nndata.cn_nninfo) == 30
 
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
-        self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True), 5.8630, 2)
+        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, abs=1e-2)
 
     def test_x_diff_weight(self):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
-        self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True), 5.8630, 2)
+        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, abs=1e-2)
 
     def test_noble_gas_material(self):
         cnn = CrystalNN()
 
-        self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 0)
+        assert cnn.get_cn(self.he_bcc, 0, use_weights=False) == 0
 
         cnn = CrystalNN(distance_cutoffs=(1.25, 5))
-        self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 8)
+        assert cnn.get_cn(self.he_bcc, 0, use_weights=False) == 8
 
     def test_shifted_sites(self):
         cnn = CrystalNN()
@@ -1371,10 +1349,7 @@ class CrystalNNTest(PymatgenTest):
         struct_shifted = Structure([7, 0, 0, 0, 7, 0, 0, 0, 7], ["I"] * len(sites_shifted), sites_shifted)
         bonded_struct_shifted = cnn.get_bonded_structure(struct_shifted)
 
-        self.assertEqual(
-            len(bonded_struct.get_connected_sites(0)),
-            len(bonded_struct_shifted.get_connected_sites(0)),
-        )
+        assert len(bonded_struct.get_connected_sites(0)) == len(bonded_struct_shifted.get_connected_sites(0))
 
     def test_get_cn(self):
         cnn = CrystalNN()
@@ -1386,8 +1361,10 @@ class CrystalNNTest(PymatgenTest):
         assert site_0_coord_num == 8
         assert site_0_coord_num == site_0_coord_num_strict_majority
 
-        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="take_majority_strict")
-        self.assertRaises(ValueError, cnn.get_cn, self.disordered_struct, 0, on_disorder="error")
+        with pytest.raises(ValueError):
+            cnn.get_cn(self.disordered_struct, 0, on_disorder="take_majority_strict")
+        with pytest.raises(ValueError):
+            cnn.get_cn(self.disordered_struct, 0, on_disorder="error")
 
     def test_get_bonded_structure(self):
         cnn = CrystalNN()
@@ -1404,12 +1381,13 @@ class CrystalNNTest(PymatgenTest):
         assert len(structure_graph) == 2
         assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
 
-        self.assertRaises(
-            ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="take_majority_strict"
-        )
-        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
+        with pytest.raises(ValueError):
+            cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="take_majority_strict")
+        with pytest.raises(ValueError):
+            cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="error")
 
-        self.assertRaises(ValueError, cnn.get_bonded_structure, self.disordered_struct, 0, on_disorder="error")
+        with pytest.raises(ValueError):
+            cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="error")
 
 
 class CutOffDictNNTest(PymatgenTest):
@@ -1428,17 +1406,18 @@ class CutOffDictNNTest(PymatgenTest):
 
     def test_cn(self):
         nn = CutOffDictNN({("C", "C"): 2})
-        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+        assert nn.get_cn(self.diamond, 0) == 4
 
         nn_null = CutOffDictNN()
-        self.assertEqual(nn_null.get_cn(self.diamond, 0), 0)
+        assert nn_null.get_cn(self.diamond, 0) == 0
 
     def test_from_preset(self):
         nn = CutOffDictNN.from_preset("vesta_2019")
-        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+        assert nn.get_cn(self.diamond, 0) == 4
 
         # test error thrown on unknown preset
-        self.assertRaises(ValueError, CutOffDictNN.from_preset, "test")
+        with pytest.raises(ValueError):
+            CutOffDictNN.from_preset("test")
 
 
 @unittest.skipIf(not which("critic2"), "critic2 executable not present")
@@ -1497,45 +1476,45 @@ class MetalEdgeExtenderTest(PymatgenTest):
         self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
 
     def test_metal_edge_extender(self):
-        self.assertEqual(len(self.LiEC_graph.graph.edges), 11)
+        assert len(self.LiEC_graph.graph.edges) == 11
         extended_mol_graph = metal_edge_extender(self.LiEC_graph)
-        self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+        assert len(extended_mol_graph.graph.edges) == 12
 
     def test_custom_metals(self):
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})
-        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+        assert len(extended_mol_graph.graph.edges) == 11
 
         # empty metals should exit cleanly with no change to graph
         mol_graph = metal_edge_extender(self.water_cluster_K, metals={}, cutoff=2.5)
-        self.assertEqual(len(mol_graph.graph.edges), 0)
+        assert len(mol_graph.graph.edges) == 0
 
         mol_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=2.5)
-        self.assertEqual(len(mol_graph.graph.edges), 4)
+        assert len(mol_graph.graph.edges) == 4
 
         extended_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=4.5)
-        self.assertEqual(len(extended_graph.graph.edges), 7)
+        assert len(extended_graph.graph.edges) == 7
 
         # if None, should auto-detect Li
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals=None)
-        self.assertEqual(len(extended_mol_graph.graph.edges), 12)
+        assert len(extended_mol_graph.graph.edges) == 12
 
     def test_custom_coordinators(self):
         # leave out Oxygen, graph should not change
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={"N", "F", "S", "Cl"})
-        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+        assert len(extended_mol_graph.graph.edges) == 11
         # empty coordinators should exit cleanly with no change
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={})
-        self.assertEqual(len(extended_mol_graph.graph.edges), 11)
+        assert len(extended_mol_graph.graph.edges) == 11
 
     def test_custom_cutoff(self):
         short_mol_graph = metal_edge_extender(self.LiEC_graph, cutoff=0.5)
-        self.assertEqual(len(short_mol_graph.graph.edges), 11)
+        assert len(short_mol_graph.graph.edges) == 11
 
         # with a cutoff of 1.5, no edges should be found.
         # test that the 2nd pass analysis (auto increasing cutoff to 2.5) picks
         # up the six coordination bonds
         short_mol_graph = metal_edge_extender(self.water_cluster_Mg, cutoff=1.5)
-        self.assertEqual(len(short_mol_graph.graph.edges), 6)
+        assert len(short_mol_graph.graph.edges) == 6
 
 
 if __name__ == "__main__":

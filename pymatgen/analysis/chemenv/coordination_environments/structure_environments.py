@@ -212,10 +212,7 @@ class StructureEnvironments(MSONable):
                     rtol=0.0,
                     atol=self.detailed_voronoi.normalized_distance_tolerance,
                 ):
-                    if idist == 0:
-                        plateau = np.inf
-                    else:
-                        plateau = all_nbs_normalized_distances_sorted[idist - 1] - maxdist
+                    plateau = np.inf if idist == 0 else all_nbs_normalized_distances_sorted[idist - 1] - maxdist
                     break
             if plateau is None:
                 raise ValueError("Plateau not found ...")
@@ -237,10 +234,7 @@ class StructureEnvironments(MSONable):
                     rtol=0.0,
                     atol=self.detailed_voronoi.normalized_angle_tolerance,
                 ):
-                    if iang == 0:
-                        plateau = minang
-                    else:
-                        plateau = minang - all_nbs_normalized_angles_sorted[iang - 1]
+                    plateau = minang if iang == 0 else minang - all_nbs_normalized_angles_sorted[iang - 1]
                     break
             if plateau is None:
                 raise ValueError("Plateau not found ...")
@@ -651,7 +645,7 @@ class StructureEnvironments(MSONable):
             raise ChemenvError(
                 "StructureEnvironments",
                 "get_csm",
-                f'Number of csms for site #{str(isite)} with mp_symbol "{mp_symbol}" = {str(len(csms))}',
+                f"Number of csms for site #{str(isite)} with mp_symbol {mp_symbol!r} = {str(len(csms))}",
             )
         return csms[0]
 
@@ -659,10 +653,10 @@ class StructureEnvironments(MSONable):
         """
         Returns the continuous symmetry measure(s) of site with index isite with respect to the
          perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
-         be available (if there is no voronoi parameters leading to a number of neighbours corresponding to
+         be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
          the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
-         lead to more than one csm (when two or more different voronoi parameters lead to different neighbours
-         but with same number of neighbours).
+         lead to more than one csm (when two or more different voronoi parameters lead to different neighbors
+         but with same number of neighbors).
 
         Args:
             isite: Index of the site.
@@ -722,10 +716,7 @@ class StructureEnvironments(MSONable):
         if symmetry_measure_type is None:
             symmetry_measure_type = "csm_wcs_ctwcc"
         # Initializes the figure
-        if figsize is None:
-            fig = plt.figure()
-        else:
-            fig = plt.figure(figsize=figsize)
+        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         gs = GridSpec(2, 1, hspace=0.0, wspace=0.0)
         subplot = fig.add_subplot(gs[:])
         subplot_distang = subplot.twinx()
@@ -797,10 +788,7 @@ class StructureEnvironments(MSONable):
 
         for ix, was in enumerate(all_was):
             subplot_distang.plot(0.2 + ix * np.ones_like(was), yang(was), "<g")
-            if np.mod(ix, 2) == 0:
-                alpha = 0.3
-            else:
-                alpha = 0.1
+            alpha = 0.3 if np.mod(ix, 2) == 0 else 0.1
             subplot_distang.fill_between(
                 [-0.5 + ix, 0.5 + ix],
                 [1.0, 1.0],
@@ -881,10 +869,7 @@ class StructureEnvironments(MSONable):
             return None
 
         # Initializes the figure
-        if figsize is None:
-            fig = mpl.figure()
-        else:
-            fig = mpl.figure(figsize=figsize)
+        fig = mpl.figure() if figsize is None else mpl.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
 
         # Initializes the distance and angle parameters
@@ -1195,7 +1180,7 @@ class StructureEnvironments(MSONable):
                     continue
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "has_neighbors",
                         "self": "None",
                         "other": set(other_site_nb_sets),
@@ -1205,7 +1190,7 @@ class StructureEnvironments(MSONable):
             if other_site_nb_sets is None:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "has_neighbors",
                         "self": set(self_site_nb_sets),
                         "other": "None",
@@ -1217,7 +1202,7 @@ class StructureEnvironments(MSONable):
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[isite={isite:d}]",
+                        "difference": f"neighbors_sets[{isite=:d}]",
                         "comparison": "coordination_numbers",
                         "self": self_site_cns,
                         "other": other_site_cns,
@@ -1232,7 +1217,7 @@ class StructureEnvironments(MSONable):
                 if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
                     differences.append(
                         {
-                            "difference": f"neighbors_sets[isite={isite:d}][cn={cn:d}]",
+                            "difference": f"neighbors_sets[{isite=:d}][{cn=:d}]",
                             "comparison": "neighbors_sets",
                             "self": self_site_cn_nb_sets,
                             "other": other_site_cn_nb_sets,
@@ -1248,7 +1233,7 @@ class StructureEnvironments(MSONable):
                         if self_ce.is_close_to(other_ce):
                             differences.append(
                                 {
-                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "__eq__",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1257,7 +1242,7 @@ class StructureEnvironments(MSONable):
                         else:
                             differences.append(
                                 {
-                                    "difference": f"ce_list[isite={isite}][cn={cn}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "is_close_to",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1266,7 +1251,6 @@ class StructureEnvironments(MSONable):
         return differences
 
     def __eq__(self, other: object) -> bool:
-
         if not isinstance(other, StructureEnvironments):
             return NotImplemented
 
@@ -1347,6 +1331,7 @@ class StructureEnvironments(MSONable):
 
         Args:
             d: dict representation of the StructureEnvironments object.
+
         Returns:
             StructureEnvironments object.
         """
@@ -1846,12 +1831,13 @@ class LightStructureEnvironments(MSONable):
                             fractions.append(ce_dict["ce_fraction"])
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
-    def get_site_info_for_specie_allces(self, specie, min_fraction=0.0):
+    def get_site_info_for_specie_allces(self, specie, min_fraction=0):
         """
         Get list of indices that have the given specie.
 
         Args:
             specie: Species to get.
+            min_fraction: Minimum fraction of the coordination environment.
 
         Returns: Dictionary with the list of coordination environments for the given species, the indices of the sites
             in which they appear, their fractions and continuous symmetry measures.
@@ -1881,6 +1867,7 @@ class LightStructureEnvironments(MSONable):
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
         """
         Get the statistics of environments for this structure.
+
         Args:
             statistics_fields: Which statistics to get.
             bson_compatible: Whether to make the dictionary BSON-compatible.
@@ -1966,18 +1953,20 @@ class LightStructureEnvironments(MSONable):
                 if ce[target] > condition["maxnumber"]:
                     return False
             else:
-                raise ValueError(f'Target "{target}" for condition of clear environment is not allowed')
+                raise ValueError(f"Target {target!r} for condition of clear environment is not allowed")
         return True
 
     def structure_has_clear_environments(self, conditions=None, skip_none=True, skip_empty=False):
         """
         Whether all sites in a structure have "clear" environments.
+
         Args:
             conditions: Conditions to be checked for an environment to be "clear".
             skip_none: Whether to skip sites for which no environments have been computed.
             skip_empty: Whether to skip sites for which no environments could be found.
 
-        Returns: True if all the sites in the structure have clear environments.
+        Returns:
+            bool: True if all the sites in the structure have clear environments.
         """
         for isite in range(len(self.structure)):
             if self.coordination_environments[isite] is None:
@@ -2053,7 +2042,7 @@ class LightStructureEnvironments(MSONable):
         Equality method that checks if the LightStructureEnvironments object is equal to another
         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
         is the same, if the structure is the same, if the valences used in the strategies are the same, if the
-        coordination environments and the neighbours determined by the strategy are the same.
+        coordination environments and the neighbors determined by the strategy are the same.
 
         Args:
             other: LightStructureEnvironments object to compare with.
@@ -2079,9 +2068,8 @@ class LightStructureEnvironments(MSONable):
 
     def as_dict(self):
         """
-        Bson-serializable dict representation of the LightStructureEnvironments object.
         Returns:
-            Bson-serializable dict representation of the LightStructureEnvironments object.
+            dict: Bson-serializable representation of the LightStructureEnvironments object.
         """
         return {
             "@module": type(self).__module__,
@@ -2165,7 +2153,7 @@ class LightStructureEnvironments(MSONable):
 class ChemicalEnvironments(MSONable):
     """
     Class used to store all the information about the chemical environment of a given site for a given list of
-    coordinated neighbours (internally called "cn_map").
+    coordinated neighbors (internally called "cn_map").
     """
 
     def __init__(self, coord_geoms=None):
@@ -2218,9 +2206,8 @@ class ChemicalEnvironments(MSONable):
             csms = np.array([self.coord_geoms[cg]["other_symmetry_measures"][symmetry_measure_type] for cg in cglist])
         csmlist = [self.coord_geoms[cg] for cg in cglist]
         imin = np.argmin(csms)
-        if max_csm is not None:
-            if csmlist[imin] > max_csm:
-                return None
+        if max_csm is not None and csmlist[imin] > max_csm:
+            return None
         return cglist[imin], csmlist[imin]
 
     def minimum_geometries(self, n=None, symmetry_measure_type=None, max_csm=None):
@@ -2291,7 +2278,7 @@ class ChemicalEnvironments(MSONable):
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",
-                f'Coordination geometry with mp_symbol "{mp_symbol}" is not valid',
+                f"Coordination geometry with mp_symbol {mp_symbol!r} is not valid",
             )
         if mp_symbol in list(self.coord_geoms) and not override:
             raise ChemenvError(

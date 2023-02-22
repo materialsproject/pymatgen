@@ -175,6 +175,7 @@ class ZSLGenerator(MSONable):
         Applies the transformation_sets to the film and substrate vectors
         to generate super-lattices and checks if they matches.
         Returns all matching vectors sets.
+
         Args:
             transformation_sets(array): an array of transformation sets:
                 each transformation set is an array with the (i,j)
@@ -186,7 +187,7 @@ class ZSLGenerator(MSONable):
             substrate_vectors(array): substrate vectors to generate super
                 lattices
         """
-        for (film_transformations, substrate_transformations) in transformation_sets:
+        for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
             films = [reduce_vectors(*np.dot(f, film_vectors)) for f in film_transformations]
 
@@ -299,7 +300,6 @@ def reduce_vectors(a, b):
     Generate independent and unique basis vectors based on the
     methodology of Zur and McGill
     """
-
     if np.dot(a, b) < 0:
         return reduce_vectors(a, -b)
 

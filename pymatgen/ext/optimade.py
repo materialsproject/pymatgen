@@ -46,30 +46,34 @@ class OptimadeRester:
     aliases: dict[str, str] = {
         "aflow": "http://aflow.org/API/optimade/",
         "cod": "https://www.crystallography.net/cod/optimade",
-        "mcloud.2dstructures": "https://aiida.materialscloud.org/2dstructures/optimade",
+        "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
+        "mcloud.mc2d": "https://aiida.materialscloud.org/mc2d/optimade",
         "mcloud.2dtopo": "https://aiida.materialscloud.org/2dtopo/optimade",
-        "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
-        "mcloud.li-ion-conductors": "https://aiida.materialscloud.org/li-ion-conductors/optimade",
-        "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
-        "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
-        "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
-        "mcloud.sssp": "https://aiida.materialscloud.org/sssplibrary/optimade",
-        "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
         "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
-        "mcloud.threedd": "https://aiida.materialscloud.org/3dd/optimade",
+        "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
+        "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
+        "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
+        "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
+        "mcloud.tin-antimony-sulfoiodide": "https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade",
+        "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
         "mp": "https://optimade.materialsproject.org",
         "mpds": "https://api.mpds.io",
         "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
         "odbx": "https://optimade.odbx.science",
+        "odbx.odbx_misc": "https://optimade-misc.odbx.science",
         "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
         "oqmd": "http://oqmd.org/optimade/",
+        "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
         "tcod": "https://www.crystallography.net/tcod/optimade",
+        "twodmatpedia": "http://optimade.2dmatpedia.org",
     }
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
     mandatory_response_fields: set[str] = {"lattice_vectors", "cartesian_site_positions", "species", "species_at_sites"}
 
-    def __init__(self, aliases_or_resource_urls: str | list[str] | None = None, timeout: int = 5):
+    def __init__(
+        self, aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5
+    ):
         """
         OPTIMADE is an effort to provide a standardized interface to retrieve information
         from many different materials science databases.
@@ -83,20 +87,19 @@ class OptimadeRester:
         consider calling the APIs directly.
 
         For convenience, known OPTIMADE endpoints have been given aliases in pymatgen to save
-        typing the full URL. The current list of aliases is:
+        typing the full URL.
 
-        aflow, cod, mcloud.sssp, mcloud.2dstructures, mcloud.2dtopo, mcloud.tc-applicability,
-        mcloud.threedd, mcloud.scdm, mcloud.curated-cofs, mcloud.optimade-sample, mcloud.stoceriaitf,
-        mcloud.pyrene-mofs, mcloud.li-ion-conductors, mp, odbx, omdb.omdb_production, oqmd, tcod
-
-        To refresh this list of aliases, generated from the current list of OPTIMADE providers
-        at optimade.org, call the refresh_aliases() method.
+        To get an up-to-date list aliases, generated from the current list of OPTIMADE providers
+        at optimade.org, call the refresh_aliases() method or pass refresh_aliases=True when
+        creating instances of this class.
 
         Args:
             aliases_or_resource_urls: the alias or structure resource URL or a list of
             aliases or resource URLs, if providing the resource URL directly it should not
             be an index, this interface can only currently access the "v1/structures"
             information from the specified resource URL
+            refresh_aliases: if True, use an up-to-date list of providers/aliases from the live
+            list of OPTIMADE providers hosted at https://providers.optimade.org.
             timeout: number of seconds before an attempted request is abandoned, a good
             timeout is useful when querying many providers, some of which may be offline
         """
@@ -104,6 +107,12 @@ class OptimadeRester:
         #  for response validation, and use the Lark parser for filter validation
         self.session = requests.Session()
         self._timeout = timeout  # seconds
+
+        # Optionally refresh the aliases before interpreting those provided by the user
+        # or using potentially outdated set provided in the code
+        if refresh_aliases:
+            _logger.warning("Refreshing OPTIMADE provider aliases from https://providers.optimade.org")
+            self.refresh_aliases()
 
         if isinstance(aliases_or_resource_urls, str):
             aliases_or_resource_urls = [aliases_or_resource_urls]
@@ -120,12 +129,10 @@ class OptimadeRester:
             )
 
         for alias_or_resource_url in aliases_or_resource_urls:
-
             if alias_or_resource_url in self.aliases:
                 self.resources[alias_or_resource_url] = self.aliases[alias_or_resource_url]
 
             elif self._validate_provider(alias_or_resource_url):
-
                 # TODO: unclear what the key should be here, the "prefix" is for the root provider,
                 # may need to walk back to the index for the given provider to find the correct identifier
 
@@ -193,7 +200,7 @@ class OptimadeRester:
             filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')
 
         if chemical_formula_hill:
-            filters.append(f'(chemical_formula_hill="{chemical_formula_anonymous}")')
+            filters.append(f'(chemical_formula_hill="{chemical_formula_hill}")')
 
         return " AND ".join(filters)
 
@@ -275,7 +282,7 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
 
         Returns: Dict of Structures keyed by that database's id system
         """
@@ -296,20 +303,19 @@ class OptimadeRester:
         Get structures satisfying a given OPTIMADE filter.
 
         Args:
-            filter: An OPTIMADE-compliant filter
+            optimade_filter: An OPTIMADE-compliant filter
+            additional_response_fields: Any additional fields desired from the OPTIMADE API,
 
         Returns: Dict of Structures keyed by that database's id system
         """
         all_snls = {}
 
-        fields = self._handle_response_fields(additional_response_fields)
+        response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
-
-            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={response_fields}")
 
             try:
-
                 json = self._get_json(url)
 
                 structures = self._get_snls_from_resource(json, url, identifier)
@@ -328,11 +334,9 @@ class OptimadeRester:
                         pbar.update(len(additional_structures))
 
                 if structures:
-
                     all_snls[identifier] = structures
 
             except Exception as exc:
-
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
                 _logger.error(
@@ -343,7 +347,6 @@ class OptimadeRester:
 
     @staticmethod
     def _get_snls_from_resource(json, url, identifier) -> dict[str, StructureNL]:
-
         snls = {}
 
         exceptions = set()
@@ -362,7 +365,6 @@ class OptimadeRester:
             }
 
         for data in json["data"]:
-
             # TODO: check the spec! and remove this try/except (are all providers following spec?)
             # e.g. can check data["type"] == "structures"
 
@@ -393,7 +395,6 @@ class OptimadeRester:
 
             # TODO: bare exception, remove...
             except Exception:
-
                 try:
                     # e.g. MP (all ordered, no vacancies)
                     structure = Structure(
@@ -531,10 +532,10 @@ class OptimadeRester:
             A string of comma-separated OPTIMADE response fields.
         """
         if isinstance(additional_response_fields, str):
-            additional_response_fields = [additional_response_fields]
+            additional_response_fields = {additional_response_fields}
         if not additional_response_fields:
             additional_response_fields = set()
-        return ",".join(set(additional_response_fields).union(self.mandatory_response_fields))
+        return ",".join({*additional_response_fields} | self.mandatory_response_fields)
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """

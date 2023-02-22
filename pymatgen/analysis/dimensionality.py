@@ -194,7 +194,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
     """
 
-    def neighbours(comp_index):
+    def neighbors(comp_index):
         return [(s.index, s.jimage) for s in bonded_structure.get_connected_sites(comp_index)]
 
     def rank(vertices):
@@ -207,10 +207,10 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
 
     def rank_increase(seen, candidate):
         rank0 = len(seen) - 1
-        rank1 = rank(seen.union({candidate}))
+        rank1 = rank(seen | {candidate})
         return rank1 > rank0
 
-    connected_sites = {i: neighbours(i) for i in range(bonded_structure.structure.num_sites)}
+    connected_sites = {i: neighbors(i) for i in range(bonded_structure.structure.num_sites)}
 
     seen_vertices = set()
     seen_comp_vertices = defaultdict(set)
@@ -229,7 +229,6 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         seen_comp_vertices[comp_i].add(image_i)
 
         for comp_j, image_j in connected_sites[comp_i]:
-
             image_j = tuple(np.add(image_j, image_i))
 
             if (comp_j, image_j) in seen_vertices:
@@ -280,7 +279,6 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
         sites.append(site_i)
 
         for site_j in bonded_structure.get_connected_sites(comp_i, jimage=image_i):
-
             if (site_j.index, site_j.jimage) not in seen_indices and (
                 site_j.index,
                 site_j.jimage,
@@ -352,10 +350,7 @@ def get_dimensionality_cheon(
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max3, min3, clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
-            if max3 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max3 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max3) / max1) / np.log2(3)
             if dim == int(dim):
@@ -369,10 +364,7 @@ def get_dimensionality_cheon(
         if min2 == 1:
             dim = "intercalated ion"
         elif min2 == min1:
-            if max2 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max2 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max2) / max1)
             if dim == int(dim):
@@ -383,10 +375,7 @@ def get_dimensionality_cheon(
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
                 max3, min3, clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:
-                    if max3 == max2:
-                        dim = "0D"
-                    else:
-                        dim = "intercalated molecule"
+                    dim = "0D" if max3 == max2 else "intercalated molecule"
                 else:
                     dim = np.log2(float(max3) / max1) / np.log2(3)
                     if dim == int(dim):
@@ -482,7 +471,7 @@ def find_clusters(struct, connected_matrix):
 
     def visit(atom, atom_cluster):
         visited[atom] = True
-        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]).union(atom_cluster)
+        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]) | atom_cluster
         atom_cluster = new_cluster
         for new_atom in atom_cluster:
             if not visited[new_atom]:

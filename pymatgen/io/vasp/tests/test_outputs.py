@@ -16,6 +16,7 @@ from shutil import copyfile, copyfileobj
 import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
+from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.core.lattice import Lattice
@@ -61,19 +62,19 @@ class VasprunTest(PymatgenTest):
 
     def test_vasprun_ml(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.ml_md")
-        self.assertEqual(len(v.md_data), 100)
+        assert len(v.md_data) == 100
         for d in v.md_data:
-            self.assertIn("structure", d)
-            self.assertIn("forces", d)
-            self.assertIn("energy", d)
-        self.assertAlmostEqual(v.md_data[-1]["energy"]["total"], -491.51831988)
+            assert "structure" in d
+            assert "forces" in d
+            assert "energy" in d
+        assert v.md_data[-1]["energy"]["total"] == approx(-491.51831988)
 
     def test_bad_random_seed(self):
         _ = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
 
     def test_multiple_dielectric(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
-        self.assertEqual(len(v.other_dielectric), 3)
+        assert len(v.other_dielectric) == 3
 
     def test_charge_charge_dielectric(self):
         """
@@ -85,24 +86,25 @@ class VasprunTest(PymatgenTest):
             self.TEST_FILES_DIR / "vasprun.xml.dielectric_5.4.4",
             parse_potcar_file=False,
         )
-        self.assertEqual(v.dielectric is not None, True)
-        self.assertEqual("density" in v.dielectric_data, True)
-        self.assertEqual("velocity" in v.dielectric_data, True)
+        assert (v.dielectric is not None) is True
+        assert ("density" in v.dielectric_data) is True
+        assert ("velocity" in v.dielectric_data) is True
 
     def test_optical_absorption_coeff(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.BSE.xml.gz")
         absorption_coeff = v.optical_absorption_coeff
-        self.assertEqual(absorption_coeff[1], 0.8327903762077188)
+        assert absorption_coeff[1] == 0.8327903762077188
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             Vasprun(
                 self.TEST_FILES_DIR / "vasprun.xml.dielectric_bad",
                 parse_potcar_file=False,
             )
 
     def test_bad_vasprun(self):
-        self.assertRaises(ET.ParseError, Vasprun, self.TEST_FILES_DIR / "bad_vasprun.xml")
+        with pytest.raises(ET.ParseError):
+            Vasprun(self.TEST_FILES_DIR / "bad_vasprun.xml")
 
         with warnings.catch_warnings(record=True) as w:
             # Cause all warnings to always be triggered.
@@ -110,170 +112,190 @@ class VasprunTest(PymatgenTest):
             # Trigger a warning.
             v = Vasprun(self.TEST_FILES_DIR / "bad_vasprun.xml", exception_on_bad_xml=False)
             # Verify some things
-            self.assertEqual(len(v.ionic_steps), 1)
-            self.assertAlmostEqual(v.final_energy, -269.00551374)
-            self.assertTrue(issubclass(w[-1].category, UserWarning))
+            assert len(v.ionic_steps) == 1
+            assert v.final_energy == approx(-269.00551374)
+            assert issubclass(w[-1].category, UserWarning)
 
     def test_runtype(self):
-
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
-        self.assertIn(v.run_type, "HF")
+        assert v.run_type in "HF"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.pbesol_vdw")
-        self.assertIn(v.run_type, "PBEsol+vdW-DFT-D3-BJ")
+        assert v.run_type in "PBEsol+vdW-DFT-D3-BJ"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
-        self.assertIn(v.run_type, "HSE06")
+        assert v.run_type in "HSE06"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan_rvv10")
-        self.assertIn(v.run_type, "SCAN+rVV10")
+        assert v.run_type in "SCAN+rVV10"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.ionic")
-        self.assertIn(v.run_type, "GGA")
+        assert v.run_type in "GGA"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt")
-        self.assertIn(v.run_type, "GGA+U")
+        assert v.run_type in "GGA+U"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.r2scan")
-        self.assertIn(v.run_type, "R2SCAN")
+        assert v.run_type in "R2SCAN"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan")
-        self.assertIn(v.run_type, "SCAN")
+        assert v.run_type in "SCAN"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.pbesol")
-        self.assertIn(v.run_type, "PBEsol")
+        assert v.run_type in "PBEsol"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.rscan")
-        self.assertIn(v.run_type, "RSCAN")
+        assert v.run_type in "RSCAN"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.random")
-        self.assertIn(v.run_type, "RANDOMFUNCTIONAL")
+        assert v.run_type in "RANDOMFUNCTIONAL"
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.unknown")
         with pytest.warns(UserWarning, match="Unknown run type!"):
-            self.assertIn(v.run_type, "unknown")
+            assert v.run_type in "unknown"
 
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
-        self.assertAlmostEqual(v.final_energy, -9.78310677)
+        assert v.final_energy == approx(-9.78310677)
 
     def test_energies(self):
-
         # VASP 5.4.1
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
-        self.assertAlmostEqual(v.final_energy, -11.18981538)
+        assert v.final_energy == approx(-11.18981538)
 
         # VASP 6.2.1
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest2.gz")
-        self.assertAlmostEqual(v.final_energy, -11.18986774)
+        assert v.final_energy == approx(-11.18986774)
 
         # VASP 5.4.1
         o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest3.gz")
-        self.assertAlmostEqual(o.final_energy, -15.89355325)
+        assert o.final_energy == approx(-15.89355325)
 
         # VASP 6.2.1
         o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest4.gz")
-        self.assertAlmostEqual(o.final_energy, -15.89364691)
+        assert o.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
-
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]])
-        self.assertIn(OrbitalType.s, orbs)
+        assert OrbitalType.s in orbs
 
     def test_standard(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
 
         # Test NELM parsing.
-        self.assertEqual(vasprun.parameters["NELM"], 60)
+        assert vasprun.parameters["NELM"] == 60
         # test pdos parsing
 
-        self.assertEqual(vasprun.complete_dos.spin_polarization, 1.0)
-        self.assertTrue(Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz").complete_dos.spin_polarization is None)
+        assert vasprun.complete_dos.spin_polarization == 1.0
+        assert Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz").complete_dos.spin_polarization is None
 
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
-        self.assertAlmostEqual(pdos0[Orbital.s][Spin.up][16], 0.0026)
-        self.assertAlmostEqual(pdos0[Orbital.pz][Spin.down][16], 0.0012)
-        self.assertEqual(pdos0[Orbital.s][Spin.up].shape, (301,))
+        assert pdos0[Orbital.s][Spin.up][16] == approx(0.0026)
+        assert pdos0[Orbital.pz][Spin.down][16] == approx(0.0012)
+        assert pdos0[Orbital.s][Spin.up].shape == (301,)
+
+        pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
+        assert pdos0_norm[Orbital.s][Spin.up][16] == approx(0.0026)  # the site data should not change
+        assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
+
+        cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
+        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+
+        # check you can normalize an existing DOS
+        cdos_norm2 = cdos.get_normalized()
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm2.densities[Spin.up])
+        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+
+        # but doing so twice should not change the data
+        cdos_norm3 = cdos_norm2.get_normalized()
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm3.densities[Spin.up])
+        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+
+        pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
+        self.assertAlmostEqual(pdos0_norm[Orbital.s][Spin.up][16], 0.0026)  # the site data should not change
+        assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
+
+        cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
+        ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
+        self.assertAlmostEqual(ratio, vasprun.final_structure.volume)  # the site data should not change
 
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
         totalscsteps = sum(len(i["electronic_steps"]) for i in vasprun.ionic_steps)
-        self.assertEqual(29, len(vasprun.ionic_steps))
-        self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
+        assert len(vasprun.ionic_steps) == 29
+        assert len(vasprun.structures) == len(vasprun.ionic_steps)
 
         trajectory = vasprun.get_trajectory()
-        self.assertEqual(len(trajectory), len(vasprun.ionic_steps))
-        self.assertIn("forces", trajectory[0].site_properties)
+        assert len(trajectory) == len(vasprun.ionic_steps)
+        assert "forces" in trajectory[0].site_properties
 
         for i, step in enumerate(vasprun.ionic_steps):
-            self.assertEqual(vasprun.structures[i], step["structure"])
+            assert vasprun.structures[i] == step["structure"]
 
-        self.assertTrue(
-            all(vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps)))
+        assert all(
+            vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps))
         )
 
-        self.assertEqual(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
+        assert totalscsteps == 308, "Incorrect number of energies read from vasprun.xml"
 
-        self.assertEqual(["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"], vasprun.atomic_symbols)
-        self.assertEqual(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4")
-        self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
-        self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
-        self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")
-        self.assertAlmostEqual(vasprun.final_energy, -269.38319884, 7)
-        self.assertAlmostEqual(vasprun.tdos.get_gap(), 2.0589, 4)
+        assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasprun.atomic_symbols
+        assert vasprun.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
+        assert vasprun.incar is not None, "Incar cannot be read"
+        assert vasprun.kpoints is not None, "Kpoints cannot be read"
+        assert vasprun.eigenvalues is not None, "Eigenvalues cannot be read"
+        assert vasprun.final_energy == approx(-269.38319884, abs=1e-7)
+        assert vasprun.tdos.get_gap() == approx(2.0589, abs=1e-4)
         expectedans = (2.539, 4.0906, 1.5516, False)
         (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
-        self.assertAlmostEqual(gap, expectedans[0])
-        self.assertAlmostEqual(cbm, expectedans[1])
-        self.assertAlmostEqual(vbm, expectedans[2])
-        self.assertEqual(direct, expectedans[3])
-        self.assertFalse(vasprun.is_hubbard)
-        self.assertEqual(
-            vasprun.potcar_symbols,
-            [
-                "PAW_PBE Li 17Jan2003",
-                "PAW_PBE Fe 06Sep2000",
-                "PAW_PBE Fe 06Sep2000",
-                "PAW_PBE P 17Jan2003",
-                "PAW_PBE O 08Apr2002",
-            ],
-        )
-        self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
-        self.assertIsNotNone(vasprun.actual_kpoints, "Actual kpoints cannot be read")
-        self.assertIsNotNone(vasprun.actual_kpoints_weights, "Actual kpoints weights cannot be read")
+        assert gap == approx(expectedans[0])
+        assert cbm == approx(expectedans[1])
+        assert vbm == approx(expectedans[2])
+        assert direct == expectedans[3]
+        assert not vasprun.is_hubbard
+        assert vasprun.potcar_symbols == [
+            "PAW_PBE Li 17Jan2003",
+            "PAW_PBE Fe 06Sep2000",
+            "PAW_PBE Fe 06Sep2000",
+            "PAW_PBE P 17Jan2003",
+            "PAW_PBE O 08Apr2002",
+        ]
+        assert vasprun.kpoints is not None, "Kpoints cannot be read"
+        assert vasprun.actual_kpoints is not None, "Actual kpoints cannot be read"
+        assert vasprun.actual_kpoints_weights is not None, "Actual kpoints weights cannot be read"
         for atomdoses in vasprun.pdos:
             for orbitaldos in atomdoses:
-                self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
+                assert orbitaldos is not None, "Partial Dos cannot be read"
 
         # test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
-        self.assertEqual(vasprun_skip.nionic_steps, 29)
-        self.assertEqual(len(vasprun_skip.ionic_steps), int(vasprun.nionic_steps / 3) + 1)
-        self.assertEqual(len(vasprun_skip.ionic_steps), len(vasprun_skip.structures))
-        self.assertEqual(len(vasprun_skip.ionic_steps), int(vasprun.nionic_steps / 3) + 1)
+        assert vasprun_skip.nionic_steps == 29
+        assert len(vasprun_skip.ionic_steps) == int(vasprun.nionic_steps / 3) + 1
+        assert len(vasprun_skip.ionic_steps) == len(vasprun_skip.structures)
+        assert len(vasprun_skip.ionic_steps) == int(vasprun.nionic_steps / 3) + 1
         # Check that nionic_steps is preserved no matter what.
-        self.assertEqual(vasprun_skip.nionic_steps, vasprun.nionic_steps)
+        assert vasprun_skip.nionic_steps == vasprun.nionic_steps
 
-        self.assertNotAlmostEqual(vasprun_skip.final_energy, vasprun.final_energy)
+        assert vasprun_skip.final_energy != approx(vasprun.final_energy)
 
         # Test with ionic_step_offset
         vasprun_offset = Vasprun(filepath, 3, 6, parse_potcar_file=False)
-        self.assertEqual(len(vasprun_offset.ionic_steps), int(len(vasprun.ionic_steps) / 3) - 1)
-        self.assertEqual(vasprun_offset.structures[0], vasprun_skip.structures[2])
+        assert len(vasprun_offset.ionic_steps) == int(len(vasprun.ionic_steps) / 3) - 1
+        assert vasprun_offset.structures[0] == vasprun_skip.structures[2]
 
-        self.assertTrue(vasprun_ggau.is_hubbard)
-        self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
-        self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[Spin.up][0][0][96][0], 0.0032)
+        assert vasprun_ggau.is_hubbard
+        assert vasprun_ggau.hubbards["Fe"] == 4.3
+        assert vasprun_ggau.projected_eigenvalues[Spin.up][0][0][96][0] == approx(0.0032)
         d = vasprun_ggau.as_dict()
-        self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
-        self.assertEqual(d["nelements"], 4)
+        assert d["elements"] == ["Fe", "Li", "O", "P"]
+        assert d["nelements"] == 4
 
         entry = vasprun.get_computed_entry(inc_structure=True)
-        self.assertTrue(entry.entry_id.startswith("vasprun"))
-        self.assertEqual(entry.parameters["run_type"], "PBEO or other Hybrid Functional")
+        assert entry.entry_id.startswith("vasprun")
+        assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
     def test_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.unconverged"
@@ -283,67 +305,67 @@ class VasprunTest(PymatgenTest):
             # Trigger a warning.
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
             # Verify some things
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[-1].category, UnconvergedVASPWarning))
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UnconvergedVASPWarning)
 
-            self.assertTrue(vasprun_unconverged.converged_ionic)
-            self.assertFalse(vasprun_unconverged.converged_electronic)
-            self.assertFalse(vasprun_unconverged.converged)
+            assert vasprun_unconverged.converged_ionic
+            assert not vasprun_unconverged.converged_electronic
+            assert not vasprun_unconverged.converged
 
     def test_dfpt(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.dfpt"
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
-        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
-        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
-        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
-        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[0][0], 3.33402531)
-        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[0][1], -0.00559998)
-        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[2][2], 3.31237357)
-        self.assertTrue(vasprun_dfpt.converged)
+        assert vasprun_dfpt.epsilon_static[0][0] == approx(3.26105533)
+        assert vasprun_dfpt.epsilon_static[0][1] == approx(-0.00459066)
+        assert vasprun_dfpt.epsilon_static[2][2] == approx(3.24330517)
+        assert vasprun_dfpt.epsilon_static_wolfe[0][0] == approx(3.33402531)
+        assert vasprun_dfpt.epsilon_static_wolfe[0][1] == approx(-0.00559998)
+        assert vasprun_dfpt.epsilon_static_wolfe[2][2] == approx(3.31237357)
+        assert vasprun_dfpt.converged
 
         entry = vasprun_dfpt.get_computed_entry()
         entry = MaterialsProjectCompatibility(check_potcar_hash=False).process_entry(entry)
-        self.assertAlmostEqual(entry.uncorrected_energy + entry.correction, entry.energy)
+        assert entry.uncorrected_energy + entry.correction == approx(entry.energy)
 
     def test_dfpt_ionic(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.dfpt.ionic"
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
-        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][0], 515.73485838)
-        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][1], -0.00263523)
-        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[2][2], 19.02110169)
+        assert vasprun_dfpt_ionic.epsilon_ionic[0][0] == approx(515.73485838)
+        assert vasprun_dfpt_ionic.epsilon_ionic[0][1] == approx(-0.00263523)
+        assert vasprun_dfpt_ionic.epsilon_ionic[2][2] == approx(19.02110169)
 
     def test_dfpt_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.dfpt.unconverged"
         vasprun_dfpt_unconv = Vasprun(filepath, parse_potcar_file=False)
-        self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
-        self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
-        self.assertFalse(vasprun_dfpt_unconv.converged)
+        assert not vasprun_dfpt_unconv.converged_electronic
+        assert vasprun_dfpt_unconv.converged_ionic
+        assert not vasprun_dfpt_unconv.converged
 
     def test_chi(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.chi.gz"
         vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
-        self.assertTrue(vasprun_chi.incar.get("ALGO", ""), "CHI")
+        assert vasprun_chi.incar.get("ALGO", ""), "CHI"
 
     def test_uniform(self):
         vasprun_uniform = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.uniform", parse_potcar_file=False)
-        self.assertEqual(vasprun_uniform.kpoints.style, Kpoints.supported_modes.Reciprocal)
+        assert vasprun_uniform.kpoints.style == Kpoints.supported_modes.Reciprocal
 
     def test_no_projected(self):
         vasprun_no_pdos = Vasprun(self.TEST_FILES_DIR / "Li_no_projected.xml", parse_potcar_file=False)
-        self.assertIsNotNone(vasprun_no_pdos.complete_dos)
-        self.assertFalse(vasprun_no_pdos.dos_has_errors)
+        assert vasprun_no_pdos.complete_dos is not None
+        assert not vasprun_no_pdos.dos_has_errors
 
     def test_dielectric(self):
         vasprun_diel = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dielectric", parse_potcar_file=False)
-        self.assertAlmostEqual(0.4294, vasprun_diel.dielectric[0][10])
-        self.assertAlmostEqual(19.941, vasprun_diel.dielectric[1][51][0])
-        self.assertAlmostEqual(19.941, vasprun_diel.dielectric[1][51][1])
-        self.assertAlmostEqual(19.941, vasprun_diel.dielectric[1][51][2])
-        self.assertAlmostEqual(0.0, vasprun_diel.dielectric[1][51][3])
-        self.assertAlmostEqual(34.186, vasprun_diel.dielectric[2][85][0])
-        self.assertAlmostEqual(34.186, vasprun_diel.dielectric[2][85][1])
-        self.assertAlmostEqual(34.186, vasprun_diel.dielectric[2][85][2])
-        self.assertAlmostEqual(0.0, vasprun_diel.dielectric[2][85][3])
+        assert approx(vasprun_diel.dielectric[0][10]) == 0.4294
+        assert approx(vasprun_diel.dielectric[1][51][0]) == 19.941
+        assert approx(vasprun_diel.dielectric[1][51][1]) == 19.941
+        assert approx(vasprun_diel.dielectric[1][51][2]) == 19.941
+        assert approx(vasprun_diel.dielectric[1][51][3]) == 0.0
+        assert approx(vasprun_diel.dielectric[2][85][0]) == 34.186
+        assert approx(vasprun_diel.dielectric[2][85][1]) == 34.186
+        assert approx(vasprun_diel.dielectric[2][85][2]) == 34.186
+        assert approx(vasprun_diel.dielectric[2][85][3]) == 0.0
 
     def test_dielectric_vasp608(self):
         # test reading dielectric constant in vasp 6.0.8
@@ -351,36 +373,36 @@ class VasprunTest(PymatgenTest):
             self.TEST_FILES_DIR / "vasprun.xml.dielectric_6.0.8",
             parse_potcar_file=False,
         )
-        self.assertAlmostEqual(0.4338, vasprun_diel.dielectric[0][10])
-        self.assertAlmostEqual(5.267, vasprun_diel.dielectric[1][51][0])
-        self.assertAlmostEqual(0.4338, vasprun_diel.dielectric_data["density"][0][10])
-        self.assertAlmostEqual(5.267, vasprun_diel.dielectric_data["density"][1][51][0])
-        self.assertAlmostEqual(0.4338, vasprun_diel.dielectric_data["velocity"][0][10])
-        self.assertAlmostEqual(1.0741, vasprun_diel.dielectric_data["velocity"][1][51][0])
-        self.assertEqual(len(vasprun_diel.other_dielectric), 0)
+        assert approx(vasprun_diel.dielectric[0][10]) == 0.4338
+        assert approx(vasprun_diel.dielectric[1][51][0]) == 5.267
+        assert approx(vasprun_diel.dielectric_data["density"][0][10]) == 0.4338
+        assert approx(vasprun_diel.dielectric_data["density"][1][51][0]) == 5.267
+        assert approx(vasprun_diel.dielectric_data["velocity"][0][10]) == 0.4338
+        assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
+        assert len(vasprun_diel.other_dielectric) == 0
 
     def test_indirect_vasprun(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
         (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
-        self.assertFalse(direct)
+        assert not direct
 
     def test_optical_vasprun(self):
         vasprun_optical = Vasprun(
             self.TEST_FILES_DIR / "vasprun.xml.opticaltransitions",
             parse_potcar_file=False,
         )
-        self.assertAlmostEqual(3.084, vasprun_optical.optical_transition[0][0])
-        self.assertAlmostEqual(3.087, vasprun_optical.optical_transition[3][0])
-        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[0][1])
-        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[1][1])
-        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[7][1])
-        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[19][1])
-        self.assertAlmostEqual(3.3799999999, vasprun_optical.optical_transition[54][0])
-        self.assertAlmostEqual(3.381, vasprun_optical.optical_transition[55][0])
-        self.assertAlmostEqual(3.381, vasprun_optical.optical_transition[56][0])
-        self.assertAlmostEqual(10554.9860, vasprun_optical.optical_transition[54][1])
-        self.assertAlmostEqual(0.0, vasprun_optical.optical_transition[55][1])
-        self.assertAlmostEqual(0.001, vasprun_optical.optical_transition[56][1])
+        assert approx(vasprun_optical.optical_transition[0][0]) == 3.084
+        assert approx(vasprun_optical.optical_transition[3][0]) == 3.087
+        assert approx(vasprun_optical.optical_transition[0][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[1][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[7][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[19][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[54][0]) == 3.3799999999
+        assert approx(vasprun_optical.optical_transition[55][0]) == 3.381
+        assert approx(vasprun_optical.optical_transition[56][0]) == 3.381
+        assert approx(vasprun_optical.optical_transition[54][1]) == 10554.9860
+        assert approx(vasprun_optical.optical_transition[55][1]) == 0.0
+        assert approx(vasprun_optical.optical_transition[56][1]) == 0.001
 
     def test_force_constants(self):
         vasprun_fc = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.phonon", parse_potcar_file=False)
@@ -421,19 +443,20 @@ class VasprunTest(PymatgenTest):
             -0.5062956,
             -0.5062956,
         ]
-        self.assertEqual(vasprun_fc.force_constants.shape, (16, 16, 3, 3))
-        self.assertTrue(np.allclose(vasprun_fc.force_constants[8, 9], fc_ans))
-        self.assertEqual(vasprun_fc.normalmode_eigenvals.size, 48)
-        self.assertTrue(np.allclose(vasprun_fc.normalmode_eigenvals[17:29], nm_eigenval_ans))
-        self.assertEqual(vasprun_fc.normalmode_eigenvecs.shape, (48, 16, 3))
-        self.assertTrue(np.allclose(vasprun_fc.normalmode_eigenvecs[33], nm_ans))
+        assert vasprun_fc.force_constants.shape == (16, 16, 3, 3)
+        assert np.allclose(vasprun_fc.force_constants[8, 9], fc_ans)
+        assert vasprun_fc.normalmode_eigenvals.size == 48
+        assert np.allclose(vasprun_fc.normalmode_eigenvals[17:29], nm_eigenval_ans)
+        assert vasprun_fc.normalmode_eigenvecs.shape == (48, 16, 3)
+        assert np.allclose(vasprun_fc.normalmode_eigenvecs[33], nm_ans)
 
     def test_Xe(self):
         vr = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.xe", parse_potcar_file=False)
-        self.assertEqual(vr.atomic_symbols, ["Xe"])
+        assert vr.atomic_symbols == ["Xe"]
 
     def test_invalid_element(self):
-        self.assertRaises(ValueError, Vasprun, self.TEST_FILES_DIR / "vasprun.xml.wrong_sp")
+        with pytest.raises(ValueError):
+            Vasprun(self.TEST_FILES_DIR / "vasprun.xml.wrong_sp")
 
     def test_selective_dynamics(self):
         vsd = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
@@ -447,12 +470,9 @@ class VasprunTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
         # Test that as_dict() is json-serializable
-        self.assertIsNotNone(json.dumps(vasprun.as_dict()))
-        self.assertEqual(
-            vasprun.as_dict()["input"]["potcar_type"],
-            ["PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE"],
-        )
-        self.assertEqual(vasprun.as_dict()["input"]["nkpoints"], 24)
+        assert json.dumps(vasprun.as_dict()) is not None
+        assert vasprun.as_dict()["input"]["potcar_type"] == ["PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE"]
+        assert vasprun.as_dict()["input"]["nkpoints"] == 24
 
     def test_get_band_structure(self):
         with warnings.catch_warnings():
@@ -462,23 +482,19 @@ class VasprunTest(PymatgenTest):
             bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
             cbm = bs.get_cbm()
             vbm = bs.get_vbm()
-            self.assertEqual(cbm["kpoint_index"], [13], "wrong cbm kpoint index")
-            self.assertAlmostEqual(cbm["energy"], 6.2301, "wrong cbm energy")
-            self.assertEqual(cbm["band_index"], {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands")
-            self.assertEqual(vbm["kpoint_index"], [0, 63, 64])
-            self.assertAlmostEqual(vbm["energy"], 5.6158, "wrong vbm energy")
-            self.assertEqual(
-                vbm["band_index"],
-                {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]},
-                "wrong vbm bands",
-            )
-            self.assertEqual(vbm["kpoint"].label, "\\Gamma", "wrong vbm label")
-            self.assertEqual(cbm["kpoint"].label, None, "wrong cbm label")
+            assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
+            assert cbm["energy"] == approx(6.2301), "wrong cbm energy"
+            assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
+            assert vbm["kpoint_index"] == [0, 63, 64]
+            assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
+            assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
+            assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
+            assert cbm["kpoint"].label is None, "wrong cbm label"
 
             projected = bs.get_projection_on_elements()
-            self.assertAlmostEqual(projected[Spin.up][0][0]["Si"], 0.4238)
+            assert projected[Spin.up][0][0]["Si"] == approx(0.4238)
             projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
-            self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
+            assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
 
             # Test compressed files case 1: compressed KPOINTS in current dir
             with ScratchDir("./"):
@@ -486,7 +502,7 @@ class VasprunTest(PymatgenTest):
 
                 # Check for error if no KPOINTS file
                 vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
-                with self.assertRaises(VaspParserError):
+                with pytest.raises(VaspParserError):
                     _ = vasprun.get_band_structure(line_mode=True)
 
                 # Check KPOINTS.gz successfully inferred and used if present
@@ -494,8 +510,8 @@ class VasprunTest(PymatgenTest):
                     with gzip.open("KPOINTS.gz", "wb") as f_out:
                         copyfileobj(f_in, f_out)
                 bs_kpts_gzip = vasprun.get_band_structure()
-                self.assertEqual(bs.efermi, bs_kpts_gzip.efermi)
-                self.assertEqual(bs.as_dict(), bs_kpts_gzip.as_dict())
+                assert bs.efermi == bs_kpts_gzip.efermi
+                assert bs.as_dict() == bs_kpts_gzip.as_dict()
 
             # Test compressed files case 2: compressed vasprun in another dir
             with ScratchDir("./"):
@@ -510,20 +526,20 @@ class VasprunTest(PymatgenTest):
                     parse_potcar_file=False,
                 )
                 bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
-                self.assertEqual(bs.efermi, bs_vasprun_gzip.efermi)
-                self.assertEqual(bs.as_dict(), bs_vasprun_gzip.as_dict())
+                assert bs.efermi == bs_vasprun_gzip.efermi
+                assert bs.as_dict() == bs_vasprun_gzip.as_dict()
 
             # test hybrid band structures
             vasprun.actual_kpoints_weights[-1] = 0.0
             bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
             cbm = bs.get_cbm()
             vbm = bs.get_vbm()
-            self.assertEqual(cbm["kpoint_index"], [0])
-            self.assertAlmostEqual(cbm["energy"], 6.3676)
-            self.assertEqual(cbm["kpoint"].label, None)
-            self.assertEqual(vbm["kpoint_index"], [0])
-            self.assertAlmostEqual(vbm["energy"], 2.8218)
-            self.assertEqual(vbm["kpoint"].label, None)
+            assert cbm["kpoint_index"] == [0]
+            assert cbm["energy"] == approx(6.3676)
+            assert cbm["kpoint"].label is None
+            assert vbm["kpoint_index"] == [0]
+            assert vbm["energy"] == approx(2.8218)
+            assert vbm["kpoint"].label is None
 
             # test self-consistent band structure calculation for non-hybrid functionals
             vasprun = Vasprun(
@@ -539,50 +555,50 @@ class VasprunTest(PymatgenTest):
 
             dict_to_test = bs.get_band_gap()
 
-            self.assertTrue(dict_to_test["direct"])
-            self.assertAlmostEqual(dict_to_test["energy"], 6.007899999999999)
-            self.assertEqual(dict_to_test["transition"], "\\Gamma-\\Gamma")
-            self.assertEqual(bs.get_branch(0)[0]["start_index"], 0)
-            self.assertEqual(bs.get_branch(0)[0]["end_index"], 0)
+            assert dict_to_test["direct"]
+            assert dict_to_test["energy"] == approx(6.007899999999999)
+            assert dict_to_test["transition"] == "\\Gamma-\\Gamma"
+            assert bs.get_branch(0)[0]["start_index"] == 0
+            assert bs.get_branch(0)[0]["end_index"] == 0
 
     def test_projected_magnetisation(self):
         filepath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
         vasprun = Vasprun(filepath, parse_projected_eigen=True)
-        self.assertTrue(vasprun.projected_magnetisation is not None)
-        self.assertEqual(vasprun.projected_magnetisation.shape, (76, 240, 4, 9, 3))
-        self.assertAlmostEqual(vasprun.projected_magnetisation[0, 0, 0, 0, 0], -0.0712)
+        assert vasprun.projected_magnetisation is not None
+        assert vasprun.projected_magnetisation.shape == (76, 240, 4, 9, 3)
+        assert vasprun.projected_magnetisation[0, 0, 0, 0, 0] == approx(-0.0712)
 
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.LiF")
         smart_fermi = vrun.calculate_efermi()
-        self.assertAlmostEqual(smart_fermi, vrun.efermi, places=4)
+        assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi=smart_fermi).get_band_gap()["energy"]
-        self.assertAlmostEqual(bs_gap, eigen_gap, places=3)
+        assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 2 - E_fermi crosses a band but bandgap=0
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.Al")
         smart_fermi = vrun.calculate_efermi()
-        self.assertAlmostEqual(smart_fermi, vrun.efermi, places=4)
+        assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi=smart_fermi).get_band_gap()["energy"]
-        self.assertAlmostEqual(bs_gap, eigen_gap, places=3)
+        assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 3 - E_fermi crosses a band in an insulator
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.LiH_bad_efermi")
         smart_fermi = vrun.calculate_efermi()
-        self.assertNotAlmostEqual(smart_fermi, vrun.efermi, places=4)
+        assert smart_fermi != approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi="smart").get_band_gap()["energy"]
-        self.assertAlmostEqual(bs_gap, eigen_gap, places=3)
-        self.assertNotAlmostEqual(vrun.get_band_structure(efermi=None).get_band_gap()["energy"], eigen_gap, places=3)
-        self.assertNotEqual(bs_gap, 0)
+        assert bs_gap == approx(eigen_gap, abs=1e-3)
+        assert vrun.get_band_structure(efermi=None).get_band_gap()["energy"] != approx(eigen_gap, abs=1e-3)
+        assert bs_gap != 0
 
         # branch 4 - E_fermi incorrectly placed inside a band
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.bad_fermi.gz")
         smart_fermi = vrun.calculate_efermi()
-        self.assertAlmostEqual(smart_fermi, 6.0165)
+        assert smart_fermi == approx(6.0165)
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
@@ -592,111 +608,101 @@ class VasprunTest(PymatgenTest):
         #     self.assertEqual(len(w), 3)
         vasprun = Vasprun(filepath)
         estep = vasprun.ionic_steps[0]["electronic_steps"][29]
-        self.assertTrue(np.isnan(estep["e_wo_entrp"]))
+        assert np.isnan(estep["e_wo_entrp"])
 
     def test_update_potcar(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.LiFePO4.gz"
         potcar_path2 = self.TEST_FILES_DIR / "POTCAR2.LiFePO4.gz"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
-        self.assertEqual(
-            vasprun.potcar_spec,
-            [
-                {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-                {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-                {"titel": "PAW_PBE O 08Apr2002", "hash": None},
-            ],
-        )
+        assert vasprun.potcar_spec == [
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
+        ]
 
         vasprun.update_potcar_spec(potcar_path)
-        self.assertEqual(
-            vasprun.potcar_spec,
-            [
-                {
-                    "titel": "PAW_PBE Li 17Jan2003",
-                    "hash": "65e83282d1707ec078c1012afbd05be8",
-                },
-                {
-                    "titel": "PAW_PBE Fe 06Sep2000",
-                    "hash": "9530da8244e4dac17580869b4adab115",
-                },
-                {
-                    "titel": "PAW_PBE Fe 06Sep2000",
-                    "hash": "9530da8244e4dac17580869b4adab115",
-                },
-                {
-                    "titel": "PAW_PBE P 17Jan2003",
-                    "hash": "7dc3393307131ae67785a0cdacb61d5f",
-                },
-                {
-                    "titel": "PAW_PBE O 08Apr2002",
-                    "hash": "7a25bc5b9a5393f46600a4939d357982",
-                },
-            ],
-        )
+        assert vasprun.potcar_spec == [
+            {
+                "titel": "PAW_PBE Li 17Jan2003",
+                "hash": "65e83282d1707ec078c1012afbd05be8",
+            },
+            {
+                "titel": "PAW_PBE Fe 06Sep2000",
+                "hash": "9530da8244e4dac17580869b4adab115",
+            },
+            {
+                "titel": "PAW_PBE Fe 06Sep2000",
+                "hash": "9530da8244e4dac17580869b4adab115",
+            },
+            {
+                "titel": "PAW_PBE P 17Jan2003",
+                "hash": "7dc3393307131ae67785a0cdacb61d5f",
+            },
+            {
+                "titel": "PAW_PBE O 08Apr2002",
+                "hash": "7a25bc5b9a5393f46600a4939d357982",
+            },
+        ]
 
         vasprun2 = Vasprun(filepath, parse_potcar_file=False)
-        self.assertRaises(ValueError, vasprun2.update_potcar_spec, potcar_path2)
+        with pytest.raises(ValueError):
+            vasprun2.update_potcar_spec(potcar_path2)
         vasprun = Vasprun(filepath, parse_potcar_file=potcar_path)
 
-        self.assertEqual(
-            vasprun.potcar_spec,
-            [
-                {
-                    "titel": "PAW_PBE Li 17Jan2003",
-                    "hash": "65e83282d1707ec078c1012afbd05be8",
-                },
-                {
-                    "titel": "PAW_PBE Fe 06Sep2000",
-                    "hash": "9530da8244e4dac17580869b4adab115",
-                },
-                {
-                    "titel": "PAW_PBE Fe 06Sep2000",
-                    "hash": "9530da8244e4dac17580869b4adab115",
-                },
-                {
-                    "titel": "PAW_PBE P 17Jan2003",
-                    "hash": "7dc3393307131ae67785a0cdacb61d5f",
-                },
-                {
-                    "titel": "PAW_PBE O 08Apr2002",
-                    "hash": "7a25bc5b9a5393f46600a4939d357982",
-                },
-            ],
-        )
+        assert vasprun.potcar_spec == [
+            {
+                "titel": "PAW_PBE Li 17Jan2003",
+                "hash": "65e83282d1707ec078c1012afbd05be8",
+            },
+            {
+                "titel": "PAW_PBE Fe 06Sep2000",
+                "hash": "9530da8244e4dac17580869b4adab115",
+            },
+            {
+                "titel": "PAW_PBE Fe 06Sep2000",
+                "hash": "9530da8244e4dac17580869b4adab115",
+            },
+            {
+                "titel": "PAW_PBE P 17Jan2003",
+                "hash": "7dc3393307131ae67785a0cdacb61d5f",
+            },
+            {
+                "titel": "PAW_PBE O 08Apr2002",
+                "hash": "7a25bc5b9a5393f46600a4939d357982",
+            },
+        ]
 
-        self.assertRaises(ValueError, Vasprun, filepath, parse_potcar_file=potcar_path2)
+        with pytest.raises(ValueError):
+            Vasprun(filepath, parse_potcar_file=potcar_path2)
 
     def test_search_for_potcar(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         vasprun = Vasprun(filepath, parse_potcar_file=True)
-        self.assertEqual(
-            vasprun.potcar_spec,
-            [
-                {
-                    "titel": "PAW_PBE Li 17Jan2003",
-                    "hash": "65e83282d1707ec078c1012afbd05be8",
-                },
-                {
-                    "titel": "PAW_PBE Fe 06Sep2000",
-                    "hash": "9530da8244e4dac17580869b4adab115",
-                },
-                {
-                    "titel": "PAW_PBE Fe 06Sep2000",
-                    "hash": "9530da8244e4dac17580869b4adab115",
-                },
-                {
-                    "titel": "PAW_PBE P 17Jan2003",
-                    "hash": "7dc3393307131ae67785a0cdacb61d5f",
-                },
-                {
-                    "titel": "PAW_PBE O 08Apr2002",
-                    "hash": "7a25bc5b9a5393f46600a4939d357982",
-                },
-            ],
-        )
+        assert vasprun.potcar_spec == [
+            {
+                "titel": "PAW_PBE Li 17Jan2003",
+                "hash": "65e83282d1707ec078c1012afbd05be8",
+            },
+            {
+                "titel": "PAW_PBE Fe 06Sep2000",
+                "hash": "9530da8244e4dac17580869b4adab115",
+            },
+            {
+                "titel": "PAW_PBE Fe 06Sep2000",
+                "hash": "9530da8244e4dac17580869b4adab115",
+            },
+            {
+                "titel": "PAW_PBE P 17Jan2003",
+                "hash": "7dc3393307131ae67785a0cdacb61d5f",
+            },
+            {
+                "titel": "PAW_PBE O 08Apr2002",
+                "hash": "7a25bc5b9a5393f46600a4939d357982",
+            },
+        ]
 
     def test_potcar_not_found(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
@@ -704,17 +710,14 @@ class VasprunTest(PymatgenTest):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             vasprun = Vasprun(filepath, parse_potcar_file=".")
-            self.assertEqual(len(w), 2)
-            self.assertEqual(
-                vasprun.potcar_spec,
-                [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-                    {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": None},
-                ],
-            )
+            assert len(w) == 2
+            assert vasprun.potcar_spec == [
+                {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
+                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+                {"titel": "PAW_PBE P 17Jan2003", "hash": None},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": None},
+            ]
 
     def test_parsing_chemical_shift_calculations(self):
         with warnings.catch_warnings():
@@ -722,8 +725,8 @@ class VasprunTest(PymatgenTest):
             filepath = self.TEST_FILES_DIR / "nmr" / "cs" / "basic" / "vasprun.xml.chemical_shift.scstep"
             vasprun = Vasprun(filepath)
             nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
-            self.assertEqual(nestep, 10)
-            self.assertTrue(vasprun.converged)
+            assert nestep == 10
+            assert vasprun.converged
 
     def test_parsing_efg_calcs(self):
         with warnings.catch_warnings():
@@ -731,47 +734,47 @@ class VasprunTest(PymatgenTest):
             filepath = self.TEST_FILES_DIR / "nmr" / "efg" / "AlPO4" / "vasprun.xml"
             vasprun = Vasprun(filepath)
             nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
-            self.assertEqual(nestep, 18)
-            self.assertTrue(vasprun.converged)
+            assert nestep == 18
+            assert vasprun.converged
 
     def test_charged_structure(self):
         vpath = self.TEST_FILES_DIR / "vasprun.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Si.gz"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
-        self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
-        self.assertEqual(vasprun.structures[0].charge, -1)
-        self.assertEqual(vasprun.initial_structure.charge, -1)
-        self.assertEqual(vasprun.final_structure.charge, -1)
+        assert vasprun.parameters.get("NELECT", 8) == 9
+        assert vasprun.structures[0].charge == -1
+        assert vasprun.initial_structure.charge == -1
+        assert vasprun.final_structure.charge == -1
 
         vpath = self.TEST_FILES_DIR / "vasprun.split.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.split.charged.gz"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         vasprun.update_charge_from_potcar(potcar_path)
-        self.assertEqual(vasprun.parameters.get("NELECT", 0), 7)
-        self.assertEqual(vasprun.structures[-1].charge, -1)
-        self.assertEqual(vasprun.initial_structure.charge, -1)
-        self.assertEqual(vasprun.final_structure.charge, -1)
+        assert vasprun.parameters.get("NELECT", 0) == 7
+        assert vasprun.structures[-1].charge == -1
+        assert vasprun.initial_structure.charge == -1
+        assert vasprun.final_structure.charge == -1
 
     def test_kpointset_electronvelocities(self):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
-        self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
+        assert vasprun.eigenvalues[Spin.up].shape[0] == len(vasprun.actual_kpoints)
 
     def test_eigenvalue_band_properties_separate_spins(self):
         eig = Vasprun(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=True)
         props = eig.eigenvalue_band_properties
         eig2 = Vasprun(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=False)
         props2 = eig2.eigenvalue_band_properties
-        self.assertAlmostEqual(props[0][0], 2.8772, places=4)
-        self.assertAlmostEqual(props[0][1], 1.2810, places=4)
-        self.assertAlmostEqual(props[1][0], 3.6741, places=4)
-        self.assertAlmostEqual(props[1][1], 1.6225, places=4)
-        self.assertAlmostEqual(props[2][0], 0.7969, places=4)
-        self.assertAlmostEqual(props[2][1], 0.3415, places=4)
-        self.assertAlmostEqual(props2[0], np.min(props[1]) - np.max(props[2]), places=4)
-        self.assertEqual(props[3][0], True)
-        self.assertEqual(props[3][1], True)
+        assert props[0][0] == approx(2.8772, abs=1e-4)
+        assert props[0][1] == approx(1.2810, abs=1e-4)
+        assert props[1][0] == approx(3.6741, abs=1e-4)
+        assert props[1][1] == approx(1.6225, abs=1e-4)
+        assert props[2][0] == approx(0.7969, abs=1e-4)
+        assert props[2][1] == approx(0.3415, abs=1e-4)
+        assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
+        assert props[3][0] is True
+        assert props[3][1] is True
 
 
 class OutcarTest(PymatgenTest):
@@ -800,98 +803,90 @@ class OutcarTest(PymatgenTest):
                 {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
             )
 
-            self.assertAlmostEqual(
-                outcar.magnetization,
-                expected_mag,
-                5,
-                "Wrong magnetization read from Outcar",
-            )
-            self.assertAlmostEqual(outcar.charge, expected_chg, 5, "Wrong charge read from Outcar")
-            self.assertFalse(outcar.is_stopped)
-            self.assertEqual(
-                outcar.run_stats,
-                {
-                    "System time (sec)": 0.938,
-                    "Total CPU time used (sec)": 545.142,
-                    "Elapsed time (sec)": 546.709,
-                    "Maximum memory used (kb)": 0.0,
-                    "Average memory used (kb)": 0.0,
-                    "User time (sec)": 544.204,
-                    "cores": 8,
-                },
-            )
-            self.assertAlmostEqual(outcar.efermi, 2.0112)
-            self.assertAlmostEqual(outcar.nelect, 44.9999991)
-            self.assertAlmostEqual(outcar.total_mag, 0.9999998)
+            assert outcar.magnetization == approx(expected_mag, abs=1e-5), "Wrong magnetization read from Outcar"
+            assert outcar.charge == approx(expected_chg, abs=1e-5), "Wrong charge read from Outcar"
+            assert not outcar.is_stopped
+            assert outcar.run_stats == {
+                "System time (sec)": 0.938,
+                "Total CPU time used (sec)": 545.142,
+                "Elapsed time (sec)": 546.709,
+                "Maximum memory used (kb)": 0.0,
+                "Average memory used (kb)": 0.0,
+                "User time (sec)": 544.204,
+                "cores": 8,
+            }
+            assert outcar.efermi == approx(2.0112)
+            assert outcar.nelect == approx(44.9999991)
+            assert outcar.total_mag == approx(0.9999998)
 
-            self.assertIsNotNone(outcar.as_dict())
+            assert outcar.as_dict() is not None
 
-            self.assertFalse(outcar.lepsilon)
+            assert not outcar.lepsilon
 
             toten = 0
             for k in outcar.final_energy_contribs:
                 toten += outcar.final_energy_contribs[k]
-            self.assertAlmostEqual(toten, outcar.final_energy, 6)
+            assert toten == approx(outcar.final_energy, abs=1e-6)
 
     def test_stopped_old(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.stopped"
         outcar = Outcar(filepath)
-        self.assertTrue(outcar.is_stopped)
+        assert outcar.is_stopped
         for f in ["OUTCAR.lepsilon_old_born", "OUTCAR.lepsilon_old_born.gz"]:
             filepath = self.TEST_FILES_DIR / f
             outcar = Outcar(filepath)
 
-            self.assertTrue(outcar.lepsilon)
-            self.assertAlmostEqual(outcar.dielectric_tensor[0][0], 3.716432)
-            self.assertAlmostEqual(outcar.dielectric_tensor[0][1], -0.20464)
-            self.assertAlmostEqual(outcar.dielectric_tensor[1][2], -0.20464)
-            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][0], 0.001419)
-            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][2], 0.001419)
-            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[2][2], 0.001419)
-            self.assertAlmostEqual(outcar.piezo_tensor[0][0], 0.52799)
-            self.assertAlmostEqual(outcar.piezo_tensor[1][3], 0.35998)
-            self.assertAlmostEqual(outcar.piezo_tensor[2][5], 0.35997)
-            self.assertAlmostEqual(outcar.piezo_ionic_tensor[0][0], 0.05868)
-            self.assertAlmostEqual(outcar.piezo_ionic_tensor[1][3], 0.06241)
-            self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
-            self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
-            self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927, places=4)
+            assert outcar.lepsilon
+            assert outcar.dielectric_tensor[0][0] == approx(3.716432)
+            assert outcar.dielectric_tensor[0][1] == approx(-0.20464)
+            assert outcar.dielectric_tensor[1][2] == approx(-0.20464)
+            assert outcar.dielectric_ionic_tensor[0][0] == approx(0.001419)
+            assert outcar.dielectric_ionic_tensor[0][2] == approx(0.001419)
+            assert outcar.dielectric_ionic_tensor[2][2] == approx(0.001419)
+            assert outcar.piezo_tensor[0][0] == approx(0.52799)
+            assert outcar.piezo_tensor[1][3] == approx(0.35998)
+            assert outcar.piezo_tensor[2][5] == approx(0.35997)
+            assert outcar.piezo_ionic_tensor[0][0] == approx(0.05868)
+            assert outcar.piezo_ionic_tensor[1][3] == approx(0.06241)
+            assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
+            assert outcar.born[0][1][2] == approx(-0.385)
+            assert outcar.born[1][2][0] == approx(0.36465)
+            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
+            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
+            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_stopped(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.stopped"
         outcar = Outcar(filepath)
-        self.assertTrue(outcar.is_stopped)
+        assert outcar.is_stopped
         for f in ["OUTCAR.lepsilon", "OUTCAR.lepsilon.gz"]:
             filepath = self.TEST_FILES_DIR / f
             outcar = Outcar(filepath)
 
-            self.assertTrue(outcar.lepsilon)
-            self.assertAlmostEqual(outcar.dielectric_tensor[0][0], 3.716432)
-            self.assertAlmostEqual(outcar.dielectric_tensor[0][1], -0.20464)
-            self.assertAlmostEqual(outcar.dielectric_tensor[1][2], -0.20464)
-            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][0], 0.001419)
-            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][2], 0.001419)
-            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[2][2], 0.001419)
-            self.assertAlmostEqual(outcar.piezo_tensor[0][0], 0.52799)
-            self.assertAlmostEqual(outcar.piezo_tensor[1][3], 0.35998)
-            self.assertAlmostEqual(outcar.piezo_tensor[2][5], 0.35997)
-            self.assertAlmostEqual(outcar.piezo_ionic_tensor[0][0], 0.05868)
-            self.assertAlmostEqual(outcar.piezo_ionic_tensor[1][3], 0.06241)
-            self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
-            self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
-            self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519, places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927, places=4)
+            assert outcar.lepsilon
+            assert outcar.dielectric_tensor[0][0] == approx(3.716432)
+            assert outcar.dielectric_tensor[0][1] == approx(-0.20464)
+            assert outcar.dielectric_tensor[1][2] == approx(-0.20464)
+            assert outcar.dielectric_ionic_tensor[0][0] == approx(0.001419)
+            assert outcar.dielectric_ionic_tensor[0][2] == approx(0.001419)
+            assert outcar.dielectric_ionic_tensor[2][2] == approx(0.001419)
+            assert outcar.piezo_tensor[0][0] == approx(0.52799)
+            assert outcar.piezo_tensor[1][3] == approx(0.35998)
+            assert outcar.piezo_tensor[2][5] == approx(0.35997)
+            assert outcar.piezo_ionic_tensor[0][0] == approx(0.05868)
+            assert outcar.piezo_ionic_tensor[1][3] == approx(0.06241)
+            assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
+            assert outcar.born[0][1][2] == approx(-0.385)
+            assert outcar.born[1][2][0] == approx(0.36465)
+            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
+            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
+            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
+            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_soc(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.NiO_SOC.gz"
@@ -924,54 +919,47 @@ class OutcarTest(PymatgenTest):
         )
         # test note: Magmom class uses np.allclose() when testing for equality
         # so fine to use assertEqual here
-        self.assertEqual(
-            outcar.magnetization,
-            expected_mag,
-            "Wrong vector magnetization read from Outcar for SOC calculation",
-        )
+        assert outcar.magnetization == expected_mag, "Wrong vector magnetization read from Outcar for SOC calculation"
 
     def test_polarization(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        self.assertEqual(outcar.spin, True)
-        self.assertEqual(outcar.noncollinear, False)
-        self.assertAlmostEqual(outcar.p_ion[0], 0.0)
-        self.assertAlmostEqual(outcar.p_ion[1], 0.0)
-        self.assertAlmostEqual(outcar.p_ion[2], -5.56684)
-        self.assertAlmostEqual(outcar.p_sp1[0], 2.00068)
-        self.assertAlmostEqual(outcar.p_sp2[0], -2.00044)
-        self.assertAlmostEqual(outcar.p_elec[0], 0.00024)
-        self.assertAlmostEqual(outcar.p_elec[1], 0.00019)
-        self.assertAlmostEqual(outcar.p_elec[2], 3.61674)
+        assert outcar.spin is True
+        assert outcar.noncollinear is False
+        assert outcar.p_ion[0] == approx(0.0)
+        assert outcar.p_ion[1] == approx(0.0)
+        assert outcar.p_ion[2] == approx(-5.56684)
+        assert outcar.p_sp1[0] == approx(2.00068)
+        assert outcar.p_sp2[0] == approx(-2.00044)
+        assert outcar.p_elec[0] == approx(0.00024)
+        assert outcar.p_elec[1] == approx(0.00019)
+        assert outcar.p_elec[2] == approx(3.61674)
 
     def test_pseudo_zval(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        self.assertDictEqual({"Ba": 10.00, "Ti": 10.00, "O": 6.00}, outcar.zval_dict)
+        assert {"Ba": 10.00, "Ti": 10.00, "O": 6.00} == outcar.zval_dict
 
         filepath = self.TEST_FILES_DIR / "OUTCAR.LaSnNO2.polar"
         outcar = Outcar(filepath)
-        self.assertDictEqual({"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0}, outcar.zval_dict)
+        assert {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0} == outcar.zval_dict
 
     def test_dielectric(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.dielectric"
         outcar = Outcar(filepath)
         outcar.read_corrections()
-        self.assertAlmostEqual(outcar.data["dipol_quadrupol_correction"], 0.03565)
-        self.assertAlmostEqual(outcar.final_energy, -797.46294064)
+        assert outcar.data["dipol_quadrupol_correction"] == approx(0.03565)
+        assert outcar.final_energy == approx(-797.46294064)
 
     def test_freq_dielectric(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS"
         outcar = Outcar(filepath)
         outcar.read_freq_dielectric()
-        self.assertAlmostEqual(outcar.dielectric_energies[0], 0)
-        self.assertAlmostEqual(outcar.dielectric_energies[-1], 39.826101)
-        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 8.96938800)
-        self.assertAlmostEqual(
-            outcar.dielectric_tensor_function[-1][0, 0],
-            7.36167000e-01 + 1.53800000e-03j,
-        )
-        self.assertEqual(len(outcar.dielectric_energies), len(outcar.dielectric_tensor_function))
+        assert outcar.dielectric_energies[0] == approx(0)
+        assert outcar.dielectric_energies[-1] == approx(39.826101)
+        assert outcar.dielectric_tensor_function[0][0, 0] == approx(8.96938800)
+        assert outcar.dielectric_tensor_function[-1][0, 0] == approx(7.36167000e-01 + 1.53800000e-03j)
+        assert len(outcar.dielectric_energies) == len(outcar.dielectric_tensor_function)
         np.testing.assert_array_equal(
             outcar.dielectric_tensor_function[0],
             outcar.dielectric_tensor_function[0].transpose(),
@@ -992,11 +980,11 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS.vasp544"
         outcar = Outcar(filepath)
         outcar.read_freq_dielectric()
-        self.assertAlmostEqual(outcar.dielectric_energies[0], 0)
-        self.assertAlmostEqual(outcar.dielectric_energies[-1], 39.63964)
-        self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0], 12.769435 + 0j)
-        self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0], 0.828615 + 0.016594j)
-        self.assertEqual(len(outcar.dielectric_energies), len(outcar.dielectric_tensor_function))
+        assert outcar.dielectric_energies[0] == approx(0)
+        assert outcar.dielectric_energies[-1] == approx(39.63964)
+        assert outcar.dielectric_tensor_function[0][0, 0] == approx(12.769435 + 0j)
+        assert outcar.dielectric_tensor_function[-1][0, 0] == approx(0.828615 + 0.016594j)
+        assert len(outcar.dielectric_energies) == len(outcar.dielectric_tensor_function)
         np.testing.assert_array_equal(
             outcar.dielectric_tensor_function[0],
             outcar.dielectric_tensor_function[0].transpose(),
@@ -1007,20 +995,17 @@ class OutcarTest(PymatgenTest):
         valid_pattern1 = " 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00"
         valid_pattern2 = " 0.62963E+00 0.15467E+02 0.15467E+02 0.15467E+02-0.30654E-16-0.91612E-16 0.52388E-16"
 
-        self.assertEqual(Outcar._parse_sci_notation(invalid_pattern), [])
-        self.assertEqual(Outcar._parse_sci_notation(valid_pattern1), [0, 0, 0, 0, 0, 0, 0])
-        self.assertEqual(
-            Outcar._parse_sci_notation(valid_pattern2),
-            [
-                0.62963,
-                0.15467e02,
-                0.15467e02,
-                0.15467e02,
-                -0.30654e-16,
-                -0.91612e-16,
-                0.52388e-16,
-            ],
-        )
+        assert Outcar._parse_sci_notation(invalid_pattern) == []
+        assert Outcar._parse_sci_notation(valid_pattern1) == [0, 0, 0, 0, 0, 0, 0]
+        assert Outcar._parse_sci_notation(valid_pattern2) == [
+            0.62963,
+            0.15467e02,
+            0.15467e02,
+            0.15467e02,
+            -0.30654e-16,
+            -0.91612e-16,
+            0.52388e-16,
+        ]
 
     def test_read_elastic_tensor(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.total_tensor.Li2O.gz"
@@ -1028,9 +1013,9 @@ class OutcarTest(PymatgenTest):
 
         outcar.read_elastic_tensor()
 
-        self.assertAlmostEqual(outcar.data["elastic_tensor"][0][0], 1986.3391)
-        self.assertAlmostEqual(outcar.data["elastic_tensor"][0][1], 187.8324)
-        self.assertAlmostEqual(outcar.data["elastic_tensor"][3][3], 586.3034)
+        assert outcar.data["elastic_tensor"][0][0] == approx(1986.3391)
+        assert outcar.data["elastic_tensor"][0][1] == approx(187.8324)
+        assert outcar.data["elastic_tensor"][3][3] == approx(586.3034)
 
     def test_read_lcalcpol(self):
         # outcar with electrons Angst units
@@ -1046,10 +1031,10 @@ class OutcarTest(PymatgenTest):
         p_sp2 = [2.01139, 2.01139, -2.04426]
 
         for i in range(3):
-            self.assertAlmostEqual(outcar.p_ion[i], p_ion[i])
-            self.assertAlmostEqual(outcar.p_elec[i], p_elec[i])
-            self.assertAlmostEqual(outcar.p_sp1[i], p_sp1[i])
-            self.assertAlmostEqual(outcar.p_sp2[i], p_sp2[i])
+            assert outcar.p_ion[i] == approx(p_ion[i])
+            assert outcar.p_elec[i] == approx(p_elec[i])
+            assert outcar.p_sp1[i] == approx(p_sp1[i])
+            assert outcar.p_sp2[i] == approx(p_sp2[i])
 
         # outcar with |e| Angst units
         filepath = self.TEST_FILES_DIR / "outcar_vasp_6.3.gz"
@@ -1063,28 +1048,28 @@ class OutcarTest(PymatgenTest):
         p_sp2 = [4.50563e00, -1.00000e-05, 1.62154e00]
 
         for i in range(3):
-            self.assertAlmostEqual(outcar.p_ion[i], p_ion[i])
-            self.assertAlmostEqual(outcar.p_elec[i], p_elec[i])
-            self.assertAlmostEqual(outcar.p_sp1[i], p_sp1[i])
-            self.assertAlmostEqual(outcar.p_sp2[i], p_sp2[i])
+            assert outcar.p_ion[i] == approx(p_ion[i])
+            assert outcar.p_elec[i] == approx(p_elec[i])
+            assert outcar.p_sp1[i] == approx(p_sp1[i])
+            assert outcar.p_sp2[i] == approx(p_sp2[i])
 
     def test_read_piezo_tensor(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.lepsilon.gz"
         outcar = Outcar(filepath)
 
         outcar.read_piezo_tensor()
-        self.assertAlmostEqual(outcar.data["piezo_tensor"][0][0], 0.52799)
-        self.assertAlmostEqual(outcar.data["piezo_tensor"][1][3], 0.35998)
-        self.assertAlmostEqual(outcar.data["piezo_tensor"][2][5], 0.35997)
+        assert outcar.data["piezo_tensor"][0][0] == approx(0.52799)
+        assert outcar.data["piezo_tensor"][1][3] == approx(0.35998)
+        assert outcar.data["piezo_tensor"][2][5] == approx(0.35997)
 
     def test_core_state_eigen(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.CL"
         cl = Outcar(filepath).read_core_state_eigen()
-        self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
+        assert cl[6]["2s"][-1] == approx(-174.4779)
         filepath = self.TEST_FILES_DIR / "OUTCAR.icorelevel"
         outcar = Outcar(filepath)
         cl = outcar.read_core_state_eigen()
-        self.assertAlmostEqual(cl[4]["3d"][-1], -31.4522)
+        assert cl[4]["3d"][-1] == approx(-31.4522)
 
         # test serialization
         outcar.as_dict()
@@ -1092,15 +1077,15 @@ class OutcarTest(PymatgenTest):
     def test_avg_core_poten(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.lepsilon"
         cp = Outcar(filepath).read_avg_core_poten()
-        self.assertAlmostEqual(cp[-1][1], -90.0487)
+        assert cp[-1][1] == approx(-90.0487)
 
         filepath = self.TEST_FILES_DIR / "OUTCAR"
         cp = Outcar(filepath).read_avg_core_poten()
-        self.assertAlmostEqual(cp[0][6], -73.1068)
+        assert cp[0][6] == approx(-73.1068)
 
         filepath = self.TEST_FILES_DIR / "OUTCAR.bad_core_poten.gz"
         cp = Outcar(filepath).read_avg_core_poten()
-        self.assertAlmostEqual(cp[0][1], -101.5055)
+        assert cp[0][1] == approx(-101.5055)
 
     def test_single_atom(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.Al"
@@ -1108,26 +1093,23 @@ class OutcarTest(PymatgenTest):
         expected_mag = ({"p": 0.0, "s": 0.0, "d": 0.0, "tot": 0.0},)
         expected_chg = ({"p": 0.343, "s": 0.425, "d": 0.0, "tot": 0.768},)
 
-        self.assertAlmostEqual(outcar.magnetization, expected_mag)
-        self.assertAlmostEqual(outcar.charge, expected_chg)
-        self.assertFalse(outcar.is_stopped)
-        self.assertEqual(
-            outcar.run_stats,
-            {
-                "System time (sec)": 0.592,
-                "Total CPU time used (sec)": 50.194,
-                "Elapsed time (sec)": 52.337,
-                "Maximum memory used (kb)": 62900.0,
-                "Average memory used (kb)": 0.0,
-                "User time (sec)": 49.602,
-                "cores": 32,
-            },
-        )
-        self.assertAlmostEqual(outcar.efermi, 8.0942)
-        self.assertAlmostEqual(outcar.nelect, 3)
-        self.assertAlmostEqual(outcar.total_mag, 8.2e-06)
+        assert outcar.magnetization == approx(expected_mag)
+        assert outcar.charge == approx(expected_chg)
+        assert not outcar.is_stopped
+        assert outcar.run_stats == {
+            "System time (sec)": 0.592,
+            "Total CPU time used (sec)": 50.194,
+            "Elapsed time (sec)": 52.337,
+            "Maximum memory used (kb)": 62900.0,
+            "Average memory used (kb)": 0.0,
+            "User time (sec)": 49.602,
+            "cores": 32,
+        }
+        assert outcar.efermi == approx(8.0942)
+        assert outcar.nelect == approx(3)
+        assert outcar.total_mag == approx(8.2e-06)
 
-        self.assertIsNotNone(outcar.as_dict())
+        assert outcar.as_dict() is not None
 
     def test_chemical_shielding(self):
         filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "hydromagnesite" / "OUTCAR"
@@ -1143,10 +1125,7 @@ class OutcarTest(PymatgenTest):
             [195.0788, 68.1733, 0.8337],
         ]
 
-        self.assertAlmostEqual(
-            len(outcar.data["chemical_shielding"]["valence_only"][20:28]),
-            len(expected_chemical_shielding),
-        )
+        assert len(outcar.data["chemical_shielding"]["valence_only"][20:28]) == approx(len(expected_chemical_shielding))
 
         self.assertArrayAlmostEqual(
             outcar.data["chemical_shielding"]["valence_and_core"][20:28],
@@ -1159,50 +1138,41 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filename)
         c_vo = outcar.data["chemical_shielding"]["valence_only"][7]
         for x1, x2 in zip(list(c_vo), [198.7009, 73.7484, 1.0000]):
-            self.assertAlmostEqual(x1, x2)
+            assert x1 == approx(x2)
         c_vc = outcar.data["chemical_shielding"]["valence_and_core"][7]
         for x1, x2 in zip(list(c_vc), [-1.9406, 73.7484, 1.0000]):
-            self.assertAlmostEqual(x1, x2)
+            assert x1 == approx(x2)
 
     def test_cs_raw_tensors(self):
         filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         unsym_tensors = outcar.data["unsym_cs_tensor"]
-        self.assertEqual(
-            unsym_tensors[0],
-            [
-                [-145.814605, -4.263425, 0.000301],
-                [4.263434, -145.812238, -8.7e-05],
-                [0.000136, -0.000189, -142.794068],
-            ],
-        )
-        self.assertEqual(
-            unsym_tensors[29],
-            [
-                [287.789318, -53.799325, 30.900024],
-                [-53.799571, 225.668117, -17.839598],
-                [3.801103, -2.195218, 88.896756],
-            ],
-        )
+        assert unsym_tensors[0] == [
+            [-145.814605, -4.263425, 0.000301],
+            [4.263434, -145.812238, -8.7e-05],
+            [0.000136, -0.000189, -142.794068],
+        ]
+        assert unsym_tensors[29] == [
+            [287.789318, -53.799325, 30.900024],
+            [-53.799571, 225.668117, -17.839598],
+            [3.801103, -2.195218, 88.896756],
+        ]
 
     def test_cs_g0_contribution(self):
         filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         g0_contrib = outcar.data["cs_g0_contribution"]
-        self.assertEqual(
-            g0_contrib,
-            [
-                [-8.773535, 9e-06, 1e-06],
-                [1.7e-05, -8.773536, -0.0792],
-                [-6e-06, -0.008328, -9.320237],
-            ],
-        )
+        assert g0_contrib == [
+            [-8.773535, 9e-06, 1e-06],
+            [1.7e-05, -8.773536, -0.0792],
+            [-6e-06, -0.008328, -9.320237],
+        ]
 
     def test_cs_core_contribution(self):
         filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         core_contrib = outcar.data["cs_core_contribution"]
-        self.assertEqual(core_contrib, {"Mg": -412.8248405, "C": -200.5098812, "O": -271.0766979})
+        assert core_contrib == {"Mg": -412.8248405, "C": -200.5098812, "O": -271.0766979}
 
     def test_nmr_efg(self):
         filename = self.TEST_FILES_DIR / "nmr" / "efg" / "AlPO4" / "OUTCAR"
@@ -1217,10 +1187,10 @@ class OutcarTest(PymatgenTest):
             {"eta": 0.42, "nuclear_quadrupole_moment": 146.6, "cq": -5.58},
             {"eta": 0.42, "nuclear_quadrupole_moment": 146.6, "cq": -5.58},
         ]
-        self.assertEqual(len(outcar.data["efg"][2:10]), len(expected_efg))
+        assert len(outcar.data["efg"][2:10]) == len(expected_efg)
         for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
             for k in e1:
-                self.assertAlmostEqual(e1[k], e2[k], places=5)
+                assert e1[k] == approx(e2[k], abs=1e-5)
 
         exepected_tensors = [
             [[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]],
@@ -1245,7 +1215,7 @@ class OutcarTest(PymatgenTest):
             [[2.404, 0.588, -6.83], [0.588, 10.435, -3.159], [-6.83, -3.159, -12.839]],
         ]
 
-        self.assertEqual(len(outcar.data["unsym_efg_tensor"][2:10]), len(exepected_tensors))
+        assert len(outcar.data["unsym_efg_tensor"][2:10]) == len(exepected_tensors)
         for e1, e2 in zip(outcar.data["unsym_efg_tensor"][2:10], exepected_tensors):
             self.assertArrayAlmostEqual(e1, e2)
 
@@ -1253,297 +1223,219 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR_fc"
         outcar = Outcar(filepath)
         outcar.read_fermi_contact_shift()
-        self.assertAlmostEqual(outcar.data["fermi_contact_shift"]["fch"][0][0], -0.002)
-        self.assertAlmostEqual(outcar.data["fermi_contact_shift"]["th"][0][0], -0.052)
-        self.assertAlmostEqual(outcar.data["fermi_contact_shift"]["dh"][0][0], 0.0)
+        assert outcar.data["fermi_contact_shift"]["fch"][0][0] == approx(-0.002)
+        assert outcar.data["fermi_contact_shift"]["th"][0][0] == approx(-0.052)
+        assert outcar.data["fermi_contact_shift"]["dh"][0][0] == approx(0.0)
 
     def test_drift(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
-        self.assertEqual(len(outcar.drift), 5)
-        self.assertAlmostEqual(np.sum(outcar.drift), 0)
+        assert len(outcar.drift) == 5
+        assert np.sum(outcar.drift) == approx(0)
 
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.CL")
-        self.assertEqual(len(outcar.drift), 79)
-        self.assertAlmostEqual(np.sum(outcar.drift), 0.448010)
+        assert len(outcar.drift) == 79
+        assert np.sum(outcar.drift) == approx(0.448010)
 
     def test_electrostatic_potential(self):
-
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
-        self.assertEqual(outcar.ngf, [54, 30, 54])
-        self.assertTrue(np.allclose(outcar.sampling_radii, [0.9748, 0.9791, 0.7215]))
-        self.assertTrue(
-            np.allclose(
-                outcar.electrostatic_potential,
-                [-26.0704, -45.5046, -45.5046, -72.9539, -73.0621, -72.9539, -73.0621],
-            )
+        assert outcar.ngf == [54, 30, 54]
+        assert np.allclose(outcar.sampling_radii, [0.9748, 0.9791, 0.7215])
+        assert np.allclose(
+            outcar.electrostatic_potential,
+            [-26.0704, -45.5046, -45.5046, -72.9539, -73.0621, -72.9539, -73.0621],
         )
 
     def test_mag_electrostatic_error(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.electrostaticerror.gz")
-        self.assertEqual(
-            outcar.electrostatic_potential,
-            [
-                -21.1667,
-                -19.6865,
-                -22.3983,
-                -22.3307,
-                -20.5213,
-                -20.9292,
-                -21.5063,
-                -21.3554,
-                -21.74,
-                -21.7018,
-                -20.3422,
-                -20.6128,
-                -21.4405,
-                -21.0022,
-                -21.975,
-                -21.915,
-                -21.0156,
-                -21.9027,
-                -22.3712,
-                -21.5816,
-                -21.8535,
-                -20.5061,
-                -22.2474,
-                -22.1904,
-                -22.2203,
-                -20.1727,
-                -21.1068,
-                -20.1669,
-                -22.1272,
-                -21.3446,
-                -82.4717,
-                -83.035,
-                -81.8289,
-                -82.5957,
-                -81.7813,
-                -82.5011,
-                -82.6098,
-                -82.2885,
-                -81.606,
-                -99.1621,
-                -99.3146,
-                -99.1742,
-                -99.4728,
-                -100.2139,
-                -99.852,
-                -99.3575,
-                -99.4135,
-                -98.9092,
-                -99.8867,
-                -99.3707,
-                -99.0794,
-                -98.8376,
-                -99.3656,
-                -98.6474,
-                -99.3264,
-                -98.844,
-                -99.074,
-                -98.9354,
-                -99.1643,
-                -99.2412,
-                -68.7667,
-                -68.2528,
-                -66.7326,
-                -67.7113,
-                -69.2228,
-                -67.014,
-                -69.1456,
-                -67.3151,
-                -68.2625,
-                -67.6156,
-                -69.8112,
-                -68.9266,
-                -67.8286,
-                -69.3289,
-                -68.7017,
-                -67.2834,
-                -68.4665,
-                -68.0188,
-                -67.7083,
-                -69.7195,
-                -67.4078,
-                -67.9646,
-                -68.584,
-                -69.2387,
-                -69.7822,
-                -67.0701,
-                -67.8236,
-                -68.2468,
-                -68.6533,
-                -68.3218,
-                -67.5923,
-                -69.1266,
-                -68.4615,
-                -68.302,
-                -67.999,
-                -68.6709,
-                -68.9973,
-                -67.4147,
-                -68.4463,
-                -68.0899,
-                -67.665,
-                -69.6705,
-                -68.6433,
-                -68.4288,
-                -66.9027,
-                -67.3211,
-                -68.604,
-                -69.1299,
-                -67.5565,
-                -69.0845,
-                -67.4289,
-                -66.6864,
-                -67.6484,
-                -67.9783,
-                -67.7661,
-                -66.9797,
-                -67.8007,
-                -68.3194,
-                -69.3671,
-                -67.2708,
-            ],
-        )
+        assert outcar.electrostatic_potential == [
+            -21.1667,
+            -19.6865,
+            -22.3983,
+            -22.3307,
+            -20.5213,
+            -20.9292,
+            -21.5063,
+            -21.3554,
+            -21.74,
+            -21.7018,
+            -20.3422,
+            -20.6128,
+            -21.4405,
+            -21.0022,
+            -21.975,
+            -21.915,
+            -21.0156,
+            -21.9027,
+            -22.3712,
+            -21.5816,
+            -21.8535,
+            -20.5061,
+            -22.2474,
+            -22.1904,
+            -22.2203,
+            -20.1727,
+            -21.1068,
+            -20.1669,
+            -22.1272,
+            -21.3446,
+            -82.4717,
+            -83.035,
+            -81.8289,
+            -82.5957,
+            -81.7813,
+            -82.5011,
+            -82.6098,
+            -82.2885,
+            -81.606,
+            -99.1621,
+            -99.3146,
+            -99.1742,
+            -99.4728,
+            -100.2139,
+            -99.852,
+            -99.3575,
+            -99.4135,
+            -98.9092,
+            -99.8867,
+            -99.3707,
+            -99.0794,
+            -98.8376,
+            -99.3656,
+            -98.6474,
+            -99.3264,
+            -98.844,
+            -99.074,
+            -98.9354,
+            -99.1643,
+            -99.2412,
+            -68.7667,
+            -68.2528,
+            -66.7326,
+            -67.7113,
+            -69.2228,
+            -67.014,
+            -69.1456,
+            -67.3151,
+            -68.2625,
+            -67.6156,
+            -69.8112,
+            -68.9266,
+            -67.8286,
+            -69.3289,
+            -68.7017,
+            -67.2834,
+            -68.4665,
+            -68.0188,
+            -67.7083,
+            -69.7195,
+            -67.4078,
+            -67.9646,
+            -68.584,
+            -69.2387,
+            -69.7822,
+            -67.0701,
+            -67.8236,
+            -68.2468,
+            -68.6533,
+            -68.3218,
+            -67.5923,
+            -69.1266,
+            -68.4615,
+            -68.302,
+            -67.999,
+            -68.6709,
+            -68.9973,
+            -67.4147,
+            -68.4463,
+            -68.0899,
+            -67.665,
+            -69.6705,
+            -68.6433,
+            -68.4288,
+            -66.9027,
+            -67.3211,
+            -68.604,
+            -69.1299,
+            -67.5565,
+            -69.0845,
+            -67.4289,
+            -66.6864,
+            -67.6484,
+            -67.9783,
+            -67.7661,
+            -66.9797,
+            -67.8007,
+            -68.3194,
+            -69.3671,
+            -67.2708,
+        ]
 
     def test_onsite_density_matrix(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.LinearResponseU.gz")
         matrices = outcar.data["onsite_density_matrices"]
-        self.assertEqual(matrices[0][Spin.up][0][0], 1.0227)
-        self.assertEqual(len(matrices[0][Spin.up]), 5)
-        self.assertEqual(len(matrices[0][Spin.up][0]), 5)
-        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
+        assert matrices[0][Spin.up][0][0] == 1.0227
+        assert len(matrices[0][Spin.up]) == 5
+        assert len(matrices[0][Spin.up][0]) == 5
+        assert "onsite_density_matrices" in outcar.as_dict()
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR_merged_numbers")
         matrices = outcar.data["onsite_density_matrices"]
-        self.assertEqual(matrices[0][Spin.up][0][-1], 0.0)
-        self.assertEqual(len(matrices[0][Spin.up]), 7)
-        self.assertEqual(len(matrices[0][Spin.up][0]), 7)
-        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
+        assert matrices[0][Spin.up][0][-1] == 0.0
+        assert len(matrices[0][Spin.up]) == 7
+        assert len(matrices[0][Spin.up][0]) == 7
+        assert "onsite_density_matrices" in outcar.as_dict()
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR_merged_numbers2")
-        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
+        assert "onsite_density_matrices" in outcar.as_dict()
 
     def test_nplwvs(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
-        self.assertEqual(outcar.data["nplwv"], [[34560]])
-        self.assertEqual(
-            outcar.data["nplwvs_at_kpoints"],
-            [
-                1719,
-                1714,
-                1722,
-                1728,
-                1722,
-                1726,
-                1722,
-                1720,
-                1717,
-                1724,
-                1715,
-                1724,
-                1726,
-                1724,
-                1728,
-                1715,
-                1722,
-                1715,
-                1726,
-                1730,
-                1730,
-                1715,
-                1716,
-                1729,
-                1727,
-                1723,
-                1721,
-                1712,
-                1723,
-                1719,
-                1717,
-                1717,
-                1724,
-                1719,
-                1719,
-                1727,
-                1726,
-                1730,
-                1719,
-                1720,
-                1718,
-                1717,
-                1722,
-                1719,
-                1709,
-                1714,
-                1724,
-                1726,
-                1718,
-                1713,
-                1720,
-                1713,
-                1711,
-                1713,
-                1715,
-                1717,
-                1728,
-                1726,
-                1712,
-                1722,
-                1714,
-                1713,
-                1717,
-                1714,
-                1714,
-                1717,
-                1712,
-                1710,
-                1721,
-                1722,
-                1724,
-                1720,
-                1726,
-                1719,
-                1722,
-                1714,
-            ],
-        )
+        assert outcar.data["nplwv"] == [[34560]]
+        assert outcar.data["nplwvs_at_kpoints"] == [
+            # fmt: off
+            1719, 1714, 1722, 1728, 1722, 1726, 1722, 1720, 1717, 1724, 1715, 1724, 1726,
+            1724, 1728, 1715, 1722, 1715, 1726, 1730, 1730, 1715, 1716, 1729, 1727, 1723,
+            1721, 1712, 1723, 1719, 1717, 1717, 1724, 1719, 1719, 1727, 1726, 1730, 1719,
+            1720, 1718, 1717, 1722, 1719, 1709, 1714, 1724, 1726, 1718, 1713, 1720, 1713,
+            1711, 1713, 1715, 1717, 1728, 1726, 1712, 1722, 1714, 1713, 1717, 1714, 1714,
+            1717, 1712, 1710, 1721, 1722, 1724, 1720, 1726, 1719, 1722, 1714,
+            # fmt: on
+        ]
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.CL")
-        self.assertEqual(outcar.data["nplwv"], [[None]])
-        self.assertEqual(outcar.data["nplwvs_at_kpoints"], [85687])
+        assert outcar.data["nplwv"] == [[None]]
+        assert outcar.data["nplwvs_at_kpoints"] == [85687]
 
     def test_vasp620_format(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
         outcar = Outcar(filepath)
-        self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
+        assert outcar.run_stats["Average memory used (kb)"] is None
 
         filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.1.mpi"
         outcar = Outcar(filepath)
-        self.assertEqual(outcar.run_stats["cores"], 64)
+        assert outcar.run_stats["cores"] == 64
 
     def test_energies(self):
-
         # VASP 5.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest1.gz")
-        self.assertAlmostEqual(o.final_energy, -11.18981538)
-        self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13480014)
-        self.assertAlmostEqual(o.final_fr_energy, -11.21732300)
+        assert o.final_energy == approx(-11.18981538)
+        assert o.final_energy_wo_entrp == approx(-11.13480014)
+        assert o.final_fr_energy == approx(-11.21732300)
 
         # VASP 6.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest2.gz")
-        self.assertAlmostEqual(o.final_energy, -11.18986774)
-        self.assertAlmostEqual(o.final_energy_wo_entrp, -11.13485250)
-        self.assertAlmostEqual(o.final_fr_energy, -11.21737536)
+        assert o.final_energy == approx(-11.18986774)
+        assert o.final_energy_wo_entrp == approx(-11.13485250)
+        assert o.final_fr_energy == approx(-11.21737536)
 
         # VASP 5.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest3.gz")
-        self.assertAlmostEqual(o.final_energy, -15.89355325)
-        self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83853800)
-        self.assertAlmostEqual(o.final_fr_energy, -15.92106087)
+        assert o.final_energy == approx(-15.89355325)
+        assert o.final_energy_wo_entrp == approx(-15.83853800)
+        assert o.final_fr_energy == approx(-15.92106087)
 
         # VASP 6.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest4.gz")
-        self.assertAlmostEqual(o.final_energy, -15.89364691)
-        self.assertAlmostEqual(o.final_energy_wo_entrp, -15.83863167)
-        self.assertAlmostEqual(o.final_fr_energy, -15.92115453)
+        assert o.final_energy == approx(-15.89364691)
+        assert o.final_energy_wo_entrp == approx(-15.83863167)
+        assert o.final_fr_energy == approx(-15.92115453)
 
     def test_read_table_pattern(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
@@ -1557,7 +1449,7 @@ class OutcarTest(PymatgenTest):
             ["       1 -26.0704       2 -45.5046       3 -45.5046       4 -72.9539       5 -73.0621"],
             ["       6 -72.9539       7 -73.0621"],
         ]
-        self.assertEqual(pots, ref_last)
+        assert pots == ref_last
 
         pots = outcar.read_table_pattern(
             header_pattern, table_pattern, footer_pattern, last_one_only=False, first_one_only=True
@@ -1566,9 +1458,9 @@ class OutcarTest(PymatgenTest):
             ["       1 -26.1149       2 -45.5359       3 -45.5359       4 -72.9831       5 -73.1068"],
             ["       6 -72.9831       7 -73.1068"],
         ]
-        self.assertEqual(pots, ref_first)
+        assert pots == ref_first
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             outcar.read_table_pattern(
                 header_pattern, table_pattern, footer_pattern, last_one_only=True, first_one_only=True
             )
@@ -1583,39 +1475,35 @@ class BSVasprunTest(PymatgenTest):
         bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
-        self.assertEqual(cbm["kpoint_index"], [13], "wrong cbm kpoint index")
-        self.assertAlmostEqual(cbm["energy"], 6.2301, "wrong cbm energy")
-        self.assertEqual(cbm["band_index"], {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands")
-        self.assertEqual(vbm["kpoint_index"], [0, 63, 64])
-        self.assertAlmostEqual(vbm["energy"], 5.6158, "wrong vbm energy")
-        self.assertEqual(
-            vbm["band_index"],
-            {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]},
-            "wrong vbm bands",
-        )
-        self.assertEqual(vbm["kpoint"].label, "\\Gamma", "wrong vbm label")
-        self.assertEqual(cbm["kpoint"].label, None, "wrong cbm label")
+        assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
+        assert cbm["energy"] == approx(6.2301), "wrong cbm energy"
+        assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
+        assert vbm["kpoint_index"] == [0, 63, 64]
+        assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
+        assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
+        assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
+        assert cbm["kpoint"].label is None, "wrong cbm label"
         d = vasprun.as_dict()
-        self.assertIn("eigenvalues", d["output"])
+        assert "eigenvalues" in d["output"]
 
 
 class OszicarTest(PymatgenTest):
     def test_init(self):
         filepath = self.TEST_FILES_DIR / "OSZICAR"
         oszicar = Oszicar(filepath)
-        self.assertEqual(len(oszicar.electronic_steps), len(oszicar.ionic_steps))
-        self.assertEqual(len(oszicar.all_energies), 60)
-        self.assertAlmostEqual(oszicar.final_energy, -526.63928)
+        assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
+        assert len(oszicar.all_energies) == 60
+        assert oszicar.final_energy == approx(-526.63928)
 
 
 class LocpotTest(PymatgenTest):
     def test_init(self):
         filepath = self.TEST_FILES_DIR / "LOCPOT"
         locpot = Locpot.from_file(filepath)
-        self.assertAlmostEqual(-217.05226954, sum(locpot.get_average_along_axis(0)))
-        self.assertAlmostEqual(locpot.get_axis_grid(0)[-1], 2.87629, 2)
-        self.assertAlmostEqual(locpot.get_axis_grid(1)[-1], 2.87629, 2)
-        self.assertAlmostEqual(locpot.get_axis_grid(2)[-1], 2.87629, 2)
+        assert -217.05226954 == approx(sum(locpot.get_average_along_axis(0)))
+        assert locpot.get_axis_grid(0)[-1] == approx(2.87629, abs=1e-2)
+        assert locpot.get_axis_grid(1)[-1] == approx(2.87629, abs=1e-2)
+        assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
 
 
 class ChgcarTest(PymatgenTest):
@@ -1634,61 +1522,52 @@ class ChgcarTest(PymatgenTest):
         cls.chgcar_NiO_SOC = Chgcar.from_file(filepath)
 
     def test_init(self):
-        self.assertAlmostEqual(self.chgcar_no_spin.get_integrated_diff(0, 2)[0, 1], 0)
-        self.assertAlmostEqual(self.chgcar_spin.get_integrated_diff(0, 1)[0, 1], -0.0043896932237534022)
+        assert self.chgcar_no_spin.get_integrated_diff(0, 2)[0, 1] == approx(0)
+        assert self.chgcar_spin.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022)
         # test sum
         chgcar = self.chgcar_spin + self.chgcar_spin
-        self.assertAlmostEqual(chgcar.get_integrated_diff(0, 1)[0, 1], -0.0043896932237534022 * 2)
+        assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
 
         chgcar = self.chgcar_spin - self.chgcar_spin
-        self.assertAlmostEqual(chgcar.get_integrated_diff(0, 1)[0, 1], 0)
+        assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 
         ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         myans = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
-        self.assertTrue(np.allclose(myans[:, 1], ans))
+        assert np.allclose(myans[:, 1], ans)
 
     def test_write(self):
         self.chgcar_spin.write_file("CHGCAR_pmg")
         with open("CHGCAR_pmg") as f:
             for i, line in enumerate(f):
                 if i == 22130:
-                    self.assertEqual("augmentation occupancies   1  15\n", line)
+                    assert line == "augmentation occupancies   1  15\n"
                 if i == 44255:
-                    self.assertEqual("augmentation occupancies   1  15\n", line)
+                    assert line == "augmentation occupancies   1  15\n"
         os.remove("CHGCAR_pmg")
 
     def test_soc_chgcar(self):
-        self.assertEqual(
-            set(self.chgcar_NiO_SOC.data),
-            {"total", "diff_x", "diff_y", "diff_z", "diff"},
-        )
-        self.assertTrue(self.chgcar_NiO_SOC.is_soc)
-        self.assertEqual(
-            self.chgcar_NiO_SOC.data["diff"].shape,
-            self.chgcar_NiO_SOC.data["diff_y"].shape,
-        )
+        assert set(self.chgcar_NiO_SOC.data) == {"total", "diff_x", "diff_y", "diff_z", "diff"}
+        assert self.chgcar_NiO_SOC.is_soc
+        assert self.chgcar_NiO_SOC.data["diff"].shape == self.chgcar_NiO_SOC.data["diff_y"].shape
 
         # check our construction of chg.data['diff'] makes sense
         # this has been checked visually too and seems reasonable
-        self.assertEqual(
-            abs(self.chgcar_NiO_SOC.data["diff"][0][0][0]),
-            np.linalg.norm(
-                [
-                    self.chgcar_NiO_SOC.data["diff_x"][0][0][0],
-                    self.chgcar_NiO_SOC.data["diff_y"][0][0][0],
-                    self.chgcar_NiO_SOC.data["diff_z"][0][0][0],
-                ]
-            ),
+        assert abs(self.chgcar_NiO_SOC.data["diff"][0][0][0]) == np.linalg.norm(
+            [
+                self.chgcar_NiO_SOC.data["diff_x"][0][0][0],
+                self.chgcar_NiO_SOC.data["diff_y"][0][0][0],
+                self.chgcar_NiO_SOC.data["diff_z"][0][0][0],
+            ]
         )
 
         # and that the net magnetization is about zero
         # note: we get ~ 0.08 here, seems a little high compared to
         # vasp output, but might be due to chgcar limitations?
-        self.assertAlmostEqual(self.chgcar_NiO_SOC.net_magnetization, 0.0, places=0)
+        assert self.chgcar_NiO_SOC.net_magnetization == approx(0.0, abs=1e-0)
 
         self.chgcar_NiO_SOC.write_file("CHGCAR_pmg_soc")
         chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
-        self.assertTrue(chg_from_file.is_soc)
+        assert chg_from_file.is_soc
         os.remove("CHGCAR_pmg_soc")
 
     @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
@@ -1703,10 +1582,10 @@ class ChgcarTest(PymatgenTest):
             self.assertArrayAlmostEqual(np.array(f["lattice"]), chgcar.structure.lattice.matrix)
             self.assertArrayAlmostEqual(np.array(f["fcoords"]), chgcar.structure.frac_coords)
             for z in f["Z"]:
-                self.assertIn(z, [Element.Ni.Z, Element.O.Z])
+                assert z in [Element.Ni.Z, Element.O.Z]
 
             for sp in f["species"]:
-                self.assertIn(sp, [b"Ni", b"O"])
+                assert sp in [b"Ni", b"O"]
 
         chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
         self.assertArrayAlmostEqual(chgcar2.data["total"], chgcar.data["total"])
@@ -1714,7 +1593,7 @@ class ChgcarTest(PymatgenTest):
 
     def test_spin_data(self):
         for v in self.chgcar_spin.spin_data.values():
-            self.assertEqual(v.shape, (48, 48, 48))
+            assert v.shape == (48, 48, 48)
 
     def test_add(self):
         chgcar_sum = self.chgcar_spin + self.chgcar_spin
@@ -1729,8 +1608,10 @@ class ChgcarTest(PymatgenTest):
             # Verify some things
             assert len(w) == 1
             assert "Structures are different. Make sure you know what you are doing..." in str(w[-1].message)
-        self.assertRaises(ValueError, self.chgcar_spin.__add__, self.chgcar_fe3o4)
-        self.assertRaises(ValueError, self.chgcar_spin.__add__, self.chgcar_no_spin)
+        with pytest.raises(ValueError):
+            self.chgcar_spin + self.chgcar_fe3o4
+        with pytest.raises(ValueError):
+            self.chgcar_spin + self.chgcar_no_spin
 
     def test_as_dict_and_from_dict(self):
         d = self.chgcar_NiO_SOC.as_dict()
@@ -1745,21 +1626,21 @@ class ChgcarTest(PymatgenTest):
 class ElfcarTest(PymatgenTest):
     def test_init(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / "ELFCAR.gz")
-        self.assertAlmostEqual(0.19076207645194002, np.mean(elfcar.data["total"]))
-        self.assertAlmostEqual(0.19076046677910055, np.mean(elfcar.data["diff"]))
+        assert approx(np.mean(elfcar.data["total"])) == 0.19076207645194002
+        assert approx(np.mean(elfcar.data["diff"])) == 0.19076046677910055
         reconstituted = Elfcar.from_dict(elfcar.as_dict())
-        self.assertEqual(elfcar.data, reconstituted.data)
-        self.assertEqual(elfcar.poscar.structure, reconstituted.poscar.structure)
+        assert elfcar.data == reconstituted.data
+        assert elfcar.poscar.structure == reconstituted.poscar.structure
 
     def test_alpha(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / "ELFCAR.gz")
         alpha = elfcar.get_alpha()
-        self.assertAlmostEqual(2.936678808979031, np.median(alpha.data["total"]))
+        assert approx(np.median(alpha.data["total"])) == 2.936678808979031
 
     def test_interpolation(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / "ELFCAR.gz")
-        self.assertAlmostEqual(0.0918471, elfcar.value_at(0.4, 0.5, 0.6))
-        self.assertEqual(100, len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])))
+        assert approx(elfcar.value_at(0.4, 0.5, 0.6)) == 0.0918471
+        assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
 class ProcarTest(PymatgenTest):
@@ -1768,13 +1649,14 @@ class ProcarTest(PymatgenTest):
     def test_init(self):
         filepath = self.TEST_FILES_DIR / "PROCAR.simple"
         p = Procar(filepath)
-        self.assertAlmostEqual(p.get_occupation(0, "d")[Spin.up], 0)
-        self.assertAlmostEqual(p.get_occupation(0, "s")[Spin.up], 0.35381249999999997)
-        self.assertAlmostEqual(p.get_occupation(0, "p")[Spin.up], 1.19540625)
-        self.assertRaises(ValueError, p.get_occupation, 1, "m")
-        self.assertEqual(p.nbands, 10)
-        self.assertEqual(p.nkpoints, 10)
-        self.assertEqual(p.nions, 3)
+        assert p.get_occupation(0, "d")[Spin.up] == approx(0)
+        assert p.get_occupation(0, "s")[Spin.up] == approx(0.35381249999999997)
+        assert p.get_occupation(0, "p")[Spin.up] == approx(1.19540625)
+        with pytest.raises(ValueError):
+            p.get_occupation(1, "m")
+        assert p.nbands == 10
+        assert p.nkpoints == 10
+        assert p.nions == 3
         lat = Lattice.cubic(3.0)
         s = Structure(
             lat,
@@ -1782,27 +1664,27 @@ class ProcarTest(PymatgenTest):
             [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
         )
         d = p.get_projection_on_elements(s)
-        self.assertAlmostEqual(d[Spin.up][2][2], {"Na": 0.042, "K": 0.646, "Li": 0.042})
+        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
         filepath = self.TEST_FILES_DIR / "PROCAR"
         p = Procar(filepath)
-        self.assertAlmostEqual(p.get_occupation(0, "dxy")[Spin.up], 0.96214813853000025)
-        self.assertAlmostEqual(p.get_occupation(0, "dxy")[Spin.down], 0.85796295426000124)
+        assert p.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
+        assert p.get_occupation(0, "dxy")[Spin.down] == approx(0.85796295426000124)
 
     def test_phase_factors(self):
         filepath = self.TEST_FILES_DIR / "PROCAR.phase"
         p = Procar(filepath)
-        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.746 + 0.099j)
-        self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 0, 0], 0.372 - 0.654j)
+        assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.746 + 0.099j)
+        assert p.phase_factors[Spin.down][0, 0, 0, 0] == approx(0.372 - 0.654j)
 
         # Two Li should have same phase factor.
-        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], p.phase_factors[Spin.up][0, 0, 1, 0])
-        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 2, 0], -0.053 + 0.007j)
-        self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 2, 0], 0.027 - 0.047j)
+        assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(p.phase_factors[Spin.up][0, 0, 1, 0])
+        assert p.phase_factors[Spin.up][0, 0, 2, 0] == approx(-0.053 + 0.007j)
+        assert p.phase_factors[Spin.down][0, 0, 2, 0] == approx(0.027 - 0.047j)
 
         # new style phase factors (VASP 5.4.4+)
         filepath = self.TEST_FILES_DIR / "PROCAR.new_format_5.4.4"
         p = Procar(filepath)
-        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13 + 0.199j)
+        assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
 
 
 class XdatcarTest(PymatgenTest):
@@ -1810,26 +1692,26 @@ class XdatcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "XDATCAR_4"
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 4)
+        assert len(structures) == 4
         for s in structures:
-            self.assertEqual(s.formula, "Li2 O1")
+            assert s.formula == "Li2 O1"
 
         filepath = self.TEST_FILES_DIR / "XDATCAR_5"
         x = Xdatcar(filepath)
         structures = x.structures
-        self.assertEqual(len(structures), 4)
+        assert len(structures) == 4
         for s in structures:
-            self.assertEqual(s.formula, "Li2 O1")
+            assert s.formula == "Li2 O1"
 
         x.concatenate(self.TEST_FILES_DIR / "XDATCAR_4")
-        self.assertEqual(len(x.structures), 8)
-        self.assertIsNotNone(x.get_string())
+        assert len(x.structures) == 8
+        assert x.get_string() is not None
 
         filepath = self.TEST_FILES_DIR / "XDATCAR_6"
         x = Xdatcar(filepath)
         structures = x.structures
 
-        self.assertNotEqual(structures[0].lattice, structures[-1].lattice)
+        assert structures[0].lattice != structures[-1].lattice
 
 
 class DynmatTest(PymatgenTest):
@@ -1837,14 +1719,14 @@ class DynmatTest(PymatgenTest):
         # nosetests pymatgen/io/vasp/tests/test_outputs.py:DynmatTest.test_init
         filepath = self.TEST_FILES_DIR / "DYNMAT"
         d = Dynmat(filepath)
-        self.assertEqual(d.nspecs, 2)
-        self.assertEqual(d.natoms, 6)
-        self.assertEqual(d.ndisps, 3)
-        self.assertTrue(np.allclose(d.masses, [63.546, 196.966]))
-        self.assertTrue(4 in d.data)
-        self.assertTrue(2 in d.data[4])
-        self.assertTrue(np.allclose(d.data[4][2]["dispvec"], [0.0, 0.05, 0.0]))
-        self.assertTrue(np.allclose(d.data[4][2]["dynmat"][3], [0.055046, -0.298080, 0.0]))
+        assert d.nspecs == 2
+        assert d.natoms == 6
+        assert d.ndisps == 3
+        assert np.allclose(d.masses, [63.546, 196.966])
+        assert 4 in d.data
+        assert 2 in d.data[4]
+        assert np.allclose(d.data[4][2]["dispvec"], [0.0, 0.05, 0.0])
+        assert np.allclose(d.data[4][2]["dynmat"][3], [0.055046, -0.298080, 0.0])
         # TODO: test get_phonon_frequencies once cross-checked
 
 
@@ -1882,38 +1764,38 @@ class WavecarTest(PymatgenTest):
         )
         b = 2 * np.pi * b / vol
 
-        self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2")
-        self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25.0)
-        self.assertEqual(w.nb, 9)
-        self.assertEqual(w.nk, 1)
-        self.assertTrue(np.allclose(w.a, a))
-        self.assertTrue(np.allclose(w.b, b))
-        self.assertAlmostEqual(w.vol, vol)
-        self.assertEqual(len(w.kpoints), w.nk)
-        self.assertEqual(len(w.coeffs), w.nk)
-        self.assertEqual(len(w.coeffs[0]), w.nb)
-        self.assertEqual(len(w.band_energy), w.nk)
-        self.assertEqual(w.band_energy[0].shape, (w.nb, 3))
-        self.assertLessEqual(len(w.Gpoints[0]), 257)
+        assert w.filename == self.TEST_FILES_DIR / "WAVECAR.N2"
+        assert w.efermi == approx(-5.7232, abs=1e-4)
+        assert w.encut == 25.0
+        assert w.nb == 9
+        assert w.nk == 1
+        assert np.allclose(w.a, a)
+        assert np.allclose(w.b, b)
+        assert w.vol == approx(vol)
+        assert len(w.kpoints) == w.nk
+        assert len(w.coeffs) == w.nk
+        assert len(w.coeffs[0]) == w.nb
+        assert len(w.band_energy) == w.nk
+        assert w.band_energy[0].shape == (w.nb, 3)
+        assert len(w.Gpoints[0]) <= 257
         for k in range(w.nk):
             for b in range(w.nb):
-                self.assertEqual(len(w.coeffs[k][b]), len(w.Gpoints[k]))
+                assert len(w.coeffs[k][b]) == len(w.Gpoints[k])
 
         # Test WAVECAR with fractional encut
-        self.assertEqual(self.w_frac_encut.encut, 100.5)
+        assert self.w_frac_encut.encut == 100.5
 
         # Test malformed WAVECARs
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.malformed")
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="poop")
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="g")
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="n")
 
         import sys
@@ -1924,86 +1806,76 @@ class WavecarTest(PymatgenTest):
             out = StringIO()
             sys.stdout = out
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", verbose=True)
-            self.assertNotEqual(out.getvalue().strip(), "")
+            assert out.getvalue().strip() != ""
         finally:
             sys.stdout = saved_stdout
 
     def test_n2_45210(self):
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.45210")
-        self.assertEqual(w.filename, self.TEST_FILES_DIR / "WAVECAR.N2.45210")
-        self.assertAlmostEqual(w.efermi, -5.7232, places=4)
-        self.assertEqual(w.encut, 25.0)
-        self.assertEqual(w.nb, 9)
-        self.assertEqual(w.nk, 1)
-        self.assertTrue(np.allclose(w.a, self.a))
-        self.assertTrue(np.allclose(w.b, self.b))
-        self.assertAlmostEqual(w.vol, self.vol)
-        self.assertEqual(len(w.kpoints), w.nk)
-        self.assertEqual(len(w.coeffs), w.nk)
-        self.assertEqual(len(w.coeffs[0]), w.nb)
-        self.assertEqual(len(w.band_energy), w.nk)
-        self.assertEqual(w.band_energy[0].shape, (w.nb, 3))
-        self.assertLessEqual(len(w.Gpoints[0]), 257)
+        assert w.filename == self.TEST_FILES_DIR / "WAVECAR.N2.45210"
+        assert w.efermi == approx(-5.7232, abs=1e-4)
+        assert w.encut == 25.0
+        assert w.nb == 9
+        assert w.nk == 1
+        assert np.allclose(w.a, self.a)
+        assert np.allclose(w.b, self.b)
+        assert w.vol == approx(self.vol)
+        assert len(w.kpoints) == w.nk
+        assert len(w.coeffs) == w.nk
+        assert len(w.coeffs[0]) == w.nb
+        assert len(w.band_energy) == w.nk
+        assert w.band_energy[0].shape == (w.nb, 3)
+        assert len(w.Gpoints[0]) <= 257
 
     def test_n2_spin(self):
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.spin")
-        self.assertEqual(len(w.coeffs), 2)
-        self.assertEqual(len(w.band_energy), 2)
-        self.assertEqual(len(w.kpoints), w.nk)
-        self.assertEqual(len(w.Gpoints), w.nk)
-        self.assertEqual(len(w.coeffs[0][0]), w.nb)
-        self.assertEqual(len(w.band_energy[0]), w.nk)
+        assert len(w.coeffs) == 2
+        assert len(w.band_energy) == 2
+        assert len(w.kpoints) == w.nk
+        assert len(w.Gpoints) == w.nk
+        assert len(w.coeffs[0][0]) == w.nb
+        assert len(w.band_energy[0]) == w.nk
 
         temp_ggp = Wavecar._generate_G_points
         try:
             Wavecar._generate_G_points = lambda x, y, gamma: []
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2")
         finally:
             Wavecar._generate_G_points = temp_ggp
 
     def test__generate_nbmax(self):
         self.w._generate_nbmax()
-        self.assertEqual(self.w._nbmax.tolist(), [5, 5, 5])
+        assert self.w._nbmax.tolist() == [5, 5, 5]
 
     def test__generate_G_points(self):
         for k in range(self.w.nk):
             kp = self.w.kpoints[k]
-            self.assertLessEqual(len(self.w._generate_G_points(kp)), 257)
+            assert len(self.w._generate_G_points(kp)) <= 257
 
     def test_evaluate_wavefunc(self):
         self.w.Gpoints.append(np.array([0, 0, 0]))
         self.w.kpoints.append(np.array([0, 0, 0]))
         self.w.coeffs.append([[1 + 1j]])
-        self.assertAlmostEqual(
-            self.w.evaluate_wavefunc(-1, -1, [0, 0, 0]),
-            (1 + 1j) / np.sqrt(self.vol),
-            places=4,
-        )
-        self.assertAlmostEqual(
-            self.w.evaluate_wavefunc(0, 0, [0, 0, 0]),
-            np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol),
-            places=4,
+        assert self.w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), abs=1e-4)
+        assert self.w.evaluate_wavefunc(0, 0, [0, 0, 0]) == approx(
+            np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol), abs=1e-4
         )
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.spin")
         w.Gpoints.append(np.array([0, 0, 0]))
         w.kpoints.append(np.array([0, 0, 0]))
         w.coeffs[0].append([[1 + 1j]])
-        self.assertAlmostEqual(
-            w.evaluate_wavefunc(-1, -1, [0, 0, 0]),
-            (1 + 1j) / np.sqrt(self.vol),
-            places=4,
-        )
+        assert w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), abs=1e-4)
 
     def test_fft_mesh_basic(self):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
-        self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
-        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(int))], 0j)
+        assert np.unravel_index(ind, mesh.shape) == (14, 1, 1)
+        assert mesh[tuple((self.w.ng / 2).astype(int))] == 0j
         mesh = self.w.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
-        self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
-        self.assertEqual(mesh[0, 0, 0], 0j)
+        assert np.unravel_index(ind, mesh.shape) == (6, 8, 8)
+        assert mesh[0, 0, 0] == 0j
 
     def test_fft_mesh_advanced(self):
         ik = 0
@@ -2015,7 +1887,7 @@ class WavecarTest(PymatgenTest):
         # check equality of plane-wave coefficients
         ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
         phase = mesh[ind_max] / mesh_gamma[ind_max]
-        self.assertLessEqual(np.max(np.abs(mesh - phase * mesh_gamma)), 1.0e-6)
+        assert np.max(np.abs(mesh - phase * mesh_gamma)) <= 1.0e-6
 
         # transform to real space for further checking
         mesh = np.fft.ifftn(mesh)
@@ -2025,7 +1897,7 @@ class WavecarTest(PymatgenTest):
         # check equality in real space for regular vs. gamma only
         ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
         phase = mesh[ind_max] / mesh_gamma[ind_max]
-        self.assertLessEqual(np.max(np.abs(mesh - phase * mesh_gamma)), 1.0e-6)
+        assert np.max(np.abs(mesh - phase * mesh_gamma)) <= 1.0e-6
 
         # spot check some points in real space
         p1 = (
@@ -2041,112 +1913,104 @@ class WavecarTest(PymatgenTest):
         # check equality of FFT and slow FT for regular mesh (ratio, to account for normalization)
         v1 = self.wH2.evaluate_wavefunc(ik, ib, r1)
         v2 = self.wH2.evaluate_wavefunc(ik, ib, r2)
-        self.assertAlmostEqual(np.abs(mesh[p1]) / np.abs(mesh[p2]), np.abs(v1) / np.abs(v2), places=6)
+        assert np.abs(mesh[p1]) / np.abs(mesh[p2]) == approx(np.abs(v1) / np.abs(v2), abs=1e-6)
 
         # spot check one value that we happen to know from reference run
-        self.assertAlmostEqual(v1, -0.01947068011502887 + 0.23340228099620275j, places=8)
+        assert v1 == approx(-0.01947068011502887 + 0.23340228099620275j, abs=1e-8)
 
         # check equality of FFT and slow FT for gamma-only mesh (ratio again)
         v1_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r1)
         v2_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r2)
-        self.assertAlmostEqual(
-            np.abs(mesh_gamma[p1]) / np.abs(mesh_gamma[p2]),
-            np.abs(v1_gamma) / np.abs(v2_gamma),
-            places=6,
-        )
+        assert np.abs(mesh_gamma[p1]) / np.abs(mesh_gamma[p2]) == approx(np.abs(v1_gamma) / np.abs(v2_gamma), abs=1e-6)
 
         # check equality of FFT and slow FT for ncl mesh (ratio again)
         v1_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r1)
         v2_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r2)
-        self.assertAlmostEqual(
-            np.abs(mesh_ncl[p1]) / np.abs(mesh_ncl[p2]),
-            np.abs(v1_ncl) / np.abs(v2_ncl),
-            places=6,
-        )
+        assert np.abs(mesh_ncl[p1]) / np.abs(mesh_ncl[p2]) == approx(np.abs(v1_ncl) / np.abs(v2_ncl), abs=1e-6)
 
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / "POSCAR")
 
         w = self.w
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" not in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng * 2))
-        self.assertTrue(np.all(c.data["total"] > 0.0))
+        assert "total" in c.data
+        assert "diff" not in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
+        assert np.all(c.data["total"] > 0.0)
 
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" not in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng * 2))
-        self.assertFalse(np.all(c.data["total"] > 0.0))
+        assert "total" in c.data
+        assert "diff" not in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
+        assert not np.all(c.data["total"] > 0.0)
 
         w = Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.spin")
         c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng))
-        self.assertTrue(np.all(c.data["total"] > 0.0))
-        self.assertFalse(np.all(c.data["diff"] > 0.0))
+        assert "total" in c.data
+        assert "diff" in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng)
+        assert np.all(c.data["total"] > 0.0)
+        assert not np.all(c.data["diff"] > 0.0)
 
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" not in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng * 2))
-        self.assertTrue(np.all(c.data["total"] > 0.0))
+        assert "total" in c.data
+        assert "diff" not in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
+        assert np.all(c.data["total"] > 0.0)
 
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" not in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng * 2))
-        self.assertFalse(np.all(c.data["total"] > 0.0))
+        assert "total" in c.data
+        assert "diff" not in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
+        assert not np.all(c.data["total"] > 0.0)
 
         w = self.w_ncl
         w.coeffs.append([np.ones((2, 100))])
         c = w.get_parchg(poscar, -1, 0, phase=False, spinor=None)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" not in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng * 2))
-        self.assertFalse(np.all(c.data["total"] > 0.0))
+        assert "total" in c.data
+        assert "diff" not in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
+        assert not np.all(c.data["total"] > 0.0)
 
         c = w.get_parchg(poscar, -1, 0, phase=True, spinor=0)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" not in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng * 2))
-        self.assertFalse(np.all(c.data["total"] > 0.0))
+        assert "total" in c.data
+        assert "diff" not in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
+        assert not np.all(c.data["total"] > 0.0)
 
         w.coeffs[-1] = [np.zeros((2, 100))]
         c = w.get_parchg(poscar, -1, 0, phase=False, spinor=1)
-        self.assertTrue("total" in c.data)
-        self.assertTrue("diff" not in c.data)
-        self.assertEqual(np.prod(c.data["total"].shape), np.prod(w.ng * 2))
-        self.assertTrue(np.allclose(c.data["total"], 0.0))
+        assert "total" in c.data
+        assert "diff" not in c.data
+        assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
+        assert np.allclose(c.data["total"], 0.0)
 
     def test_write_unks(self):
         unk_std = Unk.from_file(self.TEST_FILES_DIR / "UNK.N2.std")
         unk_ncl = Unk.from_file(self.TEST_FILES_DIR / "UNK.H2.ncl")
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.w.write_unks(self.TEST_FILES_DIR / "UNK.N2.std")
 
         # different grids
         with ScratchDir("."):
             self.w.write_unks("./unk_dir")
-            self.assertEqual(len(list(Path("./unk_dir").glob("UNK*"))), 1)
+            assert len(list(Path("./unk_dir").glob("UNK*"))) == 1
             unk = Unk.from_file("./unk_dir/UNK00001.1")
-            self.assertNotEqual(unk, unk_std)
+            assert unk != unk_std
 
         # correct grid
         self.w.ng = np.array([12, 12, 12])
         with ScratchDir("."):
             self.w.write_unks(".")
             unk = Unk.from_file("UNK00001.1")
-            self.assertEqual(unk, unk_std)
+            assert unk == unk_std
 
         # ncl test
         with ScratchDir("."):
             self.w_ncl.write_unks(".")
             unk = Unk.from_file("UNK00001.NC")
-            self.assertEqual(unk, unk_ncl)
+            assert unk == unk_ncl
 
 
 class EigenvalTest(PymatgenTest):
@@ -2154,45 +2018,45 @@ class EigenvalTest(PymatgenTest):
 
     def test_init(self):
         eig = Eigenval(self.TEST_FILES_DIR / "EIGENVAL.gz")
-        self.assertEqual(eig.ispin, 1)
-        self.assertEqual(eig.nkpt, len(eig.kpoints))
-        self.assertEqual(eig.nkpt, len(eig.kpoints_weights))
-        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.up].shape[0])
-        self.assertEqual(eig.nelect, 16)
-        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.up].shape[1])
-        self.assertTrue(np.max(eig.eigenvalues[Spin.up]) > 0)
-        self.assertTrue(np.min(eig.eigenvalues[Spin.up]) < 0)
+        assert eig.ispin == 1
+        assert eig.nkpt == len(eig.kpoints)
+        assert eig.nkpt == len(eig.kpoints_weights)
+        assert eig.nkpt == eig.eigenvalues[Spin.up].shape[0]
+        assert eig.nelect == 16
+        assert eig.nbands == eig.eigenvalues[Spin.up].shape[1]
+        assert np.max(eig.eigenvalues[Spin.up]) > 0
+        assert np.min(eig.eigenvalues[Spin.up]) < 0
 
     def test_ispin2(self):
         eig = Eigenval(self.TEST_FILES_DIR / "EIGENVAL.ispin2.gz")
-        self.assertEqual(eig.ispin, 2)
-        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.up].shape[0])
-        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.up].shape[1])
-        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.down].shape[0])
-        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.down].shape[1])
+        assert eig.ispin == 2
+        assert eig.nkpt == eig.eigenvalues[Spin.up].shape[0]
+        assert eig.nbands == eig.eigenvalues[Spin.up].shape[1]
+        assert eig.nkpt == eig.eigenvalues[Spin.down].shape[0]
+        assert eig.nbands == eig.eigenvalues[Spin.down].shape[1]
 
     def test_eigenvalue_band_properties(self):
         eig = Eigenval(self.TEST_FILES_DIR / "EIGENVAL.gz")
         props = eig.eigenvalue_band_properties
-        self.assertAlmostEqual(props[0], 6.4153, places=4)
-        self.assertAlmostEqual(props[1], 7.5587, places=4)
-        self.assertAlmostEqual(props[2], 1.1434, places=4)
-        self.assertEqual(props[3], False)
+        assert props[0] == approx(6.4153, abs=1e-4)
+        assert props[1] == approx(7.5587, abs=1e-4)
+        assert props[2] == approx(1.1434, abs=1e-4)
+        assert props[3] is False
 
     def test_eigenvalue_band_properties_separate_spins(self):
         eig = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=True)
         props = eig.eigenvalue_band_properties
         eig2 = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=False)
         props2 = eig2.eigenvalue_band_properties
-        self.assertAlmostEqual(props[0][0], 2.8772, places=4)
-        self.assertAlmostEqual(props[0][1], 1.2810, places=4)
-        self.assertAlmostEqual(props[1][0], 3.6741, places=4)
-        self.assertAlmostEqual(props[1][1], 1.6225, places=4)
-        self.assertAlmostEqual(props[2][0], 0.7969, places=4)
-        self.assertAlmostEqual(props[2][1], 0.3415, places=4)
-        self.assertAlmostEqual(props2[0], np.min(props[1]) - np.max(props[2]), places=4)
-        self.assertEqual(props[3][0], True)
-        self.assertEqual(props[3][1], True)
+        assert props[0][0] == approx(2.8772, abs=1e-4)
+        assert props[0][1] == approx(1.2810, abs=1e-4)
+        assert props[1][0] == approx(3.6741, abs=1e-4)
+        assert props[1][1] == approx(1.6225, abs=1e-4)
+        assert props[2][0] == approx(0.7969, abs=1e-4)
+        assert props[2][1] == approx(0.3415, abs=1e-4)
+        assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
+        assert props[3][0] is True
+        assert props[3][1] is True
 
 
 class WavederTest(PymatgenTest):
@@ -2200,15 +2064,15 @@ class WavederTest(PymatgenTest):
 
     def setUp(self):
         wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER", "float64")
-        self.assertEqual(wder.nbands, 36)
-        self.assertEqual(wder.nkpoints, 56)
+        assert wder.nbands == 36
+        assert wder.nkpoints == 56
         band_i = 0
         band_j = 0
         kp_index = 0
         spin_index = 0
         cart_dir_index = 0
         cder = wder.get_orbital_derivative_between_states(band_i, band_j, kp_index, spin_index, cart_dir_index)
-        self.assertAlmostEqual(cder, -1.33639226092e-103, places=114)
+        assert cder == approx(-1.33639226092e-103, abs=1e-114)
 
     def test_consistency(self):
         wder_ref = np.loadtxt(self.TEST_FILES_DIR / "WAVEDERF.Si", skiprows=1)
@@ -2216,20 +2080,18 @@ class WavederTest(PymatgenTest):
         def _check(wder):
             with open(self.TEST_FILES_DIR / "WAVEDERF.Si") as f:
                 first_line = [int(a) for a in f.readline().split()]
-            self.assertEqual(wder.nkpoints, first_line[1])
-            self.assertEqual(wder.nbands, first_line[2])
+            assert wder.nkpoints == first_line[1]
+            assert wder.nbands == first_line[2]
             for i in range(10):
-                self.assertAlmostEqual(
-                    first=wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real,
-                    second=wder_ref[i, 6],
-                    places=10,
+                assert wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real == approx(
+                    wder_ref[i, 6], abs=1e-10
                 )
-                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 0].real, wder_ref[i, 6], places=10)
-                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 0].imag, wder_ref[i, 7], places=10)
-                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 1].real, wder_ref[i, 8], places=10)
-                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 1].imag, wder_ref[i, 9], places=10)
-                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].real, wder_ref[i, 10], places=10)
-                self.assertAlmostEqual(wder.cder[0, i, 0, 0, 2].imag, wder_ref[i, 11], places=10)
+                assert wder.cder[0, i, 0, 0, 0].real == approx(wder_ref[i, 6], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 0].imag == approx(wder_ref[i, 7], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 1].real == approx(wder_ref[i, 8], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 1].imag == approx(wder_ref[i, 9], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 2].real == approx(wder_ref[i, 10], abs=1e-10)
+                assert wder.cder[0, i, 0, 0, 2].imag == approx(wder_ref[i, 11], abs=1e-10)
 
         wder = Waveder.from_binary(self.TEST_FILES_DIR / "WAVEDER.Si")
         _check(wder)
@@ -2244,12 +2106,12 @@ class WSWQTest(PymatgenTest):
         self.wswq = WSWQ.from_file(self.TEST_FILES_DIR / "WSWQ.gz")
 
     def test_consistency(self):
-        self.assertEqual(True, True)
-        self.assertEqual(self.wswq.nbands, 18)
-        self.assertEqual(self.wswq.nkpoints, 20)
-        self.assertEqual(self.wswq.nspin, 2)
-        self.assertEqual(self.wswq.me_real.shape, (2, 20, 18, 18))
-        self.assertEqual(self.wswq.me_imag.shape, (2, 20, 18, 18))
+        assert True is True
+        assert self.wswq.nbands == 18
+        assert self.wswq.nkpoints == 20
+        assert self.wswq.nspin == 2
+        assert self.wswq.me_real.shape == (2, 20, 18, 18)
+        assert self.wswq.me_imag.shape == (2, 20, 18, 18)
         for itr, (r, i) in enumerate(zip(self.wswq.me_real[0][0][4], self.wswq.me_imag[0][0][4])):
             if itr == 4:
                 assert np.linalg.norm([r, i]) > 0.999

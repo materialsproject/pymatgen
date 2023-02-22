@@ -8,13 +8,6 @@ Created on Jan 24, 2012
 
 from __future__ import annotations
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jan 24, 2012"
-
 import os
 import unittest
 
@@ -23,10 +16,16 @@ from pymatgen.io.cssr import Cssr
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Jan 24, 2012"
+
 
 class CssrTest(unittest.TestCase):
     def setUp(self):
-
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.cssr = Cssr(p.structure)
@@ -60,12 +59,12 @@ class CssrTest(unittest.TestCase):
 22 O 0.8343 0.9539 0.7146
 23 O 0.9034 0.7500 0.2587
 24 O 0.9566 0.2500 0.2929"""
-        self.assertEqual(str(self.cssr), expected_string)
+        assert str(self.cssr) == expected_string
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
         cssr = Cssr.from_file(filename)
-        self.assertIsInstance(cssr.structure, Structure)
+        assert isinstance(cssr.structure, Structure)
 
 
 if __name__ == "__main__":

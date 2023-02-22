@@ -6,6 +6,8 @@ from __future__ import annotations
 import os
 
 import numpy as np
+import pytest
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
@@ -27,7 +29,7 @@ from pymatgen.util.testing import PymatgenTest
 class LatticeFromAbivarsTest(PymatgenTest):
     def test_rprim_acell(self):
         l1 = lattice_from_abivars(acell=3 * [10], rprim=np.eye(3))
-        self.assertAlmostEqual(l1.volume, bohr_to_ang**3 * 1000)
+        assert l1.volume == approx(bohr_to_ang**3 * 1000)
         assert l1.angles == (90, 90, 90)
         l2 = lattice_from_abivars(acell=3 * [10], angdeg=(90, 90, 90))
         assert l1 == l2
@@ -72,14 +74,13 @@ class LatticeFromAbivarsTest(PymatgenTest):
         )
         self.assertArrayAlmostEqual(l3.matrix, abi_rprimd)
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(-90, 90, 90))
 
     def test_znucl_typat(self):
         """Test the order of typat and znucl in the Abinit input and enforce_typat, enforce_znucl."""
-
         # Ga  Ga1  1  0.33333333333333  0.666666666666667  0.500880  1.0
         # Ga  Ga2  1  0.66666666666667  0.333333333333333  0.000880  1.0
         # N  N3  1  0.333333333333333  0.666666666666667  0.124120  1.0
@@ -106,7 +107,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
         for itype1, itype2 in zip(def_typat, enforce_typat):
             assert def_znucl[itype1 - 1] == enforce_znucl[itype2 - 1]
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=None)
 
 
@@ -118,9 +119,9 @@ class SpinModeTest(PymatgenTest):
 
         polarized.to_abivars()
 
-        self.assertTrue(polarized is other_polarized)
-        self.assertTrue(polarized == other_polarized)
-        self.assertTrue(polarized != unpolarized)
+        assert polarized is other_polarized
+        assert polarized == other_polarized
+        assert polarized != unpolarized
 
         # Test pickle
         self.serialize_with_pickle(polarized)
@@ -135,21 +136,21 @@ class SmearingTest(PymatgenTest):
         fd1ev = Smearing.as_smearing("fermi_dirac:1 eV")
         fd1ev.to_abivars()
 
-        self.assertTrue(fd1ev)
+        assert fd1ev
 
         same_fd = Smearing.as_smearing("fermi_dirac:" + str(1.0 / Ha_to_eV))
 
-        self.assertTrue(same_fd == fd1ev)
+        assert same_fd == fd1ev
 
         nosmear = Smearing.nosmearing()
         assert nosmear == Smearing.as_smearing("nosmearing")
 
-        self.assertFalse(nosmear)
-        self.assertTrue(nosmear != fd1ev)
+        assert not nosmear
+        assert nosmear != fd1ev
         self.assertMSONable(nosmear)
 
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
-        self.assertTrue(new_fd1ev == fd1ev)
+        assert new_fd1ev == fd1ev
 
         # Test pickle
         self.serialize_with_pickle(fd1ev)
@@ -173,9 +174,9 @@ class ElectronsAlgorithmTest(PymatgenTest):
 class ElectronsTest(PymatgenTest):
     def test_base(self):
         default_electrons = Electrons()
-        self.assertTrue(default_electrons.nsppol == 2)
-        self.assertTrue(default_electrons.nspinor == 1)
-        self.assertTrue(default_electrons.nspden == 2)
+        assert default_electrons.nsppol == 2
+        assert default_electrons.nspinor == 1
+        assert default_electrons.nspden == 2
 
         _ = default_electrons.to_abivars()
 
@@ -227,17 +228,17 @@ class PPModelTest(PymatgenTest):
         # print(godby)
         # print(repr(godby))
         godby.to_abivars()
-        self.assertTrue(godby)
+        assert godby
 
         same_godby = PPModel.as_ppmodel("godby:" + str(12.0 / Ha_to_eV))
-        self.assertTrue(same_godby == godby)
+        assert same_godby == godby
 
         noppm = PPModel.get_noppmodel()
 
-        self.assertFalse(noppm)
-        self.assertTrue(noppm != godby)
+        assert not noppm
+        assert noppm != godby
         new_godby = PPModel.from_dict(godby.as_dict())
-        self.assertTrue(new_godby == godby)
+        assert new_godby == godby
 
         # Test pickle
         self.serialize_with_pickle(godby)

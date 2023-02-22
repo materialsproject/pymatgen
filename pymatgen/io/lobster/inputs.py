@@ -176,7 +176,6 @@ class Lobsterin(dict, MSONable):
 
                 if isinstance(v1, str):
                     if v1.strip().lower() != other[new_key].strip().lower():
-
                         different_param[k1.upper()] = {
                             "lobsterin1": v1,
                             "lobsterin2": other[new_key],
@@ -203,10 +202,7 @@ class Lobsterin(dict, MSONable):
         for k2, v2 in other.items():
             if k2.upper() not in similar_param and k2.upper() not in different_param:
                 for key_here in self:
-                    if k2.lower() == key_here.lower():
-                        new_key = key_here
-                    else:
-                        new_key = k2
+                    new_key = key_here if k2.lower() == key_here.lower() else k2
                 if new_key not in self:
                     different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
@@ -872,7 +868,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
                     if not isinstance(elbasis, list):
                         new_start_basis.append([elbasis, elbasis2])
                     else:
-                        new_start_basis.append(elbasis.copy() + [elbasis2])
+                        new_start_basis.append([*elbasis.copy(), elbasis2])
             start_basis = new_start_basis
         return start_basis
     return [[basis] for basis in start_basis]

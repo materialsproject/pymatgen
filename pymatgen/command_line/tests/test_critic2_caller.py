@@ -7,6 +7,8 @@ import os
 import unittest
 from shutil import which
 
+from pytest import approx
+
 from pymatgen.command_line.critic2_caller import Critic2Analysis, Critic2Caller
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
@@ -28,17 +30,17 @@ class Critic2CallerTest(unittest.TestCase):
         c2c = Critic2Caller.from_path(test_dir)
 
         # check we have some results!
-        self.assertGreaterEqual(len(c2c._stdout), 500)
+        assert len(c2c._stdout) >= 500
 
         c2o = c2c.output
 
         # check we get our structure graph
         sg = c2o.structure_graph(include_critical_points=None)
-        self.assertEqual(sg.get_coordination_of_site(0), 4)
+        assert sg.get_coordination_of_site(0) == 4
 
         # check yt integration
-        self.assertAlmostEqual(c2o.structure.site_properties["bader_volume"][0], 66.0148355)
-        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge"][0], 12.2229131)
+        assert c2o.structure.site_properties["bader_volume"][0] == approx(66.0148355)
+        assert c2o.structure.site_properties["bader_charge"][0] == approx(12.2229131)
 
         # test zpsp functionality
         # this is normally picked up from POTCARs, but since POTCARs not checked in with the
@@ -48,16 +50,16 @@ class Critic2CallerTest(unittest.TestCase):
         c2o = Critic2Analysis.from_dict(c2o_dict)
         # note: these values don't seem sensible physically, but seem to be correct with
         # respect to the input files (possibly bad/underconverged source data)
-        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge_transfer"][0], 4.2229131)
+        assert c2o.structure.site_properties["bader_charge_transfer"][0] == approx(4.2229131)
 
         # alternatively, can also set when we do the analysis, but note that this will change
         # the analysis performed since augmentation charges are added in core regions
         c2c = Critic2Caller.from_path(test_dir, zpsp={"Fe": 8.0, "O": 6.0})
 
         # check yt integration
-        self.assertAlmostEqual(c2o.structure.site_properties["bader_volume"][0], 66.0148355)
-        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge"][0], 12.2229131)
-        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge_transfer"][0], 4.2229131)
+        assert c2o.structure.site_properties["bader_volume"][0] == approx(66.0148355)
+        assert c2o.structure.site_properties["bader_charge"][0] == approx(12.2229131)
+        assert c2o.structure.site_properties["bader_charge_transfer"][0] == approx(4.2229131)
 
     def test_from_structure(self):
         # uses promolecular density
@@ -71,7 +73,7 @@ class Critic2CallerTest(unittest.TestCase):
         c2c = Critic2Caller.from_chgcar(structure)
 
         # check we have some results!
-        self.assertGreaterEqual(len(c2c._stdout), 500)
+        assert len(c2c._stdout) >= 500
 
 
 class Critic2AnalysisTest(unittest.TestCase):
@@ -91,14 +93,13 @@ class Critic2AnalysisTest(unittest.TestCase):
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)
 
     def test_properties_to_from_dict(self):
+        assert len(self.c2o.critical_points) == 6
+        assert len(self.c2o.nodes) == 14
+        assert len(self.c2o.edges) == 10
 
-        self.assertEqual(len(self.c2o.critical_points), 6)
-        self.assertEqual(len(self.c2o.nodes), 14)
-        self.assertEqual(len(self.c2o.edges), 10)
-
-        self.assertEqual(len(self.c2o_new_format.critical_points), 6)
-        self.assertEqual(len(self.c2o_new_format.nodes), 14)
-        self.assertEqual(len(self.c2o_new_format.edges), 10)
+        assert len(self.c2o_new_format.critical_points) == 6
+        assert len(self.c2o_new_format.nodes) == 14
+        assert len(self.c2o_new_format.edges) == 10
 
         # reference dictionary for c2o.critical_points[0].as_dict()
         # {'@class': 'CriticalPoint',
@@ -115,41 +116,37 @@ class Critic2AnalysisTest(unittest.TestCase):
         #  'point_group': 'D3h',
         #  'type': < CriticalPointType.nucleus: 'nucleus' >}
 
-        self.assertEqual(str(self.c2o.critical_points[0].type), "CriticalPointType.nucleus")
+        assert str(self.c2o.critical_points[0].type) == "CriticalPointType.nucleus"
 
         # test connectivity
-        self.assertDictEqual(
-            self.c2o.edges[3],
-            {"from_idx": 1, "from_lvec": (0, 0, 0), "to_idx": 0, "to_lvec": (1, 0, 0)},
-        )
+        assert self.c2o.edges[3] == {"from_idx": 1, "from_lvec": (0, 0, 0), "to_idx": 0, "to_lvec": (1, 0, 0)}
         # test as/from dict
         d = self.c2o.as_dict()
-        self.assertEqual(
-            set(d),
-            {
-                "@module",
-                "@class",
-                "@version",
-                "structure",
-                "stdout",
-                "stderr",
-                "cpreport",
-                "yt",
-                "zpsp",
-            },
-        )
+        assert set(d) == {
+            "@module",
+            "@class",
+            "@version",
+            "structure",
+            "stdout",
+            "stderr",
+            "cpreport",
+            "yt",
+            "zpsp",
+        }
         self.c2o.from_dict(d)
 
     def test_graph_output(self):
-
         sg = self.c2o.structure_graph()
-        self.assertEqual(str(sg.structure[3].specie), "Xbcp")
-        self.assertSetEqual(
-            set(list(sg.graph.edges(data=True))[0][2]),
-            {"to_jimage", "weight", "field", "laplacian", "ellipticity", "frac_coords"},
-        )
+        assert str(sg.structure[3].specie) == "Xbcp"
+        assert set(list(sg.graph.edges(data=True))[0][2]) == {
+            "to_jimage",
+            "weight",
+            "field",
+            "laplacian",
+            "ellipticity",
+            "frac_coords",
+        }
 
 
 if __name__ == "__main__":
-
     unittest.main()

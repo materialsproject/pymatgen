@@ -44,10 +44,10 @@ class NeighborTest(PymatgenTest):
     def test_msonable(self):
         s = PymatgenTest.get_structure("Li2O")
         nn = s.get_neighbors(s[0], r=3)
-        self.assertIsInstance(nn[0], PeriodicNeighbor)
+        assert isinstance(nn[0], PeriodicNeighbor)
         str_ = json.dumps(nn, cls=MontyEncoder)
         nn = json.loads(str_, cls=MontyDecoder)
-        self.assertIsInstance(nn[0], PeriodicNeighbor)
+        assert isinstance(nn[0], PeriodicNeighbor)
 
 
 class IStructureTest(PymatgenTest):
@@ -110,11 +110,11 @@ class IStructureTest(PymatgenTest):
         struct = self.struct
         assert struct == struct
         assert struct == struct.copy()
-        assert not struct == 2 * struct
+        assert struct != 2 * struct
 
-        assert not struct == "a" * len(struct)  # GH-2584
+        assert struct != "a" * len(struct)  # GH-2584
         assert struct is not None
-        assert not struct == 42  # GH-2587
+        assert struct != 42  # GH-2587
 
         assert struct == Structure.from_dict(struct.as_dict())
 
@@ -221,7 +221,6 @@ class IStructureTest(PymatgenTest):
         assert "xyz" not in d["sites"][0]
 
     def test_from_dict(self):
-
         d = self.propertied_structure.as_dict()
         s = IStructure.from_dict(d)
         assert s[0].magmom == 5
@@ -501,7 +500,7 @@ class IStructureTest(PymatgenTest):
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for idx, site in enumerate(s):
-            assert 4 == len(all_nn[idx][0])
+            assert len(all_nn[idx][0]) == 4
             assert len(all_nn[idx]) == len(s.get_neighbors(site, r))
 
         for site, nns in zip(s, all_nn):
@@ -780,7 +779,7 @@ class StructureTest(PymatgenTest):
 
     def test_non_hash(self):
         with pytest.raises(TypeError):
-            dict([(self.structure, 1)])
+            {self.structure: 1}
 
     def test_sort(self):
         s = self.structure
@@ -915,7 +914,6 @@ class StructureTest(PymatgenTest):
             assert i.specie in [Species("Li", 1), Species("O", -2)]
 
     def test_add_remove_spin_states(self):
-
         latt = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1124,7 +1122,6 @@ class StructureTest(PymatgenTest):
         assert len(s) == 8
 
     def test_from_magnetic_spacegroup(self):
-
         # AFM MnF
         s1 = Structure.from_magnetic_spacegroup(
             "P4_2'/mnm'",
@@ -1650,7 +1647,7 @@ class MoleculeTest(PymatgenTest):
         mol.append("N", [1, 1, 1])
         assert mol.formula == "H3 C1 N1 O1"
         with pytest.raises(TypeError):
-            dict([(mol, 1)])
+            {mol: 1}
         mol.remove_sites([0, 1])
         assert mol.formula == "H3 N1"
 
@@ -1764,7 +1761,7 @@ class MoleculeTest(PymatgenTest):
 
     def test_extract_cluster(self):
         species = self.mol.species * 2
-        coords = list(self.mol.cart_coords) + list(self.mol.cart_coords + [10, 0, 0])
+        coords = [*self.mol.cart_coords, *(self.mol.cart_coords + [10, 0, 0])]  # noqa: RUF005
         mol = Molecule(species, coords)
         cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         assert mol.formula == "H8 C2"

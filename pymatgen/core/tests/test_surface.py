@@ -193,7 +193,6 @@ class SlabTest(PymatgenTest):
             self.assertArrayAlmostEqual(r1, r2)
 
     def test_symmetrization(self):
-
         # Restricted to primitive_elemental materials due to the risk of
         # broken stoichiometry. For compound materials, use is_polar()
 
@@ -232,7 +231,6 @@ class SlabTest(PymatgenTest):
         all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
 
         for slabs in all_slabs:
-
             asymmetric_count = 0
             symmetric_count = 0
 
@@ -254,7 +252,6 @@ class SlabTest(PymatgenTest):
         assert len(all_non_laue_slabs) > 0
 
     def test_get_symmetric_sites(self):
-
         # Check to see if we get an equivalent site on one
         # surface if we add a new site to the other surface
 
@@ -287,7 +284,6 @@ class SlabTest(PymatgenTest):
             assert sg.is_laue()
 
     def test_oriented_unit_cell(self):
-
         # Check to see if we get the fully reduced oriented unit
         # cell. This will also ensure that the constrain_latt
         # parameter for get_primitive_structure is working properly
@@ -304,7 +300,6 @@ class SlabTest(PymatgenTest):
             assert len(slab) >= len(ouc)
 
     def test_get_slab_regions(self):
-
         # If a slab layer in the slab cell is not completely inside
         # the cell (noncontiguous), check that get_slab_regions will
         # be able to identify where the slab layers are located
@@ -358,7 +353,6 @@ class SlabTest(PymatgenTest):
 
 class SlabGeneratorTest(PymatgenTest):
     def setUp(self):
-
         lattice = Lattice.cubic(3.010)
         frac_coords = [
             [0.00000, 0.00000, 0.00000],
@@ -608,7 +602,6 @@ class SlabGeneratorTest(PymatgenTest):
             assert len(s) > len(self.Dy)
 
     def test_move_to_other_side(self):
-
         # Tests to see if sites are added to opposite side
         s = self.get_structure("LiFePO4")
         slabgen = SlabGenerator(s, (0, 0, 1), 10, 10, center_slab=True)
@@ -649,7 +642,6 @@ class SlabGeneratorTest(PymatgenTest):
 
 class ReconstructionGeneratorTests(PymatgenTest):
     def setUp(self):
-
         l = Lattice.cubic(3.51)
         species = ["Ni"]
         coords = [[0, 0, 0]]
@@ -670,7 +662,6 @@ class ReconstructionGeneratorTests(PymatgenTest):
             self.rec_archive = json.load(data_file)
 
     def test_build_slab(self):
-
         # First lets test a reconstruction where we only remove atoms
         recon = ReconstructionGenerator(self.Ni, 10, 10, "fcc_110_missing_row_1x2")
         slab = recon.get_unreconstructed_slabs()[0]
@@ -710,7 +701,6 @@ class ReconstructionGeneratorTests(PymatgenTest):
         # different reconstructions with a non-primitive_elemental system
 
     def test_get_d(self):
-
         # Ensure that regardless of the size of the vacuum or slab
         # layer, the spacing between atomic layers should be the same
 
@@ -723,7 +713,6 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
     @unittest.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):
-
         # Test to see if we generated all reconstruction types correctly and nothing changes
 
         m = StructureMatcher()
@@ -778,7 +767,6 @@ class MillerIndexFinderTests(PymatgenTest):
         )
 
     def test_get_symmetrically_distinct_miller_indices(self):
-
         # Tests to see if the function obtains the known number of unique slabs
 
         indices = get_symmetrically_distinct_miller_indices(self.cscl, 1)
@@ -804,10 +792,9 @@ class MillerIndexFinderTests(PymatgenTest):
         # Now try a trigonal system.
         indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2, return_hkil=True)
         assert len(indices) == 17
-        assert all([len(hkl) == 4 for hkl in indices])
+        assert all(len(hkl) == 4 for hkl in indices)
 
     def test_get_symmetrically_equivalent_miller_indices(self):
-
         # Tests to see if the function obtains all equivalent hkl for cubic (100)
         indices001 = [
             (1, 0, 0),
@@ -818,17 +805,16 @@ class MillerIndexFinderTests(PymatgenTest):
             (-1, 0, 0),
         ]
         indices = get_symmetrically_equivalent_miller_indices(self.cscl, (1, 0, 0))
-        assert all([hkl in indices for hkl in indices001])
+        assert all(hkl in indices for hkl in indices001)
 
         # Tests to see if it captures expanded Miller indices in the family e.g. (001) == (002)
         hcp_indices_100 = get_symmetrically_equivalent_miller_indices(self.Mg, (1, 0, 0))
         hcp_indices_200 = get_symmetrically_equivalent_miller_indices(self.Mg, (2, 0, 0))
         assert len(hcp_indices_100) * 2 == len(hcp_indices_200)
         assert len(hcp_indices_100) == 6
-        assert all([len(hkl) == 4 for hkl in hcp_indices_100])
+        assert all(len(hkl) == 4 for hkl in hcp_indices_100)
 
     def test_generate_all_slabs(self):
-
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
         # Only three possible slabs, one each in (100), (110) and (111).
         assert len(slabs) == 3
@@ -887,7 +873,6 @@ class MillerIndexFinderTests(PymatgenTest):
 
     def test_miller_index_from_sites(self):
         """Test surface miller index convenience function"""
-
         # test on a cubic system
         m = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])

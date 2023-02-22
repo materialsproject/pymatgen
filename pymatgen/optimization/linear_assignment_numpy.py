@@ -9,14 +9,14 @@ as it is vectorized in numpy rather than cython
 
 from __future__ import annotations
 
+import numpy as np
+
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Jan 28, 2013"
-
-import numpy as np
 
 
 class LinearAssignment:
@@ -49,7 +49,7 @@ class LinearAssignment:
                 rectangular
             epsilon: Tolerance for determining if solution vector is < 0
         """
-        self.orig_c = np.array(costs, dtype=np.float64)
+        self.orig_c = np.array(costs, dtype=np.float_)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
         self._inds = np.arange(self.n)
@@ -72,7 +72,7 @@ class LinearAssignment:
             self.c[: self.nx] = self.orig_c
 
         # initialize solution vectors
-        self._x = np.zeros(self.n, dtype=int) - 1
+        self._x = np.zeros(self.n, dtype=np.int_) - 1
         self._y = self._x.copy()
 
         # if column reduction doesn't find a solution, augment with shortest
@@ -196,7 +196,7 @@ class LinearAssignment:
 
         # compute distances
         self._d = self.c[istar] - self._v
-        _pred = np.zeros(self.n, dtype=int) + istar
+        _pred = np.zeros(self.n, dtype=np.int_) + istar
 
         # initialize sets
         # READY: set of nodes visited and in the path (whose price gets
@@ -204,9 +204,9 @@ class LinearAssignment:
         # SCAN: set of nodes at the bottom of the tree, which we need to
         # look at
         # T0DO: unvisited nodes
-        _ready = np.zeros(self.n, dtype=bool)
-        _scan = np.zeros(self.n, dtype=bool)
-        _todo = np.zeros(self.n, dtype=bool) + True
+        _ready = np.zeros(self.n, dtype=np.bool_)
+        _scan = np.zeros(self.n, dtype=np.bool_)
+        _todo = np.zeros(self.n, dtype=np.bool_) + True
 
         while True:
             # populate scan with minimum reduced distances
