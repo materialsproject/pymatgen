@@ -109,9 +109,8 @@ class Keyword(MSONable):
         if self.name.upper() == other.name.upper():
             v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]
             v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]
-            if v1 == v2:
-                if self.units == self.units:
-                    return True
+            if v1 == v2 and self.units == self.units:
+                return True
         return False
 
     def __add__(self, other):
@@ -796,7 +795,7 @@ class Cp2kInput(Section):
         current = self.name
         description = ""
         for line in lines:
-            if line.startswith("!") or line.startswith("#"):
+            if line.startswith(("!", "#")):
                 description += line[1:].strip()
             elif line.upper().startswith("&END"):
                 current = "/".join(current.split("/")[:-1])
@@ -1897,10 +1896,7 @@ class BrokenSymmetry(Section):
         n_beta = []
         unpaired_orbital = None
         while tmp:
-            if tmp > 0:
-                tmp2 = -min((esv[0][2], tmp))
-            else:
-                tmp2 = min((f2(esv[0][1]) - esv[0][2], -tmp))
+            tmp2 = -min((esv[0][2], tmp)) if tmp > 0 else min((f2(esv[0][1]) - esv[0][2], -tmp))
             l_alpha.append(esv[0][1])
             l_beta.append(esv[0][1])
             nel_alpha.append(tmp2)
@@ -2317,10 +2313,7 @@ class BasisInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        for k, v in d1.items():
-            if v is not None and v != d2[k]:
-                return False
-        return True
+        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
     def from_string(cls, string: str) -> BasisInfo:
@@ -2419,10 +2412,7 @@ class AtomicMetadata(MSONable):
         other_names = [other.name]
         if other.alias_names:
             other_names.extend(other.alias_names)
-        for nm in this_names:
-            if nm is not None and nm not in other_names:
-                return False
-        return True
+        return all(not (nm is not None and nm not in other_names) for nm in this_names)
 
     def get_hash(self) -> str:
         """Get a hash of this object"""
@@ -2541,7 +2531,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
                     _info[k] = v
         info = BasisInfo.from_dict(_info)
         potential: Literal["All Electron", "Pseudopotential"]
-        if any("ALL" in x for x in [name] + aliases):
+        if any("ALL" in x for x in [name, *aliases]):
             info.electrons = element.Z
             potential = "All Electron"
         else:
@@ -2556,7 +2546,6 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
         line_index = 2
         for set_index in range(nset):
-
             setinfo = lines[line_index].split()
             _n, _lmin, _lmax, _nexp = map(int, setinfo[0:4])
             n.append(_n)
@@ -2625,10 +2614,7 @@ class PotentialInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        for k, v in d1.items():
-            if v is not None and v != d2[k]:
-                return False
-        return True
+        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
     def from_string(cls, string):
@@ -2788,7 +2774,7 @@ class GthPotential(AtomicMetadata):
                     info[k] = v
         info = PotentialInfo.from_dict(info)
         potential: Literal["All Electron", "Pseudopotential"]
-        if any("ALL" in x for x in [name] + aliases):
+        if any("ALL" in x for x in [name, *aliases]):
             potential = "All Electron"
             info.electrons = Element(element).Z
         else:
@@ -2821,7 +2807,7 @@ class GthPotential(AtomicMetadata):
 
             L = 1
             i += 1
-            while L < nprj_ppnl[l]:
+            while nprj_ppnl[l] > L:
                 line2 = list(map(float, lines[i].split()))
                 hprj_ppnl[l][L] = {j: float(ln) for j, ln in enumerate(line2)}
                 i += 1

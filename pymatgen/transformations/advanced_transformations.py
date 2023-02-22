@@ -234,10 +234,7 @@ class MultipleSubstitutionTransformation:
             )
         outputs = []
         for charge, el_list in self.substitution_dict.items():
-            if charge > 0:
-                sign = "+"
-            else:
-                sign = "-"
+            sign = "+" if charge > 0 else "-"
             dummy_sp = f"X{charge}{sign}"
             mapping = {
                 self.sp_to_replace: {
@@ -255,10 +252,7 @@ class MultipleSubstitutionTransformation:
                 dummy_structure = trans.apply_transformation(dummy_structure)
 
             for el in el_list:
-                if charge > 0:
-                    sign = "+"
-                else:
-                    sign = "-"
+                sign = "+" if charge > 0 else "-"
                 st = SubstitutionTransformation({f"X{charge}+": f"{el}{charge}{sign}"})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
@@ -1345,9 +1339,9 @@ class DisorderOrderedTransformation(AbstractTransformation):
             for smaller in _partition(collection[1:]):
                 # insert `first` in each of the subpartition's subsets
                 for n, subset in enumerate(smaller):
-                    yield smaller[:n] + [[first] + subset] + smaller[n + 1 :]
+                    yield smaller[:n] + [[first, *subset]] + smaller[n + 1 :]
                 # put `first` in its own subset
-                yield [[first]] + smaller
+                yield [[first], *smaller]
 
         def _sort_partitions(partitions_to_sort):
             """
@@ -1831,7 +1825,6 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
 
     # Repeat process for zero columns
     if (~arr_rounded.any(axis=0)).any():
-
         # Check for zero columns in T_rounded
         zero_col_idxs = np.where(~arr_rounded.any(axis=0))[0]
         for zero_col_idx in zero_col_idxs:
@@ -2160,7 +2153,6 @@ class SQSTransformation(AbstractTransformation):
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
 
         for d in to_return:
-
             # delete temporary objective_function attribute
             del d["structure"].objective_function
 

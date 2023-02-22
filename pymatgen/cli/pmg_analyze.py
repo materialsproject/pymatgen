@@ -34,6 +34,7 @@ SAVE_FILE = "vasp_data.gz"
 def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     """
     Get energies of all vaspruns in directory (nested).
+
     Args:
         rootdir (str): Root directory.
         reanalyze (bool): Whether to ignore saved results and reanalyze
@@ -112,7 +113,7 @@ def get_magnetizations(dir: str, ion_list: list[int]):
     """
     data = []
     max_row = 0
-    for (parent, _subdirs, files) in os.walk(dir):
+    for parent, _subdirs, files in os.walk(dir):
         for f in files:
             if re.match(r"OUTCAR*", f):
                 try:

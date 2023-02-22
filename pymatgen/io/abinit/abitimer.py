@@ -523,7 +523,6 @@ class ParallelEfficiency(dict):
         self._ref_idx = ref_idx
 
     def _order_by_peff(self, key, criterion, reverse=True):
-
         self.estimator = {
             "min": min,
             "max": max,
@@ -531,7 +530,7 @@ class ParallelEfficiency(dict):
         }[criterion]
 
         data = []
-        for (sect_name, peff) in self.items():
+        for sect_name, peff in self.items():
             # Ignore values where we had a division by zero.
             if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
@@ -558,7 +557,7 @@ class ParallelEfficiency(dict):
             osects = osects[:stop]
 
         n = len(self.filenames)
-        table = [["AbinitTimerSection"] + alternate(self.filenames, n * ["%"])]
+        table = [["AbinitTimerSection", *alternate(self.filenames, n * ["%"])]]
         for sect_name in osects:
             peff = self[sect_name]["wall_time"]
             fract = self[sect_name]["wall_fract"]

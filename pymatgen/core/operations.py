@@ -549,7 +549,7 @@ class MagSymmOp(SymmOp):
 
     def __hash__(self):
         # useful for obtaining a set of unique MagSymmOps
-        hashable_value = tuple(self.affine_matrix.flatten()) + (self.time_reversal,)
+        hashable_value = (*tuple(self.affine_matrix.flatten()), self.time_reversal)
         return hash(hashable_value)
 
     def operate_magmom(self, magmom):

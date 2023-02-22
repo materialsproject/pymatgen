@@ -59,7 +59,6 @@ class MagmomTest(unittest.TestCase):
         assert np.allclose(magmom5.global_moment, [1, 2, 3])
 
     def test_get_moments(self):
-
         # simple cases
         magmom_along_x = Magmom([1, 0, 0])
         assert np.allclose(magmom_along_x.get_moment(saxis=[1, 0, 0]), [0, 0, 1])
@@ -132,7 +131,7 @@ class MagmomTest(unittest.TestCase):
 
     def test_equality(self):
         assert Magmom([1, 1, 1]) == Magmom([1, 1, 1])
-        assert not Magmom([1, 1, 2]) == Magmom([1, 1, 1])
+        assert Magmom([1, 1, 2]) != Magmom([1, 1, 1])
         assert Magmom([0, 0, 10]) == 10
 
     def test_negative(self):

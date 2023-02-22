@@ -92,7 +92,6 @@ class HighSymmKpath(KPathBase):
         self._label_index = None
 
         if path_type != "all":
-
             if path_type == "latimer_munro":
                 self._kpath = self._get_lm_kpath(has_magmoms, magmom_axis, symprec, angle_tolerance, atol).kpath
             elif path_type == "setyawan_curtarolo":
@@ -103,7 +102,6 @@ class HighSymmKpath(KPathBase):
                 self._hin_tmat = hin_dat._tmat
 
         else:
-
             if has_magmoms:
                 raise ValueError("Cannot select 'all' with non-zero magmoms.")
 
@@ -249,7 +247,7 @@ class HighSymmKpath(KPathBase):
         )
         labels = {"setyawan_curtarolo": {}, "latimer_munro": {}, "hinuma": {}}
 
-        for (a, b) in pairs:
+        for a, b in pairs:
             [(a_type, a_path)] = list(a.items())
             [(b_type, b_path)] = list(b.items())
 
@@ -270,11 +268,11 @@ class HighSymmKpath(KPathBase):
             a_to_b_labels = {}
             unlabeled = {}
 
-            for (label_a, coord_a) in a_path["kpoints"].items():
+            for label_a, coord_a in a_path["kpoints"].items():
                 coord_a_t = np.dot(rpg[np.argmax(sc_count)], coord_a)
                 assigned = False
 
-                for (label_b, coord_b) in b_path["kpoints"].items():
+                for label_b, coord_b in b_path["kpoints"].items():
                     if np.allclose(coord_b, coord_a_t, atol=self._atol):
                         a_to_b_labels[label_a] = label_b
                         assigned = True
@@ -283,7 +281,7 @@ class HighSymmKpath(KPathBase):
                 if not assigned:
                     unlabeled[label_a] = coord_a
 
-            for (label_a, coord_a) in unlabeled.items():
+            for label_a, coord_a in unlabeled.items():
                 for op in rpg:
                     coord_a_t = np.dot(op, coord_a)
                     key = [
@@ -346,10 +344,7 @@ class HighSymmKpath(KPathBase):
                 elif edge_euler[::-1] == edge_reg:
                     distances_map.append((plot_axis.index(edge_reg), True))
 
-        if bandstructure.is_spin_polarized:
-            spins = [Spin.up, Spin.down]
-        else:
-            spins = [Spin.up]
+        spins = [Spin.up, Spin.down] if bandstructure.is_spin_polarized else [Spin.up]
 
         new_kpoints = []
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
@@ -364,7 +359,6 @@ class HighSymmKpath(KPathBase):
             branch = bandstructure.branches[ind]
 
             if branch["name"] not in processed:
-
                 if tuple(branch["name"].split("-")) in plot_axis:
                     new_branches.append(branch)
                     processed.append(branch["name"])
@@ -382,7 +376,6 @@ class HighSymmKpath(KPathBase):
 
         # Obtain new values
         for entry in distances_map:
-
             branch = new_branches[entry[0]]
 
             if not entry[1]:
@@ -400,13 +393,11 @@ class HighSymmKpath(KPathBase):
             # eigenvals
             for spin in spins:
                 for n, band in enumerate(bandstructure.bands[spin]):
-
                     new_bands[spin][n] = np.concatenate((new_bands[spin][n], band[start:stop:step]))
 
             # projections
             for spin in spins:
                 for n, band in enumerate(bandstructure.projections[spin]):
-
                     new_projections[spin][n] += band[start:stop:step].tolist()
 
         for spin in spins:

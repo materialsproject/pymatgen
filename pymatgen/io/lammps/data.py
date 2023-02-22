@@ -308,7 +308,7 @@ class LammpsData(MSONable):
         masses = self.masses
         atoms = self.atoms.copy()
         if "nx" in atoms.columns:
-            atoms.drop(["nx", "ny", "nz"], axis=1, inplace=True)
+            atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
         ld_copy = self.__class__(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
@@ -389,7 +389,7 @@ class LammpsData(MSONable):
         right_indent = len(str(max(all_stats)))
         count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
         type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
-        stats = "\n".join(count_lines + [""] + type_lines)
+        stats = "\n".join([*count_lines, "", *type_lines])
 
         def map_coords(q):
             return f"{q:.{distance}f}"
@@ -630,7 +630,7 @@ class LammpsData(MSONable):
             for kw in SECTION_KEYWORDS["topology"]:
                 if data.get(kw):
                     topologies[kw] = (np.array(data[kw]) - shift).tolist()
-            topologies = None if not topologies else topologies
+            topologies = topologies if topologies else None
             topo_list.append(
                 Topology(
                     sites=m,
@@ -717,9 +717,9 @@ class LammpsData(MSONable):
             df.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
-                df.sort_values(sort_by, inplace=True)
+                df = df.sort_values(sort_by)
             if "id" in df.columns:
-                df.set_index("id", drop=True, inplace=True)
+                df = df.set_index("id", drop=True)
                 df.index.name = None
             return kw, df
 
@@ -774,7 +774,7 @@ class LammpsData(MSONable):
         atom_types = set.union(*(t.species for t in topologies))
         assert atom_types.issubset(ff.maps["Atoms"]), "Unknown atom type found in topologies"
 
-        items = dict(box=box, atom_style=atom_style, masses=ff.masses, force_field=ff.force_field)
+        items = {"box": box, "atom_style": atom_style, "masses": ff.masses, "force_field": ff.force_field}
 
         mol_ids, charges, coords, labels = [], [], [], []
         v_collector = [] if topologies[0].velocities else None
@@ -812,8 +812,8 @@ class LammpsData(MSONable):
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
             if any(pd.isnull(df["type"])):  # Throw away undefined topologies
                 warnings.warn(f"Undefined {k.lower()} detected and removed")
-                df.dropna(subset=["type"], inplace=True)
-                df.reset_index(drop=True, inplace=True)
+                df = df.dropna(subset=["type"])
+                df = df.reset_index(drop=True)
             df.index += 1
             topology[k] = df[SECTION_HEADERS[k]]
         topology = {k: v for k, v in topology.items() if not v.empty}
@@ -836,10 +836,7 @@ class LammpsData(MSONable):
                 "charge" (charged). Default to "charge".
             is_sort (bool): whether to sort sites
         """
-        if is_sort:
-            s = structure.get_sorted_structure()
-        else:
-            s = structure.copy()
+        s = structure.get_sorted_structure() if is_sort else structure.copy()
         box, symm_op = lattice_2_lmpbox(s.lattice)
         coords = symm_op.operate_multi(s.cart_coords)
         site_properties = s.site_properties
@@ -903,10 +900,7 @@ class Topology(MSONable):
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
-        if ff_label:
-            type_by_sites = sites.site_properties.get(ff_label)
-        else:
-            type_by_sites = [site.specie.symbol for site in sites]
+        type_by_sites = sites.site_properties.get(ff_label) if ff_label else [site.specie.symbol for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")

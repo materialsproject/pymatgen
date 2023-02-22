@@ -165,6 +165,7 @@ class GruneisenParameter(MSONable):
         """
         The total DOS (re)constructed from the gruneisen.yaml file
         """
+
         # Here, we will reuse phonopy classes
         class TempMesh:
             """
@@ -208,6 +209,7 @@ class GruneisenParameter(MSONable):
     def debye_temp_phonopy(self, freq_max_fit=None):
         """
         Get Debye temperature in K as implemented in phonopy.
+
         Args:
             freq_max_fit: Maximum frequency to include for fitting.
                           Defaults to include first quartile of frequencies.
@@ -311,9 +313,10 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         for kpoint_letter, kpoint_object in self.labels_dict.items():
             d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
         # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = dict(
-            real=np.real(self.eigendisplacements).tolist(), imag=np.imag(self.eigendisplacements).tolist()
-        )
+        d["eigendisplacements"] = {
+            "real": np.real(self.eigendisplacements).tolist(),
+            "imag": np.imag(self.eigendisplacements).tolist(),
+        }
         d["gruneisen"] = self.gruneisen.tolist()
         if self.structure:
             d["structure"] = self.structure.as_dict()

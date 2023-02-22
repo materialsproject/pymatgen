@@ -93,7 +93,6 @@ class Critic2AnalysisTest(unittest.TestCase):
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)
 
     def test_properties_to_from_dict(self):
-
         assert len(self.c2o.critical_points) == 6
         assert len(self.c2o.nodes) == 14
         assert len(self.c2o.edges) == 10
@@ -137,7 +136,6 @@ class Critic2AnalysisTest(unittest.TestCase):
         self.c2o.from_dict(d)
 
     def test_graph_output(self):
-
         sg = self.c2o.structure_graph()
         assert str(sg.structure[3].specie) == "Xbcp"
         assert set(list(sg.graph.edges(data=True))[0][2]) == {
@@ -151,5 +149,4 @@ class Critic2AnalysisTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-
     unittest.main()

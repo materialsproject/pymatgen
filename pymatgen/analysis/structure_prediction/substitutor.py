@@ -62,7 +62,7 @@ class Substitutor(MSONable):
 
     def get_allowed_species(self):
         """
-        returns the species in the domain of the probability function
+        Returns the species in the domain of the probability function
         any other specie will not work
         """
         return self._sp.species
@@ -75,7 +75,7 @@ class Substitutor(MSONable):
         remove_existing=False,
     ):
         """
-        performs a structure prediction targeting compounds containing all of
+        Performs a structure prediction targeting compounds containing all of
         the target_species, based on a list of structure (those structures
         can for instance come from a database like the ICSD). It will return
         all the structures formed by ionic substitutions with a probability
@@ -126,7 +126,6 @@ class Substitutor(MSONable):
                     and len(list(set(els) & set(self.get_allowed_species()))) == len(els)
                     and self._sp.cond_prob_list(permut, els) > self._threshold
                 ):
-
                     clean_subst = {els[i]: permut[i] for i in range(0, len(els)) if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:
@@ -164,14 +163,14 @@ class Substitutor(MSONable):
     @staticmethod
     def _is_charge_balanced(struct):
         """
-        checks if the structure object is charge balanced
+        Checks if the structure object is charge balanced
         """
         return sum(s.specie.oxi_state for s in struct.sites) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):
         """
-        checks if the structure object is from the given chemical system
+        Checks if the structure object is from the given chemical system
         """
         return {sp.symbol for sp in struct.composition} == set(chemical_system)
 
@@ -224,7 +223,7 @@ class Substitutor(MSONable):
                 for sp in self._sp.species:
                     i = len(output_prob)
                     prob = self._sp.cond_prob(sp, species_list[i])
-                    _recurse(output_prob + [prob], output_species + [sp])
+                    _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
         logging.info(f"{len(output)} substitutions found")

@@ -237,7 +237,7 @@ class Cohpcar:
 
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs]
+            orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
             orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
 
         else:
@@ -542,10 +542,7 @@ class Doscar:
                 _, ncol = data.shape
                 orbnumber = 0
                 for j in range(1, ncol):
-                    if j % 2 == 0:
-                        spin = Spin.down
-                    else:
-                        spin = Spin.up
+                    spin = Spin.down if j % 2 == 0 else Spin.up
                     orb = orbitals[atom + 1][orbnumber]
                     pdos[orb][spin] = data[:, j]
                     if j % 2 == 0:
@@ -877,27 +874,24 @@ class Lobsterout:
     def _get_lobster_version(data):
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 1:
-                if splitrow[0] == "LOBSTER":
-                    return splitrow[1]
+            if len(splitrow) > 1 and splitrow[0] == "LOBSTER":
+                return splitrow[1]
         raise RuntimeError("Version not found.")
 
     @staticmethod
     def _has_fatband(data):
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 1:
-                if splitrow[1] == "FatBand":
-                    return True
+            if len(splitrow) > 1 and splitrow[1] == "FatBand":
+                return True
         return False
 
     @staticmethod
     def _get_dft_program(data):
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 4:
-                if splitrow[3] == "program...":
-                    return splitrow[4]
+            if len(splitrow) > 4 and splitrow[3] == "program...":
+                return splitrow[4]
         return None
 
     @staticmethod
@@ -910,9 +904,8 @@ class Lobsterout:
     def _get_threads(data):
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 11:
-                if (splitrow[11]) == "threads" or (splitrow[11] == "thread"):
-                    return splitrow[10]
+            if len(splitrow) > 11 and ((splitrow[11]) == "threads" or (splitrow[11] == "thread")):
+                return splitrow[10]
         raise ValueError("Threads not found.")
 
     @staticmethod
@@ -921,12 +914,11 @@ class Lobsterout:
         total_spilling = []
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 2:
-                if splitrow[2] == "spilling:":
-                    if splitrow[1] == "charge":
-                        charge_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
-                    if splitrow[1] == "total":
-                        total_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
+            if len(splitrow) > 2 and splitrow[2] == "spilling:":
+                if splitrow[1] == "charge":
+                    charge_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
+                if splitrow[1] == "total":
+                    total_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
 
             if len(charge_spilling) == number_of_spins and len(total_spilling) == number_of_spins:
                 break
@@ -941,7 +933,6 @@ class Lobsterout:
         basistype = []
         basisfunctions = []
         for row in data:
-
             if begin and not end:
                 splitrow = row.split()
                 if splitrow[0] not in [
@@ -954,7 +945,6 @@ class Lobsterout:
                     "spillings",
                     "writing",
                 ]:
-
                     elements.append(splitrow[0])
                     basistype.append(splitrow[1].replace("(", "").replace(")", ""))
                     # last sign is a ''
@@ -984,24 +974,9 @@ class Lobsterout:
                 if "sys" in splitrow:
                     sys_time = splitrow[0:8]
 
-        wall_time_dict = {
-            "h": wall_time[0],
-            "min": wall_time[2],
-            "s": wall_time[4],
-            "ms": wall_time[6],
-        }
-        user_time_dict = {
-            "h": user_time[0],
-            "min": user_time[2],
-            "s": user_time[4],
-            "ms": user_time[6],
-        }
-        sys_time_dict = {
-            "h": sys_time[0],
-            "min": sys_time[2],
-            "s": sys_time[4],
-            "ms": sys_time[6],
-        }
+        wall_time_dict = {"h": wall_time[0], "min": wall_time[2], "s": wall_time[4], "ms": wall_time[6]}
+        user_time_dict = {"h": user_time[0], "min": user_time[2], "s": user_time[4], "ms": user_time[6]}
+        sys_time_dict = {"h": sys_time[0], "min": sys_time[2], "s": sys_time[4], "ms": sys_time[6]}
 
         return wall_time_dict, user_time_dict, sys_time_dict
 
@@ -1019,9 +994,8 @@ class Lobsterout:
         ws = []
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 0:
-                if splitrow[0] == "WARNING:":
-                    ws.append(" ".join(splitrow[1:]))
+            if len(splitrow) > 0 and splitrow[0] == "WARNING:":
+                ws.append(" ".join(splitrow[1:]))
         return ws
 
     @staticmethod
@@ -1029,9 +1003,8 @@ class Lobsterout:
         infos = []
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 0:
-                if splitrow[0] == "INFO:":
-                    infos.append(" ".join(splitrow[1:]))
+            if len(splitrow) > 0 and splitrow[0] == "INFO:":
+                infos.append(" ".join(splitrow[1:]))
         return infos
 
 
@@ -1232,7 +1205,6 @@ class Fatband:
                 if linenumber == self.nbands:
                     iband = 0
                 if line.split()[0] != "#":
-
                     if linenumber < self.nbands:
                         if ifilename == 0:
                             eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
@@ -1256,7 +1228,6 @@ class Fatband:
 
         label_dict = {}
         for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
-
             if label is not None:
                 label_dict[label] = kpoints_array[ilabel]
 
@@ -1325,7 +1296,7 @@ class Bandoverlaps:
             elif "maxDeviation" in line:
                 if spin not in self.bandoverlapsdict:
                     self.bandoverlapsdict[spin] = {}
-                if not " ".join(kpoint_array) in self.bandoverlapsdict[spin]:
+                if " ".join(kpoint_array) not in self.bandoverlapsdict[spin]:
                     self.bandoverlapsdict[spin][" ".join(kpoint_array)] = {}
                 maxdev = line.split(" ")[2]
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["maxDeviation"] = float(maxdev)
@@ -1347,10 +1318,7 @@ class Bandoverlaps:
         Returns:
              Boolean that will give you information about the quality of the projection
         """
-        for deviation in self.max_deviation:
-            if deviation > limit_maxDeviation:
-                return False
-        return True
+        return all(deviation <= limit_maxDeviation for deviation in self.max_deviation)
 
     def has_good_quality_check_occupied_bands(
         self,
@@ -1422,7 +1390,7 @@ class Grosspop:
         self.list_dict_grosspop = []
         # transfers content of file to list of dict
         for line in contents[3:]:
-            cleanline = [i for i in line.split(" ") if not i == ""]
+            cleanline = [i for i in line.split(" ") if i != ""]
             if len(cleanline) == 5:
                 smalldict = {}
                 smalldict["element"] = cleanline[1]
@@ -1555,26 +1523,24 @@ class Wavefunction:
                     y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
                     z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
 
-                    if x != Nx:
-                        if y != Ny:
-                            if z != Nz:
-                                if not np.isclose(self.points[runner][0], x_here, 1e-3):
-                                    if not np.isclose(self.points[runner][1], y_here, 1e-3):
-                                        if not np.isclose(self.points[runner][2], z_here, 1e-3):
-                                            raise ValueError(
-                                                "The provided wavefunction from Lobster does not contain all relevant"
-                                                " points. "
-                                                "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
-                                                "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
-                                            )
+                    if x != Nx and y != Ny and z != Nz:
+                        if not np.isclose(self.points[runner][0], x_here, 1e-3):
+                            if not np.isclose(self.points[runner][1], y_here, 1e-3):
+                                if not np.isclose(self.points[runner][2], z_here, 1e-3):
+                                    raise ValueError(
+                                        "The provided wavefunction from Lobster does not contain all relevant"
+                                        " points. "
+                                        "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
+                                        "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
+                                    )
 
-                                new_x.append(x_here)
-                                new_y.append(y_here)
-                                new_z.append(z_here)
+                        new_x.append(x_here)
+                        new_y.append(y_here)
+                        new_z.append(z_here)
 
-                                new_real.append(self.real[runner])
-                                new_imaginary.append(self.imaginary[runner])
-                                new_density.append(self.real[runner] ** 2 + self.imaginary[runner] ** 2)
+                        new_real.append(self.real[runner])
+                        new_imaginary.append(self.imaginary[runner])
+                        new_density.append(self.real[runner] ** 2 + self.imaginary[runner] ** 2)
 
                     runner += 1
 

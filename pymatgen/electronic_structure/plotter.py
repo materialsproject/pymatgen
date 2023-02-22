@@ -108,10 +108,7 @@ class DosPlotter:
             dos_dict: dict of {label: Dos}
             key_sort_func: function used to sort the dos_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(dos_dict, key=key_sort_func)
-        else:
-            keys = list(dos_dict)
+        keys = sorted(dos_dict, key=key_sort_func) if key_sort_func else list(dos_dict)
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
@@ -448,18 +445,14 @@ class BSPlotter:
 
         zero_energy = 0.0
         if zero_to_efermi:
-            if bs_is_metal:
-                zero_energy = bs.efermi
-            else:
-                zero_energy = vbm["energy"]
+            zero_energy = bs.efermi if bs_is_metal else vbm["energy"]
 
         # rescale distances when a bs_ref is given as reference,
         # and when bs and bs_ref have different points in branches.
         # Usually bs_ref is the first one in self._bs list is bs_ref
         distances = bs.distance
-        if bs_ref is not None:
-            if bs_ref.branches != bs.branches:
-                distances = self._rescale_distances(bs_ref, bs)
+        if bs_ref is not None and bs_ref.branches != bs.branches:
+            distances = self._rescale_distances(bs_ref, bs)
 
         if split_branches:
             steps = [br["end_index"] + 1 for br in bs.branches][:-1]
@@ -617,7 +610,6 @@ class BSPlotter:
 
         colors = list(plt.rcParams["axes.prop_cycle"].by_key().values())[0]
         for ibs, bs in enumerate(self._bs):
-
             # set first bs in the list as ref for rescaling the distances of the other bands
             bs_ref = self._bs[0] if len(self._bs) > 1 and ibs > 0 else None
 
@@ -1554,7 +1546,8 @@ class BSPlotterProjected(BSPlotter):
                 {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]}
                 will give projections for Cu on site-1
                 and on site-5, O on site-3 and on site-4 in the cell.
-                Attention:
+
+        Attention:
                 The correct site numbers of atoms are consistent with
                 themselves in the structure computed. Normally,
                 the structure should be totally similar with POSCAR file,
@@ -1639,7 +1632,6 @@ class BSPlotterProjected(BSPlotter):
         for elt in dictpa_d:
             for numa in dictpa_d[elt]:
                 for o in dictio_d[elt]:
-
                     count += 1
                     if num_column is None:
                         if number_figs == 1:
@@ -1665,7 +1657,7 @@ class BSPlotterProjected(BSPlotter):
                         br += 1
                         for i in range(self._nb_bands):
                             plt.plot(
-                                list(map(lambda x: x - shift[br], data["distances"][b])),
+                                [x - shift[br] for x in data["distances"][b]],
                                 [data["energy"][str(Spin.up)][b][i][j] for j in range(len(data["distances"][b]))],
                                 "b-",
                                 linewidth=band_linewidth,
@@ -1673,12 +1665,7 @@ class BSPlotterProjected(BSPlotter):
 
                             if self._bs.is_spin_polarized:
                                 plt.plot(
-                                    list(
-                                        map(
-                                            lambda x: x - shift[br],
-                                            data["distances"][b],
-                                        )
-                                    ),
+                                    [x - shift[br] for x in data["distances"][b]],
                                     [data["energy"][str(Spin.down)][b][i][j] for j in range(len(data["distances"][b]))],
                                     "r--",
                                     linewidth=band_linewidth,
@@ -1766,9 +1753,8 @@ class BSPlotterProjected(BSPlotter):
                             )
                         if orb not in all_orbitals:
                             raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
-                        if orb in individual_orbs:
-                            if len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
-                                raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
+                        if orb in individual_orbs and len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
+                            raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
                     nelems = Counter(dictio[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError(f"You put in at least two similar orbitals in dictio[{elt}].")
@@ -2293,6 +2279,7 @@ class BSDOSPlotter:
     def get_plot(self, bs: BandStructureSymmLine, dos: Dos | CompleteDos | None = None):
         """
         Get a matplotlib plot object.
+
         Args:
             bs (BandStructureSymmLine): the bandstructure to plot. Projection
                 data must exist for projected plots.
@@ -2317,18 +2304,18 @@ class BSDOSPlotter:
             elements = []
 
         rgb_legend = (
-            self.rgb_legend and bs_projection and bs_projection.lower() == "elements" and len(elements) in [2, 3]
+            self.rgb_legend and bs_projection and bs_projection.lower() == "elements" and len(elements) in [2, 3, 4]
         )
 
         if (
             bs_projection
             and bs_projection.lower() == "elements"
-            and (len(elements) not in [2, 3] or not bs.get_projection_on_elements())
+            and (len(elements) not in [2, 3, 4] or not bs.get_projection_on_elements())
         ):
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
                 "doesn't exist, or you don't have a compound with exactly 2 "
-                "or 3 unique elements."
+                "or 3 or 4 unique elements."
             )
             bs_projection = None
 
@@ -2547,7 +2534,8 @@ class BSDOSPlotter:
                 self._rb_line(bs_ax, elements[1], elements[0], loc=self.bs_legend)
             elif len(elements) == 3:
                 self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0], loc=self.bs_legend)
-
+            elif len(elements) == 4:
+                self._cmyk_triangle(bs_ax, elements[1], elements[2], elements[0], elements[3], loc=self.bs_legend)
         # add legend for DOS
         if dos and self.dos_legend:
             dos_ax.legend(
@@ -2612,7 +2600,7 @@ class BSDOSPlotter:
                     colors = []
                     for k_idx in range(len(bs.kpoints)):
                         if bs_projection and bs_projection.lower() == "elements":
-                            c = [0, 0, 0]
+                            c = [0, 0, 0, 0]
                             projs = projections[spin][band_idx][k_idx]
                             # note: squared color interpolations are smoother
                             # see: https://youtu.be/LKnqECcg6Gw
@@ -2622,7 +2610,17 @@ class BSDOSPlotter:
                                 for idx, e in enumerate(elements):
                                     c[idx] = math.sqrt(projs[e] / total)  # min is to handle round errors
 
-                            c = [c[1], c[2], c[0]]  # prefer blue, then red, then green
+                            c = [
+                                c[1],
+                                c[2],
+                                c[0],
+                                c[3],
+                            ]  # prefer blue, then red, then green or magenta, then yellow, then cyan, then black
+                            if len(elements) == 4:
+                                # convert cmyk to rgb
+                                c = [(1 - c[0]) * (1 - c[3]), ((1 - c[1]) * (1 - c[3])), ((1 - c[2]) * (1 - c[3]))]
+                            else:
+                                c = [c[0], c[1], c[2]]
 
                         else:
                             c = [0, 0, 0] if spin == Spin.up else [0, 0, 1]  # black for spin up, blue for spin down
@@ -2633,6 +2631,59 @@ class BSDOSPlotter:
                 contribs[spin] = np.array(contribs[spin])
 
         return contribs
+
+    @staticmethod
+    def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc):
+        """
+        Draw an RGB triangle legend on the desired axis
+        """
+        if loc not in range(1, 11):
+            loc = 2
+
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+        inset_ax = inset_axes(ax, width=1.5, height=1.5, loc=loc)
+        mesh = 35
+        x = []
+        y = []
+        color = []
+        for c in range(0, mesh):
+            for ye in range(0, mesh):
+                for m in range(0, mesh):
+                    if not (c == mesh - 1 and ye == mesh - 1 and m == mesh - 1) and not (c == 0 and ye == 0 and m == 0):
+                        c1 = c / (c + ye + m)
+                        ye1 = ye / (c + ye + m)
+                        m1 = m / (c + ye + m)
+                        x.append(0.33 * (2.0 * ye1 + c1) / (c1 + ye1 + m1))
+                        y.append(0.33 * np.sqrt(3) * c1 / (c1 + ye1 + m1))
+                        rc = 1 - c / (mesh - 1)
+                        gc = 1 - m / (mesh - 1)
+                        bc = 1 - ye / (mesh - 1)
+                        color.append([rc, gc, bc])
+
+        # x = [n + 0.25 for n in x]  # nudge x coordinates
+        # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
+        # plot the triangle
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
+        inset_ax.set_xlim([-0.35, 1.00])
+        inset_ax.set_ylim([-0.35, 1.00])
+
+        # add the labels
+        inset_ax.text(
+            0.70, -0.2, m_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="left"
+        )
+        inset_ax.text(
+            0.325, 0.70, c_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="center"
+        )
+        inset_ax.text(
+            -0.05, -0.2, y_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="right"
+        )
+        inset_ax.text(
+            0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
+        )
+
+        inset_ax.get_xaxis().set_visible(False)
+        inset_ax.get_yaxis().set_visible(False)
 
     @staticmethod
     def _rgb_triangle(ax, r_label, g_label, b_label, loc):
@@ -3701,10 +3752,7 @@ class CohpPlotter:
 
             key_sort_func: function used to sort the cohp_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(cohp_dict, key=key_sort_func)
-        else:
-            keys = list(cohp_dict)
+        keys = sorted(cohp_dict, key=key_sort_func) if key_sort_func else list(cohp_dict)
         for label in keys:
             self.add_cohp(label, cohp_dict[label])
 
@@ -3767,10 +3815,7 @@ class CohpPlotter:
         if plot_negative:
             cohp_label = "-" + cohp_label
 
-        if self.zero_at_efermi:
-            energy_label = "$E - E_f$ (eV)"
-        else:
-            energy_label = "$E$ (eV)"
+        energy_label = "$E - E_f$ (eV)" if self.zero_at_efermi else "$E$ (eV)"
 
         ncolors = max(3, len(self._cohps))
         ncolors = min(9, ncolors)
@@ -3786,10 +3831,7 @@ class CohpPlotter:
         keys = list(self._cohps)
         for i, key in enumerate(keys):
             energies = self._cohps[key]["energies"]
-            if not integrated:
-                populations = self._cohps[key]["COHP"]
-            else:
-                populations = self._cohps[key]["ICOHP"]
+            populations = self._cohps[key]["COHP"] if not integrated else self._cohps[key]["ICOHP"]
             for spin in [Spin.up, Spin.down]:
                 if spin in populations:
                     if invert_axes:
@@ -4246,10 +4288,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
     Returns:
         The Cartesian coordinates folded inside the first Brillouin zone
     """
-    if coords_are_cartesian:
-        p = lattice.get_fractional_coords(p)
-    else:
-        p = np.array(p)
+    p = lattice.get_fractional_coords(p) if coords_are_cartesian else np.array(p)
 
     p = np.mod(p + 0.5 - 1e-10, 1) - 0.5 + 1e-10
     p = lattice.get_cartesian_coords(p)
@@ -4298,7 +4337,6 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
         raise ValueError("coords_are_cartesian False or fold True require the lattice")
 
     for p in points:
-
         if fold:
             p = fold_point(p, lattice, coords_are_cartesian=coords_are_cartesian)
 

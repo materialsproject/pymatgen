@@ -102,16 +102,10 @@ class Critic2Caller:
         self._stdout = stdout
         self._stderr = stderr
 
-        if os.path.exists("cpreport.json"):
-            cpreport = loadfn("cpreport.json")
-        else:
-            cpreport = None
+        cpreport = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
         self._cpreport = cpreport
 
-        if os.path.exists("yt.json"):
-            yt = loadfn("yt.json")
-        else:
-            yt = None
+        yt = loadfn("yt.json") if os.path.exists("yt.json") else None
         self._yt = yt
 
     @classmethod
@@ -220,7 +214,6 @@ class Critic2Caller:
         input_script = "\n".join(input_script)
 
         with ScratchDir(".") as temp_dir:
-
             os.chdir(temp_dir)
 
             structure.to(filename="POSCAR")
@@ -275,7 +268,6 @@ class Critic2Caller:
         chgcar_ref = None
 
         if not zpsp:
-
             potcar_path = get_filepath(
                 "POTCAR",
                 "Could not find POTCAR, will not be able to calculate charge transfer.",
@@ -489,6 +481,7 @@ class Critic2Analysis(MSONable):
         """
         A StructureGraph object describing bonding information
         in the crystal.
+
         Args:
             include_critical_points: add DummySpecies for
             the critical points themselves, a list of
@@ -536,21 +529,20 @@ class Critic2Analysis(MSONable):
         for idx, edge in edges.items():
             unique_idx = self.nodes[idx]["unique_idx"]
             # only check edges representing bonds, not rings
-            if self.critical_points[unique_idx].type == CriticalPointType.bond:
-                if idx not in idx_to_delete:
-                    for idx2, edge2 in edges.items():
-                        if idx != idx2 and edge == edge2:
-                            idx_to_delete.append(idx2)
-                            warnings.warn(
-                                "Duplicate edge detected, try re-running "
-                                "critic2 with custom parameters to fix this. "
-                                "Mostly harmless unless user is also "
-                                "interested in rings/cages."
-                            )
-                            logger.debug(
-                                f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
-                                f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
-                            )
+            if self.critical_points[unique_idx].type == CriticalPointType.bond and idx not in idx_to_delete:
+                for idx2, edge2 in edges.items():
+                    if idx != idx2 and edge == edge2:
+                        idx_to_delete.append(idx2)
+                        warnings.warn(
+                            "Duplicate edge detected, try re-running "
+                            "critic2 with custom parameters to fix this. "
+                            "Mostly harmless unless user is also "
+                            "interested in rings/cages."
+                        )
+                        logger.debug(
+                            f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
+                            f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
+                        )
         # and remove any duplicate bonds present
         for idx in idx_to_delete:
             del edges[idx]
@@ -559,7 +551,6 @@ class Critic2Analysis(MSONable):
             unique_idx = self.nodes[idx]["unique_idx"]
             # only add edges representing bonds, not rings
             if self.critical_points[unique_idx].type == CriticalPointType.bond:
-
                 from_idx = edge["from_idx"]
                 to_idx = edge["to_idx"]
 
@@ -708,7 +699,6 @@ class Critic2Analysis(MSONable):
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
-
         volume_idx = None
         charge_idx = None
 
@@ -761,7 +751,6 @@ class Critic2Analysis(MSONable):
         return structure
 
     def _parse_stdout(self, stdout):
-
         warnings.warn(
             "Parsing critic2 standard output is deprecated and will not be maintained, "
             "please use the native JSON output in future."
@@ -852,7 +841,6 @@ class Critic2Analysis(MSONable):
 
         for i, line in enumerate(stdout):
             if start_i <= i <= end_i:
-
                 l = line.replace("(", "").replace(")", "").split()
 
                 idx = int(l[0]) - 1

@@ -289,10 +289,8 @@ class EnumlibAdaptor:
             f.write("\n".join(output))
 
     def _run_multienum(self):
-
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
             if self.timeout:
-
                 timed_out = False
                 timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
@@ -308,7 +306,6 @@ class EnumlibAdaptor:
                     raise TimeoutError("Enumeration took too long.")
 
             else:
-
                 output = p.communicate()[0].decode("utf-8")
 
         count = 0
@@ -330,7 +327,7 @@ class EnumlibAdaptor:
             options = ["struct_enum.out", str(0), str(num_structs - 1)]
 
         with subprocess.Popen(
-            [makestr_cmd] + options,
+            [makestr_cmd, *options],
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
             close_fds=True,
@@ -343,7 +340,7 @@ class EnumlibAdaptor:
         # to ensure consistency, we keep track of what site properties
         # are missing and set them to None
         # TODO: improve this by mapping ordered structure to original
-        # disorded structure, and retrieving correct site properties
+        # disordered structure, and retrieving correct site properties
         disordered_site_properties = {}
 
         if len(self.ordered_sites) > 0:
@@ -366,6 +363,9 @@ class EnumlibAdaptor:
                 site_properties=site_properties,
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
+        else:
+            ordered_structure = None  # to fix pylint E0601
+            inv_org_latt = None
 
         for file in glob.glob("vasp.*"):
             with open(file) as f:

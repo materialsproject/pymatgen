@@ -117,7 +117,6 @@ class VasprunTest(PymatgenTest):
             assert issubclass(w[-1].category, UserWarning)
 
     def test_runtype(self):
-
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
         assert v.run_type in "HF"
 
@@ -160,7 +159,6 @@ class VasprunTest(PymatgenTest):
         assert v.final_energy == approx(-9.78310677)
 
     def test_energies(self):
-
         # VASP 5.4.1
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
         assert v.final_energy == approx(-11.18981538)
@@ -178,7 +176,6 @@ class VasprunTest(PymatgenTest):
         assert o.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
-
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
         vasprun = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]])
@@ -220,7 +217,7 @@ class VasprunTest(PymatgenTest):
 
         pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
         self.assertAlmostEqual(pdos0_norm[Orbital.s][Spin.up][16], 0.0026)  # the site data should not change
-        self.assertEqual(pdos0_norm[Orbital.s][Spin.up].shape, (301,))
+        assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
 
         cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
@@ -229,7 +226,7 @@ class VasprunTest(PymatgenTest):
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
         totalscsteps = sum(len(i["electronic_steps"]) for i in vasprun.ionic_steps)
-        assert 29 == len(vasprun.ionic_steps)
+        assert len(vasprun.ionic_steps) == 29
         assert len(vasprun.structures) == len(vasprun.ionic_steps)
 
         trajectory = vasprun.get_trajectory()
@@ -243,7 +240,7 @@ class VasprunTest(PymatgenTest):
             vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps))
         )
 
-        assert 308 == totalscsteps, "Incorrect number of energies read from vasprun.xml"
+        assert totalscsteps == 308, "Incorrect number of energies read from vasprun.xml"
 
         assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasprun.atomic_symbols
         assert vasprun.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
@@ -360,15 +357,15 @@ class VasprunTest(PymatgenTest):
 
     def test_dielectric(self):
         vasprun_diel = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dielectric", parse_potcar_file=False)
-        assert 0.4294 == approx(vasprun_diel.dielectric[0][10])
-        assert 19.941 == approx(vasprun_diel.dielectric[1][51][0])
-        assert 19.941 == approx(vasprun_diel.dielectric[1][51][1])
-        assert 19.941 == approx(vasprun_diel.dielectric[1][51][2])
-        assert 0.0 == approx(vasprun_diel.dielectric[1][51][3])
-        assert 34.186 == approx(vasprun_diel.dielectric[2][85][0])
-        assert 34.186 == approx(vasprun_diel.dielectric[2][85][1])
-        assert 34.186 == approx(vasprun_diel.dielectric[2][85][2])
-        assert 0.0 == approx(vasprun_diel.dielectric[2][85][3])
+        assert approx(vasprun_diel.dielectric[0][10]) == 0.4294
+        assert approx(vasprun_diel.dielectric[1][51][0]) == 19.941
+        assert approx(vasprun_diel.dielectric[1][51][1]) == 19.941
+        assert approx(vasprun_diel.dielectric[1][51][2]) == 19.941
+        assert approx(vasprun_diel.dielectric[1][51][3]) == 0.0
+        assert approx(vasprun_diel.dielectric[2][85][0]) == 34.186
+        assert approx(vasprun_diel.dielectric[2][85][1]) == 34.186
+        assert approx(vasprun_diel.dielectric[2][85][2]) == 34.186
+        assert approx(vasprun_diel.dielectric[2][85][3]) == 0.0
 
     def test_dielectric_vasp608(self):
         # test reading dielectric constant in vasp 6.0.8
@@ -376,12 +373,12 @@ class VasprunTest(PymatgenTest):
             self.TEST_FILES_DIR / "vasprun.xml.dielectric_6.0.8",
             parse_potcar_file=False,
         )
-        assert 0.4338 == approx(vasprun_diel.dielectric[0][10])
-        assert 5.267 == approx(vasprun_diel.dielectric[1][51][0])
-        assert 0.4338 == approx(vasprun_diel.dielectric_data["density"][0][10])
-        assert 5.267 == approx(vasprun_diel.dielectric_data["density"][1][51][0])
-        assert 0.4338 == approx(vasprun_diel.dielectric_data["velocity"][0][10])
-        assert 1.0741 == approx(vasprun_diel.dielectric_data["velocity"][1][51][0])
+        assert approx(vasprun_diel.dielectric[0][10]) == 0.4338
+        assert approx(vasprun_diel.dielectric[1][51][0]) == 5.267
+        assert approx(vasprun_diel.dielectric_data["density"][0][10]) == 0.4338
+        assert approx(vasprun_diel.dielectric_data["density"][1][51][0]) == 5.267
+        assert approx(vasprun_diel.dielectric_data["velocity"][0][10]) == 0.4338
+        assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
         assert len(vasprun_diel.other_dielectric) == 0
 
     def test_indirect_vasprun(self):
@@ -394,18 +391,18 @@ class VasprunTest(PymatgenTest):
             self.TEST_FILES_DIR / "vasprun.xml.opticaltransitions",
             parse_potcar_file=False,
         )
-        assert 3.084 == approx(vasprun_optical.optical_transition[0][0])
-        assert 3.087 == approx(vasprun_optical.optical_transition[3][0])
-        assert 0.001 == approx(vasprun_optical.optical_transition[0][1])
-        assert 0.001 == approx(vasprun_optical.optical_transition[1][1])
-        assert 0.001 == approx(vasprun_optical.optical_transition[7][1])
-        assert 0.001 == approx(vasprun_optical.optical_transition[19][1])
-        assert 3.3799999999 == approx(vasprun_optical.optical_transition[54][0])
-        assert 3.381 == approx(vasprun_optical.optical_transition[55][0])
-        assert 3.381 == approx(vasprun_optical.optical_transition[56][0])
-        assert 10554.9860 == approx(vasprun_optical.optical_transition[54][1])
-        assert 0.0 == approx(vasprun_optical.optical_transition[55][1])
-        assert 0.001 == approx(vasprun_optical.optical_transition[56][1])
+        assert approx(vasprun_optical.optical_transition[0][0]) == 3.084
+        assert approx(vasprun_optical.optical_transition[3][0]) == 3.087
+        assert approx(vasprun_optical.optical_transition[0][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[1][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[7][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[19][1]) == 0.001
+        assert approx(vasprun_optical.optical_transition[54][0]) == 3.3799999999
+        assert approx(vasprun_optical.optical_transition[55][0]) == 3.381
+        assert approx(vasprun_optical.optical_transition[56][0]) == 3.381
+        assert approx(vasprun_optical.optical_transition[54][1]) == 10554.9860
+        assert approx(vasprun_optical.optical_transition[55][1]) == 0.0
+        assert approx(vasprun_optical.optical_transition[56][1]) == 0.001
 
     def test_force_constants(self):
         vasprun_fc = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.phonon", parse_potcar_file=False)
@@ -1240,7 +1237,6 @@ class OutcarTest(PymatgenTest):
         assert np.sum(outcar.drift) == approx(0.448010)
 
     def test_electrostatic_potential(self):
-
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
         assert outcar.ngf == [54, 30, 54]
         assert np.allclose(outcar.sampling_radii, [0.9748, 0.9791, 0.7215])
@@ -1417,7 +1413,6 @@ class OutcarTest(PymatgenTest):
         assert outcar.run_stats["cores"] == 64
 
     def test_energies(self):
-
         # VASP 5.2.1
         o = Outcar(self.TEST_FILES_DIR / "OUTCAR.etest1.gz")
         assert o.final_energy == approx(-11.18981538)
@@ -1545,9 +1540,9 @@ class ChgcarTest(PymatgenTest):
         with open("CHGCAR_pmg") as f:
             for i, line in enumerate(f):
                 if i == 22130:
-                    assert "augmentation occupancies   1  15\n" == line
+                    assert line == "augmentation occupancies   1  15\n"
                 if i == 44255:
-                    assert "augmentation occupancies   1  15\n" == line
+                    assert line == "augmentation occupancies   1  15\n"
         os.remove("CHGCAR_pmg")
 
     def test_soc_chgcar(self):
@@ -1631,8 +1626,8 @@ class ChgcarTest(PymatgenTest):
 class ElfcarTest(PymatgenTest):
     def test_init(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / "ELFCAR.gz")
-        assert 0.19076207645194002 == approx(np.mean(elfcar.data["total"]))
-        assert 0.19076046677910055 == approx(np.mean(elfcar.data["diff"]))
+        assert approx(np.mean(elfcar.data["total"])) == 0.19076207645194002
+        assert approx(np.mean(elfcar.data["diff"])) == 0.19076046677910055
         reconstituted = Elfcar.from_dict(elfcar.as_dict())
         assert elfcar.data == reconstituted.data
         assert elfcar.poscar.structure == reconstituted.poscar.structure
@@ -1640,12 +1635,12 @@ class ElfcarTest(PymatgenTest):
     def test_alpha(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / "ELFCAR.gz")
         alpha = elfcar.get_alpha()
-        assert 2.936678808979031 == approx(np.median(alpha.data["total"]))
+        assert approx(np.median(alpha.data["total"])) == 2.936678808979031
 
     def test_interpolation(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / "ELFCAR.gz")
-        assert 0.0918471 == approx(elfcar.value_at(0.4, 0.5, 0.6))
-        assert 100 == len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0]))
+        assert approx(elfcar.value_at(0.4, 0.5, 0.6)) == 0.0918471
+        assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
 class ProcarTest(PymatgenTest):

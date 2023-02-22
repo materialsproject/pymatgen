@@ -7,6 +7,7 @@ functionals.
 
 from __future__ import annotations
 
+import copy
 import os
 import warnings
 from itertools import groupby
@@ -17,12 +18,12 @@ import pandas as pd
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.entries.compatibility import (
+    AnyComputedEntry,
     Compatibility,
     CompatibilityError,
     MaterialsProject2020Compatibility,
 )
 from pymatgen.entries.computed_entries import (
-    ComputedEntry,
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
 )
@@ -123,11 +124,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def process_entries(
         self,
-        entries: ComputedStructureEntry | ComputedEntry | list,
+        entries: AnyComputedEntry | list[AnyComputedEntry],
         clean: bool = True,
         verbose: bool = True,
+        inplace: bool = True,
         mixing_state_data=None,
-    ):
+    ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the DFT mixing scheme. Note
         that this method will change the data of the original entries.
@@ -140,10 +142,11 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
                 Note that under typical use, when mixing_state_data=None, the entries MUST be
                 ComputedStructureEntry. They will be matched using structure_matcher.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose: bool, whether to print verbose error messages about the mixing scheme. Default is True.
+            verbose (bool): Whether to print verbose error messages about the mixing scheme. Default is True.
+            inplace (bool): Whether to adjust input entries in place. Default is True.
             mixing_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
                 the respective run_types, etc. If None (default), it will be generated from the
@@ -155,8 +158,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 ComputedStructureEntry in entries.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         processed_entry_list: list = []
 
@@ -164,6 +167,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if len(entries) == 1:
             warnings.warn(f"{type(self).__name__} cannot process single entries. Supply a list of entries.")
             return processed_entry_list
+
+        # if inplace = False, process entries on a copy
+        if not inplace:
+            entries = copy.deepcopy(entries)
 
         # if clean is True, remove all previous adjustments from the entry
         # this code must be placed before the next block, because we don't want to remove
@@ -282,12 +289,11 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 "WARNING! `mixing_state_data` DataFrame is None. No energy adjustments will be applied."
             )
 
-        if not all(mixing_state_data["hull_energy_1"].notna()):
-            if any(mixing_state_data["entry_id_1"].notna()):
-                raise CompatibilityError(
-                    f"WARNING! {self.run_type_1} entries do not form a complete PhaseDiagram."
-                    " No energy adjustments will be applied."
-                )
+        if not all(mixing_state_data["hull_energy_1"].notna()) and any(mixing_state_data["entry_id_1"].notna()):
+            raise CompatibilityError(
+                f"WARNING! {self.run_type_1} entries do not form a complete PhaseDiagram."
+                " No energy adjustments will be applied."
+            )
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
@@ -488,9 +494,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         for entry in entries:
             if not isinstance(entry, ComputedStructureEntry):
                 warnings.warn(
-                    f"Entry {entry.entry_id} is not a ComputedStructureEntry and will be"
-                    "ignored. The DFT mixing scheme requires structures for"
-                    " all entries"
+                    f"Entry {entry.entry_id} is not a ComputedStructureEntry and will be ignored. "
+                    "The DFT mixing scheme requires structures for all entries"
                 )
                 continue
 
@@ -534,7 +539,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         ]
 
         def _get_sg(struct) -> int:
-            """helper function to get spacegroup with a loose tolerance"""
+            """Helper function to get spacegroup with a loose tolerance"""
             try:
                 return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
@@ -572,8 +577,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                         row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
-        mixing_state_data.sort_values(
-            ["formula", "energy_1", "spacegroup", "num_sites"], inplace=True, ignore_index=True
+        mixing_state_data = mixing_state_data.sort_values(
+            ["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True
         )
 
         return mixing_state_data
@@ -586,7 +591,6 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         filtered_entries = []
 
         for entry in entries:
-
             if not entry.parameters.get("run_type"):
                 warnings.warn(
                     f"Entry {entry.entry_id} is missing parameters.run_type! This field"
@@ -669,7 +673,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
         """
-        helper function to populate a row of the mixing state DataFrame, given
+        Helper function to populate a row of the mixing state DataFrame, given
         a list of matched structures
         """
         # within the group of matched structures, keep the lowest energy entry from

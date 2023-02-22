@@ -56,7 +56,7 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
             continue
         node_paths.append(path)
         current_edge_paths = [[]]
-        for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
+        for node1, node2 in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
             new_edge_paths = []
             for key, edge_data in graph[node1][node2].items():
                 for tmp_edge_path in current_edge_paths:
@@ -83,7 +83,6 @@ def _c2index_isreverse(c1, c2):
     cycle c2 : if it is *just after* the c2_0_index, reverse is False, if it is
     *just before* the c2_0_index, reverse is True, otherwise the function returns None).
     """
-
     c1_0 = c1.nodes[0]
     c1_1 = c1.nodes[1]
     if c1_0 not in c2.nodes:

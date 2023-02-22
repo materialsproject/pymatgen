@@ -57,7 +57,7 @@ class InputVariable:
     def get_value(self):
         """Return the value."""
         if self.units:
-            return list(self.value) + [self.units]
+            return [*self.value, self.units]
         return self.value
 
     @property
@@ -110,7 +110,6 @@ class InputVariable:
 
         # values in lists
         if isinstance(value, (list, tuple)):
-
             # Reshape a list of lists into a single list
             if all(isinstance(v, (list, tuple)) for v in value):
                 line += self.format_list2d(value, floatdecimal)
@@ -182,7 +181,6 @@ class InputVariable:
         elif type_all == str:
             formatspec = f">{width}"
         else:
-
             # Number of decimal
             maxdec = max(len(str(f - int(f))) - 2 for f in lvals)
             ndec = min(max(maxdec, floatdecimal), 10)

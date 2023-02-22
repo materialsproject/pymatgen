@@ -683,7 +683,6 @@ class SQSTransformationTest(PymatgenTest):
         assert True in matches
 
     def test_spin(self):
-
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
 
         # nonsensical example just for testing purposes

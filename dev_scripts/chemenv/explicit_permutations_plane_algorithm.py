@@ -23,7 +23,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane, collinear
 
 if __name__ == "__main__":
-
     # Choose the geometry
     allcg = AllCoordinationGeometries()
     while True:

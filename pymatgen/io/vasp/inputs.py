@@ -192,13 +192,12 @@ class Poscar(MSONable):
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
     def __setattr__(self, name, value):
-        if name in ("selective_dynamics", "velocities"):
-            if value is not None and len(value) > 0:
-                value = np.array(value)
-                dim = value.shape
-                if dim[1] != 3 or dim[0] != len(self.structure):
-                    raise ValueError(name + " array must be same length as the structure.")
-                value = value.tolist()
+        if name in ("selective_dynamics", "velocities") and value is not None and len(value) > 0:
+            value = np.array(value)
+            dim = value.shape
+            if dim[1] != 3 or dim[0] != len(self.structure):
+                raise ValueError(name + " array must be same length as the structure.")
+            value = value.tolist()
         super().__setattr__(name, value)
 
     @staticmethod
@@ -489,7 +488,7 @@ class Poscar(MSONable):
         lines.append("direct" if direct else "cartesian")
 
         selective_dynamics = self.selective_dynamics
-        for (i, site) in enumerate(self.structure):
+        for i, site in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join(format_str.format(c) for c in coords)
             if selective_dynamics is not None:
@@ -645,7 +644,6 @@ class Incar(dict, MSONable):
         """
         super().__init__()
         if params:
-
             # if Incar contains vector-like magmoms given as a list
             # of floats, convert to a list of lists
             if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (
@@ -925,9 +923,8 @@ class Incar(dict, MSONable):
             else:
                 similar_param[k1] = v1
         for k2, v2 in other.items():
-            if k2 not in similar_param and k2 not in different_param:
-                if k2 not in self:
-                    different_param[k2] = {"INCAR1": None, "INCAR2": v2}
+            if k2 not in similar_param and k2 not in different_param and k2 not in self:
+                different_param[k2] = {"INCAR1": None, "INCAR2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def __add__(self, other):
@@ -977,13 +974,12 @@ class Incar(dict, MSONable):
 
                 # if we have a list of possible parameters, check
                 # if the user given parameter is in this list
-                elif type(incar_params[k]).__name__ == "list":
-                    if v not in incar_params[k]:
-                        warnings.warn(
-                            f"{k}: Cannot find {v} in the list of parameters",
-                            BadIncarWarning,
-                            stacklevel=2,
-                        )
+                elif type(incar_params[k]).__name__ == "list" and v not in incar_params[k]:
+                    warnings.warn(
+                        f"{k}: Cannot find {v} in the list of parameters",
+                        BadIncarWarning,
+                        stacklevel=2,
+                    )
 
 
 class Kpoints_supported_modes(Enum):
@@ -1877,10 +1873,7 @@ class PotcarSingle:
         :return: PotcarSingle.
         """
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
-        if match:
-            symbol = match.group(0)
-        else:
-            symbol = ""
+        symbol = match.group(0) if match else ""
 
         try:
             with zopen(filename, "rt") as f:
@@ -1996,7 +1989,7 @@ class PotcarSingle:
         If no SHA256 hash is found in the file, the file hash (md5 hash of the
         whole file) is checked against all POTCAR file hashes known to pymatgen.
 
-        Returns
+        Returns:
         -------
         (bool, bool)
             has_sh256 and passed_hash_check are returned.
@@ -2004,20 +1997,14 @@ class PotcarSingle:
         """
         if hasattr(self, "SHA256"):
             has_sha256 = True
-            if self.hash_sha256_from_file == self.hash_sha256_computed:
-                passed_hash_check = True
-            else:
-                passed_hash_check = False
+            passed_hash_check = self.hash_sha256_from_file == self.hash_sha256_computed
         else:
             has_sha256 = False
             # if no sha256 hash is found in the POTCAR file, compare the whole
             # file with known potcar file hashes.
             md5_file_hash = self.file_hash
             hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
-            if md5_file_hash in hash_db.keys():
-                passed_hash_check = True
-            else:
-                passed_hash_check = False
+            passed_hash_check = md5_file_hash in hash_db
         return (has_sha256, passed_hash_check)
 
     def identify_potcar(self, mode: Literal["data", "file"] = "data"):
@@ -2490,6 +2477,5 @@ class VaspInput(dict, MSONable):
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
-        with cd(run_dir):
-            with open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
-                subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
+        with cd(run_dir), open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
+            subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)

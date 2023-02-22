@@ -18,8 +18,8 @@ class StressTest(PymatgenTest):
 
     def test_properties(self):
         # mean_stress
-        assert self.rand_stress.mean_stress == 1.0 / 3.0 * (
-            self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2]
+        assert self.rand_stress.mean_stress == pytest.approx(
+            1.0 / 3.0 * (self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2])
         )
         assert self.symm_stress.mean_stress == pytest.approx(3.66)
         # deviator_stress

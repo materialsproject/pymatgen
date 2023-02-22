@@ -91,7 +91,7 @@ class VampireCaller:
             mat_id_dict (dict): Maps sites to material id # for vampire
                 indexing.
 
-        TODO:
+        Todo:
             * Create input files in a temp folder that gets cleaned up after run terminates
         """
         self.mc_box_size = mc_box_size
@@ -157,7 +157,6 @@ class VampireCaller:
         self.output = VampireOutput(parsed_out, nmats, critical_temp)
 
     def _create_mat(self):
-
         structure = self.structure
         mat_name = self.mat_name
         magmoms = structure.site_properties["magmom"]
@@ -186,7 +185,6 @@ class VampireCaller:
                 if spin_down and not spin_up:
                     mat_id_dict[site] = nmats
                 if spin_up and spin_down:
-
                     # Check if spin up or down shows up first
                     m0 = magmoms[key[0]]
                     if m > 0 and m0 > 0:
@@ -237,7 +235,6 @@ class VampireCaller:
             f.write(mat_file)
 
     def _create_input(self):
-
         structure = self.structure
         mcbs = self.mc_box_size
         equil_timesteps = self.equil_timesteps
@@ -283,20 +280,11 @@ class VampireCaller:
         ]
 
         # Set temperature range and step size of simulation
-        if "start_t" in self.user_input_settings:
-            start_t = self.user_input_settings["start_t"]
-        else:
-            start_t = 0
+        start_t = self.user_input_settings["start_t"] if "start_t" in self.user_input_settings else 0
 
-        if "end_t" in self.user_input_settings:
-            end_t = self.user_input_settings["end_t"]
-        else:
-            end_t = 1500
+        end_t = self.user_input_settings["end_t"] if "end_t" in self.user_input_settings else 1500
 
-        if "temp_increment" in self.user_input_settings:
-            temp_increment = self.user_input_settings["temp_increment"]
-        else:
-            temp_increment = 25
+        temp_increment = self.user_input_settings.get("temp_increment", 25)
 
         input_script += [
             f"sim:minimum-temperature = {start_t}",
@@ -318,7 +306,6 @@ class VampireCaller:
             f.write(input_script)
 
     def _create_ucf(self):
-
         structure = self.structure
         mat_name = self.mat_name
 
@@ -403,7 +390,7 @@ class VampireCaller:
 
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
-        df.drop("nan", axis=1, inplace=True)
+        df = df.drop("nan", axis=1)
 
         parsed_out = df.to_json()
 

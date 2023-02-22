@@ -74,13 +74,13 @@ class CompositionTest(PymatgenTest):
         with pytest.raises(ValueError):
             Composition({"H": -0.1})
         f = {"Fe": 4, "Li": 4, "O": 16, "P": 4}
-        assert "Li4 Fe4 P4 O16" == Composition(f).formula
+        assert Composition(f).formula == "Li4 Fe4 P4 O16"
         f = {None: 4, "Li": 4, "O": 16, "P": 4}
         with pytest.raises(TypeError):
             Composition(f)
         f = {1: 2, 8: 1}
-        assert "H2 O1" == Composition(f).formula
-        assert "Na2 O1" == Composition(Na=2, O=1).formula
+        assert Composition(f).formula == "H2 O1"
+        assert Composition(Na=2, O=1).formula == "Na2 O1"
 
         c = Composition({"S": Composition.amount_tolerance / 2})
         assert len(c.elements) == 0
@@ -197,7 +197,7 @@ class CompositionTest(PymatgenTest):
             "ZnHO",
         ]
         for idx, comp in enumerate(self.comp):
-            assert comp.get_reduced_composition_and_factor()[0] == Composition(correct_reduced_formulas[idx])
+            assert comp.reduced_composition == Composition(correct_reduced_formulas[idx])
 
     def test_reduced_formula(self):
         correct_reduced_formulas = [
@@ -220,7 +220,7 @@ class CompositionTest(PymatgenTest):
 
         # test rounding
         c = Composition({"Na": 2 - Composition.amount_tolerance / 2, "Cl": 2})
-        assert "NaCl" == c.reduced_formula
+        assert c.reduced_formula == "NaCl"
 
     def test_integer_formula(self):
         correct_reduced_formulas = [
@@ -391,7 +391,7 @@ class CompositionTest(PymatgenTest):
 
         c1, c2 = self.comp[:2]
         assert c1 == c1
-        assert not c1 == c2
+        assert c1 != c2
 
     def test_hash_robustness(self):
         c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
@@ -400,7 +400,7 @@ class CompositionTest(PymatgenTest):
 
         assert c1 == c3, "__eq__ not robust"
         assert (c1 == c3) == (hash(c1) == hash(c3)), "Hash doesn't match eq when true"
-        assert not hash(c1) == hash(c2), "Hash equal for different chemical systems"
+        assert hash(c1) != hash(c2), "Hash equal for different chemical systems"
 
     def test_comparisons(self):
         c1 = Composition({"S": 1})
@@ -417,7 +417,7 @@ class CompositionTest(PymatgenTest):
         assert sorted([c1, c1_1, c2, c4, c3]) == [c3, c1, c1_1, c4, c2]
 
         Fe = Element("Fe")
-        assert not c1 == Fe, NotImplemented
+        assert c1 != Fe, NotImplemented
         assert c1 != Fe
         with pytest.raises(TypeError):
             c1 < Fe  # noqa: B015
@@ -434,8 +434,8 @@ class CompositionTest(PymatgenTest):
 
     def test_equality(self):
         assert self.comp[0] == self.comp[0]
-        assert not self.comp[0] == self.comp[1]
-        assert not self.comp[0] != self.comp[0]
+        assert self.comp[0] != self.comp[1]
+        assert self.comp[0] == self.comp[0]
         assert self.comp[0] != self.comp[1]
 
     def test_fractional_composition(self):
@@ -556,19 +556,19 @@ class CompositionTest(PymatgenTest):
         # Basic test: Get compositions where each element is in a single charge state
         decorated = Composition("H2O").add_charges_from_oxi_state_guesses()
         assert Species("H", 1) in decorated
-        assert 2 == decorated.get(Species("H", 1))
+        assert decorated.get(Species("H", 1)) == 2
 
         # Test: More than one charge state per element
         decorated = Composition("Fe3O4").add_charges_from_oxi_state_guesses()
-        assert 1 == decorated.get(Species("Fe", 2))
-        assert 2 == decorated.get(Species("Fe", 3))
-        assert 4 == decorated.get(Species("O", -2))
+        assert decorated.get(Species("Fe", 2)) == 1
+        assert decorated.get(Species("Fe", 3)) == 2
+        assert decorated.get(Species("O", -2)) == 4
 
         # Test: No possible charge states
         #   It should return an uncharged composition
         decorated = Composition("NiAl").add_charges_from_oxi_state_guesses()
-        assert 1 == decorated.get(Species("Ni", 0))
-        assert 1 == decorated.get(Species("Al", 0))
+        assert decorated.get(Species("Ni", 0)) == 1
+        assert decorated.get(Species("Al", 0)) == 1
 
     def test_Metallofullerene(self):
         # Test: Parse Metallofullerene formula (e.g. Y3N@C80)
@@ -579,7 +579,6 @@ class CompositionTest(PymatgenTest):
         assert cmp == cmp2
 
     def test_contains_element_type(self):
-
         formula = "EuTiO3"
         cmp = Composition(formula)
         assert cmp.contains_element_type("lanthanoid")
@@ -592,7 +591,6 @@ class CompositionTest(PymatgenTest):
         assert Composition({"Na+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
 
     def test_is_valid(self):
-
         formula = "NaCl"
         cmp = Composition(formula)
         assert cmp.valid

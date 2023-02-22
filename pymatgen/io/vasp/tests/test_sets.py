@@ -209,7 +209,6 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert MPRelaxSet(s).nelect == approx(22)
 
     def test_get_incar(self):
-
         incar = self.mpset.incar
 
         assert incar["LDAUU"] == [5.3, 0, 0]
@@ -372,7 +371,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # test that NELECT does not get set when use_structure_charge = False
         mpr = MPRelaxSet(struct, use_structure_charge=False)
-        assert not ("NELECT" in mpr.incar), "NELECT should not be set when use_structure_charge is False"
+        assert "NELECT" not in mpr.incar, "NELECT should not be set when use_structure_charge is False"
 
         struct = Structure(latt, ["Co", "O"], coords)
         mpr = MPRelaxSet(struct)

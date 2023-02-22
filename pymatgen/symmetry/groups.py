@@ -57,10 +57,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         if not isinstance(item, SymmOp):
             return NotImplemented
 
-        for i in self.symmetry_ops:
-            if np.allclose(i.affine_matrix, item.affine_matrix):
-                return True
-        return False
+        return any(np.allclose(i.affine_matrix, item.affine_matrix) for i in self.symmetry_ops)
 
     def __hash__(self) -> int:
         return len(self)
@@ -440,26 +437,7 @@ class SpaceGroup(SymmetryGroup):
             and (
                 self.symbol.endswith("H")
                 or self.int_number
-                in [
-                    143,
-                    144,
-                    145,
-                    147,
-                    149,
-                    150,
-                    151,
-                    152,
-                    153,
-                    154,
-                    156,
-                    157,
-                    158,
-                    159,
-                    162,
-                    163,
-                    164,
-                    165,
-                ]
+                in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
             )
         ):
             a = abc[0]

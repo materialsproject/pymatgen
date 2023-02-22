@@ -16,7 +16,6 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
 
 class TestTemplateInputGen:
     def test_write_inputs(self):
-
         with tempfile.TemporaryDirectory() as scratch_dir:
             tis = TemplateInputGen().get_input_set(
                 template=os.path.join(test_dir, "template_input_file.txt"),
@@ -40,7 +39,7 @@ class TestTemplateInputGen:
 
             # test len, iter, getitem
             assert len(tis.inputs) == 1
-            assert len([i for i in tis.inputs]) == 1
+            assert len(list(tis.inputs)) == 1
             assert isinstance(tis.inputs["hello_world.in"], str)
 
             with pytest.raises(FileExistsError):
@@ -53,4 +52,4 @@ class TestTemplateInputGen:
 
             tis.write_input(scratch_dir, zip_inputs=True)
 
-            assert "InputSet.zip" in [f for f in os.listdir(scratch_dir)]
+            assert "InputSet.zip" in list(os.listdir(scratch_dir))

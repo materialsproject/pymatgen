@@ -4,6 +4,7 @@ Utilities for Qchem io.
 
 from __future__ import annotations
 
+import copy
 import re
 from collections import defaultdict
 
@@ -118,10 +119,7 @@ def read_table_pattern(
                 processed_line = [postprocess(v) for v in ml.groups()]
             table_contents.append(processed_line)
         tables.append(table_contents)
-    if last_one_only:
-        retained_data = tables[-1]
-    else:
-        retained_data = tables
+    retained_data = tables[-1] if last_one_only else tables
     if attribute_name is not None:
         data[attribute_name] = retained_data
         return data
@@ -153,7 +151,7 @@ def lower_and_check_unique(dict_to_check):
 
         if isinstance(val, str):
             val = val.lower()
-        elif isinstance(val, int) or isinstance(val, float):
+        elif isinstance(val, (int, float)):
             # convert all numeric keys to str
             val = str(val)
         else:
@@ -208,3 +206,40 @@ def process_parsed_fock_matrix(fock_matrix):
         index_cols += n_cols_chunks
 
     return fock_matrix_reshaped
+
+
+def process_parsed_HESS(hess_data):
+    """
+    Takes the information contained in a HESS file and converts it into
+    the format of the machine-readable 132.0 file which can be printed
+    out to be read into subsequent optimizations.
+    """
+    dim = int(hess_data[1].split()[1])
+    hess = []
+    tmp_part = []
+    for _ii in range(dim):
+        tmp_part.append(0.0)
+    for _ii in range(dim):
+        hess.append(copy.deepcopy(tmp_part))
+
+    row = 0
+    column = 0
+    for ii, line in enumerate(hess_data):
+        if ii not in [0, 1, len(hess_data) - 1]:
+            split_line = line.split()
+            for val in split_line:
+                num = float(val)
+                hess[row][column] = num
+                if row == column:
+                    row += 1
+                    column = 0
+                else:
+                    hess[column][row] = num
+                    column += 1
+
+    processed_hess_data = []
+    for ii in range(dim):
+        for jj in range(dim):
+            processed_hess_data.append(hess[ii][jj])
+
+    return processed_hess_data

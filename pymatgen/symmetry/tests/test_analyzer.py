@@ -90,9 +90,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert self.disordered_sg.get_point_group_symbol() == "4/mmm"
 
     def test_get_symmetry_operations(self):
-
         for sg, structure in [(self.sg, self.structure), (self.sg4, self.structure4)]:
-
             pg_ops = sg.get_point_group_operations()
             frac_symmops = sg.get_symmetry_operations()
             symmops = sg.get_symmetry_operations(True)
@@ -143,8 +141,8 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
     def test_get_crystal_system(self):
         crystal_system = self.sg.get_crystal_system()
-        assert "orthorhombic" == crystal_system
-        assert "tetragonal" == self.disordered_sg.get_crystal_system()
+        assert crystal_system == "orthorhombic"
+        assert self.disordered_sg.get_crystal_system() == "tetragonal"
 
         orig_spg = self.sg._space_group_data["number"]
         self.sg._space_group_data["number"] = 0

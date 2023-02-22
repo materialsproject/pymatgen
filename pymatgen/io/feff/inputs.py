@@ -723,12 +723,10 @@ class Tags(dict):
                         ieels_max = ieels + 5
                     else:
                         params[key] = val
-            if ieels >= 0:
-                if ieels <= i <= ieels_max:
-                    if i == ieels + 1:
-                        if int(line.split()[1]) == 1:
-                            ieels_max -= 1
-                    eels_params.append(line)
+            if ieels >= 0 and ieels <= i <= ieels_max:
+                if i == ieels + 1 and int(line.split()[1]) == 1:
+                    ieels_max -= 1
+                eels_params.append(line)
 
         if eels_params:
             if len(eels_params) == 6:
@@ -823,9 +821,8 @@ class Tags(dict):
             else:
                 similar_param[k1] = v1
         for k2, v2 in other.items():
-            if k2 not in similar_param and k2 not in different_param:
-                if k2 not in self:
-                    different_param[k2] = {"FEFF_TAGS1": "Default", "FEFF_TAGS2": v2}
+            if k2 not in similar_param and k2 not in different_param and k2 not in self:
+                different_param[k2] = {"FEFF_TAGS1": "Default", "FEFF_TAGS2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def __add__(self, other):
@@ -1063,9 +1060,8 @@ def get_atom_map(structure, absorbing_atom=None):
 
     # if there is only a single absorbing atom in the structure,
     # it should be excluded from this list
-    if absorbing_atom:
-        if len(structure.indices_from_symbol(absorbing_atom)) == 1:
-            unique_pot_atoms.remove(absorbing_atom)
+    if absorbing_atom and len(structure.indices_from_symbol(absorbing_atom)) == 1:
+        unique_pot_atoms.remove(absorbing_atom)
 
     atom_map = {}
     for i, atom in enumerate(unique_pot_atoms):
