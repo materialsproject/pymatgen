@@ -45,6 +45,7 @@ setup(
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
         "relaxation": ["m3gnet"],
+        "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "black",
             "mypy",
@@ -67,7 +68,6 @@ setup(
             "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
             "f90nml>=1.1.2",
-            "fdint>=2.0.2",
             "galore>=0.6.1",
             "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
