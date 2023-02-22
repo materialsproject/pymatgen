@@ -624,8 +624,8 @@ class StructureVis:
                     ii2 = np.mod(ii + 1, len(face))
                     points.InsertNextPoint(face[ii2][0], face[ii2][1], face[ii2][2])
                     points.InsertNextPoint(center[0], center[1], center[2])
-                    for ii in range(3):
-                        triangle.GetPointIds().SetId(ii, ii)
+                    for jj in range(3):
+                        triangle.GetPointIds().SetId(jj, jj)
                     triangles = vtk.vtkCellArray()
                     triangles.InsertNextCell(triangle)
                     trianglePolyData = vtk.vtkPolyData()

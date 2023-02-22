@@ -2350,7 +2350,12 @@ def seebeck_spb(eta, Lambda=0.5):
     """
     Seebeck analytic formula in the single parabolic model
     """
-    from fdint import fdk
+    try:
+        from fdint import fdk
+    except ImportError:
+        raise BoltztrapError(
+            "fdint module not found. Please, install it.\nIt is needed to calculate Fermi integral quickly."
+        )
 
     return (
         constants.k

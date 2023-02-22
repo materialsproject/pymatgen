@@ -12,6 +12,9 @@ from setuptools import Extension, find_namespace_packages, setup
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
 extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 
+with open("README.md") as file:
+    long_description = file.read()
+
 setup(
     name="pymatgen",
     packages=find_namespace_packages(
@@ -44,6 +47,7 @@ setup(
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
         "relaxation": ["m3gnet"],
+        "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "black",
             "mypy",
@@ -66,10 +70,8 @@ setup(
             "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
             "f90nml>=1.1.2",
-            "fdint>=2.0.2",
             "galore>=0.6.1",
-            "h5py==3.6.0",  # pinned due to 3.7 crashing on windows
-            # https://github.com/h5py/h5py/issues/2110
+            "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
@@ -119,7 +121,7 @@ setup(
     "structure codes. It is currently the core analysis code "
     "powering the Materials Project "
     "(https://materialsproject.org).",
-    long_description=open("README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     keywords=[
         "ABINIT",

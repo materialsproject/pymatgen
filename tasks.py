@@ -270,8 +270,7 @@ def update_changelog(ctx, version=None, dry_run=False):
             lines.append(f"* PR #{pr_number} from @{contributor} {pr_name}")
             json_resp = response.json()
             if "body" in json_resp and json_resp["body"]:
-                for ll in json_resp["body"].split("\n"):
-                    ll = ll.strip()
+                for ll in map(str.strip, json_resp["body"].split("\n")):
                     if ll in ["", "## Summary"]:
                         continue
                     elif ll.startswith(("## Checklist", "## TODO")):
