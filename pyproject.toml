@@ -15,6 +15,9 @@ archs = ["auto64"]
 skip = ["*musllinux*"]
 before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
 
+[tool.cibuildwheel.macos]
+env = { LD_LIBRARY_PATH: "/usr/local/bin/gfortran-12/lib:$LD_LIBRARY_PATH" }
+
 [tool.ruff]
 target-version = "py38"
 line-length = 120
