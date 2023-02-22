@@ -28,15 +28,19 @@ jobs:
       matrix:
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.8', '3.11']
+        # include/exclude is meant to maximize CI coverage of different platforms and python
+        # versions while minimizing the total number of jobs. We run all pytest splits with the
+        # oldest supported python version (currently 3.8) on windows (seems most likely to surface
+        # errors) and with newest version (currently 3.11) on ubuntu (to get complete and speedy
+        # coverage on unix). Also sample some splits on macos for all python versions
+        exclude:
+          - os: [windows-latest]
+            python-version: ['3.11']
+          - os: [ubuntu-latest]
+            python-version: ['3.8']
         include:
-          # this list is meant to maximize CI coverage of different platforms and python versions
-          # while minimizing the total number of jobs. make sure we run all splits on the oldest and
-          # newest supported python versions 3.8 - 3.11
-          - os: windows-latest # run all splits on windows + python 3.8
-            python-version: '3.8'
-          - os: ubuntu-latest # run all splits on ubuntu + python 3.11
-            python-version: '3.11'
-          # sample some splits on macos for all python versions
           - os: macos-latest
             python-version: '3.8'
             split: 1
