@@ -15,6 +15,14 @@ extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 with open("README.md") as file:
     long_description = file.read()
 
+# unlike GitHub readme's, PyPI doesn't support <picture> tags used for responsive images
+# (i.e. adaptive to OS light/dark mode)
+# TODO this manual fix won't work once we migrate to pyproject.toml
+logo_url = "https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg"
+long_description = (
+    f"<h1 align='center'><img alt='Logo' src='{logo_url}' height='70'></h1>" + long_description.split("</picture>")[-1]
+)
+
 setup(
     name="pymatgen",
     packages=find_namespace_packages(
@@ -147,6 +155,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Information Analysis",
