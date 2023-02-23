@@ -5,11 +5,11 @@ following assumes you are using `miniconda` or Anaconda.
 
 ## Releases
 
-The general procedure to releasing `pymatgen` comprises the following
+The general procedure for releasing `pymatgen` comprises the following
 steps:
 
 1. Make sure all CI checks are green. We don't want to release known bugs.
-2. Update and edit change log.
+2. Update and edit changelog.
 3. Release PyPI versions + doc.
 4. Release `conda` versions.
 5. Release Dash documentation.
