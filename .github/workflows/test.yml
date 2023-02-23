@@ -129,7 +129,7 @@ jobs:
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest]
         python-version: ['3.8', '3.9', '3.10']
     runs-on: ${{ matrix.os }}
 
