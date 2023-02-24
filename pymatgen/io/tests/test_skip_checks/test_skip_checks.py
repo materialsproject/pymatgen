@@ -10,7 +10,7 @@ test_dir = os.path.join(os.path.dirname(__file__))
 
 
 class Test_Skip_Checks(PymatgenTest):
-    def setup(self):
+    def setUp(self):
         self.cif_list = [i for i in os.listdir(test_dir) if i.endswith(".cif")]
         self.structures = [
             CifParser(file, occupancy_tolerance=10000000).get_structures(
