@@ -23,5 +23,5 @@ class Test_Skip_Checks(PymatgenTest):
         self.assertEqual(self.structures[0][0].species.as_dict()["O"], 1.36)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
