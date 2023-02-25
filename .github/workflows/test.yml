@@ -163,11 +163,17 @@ jobs:
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@
+        with:
+          python-version: 3.11
       - uses: actions/download-artifact@v3
         with:
           name: artifact
           path: dist
-      - uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: ${{ secrets.TWINE_USERNAME }}
-          password: ${{ secrets.TWINE_PASSWORD }}
+      - name: Release
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        run: |
+          pipx run twine upload --skip-existing dist/*.whl dist/*.tar.gz

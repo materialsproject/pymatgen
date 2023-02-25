@@ -16,7 +16,7 @@ skip = ["*musllinux*"]
 before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
 
 [tool.cibuildwheel.macos]
-repair-wheel-command = ""
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
 
 [tool.ruff]
 target-version = "py38"
