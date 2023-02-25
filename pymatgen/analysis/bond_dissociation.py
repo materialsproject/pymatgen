@@ -46,7 +46,7 @@ class BondDissociationEnergies(MSONable):
         fragment_entries,
         allow_additional_charge_separation=False,
         multibreak=False,
-    ):
+    ) -> None:
         """
         Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
         final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.
@@ -55,8 +55,8 @@ class BondDissociationEnergies(MSONable):
             molecule_entry (dict): Entry for the principle molecule. Should have the keys mentioned above.
             fragment_entries (list of dicts): List of fragment entries. Each should have the keys mentioned above.
             allow_additional_charge_separation (bool): If True, consider larger than normal charge separation
-                                                       among fragments. Defaults to False. See the definition
-                                                       of self.expected_charges below for more specific information.
+                among fragments. Defaults to False. See the definition of self.expected_charges below for more
+                specific information.
             multibreak (bool): If True, additionally attempt to break pairs of bonds. Defaults to False.
         """
         self.molecule_entry = molecule_entry

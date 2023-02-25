@@ -34,7 +34,8 @@ class LibxcFuncTest(PymatgenTest):
 
         # GGA-PBE from ixc == 11 (in aliases)
         ixc_11 = XcFunc.from_abinit_ixc(11)
-        assert ixc_11.type == "GGA" and ixc_11.name == "PBE"
+        assert ixc_11.type == "GGA"
+        assert ixc_11.name == "PBE"
         assert ixc_11.name in XcFunc.aliases()
         assert ixc_1 != ixc_11
         # Test asxc
@@ -57,12 +58,14 @@ class LibxcFuncTest(PymatgenTest):
 
         # GGA-PBE from ixc given in abinit-libxc mode
         ixc_101130 = XcFunc.from_abinit_ixc(-101130)
-        assert ixc_101130.type == "GGA" and ixc_101130.name == "PBE"
+        assert ixc_101130.type == "GGA"
+        assert ixc_101130.name == "PBE"
         assert ixc_101130 == ixc_11
 
         # GGA-PBE built from name
         gga_pbe = XcFunc.from_name("PBE")
-        assert gga_pbe.type == "GGA" and gga_pbe.name == "PBE"
+        assert gga_pbe.type == "GGA"
+        assert gga_pbe.name == "PBE"
         assert ixc_11 == gga_pbe
 
         # Use X from GGA and C from LDA!
@@ -72,5 +75,6 @@ class LibxcFuncTest(PymatgenTest):
         assert unknown_xc.name == "GGA_X_PBE+LDA_C_PW"
 
         gga_pbe = XcFunc.from_type_name("GGA", "GGA_X_PBE+GGA_C_PBE")
-        assert gga_pbe.type == "GGA" and gga_pbe.name == "PBE"
+        assert gga_pbe.type == "GGA"
+        assert gga_pbe.name == "PBE"
         assert str(gga_pbe) == "PBE"

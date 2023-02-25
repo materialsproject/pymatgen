@@ -64,7 +64,7 @@ class LobsterNeighbors(NearNeighbors):
         filename_blist_sg2=None,
         id_blist_sg1="ICOOP",
         id_blist_sg2="ICOBI",
-    ):
+    ) -> None:
         """
 
         Args:
@@ -658,17 +658,12 @@ class LobsterNeighbors(NearNeighbors):
 
                                 else:
                                     if not done:
+                                        icohp_trans = -np.asarray(
+                                            [icohp._translation[0], icohp._translation[1], icohp._translation[2]]
+                                        )
+
                                         if (np.all(np.asarray(translation) == np.asarray(icohp._translation))) or (
-                                            np.all(
-                                                np.asarray(translation)
-                                                == np.asarray(
-                                                    [
-                                                        -icohp._translation[0],
-                                                        -icohp._translation[1],
-                                                        -icohp._translation[2],
-                                                    ]
-                                                )
-                                            )
+                                            np.all(np.asarray(translation) == icohp_trans)
                                         ):
                                             summed_icohps += icohp.summed_icohp
                                             list_icohps.append(icohp.summed_icohp)

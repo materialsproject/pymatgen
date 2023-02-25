@@ -334,8 +334,7 @@ class SlabEntry(ComputedStructureEntry):
     @property
     def create_slab_label(self):
         """
-        Returns a label (str) for this particular slab based
-            on composition, coverage and Miller index.
+        Returns a label (str) for this particular slab based on composition, coverage and Miller index.
         """
         if "label" in self.data:
             return self.data["label"]

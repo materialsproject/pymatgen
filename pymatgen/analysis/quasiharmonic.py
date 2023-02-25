@@ -50,7 +50,7 @@ class QuasiharmonicDebyeApprox:
         poisson=0.25,
         use_mie_gruneisen=False,
         anharmonic_contribution=False,
-    ):
+    ) -> None:
         """
         Args:
             energies (list): list of DFT energies in eV
@@ -252,10 +252,8 @@ class QuasiharmonicDebyeApprox:
     def gruneisen_parameter(self, temperature, volume):
         """
         Slater-gamma formulation(the default):
-            gruneisen parameter = - d log(theta)/ d log(V)
-                               = - ( 1/6 + 0.5 d log(B)/ d log(V) )
-                               = - (1/6 + 0.5 V/B dB/dV),
-                                    where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
+            gruneisen parameter = - d log(theta)/ d log(V) = - (1/6 + 0.5 d log(B)/ d log(V))
+                                = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
 
         Mie-gruneisen formulation:
             Eq(31) in doi.org/10.1016/j.comphy.2003.12.001

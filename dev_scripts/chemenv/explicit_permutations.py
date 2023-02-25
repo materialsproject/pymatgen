@@ -64,10 +64,9 @@ if __name__ == "__main__":
     lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
-    res = lgf.coordination_geometry_symmetry_measures_standard(
+    csms, perms, algos, local2perfect_maps, perfect2local_maps = lgf.coordination_geometry_symmetry_measures_standard(
         coordination_geometry=cg, algo=algo, points_perfect=points_perfect
     )
-    (csms, perms, algos, local2perfect_maps, perfect2local_maps) = res
 
     csms_with_recorded_permutation = []
     explicit_permutations = []
