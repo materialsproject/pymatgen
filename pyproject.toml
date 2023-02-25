@@ -81,9 +81,14 @@ namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
 
-[tool.mypy.overrides]
+[[tool.mypy.overrides]]
 module = ["tabulate.*", "requests.*"]
 ignore_missing_imports = true
 
 [tool.codespell]
-ignore-words-list = "titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo"
+ignore-words-list = """
+titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,ser,leary,thre,
+fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda
+"""
+skip = "pymatgen/analysis/aflow_prototypes.json"
+check-filenames = true

@@ -2,7 +2,7 @@ exclude: ^(docs|.*test_files|cmd_line|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [mypy, codespell]
+  skip: [mypy]
 
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
