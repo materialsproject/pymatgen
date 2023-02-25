@@ -127,20 +127,25 @@ class DosPlotter:
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
+    def get_plot(
+        self,
+        xlim: tuple[float, float] | None = None,
+        ylim: tuple[float, float] | None = None,
+        invert_axes: bool = False,
+        beta_dashed: bool = False,
+    ):
         """
         Get a matplotlib plot showing the DOS.
 
         Args:
-            xlim: Specifies the energy axis limits. Set to None for automatic
+            xlim (tuple[float, float]): The energy axis limits. Defaults to None for automatic
                 determination.
-            ylim: Specifies the density axis limits.
-            invert_axes: Enables chemist style DOS plotting. Defaults to False.
-            beta_dashed: Plots the beta spin channel with a dashed line. Defaults to False.
+            ylim (tuple[float, float]): The y-axis limits. Defaults to None for automatic determination.
+            invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
+            beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
-
-        ncolors = max(3, len(self._doses))
-        ncolors = min(9, ncolors)
+        n_colors = min(9, max(3, len(self._doses)))
 
         import palettable
 
@@ -148,8 +153,8 @@ class DosPlotter:
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         ys = None
-        alldensities = []
-        allenergies = []
+        all_densities = []
+        all_energies = []
         plt = pretty_plot(12, 8)
 
         # Note that this complicated processing of energies is to allow for
@@ -170,20 +175,20 @@ class DosPlotter:
                         newdens[spin] = ys[spin].copy()
                     else:
                         newdens[spin] = densities[spin]
-            allenergies.append(energies)
-            alldensities.append(newdens)
+            all_energies.append(energies)
+            all_densities.append(newdens)
 
         keys = list(self._doses)
         keys.reverse()
-        alldensities.reverse()
-        allenergies.reverse()
+        all_densities.reverse()
+        all_energies.reverse()
         allpts = []
 
         for idx, key in enumerate(keys):
             for spin in [Spin.up, Spin.down]:
-                if spin in alldensities[idx]:
-                    energy = allenergies[idx]
-                    densities = list(int(spin) * alldensities[idx][spin])
+                if spin in all_densities[idx]:
+                    energy = all_energies[idx]
+                    densities = list(int(spin) * all_densities[idx][spin])
                     if invert_axes:
                         x = densities
                         y = energy
@@ -192,11 +197,11 @@ class DosPlotter:
                         y = densities
                     allpts.extend(list(zip(x, y)))
                     if self.stack:
-                        plt.fill(x, y, color=colors[idx % ncolors], label=str(key))
+                        plt.fill(x, y, color=colors[idx % n_colors], label=str(key))
                     elif spin == Spin.down and beta_dashed:
-                        plt.plot(x, y, color=colors[idx % ncolors], label=str(key), linestyle="--", linewidth=3)
+                        plt.plot(x, y, color=colors[idx % n_colors], label=str(key), linestyle="--", linewidth=3)
                     else:
-                        plt.plot(x, y, color=colors[idx % ncolors], label=str(key), linewidth=3)
+                        plt.plot(x, y, color=colors[idx % n_colors], label=str(key), linewidth=3)
 
         if xlim:
             plt.xlim(xlim)
