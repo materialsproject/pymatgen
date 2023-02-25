@@ -155,6 +155,7 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("No correct additional condition")
 
         # will read in valences, will prefer manual setting of valences
+        self.valences: list[float] | None
         if valences is None:
             if valences_from_charges and filename_CHARGE is not None:
                 chg = Charge(filename=filename_CHARGE)

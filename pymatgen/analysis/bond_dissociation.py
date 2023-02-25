@@ -42,10 +42,10 @@ class BondDissociationEnergies(MSONable):
 
     def __init__(
         self,
-        molecule_entry,
-        fragment_entries,
-        allow_additional_charge_separation=False,
-        multibreak=False,
+        molecule_entry: dict[str, str | dict[str, str | int]],
+        fragment_entries: list[dict[str, str | dict[str, str | int]]],
+        allow_additional_charge_separation: bool = False,
+        multibreak: bool = False,
     ) -> None:
         """
         Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
@@ -62,10 +62,10 @@ class BondDissociationEnergies(MSONable):
         self.molecule_entry = molecule_entry
         self.filter_fragment_entries(fragment_entries)
         print(str(len(self.filtered_entries)) + " filtered entries")
-        self.bond_dissociation_energies = []
-        self.done_frag_pairs = []
-        self.done_RO_frags = []
-        self.ring_bonds = []
+        self.bond_dissociation_energies: list[float | None] = []
+        self.done_frag_pairs: list[list[dict[str, str | dict[str, str | int]]]] = []
+        self.done_RO_frags: list[dict[str, str | dict[str, str | int]]] = []
+        self.ring_bonds: list[tuple[int, int]] = []
 
         required_keys = ["formula_pretty", "initial_molecule", "final_molecule"]
         if "pcm_dielectric" in self.molecule_entry:
