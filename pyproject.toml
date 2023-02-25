@@ -54,3 +54,36 @@ isort.required-imports = ["from __future__ import annotations"]
 "__init__.py" = ["F401"]
 "*/tests/*" = ["D"]
 "tasks.py" = ["D"]
+
+[tool.pytest.ini_options]
+addopts = "-x --durations=30 --quiet -rxXs --color=yes -p no:warnings"
+
+[tool.coverage.run]
+omit = ["pymatgen/cli"]
+relative_files = true
+
+[tool.coverage.report]
+exclude_lines = """
+pragma: no cover
+def __repr__
+if self.debug:
+if settings.DEBUG
+raise AssertionError
+raise NotImplementedError
+if 0:
+if __name__ == .__main__.:
+@deprecated
+show_plot"""
+
+[tool.mypy]
+ignore_missing_imports = true
+namespace_packages = true
+explicit_package_bases = true
+no_implicit_optional = false
+
+[tool.mypy.overrides]
+module = ["tabulate.*", "requests.*"]
+ignore_missing_imports = true
+
+[tool.codespell]
+ignore-words-list = "titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo"
