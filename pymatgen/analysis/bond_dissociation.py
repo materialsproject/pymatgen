@@ -61,10 +61,10 @@ class BondDissociationEnergies(MSONable):
         """
         self.molecule_entry = molecule_entry
         self.filter_fragment_entries(fragment_entries)
-        print(str(len(self.filtered_entries)) + " filtered entries")
+        print(f"{len(self.filtered_entries)} filtered entries")
         self.bond_dissociation_energies: list[float | None] = []
-        self.done_frag_pairs: list[list[dict[str, str | dict[str, str | int]]]] = []
-        self.done_RO_frags: list[dict[str, str | dict[str, str | int]]] = []
+        self.done_frag_pairs: list[list] = []
+        self.done_RO_frags: list[dict] = []
         self.ring_bonds: list[tuple[int, int]] = []
 
         required_keys = ["formula_pretty", "initial_molecule", "final_molecule"]
@@ -78,36 +78,21 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(key + " must be present in all fragment entries! Exiting...")
 
         # Define expected charges
+        final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
         if not allow_additional_charge_separation:
-            if molecule_entry["final_molecule"]["charge"] == 0:
+            if final_charge == 0:
                 self.expected_charges = [-1, 0, 1]
-            elif molecule_entry["final_molecule"]["charge"] < 0:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"],
-                    molecule_entry["final_molecule"]["charge"] + 1,
-                ]
+            elif final_charge < 0:
+                self.expected_charges = [final_charge, final_charge + 1]
             else:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"] - 1,
-                    molecule_entry["final_molecule"]["charge"],
-                ]
+                self.expected_charges = [final_charge - 1, final_charge]
         else:
-            if molecule_entry["final_molecule"]["charge"] == 0:
+            if final_charge == 0:
                 self.expected_charges = [-2, -1, 0, 1, 2]
-            elif molecule_entry["final_molecule"]["charge"] < 0:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"] - 1,
-                    molecule_entry["final_molecule"]["charge"],
-                    molecule_entry["final_molecule"]["charge"] + 1,
-                    molecule_entry["final_molecule"]["charge"] + 2,
-                ]
+            elif final_charge < 0:
+                self.expected_charges = [final_charge - 1, final_charge, final_charge + 1, final_charge + 2]
             else:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"] - 2,
-                    molecule_entry["final_molecule"]["charge"] - 1,
-                    molecule_entry["final_molecule"]["charge"],
-                    molecule_entry["final_molecule"]["charge"] + 1,
-                ]
+                self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
 
         # Build principle molecule graph
         self.mol_graph = MoleculeGraph.with_local_env_strategy(
@@ -117,7 +102,7 @@ class BondDissociationEnergies(MSONable):
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0], bond[1])]
             self.fragment_and_process(bonds)
-        # If mulitbreak, loop through pairs of ring bonds.
+        # If multibreak, loop through pairs of ring bonds.
         if multibreak:
             print(
                 "Breaking pairs of ring bonds. WARNING: Structure changes much more likely, meaning dissociation values"
