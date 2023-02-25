@@ -2,7 +2,7 @@ exclude: ^(docs|.*test_files|cmd_line|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [mypy, codespell]
+  skip: [mypy]
 
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
@@ -35,7 +35,7 @@ repos:
       - id: codespell
         stages: [commit, commit-msg]
         exclude_types: [html]
-        args: [--ignore-words-list, 'titel,titels,reson,rute,pres,kno,coo']
+        additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
 
   - repo: https://github.com/MarcoGorelli/cython-lint
     rev: v0.12.4

@@ -25,8 +25,10 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         ase_composition = Composition(atoms.get_chemical_formula())
         assert ase_composition == structure.composition
-        assert atoms.cell is not None and atoms.cell.any()
-        assert atoms.get_pbc() is not None and atoms.get_pbc().all()
+        assert atoms.cell is not None
+        assert atoms.cell.any()
+        assert atoms.get_pbc() is not None
+        assert atoms.get_pbc().all()
         assert atoms.get_chemical_symbols() == [s.species_string for s in structure]
         assert not atoms.has("initial_magmoms")
         assert atoms.calc is None
