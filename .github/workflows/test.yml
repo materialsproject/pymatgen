@@ -164,7 +164,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python 3.11
-        uses: actions/setup-python@
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
       - uses: actions/download-artifact@v3
