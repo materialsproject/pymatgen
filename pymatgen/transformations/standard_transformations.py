@@ -333,10 +333,7 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         species_map = {}
         for k, v in self._species_map.items():
-            if isinstance(v, dict):
-                value = {get_el_sp(x): y for x, y in v.items()}
-            else:
-                value = get_el_sp(v)  # type: ignore
+            value = {get_el_sp(x): y for x, y in v.items()} if isinstance(v, dict) else get_el_sp(v)
             species_map[get_el_sp(k)] = value
         s = structure.copy()
         s.replace_species(species_map)

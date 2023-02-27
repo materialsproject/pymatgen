@@ -612,9 +612,7 @@ class QChemDictSet(QCInput):
             # If extra_scf_print is specified, make sure that the convergence of the
             # SCF cycle is at least 1e-8. Anything less than that might not be appropriate
             # for printing out the Fock Matrix and coefficients of the MO.
-            if "scf_convergence" not in myrem:
-                myrem["scf_convergence"] = "8"
-            elif int(myrem["scf_convergence"]) < 8:
+            if "scf_convergence" not in myrem or int(myrem["scf_convergence"]) < 8:
                 myrem["scf_convergence"] = "8"
 
         super().__init__(

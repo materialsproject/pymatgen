@@ -579,11 +579,10 @@ class AdsorbateSiteFinder:
             d = sorted_sites[-1].frac_coords[2] - dist_from_surf
 
         for i, site in enumerate(sym_slab):
-            if d - range_tol < site.frac_coords[2] < d + range_tol:
-                if target_species and site.species_string in target_species:
-                    substituted_slabs.append(substitute(site, i))
-                elif not target_species:
-                    substituted_slabs.append(substitute(site, i))
+            if d - range_tol < site.frac_coords[2] < d + range_tol and (
+                target_species and site.species_string in target_species or not target_species
+            ):
+                substituted_slabs.append(substitute(site, i))
 
         matcher = StructureMatcher()
         return [s[0] for s in matcher.group_structures(substituted_slabs)]

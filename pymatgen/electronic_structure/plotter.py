@@ -1781,9 +1781,8 @@ class BSPlotterProjected(BSPlotter):
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
-                            if orb in individual_orbs:
-                                if len(set(sum_morbs[elt]).intersection(individual_orbs[orb])) != 0:
-                                    raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
+                            if orb in individual_orbs and len(set(sum_morbs[elt]) & individual_orbs[orb]) != 0:
+                                raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(f"You put in at least two similar orbitals in sum_morbs[{elt}].")

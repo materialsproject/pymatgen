@@ -1636,15 +1636,11 @@ class CubicSupercellTransformation(AbstractTransformation):
             if (
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
                 and self.min_atoms <= num_at <= self.max_atoms
+            ) and (
+                not self.force_90_degrees
+                or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
             ):
-                if not self.force_90_degrees:
-                    return superstructure
-                else:
-                    if np.all(
-                        np.absolute(np.array(superstructure.lattice.angles) - np.array([90.0, 90.0, 90.0]))
-                        < self.angle_tolerance
-                    ):
-                        return superstructure
+                return superstructure
 
             # Increase threshold until proposed supercell meets requirements
             target_sc_size += 0.1

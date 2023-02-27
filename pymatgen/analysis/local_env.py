@@ -4421,11 +4421,15 @@ def metal_edge_extender(
     for sites in metal_sites.values():
         for idx, indices in sites.items():
             for ii, site in enumerate(mol_graph.molecule):
-                if ii != idx and ii not in indices and str(site.specie) in coordinators:
-                    if site.distance(mol_graph.molecule[idx]) < cutoff:
-                        mol_graph.add_edge(idx, ii)
-                        num_new_edges += 1
-                        indices.append(ii)
+                if (
+                    ii != idx
+                    and ii not in indices
+                    and str(site.specie) in coordinators
+                    and site.distance(mol_graph.molecule[idx]) < cutoff
+                ):
+                    mol_graph.add_edge(idx, ii)
+                    num_new_edges += 1
+                    indices.append(ii)
     # If no metal edges are found, increase cutoff by 1 Ang and repeat analysis
     total_metal_edges = 0
     for sites in metal_sites.values():
@@ -4435,10 +4439,14 @@ def metal_edge_extender(
         for sites in metal_sites.values():
             for idx, indices in sites.items():
                 for ii, site in enumerate(mol_graph.molecule):
-                    if ii != idx and ii not in indices and str(site.specie) in coordinators:
-                        if site.distance(mol_graph.molecule[idx]) < (cutoff + 1):
-                            mol_graph.add_edge(idx, ii)
-                            num_new_edges += 1
-                            indices.append(ii)
+                    if (
+                        ii != idx
+                        and ii not in indices
+                        and str(site.specie) in coordinators
+                        and site.distance(mol_graph.molecule[idx]) < (cutoff + 1)
+                    ):
+                        mol_graph.add_edge(idx, ii)
+                        num_new_edges += 1
+                        indices.append(ii)
 
     return mol_graph

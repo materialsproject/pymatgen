@@ -197,12 +197,15 @@ class Fragmenter(MSONable):
                             + str(len(fragment.graph.edges()))
                         )
                         proceed = True
-                        if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
-                            if new_frag_key in self.prev_unique_frag_dict:
-                                for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
-                                    if unique_fragment.isomorphic_to(fragment):
-                                        proceed = False
-                                        break
+                        if (
+                            self.assume_previous_thoroughness
+                            and self.prev_unique_frag_dict != {}
+                            and new_frag_key in self.prev_unique_frag_dict
+                        ):
+                            for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
+                                if unique_fragment.isomorphic_to(fragment):
+                                    proceed = False
+                                    break
                         if proceed:
                             if new_frag_key not in self.all_unique_frag_dict:
                                 self.all_unique_frag_dict[new_frag_key] = [fragment]

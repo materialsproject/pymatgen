@@ -359,12 +359,12 @@ class MultiGraphCycle(MSONable):
             return False, "Empty cycle is not valid."
         if len(self.nodes) != len(set(self.nodes)):  # Should not have duplicate nodes
             return False, "Duplicate nodes."
-        if len(self.nodes) == 2:  # Cycles with two nodes cannot use the same edge for the cycle
-            if self.edge_indices[0] == self.edge_indices[1]:
-                return (
-                    False,
-                    "Cycles with two nodes cannot use the same edge for the cycle.",
-                )
+        # Cycles with two nodes cannot use the same edge for the cycle
+        if len(self.nodes) == 2 and self.edge_indices[0] == self.edge_indices[1]:
+            return (
+                False,
+                "Cycles with two nodes cannot use the same edge for the cycle.",
+            )
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)

@@ -9,7 +9,7 @@ import numpy as np
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "waroquiers"
+__author__ = "David Waroquiers"
 
 
 class PlanesUtilsTest(PymatgenTest):

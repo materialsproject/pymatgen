@@ -1979,10 +1979,7 @@ class IStructure(SiteCollection, MSONable):
         if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
 
-        if not isinstance(nimages, collections.abc.Iterable):
-            images = np.arange(nimages + 1) / nimages
-        else:
-            images = nimages  # type: ignore
+        images = np.arange(nimages + 1) / nimages if not isinstance(nimages, collections.abc.Iterable) else nimages
 
         # Check that both structures have the same species
         for i, site in enumerate(self):

@@ -633,9 +633,12 @@ class DictSet(VaspInputSet):
         """
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
-        if self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get("KSPACING"):
-            if self.user_kpoints_settings == {}:
-                return None
+        if (
+            self.user_incar_settings.get("KSPACING")
+            or self._config_dict["INCAR"].get("KSPACING")
+            and self.user_kpoints_settings == {}
+        ):
+            return None
 
         settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
 
@@ -772,10 +775,8 @@ class DictSet(VaspInputSet):
                 "PREC = LOW/MEDIUM/HIGH from VASP 4.x and not supported, Please use NORMA/SINGLE/ACCURATE"
             )
 
-        if _PREC[0].lower() in {"a", "s"}:  # TODO This only works in VASP 6.x
-            _WFACT = 4
-        else:
-            _WFACT = 3
+        # TODO This only works in VASP 6.x
+        _WFACT = 4 if _PREC[0].lower() in {"a", "s"} else 3
 
         def next_g_size(cur_g_size):
             g_size = int(_WFACT * cur_g_size + 0.5)
@@ -783,10 +784,8 @@ class DictSet(VaspInputSet):
 
         ng_vec = [*map(next_g_size, _CUTOF)]
 
-        if _PREC[0].lower() in {"a", "n"}:  # TODO This works for VASP 5.x and 6.x
-            finer_g_scale = 2
-        else:
-            finer_g_scale = 1
+        # TODO This works for VASP 5.x and 6.x
+        finer_g_scale = 2 if _PREC[0].lower() in {"a", "n"} else 1
 
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 

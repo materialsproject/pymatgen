@@ -2113,17 +2113,13 @@ class QCOutput(MSONable):
             self.data["errors"] += ["esp_chg_fit_error"]
         elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True).get("key") == [
             []
-        ]:
-            self.data["errors"] += ["mem_static_too_small"]
-        elif read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True).get("key") == [
+        ] or read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True).get("key") == [
             []
         ]:
             self.data["errors"] += ["mem_static_too_small"]
         elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["mem_total_too_small"]
-        elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian":
-            self.data["errors"] += ["probably_out_of_memory"]
-        elif self.text[-16:-1] == "Roots Converged":
+        elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian" or self.text[-16:-1] == "Roots Converged":
             self.data["errors"] += ["probably_out_of_memory"]
         else:
             tmp_failed_line_searches = read_pattern(

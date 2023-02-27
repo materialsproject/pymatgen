@@ -148,8 +148,8 @@ class InterfaceReactionTest(unittest.TestCase):
         with pytest.raises(Exception) as context1:
             _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
             assert (
-                "Please use the GrandPotentialInterfacialReactivity "
-                "class for interfacial reactions with open elements!" == str(context1.exception)
+                str(context1.exception) == "Please use the GrandPotentialInterfacialReactivity "
+                "class for interfacial reactions with open elements!"
             )
         with pytest.raises(Exception) as context2:
             _ = GrandPotentialInterfacialReactivity(

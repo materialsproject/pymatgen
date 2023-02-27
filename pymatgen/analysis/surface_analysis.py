@@ -1216,10 +1216,12 @@ class SurfaceEnergyPlotter:
             delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
+            plt (Plot): Plot object to plot on. If None, will create a new plot.
             annotate (bool): Whether to annotate each "phase" with the label of
                 the entry. If no label, uses the reduced formula
             show_unphyiscal_only (bool): Whether to only show the shaded region where
                 surface energy is negative. Useful for drawing other chempot range maps.
+            fontsize (int): Font size of the annotation
         """
         # Set up
         delu_dict = delu_dict or {}
@@ -1273,11 +1275,10 @@ class SurfaceEnergyPlotter:
                         neg_dmu_range = [pt1[delu2][0][1], pt1[delu2][0][2]]
                     # Shade the threshold and region at which se<=0
                     plt.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
-                elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0:
+                elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0 and not show_unphyiscal_only:
                     # Any chempot at this point will result
                     # in se<0, shade the entire y range
-                    if not show_unphyiscal_only:
-                        plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
+                    plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
 
                 if ii == len(v) - 1:
                     break
