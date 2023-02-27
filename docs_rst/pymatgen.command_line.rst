@@ -18,7 +18,6 @@ Submodules
    pymatgen.command_line.chargemol_caller
    pymatgen.command_line.critic2_caller
    pymatgen.command_line.enumlib_caller
-   pymatgen.command_line.gulp_caller
    pymatgen.command_line.mcsqs_caller
    pymatgen.command_line.vampire_caller
 

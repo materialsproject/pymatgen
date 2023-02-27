@@ -52,18 +52,15 @@ the moment) required only for certain features:
    This library by Henkelmann et al. provides a robust way to calculate the
    Bader analysis from a CHGCAR. The bader executable must be in the path.
    Get it at http://theory.cm.utexas.edu/bader.
-4. gulp: For use with :mod:`pymatgen.command_line.gulp_caller`,
-   which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
-   compute empirical defect energies.
-5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
-6. Zeo++ (http://zeoplusplus.org): For defect structure
+4. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
+5. Zeo++ (http://zeoplusplus.org): For defect structure
    generation. This is required in addition to installing the zeo Python
    package.
-7. critic2 (https://github.com/aoterodelaroza/critic2): For topological
+6. critic2 (https://github.com/aoterodelaroza/critic2): For topological
    analysis of critical points from electronic charge density. Provides
    more detailed information compared to bader. For use with
    :class:`pymatgen.command_line.critic2_caller.Critic2Caller`.
-8. graphviz (http://graphviz.org): For visualization of graphs generated
+7. graphviz (http://graphviz.org): For visualization of graphs generated
    using critic2.
 
 Conda-based install
