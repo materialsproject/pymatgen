@@ -147,7 +147,7 @@ class Ion(Composition, MSONable, Stringify):
         d = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
         (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
 
-        if "HO" in formula:
+        if "HO" in formula and self.composition["H"] == self.composition["O"]:
             formula = formula.replace("HO", "OH")
 
         if nH2O > 0:
