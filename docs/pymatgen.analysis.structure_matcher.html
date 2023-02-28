@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.structure_matcher module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.structure_matcher module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.substrate_analyzer module" href="pymatgen.analysis.substrate_analyzer.html" />
     <link rel="prev" title="pymatgen.analysis.structure_analyzer module" href="pymatgen.analysis.structure_analyzer.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,25 +113,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.analysis.structure_matcher">
-<span id="pymatgen-analysis-structure-matcher-module"></span><h1>pymatgen.analysis.structure_matcher module<a class="headerlink" href="#module-pymatgen.analysis.structure_matcher" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.analysis.structure_matcher">
+<span id="pymatgen-analysis-structure-matcher-module"></span><h1>pymatgen.analysis.structure_matcher module<a class="headerlink" href="#module-pymatgen.analysis.structure_matcher" title="Permalink to this headline"></a></h1>
 <p>This module provides classes to perform fitting of structures.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.AbstractComparator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L33-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L33-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract Comparator class. A Comparator defines how sites are compared in
 a structure.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.AbstractComparator.are_equal">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L39-L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.are_equal" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L39-L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><p>Defines how the species of two sites are considered equal. For
 example, one can consider sites to have the same species only when
 the species are exactly the same, i.e., Fe2+ matches Fe2+ but not
 Fe3+. Or one can define that only the element matters,
 and all oxidation state information are ignored.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
 definition in Site and PeriodicSite.</p></li>
@@ -138,7 +139,7 @@ definition in Site and PeriodicSite.</p></li>
 definition in Site and PeriodicSite.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean indicating whether species are considered equal.</p>
 </dd>
 </dl>
@@ -146,9 +147,9 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.AbstractComparator.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L98-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L98-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONable dict</p>
 </dd>
 </dl>
@@ -156,12 +157,12 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.AbstractComparator.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L79-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L79-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Comparator.</p>
 </dd>
 </dl>
@@ -169,7 +170,7 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.AbstractComparator.get_hash">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L59-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.get_hash" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L59-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.get_hash" title="Permalink to this definition"></a></dt>
 <dd><p>Defines a hash to group structures. This allows structures to be
 grouped efficiently for comparison. The hash must be invariant under
 supercell creation. (e.g. composition is not a good hash, but
@@ -179,10 +180,10 @@ due to weird behavior with fractional occupancy.</p>
 matches it is much quicker to apply a substitution to a composition
 object than a structure object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition of the structure</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A hashable object. Examples can be string formulas, integers etc.</p>
 </dd>
 </dl>
@@ -192,17 +193,17 @@ object than a structure object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.ElementComparator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElementComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L177-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractComparator</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElementComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L177-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
 <p>A Comparator that matches elements. i.e. oxidation states are
 ignored.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.ElementComparator.are_equal">
-<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L183-L200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator.are_equal" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L183-L200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><p>True if element:amounts are exactly the same, i.e.,
 oxidation state is not considered.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
 definition in Site and PeriodicSite.</p></li>
@@ -210,7 +211,7 @@ definition in Site and PeriodicSite.</p></li>
 definition in Site and PeriodicSite.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean indicating whether species are the same based on element
 and amounts.</p>
 </dd>
@@ -219,7 +220,7 @@ and amounts.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.ElementComparator.get_hash">
-<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L202-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator.get_hash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L202-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator.get_hash" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: Fractional element composition</p>
 </dd></dl>
 
@@ -227,15 +228,15 @@ and amounts.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.FrameworkComparator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FrameworkComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L209-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractComparator</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FrameworkComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L209-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
 <p>A Comparator that matches sites, regardless of species.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal">
-<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L214-L227"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L214-L227"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><p>True if there are atoms on both sites.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
 definition in Site and PeriodicSite.</p></li>
@@ -243,7 +244,7 @@ definition in Site and PeriodicSite.</p></li>
 definition in Site and PeriodicSite.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True always</p>
 </dd>
 </dl>
@@ -251,7 +252,7 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.FrameworkComparator.get_hash">
-<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L229-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator.get_hash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L229-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator.get_hash" title="Permalink to this definition"></a></dt>
 <dd><p>No hash possible</p>
 </dd></dl>
 
@@ -259,15 +260,15 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.OccupancyComparator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OccupancyComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L266-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractComparator</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OccupancyComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L266-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
 <p>A Comparator that matches occupancies on sites,
 irrespective of the species of those sites.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal">
-<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L272-L283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L272-L283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
 definition in Site and PeriodicSite.</p></li>
@@ -275,7 +276,7 @@ definition in Site and PeriodicSite.</p></li>
 definition in Site and PeriodicSite.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if sets of occupancies (amt) are equal on both sites.</p>
 </dd>
 </dl>
@@ -283,12 +284,12 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash">
-<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L285-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L285-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>composition</strong> – Composition.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ol class="arabic simple">
 <li><p>Difficult to define sensible hash</p></li>
 </ol>
@@ -301,16 +302,16 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OrderDisorderElementComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L236-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractComparator</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OrderDisorderElementComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L236-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
 <p>A Comparator that matches sites, given some overlap in the element
 composition</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal">
-<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L242-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L242-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><p>True if there is some overlap in composition between the species</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
 definition in Site and PeriodicSite.</p></li>
@@ -318,7 +319,7 @@ definition in Site and PeriodicSite.</p></li>
 definition in Site and PeriodicSite.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True always</p>
 </dd>
 </dl>
@@ -326,7 +327,7 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_hash">
-<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L259-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_hash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L259-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_hash" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: Fractional composition</p>
 </dd></dl>
 
@@ -334,15 +335,15 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.SpeciesComparator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpeciesComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L109-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractComparator</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpeciesComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L109-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
 <p>A Comparator that matches species exactly. The default used in StructureMatcher.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.SpeciesComparator.are_equal">
-<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L114-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator.are_equal" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L114-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><p>True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
 definition in Site and PeriodicSite.</p></li>
@@ -350,7 +351,7 @@ definition in Site and PeriodicSite.</p></li>
 definition in Site and PeriodicSite.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean indicating whether species are equal.</p>
 </dd>
 </dl>
@@ -358,7 +359,7 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.SpeciesComparator.get_hash">
-<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L129-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator.get_hash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L129-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator.get_hash" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: Fractional composition</p>
 </dd></dl>
 
@@ -366,19 +367,19 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.SpinComparator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpinComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L136-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpinComparator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractComparator</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpinComparator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L136-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpinComparator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></code></a></p>
 <p>A Comparator that matches magnetic structures to their inverse spins.
 This comparator is primarily used to filter magnetically ordered
 structures with opposite spins, which are equivalent.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.SpinComparator.are_equal">
-<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L143-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpinComparator.are_equal" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L143-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpinComparator.are_equal" title="Permalink to this definition"></a></dt>
 <dd><p>True if species are exactly the same, i.e., Fe2+ == Fe2+ but not
 Fe3+. and the spins are reversed. i.e., spin up maps to spin down,
 and vice versa.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
 definition in Site and PeriodicSite.</p></li>
@@ -386,7 +387,7 @@ definition in Site and PeriodicSite.</p></li>
 definition in Site and PeriodicSite.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Boolean indicating whether species are equal.</p>
 </dd>
 </dl>
@@ -394,7 +395,7 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.SpinComparator.get_hash">
-<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L170-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpinComparator.get_hash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L170-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpinComparator.get_hash" title="Permalink to this definition"></a></dt>
 <dd><p>Returns: Fractional composition</p>
 </dd></dl>
 
@@ -402,8 +403,8 @@ definition in Site and PeriodicSite.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StructureMatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ltol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attempt_supercell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comparator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><span class="pre">AbstractComparator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supercell_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'num_sites'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'num_atoms'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'volume'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'num_sites'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignored_species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">SpeciesLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L293-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StructureMatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ltol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attempt_supercell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comparator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supercell_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'num_sites'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'num_atoms'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'volume'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'num_sites'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignored_species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><span class="pre">pymatgen.core.periodic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">pymatgen.core.periodic_table.Species</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecies" title="pymatgen.core.periodic_table.DummySpecies"><span class="pre">pymatgen.core.periodic_table.DummySpecies</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L293-L1217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to match structures by similarity.</p>
 <p>Algorithm:</p>
 <ol class="arabic">
@@ -451,7 +452,7 @@ between the two structures)</p>
 </li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ltol</strong> (<em>float</em>) – Fractional length tolerance. Default is 0.2.</p></li>
 <li><p><strong>stol</strong> (<em>float</em>) – Site tolerance. Defined as the fraction of the
@@ -496,9 +497,9 @@ control over what species are ignored in the matching.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L853-L871"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L850-L868"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONable dict</p>
 </dd>
 </dl>
@@ -506,10 +507,10 @@ control over what species are ignored in the matching.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_structure_reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L580-L627"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_structure_reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L580-L627"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Fit two structures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
@@ -520,10 +521,10 @@ This only impacts a small percentage of structures</p></li>
 If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if the structures are equivalent</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
@@ -531,12 +532,12 @@ If True, skip to get a primitive structure and perform Niggli reduction for stru
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.fit_anonymous">
-<span class="sig-name descname"><span class="pre">fit_anonymous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">niggli</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_structure_reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L1057-L1080"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit_anonymous" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit_anonymous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">niggli</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_structure_reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L1055-L1078"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit_anonymous" title="Permalink to this definition"></a></dt>
 <dd><p>Performs an anonymous fitting, which allows distinct species in one
 structure to map to another. E.g., to compare if the Li2O and Na2O
 structures are similar.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
@@ -545,10 +546,10 @@ structures are similar.</p>
 If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Whether a species mapping can map struct1 to stuct2</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>True/False</p>
 </dd>
 </dl>
@@ -556,12 +557,12 @@ If True, skip to get a primitive structure and perform Niggli reduction for stru
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L873-L890"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L870-L887"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>StructureMatcher</p>
 </dd>
 </dl>
@@ -569,12 +570,12 @@ If True, skip to get a primitive structure and perform Niggli reduction for stru
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_all_anonymous_mappings">
-<span class="sig-name descname"><span class="pre">get_all_anonymous_mappings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">niggli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L1030-L1055"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_all_anonymous_mappings" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_all_anonymous_mappings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">niggli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L1028-L1053"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_all_anonymous_mappings" title="Permalink to this definition"></a></dt>
 <dd><p>Performs an anonymous fitting, which allows distinct species in one
 structure to map to another. Returns a dictionary of species
 substitutions that are within tolerance</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
@@ -582,7 +583,7 @@ substitutions that are within tolerance</p>
 <li><p><strong>include_dist</strong> (<em>bool</em>) – Return the maximin distance with each mapping</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of species mappings that map struct1 to struct2.</p>
 </dd>
 </dl>
@@ -590,23 +591,23 @@ substitutions that are within tolerance</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_best_electronegativity_anonymous_mapping">
-<span class="sig-name descname"><span class="pre">get_best_electronegativity_anonymous_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L997-L1028"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_best_electronegativity_anonymous_mapping" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_best_electronegativity_anonymous_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L995-L1026"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_best_electronegativity_anonymous_mapping" title="Permalink to this definition"></a></dt>
 <dd><p>Performs an anonymous fitting, which allows distinct species in one
 structure to map to another. E.g., to compare if the Li2O and Na2O
 structures are similar. If multiple substitutions are within tolerance
 this will return the one which minimizes the difference in
 electronegativity between the matches species.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Mapping of struct1 species to struct2 species</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>min_mapping (dict)</p>
 </dd>
 </dl>
@@ -614,10 +615,10 @@ electronegativity between the matches species.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_mapping">
-<span class="sig-name descname"><span class="pre">get_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">superset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L1192-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_mapping" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">superset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L1190-L1217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_mapping" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate the mapping from superset to subset.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>superset</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure containing at least the sites in
 subset (within the structure matching tolerance)</p></li>
@@ -625,7 +626,7 @@ subset (within the structure matching tolerance)</p></li>
 superset (within the structure matching tolerance)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>numpy array such that superset.sites[mapping] is within matching
 tolerance of subset.sites or None if no such mapping is possible</p>
 </dd>
@@ -634,18 +635,18 @@ tolerance of subset.sites or None if no such mapping is possible</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_anonymous">
-<span class="sig-name descname"><span class="pre">get_rms_anonymous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L970-L995"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_anonymous" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_rms_anonymous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L968-L993"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_anonymous" title="Permalink to this definition"></a></dt>
 <dd><p>Performs an anonymous fitting, which allows distinct species in one
 structure to map to another. E.g., to compare if the Li2O and Na2O
 structures are similar.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>(min_rms, min_mapping)
 min_rms is the minimum rms distance, and min_mapping is the
 corresponding minimal species mapping that would map
@@ -657,16 +658,16 @@ exceeds the threshold.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_dist">
-<span class="sig-name descname"><span class="pre">get_rms_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L629-L649"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_dist" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_rms_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L629-L649"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_dist" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate RMS displacement between two structures</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>rms displacement normalized by (Vol / nsites) ** (1/3)
 and maximum distance between paired sites. If no matching
 lattice is found None is returned.</p>
@@ -676,11 +677,11 @@ lattice is found None is returned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_s2_like_s1">
-<span class="sig-name descname"><span class="pre">get_s2_like_s1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ignored_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L1149-L1190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_s2_like_s1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_s2_like_s1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ignored_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L1147-L1188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_s2_like_s1" title="Permalink to this definition"></a></dt>
 <dd><p>Performs transformations on struct2 to put it in a basis similar to
 struct1 (without changing any of the inter-site distances)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Reference structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to transform.</p></li>
@@ -690,7 +691,7 @@ lattice orientation, though obviously there is no direct
 matching to existing sites.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A structure object similar to struct1, obtained by making a
 supercell, sorting, and translating struct2.</p>
 </dd>
@@ -699,7 +700,7 @@ supercell, sorting, and translating struct2.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_supercell_matrix">
-<span class="sig-name descname"><span class="pre">get_supercell_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L1082-L1100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_supercell_matrix" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_supercell_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L1080-L1098"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_supercell_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the matrix for transforming struct to supercell. This
 can be used for very distorted ‘supercells’ where the primitive cell
 is impossible to find</p>
@@ -707,17 +708,17 @@ is impossible to find</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.get_transformation">
-<span class="sig-name descname"><span class="pre">get_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L1102-L1147"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_transformation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L1100-L1145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the supercell transformation, fractional translation vector,
 and a mapping to transform struct2 to be similar to struct1.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Reference structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to transform.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><p>supercell matrix
 vector (numpy.ndarray(3)): fractional translation vector
 mapping (list(int or None)):</p>
@@ -729,7 +730,7 @@ the remaining site indices of struct2.</p>
 </div></blockquote>
 </p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>supercell (numpy.ndarray(3, 3))</p>
 </dd>
 </dl>
@@ -737,17 +738,17 @@ the remaining site indices of struct2.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_matcher.StructureMatcher.group_structures">
-<span class="sig-name descname"><span class="pre">group_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anonymous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/structure_matcher.py#L793-L851"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.group_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">group_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anonymous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/structure_matcher.py#L790-L848"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.group_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Given a list of structures, use fit to group
 them by structural equality.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>s_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – List of structures to be grouped</p></li>
 <li><p><strong>anonymous</strong> (<em>bool</em>) – Whether to use anonymous mode.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of lists of matched structures
 Assumption: if s1 == s2 but s1 != s3, than s2 and s3 will be put
 in different groups without comparison.</p>
@@ -757,7 +758,7 @@ in different groups without comparison.</p>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

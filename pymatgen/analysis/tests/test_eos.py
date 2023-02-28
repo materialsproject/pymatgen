@@ -80,7 +80,6 @@ class EOSTest(PymatgenTest):
         self.num_eos_fit = num_eos.fit(self.volumes, self.energies)
 
     def test_run_all_models(self):
-
         # these have been checked for plausibility,
         # but are not benchmarked against independently known values
         test_output = {
@@ -137,7 +136,6 @@ class EOSTest(PymatgenTest):
                 self.assertArrayAlmostEqual(_.results[param], test_output[eos_name][param], decimal=1)
 
     def test_fitting(self):
-
         # courtesy of @katherinelatimer2013
         # known correct values for Vinet
 

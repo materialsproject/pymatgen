@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.magnetism package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.magnetism package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.magnetism.analyzer module" href="pymatgen.analysis.magnetism.analyzer.html" />
     <link rel="prev" title="pymatgen.analysis.interfaces.zsl module" href="pymatgen.analysis.interfaces.zsl.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,106 +113,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-analysis-magnetism-package">
-<h1>pymatgen.analysis.magnetism package<a class="headerlink" href="#pymatgen-analysis-magnetism-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-analysis-magnetism-package">
+<h1>pymatgen.analysis.magnetism package<a class="headerlink" href="#pymatgen-analysis-magnetism-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html">pymatgen.analysis.magnetism.analyzer module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_exchange_group_info"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.get_exchange_group_info()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_ferromagnetic_structure"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.get_ferromagnetic_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_nonmagnetic_structure"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.get_nonmagnetic_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_only_magnetic_atoms"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.get_structure_with_only_magnetic_atoms()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_spin"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.get_structure_with_spin()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.is_magnetic"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.is_magnetic</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magmoms"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.magmoms</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magnetic_species_and_magmoms"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.magnetic_species_and_magmoms</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.matches_ordering"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.matches_ordering()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_magnetic_sites"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.number_of_magnetic_sites</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.ordering"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.ordering</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_specie"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.types_of_magnetic_specie</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_species"><code class="docutils literal notranslate"><span class="pre">CollinearMagneticStructureAnalyzer.types_of_magnetic_species</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.MagneticDeformation"><code class="docutils literal notranslate"><span class="pre">MagneticDeformation</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.MagneticDeformation.deformation"><code class="docutils literal notranslate"><span class="pre">MagneticDeformation.deformation</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.MagneticDeformation.type"><code class="docutils literal notranslate"><span class="pre">MagneticDeformation.type</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator"><code class="docutils literal notranslate"><span class="pre">MagneticStructureEnumerator</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator.available_strategies"><code class="docutils literal notranslate"><span class="pre">MagneticStructureEnumerator.available_strategies</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering"><code class="docutils literal notranslate"><span class="pre">Ordering</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering.AFM"><code class="docutils literal notranslate"><span class="pre">Ordering.AFM</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering.FM"><code class="docutils literal notranslate"><span class="pre">Ordering.FM</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering.FiM"><code class="docutils literal notranslate"><span class="pre">Ordering.FiM</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering.NM"><code class="docutils literal notranslate"><span class="pre">Ordering.NM</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering.Unknown"><code class="docutils literal notranslate"><span class="pre">Ordering.Unknown</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode"><code class="docutils literal notranslate"><span class="pre">OverwriteMagmomMode</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.none"><code class="docutils literal notranslate"><span class="pre">OverwriteMagmomMode.none</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.normalize"><code class="docutils literal notranslate"><span class="pre">OverwriteMagmomMode.normalize</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.replace_all"><code class="docutils literal notranslate"><span class="pre">OverwriteMagmomMode.replace_all</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_sign"><code class="docutils literal notranslate"><span class="pre">OverwriteMagmomMode.respect_sign</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_zero"><code class="docutils literal notranslate"><span class="pre">OverwriteMagmomMode.respect_zero</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.magnetic_deformation"><code class="docutils literal notranslate"><span class="pre">magnetic_deformation()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html">pymatgen.analysis.magnetism.heisenberg module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper"><code class="docutils literal notranslate"><span class="pre">HeisenbergMapper</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange"><code class="docutils literal notranslate"><span class="pre">HeisenbergMapper.estimate_exchange()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_exchange"><code class="docutils literal notranslate"><span class="pre">HeisenbergMapper.get_exchange()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_heisenberg_model"><code class="docutils literal notranslate"><span class="pre">HeisenbergMapper.get_heisenberg_model()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_interaction_graph"><code class="docutils literal notranslate"><span class="pre">HeisenbergMapper.get_interaction_graph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_low_energy_orderings"><code class="docutils literal notranslate"><span class="pre">HeisenbergMapper.get_low_energy_orderings()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_mft_temperature"><code class="docutils literal notranslate"><span class="pre">HeisenbergMapper.get_mft_temperature()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel"><code class="docutils literal notranslate"><span class="pre">HeisenbergModel</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.as_dict"><code class="docutils literal notranslate"><span class="pre">HeisenbergModel.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.from_dict"><code class="docutils literal notranslate"><span class="pre">HeisenbergModel.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener"><code class="docutils literal notranslate"><span class="pre">HeisenbergScreener</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_structures"><code class="docutils literal notranslate"><span class="pre">HeisenbergScreener.screened_structures</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_energies"><code class="docutils literal notranslate"><span class="pre">HeisenbergScreener.screened_energies</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html">pymatgen.analysis.magnetism.jahnteller module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer.get_analysis()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer.get_analysis_and_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer.get_magnitude_of_effect_from_species()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer.is_jahn_teller_active()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer.mu_so()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure"><code class="docutils literal notranslate"><span class="pre">JahnTellerAnalyzer.tag_structure()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html">pymatgen.analysis.magnetism.analyzer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html">pymatgen.analysis.magnetism.heisenberg module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html">pymatgen.analysis.magnetism.jahnteller module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.analysis.magnetism">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.magnetism" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.analysis.magnetism">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.magnetism" title="Permalink to this headline"></a></h2>
 <p>Package for analysis of magnetic structures.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

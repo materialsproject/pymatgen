@@ -65,7 +65,6 @@ class InterfaceTest(PymatgenTest):
         assert np.allclose(interface.gap, gap)
 
     def test_in_plane_offset_setter(self):
-
         interface = self.interface
         init_coords = np.array(self.interface.frac_coords)
         interface.in_plane_offset = np.array([0.2, 0.2])

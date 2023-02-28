@@ -640,7 +640,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
     kwargs = Namespace()
 
-    for (i, nk) in enumerate(key_nums):
+    for i, nk in enumerate(key_nums):
         if nk == 0:
             continue
         line = lines[i]
@@ -1133,7 +1133,6 @@ class PseudoParser:
         lines = _read_nlines(filename, 80)
 
         for lineno, line in enumerate(lines):
-
             if lineno == 2:
                 try:
                     tokens = line.split()
@@ -1417,7 +1416,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     def pseudo_partial_waves(self):
         """Dictionary with the pseudo partial waves indexed by state."""
         pseudo_partial_waves = {}
-        for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
+        for mesh, values, attrib in self._parse_all_radfuncs("pseudo_partial_wave"):
             state = attrib["state"]
             # val_state = self.valence_states[state]
             pseudo_partial_waves[state] = RadialFunction(mesh, values)
@@ -1428,7 +1427,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     def projector_functions(self):
         """Dictionary with the PAW projectors indexed by state."""
         projector_functions = {}
-        for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
+        for mesh, values, attrib in self._parse_all_radfuncs("projector_function"):
             state = attrib["state"]
             # val_state = self.valence_states[state]
             projector_functions[state] = RadialFunction(mesh, values)
@@ -1745,10 +1744,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
         """
-        for z in range(1, zmax):
-            if not self[z]:
-                return False
-        return True
+        return all(self[z] for z in range(1, zmax))
 
     def all_combinations_for_elements(self, element_symbols):
         """

@@ -262,13 +262,13 @@ class Xmu(MSONable):
     Parser for data in 'xmu.dat' file.
     The file 'xmu.dat' contains XANES, EXAFS or NRIXS data depending on the
     situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as
-    functions of absolute energy E, relative energy E − E_f and wave number k.
+    functions of absolute energy E, relative energy E - E_f and wave number k.
 
     Default attributes:
         xmu: Photon absorption cross section of absorbing atom in material
         Energies: Energies of data point
         relative_energies: E - E_fermi
-        wavenumber: k=\\sqrt(E −E_fermi)
+        wavenumber: k=\\sqrt(E -E_fermi)
         mu: The total absorption cross-section.
         mu0: The embedded atomic background absorption.
         chi: fine structure.

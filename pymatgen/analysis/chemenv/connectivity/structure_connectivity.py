@@ -122,13 +122,12 @@ class StructureConnectivity(MSONable):
                         break
             else:
                 if isite == nb_index_unitcell:
-                    for (isite1, ineighb1, data1) in existing_edges:
-                        if isite1 == ineighb1:
-                            if np.allclose(data1["delta"], nb_image_cell) or np.allclose(
-                                data1["delta"], -nb_image_cell
-                            ):
-                                exists = True
-                                break
+                    for isite1, ineighb1, data1 in existing_edges:
+                        if isite1 == ineighb1 and (
+                            np.allclose(data1["delta"], nb_image_cell) or np.allclose(data1["delta"], -nb_image_cell)
+                        ):
+                            exists = True
+                            break
                 else:
                     for _, ineighb1, data1 in existing_edges:
                         if nb_index_unitcell == ineighb1:
@@ -316,7 +315,7 @@ class StructureConnectivity(MSONable):
         print("Links in graph :")
         for node in nodes:
             print(node.isite, " is connected with : ")
-            for (n1, n2, data) in self.environment_subgraph().edges(node, data=True):
+            for n1, n2, data in self.environment_subgraph().edges(node, data=True):
                 if n1.isite == data["start"]:
                     print(
                         f"  - {n2.isite} by {len(data['ligands'])} ligands ({data['delta'][0]} "

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.core.surface module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.core.surface module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.core.tensors module" href="pymatgen.core.tensors.html" />
     <link rel="prev" title="pymatgen.core.structure module" href="pymatgen.core.structure.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,8 +113,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.core.surface">
-<span id="pymatgen-core-surface-module"></span><h1>pymatgen.core.surface module<a class="headerlink" href="#module-pymatgen.core.surface" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.core.surface">
+<span id="pymatgen-core-surface-module"></span><h1>pymatgen.core.surface module<a class="headerlink" href="#module-pymatgen.core.surface" title="Permalink to this headline"></a></h1>
 <p>This module implements representations of slabs and surfaces, as well as
 algorithms for generating them. If you use this module, please consider
 citing the following work:</p>
@@ -129,7 +130,7 @@ citing the following work:</p>
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.surface.ReconstructionGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ReconstructionGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruction_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1337-L1561"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ReconstructionGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruction_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1335-L1559"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class takes in a pre-defined dictionary specifying the parameters
 need to build a reconstructed slab such as the SlabGenerator parameters,
@@ -138,11 +139,11 @@ then use the formatted instructions provided by the dictionary to build
 the desired reconstructed slab from the initial structure.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.ReconstructionGenerator.slabgen_params">
-<span class="sig-name descname"><span class="pre">slabgen_params</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.slabgen_params" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">slabgen_params</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.slabgen_params" title="Permalink to this definition"></a></dt>
 <dd><p>Parameters for the SlabGenerator</p>
 </dd></dl>
 
-<p>TODO:
+<p>Todo:
 - Right now there is no way to specify what atom is being</p>
 <blockquote>
 <div><p>added. In the future, use basis sets?</p>
@@ -152,7 +153,7 @@ the desired reconstructed slab from the initial structure.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note
 that to ensure that the miller indices correspond to usual
@@ -249,7 +250,7 @@ the slab layer or the vacuum layer.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.ReconstructionGenerator.build_slabs">
-<span class="sig-name descname"><span class="pre">build_slabs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1505-L1551"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.build_slabs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">build_slabs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1503-L1549"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.build_slabs" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Builds the reconstructed slab by:</dt><dd><ol class="arabic simple">
 <li><p>Obtaining the unreconstructed slab using the specified
@@ -262,10 +263,10 @@ a and b lattice vectors.</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The reconstructed slab.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p>(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</p>
 </dd>
 </dl>
@@ -273,7 +274,7 @@ a and b lattice vectors.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.ReconstructionGenerator.get_unreconstructed_slabs">
-<span class="sig-name descname"><span class="pre">get_unreconstructed_slabs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1553-L1561"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.get_unreconstructed_slabs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_unreconstructed_slabs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1551-L1559"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.get_unreconstructed_slabs" title="Permalink to this definition"></a></dt>
 <dd><p>Generates the unreconstructed or pristine super slab.</p>
 </dd></dl>
 
@@ -281,8 +282,8 @@ a and b lattice vectors.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oriented_unit_cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L50-L718"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oriented_unit_cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L50-L718"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>Subclass of Structure representing a Slab. Implements additional
 attributes pertaining to slabs, but the init method does not
 actually implement any algorithm that creates a slab. This is a
@@ -295,20 +296,20 @@ surface plane and the c vector is out of the surface plane (though not
 necessarily perpendicular to the surface).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.miller_index">
-<span class="sig-name descname"><span class="pre">miller_index</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.miller_index" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">miller_index</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.miller_index" title="Permalink to this definition"></a></dt>
 <dd><p>Miller index of plane parallel to surface.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.scale_factor">
-<span class="sig-name descname"><span class="pre">scale_factor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.scale_factor" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">scale_factor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.scale_factor" title="Permalink to this definition"></a></dt>
 <dd><p>Final computed scale factor that brings the parent cell to the
 surface cell.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.shift">
-<span class="sig-name descname"><span class="pre">shift</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.shift" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shift</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.shift" title="Permalink to this definition"></a></dt>
 <dd><p>The shift value in Angstrom that indicates how much this
 slab has been shifted.</p>
 </dd></dl>
@@ -316,7 +317,7 @@ slab has been shifted.</p>
 <p>Makes a Slab structure, a structure object with additional information
 and methods pertaining to slabs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
 <a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
@@ -364,11 +365,11 @@ fractional_coords. Defaults to None for no properties.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.add_adsorbate_atom">
-<span class="sig-name descname"><span class="pre">add_adsorbate_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specie</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L451-L469"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.add_adsorbate_atom" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_adsorbate_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specie</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L451-L469"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.add_adsorbate_atom" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the structure of single atom adsorption.
 slab structure from the Slab class(in [0, 0, 1])</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>indices</strong> (<em>[</em><em>int</em><em>]</em>) – Indices of sites on which to put the absorbate.
 Absorbed atom will be displaced relative to the center of
@@ -383,9 +384,9 @@ given site in Angstroms.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L498-L511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L498-L511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict</p>
 </dd>
 </dl>
@@ -393,17 +394,17 @@ given site in Angstroms.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.center_of_mass">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">center_of_mass</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.center_of_mass" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">center_of_mass</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.center_of_mass" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the center of mass of the slab</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sanitize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L356-L391"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.copy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sanitize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L356-L391"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.copy" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get a copy of the structure, with options to add
 site properties.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>site_properties</strong> (<em>dict</em>) – Properties to add or override. The
 properties are specified in the same way as the constructor,
@@ -418,7 +419,7 @@ carried out to obtain a relatively orthogonalized cell,
 unit cell.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A copy of the Structure, with optionally new site_properties and
 optionally sanitized.</p>
 </dd>
@@ -427,7 +428,7 @@ optionally sanitized.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.dipole">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dipole</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.dipole" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dipole</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.dipole" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the dipole of the Slab in the direction of the surface
 normal. Note that the Slab must be oxidation state-decorated for this
 to work properly. Otherwise, the Slab will always have a dipole of 0.</p>
@@ -435,12 +436,12 @@ to work properly. Otherwise, the Slab will always have a dipole of 0.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L513-L533"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L513-L533"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – dict</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Creates slab from dict.</p>
 </dd>
 </dl>
@@ -448,7 +449,7 @@ to work properly. Otherwise, the Slab will always have a dipole of 0.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.get_orthogonal_c_slab">
-<span class="sig-name descname"><span class="pre">get_orthogonal_c_slab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L172-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_orthogonal_c_slab" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_orthogonal_c_slab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L172-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_orthogonal_c_slab" title="Permalink to this definition"></a></dt>
 <dd><p>This method returns a Slab where the normal (c lattice vector) is
 “forced” to be exactly orthogonal to the surface a and b lattice
 vectors. <strong>Note that this breaks inherent symmetries in the slab.</strong>
@@ -460,13 +461,13 @@ GBs or interfaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.get_sorted_structure">
-<span class="sig-name descname"><span class="pre">get_sorted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L328-L354"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_sorted_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_sorted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L328-L354"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_sorted_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Get a sorted copy of the structure. The parameters have the same
 meaning as in list.sort. By default, sites are sorted by the
 electronegativity of the species. Note that Slab has to override this
 because of the different __init__ args.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – Specifies a function of one argument that is used to extract
 a comparison key from each list element: key=str.lower. The
@@ -480,7 +481,7 @@ as if each comparison were reversed.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.get_surface_sites">
-<span class="sig-name descname"><span class="pre">get_surface_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L535-L610"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_surface_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L535-L610"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the surface sites and their indices in a dictionary. The
 oriented unit cell of the slab will determine the coordination number
 of a typical site. We use VoronoiNN to determine the
@@ -489,24 +490,22 @@ pathological error resulting from some surface sites in the
 VoronoiNN, we assume any site that has this error is a surface
 site as well. This will work for elemental systems only for now. Useful
 for analysis involving broken bonds and for finding adsorption sites.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>tag (bool): Option to adds site attribute “is_surfsite” (bool)</dt><dd><p>to all sites of slab. Defaults to False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tag</strong> (<em>bool</em>) – Option to adds site attribute “is_surfsite” (bool)
+to all sites of slab. Defaults to False</p>
 </dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><p>A dictionary grouping sites on top and bottom of the slab
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary grouping sites on top and bottom of the slab
 together.
 {“top”: [sites with indices], “bottom”: [sites with indices}</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.get_symmetric_site">
-<span class="sig-name descname"><span class="pre">get_symmetric_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L612-L650"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_symmetric_site" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symmetric_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L612-L650"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_symmetric_site" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>This method uses symmetry operations to find equivalent sites on</dt><dd><p>both sides of the slab. Works mainly for slabs with Laue
 symmetry. This is useful for retaining the non-polar and
@@ -517,14 +516,14 @@ structures or symmetric reconstructions.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><dl class="simple">
 <dt>Fractional coordinate. A point equivalent to the</dt><dd><p>parameter point, but on the other side of the slab</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p>point</p>
 </dd>
 </dl>
@@ -532,10 +531,10 @@ structures or symmetric reconstructions.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.get_tasker2_slabs">
-<span class="sig-name descname"><span class="pre">get_tasker2_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_species_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L201-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_tasker2_slabs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_tasker2_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_species_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L201-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_tasker2_slabs" title="Permalink to this definition"></a></dt>
 <dd><p>Get a list of slabs that have been Tasker 2 corrected.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tol</strong> (<em>float</em>) – Tolerance to determine if atoms are within same plane.
 This is a fractional tolerance, not an absolute one.</p></li>
@@ -546,7 +545,7 @@ within tol are considered for moving. Default is True (usually
 the desired behavior).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>([Slab]) List of tasker 2 corrected slabs.</p>
 </dd>
 </dl>
@@ -554,12 +553,12 @@ the desired behavior).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.is_polar">
-<span class="sig-name descname"><span class="pre">is_polar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol_dipole_per_unit_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L408-L423"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.is_polar" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_polar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol_dipole_per_unit_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L408-L423"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.is_polar" title="Permalink to this definition"></a></dt>
 <dd><p>Checks whether the surface is polar by computing the dipole per unit
 area. Note that the Slab must be oxidation state-decorated for this
 to work properly. Otherwise, the Slab will always be non-polar.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tol_dipole_per_unit_area</strong> (<em>float</em>) – A tolerance. If the dipole
 magnitude per unit area is less than this value, the Slab is
 considered non-polar. Defaults to 1e-3, which is usually
@@ -572,16 +571,16 @@ slabs with larger surface areas.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.is_symmetric">
-<span class="sig-name descname"><span class="pre">is_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L302-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.is_symmetric" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L302-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.is_symmetric" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,</dt><dd><p>or screw axis (rotation and translation) about [hkl].</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>symprec</strong> (<em>float</em>) – Symmetry precision used for SpaceGroup analyzer.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>(bool) Whether surfaces are symmetric.</p>
 </dd>
 </dl>
@@ -589,19 +588,19 @@ slabs with larger surface areas.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.normal">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normal</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.normal" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normal</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.normal" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the surface normal vector of the slab</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.surface_area">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.surface_area" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_area</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.surface_area" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the surface area of the slab</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.symmetrically_add_atom">
-<span class="sig-name descname"><span class="pre">symmetrically_add_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specie</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L652-L673"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.symmetrically_add_atom" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symmetrically_add_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specie</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L652-L673"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.symmetrically_add_atom" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Class method for adding a site at a specified point in a slab.</dt><dd><p>Will add the corresponding site on the other side of the
 slab to maintain equivalent surfaces.</p>
@@ -612,10 +611,10 @@ coords_are_cartesian (bool): Is the point in Cartesian coordinates</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The modified slab</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p>(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</p>
 </dd>
 </dl>
@@ -623,7 +622,7 @@ coords_are_cartesian (bool): Is the point in Cartesian coordinates</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.Slab.symmetrically_remove_atoms">
-<span class="sig-name descname"><span class="pre">symmetrically_remove_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L675-L718"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.symmetrically_remove_atoms" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symmetrically_remove_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L675-L718"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.symmetrically_remove_atoms" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Class method for removing sites corresponding to a list of indices.</dt><dd><p>Will remove the corresponding site on the other side of the
 slab to maintain equivalent surfaces.</p>
@@ -640,7 +639,7 @@ slab to maintain equivalent surfaces.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SlabGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lll_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_unit_planes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_normal_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L721-L1329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SlabGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lll_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_unit_planes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_normal_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorient_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L721-L1327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class generates different slabs using shift values determined by where
 a unique termination can be found along with other criteria such as where a
@@ -648,52 +647,52 @@ termination doesn’t break a polyhedral bond. The shift value then indicates
 where the slab layer will begin and terminate in the slab-vacuum system.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.oriented_unit_cell">
-<span class="sig-name descname"><span class="pre">oriented_unit_cell</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.oriented_unit_cell" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">oriented_unit_cell</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.oriented_unit_cell" title="Permalink to this definition"></a></dt>
 <dd><p>A unit cell of the parent structure with the miller
 index of plane parallel to surface</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.parent">
-<span class="sig-name descname"><span class="pre">parent</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.parent" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">parent</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.parent" title="Permalink to this definition"></a></dt>
 <dd><p>Parent structure from which Slab was derived.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.lll_reduce">
-<span class="sig-name descname"><span class="pre">lll_reduce</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.lll_reduce" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lll_reduce</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.lll_reduce" title="Permalink to this definition"></a></dt>
 <dd><p>Whether or not the slabs will be orthogonalized</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.center_slab">
-<span class="sig-name descname"><span class="pre">center_slab</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.center_slab" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">center_slab</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.center_slab" title="Permalink to this definition"></a></dt>
 <dd><p>Whether or not the slabs will be centered between
 the vacuum layer</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.slab_scale_factor">
-<span class="sig-name descname"><span class="pre">slab_scale_factor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.slab_scale_factor" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">slab_scale_factor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.slab_scale_factor" title="Permalink to this definition"></a></dt>
 <dd><p>Final computed scale factor that brings the parent cell to the
 surface cell.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.miller_index">
-<span class="sig-name descname"><span class="pre">miller_index</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.miller_index" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">miller_index</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.miller_index" title="Permalink to this definition"></a></dt>
 <dd><p>Miller index of plane parallel to surface.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.min_slab_size">
-<span class="sig-name descname"><span class="pre">min_slab_size</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.min_slab_size" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">min_slab_size</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.min_slab_size" title="Permalink to this definition"></a></dt>
 <dd><p>Minimum size in angstroms of layers containing atoms</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.min_vac_size">
-<span class="sig-name descname"><span class="pre">min_vac_size</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.min_vac_size" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">min_vac_size</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.min_vac_size" title="Permalink to this definition"></a></dt>
 <dd><p>Minimize size in angstroms of layers containing vacuum</p>
 </dd></dl>
 
@@ -701,7 +700,7 @@ surface cell.</p>
 of the initial structure that has been oriented by its miller index.
 Also stores the initial information needed later on to generate a slab.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
 ensure that the miller indices correspond to usual
@@ -751,7 +750,7 @@ the c direction is the third vector of the lattice matrix</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.get_slab">
-<span class="sig-name descname"><span class="pre">get_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L927-L1017"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.get_slab" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L926-L1016"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.get_slab" title="Permalink to this definition"></a></dt>
 <dd><p>This method takes in shift value for the c lattice direction and
 generates a slab based on the given shift. You should rarely use this
 method. Instead, it is used by other generation algorithms to obtain
@@ -766,7 +765,7 @@ energy (float): An energy to assign to the slab.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>(Slab) A Slab object with a particular shifted oriented unit cell.</p>
 </dd>
 </dl>
@@ -774,7 +773,7 @@ energy (float): An energy to assign to the slab.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.get_slabs">
-<span class="sig-name descname"><span class="pre">get_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_broken_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1091-L1164"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.get_slabs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_broken_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1090-L1163"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.get_slabs" title="Permalink to this definition"></a></dt>
 <dd><p>This method returns a list of slabs that are generated using the list of
 shift values from the method, _calculate_possible_shifts(). Before the
 shifts are used to create the slabs however, if the user decides to take
@@ -782,7 +781,7 @@ into account whether or not a termination will break any polyhedral
 structure (bonds is not None), this method will filter out any shift
 values that do so.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
 specified as a dict of tuples: float of specie1, specie2
@@ -804,7 +803,7 @@ or just omit them. Set to False as repairing terminations can
 lead to many possible slabs as oppose to just omitting them.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>([Slab]) List of all possible terminations of a particular surface.
 Slabs are sorted by the # of bonds broken.</p>
 </dd>
@@ -813,7 +812,7 @@ Slabs are sorted by the # of bonds broken.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.move_to_other_side">
-<span class="sig-name descname"><span class="pre">move_to_other_side</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_of_sites</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1234-L1279"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.move_to_other_side" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">move_to_other_side</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_of_sites</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1232-L1277"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.move_to_other_side" title="Permalink to this definition"></a></dt>
 <dd><p>This method will Move a set of sites to the
 other side of the slab (opposite surface).</p>
 <dl>
@@ -825,7 +824,7 @@ index_of_sites (list of ints): The list of indices representing</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>(Slab) A Slab object with a particular shifted oriented unit cell.</p>
 </dd>
 </dl>
@@ -833,7 +832,7 @@ index_of_sites (list of ints): The list of indices representing</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab">
-<span class="sig-name descname"><span class="pre">nonstoichiometric_symmetrized_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1281-L1329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">nonstoichiometric_symmetrized_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1279-L1327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition"></a></dt>
 <dd><p>This method checks whether or not the two surfaces of the slab are
 equivalent. If the point group of the slab has an inversion symmetry (
 ie. belong to one of the Laue groups), then it is assumed that the
@@ -846,10 +845,10 @@ structures, the chemical potential will be needed to calculate surface energy.</
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A symmetrized Slab object.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a> (structure)</p>
 </dd>
 </dl>
@@ -857,7 +856,7 @@ structures, the chemical potential will be needed to calculate surface energy.</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.surface.SlabGenerator.repair_broken_bonds">
-<span class="sig-name descname"><span class="pre">repair_broken_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1166-L1232"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.repair_broken_bonds" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">repair_broken_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1165-L1230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.repair_broken_bonds" title="Permalink to this definition"></a></dt>
 <dd><p>This method will find undercoordinated atoms due to slab
 cleaving specified by the bonds parameter and move them
 to the other surface to make sure the bond is kept intact.
@@ -874,7 +873,7 @@ defined as {(“P”, “O”): 3}.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>(Slab) A Slab object with a particular shifted oriented unit cell.</p>
 </dd>
 </dl>
@@ -884,7 +883,7 @@ defined as {(“P”, “O”): 3}.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.center_slab">
-<span class="sig-name descname"><span class="pre">center_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1935-L1982"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.center_slab" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">center_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1928-L1974"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.center_slab" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>The goal here is to ensure the center of the slab region</dt><dd><p>is centered close to c=0.5. This makes it easier to
 find the surface sites and apply operations like doping.</p>
@@ -903,10 +902,10 @@ site is now on the other side. Repeat for all sites with z&gt;c.</p>
 <p>3. This is a simpler case of scenario 2. Either the top or bottom
 slab sites are at c=0 or c=1. Treat as scenario 2.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>slab</strong> (<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – Slab structure to center</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Returns a centered slab structure</p>
 </dd>
 </dl>
@@ -914,14 +913,14 @@ slab sites are at c=0 or c=1. Treat as scenario 2.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.generate_all_slabs">
-<span class="sig-name descname"><span class="pre">generate_all_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_broken_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lll_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_normal_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_reconstructions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_unit_planes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1723-L1840"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_all_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_slab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vacuum_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_broken_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lll_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_slab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_normal_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_reconstructions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_unit_planes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1717-L1834"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition"></a></dt>
 <dd><p>A function that finds all different slabs up to a certain miller index.
 Slabs oriented under certain Miller indices that are equivalent to other
 slabs in other Miller indices are filtered out using symmetry operations
 to get rid of any repetitive slabs. For example, under symmetry operations,
 CsCl has equivalent slabs in the (0,0,1), (0,1,0), and (1,0,0) direction.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
 ensure that the miller indices correspond to usual
@@ -977,14 +976,14 @@ slabs available in the reconstructions_archive.json file.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.get_d">
-<span class="sig-name descname"><span class="pre">get_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1564-L1574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_d" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1562-L1572"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_d" title="Permalink to this definition"></a></dt>
 <dd><p>Determine the distance of space between
 each layer of atoms along c</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.get_slab_regions">
-<span class="sig-name descname"><span class="pre">get_slab_regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1843-L1897"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_slab_regions" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_slab_regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1837-L1890"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_slab_regions" title="Permalink to this definition"></a></dt>
 <dd><p>Function to get the ranges of the slab regions. Useful for discerning where
 the slab ends and vacuum begins if the slab is not fully within the cell
 :param slab: Structure object modelling the surface
@@ -1000,32 +999,31 @@ order to find atoms that are part of the slab</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.get_symmetrically_distinct_miller_indices">
-<span class="sig-name descname"><span class="pre">get_symmetrically_distinct_miller_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_hkil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1640-L1691"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_distinct_miller_indices" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symmetrically_distinct_miller_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_hkil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1634-L1685"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_distinct_miller_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Returns all symmetrically distinct indices below a certain max-index for
 a given structure. Analysis is based on the symmetry of the reciprocal
-lattice of the structure.
-:param structure: input structure.
-:type structure: Structure
-:param max_index: The maximum index. For example, a max_index of 1</p>
-<blockquote>
-<div><p>means that (100), (110), and (111) are returned for the cubic
-structure. All other indices are equivalent to one of these.</p>
-</div></blockquote>
+lattice of the structure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>return_hkil</strong> (<em>bool</em>) – If true, return hkil form of Miller
-index for hexagonal systems, otherwise return hkl</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
+<li><p><strong>max_index</strong> (<em>int</em>) – The maximum index. For example, a max_index of 1
+means that (100), (110), and (111) are returned for the cubic
+structure. All other indices are equivalent to one of these.</p></li>
+<li><p><strong>return_hkil</strong> (<em>bool</em>) – If true, return hkil form of Miller
+index for hexagonal systems, otherwise return hkl</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.get_symmetrically_equivalent_miller_indices">
-<span class="sig-name descname"><span class="pre">get_symmetrically_equivalent_miller_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_hkil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1596-L1637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_equivalent_miller_indices" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symmetrically_equivalent_miller_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_hkil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1591-L1631"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_equivalent_miller_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Returns all symmetrically equivalent indices for a given structure. Analysis
 is based on the symmetry of the reciprocal lattice of the structure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>miller_index</strong> (<em>tuple</em>) – Designates the family of Miller indices
 to find. Can be hkl or hkil for hexagonal systems</p></li>
@@ -1038,7 +1036,7 @@ index for hexagonal systems, otherwise return hkl</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.hkl_transformation">
-<span class="sig-name descname"><span class="pre">hkl_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1694-L1720"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.hkl_transformation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hkl_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1688-L1714"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.hkl_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the Miller index from setting
 A to B using a transformation matrix
 :param transf: The transformation matrix</p>
@@ -1046,7 +1044,7 @@ A to B using a transformation matrix
 <div><p>that transforms a lattice of A to B</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index to transform to setting B</p>
 </dd>
 </dl>
@@ -1054,11 +1052,11 @@ A to B using a transformation matrix
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.is_already_analyzed">
-<span class="sig-name descname"><span class="pre">is_already_analyzed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">miller_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1577-L1593"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.is_already_analyzed" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_already_analyzed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">miller_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miller_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1575-L1588"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.is_already_analyzed" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function to check if a given Miller index is
 part of the family of indices of any index in a list</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>miller_index</strong> (<em>tuple</em>) – The Miller index to analyze</p></li>
 <li><p><strong>miller_list</strong> (<em>list</em>) – List of Miller indices. If the given
@@ -1073,13 +1071,13 @@ lattice, used to define family of indices</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.surface.miller_index_from_sites">
-<span class="sig-name descname"><span class="pre">miller_index_from_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_dp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/surface.py#L1900-L1932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.miller_index_from_sites" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">miller_index_from_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_dp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/surface.py#L1893-L1925"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.surface.miller_index_from_sites" title="Permalink to this definition"></a></dt>
 <dd><p>Get the Miller index of a plane from a list of site coordinates.</p>
 <p>A minimum of 3 sets of coordinates are required. If more than 3 sets of
 coordinates are given, the best plane that minimises the distance to all
 points will be calculated.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lattice</strong> (<em>list</em><em> or </em><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – A 3x3 lattice matrix or <cite>Lattice</cite> object (for
 example obtained from Structure.lattice).</p></li>
@@ -1094,16 +1092,16 @@ miller index to.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The Miller index.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>(tuple)</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

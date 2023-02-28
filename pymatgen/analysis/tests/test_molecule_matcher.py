@@ -271,7 +271,6 @@ class MoleculeMatcherTest(unittest.TestCase):
 
 class KabschMatcherTest(unittest.TestCase):
     def test_get_rmsd(self):
-
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
 
@@ -289,7 +288,6 @@ class KabschMatcherTest(unittest.TestCase):
         assert d_source == mm_target.as_dict()
 
     def test_rotated_molecule(self):
-
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -309,18 +307,15 @@ class KabschMatcherTest(unittest.TestCase):
         assert rmsd == approx(0, abs=6)
 
     def test_mismatched_atom_composition(self):
-
         mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t2.xyz"))
 
         mm = KabschMatcher(mol1)
 
         with pytest.raises(ValueError):
-
             _, rmsd = mm.fit(mol2)
 
     def test_missmatched_atom_order(self):
-
         mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "benzene2.xyz"))
 
@@ -374,7 +369,6 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         assert d_source == mm_target.as_dict()
 
     def test_rotated_molecule(self):
-
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -394,7 +388,6 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         assert rmsd == approx(0, abs=6)
 
     def test_mismatched_atom_composition(self):
-
         mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t2.xyz"))
         mm = HungarianOrderMatcher(mol1)
@@ -403,7 +396,6 @@ class HungarianOrderMatcherTest(unittest.TestCase):
             _, rmsd = mm.fit(mol2)
 
     def test_fit(self):
-
         mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "benzene2.xyz"))
 
@@ -482,7 +474,6 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         assert d_source == mm_target.as_dict()
 
     def test_rotated_molecule(self):
-
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -502,7 +493,6 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         assert rmsd == approx(0, abs=6)
 
     def test_mismatched_atom_composition(self):
-
         mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t2.xyz"))
         mm = GeneticOrderMatcher(mol1, threshold=0.3)
@@ -511,7 +501,6 @@ class GeneticOrderMatcherTest(unittest.TestCase):
             _, rmsd = mm.fit(mol2)[0]
 
     def test_fit(self):
-
         mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "benzene2.xyz"))
 
@@ -702,7 +691,6 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
 class KabschMatcherSi2OTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         cls.mm = KabschMatcher(cls.mol1)
 
@@ -764,7 +752,6 @@ class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
 class HungarianOrderMatcherSi2OTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         cls.mm = HungarianOrderMatcher(cls.mol1)
 

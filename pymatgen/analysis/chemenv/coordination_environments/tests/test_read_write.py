@@ -162,14 +162,14 @@ class ReadWriteChemenvTest(unittest.TestCase):
             str(nb_set) == "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n"
         )
 
-        assert not nb_set != nb_set
+        assert nb_set == nb_set
 
         assert hash(nb_set) == 4
 
     def test_strategies(self):
         simplest_strategy_1 = SimplestChemenvStrategy()
         simplest_strategy_2 = SimplestChemenvStrategy(distance_cutoff=1.5, angle_cutoff=0.5)
-        assert not simplest_strategy_1 == simplest_strategy_2
+        assert simplest_strategy_1 != simplest_strategy_2
         simplest_strategy_1_from_dict = SimplestChemenvStrategy.from_dict(simplest_strategy_1.as_dict())
         assert simplest_strategy_1, simplest_strategy_1_from_dict
 
@@ -246,10 +246,10 @@ class ReadWriteChemenvTest(unittest.TestCase):
         multi_weights_strategy_1_from_dict = MultiWeightsChemenvStrategy.from_dict(multi_weights_strategy_1.as_dict())
 
         assert multi_weights_strategy_1 == multi_weights_strategy_1_from_dict
-        assert not simplest_strategy_1 == multi_weights_strategy_1
-        assert not multi_weights_strategy_1 == multi_weights_strategy_2
-        assert not multi_weights_strategy_1 == multi_weights_strategy_3
-        assert not multi_weights_strategy_2 == multi_weights_strategy_3
+        assert simplest_strategy_1 != multi_weights_strategy_1
+        assert multi_weights_strategy_1 != multi_weights_strategy_2
+        assert multi_weights_strategy_1 != multi_weights_strategy_3
+        assert multi_weights_strategy_2 != multi_weights_strategy_3
 
     def test_read_write_voronoi(self):
         with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as f:

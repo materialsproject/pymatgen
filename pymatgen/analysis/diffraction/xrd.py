@@ -104,7 +104,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
        .. math::
 
-           P( \theta) =  \frac{1 +  \cos^2(2 \theta)}
+           P( \theta) = \frac{1 +  \cos^2(2 \theta)}
            { \sin^2( \theta) \cos( \theta)}
     """
 
@@ -214,7 +214,6 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
-
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
 

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.phonon.dos module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.phonon.dos module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.phonon.gruneisen module" href="pymatgen.phonon.gruneisen.html" />
     <link rel="prev" title="pymatgen.phonon.bandstructure module" href="pymatgen.phonon.bandstructure.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,22 +113,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.phonon.dos">
-<span id="pymatgen-phonon-dos-module"></span><h1>pymatgen.phonon.dos module<a class="headerlink" href="#module-pymatgen.phonon.dos" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.phonon.dos">
+<span id="pymatgen-phonon-dos-module"></span><h1>pymatgen.phonon.dos module<a class="headerlink" href="#module-pymatgen.phonon.dos" title="Permalink to this headline"></a></h1>
 <p>This module defines classes to represent the phonon density of states, etc.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CompletePhononDos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdoss</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L318-L397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.dos.PhononDos" title="pymatgen.phonon.dos.PhononDos"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhononDos</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CompletePhononDos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdoss</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L318-L397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.dos.PhononDos" title="pymatgen.phonon.dos.PhononDos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.phonon.dos.PhononDos</span></code></a></p>
 <p>This wrapper class defines a total dos, and also provides a list of PDos.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.pdos">
-<span class="sig-name descname"><span class="pre">pdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/phonon/dos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.pdos" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/phonon/dos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.pdos" title="Permalink to this definition"></a></dt>
 <dd><p>Dict of partial densities of the form {Site:Densities}</p>
 </dd></dl>
 
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – Structure associated with this particular DOS.</p></li>
 <li><p><strong>total_dos</strong> – total Dos for structure</p></li>
@@ -137,25 +138,25 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L379-L394"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L379-L394"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>JSON-serializable dict representation of CompletePhononDos.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L366-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L366-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns CompleteDos object from dict representation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.get_element_dos">
-<span class="sig-name descname"><span class="pre">get_element_dos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L350-L364"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_element_dos" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_element_dos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L350-L364"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_element_dos" title="Permalink to this definition"></a></dt>
 <dd><p>Get element projected Dos.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Dos}</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p>dict of {Element</p>
 </dd>
 </dl>
@@ -163,13 +164,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.get_site_dos">
-<span class="sig-name descname"><span class="pre">get_site_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L338-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_site_dos" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_site_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L338-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_site_dos" title="Permalink to this definition"></a></dt>
 <dd><p>Get the Dos for a site.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>site</strong> – Site in Structure associated with CompletePhononDos.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>PhononDos containing summed orbital densities for site.</p>
 </dd>
 </dl>
@@ -179,12 +180,12 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononDos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">densities</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L35-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononDos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">densities</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L35-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic DOS object. All other DOS objects are extended versions of this
 object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>frequencies</strong> – A sequences of frequencies in THz</p></li>
 <li><p><strong>densities</strong> – A list representing the density of states.</p></li>
@@ -193,13 +194,13 @@ object.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L122-L131"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L122-L131"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>JSON-serializable dict representation of PhononDos.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.cv">
-<span class="sig-name descname"><span class="pre">cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L157-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.cv" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L157-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.cv" title="Permalink to this definition"></a></dt>
 <dd><p>Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
 Only positive frequencies will be used.
 Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -207,14 +208,14 @@ of Avogadro times the atoms in a unit cell. To compare with experimental data th
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/(K*mol)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>t</strong> – a temperature in K</p></li>
 <li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
 formula units</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Constant volume specific heat C_v</p>
 </dd>
 </dl>
@@ -222,7 +223,7 @@ formula units</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.entropy">
-<span class="sig-name descname"><span class="pre">entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L192-L223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.entropy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L192-L223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.entropy" title="Permalink to this definition"></a></dt>
 <dd><p>Vibrational entropy at temperature T obtained from the integration of the DOS.
 Only positive frequencies will be used.
 Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -230,14 +231,14 @@ of Avogadro times the atoms in a unit cell. To compare with experimental data th
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/(K*mol)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>t</strong> – a temperature in K</p></li>
 <li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
 formula units</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Vibrational entropy</p>
 </dd>
 </dl>
@@ -245,16 +246,16 @@ formula units</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L115-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L115-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns PhononDos object from dict representation of PhononDos.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.get_interpolated_value">
-<span class="sig-name descname"><span class="pre">get_interpolated_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L97-L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_interpolated_value" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_interpolated_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L97-L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_interpolated_value" title="Permalink to this definition"></a></dt>
 <dd><p>Returns interpolated density for a particular frequency.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>frequency</strong> – frequency to return the density for.</p>
 </dd>
 </dl>
@@ -262,14 +263,14 @@ formula units</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.get_smeared_densities">
-<span class="sig-name descname"><span class="pre">get_smeared_densities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L50-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_smeared_densities" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_smeared_densities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L50-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_smeared_densities" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the densities, but with a Gaussian smearing of
 std dev sigma applied.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>sigma</strong> – Std dev of Gaussian smearing function.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Gaussian-smeared densities.</p>
 </dd>
 </dl>
@@ -277,7 +278,7 @@ std dev sigma applied.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.helmholtz_free_energy">
-<span class="sig-name descname"><span class="pre">helmholtz_free_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L258-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.helmholtz_free_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">helmholtz_free_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L258-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.helmholtz_free_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
 Only positive frequencies will be used.
 Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -285,14 +286,14 @@ of Avogadro times the atoms in a unit cell. To compare with experimental data th
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/mol</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>t</strong> – a temperature in K</p></li>
 <li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
 formula units</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Phonon contribution to the Helmholtz free energy</p>
 </dd>
 </dl>
@@ -300,13 +301,13 @@ formula units</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.ind_zero_freq">
-<span class="sig-name descname"><span class="pre">ind_zero_freq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/phonon/dos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.ind_zero_freq" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ind_zero_freq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/phonon/dos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.ind_zero_freq" title="Permalink to this definition"></a></dt>
 <dd><p>Index of the first point for which the frequencies are equal or greater than zero.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.internal_energy">
-<span class="sig-name descname"><span class="pre">internal_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L225-L256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.internal_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">internal_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L225-L256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.internal_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
 Only positive frequencies will be used.
 Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -314,14 +315,14 @@ of Avogadro times the atoms in a unit cell. To compare with experimental data th
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/mol</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>t</strong> – a temperature in K</p></li>
 <li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
 formula units</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Phonon contribution to the internal energy</p>
 </dd>
 </dl>
@@ -329,18 +330,18 @@ formula units</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.zero_point_energy">
-<span class="sig-name descname"><span class="pre">zero_point_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L291-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.zero_point_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zero_point_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L291-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.zero_point_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Zero point energy of the system. Only positive frequencies will be used.
 Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
 of Avogadro times the atoms in a unit cell. To compare with experimental data the result
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/mol</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
 formula units</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Phonon contribution to the internal energy</p>
 </dd>
 </dl>
@@ -350,19 +351,19 @@ formula units</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.phonon.dos.coth">
-<span class="sig-name descname"><span class="pre">coth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../phonon/dos.py#L22-L32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.coth" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../phonon/dos.py#L22-L32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.coth" title="Permalink to this definition"></a></dt>
 <dd><p>Coth function.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>x</em>) – value</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>coth(x)</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

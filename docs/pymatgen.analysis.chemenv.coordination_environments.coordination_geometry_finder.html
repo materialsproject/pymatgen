@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv.coordination_environments.structure_environments module" href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html" />
     <link rel="prev" title="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,8 +115,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder">
-<span id="pymatgen-analysis-chemenv-coordination-environments-coordination-geometry-finder-module"></span><h1>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder">
+<span id="pymatgen-analysis-chemenv-coordination-environments-coordination-geometry-finder-module"></span><h1>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder" title="Permalink to this headline"></a></h1>
 <p>This module contains the main object used to identify the coordination environments in a given structure.
 If you use this module, please cite the following:
 David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
@@ -129,7 +130,7 @@ Acta Cryst. B 2020, 76, pp 683-695,
 DOI: 10.1107/S2052520620007994</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">central_site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bare_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centering_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'standard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_central_site_in_centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L70-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">central_site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bare_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centering_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'standard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_central_site_in_centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L70-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class used to describe a geometry (perfect or distorted)</p>
 <p>Constructor for the abstract geometry
@@ -141,16 +142,16 @@ DOI: 10.1107/S2052520620007994</p>
 <div><p>if this parameter is set to True.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Raise<span class="colon">:</span></dt>
+<dt class="field-odd">Raise</dt>
 <dd class="field-odd"><p>ValueError if the parameters are not consistent</p>
 </dd>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cn</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cn</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn" title="Permalink to this definition"></a></dt>
 <dd><p>Coordination number</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -158,10 +159,10 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.coordination_number">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coordination_number</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.coordination_number" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coordination_number</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.coordination_number" title="Permalink to this definition"></a></dt>
 <dd><p>Coordination number</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -169,16 +170,16 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centering_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'standard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_central_site_in_centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L187-L202"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centering_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'standard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_central_site_in_centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L187-L202"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cg</strong> – </p></li>
 <li><p><strong>centering_type</strong> – </p></li>
 <li><p><strong>include_central_site_in_centroid</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -186,12 +187,12 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_csc">
-<span class="sig-name descname"><span class="pre">points_wcs_csc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L204-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_csc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_wcs_csc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L204-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_csc" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>permutation</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -199,12 +200,12 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwcc">
-<span class="sig-name descname"><span class="pre">points_wcs_ctwcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L222-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwcc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_wcs_ctwcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L222-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwcc" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>permutation</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -212,12 +213,12 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwocc">
-<span class="sig-name descname"><span class="pre">points_wcs_ctwocc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L245-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwocc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_wcs_ctwocc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L245-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwocc" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>permutation</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -225,12 +226,12 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_csc">
-<span class="sig-name descname"><span class="pre">points_wocs_csc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L213-L220"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_csc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_wocs_csc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L213-L220"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_csc" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>permutation</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -238,12 +239,12 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwcc">
-<span class="sig-name descname"><span class="pre">points_wocs_ctwcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L236-L243"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwcc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_wocs_ctwcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L236-L243"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwcc" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>permutation</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -251,12 +252,12 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwocc">
-<span class="sig-name descname"><span class="pre">points_wocs_ctwocc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L259-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwocc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_wocs_ctwocc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L259-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwocc" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>permutation</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -266,11 +267,11 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LocalGeometryFinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutations_safe_override</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane_ordering_override</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane_safe_permutations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_citation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L349-L2051"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LocalGeometryFinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutations_safe_override</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane_ordering_override</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane_safe_permutations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_citation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L349-L2037"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Main class used to find the local environments in a structure</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>permutations_safe_override</strong> – If set to True, all permutations are tested (very time-consuming for large</p></li>
 <li><p><strong>numbers!</strong><strong>)</strong> (<em>coordination</em>) – </p></li>
@@ -283,49 +284,49 @@ DOI: 10.1107/S2052520620007994</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS">
-<span class="sig-name descname"><span class="pre">BVA_DISTANCE_SCALE_FACTORS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'GGA_relaxed':</span> <span class="pre">1.015,</span> <span class="pre">'LDA_relaxed':</span> <span class="pre">0.995,</span> <span class="pre">'experimental':</span> <span class="pre">1.0}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">BVA_DISTANCE_SCALE_FACTORS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'GGA_relaxed':</span> <span class="pre">1.015,</span> <span class="pre">'LDA_relaxed':</span> <span class="pre">0.995,</span> <span class="pre">'experimental':</span> <span class="pre">1.0}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_BVA_DISTANCE_SCALE_FACTOR">
-<span class="sig-name descname"><span class="pre">DEFAULT_BVA_DISTANCE_SCALE_FACTOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_BVA_DISTANCE_SCALE_FACTOR" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULT_BVA_DISTANCE_SCALE_FACTOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_BVA_DISTANCE_SCALE_FACTOR" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS">
-<span class="sig-name descname"><span class="pre">DEFAULT_SPG_ANALYZER_OPTIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'angle_tolerance':</span> <span class="pre">5,</span> <span class="pre">'symprec':</span> <span class="pre">0.001}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULT_SPG_ANALYZER_OPTIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'angle_tolerance':</span> <span class="pre">5,</span> <span class="pre">'symprec':</span> <span class="pre">0.001}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_STRATEGY">
-<span class="sig-name descname"><span class="pre">DEFAULT_STRATEGY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_STRATEGY" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULT_STRATEGY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_STRATEGY" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS">
-<span class="sig-name descname"><span class="pre">PRESETS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'DEFAULT':</span> <span class="pre">{'maximum_distance_factor':</span> <span class="pre">2.0,</span> <span class="pre">'minimum_angle_factor':</span> <span class="pre">0.05,</span> <span class="pre">'optimization':</span> <span class="pre">2,</span> <span class="pre">'voronoi_normalized_angle_tolerance':</span> <span class="pre">0.03,</span> <span class="pre">'voronoi_normalized_distance_tolerance':</span> <span class="pre">0.05}}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">PRESETS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'DEFAULT':</span> <span class="pre">{'maximum_distance_factor':</span> <span class="pre">2.0,</span> <span class="pre">'minimum_angle_factor':</span> <span class="pre">0.05,</span> <span class="pre">'optimization':</span> <span class="pre">2,</span> <span class="pre">'voronoi_normalized_angle_tolerance':</span> <span class="pre">0.03,</span> <span class="pre">'voronoi_normalized_distance_tolerance':</span> <span class="pre">0.05}}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE">
-<span class="sig-name descname"><span class="pre">STRUCTURE_REFINEMENT_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'none'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">STRUCTURE_REFINEMENT_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'none'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED">
-<span class="sig-name descname"><span class="pre">STRUCTURE_REFINEMENT_REFINED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'refined'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">STRUCTURE_REFINEMENT_REFINED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'refined'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED">
-<span class="sig-name descname"><span class="pre">STRUCTURE_REFINEMENT_SYMMETRIZED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'symmetrized'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">STRUCTURE_REFINEMENT_SYMMETRIZED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'symmetrized'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments">
-<span class="sig-name descname"><span class="pre">compute_coordination_environments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_cations=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy=&lt;pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences='bond-valence-analysis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_structure_environments=None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L503-L546"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compute_coordination_environments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_cations=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy=&lt;pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences='bond-valence-analysis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_structure_environments=None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L503-L546"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – </p></li>
 <li><p><strong>indices</strong> – </p></li>
@@ -335,7 +336,7 @@ DOI: 10.1107/S2052520620007994</p>
 <li><p><strong>initial_structure_environments</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -343,7 +344,7 @@ DOI: 10.1107/S2052520620007994</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments">
-<span class="sig-name descname"><span class="pre">compute_structure_environments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_cations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_distance_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_angle_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'undefined'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timelimit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_structure_environments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_from_hints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voronoi_normalized_distance_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voronoi_normalized_angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voronoi_distance_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recompute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L548-L866"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compute_structure_environments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_cations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_distance_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_angle_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'undefined'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timelimit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_structure_environments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_from_hints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voronoi_normalized_distance_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voronoi_normalized_angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voronoi_distance_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recompute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L548-L866"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments" title="Permalink to this definition"></a></dt>
 <dd><p>Computes and returns the StructureEnvironments object containing all the information about the coordination
 environments in the structure
 :param excluded_atoms: Atoms for which the coordination geometries does not have to be identified
@@ -355,7 +356,7 @@ environments in the structure
 <div><p>maximum_distance_factor*closest_neighbor_distance are not considered</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>minimum_angle_factor</strong> – If not set to None, neighbors for which the angle is lower than
 minimum_angle_factor*largest_angle_neighbor are not considered</p></li>
@@ -381,7 +382,7 @@ is not None)</p></li>
 <li><p><strong>optimization</strong> – optimization algorithm</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The StructureEnvironments object containing all the information about the coordination
 environments in the structure</p>
 </dd>
@@ -390,20 +391,20 @@ environments in the structure</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures">
-<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tested_permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1329-L1375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tested_permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1316-L1362"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
 the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination</p>
 <blockquote>
 <div><p>geometry, different methods are called.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>coordination_geometry</strong> – Coordination geometry for which the symmetry measures are looked for</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the symmetry measures of a given coordination_geometry for a set of permutations</p>
 </dd>
-<dt class="field-odd">Raise<span class="colon">:</span></dt>
+<dt class="field-odd">Raise</dt>
 <dd class="field-odd"><p>NotImplementedError if the permutation_setup does not exists</p>
 </dd>
 </dl>
@@ -411,7 +412,7 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random">
-<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_fallback_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NRANDOM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L2012-L2051"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_fallback_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NRANDOM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1998-L2037"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the symmetry measures for a random set of permutations for the coordination geometry
 “coordination_geometry”. Fallback implementation for the plane separation algorithms measures
 of each permutation
@@ -422,7 +423,7 @@ of each permutation
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane">
-<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_separation_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_plane_algo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tested_permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1485-L1584"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_separation_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_plane_algo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tested_permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1471-L1570"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the symmetry measures of the given coordination geometry “coordination_geometry” using separation
 facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other …
 :param coordination_geometry: The coordination geometry to be investigated
@@ -431,11 +432,11 @@ facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3P
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane_optim">
-<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_separation_plane_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_plane_algo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1586-L1747"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane_optim" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_separation_plane_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_plane_algo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1572-L1733"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane_optim" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the symmetry measures of the given coordination geometry “coordination_geometry” using separation
 facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other …</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coordination_geometry</strong> – The coordination geometry to be investigated.</p></li>
 <li><p><strong>separation_plane_algo</strong> – Separation Plane algorithm used.</p></li>
@@ -444,7 +445,7 @@ facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3P
 <li><p><strong>optimization</strong> – Optimization level (1 or 2).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>Continuous symmetry measures for the given coordination geometry for each plane and permutation</dt><dd><p>investigated, corresponding permutations, corresponding algorithms,
 corresponding mappings from local to perfect environment and corresponding mappings
@@ -453,7 +454,7 @@ from perfect to local environment.</p>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
@@ -461,20 +462,20 @@ from perfect to local environment.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_sepplane_optim">
-<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_sepplane_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1377-L1409"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_sepplane_optim" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_sepplane_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1364-L1396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_sepplane_optim" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
 the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination</p>
 <blockquote>
 <div><p>geometry, different methods are called.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>coordination_geometry</strong> – Coordination geometry for which the symmetry measures are looked for</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the symmetry measures of a given coordination_geometry for a set of permutations</p>
 </dd>
-<dt class="field-odd">Raise<span class="colon">:</span></dt>
+<dt class="field-odd">Raise</dt>
 <dd class="field-odd"><p>NotImplementedError if the permutation_setup does not exists</p>
 </dd>
 </dl>
@@ -482,7 +483,7 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_standard">
-<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_standard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1411-L1483"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_standard" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coordination_geometry_symmetry_measures_standard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1398-L1469"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_standard" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
 for the coordination geometry “coordination_geometry”. Standard implementation looking for the symmetry
 measures of each permutation
@@ -492,21 +493,21 @@ measures of each permutation
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures">
-<span class="sig-name descname"><span class="pre">get_coordination_symmetry_measures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_minimum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_csms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1143-L1217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_coordination_symmetry_measures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_minimum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_csms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1137-L1208"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the continuous symmetry measures of the current local geometry in a dictionary.
 :return: the continuous symmetry measures of the current local geometry in a dictionary.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures_optim">
-<span class="sig-name descname"><span class="pre">get_coordination_symmetry_measures_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_minimum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_csms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1272-L1327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures_optim" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_coordination_symmetry_measures_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_minimum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_csms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1263-L1314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures_optim" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the continuous symmetry measures of the current local geometry in a dictionary.
 :return: the continuous symmetry measures of the current local geometry in a dictionary.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_structure">
-<span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L483-L490"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L483-L490"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
 might have been refined/symmetrized using the SpaceGroupAnalyzer).
 :return: The pymatgen Structure that has been setup for the identification of geometries (the initial one
@@ -515,7 +516,7 @@ might have been refined/symmetrized using the SpaceGroupAnalyzer).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.set_structure">
-<span class="sig-name descname"><span class="pre">set_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">Lattice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L492-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.set_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">pymatgen.core.lattice.Lattice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L492-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.set_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up the pymatgen structure for which the coordination geometries have to be identified starting from the
 lattice, the species and the coordinates
 :param lattice: The lattice of the structure
@@ -526,7 +527,7 @@ lattice, the species and the coordinates
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_explicit_indices_local_geometry">
-<span class="sig-name descname"><span class="pre">setup_explicit_indices_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit_indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1134-L1141"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_explicit_indices_local_geometry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_explicit_indices_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit_indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1128-L1135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_explicit_indices_local_geometry" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up explicit indices for the local geometry, for testing purposes
 :param explicit_indices: explicit indices for the neighbors (set of numbers
 from 0 to CN-1 in a given order)</p>
@@ -534,7 +535,7 @@ from 0 to CN-1 in a given order)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_local_geometry">
-<span class="sig-name descname"><span class="pre">setup_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L938-L950"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_local_geometry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L935-L947"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_local_geometry" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up the AbstractGeometry for the local geometry of site with index isite.
 :param isite: Index of the site for which the local geometry has to be set up
 :param coords: The coordinates of the (local) neighbors</p>
@@ -542,14 +543,14 @@ from 0 to CN-1 in a given order)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_ordered_indices_local_geometry">
-<span class="sig-name descname"><span class="pre">setup_ordered_indices_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1126-L1132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_ordered_indices_local_geometry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_ordered_indices_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1120-L1126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_ordered_indices_local_geometry" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up ordered indices for the local geometry, for testing purposes
 :param coordination: coordination of the local geometry</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameter">
-<span class="sig-name descname"><span class="pre">setup_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L445-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameter" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L445-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameter" title="Permalink to this definition"></a></dt>
 <dd><p>Setup of one specific parameter to the given value. The other parameters are unchanged. See setup_parameters
 method for the list of possible parameters
 :param parameter: Parameter to setup/update
@@ -558,7 +559,7 @@ method for the list of possible parameters
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters">
-<span class="sig-name descname"><span class="pre">setup_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centering_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'standard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_central_site_in_centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bva_distance_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_refinement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'refined'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spg_analyzer_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L410-L443"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centering_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'standard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_central_site_in_centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bva_distance_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_refinement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'refined'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spg_analyzer_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L410-L443"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters" title="Permalink to this definition"></a></dt>
 <dd><p>Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
 chosen. This can be the centroid of the structure (including or excluding the atom for which the coordination
 geometry is looked for) or the atom itself. In the ‘standard’ centering_type, the reference point is the central
@@ -569,7 +570,7 @@ atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination nu
 <div><p>this value is set to True.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bva_distance_scale_factor</strong> – Scaling factor for the bond valence analyzer (this might be different whether
 the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where
@@ -584,21 +585,21 @@ and “angle_tolerance”. See pymatgen’s SpaceGroupAnalyzer for more informat
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_indices_local_geometry">
-<span class="sig-name descname"><span class="pre">setup_random_indices_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1117-L1124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_indices_local_geometry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_random_indices_local_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1111-L1118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_indices_local_geometry" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up random indices for the local geometry, for testing purposes
 :param coordination: coordination of the local geometry</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_structure">
-<span class="sig-name descname"><span class="pre">setup_random_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1099-L1115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_random_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordination</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L1093-L1109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up a purely random structure with a given coordination.
 :param coordination: coordination number for the random structure</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_structure">
-<span class="sig-name descname"><span class="pre">setup_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L454-L481"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L454-L481"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
 with the space group analyzer and a refined structure is used
 :param structure: A pymatgen Structure</p>
@@ -606,9 +607,9 @@ with the space group analyzer and a refined structure is used
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment">
-<span class="sig-name descname"><span class="pre">setup_test_perfect_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_random_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mp_symbol'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RANDOM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_translation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NONE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NONE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NONE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L952-L1097"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_test_perfect_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_random_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mp_symbol'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RANDOM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_translation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NONE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NONE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NONE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L949-L1091"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>symbol</strong> – </p></li>
 <li><p><strong>randomness</strong> – </p></li>
@@ -621,7 +622,7 @@ with the space group analyzer and a refined structure is used
 <li><p><strong>points</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -629,9 +630,9 @@ with the space group analyzer and a refined structure is used
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.update_nb_set_environments">
-<span class="sig-name descname"><span class="pre">update_nb_set_environments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inb_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recompute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L868-L936"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.update_nb_set_environments" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_nb_set_environments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inb_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recompute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L868-L933"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.update_nb_set_environments" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>se</strong> – </p></li>
 <li><p><strong>isite</strong> – </p></li>
@@ -642,7 +643,7 @@ with the space group analyzer and a refined structure is used
 <li><p><strong>optimization</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -652,7 +653,7 @@ with the space group analyzer and a refined structure is used
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_rotation">
-<span class="sig-name descname"><span class="pre">find_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_distorted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L318-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_rotation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_distorted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L318-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_rotation" title="Permalink to this definition"></a></dt>
 <dd><p>This finds the rotation matrix that aligns the (distorted) set of points “points_distorted” with respect to the
 (perfect) set of points “points_perfect” in a least-square sense.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that</p>
@@ -660,10 +661,10 @@ with the space group analyzer and a refined structure is used
 <div><p>aligns these points in a least-square sense to the set of perfect points “points_perfect”</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The rotation matrix</p>
 </dd>
 </dl>
@@ -671,7 +672,7 @@ with the space group analyzer and a refined structure is used
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_scaling_factor">
-<span class="sig-name descname"><span class="pre">find_scaling_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_distorted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L333-L346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_scaling_factor" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_scaling_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_distorted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L333-L346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_scaling_factor" title="Permalink to this definition"></a></dt>
 <dd><p>This finds the scaling factor between the (distorted) set of points “points_distorted” and the
 (perfect) set of points “points_perfect” in a least-square sense.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the scaling factor has</p>
@@ -679,13 +680,13 @@ with the space group analyzer and a refined structure is used
 <div><p>to be obtained.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</p></li>
 <li><p><strong>rot</strong> – The rotation matrix</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The scaling factor between the two structures and the rotated set of (distorted) points.</p>
 </dd>
 </dl>
@@ -693,7 +694,7 @@ with the space group analyzer and a refined structure is used
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.symmetry_measure">
-<span class="sig-name descname"><span class="pre">symmetry_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_distorted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L283-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.symmetry_measure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symmetry_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_distorted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_perfect</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/chemenv/coordination_environments/coordination_geometry_finder.py#L283-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.symmetry_measure" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the continuous symmetry measure of the (distorted) set of points “points_distorted” with respect to the
 (perfect) set of points “points_perfect”.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure</p>
@@ -702,16 +703,16 @@ with the space group analyzer and a refined structure is used
 “points_perfect”.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

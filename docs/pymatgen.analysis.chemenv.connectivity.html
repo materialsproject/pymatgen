@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.chemenv.connectivity package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.chemenv.connectivity package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv.connectivity.connected_components module" href="pymatgen.analysis.chemenv.connectivity.connected_components.html" />
     <link rel="prev" title="pymatgen.analysis.chemenv package" href="pymatgen.analysis.chemenv.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,110 +114,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-analysis-chemenv-connectivity-package">
-<h1>pymatgen.analysis.chemenv.connectivity package<a class="headerlink" href="#pymatgen-analysis-chemenv-connectivity-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-analysis-chemenv-connectivity-package">
+<h1>pymatgen.analysis.chemenv.connectivity package<a class="headerlink" href="#pymatgen-analysis-chemenv-connectivity-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html">pymatgen.analysis.chemenv.connectivity.connected_components module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.as_dict"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.compute_periodicity()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_all_simple_paths_algorithm"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.compute_periodicity_all_simple_paths_algorithm()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_cycle_basis"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.compute_periodicity_cycle_basis()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.coordination_sequence"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.coordination_sequence()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.description"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.description()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.elastic_centered_graph"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.elastic_centered_graph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_dict"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_graph"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.from_graph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.graph"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.graph</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_0d"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.is_0d</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_1d"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.is_1d</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_2d"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.is_2d</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_3d"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.is_3d</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_periodic"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.is_periodic</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.make_supergraph"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.make_supergraph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.periodicity</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity_vectors"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.periodicity_vectors</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.show_graph"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent.show_graph()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.draw_network"><code class="docutils literal notranslate"><span class="pre">draw_network()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.make_supergraph"><code class="docutils literal notranslate"><span class="pre">make_supergraph()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html">pymatgen.analysis.chemenv.connectivity.connectivity_finder module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder"><code class="docutils literal notranslate"><span class="pre">ConnectivityFinder</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity"><code class="docutils literal notranslate"><span class="pre">ConnectivityFinder.get_structure_connectivity()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters"><code class="docutils literal notranslate"><span class="pre">ConnectivityFinder.setup_parameters()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html">pymatgen.analysis.chemenv.connectivity.environment_nodes module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ATOM"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.ATOM</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.COORDINATION_ENVIRONMENT"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.COORDINATION_ENVIRONMENT</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.DEFAULT_EXTENSIONS"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.DEFAULT_EXTENSIONS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.LIGANDS_ARRANGEMENT"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.LIGANDS_ARRANGEMENT</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_CES"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.NEIGHBORING_CES</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.atom_symbol"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.atom_symbol</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.ce</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce_symbol"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.ce_symbol</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.coordination_environment"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.coordination_environment</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.everything_equal()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.isite</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.mp_symbol"><code class="docutils literal notranslate"><span class="pre">AbstractEnvironmentNode.mp_symbol</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode"><code class="docutils literal notranslate"><span class="pre">EnvironmentNode</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.coordination_environment"><code class="docutils literal notranslate"><span class="pre">EnvironmentNode.coordination_environment</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal"><code class="docutils literal notranslate"><span class="pre">EnvironmentNode.everything_equal()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node"><code class="docutils literal notranslate"><span class="pre">get_environment_node()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html">pymatgen.analysis.chemenv.connectivity.structure_connectivity module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_bonds"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.add_bonds()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_sites"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.add_sites()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.as_dict"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.environment_subgraph"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.environment_subgraph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.from_dict"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.get_connected_components"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.get_connected_components()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.print_links"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.print_links()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environment_subgraph"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.setup_atom_environment_subgraph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environments_subgraph"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.setup_atom_environments_subgraph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_connectivity_description"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.setup_connectivity_description()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environment_subgraph"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.setup_environment_subgraph()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environments_subgraph"><code class="docutils literal notranslate"><span class="pre">StructureConnectivity.setup_environments_subgraph()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image"><code class="docutils literal notranslate"><span class="pre">get_delta_image()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html">pymatgen.analysis.chemenv.connectivity.connected_components module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html">pymatgen.analysis.chemenv.connectivity.connectivity_finder module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html">pymatgen.analysis.chemenv.connectivity.environment_nodes module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html">pymatgen.analysis.chemenv.connectivity.structure_connectivity module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.analysis.chemenv.connectivity">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.chemenv.connectivity" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.analysis.chemenv.connectivity">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.chemenv.connectivity" title="Permalink to this headline"></a></h2>
 <p>Package for analyzing connectivity.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

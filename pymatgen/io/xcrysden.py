@@ -50,10 +50,7 @@ class XSF:
         app(f" {len(cart_coords)} 1")
 
         for site, coord in zip(self.structure, cart_coords):
-            if atom_symbol:
-                sp = site.specie.symbol
-            else:
-                sp = f"{site.specie.Z}"
+            sp = site.specie.symbol if atom_symbol else f"{site.specie.Z}"
             x, y, z = coord
             app(f"{sp} {x:20.14f} {y:20.14f} {z:20.14f}")
 
@@ -101,10 +98,7 @@ class XSF:
 
                 for j in range(i + 2, i + 2 + num_sites):
                     tokens = lines[j].split()
-                    if tokens[0].isalpha():
-                        Z = Element(tokens[0]).Z
-                    else:
-                        Z = int(tokens[0])
+                    Z = Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0])
                     species.append(Z)
                     coords.append([float(j) for j in tokens[1:4]])
                 break

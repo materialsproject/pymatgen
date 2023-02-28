@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.structure_prediction package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.structure_prediction package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.structure_prediction.dopant_predictor module" href="pymatgen.analysis.structure_prediction.dopant_predictor.html" />
     <link rel="prev" title="pymatgen.analysis.solar.slme module" href="pymatgen.analysis.solar.slme.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,64 +113,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-analysis-structure-prediction-package">
-<h1>pymatgen.analysis.structure_prediction package<a class="headerlink" href="#pymatgen-analysis-structure-prediction-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-analysis-structure-prediction-package">
+<h1>pymatgen.analysis.structure_prediction package<a class="headerlink" href="#pymatgen-analysis-structure-prediction-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.dopant_predictor.html">pymatgen.analysis.structure_prediction.dopant_predictor module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.dopant_predictor.html#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii"><code class="docutils literal notranslate"><span class="pre">get_dopants_from_shannon_radii()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.dopant_predictor.html#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities"><code class="docutils literal notranslate"><span class="pre">get_dopants_from_substitution_probabilities()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitution_probability.html">pymatgen.analysis.structure_prediction.substitution_probability module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitution_probability.html#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictor</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitution_probability.html#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictor.composition_prediction()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitution_probability.html#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictor.list_prediction()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitution_probability.html#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability"><code class="docutils literal notranslate"><span class="pre">SubstitutionProbability</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html">pymatgen.analysis.structure_prediction.substitutor module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor"><code class="docutils literal notranslate"><span class="pre">Substitutor</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict"><code class="docutils literal notranslate"><span class="pre">Substitutor.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict"><code class="docutils literal notranslate"><span class="pre">Substitutor.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species"><code class="docutils literal notranslate"><span class="pre">Substitutor.get_allowed_species()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp"><code class="docutils literal notranslate"><span class="pre">Substitutor.pred_from_comp()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list"><code class="docutils literal notranslate"><span class="pre">Substitutor.pred_from_list()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures"><code class="docutils literal notranslate"><span class="pre">Substitutor.pred_from_structures()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html">pymatgen.analysis.structure_prediction.volume_predictor module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor"><code class="docutils literal notranslate"><span class="pre">DLSVolumePredictor</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure"><code class="docutils literal notranslate"><span class="pre">DLSVolumePredictor.get_predicted_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict"><code class="docutils literal notranslate"><span class="pre">DLSVolumePredictor.predict()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor"><code class="docutils literal notranslate"><span class="pre">RLSVolumePredictor</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure"><code class="docutils literal notranslate"><span class="pre">RLSVolumePredictor.get_predicted_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict"><code class="docutils literal notranslate"><span class="pre">RLSVolumePredictor.predict()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.dopant_predictor.html">pymatgen.analysis.structure_prediction.dopant_predictor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitution_probability.html">pymatgen.analysis.structure_prediction.substitution_probability module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.substitutor.html">pymatgen.analysis.structure_prediction.substitutor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_prediction.volume_predictor.html">pymatgen.analysis.structure_prediction.volume_predictor module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.analysis.structure_prediction">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.analysis.structure_prediction">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction" title="Permalink to this headline"></a></h2>
 <p>Utilities to predict new structures.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

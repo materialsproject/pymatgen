@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.entries.mixing_scheme module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.entries.mixing_scheme module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.ext namespace" href="pymatgen.ext.html" />
     <link rel="prev" title="pymatgen.entries.exp_entries module" href="pymatgen.entries.exp_entries.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,14 +113,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.entries.mixing_scheme">
-<span id="pymatgen-entries-mixing-scheme-module"></span><h1>pymatgen.entries.mixing_scheme module<a class="headerlink" href="#module-pymatgen.entries.mixing_scheme" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.entries.mixing_scheme">
+<span id="pymatgen-entries-mixing-scheme-module"></span><h1>pymatgen.entries.mixing_scheme module<a class="headerlink" href="#module-pymatgen.entries.mixing_scheme" title="Permalink to this headline"></a></h1>
 <p>This module implements Compatibility corrections for mixing runs of different
 functionals.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MaterialsProjectDFTMixingScheme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_matcher:</span> <span class="pre">StructureMatcher</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type_1:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GGA(+U)'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type_2:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'R2SCAN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compat_1:</span> <span class="pre">Compatibility</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">&lt;pymatgen.entries.compatibility.cached_class.&lt;locals&gt;._decorated</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compat_2:</span> <span class="pre">Compatibility</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzy_matching:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/mixing_scheme.py#L40-L754"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">Compatibility</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MaterialsProjectDFTMixingScheme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_matcher:</span> <span class="pre">typing.Optional[pymatgen.analysis.structure_matcher.StructureMatcher]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type_1:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GGA(+U)'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type_2:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'R2SCAN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compat_1:</span> <span class="pre">pymatgen.entries.compatibility.Compatibility</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">&lt;pymatgen.entries.compatibility.cached_class.&lt;locals&gt;._decorated</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compat_2:</span> <span class="pre">typing.Optional[pymatgen.entries.compatibility.Compatibility]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzy_matching:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/mixing_scheme.py#L41-L758"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></code></a></p>
 <p>This class implements the Materials Project mixing scheme, which allows mixing of
 energies from different DFT functionals. Note that this should only be used for
 VASP calculations using the MaterialsProject parameters (e.g. MPRelaxSet or
@@ -132,7 +133,7 @@ mix energies from any two functionals.</p>
 contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
 for each functional) for processing groups of entries.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure_matcher</strong> (<a class="reference internal" href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher" title="pymatgen.analysis.structure_matcher.StructureMatcher"><em>StructureMatcher</em></a>) – StructureMatcher object used to determine
 whether calculations from different functionals describe the same material.</p></li>
@@ -170,18 +171,18 @@ match.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">display_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/mixing_scheme.py#L733-L754"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">display_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/mixing_scheme.py#L737-L758"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries" title="Permalink to this definition"></a></dt>
 <dd><p>Generate a pretty printout of key properties of a list of ComputedEntry</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments">
-<span class="sig-name descname"><span class="pre">get_adjustments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_state_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/mixing_scheme.py#L253-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_adjustments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_state_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/mixing_scheme.py#L260-L461"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the corrections applied to a particular entry. Note that get_adjustments is not
 intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
 and it will pass the required arguments to get_adjustments.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entry</strong> – A ComputedEntry object. The entry must be a member of the list of entries
 used to create mixing_state_data.</p></li>
@@ -195,13 +196,13 @@ always be left at the default value (None) to avoid inconsistencies between the 
 state data and the properties of the ComputedStructureEntry.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Energy adjustments to be applied to entry.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>[<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.EnergyAdjustment" title="pymatgen.entries.computed_entries.EnergyAdjustment">EnergyAdjustment</a>]</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>CompatibilityError if the DFT mixing scheme cannot be applied to the entry.</strong> – </p>
 </dd>
 </dl>
@@ -209,15 +210,15 @@ state data and the properties of the ComputedStructureEntry.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data">
-<span class="sig-name descname"><span class="pre">get_mixing_state_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/mixing_scheme.py#L457-L579"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_mixing_state_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/mixing_scheme.py#L463-L584"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data" title="Permalink to this definition"></a></dt>
 <dd><p>Generate internal state data to be passed to get_adjustments.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>entries</strong> – The list of ComputedStructureEntry to process. It is assumed that the entries have
 already been filtered using _filter_and_sort_entries() to remove any irrelevant run types,
 apply compat_1 and compat_2, and confirm that all have unique entry_id.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl>
 <dt>A pandas DataFrame that contains information associating structures from</dt><dd><p>different functionals with specific materials and establishing how many run_type_1
 ground states have been computed with run_type_2. The DataFrame contains one row
@@ -242,7 +243,7 @@ hull_energy_2: float or nan the energy of the run_type_1 hull at this compositio
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>DataFrame</p>
 </dd>
 </dl>
@@ -250,11 +251,11 @@ hull_energy_2: float or nan the energy of the run_type_1 hull at this compositio
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries">
-<span class="sig-name descname"><span class="pre">process_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">ComputedStructureEntry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_state_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/mixing_scheme.py#L124-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">process_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_state_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/mixing_scheme.py#L125-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries" title="Permalink to this definition"></a></dt>
 <dd><p>Process a sequence of entries with the DFT mixing scheme. Note
 that this method will change the data of the original entries.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entries</strong> – <p>ComputedEntry or [ComputedEntry]. Pass all entries as a single list, even if they are
 computed with different functionals or require different preprocessing. This list will
@@ -263,10 +264,11 @@ compat_1 and compat_2.</p>
 <p>Note that under typical use, when mixing_state_data=None, the entries MUST be
 ComputedStructureEntry. They will be matched using structure_matcher.</p>
 </p></li>
-<li><p><strong>clean</strong> – bool, whether to remove any previously-applied energy adjustments.
+<li><p><strong>clean</strong> (<em>bool</em>) – Whether to remove any previously-applied energy adjustments.
 If True, all EnergyAdjustment are removed prior to processing the Entry.
 Default is True.</p></li>
-<li><p><strong>verbose</strong> – bool, whether to print verbose error messages about the mixing scheme. Default is True.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print verbose error messages about the mixing scheme. Default is True.</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em>) – Whether to adjust input entries in place. Default is True.</p></li>
 <li><p><strong>mixing_state_data</strong> – A DataFrame containing information about which Entries
 correspond to the same materials, which are stable on the phase diagrams of
 the respective run_types, etc. If None (default), it will be generated from the
@@ -278,16 +280,22 @@ inconsistencies between the mixing state data and the properties of the
 ComputedStructureEntry in entries.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of adjusted entries. Entries in the original list which
-are not compatible are excluded.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Adjusted entries. Entries in the original list incompatible with</dt><dd><p>chosen correction scheme are excluded from the returned list.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[AnyComputedEntry]</p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

@@ -246,7 +246,7 @@ class TEMCalculatorTest(PymatgenTest):
         points = c.generate_points(-2, 2)
         structure = self.get_structure("Si")
         dots = c.tem_dots(structure, points)
-        assert all([isinstance(x, tuple) for x in dots])
+        assert all(isinstance(x, tuple) for x in dots)
 
     def test_get_pattern(self):
         # All dependencies in get_pattern method are tested.
@@ -265,8 +265,9 @@ class TEMCalculatorTest(PymatgenTest):
         structure = self.get_structure("Si")
         fig = c.get_plot_2d_concise(structure)
         width = fig.layout.width
+        assert width == 121
         height = fig.layout.height
-        assert width == 121 and height == 121
+        assert height == 121
 
 
 if __name__ == "__main__":

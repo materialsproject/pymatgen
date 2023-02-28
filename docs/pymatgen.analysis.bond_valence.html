@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.bond_valence module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.bond_valence module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chempot_diagram module" href="pymatgen.analysis.chempot_diagram.html" />
     <link rel="prev" title="pymatgen.analysis.bond_dissociation module" href="pymatgen.analysis.bond_dissociation.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,12 +113,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.analysis.bond_valence">
-<span id="pymatgen-analysis-bond-valence-module"></span><h1>pymatgen.analysis.bond_valence module<a class="headerlink" href="#module-pymatgen.analysis.bond_valence" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.analysis.bond_valence">
+<span id="pymatgen-analysis-bond-valence-module"></span><h1>pymatgen.analysis.bond_valence module<a class="headerlink" href="#module-pymatgen.analysis.bond_valence" title="Permalink to this headline"></a></h1>
 <p>This module implements classes to perform bond valence analyses.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.BVAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BVAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symm_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.015</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_neutrality_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/bond_valence.py#L125-L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BVAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symm_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.015</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_neutrality_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/bond_valence.py#L125-L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class implements a maximum a posteriori (MAP) estimation method to
 determine oxidation states in a structure. The algorithm is as follows:
@@ -135,7 +136,7 @@ and the oxidation state combination that result in a charge neutral cell
 is selected.</p>
 <p>Initializes the BV analyzer, with useful defaults.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>symm_tol</strong> – Symmetry tolerance used to determine which sites are
 symmetrically equivalent. Set to 0 to turn off symmetry.</p></li>
@@ -148,7 +149,7 @@ of 1.015 works for GGA. For experimental structure, set this to
 1.</p></li>
 <li><p><strong>charge_neutrality_tolerance</strong> – Tolerance on the charge neutrality when unordered structures
 are at stake.</p></li>
-<li><p><strong>forbidden_species</strong> – List of species that are forbidden (example : [“O-”] cannot be
+<li><p><strong>forbidden_species</strong> – List of species that are forbidden (example : [“O-“] cannot be
 used) It is used when e.g. someone knows that some oxidation
 state cannot occur for some atom in a structure or list of
 structures.</p></li>
@@ -157,22 +158,22 @@ structures.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.BVAnalyzer.CHARGE_NEUTRALITY_TOLERANCE">
-<span class="sig-name descname"><span class="pre">CHARGE_NEUTRALITY_TOLERANCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-05</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/bond_valence.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.CHARGE_NEUTRALITY_TOLERANCE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">CHARGE_NEUTRALITY_TOLERANCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-05</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/bond_valence.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.CHARGE_NEUTRALITY_TOLERANCE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure">
-<span class="sig-name descname"><span class="pre">get_oxi_state_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/bond_valence.py#L464-L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_oxi_state_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/bond_valence.py#L464-L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Get an oxidation state decorated structure. This currently works only
 for ordered structures only.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure</strong> – Structure to analyze</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A modified structure that is oxidation state decorated.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>ValueError if the valences cannot be determined.</strong> – </p>
 </dd>
 </dl>
@@ -180,21 +181,21 @@ for ordered structures only.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.BVAnalyzer.get_valences">
-<span class="sig-name descname"><span class="pre">get_valences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/bond_valence.py#L231-L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_valences" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_valences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/bond_valence.py#L231-L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_valences" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a list of valences for the structure. This currently works only
 for ordered structures only.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure</strong> – Structure to analyze</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of valences for each site in the structure (for an ordered
 structure), e.g., [1, 1, -2] or a list of lists with the
 valences for each fractional element of each site in the
 structure (for an unordered structure),
 e.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>A ValueError if the valences cannot be determined.</strong> – </p>
 </dd>
 </dl>
@@ -204,10 +205,10 @@ e.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction">
-<span class="sig-name descname"><span class="pre">add_oxidation_state_by_site_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxidation_states</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/bond_valence.py#L504-L522"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_oxidation_state_by_site_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxidation_states</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/bond_valence.py#L504-L522"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction" title="Permalink to this definition"></a></dt>
 <dd><p>Add oxidation states to a structure by fractional site.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>oxidation_states</strong> (<em>list</em>) – List of list of oxidation states for each
 site fraction for each site.
 E.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
@@ -217,10 +218,10 @@ E.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.calculate_bv_sum">
-<span class="sig-name descname"><span class="pre">calculate_bv_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/bond_valence.py#L61-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_bv_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/bond_valence.py#L61-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the BV sum of a site.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – The central site to calculate the bond valence</p></li>
 <li><p><strong>nn_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor" title="pymatgen.core.structure.Neighbor"><em>Neighbor</em></a><em>]</em>) – A list of namedtuple Neighbors having “distance”
@@ -235,10 +236,10 @@ which may tend to under (GGA) or over bind (LDA).</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.calculate_bv_sum_unordered">
-<span class="sig-name descname"><span class="pre">calculate_bv_sum_unordered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/bond_valence.py#L88-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum_unordered" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_bv_sum_unordered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/bond_valence.py#L88-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum_unordered" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the BV sum of a site for unordered structures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – The central site to calculate the bond valence</p></li>
 <li><p><strong>nn_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor" title="pymatgen.core.structure.Neighbor"><em>Neighbor</em></a><em>]</em>) – A list of namedtuple Neighbors having “distance”
@@ -253,7 +254,7 @@ which may tend to under (GGA) or over bind (LDA).</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.bond_valence.get_z_ordered_elmap">
-<span class="sig-name descname"><span class="pre">get_z_ordered_elmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/bond_valence.py#L488-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.get_z_ordered_elmap" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_z_ordered_elmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/bond_valence.py#L488-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.get_z_ordered_elmap" title="Permalink to this definition"></a></dt>
 <dd><p>Arbitrary ordered elmap on the elements/species of a composition of a
 given site in an unordered structure. Returns a list of tuples (
 element_or_specie: occupation) in the arbitrary order.</p>
@@ -265,7 +266,7 @@ Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ … or
 Cr4+, Cr3+, Ni4+, Ni3+, Zn2+</p>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

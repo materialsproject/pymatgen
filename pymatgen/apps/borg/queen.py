@@ -58,7 +58,7 @@ class BorgQueen:
         """
         logger.info("Scanning for valid paths...")
         valid_paths = []
-        for (parent, subdirs, files) in os.walk(rootpath):
+        for parent, subdirs, files in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         manager = Manager()
         data = manager.list()
@@ -79,7 +79,7 @@ class BorgQueen:
         Assimilate the entire subdirectory structure in rootpath serially.
         """
         valid_paths = []
-        for (parent, subdirs, files) in os.walk(rootpath):
+        for parent, subdirs, files in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         data = []
         count = 0

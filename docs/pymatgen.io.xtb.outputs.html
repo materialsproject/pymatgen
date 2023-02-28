@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.xtb.outputs module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.io.xtb.outputs module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.adf module" href="pymatgen.io.adf.html" />
     <link rel="prev" title="pymatgen.io.xtb.inputs module" href="pymatgen.io.xtb.inputs.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,26 +114,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.io.xtb.outputs">
-<span id="pymatgen-io-xtb-outputs-module"></span><h1>pymatgen.io.xtb.outputs module<a class="headerlink" href="#module-pymatgen.io.xtb.outputs" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.io.xtb.outputs">
+<span id="pymatgen-io-xtb-outputs-module"></span><h1>pymatgen.io.xtb.outputs module<a class="headerlink" href="#module-pymatgen.io.xtb.outputs" title="Permalink to this headline"></a></h1>
 <p>Parsers for XTB output files and directories</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.xtb.outputs.CRESTOutput">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CRESTOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/xtb/outputs.py#L27-L179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.xtb.outputs.CRESTOutput" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CRESTOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/xtb/outputs.py#L27-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.xtb.outputs.CRESTOutput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to parse CREST output files</p>
-<p>Assumes runtype is iMTD-GC [default]
-:param output_filename: Filename to parse
-:type output_filename: str
-:param path: Path to directory including output_filename and all</p>
-<blockquote>
-<div><p>other xtb output files (crest_best.xyz, etc.)</p>
-</div></blockquote>
+<p>Assumes runtype is iMTD-GC [default]</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_filename</strong> (<em>str</em>) – Filename to parse</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path to directory including output_filename and all
+other xtb output files (crest_best.xyz, etc.)</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

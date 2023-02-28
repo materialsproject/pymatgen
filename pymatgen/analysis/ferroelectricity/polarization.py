@@ -98,7 +98,6 @@ def get_total_ionic_dipole(structure, zval_dict):
     center (np.array with shape [3,1]) : dipole center used by VASP
     tiny (float) : tolerance for determining boundary of calculation.
     """
-
     tot_ionic = []
     for site in structure:
         zval = zval_dict[str(site.specie)]
@@ -114,6 +113,7 @@ class PolarizationLattice(Structure):
     def get_nearest_site(self, coords, site, r=None):
         """
         Given coords and a site, find closet site to coords.
+
         Args:
             coords (3x1 array): Cartesian coords of center of sphere
             site: site to find closest to coords

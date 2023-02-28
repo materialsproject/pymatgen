@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.feff package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.io.feff package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.feff.inputs module" href="pymatgen.io.feff.inputs.html" />
     <link rel="prev" title="pymatgen.io.exciting.inputs module" href="pymatgen.io.exciting.inputs.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,141 +113,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-io-feff-package">
-<h1>pymatgen.io.feff package<a class="headerlink" href="#pymatgen-io-feff-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-io-feff-package">
+<h1>pymatgen.io.feff package<a class="headerlink" href="#pymatgen-io-feff-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.feff.inputs.html">pymatgen.io.feff.inputs module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms"><code class="docutils literal notranslate"><span class="pre">Atoms</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.atoms_string_from_file"><code class="docutils literal notranslate"><span class="pre">Atoms.atoms_string_from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.cluster"><code class="docutils literal notranslate"><span class="pre">Atoms.cluster</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.cluster_from_file"><code class="docutils literal notranslate"><span class="pre">Atoms.cluster_from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.get_lines"><code class="docutils literal notranslate"><span class="pre">Atoms.get_lines()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.write_file"><code class="docutils literal notranslate"><span class="pre">Atoms.write_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.FeffParserError"><code class="docutils literal notranslate"><span class="pre">FeffParserError</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header"><code class="docutils literal notranslate"><span class="pre">Header</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.formula"><code class="docutils literal notranslate"><span class="pre">Header.formula</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_cif_file"><code class="docutils literal notranslate"><span class="pre">Header.from_cif_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_file"><code class="docutils literal notranslate"><span class="pre">Header.from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_string"><code class="docutils literal notranslate"><span class="pre">Header.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.header_string_from_file"><code class="docutils literal notranslate"><span class="pre">Header.header_string_from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.structure_symmetry"><code class="docutils literal notranslate"><span class="pre">Header.structure_symmetry</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.write_file"><code class="docutils literal notranslate"><span class="pre">Header.write_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Paths"><code class="docutils literal notranslate"><span class="pre">Paths</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Paths.write_file"><code class="docutils literal notranslate"><span class="pre">Paths.write_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential"><code class="docutils literal notranslate"><span class="pre">Potential</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.pot_dict_from_string"><code class="docutils literal notranslate"><span class="pre">Potential.pot_dict_from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.pot_string_from_file"><code class="docutils literal notranslate"><span class="pre">Potential.pot_string_from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.write_file"><code class="docutils literal notranslate"><span class="pre">Potential.write_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags"><code class="docutils literal notranslate"><span class="pre">Tags</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.as_dict"><code class="docutils literal notranslate"><span class="pre">Tags.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.diff"><code class="docutils literal notranslate"><span class="pre">Tags.diff()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_dict"><code class="docutils literal notranslate"><span class="pre">Tags.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_file"><code class="docutils literal notranslate"><span class="pre">Tags.from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.get_string"><code class="docutils literal notranslate"><span class="pre">Tags.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.proc_val"><code class="docutils literal notranslate"><span class="pre">Tags.proc_val()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.write_file"><code class="docutils literal notranslate"><span class="pre">Tags.write_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.get_absorbing_atom_symbol_index"><code class="docutils literal notranslate"><span class="pre">get_absorbing_atom_symbol_index()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.get_atom_map"><code class="docutils literal notranslate"><span class="pre">get_atom_map()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.feff.outputs.html">pymatgen.io.feff.outputs module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels"><code class="docutils literal notranslate"><span class="pre">Eels</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.as_dict"><code class="docutils literal notranslate"><span class="pre">Eels.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.atomic_background"><code class="docutils literal notranslate"><span class="pre">Eels.atomic_background</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.energies"><code class="docutils literal notranslate"><span class="pre">Eels.energies</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.fine_structure"><code class="docutils literal notranslate"><span class="pre">Eels.fine_structure</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.from_file"><code class="docutils literal notranslate"><span class="pre">Eels.from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.total_spectrum"><code class="docutils literal notranslate"><span class="pre">Eels.total_spectrum</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos"><code class="docutils literal notranslate"><span class="pre">LDos</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos.charge_transfer_from_file"><code class="docutils literal notranslate"><span class="pre">LDos.charge_transfer_from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos.charge_transfer_to_string"><code class="docutils literal notranslate"><span class="pre">LDos.charge_transfer_to_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos.from_file"><code class="docutils literal notranslate"><span class="pre">LDos.from_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu"><code class="docutils literal notranslate"><span class="pre">Xmu</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.as_dict"><code class="docutils literal notranslate"><span class="pre">Xmu.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.calc"><code class="docutils literal notranslate"><span class="pre">Xmu.calc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.chi"><code class="docutils literal notranslate"><span class="pre">Xmu.chi</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.e_fermi"><code class="docutils literal notranslate"><span class="pre">Xmu.e_fermi</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.edge"><code class="docutils literal notranslate"><span class="pre">Xmu.edge</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.energies"><code class="docutils literal notranslate"><span class="pre">Xmu.energies</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.from_file"><code class="docutils literal notranslate"><span class="pre">Xmu.from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.material_formula"><code class="docutils literal notranslate"><span class="pre">Xmu.material_formula</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.mu"><code class="docutils literal notranslate"><span class="pre">Xmu.mu</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.mu0"><code class="docutils literal notranslate"><span class="pre">Xmu.mu0</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.relative_energies"><code class="docutils literal notranslate"><span class="pre">Xmu.relative_energies</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.source"><code class="docutils literal notranslate"><span class="pre">Xmu.source</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.wavenumber"><code class="docutils literal notranslate"><span class="pre">Xmu.wavenumber</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.feff.sets.html">pymatgen.io.feff.sets module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.AbstractFeffInputSet"><code class="docutils literal notranslate"><span class="pre">AbstractFeffInputSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.AbstractFeffInputSet.all_input"><code class="docutils literal notranslate"><span class="pre">AbstractFeffInputSet.all_input()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.AbstractFeffInputSet.atoms"><code class="docutils literal notranslate"><span class="pre">AbstractFeffInputSet.atoms</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.AbstractFeffInputSet.header"><code class="docutils literal notranslate"><span class="pre">AbstractFeffInputSet.header()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.AbstractFeffInputSet.potential"><code class="docutils literal notranslate"><span class="pre">AbstractFeffInputSet.potential</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.AbstractFeffInputSet.tags"><code class="docutils literal notranslate"><span class="pre">AbstractFeffInputSet.tags</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.AbstractFeffInputSet.write_input"><code class="docutils literal notranslate"><span class="pre">AbstractFeffInputSet.write_input()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet"><code class="docutils literal notranslate"><span class="pre">FEFFDictSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet.atoms"><code class="docutils literal notranslate"><span class="pre">FEFFDictSet.atoms</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet.from_directory"><code class="docutils literal notranslate"><span class="pre">FEFFDictSet.from_directory()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet.header"><code class="docutils literal notranslate"><span class="pre">FEFFDictSet.header()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet.potential"><code class="docutils literal notranslate"><span class="pre">FEFFDictSet.potential</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.FEFFDictSet.tags"><code class="docutils literal notranslate"><span class="pre">FEFFDictSet.tags</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPEELSDictSet"><code class="docutils literal notranslate"><span class="pre">MPEELSDictSet</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPELNESSet"><code class="docutils literal notranslate"><span class="pre">MPELNESSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPELNESSet.CONFIG"><code class="docutils literal notranslate"><span class="pre">MPELNESSet.CONFIG</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPEXAFSSet"><code class="docutils literal notranslate"><span class="pre">MPEXAFSSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPEXAFSSet.CONFIG"><code class="docutils literal notranslate"><span class="pre">MPEXAFSSet.CONFIG</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPEXELFSSet"><code class="docutils literal notranslate"><span class="pre">MPEXELFSSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPEXELFSSet.CONFIG"><code class="docutils literal notranslate"><span class="pre">MPEXELFSSet.CONFIG</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPXANESSet"><code class="docutils literal notranslate"><span class="pre">MPXANESSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.feff.sets.html#pymatgen.io.feff.sets.MPXANESSet.CONFIG"><code class="docutils literal notranslate"><span class="pre">MPXANESSet.CONFIG</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.feff.inputs.html">pymatgen.io.feff.inputs module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.feff.outputs.html">pymatgen.io.feff.outputs module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.feff.sets.html">pymatgen.io.feff.sets module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.io.feff">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.io.feff" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.io.feff">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.io.feff" title="Permalink to this headline"></a></h2>
 <p>This package provides the modules to perform FEFF IO.</p>
 <p>FEFF: <a class="reference external" href="http://feffproject.org/feffproject-feff.html">http://feffproject.org/feffproject-feff.html</a></p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

@@ -43,7 +43,7 @@ class XASTest(PymatgenTest):
         self.site2_xanes = XAS.from_dict(site2_xanes_dict)
 
     def test_e0(self):
-        assert 7728.565 == approx(self.k_xanes.e0)
+        assert approx(self.k_xanes.e0) == 7728.565
 
     def test_k(self):
         assert len(self.k_xanes.x) == len(self.k_xanes.k)
@@ -51,14 +51,14 @@ class XASTest(PymatgenTest):
 
     def test_normalization(self):
         self.k_xanes.normalize(mode="sum")
-        assert 1.0 == approx(np.sum(self.k_xanes.y))
+        assert approx(np.sum(self.k_xanes.y)) == 1.0
 
     def test_add_mul(self):
         scaled_spect = self.k_xanes + self.k_xanes
         scaled_spect2 = self.k_xanes * 3
         assert np.allclose(scaled_spect.y, 2 * self.k_xanes.y)
         assert np.allclose(scaled_spect2.y, 3 * self.k_xanes.y)
-        assert 0.274302 == approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3)
+        assert approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3) == 0.274302
 
     def test_to_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
@@ -86,7 +86,7 @@ class XASTest(PymatgenTest):
             XAS.stitch(self.k_xanes, self.k_exafs, mode="invalid")
         xafs = XAS.stitch(self.k_xanes, self.k_exafs, mode="XAFS")
         assert isinstance(xafs, XAS)
-        assert "XAFS" == xafs.spectrum_type
+        assert xafs.spectrum_type == "XAFS"
         assert len(xafs.x) == 500
         assert min(xafs.x) == approx(min(self.k_xanes.x), abs=1e-2)
         assert max(xafs.y) == approx(max(self.k_xanes.y), abs=1e-2)
@@ -111,7 +111,7 @@ class XASTest(PymatgenTest):
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
         l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
         assert isinstance(l23, XAS)
-        assert "L23" == l23.edge
+        assert l23.edge == "L23"
         assert min(l23.x) == approx(min(self.l3_xanes.x), abs=1e-3)
         assert max(l23.x) == approx(max(self.l3_xanes.x), abs=1e-3)
         assert np.greater_equal(l23.y, self.l2_xanes.y).all()

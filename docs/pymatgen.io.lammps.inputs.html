@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lammps.inputs module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.io.lammps.inputs module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.lammps.outputs module" href="pymatgen.io.lammps.outputs.html" />
     <link rel="prev" title="pymatgen.io.lammps.data module" href="pymatgen.io.lammps.data.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,20 +114,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.io.lammps.inputs">
-<span id="pymatgen-io-lammps-inputs-module"></span><h1>pymatgen.io.lammps.inputs module<a class="headerlink" href="#module-pymatgen.io.lammps.inputs" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.io.lammps.inputs">
+<span id="pymatgen-io-lammps-inputs-module"></span><h1>pymatgen.io.lammps.inputs module<a class="headerlink" href="#module-pymatgen.io.lammps.inputs" title="Permalink to this headline"></a></h1>
 <p>This module implements methods for writing LAMMPS input files.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/lammps/inputs.py#L31-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/lammps/inputs.py#L31-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Examples for various simple LAMMPS runs with given simulation box,
 force field and a few more settings. Experienced LAMMPS users should
 consider using write_lammps_inputs method with more sophisticated
 templates.</p>
 <p>Base constructor.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>script_template</strong> (<em>str</em>) – String template for input script
 with placeholders. The format for placeholders has to
@@ -143,10 +144,10 @@ read_data cmd is in the script.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun.md">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">md</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/lammps/inputs.py#L81-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.md" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">md</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/lammps/inputs.py#L81-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.md" title="Permalink to this definition"></a></dt>
 <dd><p>Example for a simple MD run based on template md.txt.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><em>LammpsData</em></a><em> or </em><em>str</em>) – Data file as a LammpsData
 instance or path to an existing data file.</p></li>
@@ -163,16 +164,16 @@ placeholders.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun.template_dir">
-<span class="sig-name descname"><span class="pre">template_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/shyue/repos/pymatgen/pymatgen/io/lammps/templates'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">template_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/janosh/dev/pmg/pymatgen/io/lammps/templates'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun.write_inputs">
-<span class="sig-name descname"><span class="pre">write_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/lammps/inputs.py#L63-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.write_inputs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/lammps/inputs.py#L63-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.write_inputs" title="Permalink to this definition"></a></dt>
 <dd><p>Writes all input files (input script, and data if needed).
 Other supporting files are not handled at this moment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>output_dir</strong> (<em>str</em>) – Directory to output the input files.</p></li>
 <li><p><strong>**kwargs</strong> – kwargs supported by LammpsData.write_file.</p></li>
@@ -185,8 +186,8 @@ Other supporting files are not handled at this moment.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsTemplateGen">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsTemplateGen</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/lammps/inputs.py#L110-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.io.template.html#pymatgen.io.template.TemplateInputGen" title="pymatgen.io.template.TemplateInputGen"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemplateInputGen</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsTemplateGen</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/lammps/inputs.py#L110-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.template.html#pymatgen.io.template.TemplateInputGen" title="pymatgen.io.template.TemplateInputGen"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.template.TemplateInputGen</span></code></a></p>
 <p>Creates an InputSet object for a LAMMPS run based on a template file.
 The input script is constructed by substituting variables into placeholders
 in the template file using python’s Template.safe_substitute() function.
@@ -198,9 +199,9 @@ Other supporting files are not handled at the moment.</p>
 See pymatgen.io.template.py for additional documentation of this method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsTemplateGen.get_input_set">
-<span class="sig-name descname"><span class="pre">get_input_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'in.lammps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><span class="pre">LammpsData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData" title="pymatgen.io.lammps.data.CombinedData"><span class="pre">CombinedData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'system.data'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/lammps/inputs.py#L124-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen.get_input_set" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_input_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'in.lammps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><span class="pre">pymatgen.io.lammps.data.LammpsData</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData" title="pymatgen.io.lammps.data.CombinedData"><span class="pre">pymatgen.io.lammps.data.CombinedData</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'system.data'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/lammps/inputs.py#L124-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen.get_input_set" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>script_template</strong> – String template for input script with
 placeholders. The format for placeholders has to be
@@ -220,7 +221,7 @@ file to actually be read.</p></li>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

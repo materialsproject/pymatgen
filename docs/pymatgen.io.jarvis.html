@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.jarvis module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.io.jarvis module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.lmto module" href="pymatgen.io.lmto.html" />
     <link rel="prev" title="pymatgen.io.gaussian module" href="pymatgen.io.gaussian.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,24 +113,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.io.jarvis">
-<span id="pymatgen-io-jarvis-module"></span><h1>pymatgen.io.jarvis module<a class="headerlink" href="#module-pymatgen.io.jarvis" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.io.jarvis">
+<span id="pymatgen-io-jarvis-module"></span><h1>pymatgen.io.jarvis module<a class="headerlink" href="#module-pymatgen.io.jarvis" title="Permalink to this headline"></a></h1>
 <p>This module provides conversion between the JARVIS
 Atoms object and pymatgen Structure objects.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.jarvis.JarvisAtomsAdaptor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">JarvisAtomsAdaptor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/jarvis.py#L18-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">JarvisAtomsAdaptor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/jarvis.py#L18-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Adaptor serves as a bridge between JARVIS Atoms and pymatgen objects.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.jarvis.JarvisAtomsAdaptor.get_atoms">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/jarvis.py#L23-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_atoms" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/jarvis.py#L23-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_atoms" title="Permalink to this definition"></a></dt>
 <dd><p>Returns JARVIS Atoms object from pymatgen structure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure</strong> – pymatgen.core.structure.Structure</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>JARVIS Atoms object</p>
 </dd>
 </dl>
@@ -137,13 +138,13 @@ Atoms object and pymatgen Structure objects.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.jarvis.JarvisAtomsAdaptor.get_structure">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/jarvis.py#L48-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/jarvis.py#L48-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Returns pymatgen structure from JARVIS Atoms.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>atoms</strong> – JARVIS Atoms object</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Equivalent pymatgen.core.structure.Structure</p>
 </dd>
 </dl>
@@ -151,7 +152,7 @@ Atoms object and pymatgen Structure objects.</p>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

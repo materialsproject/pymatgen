@@ -406,7 +406,7 @@ class NwOutputTest(unittest.TestCase):
         nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
         nwo_cosmo = NwOutput(os.path.join(test_dir, "N2O4.nwout"))
 
-        assert 0 == nwo[0]["charge"]
+        assert nwo[0]["charge"] == 0
         assert -1 == nwo[-1]["charge"]
         assert len(nwo) == 5
         assert -1102.6224491715582 == approx(nwo[0]["energies"][-1], abs=1e-2)
@@ -438,7 +438,7 @@ class NwOutputTest(unittest.TestCase):
 
         ie = nwo[4]["energies"][-1] - nwo[2]["energies"][-1]
         ea = nwo[2]["energies"][-1] - nwo[3]["energies"][-1]
-        assert 0.7575358648355177 == approx(ie)
+        assert approx(ie) == 0.7575358648355177
         assert -14.997877958701338 == approx(ea, abs=1e-3)
         assert nwo[4]["basis_set"]["C"]["description"] == "6-311++G**"
 

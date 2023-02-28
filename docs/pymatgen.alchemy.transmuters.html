@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.alchemy.transmuters module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.alchemy.transmuters module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis namespace" href="pymatgen.analysis.html" />
     <link rel="prev" title="pymatgen.alchemy.materials module" href="pymatgen.alchemy.materials.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,8 +113,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.alchemy.transmuters">
-<span id="pymatgen-alchemy-transmuters-module"></span><h1>pymatgen.alchemy.transmuters module<a class="headerlink" href="#module-pymatgen.alchemy.transmuters" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.alchemy.transmuters">
+<span id="pymatgen-alchemy-transmuters-module"></span><h1>pymatgen.alchemy.transmuters module<a class="headerlink" href="#module-pymatgen.alchemy.transmuters" title="Permalink to this headline"></a></h1>
 <p>This module implements various transmuter classes.
 Transmuters are essentially classes that generate TransformedStructures from
 various data sources. They enable the high-throughput generation of new
@@ -122,14 +123,14 @@ structures and input files.</p>
 entire directory of vasp input files for running.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.CifTransmuter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifTransmuter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L243-L301"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.CifTransmuter" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardTransmuter</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifTransmuter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L240-L298"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.CifTransmuter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.transmuters.StandardTransmuter</span></code></a></p>
 <p>Generates a Transmuter from a cif string, possibly containing multiple
 structures.</p>
 <p>Generates a Transmuter from a cif string, possibly
 containing multiple structures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cif_string</strong> – A string containing a cif or a series of cifs</p></li>
 <li><p><strong>transformations</strong> – New transformations to be applied to all
@@ -144,11 +145,11 @@ transformation.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.CifTransmuter.from_filenames">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_filenames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L279-L301"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_filenames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L276-L298"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a TransformedStructureCollection from a cif, possibly
 containing multiple structures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filenames</strong> – List of strings of the cif files</p></li>
 <li><p><strong>transformations</strong> – New transformations to be applied to all
@@ -164,11 +165,11 @@ structures</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.PoscarTransmuter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PoscarTransmuter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poscar_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L304-L338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.PoscarTransmuter" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardTransmuter</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PoscarTransmuter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poscar_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L301-L335"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.PoscarTransmuter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.transmuters.StandardTransmuter</span></code></a></p>
 <p>Generates a transmuter from a sequence of POSCARs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>poscar_string</strong> – List of POSCAR strings</p></li>
 <li><p><strong>transformations</strong> – New transformations to be applied to all
@@ -180,11 +181,11 @@ from one-to-many transformations.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_filenames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poscar_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L321-L338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_filenames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poscar_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L318-L335"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames" title="Permalink to this definition"></a></dt>
 <dd><p>Convenient constructor to generates a POSCAR transmuter from a list of
 POSCAR filenames.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>poscar_filenames</strong> – List of POSCAR filenames</p></li>
 <li><p><strong>transformations</strong> – New transformations to be applied to all
@@ -199,14 +200,14 @@ structures.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StandardTransmuter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformed_structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L31-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StandardTransmuter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformed_structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L31-L237"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An example of a Transmuter object, which performs a sequence of
 transformations on many structures to generate TransformedStructures.</p>
 <p>Initializes a transmuter from an initial list of
 <a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.materials.TransformedStructure</span></code></a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>transformed_structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><em>TransformedStructure</em></a><em>]</em>) – Input transformed
 structures</p></li>
@@ -224,10 +225,10 @@ serial.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.add_tags">
-<span class="sig-name descname"><span class="pre">add_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L188-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.add_tags" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L185-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.add_tags" title="Permalink to this definition"></a></dt>
 <dd><p>Add tags for the structures generated by the transmuter.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tags</strong> – A sequence of tags. Note that this should be a sequence of
 strings, e.g., [“My awesome structures”, “Project X”].</p>
 </dd>
@@ -236,10 +237,10 @@ strings, e.g., [“My awesome structures”, “Project X”].</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation">
-<span class="sig-name descname"><span class="pre">append_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_redo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L100-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">append_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_redo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L100-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation" title="Permalink to this definition"></a></dt>
 <dd><p>Appends a transformation to all TransformedStructures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>transformation</strong> – Transformation to append</p></li>
 <li><p><strong>extend_collection</strong> – Whether to use more than one output structure
@@ -253,7 +254,7 @@ redo, the redo list should not be cleared to allow multiple
 redos.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>List of booleans corresponding to initial transformed structures
 each boolean describes whether the transformation altered the
 structure</p>
@@ -263,12 +264,12 @@ structure</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures">
-<span class="sig-name descname"><span class="pre">append_transformed_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstructs_or_transmuter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L204-L219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">append_transformed_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstructs_or_transmuter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L201-L216"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Method is overloaded to accept either a list of transformed structures
 or transmuter, it which case it appends the second transmuter”s
 structures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>tstructs_or_transmuter</strong> – A list of transformed structures or a
 transmuter.</p>
 </dd>
@@ -277,11 +278,11 @@ transmuter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter">
-<span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L150-L164"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L147-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter" title="Permalink to this definition"></a></dt>
 <dd><p>Applies a structure_filter to the list of TransformedStructures
 in the transmuter.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure_filter</strong> – StructureFilter to apply.</p>
 </dd>
 </dl>
@@ -289,10 +290,10 @@ in the transmuter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations">
-<span class="sig-name descname"><span class="pre">extend_transformations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformations</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L140-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">extend_transformations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformations</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L137-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations" title="Permalink to this definition"></a></dt>
 <dd><p>Extends a sequence of transformations to the TransformedStructure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>transformations</strong> – Sequence of Transformations</p>
 </dd>
 </dl>
@@ -300,11 +301,11 @@ in the transmuter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.from_structures">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L221-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend_collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L218-L237"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Alternative constructor from structures rather than
 TransformedStructures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structures</strong> – Sequence of structures</p></li>
 <li><p><strong>transformations</strong> – New transformations to be applied to all
@@ -315,7 +316,7 @@ number, which determines the maximum branching for each
 transformation.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>StandardTransmuter</p>
 </dd>
 </dl>
@@ -323,10 +324,10 @@ transformation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change">
-<span class="sig-name descname"><span class="pre">redo_next_change</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L87-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">redo_next_change</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L87-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change" title="Permalink to this definition"></a></dt>
 <dd><p>Redo the last undone transformation in the TransformedStructure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>IndexError if already at the latest change.</strong> – </p>
 </dd>
 </dl>
@@ -334,11 +335,11 @@ transformation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter">
-<span class="sig-name descname"><span class="pre">set_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L176-L186"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L173-L183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter" title="Permalink to this definition"></a></dt>
 <dd><p>Add parameters to the transmuter. Additional parameters are stored in
 the as_dict() output.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – The key for the parameter.</p></li>
 <li><p><strong>value</strong> – The value for the parameter.</p></li>
@@ -349,10 +350,10 @@ the as_dict() output.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change">
-<span class="sig-name descname"><span class="pre">undo_last_change</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L77-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">undo_last_change</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L77-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change" title="Permalink to this definition"></a></dt>
 <dd><p>Undo the last transformation in the TransformedStructure.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>IndexError if already at the oldest change.</strong> – </p>
 </dd>
 </dl>
@@ -360,11 +361,11 @@ the as_dict() output.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input">
-<span class="sig-name descname"><span class="pre">write_vasp_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L166-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_vasp_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L163-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input" title="Permalink to this definition"></a></dt>
 <dd><p>Batch write vasp input for a sequence of transformed structures to
 output_dir, following the format output_dir/{formula}_{number}.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – All kwargs supported by batch_write_vasp_input.</p>
 </dd>
 </dl>
@@ -374,11 +375,11 @@ output_dir, following the format output_dir/{formula}_{number}.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.alchemy.transmuters.batch_write_vasp_input">
-<span class="sig-name descname"><span class="pre">batch_write_vasp_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformed_structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vasp_input_set=&lt;class</span> <span class="pre">'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir='.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_directory=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_cif=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../alchemy/transmuters.py#L341-L381"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.batch_write_vasp_input" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">batch_write_vasp_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformed_structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vasp_input_set=&lt;class</span> <span class="pre">'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir='.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_directory=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_cif=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../alchemy/transmuters.py#L338-L378"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.batch_write_vasp_input" title="Permalink to this definition"></a></dt>
 <dd><p>Batch write vasp input for a sequence of transformed structures to
 output_dir, following the format output_dir/{group}/{formula}_{number}.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>transformed_structures</strong> – Sequence of TransformedStructures.</p></li>
 <li><p><strong>vasp_input_set</strong> – pymatgen.io.vaspio_set.VaspInputSet to creates
@@ -398,7 +399,7 @@ programs.</p></li>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

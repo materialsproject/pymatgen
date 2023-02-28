@@ -256,9 +256,9 @@ class GulpIOTest(unittest.TestCase):
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
-        assert 8 == len(struct.sites)
-        assert 4.212 == struct.lattice.a
-        assert 90 == struct.lattice.alpha
+        assert len(struct.sites) == 8
+        assert struct.lattice.a == 4.212
+        assert struct.lattice.alpha == 90
 
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
@@ -334,12 +334,12 @@ class BuckinghamPotentialLewisTest(unittest.TestCase):
         assert "Sc_4+" not in self.bpl.species_dict
 
     def test_values(self):
-        assert "" != self.bpl.species_dict["Sc_2+"]
-        assert "" != self.bpl.pot_dict["Sc_2+"]
+        assert self.bpl.species_dict["Sc_2+"] != ""
+        assert self.bpl.pot_dict["Sc_2+"] != ""
 
     def test_spring(self):
         assert "Li" not in self.bpl.spring_dict
-        assert "" != self.bpl.spring_dict["O"]
+        assert self.bpl.spring_dict["O"] != ""
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -360,11 +360,11 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
         assert "Mn" not in self.bpb.species_dict
 
     def test_element_different_valence(self):
-        assert 2 != self.bpb.species_dict["Li"]["oxi"]
+        assert self.bpb.species_dict["Li"]["oxi"] != 2
 
     def test_spring(self):
-        assert "" == self.bpb.spring_dict["Li"]
-        assert "" != self.bpb.spring_dict["O"]
+        assert self.bpb.spring_dict["Li"] == ""
+        assert self.bpb.spring_dict["O"] != ""
 
 
 if __name__ == "__main__":

@@ -245,7 +245,6 @@ class CollinearMagneticStructureAnalyzer:
             raise ValueError("Unsupported mode.")
 
         for idx, site in enumerate(structure):
-
             if site.species_string in self.default_magmoms:
                 # look for species first, e.g. Fe2+
                 default_magmom = self.default_magmoms[site.species_string]
@@ -282,9 +281,8 @@ class CollinearMagneticStructureAnalyzer:
 
             # overwrite_magmom_mode = "normalize" set magmoms magnitude to 1
 
-            elif overwrite_magmom_mode == "normalize":
-                if magmoms[idx] != 0:
-                    magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
+            elif overwrite_magmom_mode == "normalize" and magmoms[idx] != 0:
+                magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
         # round magmoms, used to smooth out computational data
         magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms  # type: ignore
@@ -308,14 +306,11 @@ class CollinearMagneticStructureAnalyzer:
         intelligently by grouping magmoms.
         """
         if isinstance(round_magmoms_mode, int):
-
             # simple rounding to number of decimal places
             magmoms = np.around(magmoms, decimals=round_magmoms_mode)
 
         elif isinstance(round_magmoms_mode, float):
-
             try:
-
                 # get range of possible magmoms, pad by 50% just to be safe
                 range_m = max([max(magmoms), abs(min(magmoms))]) * 1.5
 
@@ -333,7 +328,6 @@ class CollinearMagneticStructureAnalyzer:
                 magmoms = [extrema[(np.abs(extrema - m)).argmin()] for m in magmoms]
 
             except Exception as e:
-
                 # TODO: typically a singular matrix warning, investigate this
                 warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.")
                 warnings.warn(str(e))
@@ -418,7 +412,6 @@ class CollinearMagneticStructureAnalyzer:
     @property
     def magmoms(self) -> np.ndarray:
         """Convenience property, returns magmoms as a numpy array."""
-
         return np.array(self.structure.site_properties["magmom"])
 
     @property
@@ -433,7 +426,7 @@ class CollinearMagneticStructureAnalyzer:
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
             return tuple(sorted(structure.types_of_species))
-        return tuple()
+        return ()
 
     @property
     def types_of_magnetic_specie(
@@ -464,7 +457,7 @@ class CollinearMagneticStructureAnalyzer:
             if len(magmoms) == 1:
                 magtypes[sp] = magmoms.pop()
             else:
-                magtypes[sp] = sorted(list(magmoms))
+                magtypes[sp] = sorted(magmoms)
 
         return magtypes
 
@@ -598,10 +591,7 @@ class CollinearMagneticStructureAnalyzer:
         outs = ["Structure Summary", repr(s.lattice)]
         outs.append("Magmoms Sites")
         for site in s:
-            if site.properties["magmom"] != 0:
-                prefix = f"{site.properties['magmom']:+.2f}   "
-            else:
-                prefix = "        "
+            prefix = f"{site.properties['magmom']:+.2f}   " if site.properties["magmom"] != 0 else "        "
             outs.append(prefix + repr(site))
         return "\n".join(outs)
 
@@ -871,7 +861,6 @@ class MagneticStructureEnumerator:
 
         # ...to which we can add simple AFM cases first...
         if "antiferromagnetic" in self.strategies:
-
             constraint = MagOrderParameterConstraint(
                 0.5,
                 # TODO: update MagOrderParameterConstraint in
@@ -890,7 +879,6 @@ class MagneticStructureEnumerator:
         # ...and then we also try ferrimagnetic orderings by motif if a
         # single magnetic species is present...
         if "ferrimagnetic_by_motif" in self.strategies and len(wyckoff_symbols) > 1:
-
             # these orderings are AFM on one local environment, and FM on the rest
             for symbol in wyckoff_symbols:
                 constraints = [
@@ -906,7 +894,6 @@ class MagneticStructureEnumerator:
 
         # and also try ferrimagnetic when there are multiple magnetic species
         if "ferrimagnetic_by_species" in self.strategies:
-
             sp_list = [str(site.specie) for site in structure]
             num_sp = {sp: sp_list.count(str(sp)) for sp in types_mag_species}
             total_mag_sites = sum(num_sp.values())
@@ -931,7 +918,6 @@ class MagneticStructureEnumerator:
         # environment, and non-magnetic on the rest -- this is less common
         # but unless explicitly attempted, these states are unlikely to be found
         if "antiferromagnetic_by_motif" in self.strategies:
-
             for symbol in wyckoff_symbols:
                 constraints = [
                     MagOrderParameterConstraint(0.5, site_constraint_name="wyckoff", site_constraints=symbol)
@@ -1023,7 +1009,6 @@ class MagneticStructureEnumerator:
 
         # also remove low symmetry structures
         if self.truncate_by_symmetry:
-
             # by default, keep structures with 5 most symmetric space groups
             if not isinstance(self.truncate_by_symmetry, int):
                 self.truncate_by_symmetry = 5
@@ -1037,7 +1022,7 @@ class MagneticStructureEnumerator:
             num_sym_ops = [len(SpaceGroup.from_int_number(n).symmetry_ops) for n in symmetry_int_numbers]
 
             # find the largest values...
-            max_symmetries = sorted(list(set(num_sym_ops)), reverse=True)
+            max_symmetries = sorted(set(num_sym_ops), reverse=True)
 
             # ...and decide which ones to keep
             if len(max_symmetries) > self.truncate_by_symmetry:
@@ -1097,7 +1082,6 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
 
     Returns: Magnetic deformation
     """
-
     # retrieve orderings of both input structures
     ordering_a = CollinearMagneticStructureAnalyzer(structure_A, overwrite_magmom_mode="none").ordering
     ordering_b = CollinearMagneticStructureAnalyzer(structure_B, overwrite_magmom_mode="none").ordering

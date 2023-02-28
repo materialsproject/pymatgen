@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.ext.matproj module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.ext.matproj module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.ext.optimade module" href="pymatgen.ext.optimade.html" />
     <link rel="prev" title="pymatgen.ext.cod module" href="pymatgen.ext.cod.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,8 +113,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.ext.matproj">
-<span id="pymatgen-ext-matproj-module"></span><h1>pymatgen.ext.matproj module<a class="headerlink" href="#module-pymatgen.ext.matproj" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.ext.matproj">
+<span id="pymatgen-ext-matproj-module"></span><h1>pymatgen.ext.matproj module<a class="headerlink" href="#module-pymatgen.ext.matproj" title="Permalink to this headline"></a></h1>
 <p>This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
 Materials Project data.</p>
@@ -122,7 +123,7 @@ Materials Project, and obtain an API key by going to your dashboard at
 <a class="reference external" href="https://materialsproject.org/dashboard">https://materialsproject.org/dashboard</a>.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.MPRestError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MPRestError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../ext/matproj.py#L1783-L1787"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRestError" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MPRestError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../ext/matproj.py#L1780-L1784"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRestError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for legacy MPRestAdaptor.
 Raised when the query has problems, e.g., bad query format.</p>
@@ -130,7 +131,7 @@ Raised when the query has problems, e.g., bad query format.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.MPRester">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MPRester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../ext/matproj.py#L1744-L1780"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MPRester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../ext/matproj.py#L1741-L1777"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class to conveniently interface with the new and legacy Materials Project REST
 interface. The recommended way to use MPRester is with the “with” context
@@ -148,7 +149,7 @@ providing backwards compatibility. Use it as you would with normal MPRester usag
 the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. Consult the Materials Project documentation
 at <a class="reference external" href="https://docs.materialsproject.org">https://docs.materialsproject.org</a> for advice on which API to use.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>*args</strong> – Pass through to either legacy or new MPRester.</p></li>
 <li><p><strong>**kwargs</strong> – Pass through to either legacy or new MPRester.</p></li>
@@ -159,101 +160,101 @@ at <a class="reference external" href="https://docs.materialsproject.org">https:
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TaskType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../ext/matproj.py#L65-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TaskType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../ext/matproj.py#L65-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>task types available in legacy MP data</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGAU_DEF">
-<span class="sig-name descname"><span class="pre">GGAU_DEF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Deformation'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_DEF" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGAU_DEF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Deformation'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_DEF" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGAU_LINE">
-<span class="sig-name descname"><span class="pre">GGAU_LINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">NSCF</span> <span class="pre">Line'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_LINE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGAU_LINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">NSCF</span> <span class="pre">Line'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_LINE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGAU_OPT">
-<span class="sig-name descname"><span class="pre">GGAU_OPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Structure</span> <span class="pre">Optimization'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_OPT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGAU_OPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Structure</span> <span class="pre">Optimization'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_OPT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGAU_STATIC">
-<span class="sig-name descname"><span class="pre">GGAU_STATIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Static'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_STATIC" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGAU_STATIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Static'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_STATIC" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGAU_STATIC_DIEL">
-<span class="sig-name descname"><span class="pre">GGAU_STATIC_DIEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Static</span> <span class="pre">Dielectric'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_STATIC_DIEL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGAU_STATIC_DIEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">Static</span> <span class="pre">Dielectric'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_STATIC_DIEL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGAU_UNIFORM">
-<span class="sig-name descname"><span class="pre">GGAU_UNIFORM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">NSCF</span> <span class="pre">Uniform'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_UNIFORM" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGAU_UNIFORM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA+U</span> <span class="pre">NSCF</span> <span class="pre">Uniform'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_UNIFORM" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGA_DEF">
-<span class="sig-name descname"><span class="pre">GGA_DEF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Deformation'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_DEF" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGA_DEF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Deformation'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_DEF" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGA_LINE">
-<span class="sig-name descname"><span class="pre">GGA_LINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">NSCF</span> <span class="pre">Line'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_LINE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGA_LINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">NSCF</span> <span class="pre">Line'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_LINE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGA_OPT">
-<span class="sig-name descname"><span class="pre">GGA_OPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Structure</span> <span class="pre">Optimization'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_OPT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGA_OPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Structure</span> <span class="pre">Optimization'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_OPT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGA_STATIC">
-<span class="sig-name descname"><span class="pre">GGA_STATIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Static'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_STATIC" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGA_STATIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Static'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_STATIC" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGA_STATIC_DIEL">
-<span class="sig-name descname"><span class="pre">GGA_STATIC_DIEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Static</span> <span class="pre">Dielectric'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_STATIC_DIEL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGA_STATIC_DIEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">Static</span> <span class="pre">Dielectric'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_STATIC_DIEL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.GGA_UNIFORM">
-<span class="sig-name descname"><span class="pre">GGA_UNIFORM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">NSCF</span> <span class="pre">Uniform'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_UNIFORM" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GGA_UNIFORM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GGA</span> <span class="pre">NSCF</span> <span class="pre">Uniform'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_UNIFORM" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.LDA_STATIC_DIEL">
-<span class="sig-name descname"><span class="pre">LDA_STATIC_DIEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LDA</span> <span class="pre">Static</span> <span class="pre">Dielectric'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.LDA_STATIC_DIEL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">LDA_STATIC_DIEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LDA</span> <span class="pre">Static</span> <span class="pre">Dielectric'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.LDA_STATIC_DIEL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.TaskType.SCAN_OPT">
-<span class="sig-name descname"><span class="pre">SCAN_OPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SCAN</span> <span class="pre">Structure</span> <span class="pre">Optimization'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.SCAN_OPT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">SCAN_OPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SCAN</span> <span class="pre">Structure</span> <span class="pre">Optimization'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/ext/matproj.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.SCAN_OPT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.ext.matproj.get_chunks">
-<span class="sig-name descname"><span class="pre">get_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../ext/matproj.py#L52-L62"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.get_chunks" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../ext/matproj.py#L52-L62"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.matproj.get_chunks" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sequence</strong> (<em>Sequence</em><em>[</em><em>Any</em><em>]</em>) – Any sequence.</p></li>
 <li><p><strong>size</strong> (<em>int</em>) – Chunk length. Defaults to 1.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>input sequence in chunks of length size.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>list[Sequence[Any]]</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

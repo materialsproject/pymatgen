@@ -387,7 +387,6 @@ class PackmolRunner:
         mol = Molecule(zs, coords)
 
         if restore_site_props:
-
             props = []
 
             ref = self.map_residue_to_mol[residue_name].copy()
@@ -465,7 +464,7 @@ class LammpsRunner:
         """
         Write the input/data files and run LAMMPS.
         """
-        lammps_cmd = self.lammps_bin + ["-in", self.input_filename]
+        lammps_cmd = [*self.lammps_bin, "-in", self.input_filename]
         print(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as p:
             (stdout, stderr) = p.communicate()

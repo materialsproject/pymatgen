@@ -1,13 +1,9 @@
 Change log
 ==========
 
-v2023.1.20
+v2023.2.22
 ----------
-* Passthrough kwargs support for Structure.from_file and Structure.from_str
-* Allow the `frac_tolerance` to be specified for rounding coordinates in CifParser.
-* PR #2803 from @amkrajewski add_weightbasedfunctions
-    When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
-    - Composition class method to initialize it from a dictionary of weight fractions
-    - Composition property giving a dictionary of weight fractions
-    - concise tests for the two above were added
-QChem: translate DMSO name in smd_solvent
+* PR #2848 from @ml-evs ml-evs/update_optimade_aliases
+    Currently `OptimadeRester` defaults to an outdated list of OPTIMADE database URLs (several of which fail) and the design of the class is such that refreshing these aliases can only be done post-init which means they will not be used if the user provides their own filtered list of aliases, without doing some extra work.
+    This PR refreshes the vendored list of aliases (which should be much more stable now since their initial addition 2 years ago), and also adds the option to refresh the aliases on initialization of the class.
+    This currently affects the pymatgen OPTIMADE tutorials at https://github.com/Materials-Consortia/optimade-tutorial-exercises.

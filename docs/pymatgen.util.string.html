@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util.string module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.util.string module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.util.testing module" href="pymatgen.util.testing.html" />
     <link rel="prev" title="pymatgen.util.provenance module" href="pymatgen.util.provenance.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,34 +113,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.util.string">
-<span id="pymatgen-util-string-module"></span><h1>pymatgen.util.string module<a class="headerlink" href="#module-pymatgen.util.string" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.util.string">
+<span id="pymatgen-util-string-module"></span><h1>pymatgen.util.string module<a class="headerlink" href="#module-pymatgen.util.string" title="Permalink to this headline"></a></h1>
 <p>This module provides utility classes for string operations.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.util.string.Stringify">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Stringify</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L44-L99"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Stringify</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L44-L99"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Mix-in class for string formatting, e.g. superscripting numbers and symbols or superscripting.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.util.string.Stringify.STRING_MODE">
-<span class="sig-name descname"><span class="pre">STRING_MODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SUBSCRIPT'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/util/string.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.STRING_MODE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">STRING_MODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SUBSCRIPT'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/util/string.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.STRING_MODE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.string.Stringify.to_html_string">
-<span class="sig-name descname"><span class="pre">to_html_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L76-L83"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_html_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_html_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L76-L83"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_html_string" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
 :return: HTML formatted string.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.string.Stringify.to_latex_string">
-<span class="sig-name descname"><span class="pre">to_latex_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L58-L74"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_latex_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_latex_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L58-L74"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_latex_string" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
 “SUBSCRIPT”. E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to “SUPERSCRIPT” creates
 superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class’s __str__ method.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>String for display as in LaTeX with proper superscripts and subscripts.</p>
 </dd>
 </dl>
@@ -147,9 +148,9 @@ superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.string.Stringify.to_pretty_string">
-<span class="sig-name descname"><span class="pre">to_pretty_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L51-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_pretty_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_pretty_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L51-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_pretty_string" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A pretty string representation. By default, the __str__ output is used, but this method can be
 overridden if a different representation from default is desired.</p>
 </dd>
@@ -158,9 +159,9 @@ overridden if a different representation from default is desired.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.string.Stringify.to_unicode_string">
-<span class="sig-name descname"><span class="pre">to_unicode_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L85-L99"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_unicode_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_unicode_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L85-L99"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.Stringify.to_unicode_string" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Unicode string with proper sub and superscripts. Note that this works only with systems where the sub
 and superscripts are pure integers.</p>
 </dd>
@@ -171,12 +172,12 @@ and superscripts are pure integers.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.charge_string">
-<span class="sig-name descname"><span class="pre">charge_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brackets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explicit_one</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L144-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.charge_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">charge_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brackets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explicit_one</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L144-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.charge_string" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a string representing the charge of an Ion. By default, the
 charge is placed in brackets with the sign preceding the magnitude, e.g.,
 ‘[+2]’. For uncharged species, the string returned is ‘(aq)’</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>brackets</strong> – whether to enclose the charge in brackets, e.g. [+2]. Default: True</p></li>
 <li><p><strong>explicit_one</strong> – whether to include the number one for monovalent ions, e.g.
@@ -188,13 +189,13 @@ charge is placed in brackets with the sign preceding the magnitude, e.g.,
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.disordered_formula">
-<span class="sig-name descname"><span class="pre">disordered_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disordered_struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('x',</span> <span class="pre">'y',</span> <span class="pre">'z')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plain'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L353-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disordered_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disordered_struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('x',</span> <span class="pre">'y',</span> <span class="pre">'z')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plain'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L351-L449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a formula of a form like AxB1-x (x=0.5)
 for disordered structures. Will only return a
 formula for disordered structures with one
 kind of disordered site at present.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>disordered_struct</strong> – a disordered structure</p></li>
 <li><p><strong>symbols</strong> – a tuple of characters to use for</p></li>
@@ -211,18 +212,18 @@ kind of disordered site at present.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.formula_double_format">
-<span class="sig-name descname"><span class="pre">formula_double_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">afloat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ones</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L124-L141"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.formula_double_format" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">formula_double_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">afloat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ones</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L124-L141"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.formula_double_format" title="Permalink to this definition"></a></dt>
 <dd><p>This function is used to make pretty formulas by formatting the amounts.
 Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>afloat</strong> (<em>float</em>) – a float</p></li>
 <li><p><strong>ignore_ones</strong> (<em>bool</em>) – if true, floats of 1 are ignored.</p></li>
 <li><p><strong>tol</strong> (<em>float</em>) – Tolerance to round to nearest int. i.e. 2.0000000001 -&gt; 2</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A string representation of the float for formulas.</p>
 </dd>
 </dl>
@@ -230,16 +231,16 @@ Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.htmlify">
-<span class="sig-name descname"><span class="pre">htmlify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L188-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.htmlify" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">htmlify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L188-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.htmlify" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
 Fe&lt;sub&gt;2&lt;/sub&gt;O&lt;/sub&gt;3&lt;/sub&gt;</p>
 <p>Note that Composition now has a to_html_string() method that may
 be used instead.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>formula</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -247,16 +248,16 @@ be used instead.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.latexify">
-<span class="sig-name descname"><span class="pre">latexify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L171-L185"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.latexify" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">latexify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L171-L185"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.latexify" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
 Fe$_{2}$O$_{3}$.</p>
 <p>Note that Composition now has a to_latex_string() method that may
 be used instead.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>formula</strong> (<em>str</em>) – Input formula.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Formula suitable for display as in LaTeX with proper subscripts.</p>
 </dd>
 </dl>
@@ -264,16 +265,16 @@ be used instead.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.latexify_spacegroup">
-<span class="sig-name descname"><span class="pre">latexify_spacegroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spacegroup_symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L223-L238"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.latexify_spacegroup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">latexify_spacegroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spacegroup_symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L222-L237"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.latexify_spacegroup" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
 P2$_{1}$/c and P-1 is converted to P$\overline{1}$.</p>
 <p>Note that SymmetryGroup now has a to_latex_string() method that may
 be called instead.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>spacegroup_symbol</strong> (<em>str</em>) – A spacegroup symbol</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A latex formatted spacegroup with proper subscripts and overlines.</p>
 </dd>
 </dl>
@@ -281,7 +282,7 @@ be called instead.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.str_delimited">
-<span class="sig-name descname"><span class="pre">str_delimited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\t'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L102-L121"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.str_delimited" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">str_delimited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\t'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L102-L121"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.str_delimited" title="Permalink to this definition"></a></dt>
 <dd><p>Given a tuple of tuples, generate a delimited string form.
 &gt;&gt;&gt; results = [[“a”,”b”,”c”],[“d”,”e”,”f”],[1,2,3]]
 &gt;&gt;&gt; print(str_delimited(results,delimiter=”,”))
@@ -289,13 +290,13 @@ a,b,c
 d,e,f
 1,2,3</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>result</strong> – 2d sequence of arbitrary types.</p></li>
 <li><p><strong>header</strong> – optional header</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Aligned string output in a table-like format.</p>
 </dd>
 </dl>
@@ -303,13 +304,13 @@ d,e,f
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.stream_has_colours">
-<span class="sig-name descname"><span class="pre">stream_has_colours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L300-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.stream_has_colours" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">stream_has_colours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L297-L313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.stream_has_colours" title="Permalink to this definition"></a></dt>
 <dd><p>True if stream supports colours. Python cookbook, #475186</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.transformation_to_string">
-<span class="sig-name descname"><span class="pre">transformation_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translation_vec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('x',</span> <span class="pre">'y',</span> <span class="pre">'z')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L318-L350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transformation_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translation_vec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('x',</span> <span class="pre">'y',</span> <span class="pre">'z')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L316-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method. Given matrix returns string, e.g. x+2y+1/4
 :param matrix
 :param translation_vec
@@ -321,16 +322,16 @@ d,e,f
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.unicodeify">
-<span class="sig-name descname"><span class="pre">unicodeify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L202-L220"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">unicodeify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L202-L219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
 to Fe₂O₃. Does not support formulae with decimal points.</p>
 <p>Note that Composition now has a to_unicode_string() method that may
 be used instead.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>formula</strong> – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -338,16 +339,16 @@ be used instead.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.unicodeify_spacegroup">
-<span class="sig-name descname"><span class="pre">unicodeify_spacegroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spacegroup_symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L241-L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_spacegroup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">unicodeify_spacegroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spacegroup_symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L240-L271"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_spacegroup" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
 P2₁/c and P$\overline{1}$ is converted to P̅1.</p>
 <p>Note that SymmetryGroup now has a to_unicode_string() method that
 may be called instead.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>spacegroup_symbol</strong> (<em>str</em>) – A spacegroup symbol as LaTeX</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A unicode spacegroup with proper subscripts and overlines.</p>
 </dd>
 </dl>
@@ -355,22 +356,22 @@ may be called instead.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.string.unicodeify_species">
-<span class="sig-name descname"><span class="pre">unicodeify_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specie_string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/string.py#L276-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_species" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">unicodeify_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specie_string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/string.py#L274-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_species" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a unicode formatted species string, with appropriate
 superscripts for oxidation states.</p>
 <p>Note that Species now has a to_unicode_string() method that
 may be used instead.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>specie_string</strong> (<em>str</em>) – Species string, e.g. O2-</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Species string, e.g. O²⁻</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

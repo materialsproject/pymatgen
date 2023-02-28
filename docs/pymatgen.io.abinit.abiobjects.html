@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.abinit.abiobjects module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.io.abinit.abiobjects module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,8 +13,9 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -23,6 +23,7 @@
     <link rel="next" title="pymatgen.io.abinit.abitimer module" href="pymatgen.io.abinit.abitimer.html" />
     <link rel="prev" title="pymatgen.io.abinit package" href="pymatgen.io.abinit.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -39,7 +40,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,18 +115,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.io.abinit.abiobjects">
-<span id="pymatgen-io-abinit-abiobjects-module"></span><h1>pymatgen.io.abinit.abiobjects module<a class="headerlink" href="#module-pymatgen.io.abinit.abiobjects" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.io.abinit.abiobjects">
+<span id="pymatgen-io-abinit-abiobjects-module"></span><h1>pymatgen.io.abinit.abiobjects module<a class="headerlink" href="#module-pymatgen.io.abinit.abiobjects" title="Permalink to this headline"></a></h1>
 <p>Low-level objects providing an abstraction for the objects involved in the calculation.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.AbivarAble">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbivarAble</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L317-L335"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbivarAble</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L314-L332"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An <cite>AbivarAble</cite> object provides a method <cite>to_abivars</cite>
 that returns a dictionary with the abinit variables.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.AbivarAble.to_abivars">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L323-L325"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.AbivarAble.to_abivars" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L320-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.AbivarAble.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary with the abinit variables.</p>
 </dd></dl>
 
@@ -133,12 +134,12 @@ that returns a dictionary with the abinit variables.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Constraints">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Constraints</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1023-L1028"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Constraints" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Constraints</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1020-L1025"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Constraints" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object defines the constraints for structural relaxation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Constraints.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1026-L1028"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Constraints.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1023-L1025"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Constraints.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Dictionary with Abinit variables.</p>
 </dd></dl>
 
@@ -146,12 +147,12 @@ that returns a dictionary with the abinit variables.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Electrons">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Electrons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'polarized'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smearing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fermi_dirac:0.1</span> <span class="pre">eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fband</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L561-L651"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Electrons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'polarized'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smearing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fermi_dirac:0.1</span> <span class="pre">eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fband</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L558-L648"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The electronic degrees of freedom</p>
 <p>Constructor for Electrons object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>comment</strong> – String comment for Electrons</p></li>
 <li><p><strong>charge</strong> – Total charge of the system. Default is 0.</p></li>
@@ -160,37 +161,37 @@ that returns a dictionary with the abinit variables.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Electrons.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L606-L618"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L603-L615"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>json friendly dict representation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Electrons.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L620-L630"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L617-L627"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Build object from dictionary.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Electrons.nspden">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nspden</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.nspden" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nspden</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.nspden" title="Permalink to this definition"></a></dt>
 <dd><p>Number of independent density components.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Electrons.nspinor">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nspinor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.nspinor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nspinor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.nspinor" title="Permalink to this definition"></a></dt>
 <dd><p>Number of independent spinor components.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Electrons.nsppol">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nsppol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.nsppol" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nsppol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.nsppol" title="Permalink to this definition"></a></dt>
 <dd><p>Number of independent spin polarizations.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Electrons.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L632-L651"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L629-L648"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Return dictionary with Abinit variables.</p>
 </dd></dl>
 
@@ -198,25 +199,25 @@ that returns a dictionary with the abinit variables.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronsAlgorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L519-L558"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronsAlgorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L516-L555"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Variables controlling the SCF/NSCF algorithm.</p>
 <p>Initialize object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L548-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L545-L547"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Convert object to dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L552-L558"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L549-L555"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Build object from dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L544-L546"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L541-L543"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Dictionary with Abinit input variables.</p>
 </dd></dl>
 
@@ -224,11 +225,11 @@ that returns a dictionary with the abinit variables.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ExcHamiltonian">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExcHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs_loband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbpt_sciss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coulomb_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecuteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'polarized'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdf_epsinf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TDA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'haydock'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_lf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_freq_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1560-L1710"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExcHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs_loband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbpt_sciss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coulomb_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecuteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'polarized'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdf_epsinf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TDA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'haydock'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_lf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_freq_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1556-L1706"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object contains the parameters for the solution of the Bethe-Salpeter equation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bs_loband</strong> – Lowest band index (Fortran convention) used in the e-h  basis set.
 Can be scalar or array of shape (nsppol,). Must be &gt;= 1 and &lt;= nband</p></li>
@@ -248,31 +249,31 @@ the model dielectric function.</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ExcHamiltonian.inclvkb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inclvkb</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.inclvkb" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inclvkb</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.inclvkb" title="Permalink to this definition"></a></dt>
 <dd><p>Treatment of the dipole matrix element (NC pseudos, default is 2)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ExcHamiltonian.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1671-L1710"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1667-L1706"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary with the abinit variables.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_cg">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_cg</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_cg" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_cg</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_cg" title="Permalink to this definition"></a></dt>
 <dd><p>True if we are using the conjugate gradient method.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_direct_diago">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_direct_diago</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_direct_diago" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_direct_diago</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_direct_diago" title="Permalink to this definition"></a></dt>
 <dd><p>True if we are performing the direct diagonalization of the BSE Hamiltonian.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_haydock">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_haydock</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_haydock" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_haydock</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_haydock" title="Permalink to this definition"></a></dt>
 <dd><p>True if we are using the Haydock iterative technique.</p>
 </dd></dl>
 
@@ -280,13 +281,13 @@ the model dielectric function.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.HilbertTransform">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HilbertTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nomegasf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domegasf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spmeth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfreqre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqremax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfreqim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqremin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1254-L1304"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.HilbertTransform" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HilbertTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nomegasf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domegasf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spmeth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfreqre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqremax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfreqim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqremin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1250-L1300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.HilbertTransform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>Parameters for the Hilbert-transform method (Screening code)
 i.e. the parameters defining the frequency mesh used for the spectral function
 and the frequency mesh used for the polarizability</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nomegasf</strong> – Number of points for sampling the spectral function along the real axis.</p></li>
 <li><p><strong>domegasf</strong> – Step in Ha for the linear mesh used for the spectral function.</p></li>
@@ -300,7 +301,7 @@ and the frequency mesh used for the polarizability</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1292-L1304"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1288-L1300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary with the abinit variables</p>
 </dd></dl>
 
@@ -308,8 +309,8 @@ and the frequency mesh used for the polarizability</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">KSamplingModes.monkhorst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_kpts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">((1,</span> <span class="pre">1,</span> <span class="pre">1),)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpt_shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.5,</span> <span class="pre">0.5,</span> <span class="pre">0.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpts_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L662-L1020"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">KSamplingModes.monkhorst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_kpts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">((1,</span> <span class="pre">1,</span> <span class="pre">1),)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpt_shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.5,</span> <span class="pre">0.5,</span> <span class="pre">0.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpts_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L659-L1017"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Input variables defining the K-point sampling.</p>
 <p>Highly flexible constructor for KSampling objects. The flexibility comes
 at the cost of usability and in general, it is recommended that you use
@@ -327,7 +328,7 @@ far more easily using the convenience static constructors:</p>
 </div></blockquote>
 <p>and it is recommended that you use those.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mode</strong> – Mode for generating k-poits. Use one of the KSamplingModes enum types.</p></li>
 <li><p><strong>num_kpts</strong> – Number of kpoints if mode is “automatic”
@@ -353,13 +354,13 @@ to reduce the number of independent k-points.</p></li>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L995-L1010"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L992-L1007"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Convert object to dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.automatic_density">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">automatic_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kppa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.5,</span> <span class="pre">0.5,</span> <span class="pre">0.5)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L945-L989"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.automatic_density" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">automatic_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kppa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.5,</span> <span class="pre">0.5,</span> <span class="pre">0.5)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L942-L986"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.automatic_density" title="Permalink to this definition"></a></dt>
 <dd><p>Returns an automatic Kpoint object based on a structure and a kpoint
 density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.</p>
 <dl class="simple">
@@ -368,7 +369,7 @@ reciprocal lattice vector proportional to its length.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – Input structure</p></li>
 <li><p><strong>kppa</strong> – Grid density</p></li>
@@ -379,22 +380,22 @@ reciprocal lattice vector proportional to its length.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.explicit_path">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">explicit_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ndivsm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpath_bounds</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L940-L943"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.explicit_path" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">explicit_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ndivsm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpath_bounds</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L937-L940"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.explicit_path" title="Permalink to this definition"></a></dt>
 <dd><p>See _path for the meaning of the variables</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1012-L1020"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1009-L1017"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Build object from dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.gamma_centered">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_centered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L802-L823"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_centered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L799-L820"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered" title="Permalink to this definition"></a></dt>
 <dd><p>Convenient static constructor for an automatic Gamma centered Kpoint grid.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kpts</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</p></li>
 <li><p><strong>use_symmetries</strong> – False if spatial symmetries should not be used
@@ -403,7 +404,7 @@ to reduce the number of independent k-points.</p></li>
 to reduce the number of independent k-points.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
 </dd>
 </dl>
@@ -411,22 +412,22 @@ to reduce the number of independent k-points.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.gamma_only">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_only</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L797-L800"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.gamma_only" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_only</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L794-L797"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.gamma_only" title="Permalink to this definition"></a></dt>
 <dd><p>Gamma-only sampling</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.is_homogeneous">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_homogeneous</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.is_homogeneous" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_homogeneous</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.is_homogeneous" title="Permalink to this definition"></a></dt>
 <dd><p>Homogeneous sampling.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.monkhorst">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">monkhorst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ngkpt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shiftk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.5,</span> <span class="pre">0.5,</span> <span class="pre">0.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L825-L854"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">monkhorst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ngkpt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shiftk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.5,</span> <span class="pre">0.5,</span> <span class="pre">0.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L822-L851"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst" title="Permalink to this definition"></a></dt>
 <dd><p>Convenient static constructor for a Monkhorst-Pack mesh.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ngkpt</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</p></li>
 <li><p><strong>shiftk</strong> – Shift to be applied to the kpoints.</p></li>
@@ -434,7 +435,7 @@ to reduce the number of independent k-points.</p></li>
 <li><p><strong>use_time_reversal</strong> – Use time-reversal symmetry to reduce the number of k-points.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
 </dd>
 </dl>
@@ -442,10 +443,10 @@ to reduce the number of independent k-points.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">monkhorst_automatic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngkpt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L856-L892"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">monkhorst_automatic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngkpt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_time_reversal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chksymbreak</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L853-L889"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic" title="Permalink to this definition"></a></dt>
 <dd><p>Convenient static constructor for an automatic Monkhorst-Pack mesh.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code> object.</p></li>
 <li><p><strong>ngkpt</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</p></li>
@@ -453,7 +454,7 @@ to reduce the number of independent k-points.</p></li>
 <li><p><strong>use_time_reversal</strong> – Use time-reversal symmetry to reduce the number of k-points.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
 </dd>
 </dl>
@@ -461,13 +462,13 @@ to reduce the number of independent k-points.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.path_from_structure">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path_from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ndivsm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L931-L938"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.path_from_structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path_from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ndivsm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L928-L935"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.path_from_structure" title="Permalink to this definition"></a></dt>
 <dd><p>See _path for the meaning of the variables</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSampling.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L991-L993"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L988-L990"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Dictionary with Abinit variables.</p>
 </dd></dl>
 
@@ -475,39 +476,39 @@ to reduce the number of independent k-points.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSamplingModes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KSamplingModes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L654-L659"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KSamplingModes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L651-L656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Enum if the different samplings of the BZ.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSamplingModes.automatic">
-<span class="sig-name descname"><span class="pre">automatic</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes.automatic" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">automatic</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes.automatic" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSamplingModes.monkhorst">
-<span class="sig-name descname"><span class="pre">monkhorst</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes.monkhorst" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">monkhorst</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes.monkhorst" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.KSamplingModes.path">
-<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes.path" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes.path" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ModelDielectricFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ModelDielectricFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdf_epsinf</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1307-L1319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ModelDielectricFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ModelDielectricFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdf_epsinf</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1303-L1315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ModelDielectricFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>Model dielectric function used for BSE calculation</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>mdf_epsinf</strong> – Value of epsilon_infinity.</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1317-L1319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1313-L1315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Return dictionary with abinit variables.</p>
 </dd></dl>
 
@@ -515,12 +516,12 @@ to reduce the number of independent k-points.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PPModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'godby'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasmon_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1165-L1251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PPModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'godby'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasmon_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1161-L1247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parameters defining the plasmon-pole technique.
 The common way to instantiate a PPModel object is via the class method PPModel.as_ppmodel(string)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mode</strong> – ppmodel type</p></li>
 <li><p><strong>plasmon_freq</strong> – Plasmon frequency in Ha.</p></li>
@@ -529,13 +530,13 @@ The common way to instantiate a PPModel object is via the class method PPModel.a
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModel.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1239-L1246"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1235-L1242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Convert object to dictionary.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">as_ppmodel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1171-L1195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">as_ppmodel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1167-L1191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs an instance of PPModel from obj.</p>
 <dl class="simple">
 <dt>Accepts obj in the form:</dt><dd><ul class="simple">
@@ -548,19 +549,19 @@ The common way to instantiate a PPModel object is via the class method PPModel.a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModel.from_dict">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1248-L1251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1244-L1247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Build object from dictionary.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModel.get_noppmodel">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_noppmodel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1234-L1237"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.get_noppmodel" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_noppmodel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1230-L1233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.get_noppmodel" title="Permalink to this definition"></a></dt>
 <dd><p>Calculation without plasmon-pole model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModel.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1228-L1232"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1224-L1228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Return dictionary with Abinit variables.</p>
 </dd></dl>
 
@@ -568,40 +569,40 @@ The common way to instantiate a PPModel object is via the class method PPModel.a
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModelModes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PPModelModes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1155-L1162"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PPModelModes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1151-L1158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Different kind of plasmon-pole models.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModelModes.farid">
-<span class="sig-name descname"><span class="pre">farid</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.farid" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">farid</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.farid" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModelModes.godby">
-<span class="sig-name descname"><span class="pre">godby</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.godby" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">godby</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.godby" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModelModes.hybersten">
-<span class="sig-name descname"><span class="pre">hybersten</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.hybersten" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hybersten</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.hybersten" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModelModes.linden">
-<span class="sig-name descname"><span class="pre">linden</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.linden" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">linden</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.linden" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.PPModelModes.noppmodel">
-<span class="sig-name descname"><span class="pre">noppmodel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.noppmodel" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">noppmodel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.noppmodel" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RelaxationMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1031-L1152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RelaxationMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1028-L1148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This object stores the variables for the (constrained) structural optimization
 ionmov and optcell specify the type of relaxation.
 The other variables are optional and their use depend on ionmov and optcell.
@@ -611,53 +612,53 @@ The set of variables are constructed in to_abivars depending on ionmov and optce
 <p>Initialize object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.IONMOV_DEFAULT">
-<span class="sig-name descname"><span class="pre">IONMOV_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.IONMOV_DEFAULT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">IONMOV_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.IONMOV_DEFAULT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.OPTCELL_DEFAULT">
-<span class="sig-name descname"><span class="pre">OPTCELL_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.OPTCELL_DEFAULT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTCELL_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.OPTCELL_DEFAULT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1138-L1143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1134-L1139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Convert object to dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atoms_and_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms_constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1082-L1091"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atoms_and_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms_constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1078-L1087"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell" title="Permalink to this definition"></a></dt>
 <dd><p>Relax atomic positions as well as unit cell</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_only">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atoms_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms_constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1075-L1080"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_only" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atoms_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms_constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1071-L1076"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_only" title="Permalink to this definition"></a></dt>
 <dd><p>Relax atomic positions, keep unit cell fixed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1145-L1152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1141-L1148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Build object from dictionary.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.move_atoms">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_atoms</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_atoms" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_atoms</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_atoms" title="Permalink to this definition"></a></dt>
 <dd><p>True if atoms must be moved.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.move_cell">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_cell</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_cell" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_cell</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_cell" title="Permalink to this definition"></a></dt>
 <dd><p>True if lattice parameters must be optimized.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.RelaxationMethod.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1103-L1136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1099-L1132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary with the abinit variables</p>
 </dd></dl>
 
@@ -665,15 +666,15 @@ The set of variables are constructed in to_abivars depending on ionmov and optce
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Screening">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Screening</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ecuteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RPA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'one_shot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hilbert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecutwfn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclvkb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1327-L1421"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Screening</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ecuteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RPA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'one_shot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hilbert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecutwfn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclvkb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1323-L1417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object defines the parameters used for the
 computation of the screening function.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ecuteps</strong> – Cutoff energy for the screening (Ha units).</p></li>
-<li><p><strong>function</strong> (<em>nband Number</em><em> of </em><em>bands for the Green's</em>) – </p></li>
+<li><p><strong>function</strong> (<em>nband Number of bands for the Green's</em>) – </p></li>
 <li><p><strong>w_type</strong> – Screening type</p></li>
 <li><p><strong>sc_mode</strong> – Self-consistency mode.</p></li>
 <li><p><strong>hilbert</strong> – Instance of <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.HilbertTransform" title="pymatgen.io.abinit.abiobjects.HilbertTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">HilbertTransform</span></code></a> defining the parameters for the Hilber transform method.</p></li>
@@ -684,13 +685,13 @@ computation of the screening function.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Screening.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1402-L1421"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1398-L1417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary with the abinit variables</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Screening.use_hilbert">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_hilbert</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening.use_hilbert" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_hilbert</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening.use_hilbert" title="Permalink to this definition"></a></dt>
 <dd><p>True if we are using the Hilbert transform method.</p>
 </dd></dl>
 
@@ -698,11 +699,11 @@ computation of the screening function.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SelfEnergy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SelfEnergy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecutsigx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screening</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gw_qprange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppmodel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecuteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecutwfn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwpara</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1424-L1557"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SelfEnergy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nband</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecutsigx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screening</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gw_qprange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppmodel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecuteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecutwfn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwpara</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1420-L1553"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object defines the parameters used for the computation of the self-energy.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>se_type</strong> – Type of self-energy (str)</p></li>
 <li><p><strong>sc_mode</strong> – Self-consistency mode.</p></li>
@@ -720,25 +721,25 @@ QP energies for all the point in the IBZ and one band above and one band below t
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gwcalctyp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gwcalctyp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the value of the gwcalctyp input variable.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SelfEnergy.symsigma">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symsigma</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.symsigma" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symsigma</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.symsigma" title="Permalink to this definition"></a></dt>
 <dd><p>1 if symmetries can be used to reduce the number of q-points.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SelfEnergy.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L1533-L1557"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L1529-L1553"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary with the abinit variables.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SelfEnergy.use_ppmodel">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_ppmodel</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.use_ppmodel" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_ppmodel</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.use_ppmodel" title="Permalink to this definition"></a></dt>
 <dd><p>True if we are using the plasmon-pole approximation.</p>
 </dd></dl>
 
@@ -746,20 +747,20 @@ QP energies for all the point in the IBZ and one band above and one band below t
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Smearing">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Smearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">occopt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tsmear</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L414-L516"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Smearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">occopt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tsmear</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L411-L513"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Variables defining the smearing technique. The preferred way to instantiate
 a <cite>Smearing</cite> object is via the class method Smearing.as_smearing(string)</p>
 <p>Build object with occopt and tsmear</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Smearing.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L504-L511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L501-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>json friendly dict representation of Smearing</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Smearing.as_smearing">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">as_smearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L453-L483"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_smearing" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">as_smearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L450-L480"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_smearing" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs an instance of <cite>Smearing</cite> from obj. Accepts obj in the form:</p>
 <blockquote>
 <div><ul class="simple">
@@ -773,25 +774,25 @@ a <cite>Smearing</cite> object is via the class method Smearing.as_smearing(stri
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Smearing.from_dict">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L513-L516"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L510-L513"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Build object from dict.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Smearing.mode">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.mode" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/io/abinit/abiobjects.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.mode" title="Permalink to this definition"></a></dt>
 <dd><p>String with smearing technique.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Smearing.nosmearing">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nosmearing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L493-L496"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.nosmearing" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nosmearing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L490-L493"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.nosmearing" title="Permalink to this definition"></a></dt>
 <dd><p>Build object for calculations without smearing.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.Smearing.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L498-L502"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L495-L499"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Return dictionary with Abinit variables.</p>
 </dd></dl>
 
@@ -799,8 +800,8 @@ a <cite>Smearing</cite> object is via the class method Smearing.as_smearing(stri
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SpinMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpinMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsppol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspinor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspden</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L355-L401"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.SpinMode" title="pymatgen.io.abinit.abiobjects.SpinMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpinMode</span></code></a>, <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpinMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsppol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspinor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspden</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L352-L398"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.SpinMode" title="pymatgen.io.abinit.abiobjects.SpinMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.SpinMode</span></code></a>, <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Different configurations of the electron density as implemented in abinit:
 One can use as_spinmode to construct the object via SpinMode.as_spinmode
 (string) where string can assume the values:</p>
@@ -816,25 +817,25 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 <p>Create new instance of SpinMode(mode, nsppol, nspinor, nspden)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SpinMode.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L392-L396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L389-L393"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Convert object to dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">as_spinmode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L372-L382"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">as_spinmode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L369-L379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode" title="Permalink to this definition"></a></dt>
 <dd><p>Converts obj into a <cite>SpinMode</cite> instance</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SpinMode.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L398-L401"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L395-L398"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Build object from dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.SpinMode.to_abivars">
-<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L384-L390"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_abivars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L381-L387"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Dictionary with Abinit input variables.</p>
 </dd></dl>
 
@@ -842,7 +843,7 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.contract">
-<span class="sig-name descname"><span class="pre">contract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L295-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.contract" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">contract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L292-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.contract" title="Permalink to this definition"></a></dt>
 <dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">contract</span><span class="p">(</span><span class="s2">&quot;1 1 1 2 2 3&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;3*1 2*2 1*3&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">contract</span><span class="p">(</span><span class="s2">&quot;1 1 3 2 3&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;2*1 1*3 1*2 1*3&quot;</span>
 </pre></div>
@@ -851,12 +852,12 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.lattice_from_abivars">
-<span class="sig-name descname"><span class="pre">lattice_from_abivars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L25-L100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.lattice_from_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lattice_from_abivars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L25-L99"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.lattice_from_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a <cite>Lattice</cite> object from a dictionary
 with the Abinit variables <cite>acell</cite> and either <cite>rprim</cite> in Bohr or <cite>angdeg</cite>
 If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>cls</strong> – Lattice class to be instantiated. pymatgen.core.lattice.Lattice if <cite>cls</cite> is None</p>
 </dd>
 </dl>
@@ -866,7 +867,7 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.species_by_znucl">
-<span class="sig-name descname"><span class="pre">species_by_znucl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">pymatgen.core.periodic_table.Species</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L174-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.species_by_znucl" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">species_by_znucl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">pymatgen.core.periodic_table.Species</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L172-L192"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.species_by_znucl" title="Permalink to this definition"></a></dt>
 <dd><p>Return list of unique specie found in structure <strong>ordered according to sites</strong>.</p>
 <p class="rubric">Example</p>
 <p>Site0: 0.5 0 0 O
@@ -876,10 +877,10 @@ Site1: 0   0 0 Si</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.structure_from_abivars">
-<span class="sig-name descname"><span class="pre">structure_from_abivars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L103-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.structure_from_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">structure_from_abivars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L102-L169"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.structure_from_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Build a <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code> object from a dictionary with ABINIT variables.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>cls</strong> – Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None</p>
 </dd>
 </dl>
@@ -903,10 +904,10 @@ znucl=13,</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.abiobjects.structure_to_abivars">
-<span class="sig-name descname"><span class="pre">structure_to_abivars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_znucl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_typat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../io/abinit/abiobjects.py#L198-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.structure_to_abivars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">structure_to_abivars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_znucl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_typat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../io/abinit/abiobjects.py#L195-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.structure_to_abivars" title="Permalink to this definition"></a></dt>
 <dd><p>Receives a structure and returns a dictionary with ABINIT variables.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>enforce_znucl</strong> – List of ntypat entries with the value of Z for each type of atom.
 Used to change the default ordering.</p></li>
@@ -918,7 +919,7 @@ Used to change the default ordering.</p></li>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

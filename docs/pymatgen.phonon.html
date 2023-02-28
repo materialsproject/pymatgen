@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.phonon package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.phonon package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.phonon.bandstructure module" href="pymatgen.phonon.bandstructure.html" />
     <link rel="prev" title="pymatgen.optimization.neighbors module" href="pymatgen.optimization.neighbors.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -111,188 +112,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-phonon-package">
-<h1>pymatgen.phonon package<a class="headerlink" href="#pymatgen-phonon-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-phonon-package">
+<h1>pymatgen.phonon package<a class="headerlink" href="#pymatgen-phonon-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.bandstructure.html">pymatgen.phonon.bandstructure module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.asr_breaking()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.get_nac_eigendisplacements_along_dir()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.get_nac_frequencies_along_dir()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.has_eigendisplacements</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.has_imaginary_freq()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.has_nac"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.has_nac</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.min_freq"><code class="docutils literal notranslate"><span class="pre">PhononBandStructure.min_freq()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine.as_phononwebsite()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine.band_reorder()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine.get_branch()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine.get_equivalent_qpoints()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite"><code class="docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine.write_phononwebsite()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.eigenvectors_from_displacements"><code class="docutils literal notranslate"><span class="pre">eigenvectors_from_displacements()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.estimate_band_connection"><code class="docutils literal notranslate"><span class="pre">estimate_band_connection()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.get_reasonable_repetitions"><code class="docutils literal notranslate"><span class="pre">get_reasonable_repetitions()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.dos.html">pymatgen.phonon.dos module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos"><code class="docutils literal notranslate"><span class="pre">CompletePhononDos</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos.pdos"><code class="docutils literal notranslate"><span class="pre">CompletePhononDos.pdos</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos.as_dict"><code class="docutils literal notranslate"><span class="pre">CompletePhononDos.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos.from_dict"><code class="docutils literal notranslate"><span class="pre">CompletePhononDos.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos.get_element_dos"><code class="docutils literal notranslate"><span class="pre">CompletePhononDos.get_element_dos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos.get_site_dos"><code class="docutils literal notranslate"><span class="pre">CompletePhononDos.get_site_dos()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos"><code class="docutils literal notranslate"><span class="pre">PhononDos</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.as_dict"><code class="docutils literal notranslate"><span class="pre">PhononDos.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.cv"><code class="docutils literal notranslate"><span class="pre">PhononDos.cv()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.entropy"><code class="docutils literal notranslate"><span class="pre">PhononDos.entropy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.from_dict"><code class="docutils literal notranslate"><span class="pre">PhononDos.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.get_interpolated_value"><code class="docutils literal notranslate"><span class="pre">PhononDos.get_interpolated_value()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.get_smeared_densities"><code class="docutils literal notranslate"><span class="pre">PhononDos.get_smeared_densities()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.helmholtz_free_energy"><code class="docutils literal notranslate"><span class="pre">PhononDos.helmholtz_free_energy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.ind_zero_freq"><code class="docutils literal notranslate"><span class="pre">PhononDos.ind_zero_freq()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.internal_energy"><code class="docutils literal notranslate"><span class="pre">PhononDos.internal_energy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.zero_point_energy"><code class="docutils literal notranslate"><span class="pre">PhononDos.zero_point_energy()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.dos.html#pymatgen.phonon.dos.coth"><code class="docutils literal notranslate"><span class="pre">coth()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.gruneisen.html">pymatgen.phonon.gruneisen module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter.acoustic_debye_temp"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter.acoustic_debye_temp</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter.average_gruneisen"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter.average_gruneisen()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_limit"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter.debye_temp_limit</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_phonopy"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter.debye_temp_phonopy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter.phdos"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter.phdos</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter.tdos"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter.tdos</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenParameter.thermal_conductivity_slack"><code class="docutils literal notranslate"><span class="pre">GruneisenParameter.thermal_conductivity_slack()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBandStructure</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.as_dict"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBandStructure.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.from_dict"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBandStructure.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBandStructureSymmLine</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.gruneisen.html#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine.from_dict"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBandStructureSymmLine.from_dict()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html">pymatgen.phonon.ir_spectra module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.get_ir_spectra()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.get_plotter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.get_spectrum()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.max_phfreq"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.max_phfreq</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.nph_freqs"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.nph_freqs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.plot"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json"><code class="docutils literal notranslate"><span class="pre">IRDielectricTensor.write_json()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.plotter.html">pymatgen.phonon.plotter module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.FreqUnits"><code class="docutils literal notranslate"><span class="pre">FreqUnits</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.FreqUnits.factor"><code class="docutils literal notranslate"><span class="pre">FreqUnits.factor</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.FreqUnits.label"><code class="docutils literal notranslate"><span class="pre">FreqUnits.label</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPhononBSPlotter"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBSPlotter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.bs_plot_data"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBSPlotter.bs_plot_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.get_plot_gs"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBSPlotter.get_plot_gs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.plot_compare_gs"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBSPlotter.plot_compare_gs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.save_plot_gs"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBSPlotter.save_plot_gs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.show_gs"><code class="docutils literal notranslate"><span class="pre">GruneisenPhononBSPlotter.show_gs()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPlotter"><code class="docutils literal notranslate"><span class="pre">GruneisenPlotter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPlotter.get_plot"><code class="docutils literal notranslate"><span class="pre">GruneisenPlotter.get_plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPlotter.save_plot"><code class="docutils literal notranslate"><span class="pre">GruneisenPlotter.save_plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.GruneisenPlotter.show"><code class="docutils literal notranslate"><span class="pre">GruneisenPlotter.show()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.bs_plot_data"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.bs_plot_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.get_plot"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.get_plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.get_proj_plot"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.get_proj_plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.get_ticks"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.get_ticks()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.plot_brillouin"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.plot_brillouin()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.plot_compare"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.plot_compare()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.save_plot"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.save_plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.show"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.show()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.show_proj"><code class="docutils literal notranslate"><span class="pre">PhononBSPlotter.show_proj()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter"><code class="docutils literal notranslate"><span class="pre">PhononDosPlotter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.add_dos"><code class="docutils literal notranslate"><span class="pre">PhononDosPlotter.add_dos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.add_dos_dict"><code class="docutils literal notranslate"><span class="pre">PhononDosPlotter.add_dos_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.get_dos_dict"><code class="docutils literal notranslate"><span class="pre">PhononDosPlotter.get_dos_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.get_plot"><code class="docutils literal notranslate"><span class="pre">PhononDosPlotter.get_plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.save_plot"><code class="docutils literal notranslate"><span class="pre">PhononDosPlotter.save_plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.show"><code class="docutils literal notranslate"><span class="pre">PhononDosPlotter.show()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter"><code class="docutils literal notranslate"><span class="pre">ThermoPlotter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_cv"><code class="docutils literal notranslate"><span class="pre">ThermoPlotter.plot_cv()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy"><code class="docutils literal notranslate"><span class="pre">ThermoPlotter.plot_entropy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy"><code class="docutils literal notranslate"><span class="pre">ThermoPlotter.plot_helmholtz_free_energy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy"><code class="docutils literal notranslate"><span class="pre">ThermoPlotter.plot_internal_energy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties"><code class="docutils literal notranslate"><span class="pre">ThermoPlotter.plot_thermodynamic_properties()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.freq_units"><code class="docutils literal notranslate"><span class="pre">freq_units()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html">pymatgen.phonon.thermal_displacements module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.B"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.B</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.U1U2U3"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.U1U2U3</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ucif"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.Ucif</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ustar"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.Ustar</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.beta"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.beta</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.compute_directionality_quality_criterion"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.compute_directionality_quality_criterion()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_Ucif"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.from_Ucif()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_cif_P1"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.from_cif_P1()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_full_matrix"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.get_full_matrix()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_reduced_matrix"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.get_reduced_matrix()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.ratio_prolate"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.ratio_prolate</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.visualize_directionality_quality_criterion"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.visualize_directionality_quality_criterion()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.write_cif"><code class="docutils literal notranslate"><span class="pre">ThermalDisplacementMatrices.write_cif()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.bandstructure.html">pymatgen.phonon.bandstructure module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.dos.html">pymatgen.phonon.dos module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.gruneisen.html">pymatgen.phonon.gruneisen module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html">pymatgen.phonon.ir_spectra module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.plotter.html">pymatgen.phonon.plotter module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html">pymatgen.phonon.thermal_displacements module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.phonon">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.phonon" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.phonon">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.phonon" title="Permalink to this headline"></a></h2>
 <p>Phonon DOS and bandstructure analysis package.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

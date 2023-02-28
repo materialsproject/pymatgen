@@ -348,7 +348,7 @@ class InterfacialReactivity(MSONable):
             y=energy,
             mode="lines",
             name="Lines",
-            line=dict(color="navy", dash="solid", width=5.0),
+            line={"color": "navy", "dash": "solid", "width": 5.0},
             hoverinfo="none",
         )
 
@@ -372,13 +372,13 @@ class InterfacialReactivity(MSONable):
             name="Reactions",
             hoverinfo="text",
             hovertext=labels,
-            marker=dict(
-                color="black",
-                size=12,
-                opacity=0.8,
-                line=dict(color="black", width=3),
-            ),
-            hoverlabel=dict(bgcolor="navy"),
+            marker={
+                "color": "black",
+                "size": 12,
+                "opacity": 0.8,
+                "line": {"color": "black", "width": 3},
+            },
+            hoverlabel={"bgcolor": "navy"},
         )
 
         min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
@@ -389,7 +389,7 @@ class InterfacialReactivity(MSONable):
             mode="markers",
             hoverinfo="text",
             hovertext=[min_label],
-            marker=dict(color="darkred", size=24, symbol="star"),
+            marker={"color": "darkred", "size": 24, "symbol": "star"},
             name="Suggested reaction",
         )
 
@@ -424,7 +424,7 @@ class InterfacialReactivity(MSONable):
                 textcoords="offset points",
                 ha="right",
                 va="bottom",
-                arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0"),
+                arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0"},
             )
 
         if self.norm:
@@ -461,7 +461,7 @@ class InterfacialReactivity(MSONable):
             products = ", ".join(
                 [htmlify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
-            annotation = dict(x=x_coord, y=y_coord, text=products, font=dict(size=18), ax=-25, ay=55)
+            annotation = {"x": x_coord, "y": y_coord, "text": products, "font": {"size": 18}, "ax": -25, "ay": 55}
             annotations.append(annotation)
         return annotations
 

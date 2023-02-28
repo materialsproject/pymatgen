@@ -79,19 +79,13 @@ class LMTOCtrl:
 
         lines.append("STRUC".ljust(10) + "ALAT=" + str(round(ctrl_dict["ALAT"], sigfigs)))
         for l, latt in enumerate(ctrl_dict["PLAT"]):
-            if l == 0:
-                line = "PLAT=".rjust(15)
-            else:
-                line = " ".ljust(15)
+            line = "PLAT=".rjust(15) if l == 0 else " ".ljust(15)
             line += " ".join(str(round(v, sigfigs)) for v in latt)
             lines.append(line)
 
         for cat in ["CLASS", "SITE"]:
             for a, atoms in enumerate(ctrl_dict[cat]):
-                if a == 0:
-                    line = [cat.ljust(9)]
-                else:
-                    line = [" ".ljust(9)]
+                line = [cat.ljust(9)] if a == 0 else [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
                     if token == "POS":
                         line.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))

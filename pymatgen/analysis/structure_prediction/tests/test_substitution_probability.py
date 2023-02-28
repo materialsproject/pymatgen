@@ -72,13 +72,13 @@ class SubstitutionPredictorTest(unittest.TestCase):
     def test_prediction(self):
         sp = SubstitutionPredictor(threshold=8e-3)
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=True)[5]
-        cprob = sp.p.cond_prob_list(result["substitutions"].keys(), result["substitutions"].values())
-        assert result["probability"] == approx(cprob)
+        cond_prob = sp.p.cond_prob_list(list(result["substitutions"]), result["substitutions"].values())
+        assert result["probability"] == approx(cond_prob)
         assert set(result["substitutions"].values()) == {"Na+", "Cl-"}
 
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=False)[5]
-        cprob = sp.p.cond_prob_list(result["substitutions"].keys(), result["substitutions"].values())
-        assert result["probability"] == approx(cprob)
+        cond_prob = sp.p.cond_prob_list(list(result["substitutions"]), result["substitutions"].values())
+        assert result["probability"] == approx(cond_prob)
         assert set(result["substitutions"].values()) != {"Na+", "Cl-"}
 
         c = Composition({"Ag2+": 1, "Cl-": 2})

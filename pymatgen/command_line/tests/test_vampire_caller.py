@@ -22,7 +22,6 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 class VampireCallerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-
         print("Testing with: ", which("vampire-serial"))
 
         cls.Mn3Al = pd.read_json(os.path.join(test_dir, "Mn3Al.json"))
@@ -60,7 +59,7 @@ class VampireCallerTest(unittest.TestCase):
 
             voutput = vc.output
             critical_temp = voutput.critical_temp
-            assert 400 == approx(critical_temp)
+            assert approx(critical_temp) == 400
 
         if os.path.exists("Mn3Al.mat"):
             os.remove("Mn3Al.mat")

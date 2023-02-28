@@ -44,7 +44,6 @@ class SubstrateMatch(ZSLMatch):
         ground_state_energy=0,
     ):
         """Generate a substrate match from a ZSL match plus metadata"""
-
         # Get the appropriate surface structure
         struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
 
@@ -187,7 +186,6 @@ class SubstrateAnalyzer(ZSLGenerator):
             substrate_miller,
         ] in surface_vector_sets:
             for match in self(film_vectors, substrate_vectors, lowest):
-
                 sub_match = SubstrateMatch.from_zsl(
                     match=match,
                     film=film,

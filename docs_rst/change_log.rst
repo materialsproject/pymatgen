@@ -1,6 +1,24 @@
 Change log
 ==========
 
+v2023.2.22
+----------
+* PR #2848 from @ml-evs ml-evs/update_optimade_aliases
+    Currently `OptimadeRester` defaults to an outdated list of OPTIMADE database URLs (several of which fail) and the design of the class is such that refreshing these aliases can only be done post-init which means they will not be used if the user provides their own filtered list of aliases, without doing some extra work.
+    This PR refreshes the vendored list of aliases (which should be much more stable now since their initial addition 2 years ago), and also adds the option to refresh the aliases on initialization of the class.
+    This currently affects the pymatgen OPTIMADE tutorials at https://github.com/Materials-Consortia/optimade-tutorial-exercises.
+
+v2023.1.30
+----------
+* PR #2806 from @samblau qchem
+    - Major changes to Q-Chem IO (inputs.py and outputs.py) to accommodate differences and new features in version 6+
+    - Additional parsing capabilities for HOMO/LUMO, dipoles, NBO info (hyperbonds and 3C bonds) in outputs.py
+    - Utility for processing a parsed binary Hessian scratch file
+    - Overdue updates to default values in sets.py and new defaults associated with differences and new features in Q-Chem 6+
+* PR #2814 from @jmmshn patch_dos
+    ## Added Convenience to obtain the normalized CompleteDos object
+    Added tests to make sure calling it multiple time still only gives one result.
+
 v2023.1.20
 ----------
 * Passthrough kwargs support for Structure.from_file and Structure.from_str

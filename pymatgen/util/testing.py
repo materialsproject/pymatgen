@@ -139,6 +139,8 @@ class PymatgenTest(unittest.TestCase):
             objects: Object or list of objects.
             protocols: List of pickle protocols to test. If protocols is None,
                 HIGHEST_PROTOCOL is tested.
+            test_eq: If True, the deserialized object is compared with the
+                original object using the __eq__ method.
 
         Returns:
             Nested list with the objects deserialized with the specified

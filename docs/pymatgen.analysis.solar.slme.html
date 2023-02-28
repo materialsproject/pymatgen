@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.solar.slme module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.solar.slme module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.structure_prediction package" href="pymatgen.analysis.structure_prediction.html" />
     <link rel="prev" title="pymatgen.analysis.solar package" href="pymatgen.analysis.solar.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,8 +114,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.analysis.solar.slme">
-<span id="pymatgen-analysis-solar-slme-module"></span><h1>pymatgen.analysis.solar.slme module<a class="headerlink" href="#module-pymatgen.analysis.solar.slme" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.analysis.solar.slme">
+<span id="pymatgen-analysis-solar-slme-module"></span><h1>pymatgen.analysis.solar.slme module<a class="headerlink" href="#module-pymatgen.analysis.solar.slme" title="Permalink to this headline"></a></h1>
 <p>Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data</p>
 <p>Forked and adjusted from :
 <a class="reference external" href="https://github.com/usnistgov/jarvis">https://github.com/usnistgov/jarvis</a></p>
@@ -126,84 +127,85 @@
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.solar.slme.absorption_coefficient">
-<span class="sig-name descname"><span class="pre">absorption_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dielectric</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/solar/slme.py#L85-L114"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.absorption_coefficient" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">absorption_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dielectric</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/solar/slme.py#L90-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.absorption_coefficient" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate the optical absorption coefficient from an input set of
-pymatgen vasprun dielectric constant data.
-:param dielectric: A list containing the dielectric response function</p>
-<blockquote>
-<div><p>in the pymatgen vasprun format.
+pymatgen vasprun dielectric constant data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dielectric</strong> (<em>list</em>) – A list containing the dielectric response function
+in the pymatgen vasprun format.
 | element 0: list of energies
 | element 1: real dielectric tensors, in <code class="docutils literal notranslate"><span class="pre">[xx,</span> <span class="pre">yy,</span> <span class="pre">zz,</span> <span class="pre">xy,</span> <span class="pre">xz,</span> <span class="pre">yz]</span></code> format.
 | element 2: imaginary dielectric tensors, in <code class="docutils literal notranslate"><span class="pre">[xx,</span> <span class="pre">yy,</span> <span class="pre">zz,</span> <span class="pre">xy,</span> <span class="pre">xz,</span> <span class="pre">yz]</span></code> format.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>absorption coefficient using eV as frequency units (cm^-1).</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>(np.array)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>absorption coefficient using eV as frequency units (cm^-1).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.array)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.solar.slme.get_dir_indir_gap">
-<span class="sig-name descname"><span class="pre">get_dir_indir_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/solar/slme.py#L28-L37"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.get_dir_indir_gap" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dir_indir_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/solar/slme.py#L28-L36"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.get_dir_indir_gap" title="Permalink to this definition"></a></dt>
 <dd><p>Get direct and indirect bandgaps for a vasprun.xml</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.solar.slme.matrix_eigvals">
-<span class="sig-name descname"><span class="pre">matrix_eigvals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/solar/slme.py#L40-L49"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.matrix_eigvals" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate the eigenvalues of a matrix.
-:param matrix: The matrix to diagonalise.
-:type matrix: np.array</p>
+<span class="sig-name descname"><span class="pre">matrix_eigvals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/solar/slme.py#L39-L50"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.matrix_eigvals" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the eigenvalues of a matrix.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Array of the matrix eigenvalues.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>np.array</em>) – The matrix to diagonalise.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>(np.array)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of the matrix eigenvalues.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.array)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.solar.slme.optics">
-<span class="sig-name descname"><span class="pre">optics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/solar/slme.py#L117-L130"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.optics" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">optics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/solar/slme.py#L123-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.optics" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function to calculate optical absorption coefficient</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.solar.slme.parse_dielectric_data">
-<span class="sig-name descname"><span class="pre">parse_dielectric_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/solar/slme.py#L70-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.parse_dielectric_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">parse_dielectric_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/solar/slme.py#L73-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.parse_dielectric_data" title="Permalink to this definition"></a></dt>
 <dd><p>Convert a set of 2D vasprun formatted dielectric data to
-the eigenvalues of each corresponding 3x3 symmetric numpy matrices.
-:param data: length N list of dielectric data. Each entry should be</p>
-<blockquote>
-<div><p>a list of <code class="docutils literal notranslate"><span class="pre">[xx,</span> <span class="pre">yy,</span> <span class="pre">zz,</span> <span class="pre">xy,</span> <span class="pre">xz,</span> <span class="pre">yz</span> <span class="pre">]</span></code> dielectric
-tensor elements.</p>
-</div></blockquote>
+the eigenvalues of each corresponding 3x3 symmetric numpy matrices.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – length N list of dielectric data. Each entry should be
+a list of <code class="docutils literal notranslate"><span class="pre">[xx,</span> <span class="pre">yy,</span> <span class="pre">zz,</span> <span class="pre">xy,</span> <span class="pre">xz,</span> <span class="pre">yz</span> <span class="pre">]</span></code> dielectric
+tensor elements.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
 <dt>a Nx3 numpy array. Each row contains the eigenvalues</dt><dd><p>for the corresponding row in <cite>data</cite>.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>(np.array)</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.array)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.solar.slme.slme">
-<span class="sig-name descname"><span class="pre">slme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_energy_for_absorbance_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_absorbance_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_direct_allowed_gap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_indirect_gap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">293.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absorbance_in_inverse_centimeters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_off_absorbance_below_direct_allowed_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_current_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/solar/slme.py#L133-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.slme" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">slme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_energy_for_absorbance_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_absorbance_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_direct_allowed_gap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_indirect_gap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">293.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absorbance_in_inverse_centimeters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_off_absorbance_below_direct_allowed_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_current_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/solar/slme.py#L139-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.slme" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate the SLME</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>material_energy_for_absorbance_data</strong> – energy grid for absorbance data</p></li>
 <li><p><strong>material_absorbance_data</strong> – absorption coefficient in m^-1</p></li>
@@ -216,7 +218,7 @@ tensor elements.</p>
 <li><p><strong>plot_current_voltage</strong> – whether to plot the current-voltage curve</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The calculated maximum efficiency.</p>
 </dd>
 </dl>
@@ -224,32 +226,30 @@ tensor elements.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.solar.slme.to_matrix">
-<span class="sig-name descname"><span class="pre">to_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xz</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/solar/slme.py#L52-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.to_matrix" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xz</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/solar/slme.py#L53-L70"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.solar.slme.to_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Convert a list of matrix components to a symmetric 3x3 matrix.
-Inputs should be in the order xx, yy, zz, xy, yz, xz.
-:param xx: xx component of the matrix.
-:type xx: float
-:param yy: yy component of the matrix.
-:type yy: float
-:param zz: zz component of the matrix.
-:type zz: float
-:param xy: xy component of the matrix.
-:type xy: float
-:param yz: yz component of the matrix.
-:type yz: float
-:param xz: xz component of the matrix.
-:type xz: float</p>
+Inputs should be in the order xx, yy, zz, xy, yz, xz.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The matrix, as a 3x3 numpy array.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> (<em>float</em>) – xx component of the matrix.</p></li>
+<li><p><strong>yy</strong> (<em>float</em>) – yy component of the matrix.</p></li>
+<li><p><strong>zz</strong> (<em>float</em>) – zz component of the matrix.</p></li>
+<li><p><strong>xy</strong> (<em>float</em>) – xy component of the matrix.</p></li>
+<li><p><strong>yz</strong> (<em>float</em>) – yz component of the matrix.</p></li>
+<li><p><strong>xz</strong> (<em>float</em>) – xz component of the matrix.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>(np.array)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The matrix, as a 3x3 numpy array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.array)</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

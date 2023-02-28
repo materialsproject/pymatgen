@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pymatgen Add-ons and External Tools &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>Pymatgen Add-ons and External Tools &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,12 +13,14 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -36,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -82,10 +83,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-add-ons-and-external-tools">
-<h1>Pymatgen Add-ons and External Tools<a class="headerlink" href="#pymatgen-add-ons-and-external-tools" title="Permalink to this heading"></a></h1>
-<section id="add-ons">
-<h2>Add-ons<a class="headerlink" href="#add-ons" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-add-ons-and-external-tools">
+<h1>Pymatgen Add-ons and External Tools<a class="headerlink" href="#pymatgen-add-ons-and-external-tools" title="Permalink to this headline"></a></h1>
+<div class="section" id="add-ons">
+<h2>Add-ons<a class="headerlink" href="#add-ons" title="Permalink to this headline"></a></h2>
 <p>With effect from v2022.0.3, pymatgen, pymatgen.analysis, pymatgen.ext and and pymatgen.io are now
 <a class="reference external" href="http://packaging.python.org/guides/packaging-namespace-packages">namespace packages</a>. You may refer to the
 <a class="reference internal" href="contributing.html"><span class="doc">contributing page</span></a>. for details on how to write such packages. This page serves as a universal
@@ -94,8 +95,8 @@ resource page to list known pymatgen add-ons.</p>
 any of the add-ons</strong> listed here. End users should make their
 own assessment of the functionality and quality.</p>
 <p>Please submit a pull request to update this page when if release a new add-on package.</p>
-<section id="add-ons-for-analysis">
-<h3>Add-ons for Analysis<a class="headerlink" href="#add-ons-for-analysis" title="Permalink to this heading"></a></h3>
+<div class="section" id="add-ons-for-analysis">
+<h3>Add-ons for Analysis<a class="headerlink" href="#add-ons-for-analysis" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="http://pypi.org/project/pymatgen-analysis-diffusion">pymatgen-analysis-diffusion</a>: Provides modules for diffusion
 analysis, including path determination for NEB calculations, analysis of MD trajectories (RDF, van Hove, Arrhenius
@@ -103,23 +104,23 @@ plots, etc.). This package is maintained by the Materials Virtual Lab.</p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/pymatgen-analysis-defects">pymatgen-analysis-defects</a>: Provides functionality related to
 defect analysis. This package is maintained by Jimmy-Xuan Shen, and officially supported by the Materials Project.</p></li>
 </ul>
-</section>
-<section id="add-ons-for-input-output">
-<h3>Add-ons for Input/Output<a class="headerlink" href="#add-ons-for-input-output" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="add-ons-for-input-output">
+<h3>Add-ons for Input/Output<a class="headerlink" href="#add-ons-for-input-output" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="http://pypi.org/project/pymatgen-io-fleur">pymatgen-io-fleur</a>: Provides modules for reading and writing
 files used by the <a class="reference external" href="https://www.flapw.de/rel">fleur</a> DFT code. This package is maintained by the juDFT team.</p></li>
 </ul>
-</section>
-<section id="add-ons-for-externals-services">
-<h3>Add-ons for Externals Services<a class="headerlink" href="#add-ons-for-externals-services" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="add-ons-for-externals-services">
+<h3>Add-ons for Externals Services<a class="headerlink" href="#add-ons-for-externals-services" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>None at present.</p></li>
 </ul>
-</section>
-</section>
-<section id="external-tools">
-<h2>External Tools<a class="headerlink" href="#external-tools" title="Permalink to this heading"></a></h2>
+</div>
+</div>
+<div class="section" id="external-tools">
+<h2>External Tools<a class="headerlink" href="#external-tools" title="Permalink to this headline"></a></h2>
 <p>If you would like your own tool to be listed here, please <a class="reference external" href="https://github.com/materialsproject/pymatgen/edit/master/docs_rst/addons.rst">submit a PR</a>! For a more complete but less curated list, have a
 look at <a class="reference external" href="https://github.com/materialsproject/pymatgen/network/dependents">pymatgen dependents</a>.</p>
 <ul class="simple">
@@ -136,8 +137,8 @@ high-performance candidates in new chemical spaces.</p></li>
 inorganic chemical reaction pathways using graph theory.</p></li>
 <li><p><a class="reference external" href="https://github.com/materialsproject/matbench">Matbench</a>: Benchmarks for materials science property prediction.</p></li>
 </ul>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

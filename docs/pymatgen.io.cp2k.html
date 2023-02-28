@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.cp2k package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.io.cp2k package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.cp2k.inputs module" href="pymatgen.io.cp2k.inputs.html" />
     <link rel="prev" title="pymatgen.io.abinit.variable module" href="pymatgen.io.abinit.variable.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,362 +113,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-io-cp2k-package">
-<h1>pymatgen.io.cp2k package<a class="headerlink" href="#pymatgen-io-cp2k-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-io-cp2k-package">
+<h1>pymatgen.io.cp2k package<a class="headerlink" href="#pymatgen-io-cp2k-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html">pymatgen.io.cp2k.inputs module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.info"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.info</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.element"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.element</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.potential"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.potential</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.name"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.name</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.alias_names"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.alias_names</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.filename"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.filename</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.version"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.version</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id0"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.alias_names</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id1"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.element</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id2"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.filename</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.get_hash"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.get_hash()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.get_string"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id3"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.info</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id4"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.name</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id5"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.potential</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.AtomicMetadata.softmatch"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.softmatch()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id6"><code class="docutils literal notranslate"><span class="pre">AtomicMetadata.version</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Band_Structure"><code class="docutils literal notranslate"><span class="pre">Band_Structure</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Band_Structure.from_kpoints"><code class="docutils literal notranslate"><span class="pre">Band_Structure.from_kpoints()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisFile"><code class="docutils literal notranslate"><span class="pre">BasisFile</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisFile.from_string"><code class="docutils literal notranslate"><span class="pre">BasisFile.from_string()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo"><code class="docutils literal notranslate"><span class="pre">BasisInfo</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.electrons"><code class="docutils literal notranslate"><span class="pre">BasisInfo.electrons</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.core"><code class="docutils literal notranslate"><span class="pre">BasisInfo.core</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.valence"><code class="docutils literal notranslate"><span class="pre">BasisInfo.valence</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.polarization"><code class="docutils literal notranslate"><span class="pre">BasisInfo.polarization</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.diffuse"><code class="docutils literal notranslate"><span class="pre">BasisInfo.diffuse</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.cc"><code class="docutils literal notranslate"><span class="pre">BasisInfo.cc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.pc"><code class="docutils literal notranslate"><span class="pre">BasisInfo.pc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.sr"><code class="docutils literal notranslate"><span class="pre">BasisInfo.sr</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.molopt"><code class="docutils literal notranslate"><span class="pre">BasisInfo.molopt</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.admm"><code class="docutils literal notranslate"><span class="pre">BasisInfo.admm</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.lri"><code class="docutils literal notranslate"><span class="pre">BasisInfo.lri</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.contracted"><code class="docutils literal notranslate"><span class="pre">BasisInfo.contracted</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.xc"><code class="docutils literal notranslate"><span class="pre">BasisInfo.xc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id7"><code class="docutils literal notranslate"><span class="pre">BasisInfo.admm</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id8"><code class="docutils literal notranslate"><span class="pre">BasisInfo.cc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id9"><code class="docutils literal notranslate"><span class="pre">BasisInfo.contracted</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id10"><code class="docutils literal notranslate"><span class="pre">BasisInfo.core</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id11"><code class="docutils literal notranslate"><span class="pre">BasisInfo.diffuse</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id12"><code class="docutils literal notranslate"><span class="pre">BasisInfo.electrons</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.from_string"><code class="docutils literal notranslate"><span class="pre">BasisInfo.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id13"><code class="docutils literal notranslate"><span class="pre">BasisInfo.lri</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id14"><code class="docutils literal notranslate"><span class="pre">BasisInfo.molopt</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id15"><code class="docutils literal notranslate"><span class="pre">BasisInfo.pc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id16"><code class="docutils literal notranslate"><span class="pre">BasisInfo.polarization</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BasisInfo.softmatch"><code class="docutils literal notranslate"><span class="pre">BasisInfo.softmatch()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id17"><code class="docutils literal notranslate"><span class="pre">BasisInfo.sr</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id18"><code class="docutils literal notranslate"><span class="pre">BasisInfo.valence</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id19"><code class="docutils literal notranslate"><span class="pre">BasisInfo.xc</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BrokenSymmetry"><code class="docutils literal notranslate"><span class="pre">BrokenSymmetry</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.BrokenSymmetry.from_el"><code class="docutils literal notranslate"><span class="pre">BrokenSymmetry.from_el()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Coord"><code class="docutils literal notranslate"><span class="pre">Coord</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cp2kInput"><code class="docutils literal notranslate"><span class="pre">Cp2kInput</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cp2kInput.from_file"><code class="docutils literal notranslate"><span class="pre">Cp2kInput.from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cp2kInput.from_lines"><code class="docutils literal notranslate"><span class="pre">Cp2kInput.from_lines()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cp2kInput.from_string"><code class="docutils literal notranslate"><span class="pre">Cp2kInput.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cp2kInput.get_string"><code class="docutils literal notranslate"><span class="pre">Cp2kInput.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cp2kInput.write_file"><code class="docutils literal notranslate"><span class="pre">Cp2kInput.write_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DOS"><code class="docutils literal notranslate"><span class="pre">DOS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DataFile"><code class="docutils literal notranslate"><span class="pre">DataFile</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DataFile.from_file"><code class="docutils literal notranslate"><span class="pre">DataFile.from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DataFile.from_string"><code class="docutils literal notranslate"><span class="pre">DataFile.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DataFile.get_string"><code class="docutils literal notranslate"><span class="pre">DataFile.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DataFile.objects"><code class="docutils literal notranslate"><span class="pre">DataFile.objects</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DataFile.write_file"><code class="docutils literal notranslate"><span class="pre">DataFile.write_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Davidson"><code class="docutils literal notranslate"><span class="pre">Davidson</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Dft"><code class="docutils literal notranslate"><span class="pre">Dft</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.DftPlusU"><code class="docutils literal notranslate"><span class="pre">DftPlusU</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Diagonalization"><code class="docutils literal notranslate"><span class="pre">Diagonalization</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.E_Density_Cube"><code class="docutils literal notranslate"><span class="pre">E_Density_Cube</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.ForceEval"><code class="docutils literal notranslate"><span class="pre">ForceEval</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.info"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.info</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.nset"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.nset</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.n"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.n</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.lmax"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.lmax</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.lmin"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.lmin</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.nshell"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.nshell</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.exponents"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.exponents</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.coefficients"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.coefficients</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id20"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.coefficients</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id21"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.exponents</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.from_string"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.get_keyword"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.get_keyword()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.get_string"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id22"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.info</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id23"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.lmax</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id24"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.lmin</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id25"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.n</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GaussianTypeOrbitalBasisSet.nexp"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.nexp</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id26"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.nset</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id27"><code class="docutils literal notranslate"><span class="pre">GaussianTypeOrbitalBasisSet.nshell</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Global"><code class="docutils literal notranslate"><span class="pre">Global</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential"><code class="docutils literal notranslate"><span class="pre">GthPotential</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.info"><code class="docutils literal notranslate"><span class="pre">GthPotential.info</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.n_elecs"><code class="docutils literal notranslate"><span class="pre">GthPotential.n_elecs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.r_loc"><code class="docutils literal notranslate"><span class="pre">GthPotential.r_loc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.nexp_ppl"><code class="docutils literal notranslate"><span class="pre">GthPotential.nexp_ppl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.c_exp_ppl"><code class="docutils literal notranslate"><span class="pre">GthPotential.c_exp_ppl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.radii"><code class="docutils literal notranslate"><span class="pre">GthPotential.radii</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.nprj"><code class="docutils literal notranslate"><span class="pre">GthPotential.nprj</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.nprj_ppnl"><code class="docutils literal notranslate"><span class="pre">GthPotential.nprj_ppnl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.hprj_ppnl"><code class="docutils literal notranslate"><span class="pre">GthPotential.hprj_ppnl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id28"><code class="docutils literal notranslate"><span class="pre">GthPotential.c_exp_ppl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.from_section"><code class="docutils literal notranslate"><span class="pre">GthPotential.from_section()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.from_string"><code class="docutils literal notranslate"><span class="pre">GthPotential.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.get_keyword"><code class="docutils literal notranslate"><span class="pre">GthPotential.get_keyword()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.get_section"><code class="docutils literal notranslate"><span class="pre">GthPotential.get_section()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.GthPotential.get_string"><code class="docutils literal notranslate"><span class="pre">GthPotential.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id29"><code class="docutils literal notranslate"><span class="pre">GthPotential.hprj_ppnl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id30"><code class="docutils literal notranslate"><span class="pre">GthPotential.n_elecs</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id31"><code class="docutils literal notranslate"><span class="pre">GthPotential.nexp_ppl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id32"><code class="docutils literal notranslate"><span class="pre">GthPotential.nprj</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id33"><code class="docutils literal notranslate"><span class="pre">GthPotential.nprj_ppnl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id34"><code class="docutils literal notranslate"><span class="pre">GthPotential.r_loc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id35"><code class="docutils literal notranslate"><span class="pre">GthPotential.radii</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Keyword"><code class="docutils literal notranslate"><span class="pre">Keyword</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Keyword.as_dict"><code class="docutils literal notranslate"><span class="pre">Keyword.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Keyword.from_dict"><code class="docutils literal notranslate"><span class="pre">Keyword.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Keyword.from_string"><code class="docutils literal notranslate"><span class="pre">Keyword.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Keyword.get_string"><code class="docutils literal notranslate"><span class="pre">Keyword.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Keyword.verbosity"><code class="docutils literal notranslate"><span class="pre">Keyword.verbosity()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.KeywordList"><code class="docutils literal notranslate"><span class="pre">KeywordList</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.KeywordList.append"><code class="docutils literal notranslate"><span class="pre">KeywordList.append()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.KeywordList.extend"><code class="docutils literal notranslate"><span class="pre">KeywordList.extend()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.KeywordList.get_string"><code class="docutils literal notranslate"><span class="pre">KeywordList.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.KeywordList.verbosity"><code class="docutils literal notranslate"><span class="pre">KeywordList.verbosity()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kind"><code class="docutils literal notranslate"><span class="pre">Kind</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kpoint_Set"><code class="docutils literal notranslate"><span class="pre">Kpoint_Set</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kpoints"><code class="docutils literal notranslate"><span class="pre">Kpoints</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kpoints.from_kpoints"><code class="docutils literal notranslate"><span class="pre">Kpoints.from_kpoints()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.LDOS"><code class="docutils literal notranslate"><span class="pre">LDOS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.MO_Cubes"><code class="docutils literal notranslate"><span class="pre">MO_Cubes</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Mgrid"><code class="docutils literal notranslate"><span class="pre">Mgrid</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.OrbitalTransformation"><code class="docutils literal notranslate"><span class="pre">OrbitalTransformation</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PBE"><code class="docutils literal notranslate"><span class="pre">PBE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PDOS"><code class="docutils literal notranslate"><span class="pre">PDOS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialFile"><code class="docutils literal notranslate"><span class="pre">PotentialFile</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialFile.from_string"><code class="docutils literal notranslate"><span class="pre">PotentialFile.from_string()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialInfo"><code class="docutils literal notranslate"><span class="pre">PotentialInfo</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialInfo.electrons"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.electrons</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialInfo.potential_type"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.potential_type</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialInfo.nlcc"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.nlcc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialInfo.xc"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.xc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id36"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.electrons</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialInfo.from_string"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.from_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id37"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.nlcc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id38"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.potential_type</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.PotentialInfo.softmatch"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.softmatch()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#id39"><code class="docutils literal notranslate"><span class="pre">PotentialInfo.xc</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.QS"><code class="docutils literal notranslate"><span class="pre">QS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Scf"><code class="docutils literal notranslate"><span class="pre">Scf</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section"><code class="docutils literal notranslate"><span class="pre">Section</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.add"><code class="docutils literal notranslate"><span class="pre">Section.add()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.by_path"><code class="docutils literal notranslate"><span class="pre">Section.by_path()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.check"><code class="docutils literal notranslate"><span class="pre">Section.check()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.get"><code class="docutils literal notranslate"><span class="pre">Section.get()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.get_keyword"><code class="docutils literal notranslate"><span class="pre">Section.get_keyword()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.get_section"><code class="docutils literal notranslate"><span class="pre">Section.get_section()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.get_string"><code class="docutils literal notranslate"><span class="pre">Section.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.inc"><code class="docutils literal notranslate"><span class="pre">Section.inc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.insert"><code class="docutils literal notranslate"><span class="pre">Section.insert()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.safeset"><code class="docutils literal notranslate"><span class="pre">Section.safeset()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.set"><code class="docutils literal notranslate"><span class="pre">Section.set()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.setitem"><code class="docutils literal notranslate"><span class="pre">Section.setitem()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.silence"><code class="docutils literal notranslate"><span class="pre">Section.silence()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.unset"><code class="docutils literal notranslate"><span class="pre">Section.unset()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.update"><code class="docutils literal notranslate"><span class="pre">Section.update()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Section.verbosity"><code class="docutils literal notranslate"><span class="pre">Section.verbosity()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.SectionList"><code class="docutils literal notranslate"><span class="pre">SectionList</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.SectionList.append"><code class="docutils literal notranslate"><span class="pre">SectionList.append()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.SectionList.extend"><code class="docutils literal notranslate"><span class="pre">SectionList.extend()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.SectionList.get"><code class="docutils literal notranslate"><span class="pre">SectionList.get()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.SectionList.get_string"><code class="docutils literal notranslate"><span class="pre">SectionList.get_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.SectionList.verbosity"><code class="docutils literal notranslate"><span class="pre">SectionList.verbosity()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Smear"><code class="docutils literal notranslate"><span class="pre">Smear</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Subsys"><code class="docutils literal notranslate"><span class="pre">Subsys</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.V_Hartree_Cube"><code class="docutils literal notranslate"><span class="pre">V_Hartree_Cube</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Xc_Functional"><code class="docutils literal notranslate"><span class="pre">Xc_Functional</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html">pymatgen.io.cp2k.outputs module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.as_dict"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.band_structure"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.band_structure</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.calculation_type"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.calculation_type</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.charge"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.charge</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.complete_dos"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.complete_dos</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.completed"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.completed</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.convergence"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.convergence()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.cp2k_version"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.cp2k_version</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.is_hubbard"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.is_hubbard</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.is_metal"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.is_metal</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.is_molecule"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.is_molecule</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.multiplicity"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.multiplicity</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.num_warnings"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.num_warnings</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_atomic_kind_info"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_atomic_kind_info()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_bandstructure"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_bandstructure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_cell_params"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_cell_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_chi_tensor"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_chi_tensor()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_cp2k_params"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_cp2k_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_dft_params"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_dft_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_dos"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_dos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_energies"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_energies()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_files"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_files()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_forces"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_forces()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_global_params"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_global_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_gtensor"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_gtensor()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_hirshfeld"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_hirshfeld()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_homo_lumo"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_homo_lumo()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_hyperfine"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_hyperfine()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_initial_structure"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_initial_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_input"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_input()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_ionic_steps"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_ionic_steps()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_mo_eigenvalues"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_mo_eigenvalues()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_mulliken"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_mulliken()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_nmr_shift"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_nmr_shift()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_opt_steps"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_opt_steps()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_overlap_condition"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_overlap_condition()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_plus_u_params"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_plus_u_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_qs_params"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_qs_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_raman"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_raman()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_scf_opt"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_scf_opt()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_scf_params"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_scf_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_stresses"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_stresses()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_structures"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_structures()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_tddfpt"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_tddfpt()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_timing"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_timing()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_total_numbers"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.parse_total_numbers()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.project_name"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.project_name</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.ran_successfully"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.ran_successfully()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.read_pattern"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.read_pattern()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.read_table_pattern"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.read_table_pattern()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.run_type"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.run_type</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.Cp2kOutput.spin_polarized"><code class="docutils literal notranslate"><span class="pre">Cp2kOutput.spin_polarized</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.parse_dos"><code class="docutils literal notranslate"><span class="pre">parse_dos()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.parse_energy_file"><code class="docutils literal notranslate"><span class="pre">parse_energy_file()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html#pymatgen.io.cp2k.outputs.parse_pdos"><code class="docutils literal notranslate"><span class="pre">parse_pdos()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.sets.html">pymatgen.io.cp2k.sets module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.CellOptSet"><code class="docutils literal notranslate"><span class="pre">CellOptSet</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.Cp2kValidationError"><code class="docutils literal notranslate"><span class="pre">Cp2kValidationError</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.Cp2kValidationError.CP2K_VERSION"><code class="docutils literal notranslate"><span class="pre">Cp2kValidationError.CP2K_VERSION</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet"><code class="docutils literal notranslate"><span class="pre">DftSet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_epr"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_epr()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_fast_minimization"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_fast_minimization()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_hybrid"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_hybrid()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_hyperfine"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_hyperfine()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_localize"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_localize()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_motion"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_motion()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_nmr"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_nmr()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_nonperiodic"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_nonperiodic()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_polar"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_polar()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_robust_minimization"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_robust_minimization()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_spinspin"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_spinspin()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_tddfpt"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_tddfpt()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_vdw_potential"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_vdw_potential()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.activate_very_strict_minimization"><code class="docutils literal notranslate"><span class="pre">DftSet.activate_very_strict_minimization()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.create_subsys"><code class="docutils literal notranslate"><span class="pre">DftSet.create_subsys()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.get_basis_and_potential"><code class="docutils literal notranslate"><span class="pre">DftSet.get_basis_and_potential()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.get_cutoff_from_basis"><code class="docutils literal notranslate"><span class="pre">DftSet.get_cutoff_from_basis()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.get_xc_functionals"><code class="docutils literal notranslate"><span class="pre">DftSet.get_xc_functionals()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.modify_dft_print_iters"><code class="docutils literal notranslate"><span class="pre">DftSet.modify_dft_print_iters()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_bandstructure"><code class="docutils literal notranslate"><span class="pre">DftSet.print_bandstructure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_dos"><code class="docutils literal notranslate"><span class="pre">DftSet.print_dos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_e_density"><code class="docutils literal notranslate"><span class="pre">DftSet.print_e_density()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_forces"><code class="docutils literal notranslate"><span class="pre">DftSet.print_forces()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_hirshfeld"><code class="docutils literal notranslate"><span class="pre">DftSet.print_hirshfeld()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_ldos"><code class="docutils literal notranslate"><span class="pre">DftSet.print_ldos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_mo"><code class="docutils literal notranslate"><span class="pre">DftSet.print_mo()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_mo_cubes"><code class="docutils literal notranslate"><span class="pre">DftSet.print_mo_cubes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_mulliken"><code class="docutils literal notranslate"><span class="pre">DftSet.print_mulliken()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_pdos"><code class="docutils literal notranslate"><span class="pre">DftSet.print_pdos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.print_v_hartree"><code class="docutils literal notranslate"><span class="pre">DftSet.print_v_hartree()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.set_charge"><code class="docutils literal notranslate"><span class="pre">DftSet.set_charge()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.validate"><code class="docutils literal notranslate"><span class="pre">DftSet.validate()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.write_basis_set_file"><code class="docutils literal notranslate"><span class="pre">DftSet.write_basis_set_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.DftSet.write_potential_file"><code class="docutils literal notranslate"><span class="pre">DftSet.write_potential_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.HybridCellOptSet"><code class="docutils literal notranslate"><span class="pre">HybridCellOptSet</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.HybridRelaxSet"><code class="docutils literal notranslate"><span class="pre">HybridRelaxSet</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.HybridStaticSet"><code class="docutils literal notranslate"><span class="pre">HybridStaticSet</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.RelaxSet"><code class="docutils literal notranslate"><span class="pre">RelaxSet</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.sets.html#pymatgen.io.cp2k.sets.StaticSet"><code class="docutils literal notranslate"><span class="pre">StaticSet</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.utils.html">pymatgen.io.cp2k.utils module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.utils.html#pymatgen.io.cp2k.utils.chunk"><code class="docutils literal notranslate"><span class="pre">chunk()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.utils.html#pymatgen.io.cp2k.utils.get_truncated_coulomb_cutoff"><code class="docutils literal notranslate"><span class="pre">get_truncated_coulomb_cutoff()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.utils.html#pymatgen.io.cp2k.utils.get_unique_site_indices"><code class="docutils literal notranslate"><span class="pre">get_unique_site_indices()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.utils.html#pymatgen.io.cp2k.utils.natural_keys"><code class="docutils literal notranslate"><span class="pre">natural_keys()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.utils.html#pymatgen.io.cp2k.utils.postprocessor"><code class="docutils literal notranslate"><span class="pre">postprocessor()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.cp2k.utils.html#pymatgen.io.cp2k.utils.preprocessor"><code class="docutils literal notranslate"><span class="pre">preprocessor()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html">pymatgen.io.cp2k.inputs module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html">pymatgen.io.cp2k.outputs module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.sets.html">pymatgen.io.cp2k.sets module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.cp2k.utils.html">pymatgen.io.cp2k.utils module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.io.cp2k">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.io.cp2k" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.io.cp2k">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.io.cp2k" title="Permalink to this headline"></a></h2>
 <p>Module for CP2K input/output parsing as well as sets for standard calculations</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util.io_utils module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.util.io_utils module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.util.num module" href="pymatgen.util.num.html" />
     <link rel="prev" title="pymatgen.util.coord_cython module" href="pymatgen.util.coord_cython.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,73 +113,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.util.io_utils">
-<span id="pymatgen-util-io-utils-module"></span><h1>pymatgen.util.io_utils module<a class="headerlink" href="#module-pymatgen.util.io_utils" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.util.io_utils">
+<span id="pymatgen-util-io-utils-module"></span><h1>pymatgen.util.io_utils module<a class="headerlink" href="#module-pymatgen.util.io_utils" title="Permalink to this headline"></a></h1>
 <p>This module provides utility classes for io operations.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="pymatgen.util.io_utils.AtomicFile">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AtomicFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w+b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">createmode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/io_utils.py#L146-L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.AtomicFile" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This is a straight port of Alexander Saltanov’s atomicfile package.</p>
-<p>Writeable file object that atomically writes a file.
-All writes will go to a temporary file.
-Call <code class="docutils literal notranslate"><span class="pre">close()</span></code> when you are done writing, and AtomicFile will rename
-the temporary copy to the original name, making the changes visible.
-If the object is destroyed without being closed, all your writes are
-discarded.
-If an <code class="docutils literal notranslate"><span class="pre">encoding</span></code> argument is specified, codecs.open will be called to open
-the file in the wanted encoding.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>)</strong> (<em>encoding</em>) – </p></li>
-<li><p><strong>(</strong><strong>)</strong> – </p></li>
-<li><p><strong>(</strong><strong>)</strong> – </p></li>
-<li><p><strong>(</strong><strong>)</strong> – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.util.io_utils.AtomicFile.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/io_utils.py#L187-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.AtomicFile.close" title="Permalink to this definition"></a></dt>
-<dd><p>Close the file.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.util.io_utils.AtomicFile.discard">
-<span class="sig-name descname"><span class="pre">discard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/io_utils.py#L201-L210"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.AtomicFile.discard" title="Permalink to this definition"></a></dt>
-<dd><p>Discard the file.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pymatgen.util.io_utils.ask_yesno">
-<span class="sig-name descname"><span class="pre">ask_yesno</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/io_utils.py#L28-L41"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.ask_yesno" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>)</strong> (<em>default</em>) – </p></li>
-<li><p><strong>(</strong><strong>)</strong> – </p></li>
-</ul>
-</dd>
-</dl>
-<p>Returns:</p>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.io_utils.clean_lines">
-<span class="sig-name descname"><span class="pre">clean_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_empty_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/io_utils.py#L44-L64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.clean_lines" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">clean_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_empty_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/io_utils.py#L25-L44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.clean_lines" title="Permalink to this definition"></a></dt>
 <dd><p>Strips whitespace, carriage returns and empty lines from a list of strings.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>string_list</strong> – List of strings</p></li>
 <li><p><strong>remove_empty_lines</strong> – Set to True to skip lines which are empty after
 stripping.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>List of clean strings with no whitespaces.</p>
 </dd>
 </dl>
@@ -186,7 +136,7 @@ stripping.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.io_utils.micro_pyawk">
-<span class="sig-name descname"><span class="pre">micro_pyawk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postdebug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/io_utils.py#L67-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.micro_pyawk" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">micro_pyawk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postdebug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/io_utils.py#L47-L92"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.micro_pyawk" title="Permalink to this definition"></a></dt>
 <dd><p>Small awk-mimicking search routine.</p>
 <p>‘file’ is file to search through.
 ‘search’ is the “search program”, a list of lists/tuples with 3 elements;
@@ -204,13 +154,13 @@ you interact with it in run() and test(). Hence, in many occasions it is
 thus clever to use results=self.</p>
 <p>Author: Rickard Armiento, Ioannis Petousis</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>results</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

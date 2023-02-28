@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.apps.battery.plotter module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.apps.battery.plotter module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.apps.borg package" href="pymatgen.apps.borg.html" />
     <link rel="prev" title="pymatgen.apps.battery.insertion_battery module" href="pymatgen.apps.battery.insertion_battery.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,16 +114,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.apps.battery.plotter">
-<span id="pymatgen-apps-battery-plotter-module"></span><h1>pymatgen.apps.battery.plotter module<a class="headerlink" href="#module-pymatgen.apps.battery.plotter" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.apps.battery.plotter">
+<span id="pymatgen-apps-battery-plotter-module"></span><h1>pymatgen.apps.battery.plotter module<a class="headerlink" href="#module-pymatgen.apps.battery.plotter" title="Permalink to this headline"></a></h1>
 <p>This module provides plotting capabilities for battery related applications.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.plotter.VoltageProfilePlotter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VoltageProfilePlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xaxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'capacity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/plotter.py#L24-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VoltageProfilePlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xaxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'capacity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/plotter.py#L23-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A plotter to make voltage profile plots for batteries.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>xaxis</strong> – The quantity to use as the xaxis. Can be either</p></li>
 <li><p><strong>capacity_grav</strong> (<em>-</em>) – the graviometric capcity</p></li>
@@ -135,10 +136,10 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode">
-<span class="sig-name descname"><span class="pre">add_electrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electrode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/plotter.py#L43-L55"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_electrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electrode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/plotter.py#L42-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode" title="Permalink to this definition"></a></dt>
 <dd><p>Add an electrode to the plot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>electrode</strong> – An electrode. All electrodes satisfying the
 AbstractElectrode interface should work.</p></li>
@@ -151,17 +152,17 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot">
-<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/plotter.py#L96-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/plotter.py#L95-L121"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a plot object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> – Width of the plot. Defaults to 8 in.</p></li>
 <li><p><strong>height</strong> – Height of the plot. Defaults to 6 in.</p></li>
 <li><p><strong>term_zero</strong> – If True append zero voltage point at the end</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A matplotlib plot object.</p>
 </dd>
 </dl>
@@ -169,15 +170,15 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data">
-<span class="sig-name descname"><span class="pre">get_plot_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electrode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/plotter.py#L57-L94"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_plot_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electrode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/plotter.py#L56-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>electrode</strong> – Electrode object</p></li>
 <li><p><strong>term_zero</strong> – If True append zero voltage point at the end</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Plot data in x, y.</p>
 </dd>
 </dl>
@@ -185,7 +186,7 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plotly_figure">
-<span class="sig-name descname"><span class="pre">get_plotly_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/plotter.py#L124-L177"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plotly_figure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_plotly_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/plotter.py#L123-L176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plotly_figure" title="Permalink to this definition"></a></dt>
 <dd><p>Return plotly Figure object
 :param width: Width of the plot. Defaults to 800 px.
 :param height: Height of the plot. Defaults to 600 px.
@@ -197,10 +198,10 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/plotter.py#L216-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.save" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/plotter.py#L209-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.save" title="Permalink to this definition"></a></dt>
 <dd><p>Save the plot to an image file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – Filename to save to.</p></li>
 <li><p><strong>image_format</strong> – Format to save to. Defaults to eps.</p></li>
@@ -211,10 +212,10 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.show">
-<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/plotter.py#L206-L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.show" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/plotter.py#L199-L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.show" title="Permalink to this definition"></a></dt>
 <dd><p>Show the voltage profile plot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> – Width of the plot. Defaults to 8 in.</p></li>
 <li><p><strong>height</strong> – Height of the plot. Defaults to 6 in.</p></li>
@@ -225,7 +226,7 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

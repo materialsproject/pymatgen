@@ -113,7 +113,8 @@ class PseudoTestCase(PymatgenTest):
         assert oxygen.ispaw
         assert oxygen.symbol == "O" and (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6), oxygen.Z_val == 6
 
-        assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
+        assert oxygen.xc.type == "GGA"
+        assert oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
         assert oxygen.md5 is not None
         assert oxygen.paw_radius == approx(1.4146523028)
@@ -183,7 +184,8 @@ class PseudoTableTest(PymatgenTest):
         assert len(table) == 3
         for pseudo in table:
             assert pseudo.isnc
-        assert table.allnc and not table.allpaw
+        assert table.allnc
+        assert not table.allpaw
         assert table.zlist == [14]
 
         # Data persistence
@@ -194,7 +196,8 @@ class PseudoTableTest(PymatgenTest):
         self.assertMSONable(table)
 
         selected = table.select_symbols("Si")
-        assert len(selected) == len(table) and selected.__class__ is table.__class__
+        assert len(selected) == len(table)
+        assert selected.__class__ is table.__class__
 
         with pytest.raises(ValueError):
             table.pseudos_with_symbols("Si")

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,12 +13,14 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -36,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -82,25 +83,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="change-log">
-<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
-<section id="v2023-1-20">
-<h2>v2023.1.20<a class="headerlink" href="#v2023-1-20" title="Permalink to this heading"></a></h2>
+  <div class="section" id="change-log">
+<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
+<div class="section" id="v2023-2-22">
+<h2>v2023.2.22<a class="headerlink" href="#v2023-2-22" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>Passthrough kwargs support for Structure.from_file and Structure.from_str</p></li>
-<li><p>Allow the <cite>frac_tolerance</cite> to be specified for rounding coordinates in CifParser.</p></li>
 <li><dl class="simple">
-<dt>PR #2803 from &#64;amkrajewski add_weightbasedfunctions</dt><dd><p>When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
-- Composition class method to initialize it from a dictionary of weight fractions
-- Composition property giving a dictionary of weight fractions
-- concise tests for the two above were added</p>
+<dt>PR #2848 from &#64;ml-evs ml-evs/update_optimade_aliases</dt><dd><p>Currently <cite>OptimadeRester</cite> defaults to an outdated list of OPTIMADE database URLs (several of which fail) and the design of the class is such that refreshing these aliases can only be done post-init which means they will not be used if the user provides their own filtered list of aliases, without doing some extra work.
+This PR refreshes the vendored list of aliases (which should be much more stable now since their initial addition 2 years ago), and also adds the option to refresh the aliases on initialization of the class.
+This currently affects the pymatgen OPTIMADE tutorials at <a class="reference external" href="https://github.com/Materials-Consortia/optimade-tutorial-exercises">https://github.com/Materials-Consortia/optimade-tutorial-exercises</a>.</p>
 </dd>
 </dl>
 </li>
 </ul>
-<p>QChem: translate DMSO name in smd_solvent</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

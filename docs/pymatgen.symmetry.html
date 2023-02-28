@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.symmetry package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.symmetry package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.symmetry.analyzer module" href="pymatgen.symmetry.analyzer.html" />
     <link rel="prev" title="pymatgen.phonon.thermal_displacements module" href="pymatgen.phonon.thermal_displacements.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -111,191 +112,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-symmetry-package">
-<h1>pymatgen.symmetry package<a class="headerlink" href="#pymatgen-symmetry-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-symmetry-package">
+<h1>pymatgen.symmetry package<a class="headerlink" href="#pymatgen-symmetry-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.analyzer.html">pymatgen.symmetry.analyzer module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.sch_symbol"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.sch_symbol</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.get_equivalent_atoms()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_pointgroup"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.get_pointgroup()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_rotational_symmetry_number"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.get_rotational_symmetry_number()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.get_symmetry_operations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.inversion_op"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.inversion_op</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.is_valid_op"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.is_valid_op()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.symmetrize_molecule()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupOperations"><code class="docutils literal notranslate"><span class="pre">PointGroupOperations</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol"><code class="docutils literal notranslate"><span class="pre">PointGroupOperations.sch_symbol</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.find_primitive"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.find_primitive()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_standard_structure"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_conventional_standard_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_to_primitive_transformation_matrix"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_conventional_to_primitive_transformation_matrix()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_crystal_system"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_crystal_system()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_hall"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_hall()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_ir_reciprocal_mesh()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh_map"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_ir_reciprocal_mesh_map()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_kpoint_weights"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_kpoint_weights()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_lattice_type"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_lattice_type()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_operations"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_point_group_operations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_symbol"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_point_group_symbol()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_primitive_standard_structure"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_primitive_standard_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_refined_structure"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_refined_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_number"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_space_group_number()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_operations"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_space_group_operations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_symbol"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_space_group_symbol()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_symmetrized_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_dataset"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_symmetry_dataset()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_operations"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.get_symmetry_operations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue"><code class="docutils literal notranslate"><span class="pre">SpacegroupAnalyzer.is_laue()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupOperations"><code class="docutils literal notranslate"><span class="pre">SpacegroupOperations</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupOperations.are_symmetrically_equivalent"><code class="docutils literal notranslate"><span class="pre">SpacegroupOperations.are_symmetrically_equivalent()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.cluster_sites"><code class="docutils literal notranslate"><span class="pre">cluster_sites()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.generate_full_symmops"><code class="docutils literal notranslate"><span class="pre">generate_full_symmops()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.iterative_symmetrize"><code class="docutils literal notranslate"><span class="pre">iterative_symmetrize()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html">pymatgen.symmetry.bandstructure module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath"><code class="docutils literal notranslate"><span class="pre">HighSymmKpath</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels"><code class="docutils literal notranslate"><span class="pre">HighSymmKpath.equiv_labels</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path"><code class="docutils literal notranslate"><span class="pre">HighSymmKpath.get_continuous_path()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.label_index"><code class="docutils literal notranslate"><span class="pre">HighSymmKpath.label_index</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths"><code class="docutils literal notranslate"><span class="pre">HighSymmKpath.path_lengths</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.path_type"><code class="docutils literal notranslate"><span class="pre">HighSymmKpath.path_type</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.groups.html">pymatgen.symmetry.groups module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.PointGroup"><code class="docutils literal notranslate"><span class="pre">PointGroup</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.PointGroup.symbol"><code class="docutils literal notranslate"><span class="pre">PointGroup.symbol</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.PointGroup.generators"><code class="docutils literal notranslate"><span class="pre">PointGroup.generators</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.PointGroup.symmetry_ops"><code class="docutils literal notranslate"><span class="pre">PointGroup.symmetry_ops</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SpaceGroup"><code class="docutils literal notranslate"><span class="pre">SpaceGroup</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SpaceGroup.symbol"><code class="docutils literal notranslate"><span class="pre">SpaceGroup.symbol</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SpaceGroup.int_number"><code class="docutils literal notranslate"><span class="pre">SpaceGroup.int_number</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SpaceGroup.generators"><code class="docutils literal notranslate"><span class="pre">SpaceGroup.generators</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SpaceGroup.order"><code class="docutils literal notranslate"><span class="pre">SpaceGroup.order</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup"><code class="docutils literal notranslate"><span class="pre">SymmetryGroup</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup"><code class="docutils literal notranslate"><span class="pre">SymmetryGroup.is_subgroup()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup.is_supergroup"><code class="docutils literal notranslate"><span class="pre">SymmetryGroup.is_supergroup()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops"><code class="docutils literal notranslate"><span class="pre">SymmetryGroup.symmetry_ops</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup.to_latex_string"><code class="docutils literal notranslate"><span class="pre">SymmetryGroup.to_latex_string()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.in_array_list"><code class="docutils literal notranslate"><span class="pre">in_array_list()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.sg_symbol_from_int_number"><code class="docutils literal notranslate"><span class="pre">sg_symbol_from_int_number()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.kpath.html">pymatgen.symmetry.kpath module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase"><code class="docutils literal notranslate"><span class="pre">KPathBase</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase.get_kpoints"><code class="docutils literal notranslate"><span class="pre">KPathBase.get_kpoints()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase.kpath"><code class="docutils literal notranslate"><span class="pre">KPathBase.kpath</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase.lattice"><code class="docutils literal notranslate"><span class="pre">KPathBase.lattice</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase.rec_lattice"><code class="docutils literal notranslate"><span class="pre">KPathBase.rec_lattice</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase.structure"><code class="docutils literal notranslate"><span class="pre">KPathBase.structure</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathLatimerMunro"><code class="docutils literal notranslate"><span class="pre">KPathLatimerMunro</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints"><code class="docutils literal notranslate"><span class="pre">KPathLatimerMunro.LabelPoints()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol"><code class="docutils literal notranslate"><span class="pre">KPathLatimerMunro.LabelSymbol()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathLatimerMunro.mag_type"><code class="docutils literal notranslate"><span class="pre">KPathLatimerMunro.mag_type</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSeek"><code class="docutils literal notranslate"><span class="pre">KPathSeek</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bcc"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.bcc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet1"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.bctet1()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.bctet2"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.bctet2()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.conventional"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.conventional</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.cubic"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.cubic()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.fcc"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.fcc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.hex"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.hex()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mcl"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.mcl()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc1"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.mclc1()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc2"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.mclc2()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc3"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.mclc3()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc4"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.mclc4()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.mclc5"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.mclc5()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orc"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.orc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcc"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.orcc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf1"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.orcf1()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf2"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.orcf2()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orcf3"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.orcf3()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.orci"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.orci()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.prim</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.prim_rec"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.prim_rec</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl1"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.rhl1()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.rhl2"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.rhl2()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tet"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.tet()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.tria"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.tria()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathSetyawanCurtarolo.trib"><code class="docutils literal notranslate"><span class="pre">KPathSetyawanCurtarolo.trib()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.maggroups.html">pymatgen.symmetry.maggroups module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.maggroups.html#pymatgen.symmetry.maggroups.MagneticSpaceGroup"><code class="docutils literal notranslate"><span class="pre">MagneticSpaceGroup</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.settings.html">pymatgen.symmetry.settings module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.P"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.P</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_origin_shift"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.from_origin_shift()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_transformation_string"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.from_transformation_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.inverse"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.inverse</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.p"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.p</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.parse_transformation_string"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.parse_transformation_string()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_coords"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.transform_coords()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_lattice"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.transform_lattice()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_symmop"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.transform_symmop()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transformation_string"><code class="docutils literal notranslate"><span class="pre">JonesFaithfulTransformation.transformation_string</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.site_symmetries.html">pymatgen.symmetry.site_symmetries module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.site_symmetries.html#pymatgen.symmetry.site_symmetries.get_shared_symmetry_operations"><code class="docutils literal notranslate"><span class="pre">get_shared_symmetry_operations()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.site_symmetries.html#pymatgen.symmetry.site_symmetries.get_site_symmetries"><code class="docutils literal notranslate"><span class="pre">get_site_symmetries()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.structure.html">pymatgen.symmetry.structure module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure"><code class="docutils literal notranslate"><span class="pre">SymmetrizedStructure</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure.as_dict"><code class="docutils literal notranslate"><span class="pre">SymmetrizedStructure.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure.copy"><code class="docutils literal notranslate"><span class="pre">SymmetrizedStructure.copy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure.find_equivalent_sites"><code class="docutils literal notranslate"><span class="pre">SymmetrizedStructure.find_equivalent_sites()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure.from_dict"><code class="docutils literal notranslate"><span class="pre">SymmetrizedStructure.from_dict()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.analyzer.html">pymatgen.symmetry.analyzer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.bandstructure.html">pymatgen.symmetry.bandstructure module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.groups.html">pymatgen.symmetry.groups module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.kpath.html">pymatgen.symmetry.kpath module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.maggroups.html">pymatgen.symmetry.maggroups module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.settings.html">pymatgen.symmetry.settings module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.site_symmetries.html">pymatgen.symmetry.site_symmetries module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.structure.html">pymatgen.symmetry.structure module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.symmetry">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.symmetry" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.symmetry">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.symmetry" title="Permalink to this headline"></a></h2>
 <p>The symmetry package implements symmetry tools like spacegroup determination, etc.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

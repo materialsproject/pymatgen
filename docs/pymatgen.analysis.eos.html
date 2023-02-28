@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.eos module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.analysis.eos module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.ewald module" href="pymatgen.analysis.ewald.html" />
     <link rel="prev" title="pymatgen.analysis.energy_models module" href="pymatgen.analysis.energy_models.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -112,18 +113,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.analysis.eos">
-<span id="pymatgen-analysis-eos-module"></span><h1>pymatgen.analysis.eos module<a class="headerlink" href="#module-pymatgen.analysis.eos" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.analysis.eos">
+<span id="pymatgen-analysis-eos-module"></span><h1>pymatgen.analysis.eos module<a class="headerlink" href="#module-pymatgen.analysis.eos" title="Permalink to this headline"></a></h1>
 <p>This module implements various equation of states.</p>
 <p>Note: Most of the code were initially adapted from ASE and deltafactor by
 &#64;gmatteo but has since undergone major refactoring.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.Birch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Birch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L297-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.Birch" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">EOSBase</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Birch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L297-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.Birch" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
 <p>Birch EOS.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -134,11 +135,11 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.BirchMurnaghan">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BirchMurnaghan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L317-L328"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.BirchMurnaghan" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">EOSBase</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BirchMurnaghan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L317-L328"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.BirchMurnaghan" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
 <p>BirchMurnaghan EOS</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -149,11 +150,11 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.DeltaFactor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DeltaFactor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L402-L442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.DeltaFactor" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolynomialEOS</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DeltaFactor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L402-L442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.DeltaFactor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.PolynomialEOS</span></code></a></p>
 <p>Fitting a polynomial EOS using delta factor.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -162,7 +163,7 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.DeltaFactor.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L411-L417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.DeltaFactor.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L411-L417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.DeltaFactor.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Overridden since this eos works with volume**(2/3) instead of volume.</p>
 </dd></dl>
 
@@ -170,7 +171,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOS">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eos_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'murnaghan'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L553-L620"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eos_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'murnaghan'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L553-L620"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Convenient wrapper. Retained in its original state to ensure backward
 compatibility.</p>
@@ -199,30 +200,30 @@ compatibility.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>eos_name</strong> (<em>str</em>) – Type of EOS to fit.</p>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOS.MODELS">
-<span class="sig-name descname"><span class="pre">MODELS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'birch':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.Birch'&gt;,</span> <span class="pre">'birch_murnaghan':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.BirchMurnaghan'&gt;,</span> <span class="pre">'deltafactor':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.DeltaFactor'&gt;,</span> <span class="pre">'murnaghan':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.Murnaghan'&gt;,</span> <span class="pre">'numerical_eos':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.NumericalEOS'&gt;,</span> <span class="pre">'pourier_tarantola':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.PourierTarantola'&gt;,</span> <span class="pre">'vinet':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.Vinet'&gt;}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS.MODELS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">MODELS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'birch':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.Birch'&gt;,</span> <span class="pre">'birch_murnaghan':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.BirchMurnaghan'&gt;,</span> <span class="pre">'deltafactor':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.DeltaFactor'&gt;,</span> <span class="pre">'murnaghan':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.Murnaghan'&gt;,</span> <span class="pre">'numerical_eos':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.NumericalEOS'&gt;,</span> <span class="pre">'pourier_tarantola':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.PourierTarantola'&gt;,</span> <span class="pre">'vinet':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.eos.Vinet'&gt;}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS.MODELS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOS.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L607-L620"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L607-L620"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOS.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Fit energies as function of volumes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/np.array</em>) – </p></li>
 <li><p><strong>energies</strong> (<em>list/np.array</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>EOSBase object</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase">EOSBase</a></p>
 </dd>
 </dl>
@@ -232,12 +233,12 @@ compatibility.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOSBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L30-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOSBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L30-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Abstract class that must be subcalssed by all equation of state
+<p>Abstract class that must be subclassed by all equation of state
 implementations.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -246,14 +247,14 @@ implementations.</p>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.b0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b0</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b0" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b0</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b0" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the bulk modulus.
 Note: the units for the bulk modulus: unit of energy/unit of volume^3.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.b0_GPa">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b0_GPa</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b0_GPa" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b0_GPa</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b0_GPa" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the bulk modulus in GPa.
 Note: This assumes that the energy and volumes are in eV and Ang^3</p>
 <blockquote>
@@ -263,33 +264,33 @@ Note: This assumes that the energy and volumes are in eV and Ang^3</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.b1">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b1</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b1" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b1</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.b1" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the derivative of bulk modulus wrt pressure(dimensionless)</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.e0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e0</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.e0" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e0</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.e0" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the min energy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L74-L90"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L74-L90"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Do the fitting. Does least square fitting. If you want to use custom
 fitting, must override this.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.func">
-<span class="sig-name descname"><span class="pre">func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L104-L115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.func" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L104-L115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.func" title="Permalink to this definition"></a></dt>
 <dd><p>The equation of state function with the parameters other than volume set
 to the ones obtained from fitting.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>volume</strong> (<em>list/numpy.array</em>) – </p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>numpy.array</p>
 </dd>
 </dl>
@@ -297,10 +298,10 @@ to the ones obtained from fitting.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L175-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L175-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.plot" title="Permalink to this definition"></a></dt>
 <dd><p>Plot the equation of state.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width *
@@ -312,7 +313,7 @@ to an existing plot. Otherwise, a new plot will be created.</p></li>
 supported keys: style, color, text, label</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Matplotlib plot object.</p>
 </dd>
 </dl>
@@ -320,10 +321,10 @@ supported keys: style, color, text, label</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.plot_ax">
-<span class="sig-name descname"><span class="pre">plot_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../util/plotting.py#L226-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.plot_ax" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../util/plotting.py#L226-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.plot_ax" title="Permalink to this definition"></a></dt>
 <dd><p>Plot the equation of state on axis <cite>ax</cite></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</p></li>
 <li><p><strong>fontsize</strong> – Legend fontsize.</p></li>
@@ -332,12 +333,16 @@ supported keys: style, color, text, label</p></li>
 <li><p><strong>text</strong> (<em>str</em>) – Legend text (options)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Matplotlib figure object.</p>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>kwargs</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -377,10 +382,10 @@ Default: False</p></td>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.results">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">results</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.results" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">results</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.results" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a summary dict.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -388,7 +393,7 @@ Default: False</p></td>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSBase.v0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v0</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.v0" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v0</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/analysis/eos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSBase.v0" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the minimum or the reference volume in Ang^3.</p>
 </dd></dl>
 
@@ -396,18 +401,18 @@ Default: False</p></td>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.EOSError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOSError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L623-L626"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSError" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EOSError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L623-L626"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Error class for EOS fitting.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.Murnaghan">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Murnaghan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L284-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.Murnaghan" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">EOSBase</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Murnaghan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L284-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.Murnaghan" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
 <p>Murnaghan EOS.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -418,11 +423,11 @@ Default: False</p></td>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.NumericalEOS">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NumericalEOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L445-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.NumericalEOS" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolynomialEOS</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NumericalEOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L445-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.NumericalEOS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.PolynomialEOS</span></code></a></p>
 <p>A numerical EOS.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -431,13 +436,13 @@ Default: False</p></td>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.NumericalEOS.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_ndata_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_poly_order_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L450-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.NumericalEOS.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_ndata_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_poly_order_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L450-L550"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.NumericalEOS.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Fit the input data to the ‘numerical eos’, the equation of state employed
 in the quasiharmonic Debye model described in the paper:
 10.1103/PhysRevB.90.174107.</p>
 <p>credits: Cormac Toher</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>min_ndata_factor</strong> (<em>int</em>) – <p>parameter that controls the minimum number
 of data points that will be used for fitting.
@@ -464,12 +469,12 @@ considered for fitting.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.PolynomialEOS">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PolynomialEOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L362-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.PolynomialEOS" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">EOSBase</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PolynomialEOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L362-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.PolynomialEOS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
 <p>Derives from EOSBase. Polynomial based equations of states must subclass
 this.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -478,10 +483,10 @@ this.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.PolynomialEOS.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L371-L379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.PolynomialEOS.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L371-L379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.PolynomialEOS.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Do polynomial fitting and set the parameters. Uses numpy polyfit.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>order</strong> (<em>int</em>) – order of the fit polynomial</p>
 </dd>
 </dl>
@@ -491,11 +496,11 @@ this.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.PourierTarantola">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PourierTarantola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L331-L343"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.PourierTarantola" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">EOSBase</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PourierTarantola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L331-L343"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.PourierTarantola" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
 <p>PourierTarantola EOS</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -506,11 +511,11 @@ this.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.eos.Vinet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Vinet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../analysis/eos.py#L346-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.Vinet" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">EOSBase</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Vinet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volumes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../analysis/eos.py#L346-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.eos.Vinet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
 <p>Vinet EOS.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volumes</strong> (<em>list/numpy.array</em>) – volumes in Ang^3</p></li>
 <li><p><strong>energies</strong> (<em>list/numpy.array</em>) – energy in eV</p></li>
@@ -519,7 +524,7 @@ this.</p>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

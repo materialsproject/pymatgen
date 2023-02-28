@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.apps.battery.conversion_battery module &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.apps.battery.conversion_battery module &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.apps.battery.insertion_battery module" href="pymatgen.apps.battery.insertion_battery.html" />
     <link rel="prev" title="pymatgen.apps.battery.battery_abc module" href="pymatgen.apps.battery.battery_abc.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,13 +114,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pymatgen.apps.battery.conversion_battery">
-<span id="pymatgen-apps-battery-conversion-battery-module"></span><h1>pymatgen.apps.battery.conversion_battery module<a class="headerlink" href="#module-pymatgen.apps.battery.conversion_battery" title="Permalink to this heading"></a></h1>
+  <div class="section" id="module-pymatgen.apps.battery.conversion_battery">
+<span id="pymatgen-apps-battery-conversion-battery-module"></span><h1>pymatgen.apps.battery.conversion_battery module<a class="headerlink" href="#module-pymatgen.apps.battery.conversion_battery" title="Permalink to this headline"></a></h1>
 <p>This module contains the classes to build a ConversionElectrode.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ConversionElectrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage_pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractVoltagePair</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework_formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_comp_formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L24-L269"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode" title="pymatgen.apps.battery.battery_abc.AbstractElectrode"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractElectrode</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ConversionElectrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage_pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractVoltagePair</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework_formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_comp_formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L24-L265"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode" title="pymatgen.apps.battery.battery_abc.AbstractElectrode"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractElectrode</span></code></a></p>
 <p>Class representing a ConversionElectrode, since it is dataclass
 this object can be constructed for the attributes.
 However, it is usually easier to construct a ConversionElectrode using one of the classmethods
@@ -139,11 +140,11 @@ battery, e.g. Li.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_composition_and_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries_in_chemsys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_unstable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L113-L130"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_composition_and_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries_in_chemsys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_unstable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L109-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience constructor to make a ConversionElectrode from a
 composition and all entries in a chemical system.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>comp</strong> – Starting composition for ConversionElectrode, e.g.,
 Composition(“FeF3”)</p></li>
@@ -160,11 +161,11 @@ for comparing with insertion electrodes</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_composition_and_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_unstable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L50-L111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_composition_and_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_unstable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L50-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience constructor to make a ConversionElectrode from a
 composition and a phase diagram.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>comp</strong> – Starting composition for ConversionElectrode, e.g.,
 Composition(“FeF3”)</p></li>
@@ -178,7 +179,7 @@ Composition(“FeF3”)</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_sub_electrodes">
-<span class="sig-name descname"><span class="pre">get_sub_electrodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjacent_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L132-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_sub_electrodes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_sub_electrodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjacent_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L128-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_sub_electrodes" title="Permalink to this definition"></a></dt>
 <dd><p>If this electrode contains multiple voltage steps, then it is possible
 to use only a subset of the voltage steps to define other electrodes.
 For example, an LiTiO2 electrode might contain three subelectrodes:
@@ -186,12 +187,12 @@ For example, an LiTiO2 electrode might contain three subelectrodes:
 This method can be used to return all the subelectrodes with some
 options</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>adjacent_only</strong> – Only return electrodes from compounds that are
 adjacent on the convex hull, i.e. no electrodes returned
 will have multiple voltage steps if this is set true</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of ConversionElectrode objects</p>
 </dd>
 </dl>
@@ -199,17 +200,17 @@ will have multiple voltage steps if this is set true</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_summary_dict">
-<span class="sig-name descname"><span class="pre">get_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">print_subelectrodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L238-L269"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_summary_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">print_subelectrodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L234-L265"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_summary_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Generate a summary dict.
 Populates the summary dict with the basic information from the parent method then populates more information.
 Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
 The current method will be called from within super().get_summary_dict.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>print_subelectrodes</strong> – Also print data on all the possible
 subelectrodes.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A summary of this electrode’s properties in dict format.</p>
 </dd>
 </dl>
@@ -217,18 +218,18 @@ subelectrodes.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_comp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">Composition</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_comp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">pymatgen.core.composition.Composition</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp" title="Permalink to this definition"></a></dt>
 <dd><p>The pymatgen Composition representation of the initial composition</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp_formula">
-<span class="sig-name descname"><span class="pre">initial_comp_formula</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp_formula" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">initial_comp_formula</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp_formula" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.is_super_electrode">
-<span class="sig-name descname"><span class="pre">is_super_electrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversion_electrode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L174-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.is_super_electrode" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_super_electrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversion_electrode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L170-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.is_super_electrode" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if a particular conversion electrode is a sub electrode of the
 current electrode. Starting from a more lithiated state may result in
 a subelectrode that is essentially on the same path. For example, a
@@ -241,25 +242,27 @@ composition.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ConversionVoltagePair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mAh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework_formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><span class="pre">BalancedReaction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L272-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractVoltagePair</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ConversionVoltagePair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mAh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework_formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><span class="pre">pymatgen.analysis.reaction_calculator.BalancedReaction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L268-L403"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractVoltagePair</span></code></a></p>
 <p>A VoltagePair representing a Conversion Reaction with a defined voltage.
-Typically not initialized directly but rather used by ConversionElectrode.
-.. attribute:: rxn</p>
-<blockquote>
-<div><p>BalancedReaction for the step</p>
+Typically not initialized directly but rather used by ConversionElectrode.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn">
+<span class="sig-name descname"><span class="pre">rxn</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn" title="Permalink to this definition"></a></dt>
+<dd><p>BalancedReaction for the step</p>
 <dl class="field-list simple">
-<dt class="field-odd">type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>BalancedReaction</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction">BalancedReaction</a></p>
 </dd>
 </dl>
-</div></blockquote>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.voltage">
-<span class="sig-name descname"><span class="pre">voltage</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.voltage" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">voltage</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Voltage for the step</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -267,10 +270,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mAh">
-<span class="sig-name descname"><span class="pre">mAh</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mAh" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mAh</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mAh" title="Permalink to this definition"></a></dt>
 <dd><p>Capacity of the step</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -278,10 +281,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_charge">
-<span class="sig-name descname"><span class="pre">vol_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_charge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">vol_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Volume of charged state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -289,10 +292,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_discharge">
-<span class="sig-name descname"><span class="pre">vol_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_discharge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">vol_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_discharge" title="Permalink to this definition"></a></dt>
 <dd><p>Volume of discharged state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -300,10 +303,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_charge">
-<span class="sig-name descname"><span class="pre">mass_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_charge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mass_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Mass of charged state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -311,10 +314,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_discharge">
-<span class="sig-name descname"><span class="pre">mass_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_discharge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mass_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_discharge" title="Permalink to this definition"></a></dt>
 <dd><p>Mass of discharged state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -322,10 +325,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_charge">
-<span class="sig-name descname"><span class="pre">frac_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_charge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">frac_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Fraction of working ion in the charged state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -333,10 +336,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_discharge">
-<span class="sig-name descname"><span class="pre">frac_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_discharge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">frac_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_discharge" title="Permalink to this definition"></a></dt>
 <dd><p>Fraction of working ion in the discharged state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -344,10 +347,13 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_charge">
-<span class="sig-name descname"><span class="pre">entries_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_charge" title="Permalink to this definition"></a></dt>
-<dd><p>Entries in the charged state</p>
+<span class="sig-name descname"><span class="pre">entries_charge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_charge" title="Permalink to this definition"></a></dt>
+<dd><p>Entries representing decompositions products
+in the charged state. Enumerates the decompositions products at the tieline,
+so the number of entries will be one fewer than the dimensions of the phase
+diagram</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>[<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">ComputedEntry</a>]</p>
 </dd>
 </dl>
@@ -355,10 +361,13 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_discharge">
-<span class="sig-name descname"><span class="pre">entries_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_discharge" title="Permalink to this definition"></a></dt>
-<dd><p>Entries in discharged state</p>
+<span class="sig-name descname"><span class="pre">entries_discharge</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_discharge" title="Permalink to this definition"></a></dt>
+<dd><p>Entries representing decompositions products
+in the discharged state. Enumerates the decompositions products at the tieline,
+so the number of entries will be one fewer than the dimensions of the phase
+diagram</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>[<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">ComputedEntry</a>]</p>
 </dd>
 </dl>
@@ -366,10 +375,10 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.working_ion_entry">
-<span class="sig-name descname"><span class="pre">working_ion_entry</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.working_ion_entry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">working_ion_entry</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.working_ion_entry" title="Permalink to this definition"></a></dt>
 <dd><p>Entry of the working ion.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">ComputedEntry</a></p>
 </dd>
 </dl>
@@ -377,39 +386,40 @@ Typically not initialized directly but rather used by ConversionElectrode.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">entries_charge</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entries_charge</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">entries_discharge</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entries_discharge</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_els</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework_formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../apps/battery/conversion_battery.py#L296-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_els</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework_formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../apps/battery/conversion_battery.py#L299-L389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a ConversionVoltagePair from two steps in the element profile
 from a PD analysis.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>step1</strong> – Starting step</p></li>
 <li><p><strong>step2</strong> – Ending step</p></li>
 <li><p><strong>normalization_els</strong> – Elements to normalize the reaction by. To
 ensure correct capacities.</p></li>
+<li><p><strong>framework_formula</strong> – Formula of the framework.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn">
-<span class="sig-name descname"><span class="pre">rxn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><span class="pre">BalancedReaction</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">rxn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><span class="pre">pymatgen.analysis.reaction_calculator.BalancedReaction</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/apps/battery/conversion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>

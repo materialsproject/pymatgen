@@ -293,7 +293,7 @@ if __name__ == "__main__":
                 exit()
         # 2. Optimization of the permutations
         print(f"Getting explicit optimized permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
-        perms_used_algos = [dict() for algo in cg.algorithms]
+        perms_used_algos = [{} for algo in cg.algorithms]
 
         # Loop on algorithms
         for ialgo, algo in enumerate(cg.algorithms):
@@ -343,7 +343,6 @@ if __name__ == "__main__":
             t0 = time.process_time()
             timeleft = "Unknown"
             for indices_perm in perms_iterator:
-
                 prt1(
                     string=f"Perm # {iperm:d}/{npermutations:d} : "
                     f"{'-'.join(map(str, indices_perm))} "
@@ -358,7 +357,7 @@ if __name__ == "__main__":
                 points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()
 
                 # Loop on the facets
-                separation_permutations = list()
+                separation_permutations = []
                 for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                     prt2(
                         string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",

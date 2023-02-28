@@ -174,7 +174,6 @@ class Magmom(MSONable):
 
     @classmethod
     def _get_transformation_matrix(cls, saxis):
-
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])
@@ -195,7 +194,6 @@ class Magmom(MSONable):
 
     @classmethod
     def _get_transformation_matrix_inv(cls, saxis):
-
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])
@@ -333,10 +331,7 @@ class Magmom(MSONable):
         :return: (list of Magmoms, global spin axis) tuple
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
-        if saxis is None:
-            saxis = Magmom.get_suggested_saxis(magmoms)
-        else:
-            saxis = saxis / np.linalg.norm(saxis)
+        saxis = Magmom.get_suggested_saxis(magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
         magmoms = [magmom.get_moment(saxis=saxis) for magmom in magmoms]
         return magmoms, saxis
 

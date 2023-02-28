@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.entries package &mdash; pymatgen 2023.1.20 documentation</title>
+  <title>pymatgen.entries package &mdash; pymatgen 2023.2.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +13,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.entries.compatibility module" href="pymatgen.entries.compatibility.html" />
     <link rel="prev" title="pymatgen.electronic_structure.plotter module" href="pymatgen.electronic_structure.plotter.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -38,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.20
+                2023.2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -111,171 +112,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-entries-package">
-<h1>pymatgen.entries package<a class="headerlink" href="#pymatgen-entries-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+  <div class="section" id="pymatgen-entries-package">
+<h1>pymatgen.entries package<a class="headerlink" href="#pymatgen-entries-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.compatibility.html">pymatgen.entries.compatibility module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AnionCorrection"><code class="docutils literal notranslate"><span class="pre">AnionCorrection</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AqueousCorrection"><code class="docutils literal notranslate"><span class="pre">AqueousCorrection</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility"><code class="docutils literal notranslate"><span class="pre">Compatibility</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.explain"><code class="docutils literal notranslate"><span class="pre">Compatibility.explain()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.get_adjustments"><code class="docutils literal notranslate"><span class="pre">Compatibility.get_adjustments()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entries"><code class="docutils literal notranslate"><span class="pre">Compatibility.process_entries()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entry"><code class="docutils literal notranslate"><span class="pre">Compatibility.process_entry()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CompatibilityError"><code class="docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction"><code class="docutils literal notranslate"><span class="pre">Correction</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.correct_entry"><code class="docutils literal notranslate"><span class="pre">Correction.correct_entry()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.get_correction"><code class="docutils literal notranslate"><span class="pre">Correction.get_correction()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList"><code class="docutils literal notranslate"><span class="pre">CorrectionsList</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.explain"><code class="docutils literal notranslate"><span class="pre">CorrectionsList.explain()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_adjustments"><code class="docutils literal notranslate"><span class="pre">CorrectionsList.get_adjustments()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_corrections_dict"><code class="docutils literal notranslate"><span class="pre">CorrectionsList.get_corrections_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_explanation_dict"><code class="docutils literal notranslate"><span class="pre">CorrectionsList.get_explanation_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.GasCorrection"><code class="docutils literal notranslate"><span class="pre">GasCorrection</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MITAqueousCompatibility"><code class="docutils literal notranslate"><span class="pre">MITAqueousCompatibility</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MITCompatibility"><code class="docutils literal notranslate"><span class="pre">MITCompatibility</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProject2020Compatibility"><code class="docutils literal notranslate"><span class="pre">MaterialsProject2020Compatibility</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectAqueousCompatibility</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectCompatibility"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectCompatibility</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection"><code class="docutils literal notranslate"><span class="pre">PotcarCorrection</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection.get_correction"><code class="docutils literal notranslate"><span class="pre">PotcarCorrection.get_correction()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.UCorrection"><code class="docutils literal notranslate"><span class="pre">UCorrection</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.computed_entries.html">pymatgen.entries.computed_entries module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.CompositionEnergyAdjustment"><code class="docutils literal notranslate"><span class="pre">CompositionEnergyAdjustment</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.explain"><code class="docutils literal notranslate"><span class="pre">CompositionEnergyAdjustment.explain</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.normalize"><code class="docutils literal notranslate"><span class="pre">CompositionEnergyAdjustment.normalize()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.uncertainty"><code class="docutils literal notranslate"><span class="pre">CompositionEnergyAdjustment.uncertainty</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.value"><code class="docutils literal notranslate"><span class="pre">CompositionEnergyAdjustment.value</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry"><code class="docutils literal notranslate"><span class="pre">ComputedEntry</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.as_dict"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.copy"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.copy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.correction"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.correction</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.correction_per_atom"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.correction_per_atom</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.correction_uncertainty</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty_per_atom"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.correction_uncertainty_per_atom</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.energy"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.energy</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.from_dict"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.normalize"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.normalize()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.uncorrected_energy"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.uncorrected_energy</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.uncorrected_energy_per_atom"><code class="docutils literal notranslate"><span class="pre">ComputedEntry.uncorrected_energy_per_atom</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry"><code class="docutils literal notranslate"><span class="pre">ComputedStructureEntry</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict"><code class="docutils literal notranslate"><span class="pre">ComputedStructureEntry.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry.copy"><code class="docutils literal notranslate"><span class="pre">ComputedStructureEntry.copy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict"><code class="docutils literal notranslate"><span class="pre">ComputedStructureEntry.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry.normalize"><code class="docutils literal notranslate"><span class="pre">ComputedStructureEntry.normalize()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry.structure"><code class="docutils literal notranslate"><span class="pre">ComputedStructureEntry.structure</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ConstantEnergyAdjustment"><code class="docutils literal notranslate"><span class="pre">ConstantEnergyAdjustment</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ConstantEnergyAdjustment.explain"><code class="docutils literal notranslate"><span class="pre">ConstantEnergyAdjustment.explain</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ConstantEnergyAdjustment.normalize"><code class="docutils literal notranslate"><span class="pre">ConstantEnergyAdjustment.normalize()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.EnergyAdjustment"><code class="docutils literal notranslate"><span class="pre">EnergyAdjustment</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.EnergyAdjustment.explain"><code class="docutils literal notranslate"><span class="pre">EnergyAdjustment.explain</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.EnergyAdjustment.normalize"><code class="docutils literal notranslate"><span class="pre">EnergyAdjustment.normalize()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.EnergyAdjustment.uncertainty"><code class="docutils literal notranslate"><span class="pre">EnergyAdjustment.uncertainty</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.EnergyAdjustment.value"><code class="docutils literal notranslate"><span class="pre">EnergyAdjustment.value</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.GibbsComputedStructureEntry"><code class="docutils literal notranslate"><span class="pre">GibbsComputedStructureEntry</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.as_dict"><code class="docutils literal notranslate"><span class="pre">GibbsComputedStructureEntry.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_dict"><code class="docutils literal notranslate"><span class="pre">GibbsComputedStructureEntry.from_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_entries"><code class="docutils literal notranslate"><span class="pre">GibbsComputedStructureEntry.from_entries()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_pd"><code class="docutils literal notranslate"><span class="pre">GibbsComputedStructureEntry.from_pd()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.gf_sisso"><code class="docutils literal notranslate"><span class="pre">GibbsComputedStructureEntry.gf_sisso()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ManualEnergyAdjustment"><code class="docutils literal notranslate"><span class="pre">ManualEnergyAdjustment</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment"><code class="docutils literal notranslate"><span class="pre">TemperatureEnergyAdjustment</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.explain"><code class="docutils literal notranslate"><span class="pre">TemperatureEnergyAdjustment.explain</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.normalize"><code class="docutils literal notranslate"><span class="pre">TemperatureEnergyAdjustment.normalize()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.uncertainty"><code class="docutils literal notranslate"><span class="pre">TemperatureEnergyAdjustment.uncertainty</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.value"><code class="docutils literal notranslate"><span class="pre">TemperatureEnergyAdjustment.value</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.correction_calculator.html">pymatgen.entries.correction_calculator module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.species"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.species</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.exp_compounds"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.exp_compounds</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.calc_compounds"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.calc_compounds</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.corrections</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_std_error"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.corrections_std_error</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.corrections_dict"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.corrections_dict</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.compute_corrections"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.compute_corrections()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.compute_from_files"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.compute_from_files()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.graph_residual_error()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.graph_residual_error_per_species"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.graph_residual_error_per_species()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.correction_calculator.html#pymatgen.entries.correction_calculator.CorrectionCalculator.make_yaml"><code class="docutils literal notranslate"><span class="pre">CorrectionCalculator.make_yaml()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.entry_tools.html">pymatgen.entries.entry_tools module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet"><code class="docutils literal notranslate"><span class="pre">EntrySet</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.add"><code class="docutils literal notranslate"><span class="pre">EntrySet.add()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.as_dict"><code class="docutils literal notranslate"><span class="pre">EntrySet.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.chemsys"><code class="docutils literal notranslate"><span class="pre">EntrySet.chemsys</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.discard"><code class="docutils literal notranslate"><span class="pre">EntrySet.discard()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.from_csv"><code class="docutils literal notranslate"><span class="pre">EntrySet.from_csv()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.get_subset_in_chemsys"><code class="docutils literal notranslate"><span class="pre">EntrySet.get_subset_in_chemsys()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.ground_states"><code class="docutils literal notranslate"><span class="pre">EntrySet.ground_states</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.is_ground_state"><code class="docutils literal notranslate"><span class="pre">EntrySet.is_ground_state()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.remove_non_ground_states"><code class="docutils literal notranslate"><span class="pre">EntrySet.remove_non_ground_states()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.to_csv"><code class="docutils literal notranslate"><span class="pre">EntrySet.to_csv()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.group_entries_by_composition"><code class="docutils literal notranslate"><span class="pre">group_entries_by_composition()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.group_entries_by_structure"><code class="docutils literal notranslate"><span class="pre">group_entries_by_structure()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.exp_entries.html">pymatgen.entries.exp_entries module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.exp_entries.html#pymatgen.entries.exp_entries.ExpEntry"><code class="docutils literal notranslate"><span class="pre">ExpEntry</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.exp_entries.html#pymatgen.entries.exp_entries.ExpEntry.as_dict"><code class="docutils literal notranslate"><span class="pre">ExpEntry.as_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.exp_entries.html#pymatgen.entries.exp_entries.ExpEntry.from_dict"><code class="docutils literal notranslate"><span class="pre">ExpEntry.from_dict()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.mixing_scheme.html">pymatgen.entries.mixing_scheme module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.display_entries"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.display_entries()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.get_adjustments()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.get_mixing_state_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.process_entries()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.compatibility.html">pymatgen.entries.compatibility module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.computed_entries.html">pymatgen.entries.computed_entries module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.correction_calculator.html">pymatgen.entries.correction_calculator module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.entry_tools.html">pymatgen.entries.entry_tools module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.exp_entries.html">pymatgen.entries.exp_entries module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.entries.mixing_scheme.html">pymatgen.entries.mixing_scheme module</a></li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.entries">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.entries" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-pymatgen.entries">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.entries" title="Permalink to this headline"></a></h2>
 <p>Entries are containers for calculated information, which is used in
 many analyses. This module contains entry related tools and implements
 the base Entry class, which is the basic entity that can be used to
@@ -283,15 +141,15 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.entries.Entry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">Composition</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/__init__.py#L31-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">pymatgen.core.composition.Composition</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/__init__.py#L31-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A lightweight object containing the energy associated with
 a specific chemical composition. This base class is not
 intended to be instantiated directly. Note that classes
 which inherit from Entry must define a .energy property.</p>
 <p>Initializes an Entry.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition of the entry. For
 flexibility, this can take the form of all the typical input
@@ -303,9 +161,9 @@ a string formula, and others.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.entries.Entry.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/__init__.py#L127-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/__init__.py#L127-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONable dict.</p>
 </dd>
 </dl>
@@ -313,10 +171,10 @@ a string formula, and others.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.entries.Entry.composition">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">composition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">Composition</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.composition" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">composition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">pymatgen.core.composition.Composition</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.composition" title="Permalink to this definition"></a></dt>
 <dd><p>the composition of the entry.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -324,10 +182,10 @@ a string formula, and others.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.entries.Entry.energy">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.energy" title="Permalink to this definition"></a></dt>
 <dd><p>the energy of the entry.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -335,10 +193,10 @@ a string formula, and others.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.entries.Entry.energy_per_atom">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_per_atom</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.energy_per_atom" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_per_atom</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.energy_per_atom" title="Permalink to this definition"></a></dt>
 <dd><p>the energy per atom of the entry.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -346,10 +204,10 @@ a string formula, and others.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.entries.Entry.is_element">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_element</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.is_element" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_element</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/entries.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.is_element" title="Permalink to this definition"></a></dt>
 <dd><p>Whether composition of entry is an element.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>return</p>
 </dd>
 </dl>
@@ -357,10 +215,10 @@ a string formula, and others.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.entries.Entry.normalize">
-<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'formula_unit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'atom'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'formula_unit'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.entries.Entry" title="pymatgen.entries.Entry"><span class="pre">Entry</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.20/pymatgen/core/../entries/__init__.py#L96-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.normalize" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'formula_unit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'atom'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'formula_unit'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.entries.Entry" title="pymatgen.entries.Entry"><span class="pre">pymatgen.entries.Entry</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.2.28/pymatgen/core/../entries/__init__.py#L96-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.entries.Entry.normalize" title="Permalink to this definition"></a></dt>
 <dd><p>Normalize the entry’s composition and energy.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>mode</strong> (<em>&quot;formula_unit&quot;</em><em> | </em><em>&quot;atom&quot;</em>) – “formula_unit” (the default) normalizes to composition.reduced_formula.
 “atom” normalizes such that the composition amounts sum to 1.</p>
 </dd>
@@ -369,8 +227,8 @@ a string formula, and others.</p></li>
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

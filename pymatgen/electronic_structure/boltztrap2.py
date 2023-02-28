@@ -200,6 +200,7 @@ class BandstructureLoader:
             nelect: Number of electrons in the calculation.
             momat: Matrix of derivatives of energy eigenvalues. Not implemented yet.
             magmom: Matrix of magnetic moments in non collinear calculations. Not implemented yet.
+
         Example:
             vrun = Vasprun('vasprun.xml')
             bs = vrun.get_band_structure()
@@ -456,6 +457,7 @@ class BztInterpolator:
             save_bands: Default False. If True interpolated bands are also stored.
                 It can be slower than interpolate them. Not recommended.
             fname: File path where to store/load from the coefficients and equivalences.
+
         Example:
             data = VasprunLoader().from_file('vasprun.xml')
             bztInterp = BztInterpolator(data)
@@ -500,7 +502,8 @@ class BztInterpolator:
 
     def save(self, fname="bztInterp.json.gz", bands=False):
         """Save the coefficient, equivalences to fname.
-        If bands is True, also interpolated bands are stored."""
+        If bands is True, also interpolated bands are stored.
+        """
         if bands:
             dumpfn(
                 [
@@ -1250,6 +1253,7 @@ class BztPlotter:
 def merge_up_down_doses(dos_up, dos_dn):
     """
     Merge the up and down DOSs.
+
     Args:
     dos_up: Up DOS.
     dos_dn: Down DOS

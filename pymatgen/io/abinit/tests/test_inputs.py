@@ -58,15 +58,21 @@ class AbinitInputTestCase(PymatgenTest):
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
         repr(inp), str(inp)
-        assert len(inp) == 0 and not inp
-        assert inp.get("foo", "bar") == "bar" and inp.pop("foo", "bar") == "bar"
+        assert len(inp) == 0
+        assert not inp
+        assert inp.get("foo", "bar") == "bar"
+        assert inp.pop("foo", "bar") == "bar"
         assert inp.comment is None
         inp.set_comment("This is a comment")
         assert inp.comment == "This is a comment"
-        assert inp.isnc and not inp.ispaw
+        assert inp.isnc
+        assert not inp.ispaw
 
         inp["ecut"] = 1
-        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp and "foo" not in inp
+        assert inp.get("ecut") == 1
+        assert len(inp) == 1
+        assert "ecut" in inp
+        assert "foo" not in inp
 
         # Test to_string
         assert inp.to_string(with_structure=True, with_pseudos=True)
@@ -96,14 +102,18 @@ class AbinitInputTestCase(PymatgenTest):
         inp_copy = inp.deepcopy()
         inp_copy["bdgw"][1] = 3
         assert inp["bdgw"] == [1, 2]
-        assert inp.remove_vars("bdgw") and "bdgw" not in inp
+        assert inp.remove_vars("bdgw")
+        assert "bdgw" not in inp
 
         removed = inp.pop_tolerances()
-        assert len(removed) == 1 and removed["toldfe"] == 1e-6
+        assert len(removed) == 1
+        assert removed["toldfe"] == 1e-6
 
         # Test set_spin_mode
         old_vars = inp.set_spin_mode("polarized")
-        assert "nsppol" in inp and inp["nspden"] == 2 and inp["nspinor"] == 1
+        assert "nsppol" in inp
+        assert inp["nspden"] == 2
+        assert inp["nspinor"] == 1
         inp.set_vars(old_vars)
 
         # Test set_structure
@@ -127,15 +137,15 @@ class AbinitInputTestCase(PymatgenTest):
         with pytest.raises(BasicAbinitInput.Error):
             BasicAbinitInput(si_structure, pseudos=abiref_file("H-wdr.oncvpsp"))
 
-        si1_negative_volume = dict(
-            ntypat=1,
-            natom=1,
-            typat=[1],
-            znucl=14,
-            acell=3 * [7.60],
-            rprim=[[0.0, 0.5, 0.5], [-0.5, -0.0, -0.5], [0.5, 0.5, 0.0]],
-            xred=[[0.0, 0.0, 0.0]],
-        )
+        si1_negative_volume = {
+            "ntypat": 1,
+            "natom": 1,
+            "typat": [1],
+            "znucl": 14,
+            "acell": 3 * [7.60],
+            "rprim": [[0.0, 0.5, 0.5], [-0.5, -0.0, -0.5], [0.5, 0.5, 0.0]],
+            "xred": [[0.0, 0.0, 0.0]],
+        }
 
         # Negative triple product.
         with pytest.raises(BasicAbinitInput.Error):
@@ -146,14 +156,18 @@ class AbinitInputTestCase(PymatgenTest):
         inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=_test_dir)
 
         inp.set_kmesh(ngkpt=(1, 2, 3), shiftk=(1, 2, 3, 4, 5, 6))
-        assert inp["kptopt"] == 1 and inp["nshiftk"] == 2
+        assert inp["kptopt"] == 1
+        assert inp["nshiftk"] == 2
 
         inp.set_gamma_sampling()
-        assert inp["kptopt"] == 1 and inp["nshiftk"] == 1
+        assert inp["kptopt"] == 1
+        assert inp["nshiftk"] == 1
         assert np.all(inp["shiftk"] == 0)
 
         inp.set_kpath(ndivsm=3, kptbounds=None)
-        assert inp["ndivsm"] == 3 and inp["iscf"] == -2 and len(inp["kptbounds"]) == 12
+        assert inp["ndivsm"] == 3
+        assert inp["iscf"] == -2
+        assert len(inp["kptbounds"]) == 12
 
 
 class TestMultiDataset(PymatgenTest):
@@ -170,13 +184,15 @@ class TestMultiDataset(PymatgenTest):
 
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir)
 
-        assert len(multi) == 1 and multi.ndtset == 1
+        assert len(multi) == 1
+        assert multi.ndtset == 1
         assert multi.isnc
         for i, inp in enumerate(multi):
             assert list(inp) == list(multi[i])
 
         multi.addnew_from(0)
-        assert multi.ndtset == 2 and multi[0] is not multi[1]
+        assert multi.ndtset == 2
+        assert multi[0] is not multi[1]
         assert multi[0].structure == multi[1].structure
         assert multi[0].structure is not multi[1].structure
 
@@ -185,7 +201,8 @@ class TestMultiDataset(PymatgenTest):
         assert multi.get("ecut") == [2, 2]
 
         multi[1].set_vars(ecut=1)
-        assert multi[0]["ecut"] == 2 and multi[1]["ecut"] == 1
+        assert multi[0]["ecut"] == 2
+        assert multi[1]["ecut"] == 1
         assert multi.get("ecut") == [2, 1]
 
         assert multi.get("foo", "default") == ["default", "default"]
@@ -202,11 +219,13 @@ class TestMultiDataset(PymatgenTest):
         assert all(s == structure for s in multi.structure)
         assert multi.has_same_structures
         multi[1].set_structure(pert_structure)
-        assert multi[0].structure != multi[1].structure and multi[1].structure == pert_structure
+        assert multi[0].structure != multi[1].structure
+        assert multi[1].structure == pert_structure
         assert not multi.has_same_structures
 
         split = multi.split_datasets()
-        assert len(split) == 2 and all(split[i] == multi[i] for i in range(multi.ndtset))
+        assert len(split) == 2
+        assert all(split[i] == multi[i] for i in range(multi.ndtset))
         repr(multi)
         str(multi)
         assert multi.to_string(with_pseudos=False)
@@ -216,7 +235,7 @@ class TestMultiDataset(PymatgenTest):
         inp.write(filepath=filepath)
         multi.write(filepath=filepath)
 
-        new_multi = BasicMultiDataset.from_inputs([inp for inp in multi])
+        new_multi = BasicMultiDataset.from_inputs(list(multi))
         assert new_multi.ndtset == multi.ndtset
         assert new_multi.structure == multi.structure
 
@@ -306,5 +325,7 @@ class FactoryTest(PymatgenTest):
         str(multi)
         ion_inp, ioncell_inp = multi.split_datasets()
         assert ion_inp["chksymbreak"] == 0
-        assert ion_inp["ionmov"] == 3 and ion_inp["optcell"] == 0
-        assert ioncell_inp["ionmov"] == 3 and ioncell_inp["optcell"] == 2
+        assert ion_inp["ionmov"] == 3
+        assert ion_inp["optcell"] == 0
+        assert ioncell_inp["ionmov"] == 3
+        assert ioncell_inp["optcell"] == 2

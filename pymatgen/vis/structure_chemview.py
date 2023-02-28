@@ -41,10 +41,10 @@ def quick_view(
         show_box: (bool) unit cell is shown. Defaults to True.
         bond_tol: (float) used if bonds=True. Sets the extra distance tolerance when finding bonds.
         stick_radius: (float) radius of bonds.
+
     Returns:
         A chemview.MolecularViewer object
     """
-
     s = structure.copy()
     if conventional:
         s = SpacegroupAnalyzer(s).get_conventional_standard_structure()
