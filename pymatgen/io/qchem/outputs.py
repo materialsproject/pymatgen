@@ -630,7 +630,7 @@ class QCOutput(MSONable):
         if not self.data.get("completion", []) and self.data.get("errors") == []:
             self._check_completion_errors()
 
-    @classmethod
+    @staticmethod
     def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
         """
         Parses a QChem output file with multiple calculations
