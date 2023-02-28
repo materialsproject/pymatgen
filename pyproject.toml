@@ -53,7 +53,8 @@ ignore = [
   "E741",    # tmp: we should fix all ambiguous variable names
   "PLR2004", # Magic number
   "PLW0120", # awaiting bug fix https://github.com/charliermarsh/ruff/issues/3019
-  "PLW2901", # Outer for loop variable `l` overwritten by inner assignment target
+  "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "PLW0603", # Using the global statement to update variables is discouraged
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
