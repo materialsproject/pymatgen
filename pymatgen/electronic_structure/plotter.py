@@ -428,12 +428,8 @@ class BSPlotter:
             least one band crossing the fermi level).
         """
         if bs is None:
-            if isinstance(self._bs, list):
-                # if BSPlotter
-                bs = self._bs[0]
-            else:
-                # if BSPlotterProjected
-                bs = self._bs
+            # if: BSPlotter, else: BSPlotterProjected
+            bs = self._bs[0] if isinstance(self._bs, list) else self._bs
 
         energies = {str(sp): [] for sp in bs.bands}
 
@@ -635,11 +631,8 @@ class BSPlotter:
             for sp in bs.bands:
                 ls = "-" if str(sp) == "1" else "--"
 
-                if bs_labels is None:
-                    bs_label = f"Band {ibs} {sp.name}"
-                else:
-                    # assume bs_labels is Sequence[str]
-                    bs_label = f"{bs_labels[ibs]} {sp.name}"
+                # else case assumes bs_labels is Sequence[str]
+                bs_label = f"Band {ibs} {sp.name}" if bs_labels is None else f"{bs_labels[ibs]} {sp.name}"
 
                 handles.append(mlines.Line2D([], [], lw=2, ls=ls, color=colors[ibs], label=bs_label))
 

@@ -566,17 +566,18 @@ class QCOutput(MSONable):
             ).get("key")
             if temp_constraint is not None:
                 self.data["opt_constraint"] = temp_constraint[0]
-                if self.data.get("opt_constraint") is not None:
-                    if float(self.data["opt_constraint"][5]) != float(self.data["opt_constraint"][6]):
-                        if abs(float(self.data["opt_constraint"][5])) != abs(float(self.data["opt_constraint"][6])):
-                            raise ValueError("ERROR: Opt section value and constraint should be the same!")
-                        if abs(float(self.data["opt_constraint"][5])) not in [
-                            0.0,
-                            180.0,
-                        ]:
-                            raise ValueError(
-                                "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
-                            )
+                if self.data.get("opt_constraint") is not None and float(self.data["opt_constraint"][5]) != float(
+                    self.data["opt_constraint"][6]
+                ):
+                    if abs(float(self.data["opt_constraint"][5])) != abs(float(self.data["opt_constraint"][6])):
+                        raise ValueError("ERROR: Opt section value and constraint should be the same!")
+                    if abs(float(self.data["opt_constraint"][5])) not in [
+                        0.0,
+                        180.0,
+                    ]:
+                        raise ValueError(
+                            "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
+                        )
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
@@ -1361,10 +1362,9 @@ class QCOutput(MSONable):
             temp_energy_trajectory = read_pattern(self.text, {"key": r"\sStep\s*\d+\s*:\s*Energy\s*([\d\-\.]+)"}).get(
                 "key"
             )
-        if self.data.get("new_optimizer") == [[]]:
+        if self.data.get("new_optimizer") == [[]] and temp_energy_trajectory is not None:
             # Formatting of the new optimizer means we need to prepend the first energy
-            if temp_energy_trajectory is not None:
-                temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
+            temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
         self._read_geometries()
         self._read_gradients()
         if temp_energy_trajectory is None:
@@ -1400,13 +1400,15 @@ class QCOutput(MSONable):
                     self.text,
                     {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"},
                     terminate_on_match=True,
-                ).get("key") == [[]]:
-                    self.data["errors"] += ["out_of_opt_cycles"]
-                elif read_pattern(
+                ).get("key") == [[]] or read_pattern(
                     self.text,
                     {"key": r"Maximum number of iterations reached during minimization algorithm"},
                     terminate_on_match=True,
-                ).get("key") == [[]]:
+                ).get(
+                    "key"
+                ) == [
+                    []
+                ]:
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
@@ -2067,9 +2069,9 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["hessian_eigenvalue_error"]
-        elif read_pattern(self.text, {"key": r"FlexNet Licensing error"}, terminate_on_match=True).get("key") == [[]]:
-            self.data["errors"] += ["licensing_error"]
-        elif read_pattern(self.text, {"key": r"Unable to validate license"}, terminate_on_match=True).get("key") == [
+        elif read_pattern(self.text, {"key": r"FlexNet Licensing error"}, terminate_on_match=True).get("key") == [
+            []
+        ] or read_pattern(self.text, {"key": r"Unable to validate license"}, terminate_on_match=True).get("key") == [
             []
         ]:
             self.data["errors"] += ["licensing_error"]
@@ -2085,9 +2087,11 @@ class QCOutput(MSONable):
             self.data["errors"] += ["basis_not_supported"]
         elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True).get(
             "key"
-        ) == [[]]:
-            self.data["errors"] += ["failed_cpscf"]
-        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get("key") == [[]]:
+        ) == [[]] or read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get(
+            "key"
+        ) == [
+            []
+        ]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,

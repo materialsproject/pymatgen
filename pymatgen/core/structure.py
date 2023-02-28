@@ -2087,8 +2087,8 @@ class IStructure(SiteCollection, MSONable):
         distance in the primitive cell, the algorithm will reject this lattice.
 
         Args:
-            tolerance (float), Angstroms: Tolerance for each coordinate of a
-                particular site. For example, [0.1, 0, 0.1] in cartesian
+            tolerance (float): Tolerance for each coordinate of a
+                particular site in Angstroms. For example, [0.1, 0, 0.1] in cartesian
                 coordinates will be considered to be on the same coordinates
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
@@ -2272,9 +2272,10 @@ class IStructure(SiteCollection, MSONable):
                     if type(constrain_latt).__name__ == "list":
                         if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
                             return p
-                    elif type(constrain_latt).__name__ == "dict":
-                        if all(getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt):  # type: ignore
-                            return p
+                    elif type(constrain_latt).__name__ == "dict" and all(
+                        getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt
+                    ):
+                        return p
 
         return self.copy()
 

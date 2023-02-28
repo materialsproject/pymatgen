@@ -1820,13 +1820,14 @@ class LightStructureEnvironments(MSONable):
         csms = []
         fractions = []
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species]:
-                if self.valences == "undefined" or oxi_state == self.valences[isite]:
-                    for ce_dict in self.coordination_environments[isite]:
-                        if ce_symbol == ce_dict["ce_symbol"]:
-                            isites.append(isite)
-                            csms.append(ce_dict["csm"])
-                            fractions.append(ce_dict["ce_fraction"])
+            if element in [sp.symbol for sp in site.species] and (
+                self.valences == "undefined" or oxi_state == self.valences[isite]
+            ):
+                for ce_dict in self.coordination_environments[isite]:
+                    if ce_symbol == ce_dict["ce_symbol"]:
+                        isites.append(isite)
+                        csms.append(ce_dict["csm"])
+                        fractions.append(ce_dict["ce_fraction"])
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0):

@@ -689,9 +689,7 @@ class QCInput(InputFile):
 
                 type_strings = []
                 for t in types:
-                    if t is None:
-                        type_strings.append("")
-                    elif t.lower() in ["c", "charge"]:
+                    if t is None and t.lower() in ["c", "charge"]:
                         type_strings.append("")
                     elif t.lower() in ["s", "spin"]:
                         type_strings.append("s")

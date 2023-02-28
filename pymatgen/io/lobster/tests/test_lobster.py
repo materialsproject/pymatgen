@@ -1337,9 +1337,7 @@ class LobsteroutTest(PymatgenTest):
                     assert comparedict[key] == item
                 elif key in ("charge_spilling", "total_spilling"):
                     assert item[0] == approx(comparedict[key][0])
-                elif isinstance(item, list):
-                    assert item == comparedict[key]
-                elif isinstance(item, dict):
+                elif isinstance(item, (list, dict)):
                     assert item == comparedict[key]
 
 

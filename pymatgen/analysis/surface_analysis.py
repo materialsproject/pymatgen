@@ -1538,10 +1538,7 @@ class WorkFunctionAnalyzer:
                 if self.along_c[i] <= self.slab_regions[0][0]:
                     in_slab = True
 
-            if in_slab:
-                yg.append(self.ave_bulk_p)
-                xg.append(self.along_c[i])
-            elif p < self.ave_bulk_p:
+            if in_slab or p < self.ave_bulk_p:
                 yg.append(self.ave_bulk_p)
                 xg.append(self.along_c[i])
             else:

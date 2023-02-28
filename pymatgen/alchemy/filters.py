@@ -287,8 +287,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
                 == self.structure_matcher._comparator.get_hash(s.composition)
                 and self.symprec is None
                 or get_sg(s) == get_sg(structure)
-                and self.structure_matcher.fit(s, structure)
-            ):
+            ) and self.structure_matcher.fit(s, structure):
                 return False
 
         self.structure_list.append(structure)

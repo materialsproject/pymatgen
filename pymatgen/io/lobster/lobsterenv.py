@@ -1142,12 +1142,10 @@ class LobsterNeighbors(NearNeighbors):
         Returns: [-100000, min(max_icohp*0.15,-0.1)]
         """
         # TODO: make it work for COOPs
-        if not adapt_extremum_to_add_cond:
+        if not adapt_extremum_to_add_cond or additional_condition == 0:
             extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
         else:
-            if additional_condition == 0:
-                extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
-            elif additional_condition == 1:
+            if additional_condition == 1:
                 # only cation anion bonds
                 list_icohps = []
                 for value in icohpcollection._icohplist.values():

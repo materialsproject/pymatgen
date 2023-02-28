@@ -2200,12 +2200,7 @@ class GrainBoundaryGenerator:
                     ab_norm = ab_norm_temp
                     t_matrix[0] = i[0]
                     t_matrix[1] = i[1]
-                elif area_temp < area:
-                    t_matrix[0] = i[0]
-                    t_matrix[1] = i[1]
-                    area = area_temp
-                    ab_norm = ab_norm_temp
-                elif abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm:
+                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):
                     t_matrix[0] = i[0]
                     t_matrix[1] = i[1]
                     area = area_temp

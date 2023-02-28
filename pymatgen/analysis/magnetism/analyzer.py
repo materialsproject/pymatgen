@@ -996,9 +996,12 @@ class MagneticStructureEnumerator:
             if idx not in structures_to_remove:
                 duplicate_checker = CollinearMagneticStructureAnalyzer(ordered_structure, overwrite_magmom_mode="none")
                 for check_idx, check_structure in enumerate(ordered_structures):
-                    if check_idx not in structures_to_remove and check_idx != idx:
-                        if duplicate_checker.matches_ordering(check_structure):
-                            structures_to_remove.append(check_idx)
+                    if (
+                        check_idx not in structures_to_remove
+                        and check_idx != idx
+                        and duplicate_checker.matches_ordering(check_structure)
+                    ):
+                        structures_to_remove.append(check_idx)
 
         if len(structures_to_remove) == 0:
             self.logger.info(f"Removing {len(structures_to_remove)} duplicate ordered structures")

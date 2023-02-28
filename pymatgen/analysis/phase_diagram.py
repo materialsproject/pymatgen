@@ -1008,11 +1008,8 @@ class PhaseDiagram(MSONable):
 
         clean_pots = []
         for c in sorted(critical_chempots):
-            if len(clean_pots) == 0:
+            if len(clean_pots) == 0 or abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
                 clean_pots.append(c)
-            else:
-                if abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
-                    clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
 
@@ -1023,7 +1020,8 @@ class PhaseDiagram(MSONable):
         The endpoints are also returned.
 
         Args:
-            comp1, comp2 (Composition): compositions that define the tieline
+            comp1 (Composition): First composition to define the tieline
+            comp2 (Composition): Second composition to define the tieline
 
         Returns:
             [(Composition)]: list of critical compositions. All are of
