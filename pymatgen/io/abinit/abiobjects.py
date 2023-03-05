@@ -1691,11 +1691,8 @@ class ExcHamiltonian(AbivarAble):
                 bs_haydock_tol=[0.05, 0],  # Stopping criteria
             )
 
-        elif self.use_direct_diago:
-            raise NotImplementedError("")
-
-        elif self.use_cg:
-            raise NotImplementedError("")
+        elif self.use_direct_diago or self.use_cg:
+            raise NotImplementedError()
 
         else:
             raise ValueError(f"Unknown algorithm for EXC: {self.algo}")

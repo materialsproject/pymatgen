@@ -211,11 +211,9 @@ def _find_scf_nband(structure, pseudos, electrons, spinat=None):
     # If nband is too small we may kill the job, increase nband and restart
     # but this change could cause problems in the other steps of the calculation
     # if the change is not propagated e.g. phonons in metals.
-    if smearing:
-        # metallic occupation
-        nband = max(np.ceil(nband * 1.2), nband + 10)
-    else:
-        nband = max(np.ceil(nband * 1.1), nband + 4)
+
+    # metallic occupation
+    nband = max(np.ceil(nband * 1.2), nband + 10) if smearing else max(np.ceil(nband * 1.1), nband + 4)
 
     # Increase number of bands based on the starting magnetization
     if nsppol == 2 and spinat is not None:

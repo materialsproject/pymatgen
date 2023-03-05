@@ -981,12 +981,12 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 sp = Species(sym, oxidation_state)
-                r = sp.ionic_radius
-                if r is not None:
-                    candidates.append((r, sp))
+                radius = sp.ionic_radius
+                if radius is not None:
+                    candidates.append((radius, sp))
         except Exception:
             pass
-    return min(candidates, key=lambda l: abs(l[0] / ref_radius - 1))[1]
+    return min(candidates, key=lambda tup: abs(tup[0] / ref_radius - 1))[1]
 
 
 class DopingTransformation(AbstractTransformation):
@@ -1636,15 +1636,11 @@ class CubicSupercellTransformation(AbstractTransformation):
             if (
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
                 and self.min_atoms <= num_at <= self.max_atoms
+            ) and (
+                not self.force_90_degrees
+                or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
             ):
-                if not self.force_90_degrees:
-                    return superstructure
-                else:
-                    if np.all(
-                        np.absolute(np.array(superstructure.lattice.angles) - np.array([90.0, 90.0, 90.0]))
-                        < self.angle_tolerance
-                    ):
-                        return superstructure
+                return superstructure
 
             # Increase threshold until proposed supercell meets requirements
             target_sc_size += 0.1

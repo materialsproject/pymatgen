@@ -387,10 +387,9 @@ class PhononBSPlotter:
         norm_f = 0
         for comb in indices:
             projector = np.zeros(len(new_vec))
-            l = len(projector)
-            for j in range(l):
-                if j in comb:
-                    projector[j] = 1
+            for idx in range(len(projector)):
+                if idx in comb:
+                    projector[idx] = 1
             group_weight = np.dot(projector, new_vec)
             gw.append(group_weight)
             norm_f += group_weight

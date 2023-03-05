@@ -1355,11 +1355,11 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem):
         imag = [
-            [_vasprun_float(l) for l in r.text.split()]
+            [_vasprun_float(line) for line in r.text.split()]
             for r in elem.find("imag").find("array").find("set").findall("r")
         ]
         real = [
-            [_vasprun_float(l) for l in r.text.split()]
+            [_vasprun_float(line) for line in r.text.split()]
             for r in elem.find("real").find("array").find("set").findall("r")
         ]
         elem.clear()
@@ -2287,27 +2287,27 @@ class Outcar:
         data = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
-        with zopen(self.filename, "rt") as f:
-            for l in f:
-                l = l.strip()
-                if re.match(plasma_pattern, l):
-                    read_plasma = "intraband" if "intraband" in l else "interband"
-                elif re.match(dielectric_pattern, l):
+        with zopen(self.filename, "rt") as file:
+            for line in file:
+                line = line.strip()
+                if re.match(plasma_pattern, line):
+                    read_plasma = "intraband" if "intraband" in line else "interband"
+                elif re.match(dielectric_pattern, line):
                     read_plasma = False
                     read_dielectric = True
                     row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
 
-                if read_plasma and re.match(row_pattern, l):
-                    plasma_frequencies[read_plasma].append([float(t) for t in l.strip().split()])
-                elif read_plasma and Outcar._parse_sci_notation(l):
-                    plasma_frequencies[read_plasma].append(Outcar._parse_sci_notation(l))
+                if read_plasma and re.match(row_pattern, line):
+                    plasma_frequencies[read_plasma].append([float(t) for t in line.strip().split()])
+                elif read_plasma and Outcar._parse_sci_notation(line):
+                    plasma_frequencies[read_plasma].append(Outcar._parse_sci_notation(line))
                 elif read_dielectric:
                     toks = None
-                    if re.match(row_pattern, l.strip()):
-                        toks = l.strip().split()
-                    elif Outcar._parse_sci_notation(l.strip()):
-                        toks = Outcar._parse_sci_notation(l.strip())
-                    elif re.match(r"\s*-+\s*", l):
+                    if re.match(row_pattern, line.strip()):
+                        toks = line.strip().split()
+                    elif Outcar._parse_sci_notation(line.strip()):
+                        toks = Outcar._parse_sci_notation(line.strip())
+                    elif re.match(r"\s*-+\s*", line):
                         count += 1
 
                     if toks:
@@ -4168,13 +4168,13 @@ class Xdatcar:
 
         # pylint: disable=E1136
         ionicstep_cnt = 1
-        with zopen(filename, "rt") as f:
-            for l in f:
-                l = l.strip()
+        with zopen(filename, "rt") as file:
+            for line in file:
+                line = line.strip()
                 if preamble is None:
-                    preamble = [l]
-                    title = l
-                elif title == l:
+                    preamble = [line]
+                    title = line
+                elif title == line:
                     preamble_done = False
                     p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
@@ -4187,9 +4187,9 @@ class Xdatcar:
                             break
                     ionicstep_cnt += 1
                     coords_str = []
-                    preamble = [l]
+                    preamble = [line]
                 elif not preamble_done:
-                    if l == "" or "Direct configuration=" in l:
+                    if line == "" or "Direct configuration=" in line:
                         preamble_done = True
                         tmp_preamble = [preamble[0]]
                         for i in range(1, len(preamble)):
@@ -4199,8 +4199,8 @@ class Xdatcar:
                                 break
                         preamble = tmp_preamble
                     else:
-                        preamble.append(l)
-                elif l == "" or "Direct configuration=" in l:
+                        preamble.append(line)
+                elif line == "" or "Direct configuration=" in line:
                     p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
@@ -4213,7 +4213,7 @@ class Xdatcar:
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
-                    coords_str.append(l)
+                    coords_str.append(line)
             p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
@@ -4266,12 +4266,12 @@ class Xdatcar:
         # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
-            for l in f:
-                l = l.strip()
+            for line in f:
+                line = line.strip()
                 if preamble is None:
-                    preamble = [l]
+                    preamble = [line]
                 elif not preamble_done:
-                    if l == "" or "Direct configuration=" in l:
+                    if line == "" or "Direct configuration=" in line:
                         preamble_done = True
                         tmp_preamble = [preamble[0]]
                         for i in range(1, len(preamble)):
@@ -4281,8 +4281,8 @@ class Xdatcar:
                                 break
                         preamble = tmp_preamble
                     else:
-                        preamble.append(l)
-                elif l == "" or "Direct configuration=" in l:
+                        preamble.append(line)
+                elif line == "" or "Direct configuration=" in line:
                     p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
@@ -4293,7 +4293,7 @@ class Xdatcar:
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
-                    coords_str.append(l)
+                    coords_str.append(line)
             p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
@@ -4387,9 +4387,9 @@ class Dynmat:
             self._masses = map(float, lines[1].split())
             self.data = defaultdict(dict)
             atom, disp = None, None
-            for i, l in enumerate(lines[2:]):
-                v = list(map(float, l.split()))
-                if not i % (self._natoms + 1):
+            for idx, line in enumerate(lines[2:]):
+                v = list(map(float, line.split()))
+                if not idx % (self._natoms + 1):
                     atom, disp = map(int, v[:2])
                     if atom not in self.data:
                         self.data[atom] = {}

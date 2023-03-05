@@ -2200,12 +2200,7 @@ class GrainBoundaryGenerator:
                     ab_norm = ab_norm_temp
                     t_matrix[0] = i[0]
                     t_matrix[1] = i[1]
-                elif area_temp < area:
-                    t_matrix[0] = i[0]
-                    t_matrix[1] = i[1]
-                    area = area_temp
-                    ab_norm = ab_norm_temp
-                elif abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm:
+                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):
                     t_matrix[0] = i[0]
                     t_matrix[1] = i[1]
                     area = area_temp
@@ -2298,11 +2293,9 @@ def fix_pbc(structure, matrix=None):
     Set all frac_coords of the input structure within [0,1].
 
     Args:
-        structure (pymatgen structure object):
-            input structure
-        matrix (lattice matrix, 3 by 3 array/matrix)
-            new structure's lattice matrix, if none, use
-            input structure's matrix
+        structure (pymatgen structure object): input structure
+        matrix (lattice matrix, 3 by 3 array/matrix): new structure's lattice matrix,
+            If None, use input structure's matrix.
 
     Return:
         new structure with fixed frac_coords and lattice matrix
@@ -2316,9 +2309,7 @@ def fix_pbc(structure, matrix=None):
         coord = np.array(site.frac_coords)
         for i in range(3):
             coord[i] -= floor(coord[i])
-            if np.allclose(coord[i], 1):
-                coord[i] = 0
-            elif np.allclose(coord[i], 0):
+            if np.allclose(coord[i], 1) or np.allclose(coord[i], 0):
                 coord[i] = 0
             else:
                 coord[i] = round(coord[i], 7)

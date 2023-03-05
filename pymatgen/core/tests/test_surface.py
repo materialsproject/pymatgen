@@ -734,7 +734,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
             slabs = rec.build_slabs()
             s = Structure.from_file(get_path(os.path.join("reconstructions", el + "_" + n + ".cif")))
-            assert any([len(m.group_structures([s, slab])) == 1 for slab in slabs])
+            assert any(len(m.group_structures([s, slab])) == 1 for slab in slabs)
 
 
 class MillerIndexFinderTests(PymatgenTest):

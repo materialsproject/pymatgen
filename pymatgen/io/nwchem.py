@@ -458,53 +458,53 @@ class NwInput(MSONable):
         memory_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
-            l = lines.pop(0).strip()
-            if l == "":
+            line = lines.pop(0).strip()
+            if line == "":
                 continue
 
-            toks = l.split()
+            toks = line.split()
             if toks[0].lower() == "geometry":
                 geom_options = toks[1:]
-                l = lines.pop(0).strip()
-                toks = l.split()
+                line = lines.pop(0).strip()
+                toks = line.split()
                 if toks[0].lower() == "symmetry":
                     symmetry_options = toks[1:]
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
                 # Parse geometry
                 species = []
                 coords = []
-                while l.lower() != "end":
-                    toks = l.split()
+                while line.lower() != "end":
+                    toks = line.split()
                     species.append(toks[0])
                     coords.append([float(i) for i in toks[1:]])
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
                 mol = Molecule(species, coords)
             elif toks[0].lower() == "charge":
                 charge = int(toks[1])
             elif toks[0].lower() == "title":
-                title = l[5:].strip().strip('"')
+                title = line[5:].strip().strip('"')
             elif toks[0].lower() == "basis":
                 # Parse basis sets
-                l = lines.pop(0).strip()
+                line = lines.pop(0).strip()
                 basis_set = {}
-                while l.lower() != "end":
-                    toks = l.split()
+                while line.lower() != "end":
+                    toks = line.split()
                     basis_set[toks[0]] = toks[-1].strip('"')
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
             elif toks[0].lower() in NwTask.theories:
                 # read the basis_set_option
                 if len(toks) > 1:
                     basis_set_option = toks[1]
                 # Parse theory directives.
                 theory = toks[0].lower()
-                l = lines.pop(0).strip()
+                line = lines.pop(0).strip()
                 theory_directives[theory] = {}
-                while l.lower() != "end":
-                    toks = l.split()
+                while line.lower() != "end":
+                    toks = line.split()
                     theory_directives[theory][toks[0]] = toks[-1]
                     if toks[0] == "mult":
                         spin_multiplicity = float(toks[1])
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
             elif toks[0].lower() == "task":
                 tasks.append(
                     NwTask(
@@ -521,7 +521,7 @@ class NwInput(MSONable):
             elif toks[0].lower() == "memory":
                 memory_options = " ".join(toks[1:])
             else:
-                directives.append(l.strip().split())
+                directives.append(line.strip().split())
 
         return NwInput(
             mol,
@@ -686,8 +686,8 @@ class NwOutput:
     @staticmethod
     def _parse_preamble(preamble):
         info = {}
-        for l in preamble.split("\n"):
-            toks = l.split("=")
+        for line in preamble.split("\n"):
+            toks = line.split("=")
             if len(toks) > 1:
                 info[toks[0].strip()] = toks[-1].strip()
         return info

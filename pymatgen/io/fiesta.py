@@ -280,8 +280,8 @@ class BasisSetReader:
         data_tmp.pop("preamble")
 
         for l_zeta_ng in data_tmp:
-            l = l_zeta_ng.split("_")[0]
-            nnlmo = nnlmo + (2 * int(l) + 1)
+            n_l = l_zeta_ng.split("_")[0]
+            nnlmo = nnlmo + (2 * int(n_l) + 1)
 
         return str(nnlmo)
 
@@ -605,42 +605,42 @@ $geometry
 
         # number of atoms and species
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         nat = toks[0]
         nsp = toks[1]
         # number of valence bands
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
 
         # correlation_grid
         # number of points and spacing in eV for correlation grid
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         correlation_grid["n_grid"] = toks[0]
         correlation_grid["dE_grid"] = toks[1]
 
         # Exc DFT
         # relire=1 ou recalculer=0 Exc DFT
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         Exc_DFT_option["rdVxcpsi"] = toks[0]
 
         # COHSEX
         # number of COHSEX corrected occp and unoccp bands: C=COHSEX  H=HF
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         COHSEX_options["nv_cohsex"] = toks[0]
         COHSEX_options["nc_cohsex"] = toks[1]
         COHSEX_options["eigMethod"] = toks[2]
         # number of COHSEX iter, scf on wfns, mixing coeff; V=RI-V  I=RI-D
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         COHSEX_options["nit_cohsex"] = toks[0]
         COHSEX_options["resMethod"] = toks[1]
         COHSEX_options["scf_cohsex_wf"] = toks[2]
@@ -649,33 +649,33 @@ $geometry
         # GW
         # number of GW corrected occp and unoccp bands
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         GW_options["nv_corr"] = toks[0]
         GW_options["nc_corr"] = toks[1]
         # number of GW iterations
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         GW_options["nit_gw"] = toks[0]
 
         # BSE
         # dumping for BSE and TDDFT
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         BSE_TDDFT_options["do_bse"] = toks[0]
         BSE_TDDFT_options["do_tddft"] = toks[1]
         # number of occp. and virtual bands of BSE: nocore and up to 40 eVs
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         BSE_TDDFT_options["nv_bse"] = toks[0]
         BSE_TDDFT_options["nc_bse"] = toks[1]
         # number of excitations needed and number of iterations
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         BSE_TDDFT_options["npsi_bse"] = toks[0]
         BSE_TDDFT_options["nit_bse"] = toks[1]
 
@@ -685,15 +685,15 @@ $geometry
         atname = []
         i = int(nsp)
         while i != 0:
-            l = lines.pop(0).strip()
-            toks = l.split()
+            line = lines.pop(0).strip()
+            toks = line.split()
             atname.append(toks[0])
             i -= 1
 
         # scaling factor
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         # atoms x,y,z cartesian .. will be multiplied by scale
         lines.pop(0)
         # Parse geometry
@@ -701,8 +701,8 @@ $geometry
         coords = []
         i = int(nat)
         while i != 0:
-            l = lines.pop(0).strip()
-            toks = l.split()
+            line = lines.pop(0).strip()
+            toks = line.split()
             coords.append([float(j) for j in toks[0:3]])
             species.append(atname[int(toks[3]) - 1])
             i -= 1
@@ -865,29 +865,29 @@ class BSEOutput:
         parse_BSE_results = False
         parse_total_time = False
 
-        for l in output.split("\n"):
+        for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(l)
+                m = end_patt.search(line)
                 if m:
                     BSE_results.update(end_normally=True)
 
-                m = total_time_patt.search(l)
+                m = total_time_patt.search(line)
                 if m:
                     BSE_results.update(total_time=m.group(1))
 
             if parse_BSE_results:
-                if l.find("FULL BSE main valence -> conduction transitions weight:") != -1:
+                if line.find("FULL BSE main valence -> conduction transitions weight:") != -1:
                     parse_total_time = True
                     parse_BSE_results = False
                     continue
 
-                m = BSE_exitons_patt.search(l)
+                m = BSE_exitons_patt.search(line)
                 if m:
                     d = {}
                     d.update(bse_eig=m.group(2), osc_strength=m.group(3))
                     BSE_results[str(m.group(1).strip())] = d
 
-            if l.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
+            if line.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
                 parse_BSE_results = True
 
         return BSE_results

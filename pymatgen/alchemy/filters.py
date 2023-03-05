@@ -230,9 +230,10 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             return finder.get_space_group_number()
 
         for s in self.structure_list[hash]:
-            if self.symprec is None or get_spg_num(s) == get_spg_num(structure):
-                if self.structure_matcher.fit(s, structure):
-                    return False
+            if (self.symprec is None or get_spg_num(s) == get_spg_num(structure)) and self.structure_matcher.fit(
+                s, structure
+            ):
+                return False
 
         self.structure_list[hash].append(structure)
         return True
@@ -279,12 +280,13 @@ class RemoveExistingFilter(AbstractStructureFilter):
             return finder.get_space_group_number()
 
         for s in self.existing_structures:
-            if self.structure_matcher._comparator.get_hash(
-                structure.composition
-            ) == self.structure_matcher._comparator.get_hash(s.composition):
-                if self.symprec is None or get_sg(s) == get_sg(structure):
-                    if self.structure_matcher.fit(s, structure):
-                        return False
+            if (
+                self.structure_matcher._comparator.get_hash(structure.composition)
+                == self.structure_matcher._comparator.get_hash(s.composition)
+                and self.symprec is None
+                or get_sg(s) == get_sg(structure)
+            ) and self.structure_matcher.fit(s, structure):
+                return False
 
         self.structure_list.append(structure)
         return True

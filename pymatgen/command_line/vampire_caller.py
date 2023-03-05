@@ -355,10 +355,8 @@ class VampireCaller:
                 dist = round(c[-1], 2)
 
                 # Look up J_ij between the sites
-                if self.avg is True:  # Just use <J> estimate
-                    j_exc = self.hm.javg
-                else:
-                    j_exc = self.hm._get_j_exc(idx, j, dist)
+                # if case: Just use <J> estimate
+                j_exc = self.hm.javg if self.avg is True else self.hm._get_j_exc(idx, j, dist)
 
                 # Convert J_ij from meV to Joules
                 j_exc *= 1.6021766e-22

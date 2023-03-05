@@ -374,7 +374,7 @@ class Poscar(MSONable):
             ind = 3 if not has_selective_dynamics else 6
             try:
                 # Check if names are appended at the end of the coordinates.
-                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + n_sites]]
+                atomic_symbols = [line.split()[ind] for line in lines[ipos + 1 : ipos + 1 + n_sites]]
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
@@ -1215,7 +1215,7 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(math.floor(max(mult / l, 1))) for l in lengths]
+        num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
 
         is_hexagonal = latt.is_hexagonal()
 
@@ -1246,7 +1246,7 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
-        num_div = [int(round(mult / l)) for l in lengths]
+        num_div = [int(round(mult / length)) for length in lengths]
 
         # ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
@@ -2151,7 +2151,7 @@ class PotcarSingle:
         # we have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.
         potcar_list = self.data.split("\n")
-        potcar_to_hash = [l for l in potcar_list if not l.strip().startswith(("SHA256", "COPYR"))]
+        potcar_to_hash = [line for line in potcar_list if not line.strip().startswith(("SHA256", "COPYR"))]
         potcar_to_hash_str = "\n".join(potcar_to_hash)
         return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
 

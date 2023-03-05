@@ -163,7 +163,7 @@ class QChemDictSet(QCInput):
     ):
         """
         Args:
-            molecule (Pymatgen Molecule object)
+            molecule (Pymatgen Molecule object): Molecule to run QChem on.
             job_type (str): QChem job type to run. Valid options are "opt" for optimization,
                 "sp" for single point, "freq" for frequency calculation, or "force" for
                 force evaluation.
@@ -280,7 +280,7 @@ class QChemDictSet(QCInput):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -315,6 +315,7 @@ class QChemDictSet(QCInput):
                         },
                     ]
                 ]
+            cdft_constraints (list[list[dict]]): A list of lists of dictionaries, where each
             almo_coupling_states (list of lists of int 2-tuples):
                 A list of lists of int 2-tuples used for calculations of diabatization and state
                 coupling calculations relying on the absolutely localized molecular orbitals (ALMO)
@@ -507,28 +508,31 @@ class QChemDictSet(QCInput):
 
         tmp_geom_opt = self.geom_opt
         my_geom_opt = self.geom_opt
-        if self.job_type.lower() in ["opt", "optimization"]:
-            if self.qchem_version == 6 or (self.qchem_version == 5 and self.geom_opt is not None):
-                if self.qchem_version == 5:
-                    myrem["geom_opt2"] = "3"
-                elif self.qchem_version == 6 and not self.geom_opt:
-                    tmp_geom_opt = {}
-                if tmp_geom_opt is not None:
-                    if "maxiter" in tmp_geom_opt:
-                        if tmp_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
-                            raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
-                    else:
-                        tmp_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
-                    if self.qchem_version == 6:
-                        if "coordinates" not in tmp_geom_opt:
-                            tmp_geom_opt["coordinates"] = "redundant"
-                        if "max_displacement" not in tmp_geom_opt:
-                            tmp_geom_opt["max_displacement"] = "0.1"
-                        if "optimization_restart" not in tmp_geom_opt:
-                            tmp_geom_opt["optimization_restart"] = "false"
-                    my_geom_opt = {}
-                    for key in tmp_geom_opt:
-                        my_geom_opt[key] = tmp_geom_opt[key]
+        if (
+            self.job_type.lower() in ["opt", "optimization"]
+            and self.qchem_version == 6
+            or (self.qchem_version == 5 and self.geom_opt is not None)
+        ):
+            if self.qchem_version == 5:
+                myrem["geom_opt2"] = "3"
+            elif self.qchem_version == 6 and not self.geom_opt:
+                tmp_geom_opt = {}
+            if tmp_geom_opt is not None:
+                if "maxiter" in tmp_geom_opt:
+                    if tmp_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
+                        raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
+                else:
+                    tmp_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
+                if self.qchem_version == 6:
+                    if "coordinates" not in tmp_geom_opt:
+                        tmp_geom_opt["coordinates"] = "redundant"
+                    if "max_displacement" not in tmp_geom_opt:
+                        tmp_geom_opt["max_displacement"] = "0.1"
+                    if "optimization_restart" not in tmp_geom_opt:
+                        tmp_geom_opt["optimization_restart"] = "false"
+                my_geom_opt = {}
+                for key in tmp_geom_opt:
+                    my_geom_opt[key] = tmp_geom_opt[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -612,9 +616,7 @@ class QChemDictSet(QCInput):
             # If extra_scf_print is specified, make sure that the convergence of the
             # SCF cycle is at least 1e-8. Anything less than that might not be appropriate
             # for printing out the Fock Matrix and coefficients of the MO.
-            if "scf_convergence" not in myrem:
-                myrem["scf_convergence"] = "8"
-            elif int(myrem["scf_convergence"]) < 8:
+            if "scf_convergence" not in myrem or int(myrem["scf_convergence"]) < 8:
                 myrem["scf_convergence"] = "8"
 
         super().__init__(
@@ -768,7 +770,7 @@ class SinglePointSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -1003,7 +1005,7 @@ class OptSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -1339,7 +1341,7 @@ class ForceSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -1531,7 +1533,7 @@ class FreqSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {

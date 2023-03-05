@@ -573,9 +573,9 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
 
 class ChargedCellTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        l = Lattice.cubic(4)
+        lattice = Lattice.cubic(4)
         s_orig = Structure(
-            l,
+            lattice,
             [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )

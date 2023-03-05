@@ -57,7 +57,7 @@ if __name__ == "__main__":
             print()
         # Visualize the separation plane of a given algorithm
         sepplane = False
-        if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):
+        if any(algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms):
             test = input("Enter index of the algorithm for which you want to visualize the plane : ")
             if test != "":
                 try:

@@ -52,8 +52,9 @@ ignore = [
   "D415",    # First line should end with a period, question mark, or exclamation point
   "E741",    # tmp: we should fix all ambiguous variable names
   "PLR2004", # Magic number
-  "PLW0120", # awaiting bug fix https://github.com/charliermarsh/ruff/issues/3019
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+  "SIM115",  # Use context handler for opening files
   "PLW0603", # Using the global statement to update variables is discouraged
 ]
 pydocstyle.convention = "google"

@@ -1594,6 +1594,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     is based on the symmetry of the reciprocal lattice of the structure.
 
     Args:
+        structure (Structure): Structure to analyze
         miller_index (tuple): Designates the family of Miller indices
             to find. Can be hkl or hkil for hexagonal systems
         return_hkil (bool): If true, return hkil form of Miller
@@ -1622,9 +1623,12 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
                 equivalent_millers.append(miller)
 
             # include larger Miller indices in the family of planes
-            if all(mmi > i for i in np.abs(miller)) and not in_coord_list(equivalent_millers, miller):
-                if is_already_analyzed(mmi * np.array(miller), equivalent_millers, symm_ops):
-                    equivalent_millers.append(miller)
+            if (
+                all(mmi > i for i in np.abs(miller))
+                and not in_coord_list(equivalent_millers, miller)
+                and is_already_analyzed(mmi * np.array(miller), equivalent_millers, symm_ops)
+            ):
+                equivalent_millers.append(miller)
 
     if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in equivalent_millers]

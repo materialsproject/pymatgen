@@ -852,6 +852,7 @@ class PhaseDiagram(MSONable):
                 when finding the equilibrium reaction. Tighter tolerances tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
+            **kwargs: Passed to get_decomp_and_e_above_hull.
 
         Returns:
             (decomp, energy). The decomposition  is given as a dict of {PDEntry, amount}
@@ -894,8 +895,7 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit and not stable_only:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Calculating inner hull to discard "
-                "additional unstable entries"
+                f"for {entry.composition} - Calculating inner hull to discard additional unstable entries"
             )
 
             reduced_space = competing_entries - {*self._get_stable_entries_in_space(entry_elems)} | {
@@ -912,8 +912,7 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Using SLSQP to find "
-                "decomposition likely to be slow"
+                f"for {entry.composition} - Using SLSQP to find decomposition likely to be slow"
             )
 
         decomp = _get_slsqp_decomp(entry.composition, competing_entries, tols, maxiter)
@@ -1008,11 +1007,8 @@ class PhaseDiagram(MSONable):
 
         clean_pots = []
         for c in sorted(critical_chempots):
-            if len(clean_pots) == 0:
+            if len(clean_pots) == 0 or abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
                 clean_pots.append(c)
-            else:
-                if abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
-                    clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
 
@@ -1023,7 +1019,8 @@ class PhaseDiagram(MSONable):
         The endpoints are also returned.
 
         Args:
-            comp1, comp2 (Composition): compositions that define the tieline
+            comp1 (Composition): First composition to define the tieline
+            comp2 (Composition): Second composition to define the tieline
 
         Returns:
             [(Composition)]: list of critical compositions. All are of

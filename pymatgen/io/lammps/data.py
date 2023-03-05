@@ -657,7 +657,7 @@ class LammpsData(MSONable):
         with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
-        section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
+        section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
 
         float_group = r"([0-9eE.+-]+)"
@@ -974,10 +974,10 @@ class Topology(MSONable):
                 angle_list.extend([[i, k, j] for i, j in itertools.combinations(v, 2)])
         if dihedral:
             hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-            for i, j in hub_cons.tolist():
-                ks = [k for k in hub_spokes[i] if k != j]
-                ls = [l for l in hub_spokes[j] if l != i]
-                dihedral_list.extend([[k, i, j, l] for k, l in itertools.product(ks, ls) if k != l])
+            for ii, jj in hub_cons.tolist():
+                ks = [ki for ki in hub_spokes[ii] if ki != jj]
+                ls = [li for li in hub_spokes[jj] if li != ii]
+                dihedral_list.extend([[ki, ii, jj, li] for ki, li in itertools.product(ks, ls) if ki != li])
 
         topologies = {
             k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0

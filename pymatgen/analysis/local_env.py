@@ -2306,9 +2306,7 @@ class LocalStructOrderParams:
         self._params = []
         for i, t in enumerate(self._types):
             d = deepcopy(default_op_params[t]) if default_op_params[t] is not None else None
-            if parameters is None:
-                self._params.append(d)
-            elif parameters[i] is None:
+            if parameters is None or parameters[i] is None:
                 self._params.append(d)
             else:
                 self._params.append(deepcopy(parameters[i]))
@@ -3179,20 +3177,22 @@ class LocalStructOrderParams:
                                             "sq_plan_max",
                                             "hex_plan_max",
                                         ]:
-                                            if thetam < self._params[i]["min_SPP"]:
-                                                if thetak < self._params[i]["min_SPP"]:
-                                                    tmp = (
-                                                        cos(self._params[i]["fac_AA"] * phi)
-                                                        ** self._params[i]["exp_cos_AA"]
-                                                    )
-                                                    tmp2 = (
-                                                        self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                                        if t != "hex_plan_max"
-                                                        else self._params[i]["IGW_TA"]
-                                                        * (fabs(thetam * ipi - 0.5) - self._params[i]["TA"])
-                                                    )
-                                                    qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
-                                                    norms[i][j][kc] += 1
+                                            if (
+                                                thetam < self._params[i]["min_SPP"]
+                                                and thetak < self._params[i]["min_SPP"]
+                                            ):
+                                                tmp = (
+                                                    cos(self._params[i]["fac_AA"] * phi)
+                                                    ** self._params[i]["exp_cos_AA"]
+                                                )
+                                                tmp2 = (
+                                                    self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                    if t != "hex_plan_max"
+                                                    else self._params[i]["IGW_TA"]
+                                                    * (fabs(thetam * ipi - 0.5) - self._params[i]["TA"])
+                                                )
+                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                norms[i][j][kc] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._params[i]["min_SPP"]:
                                                 fac = 1.0 if thetak > piover2 else -1.0
@@ -3202,15 +3202,18 @@ class LocalStructOrderParams:
                                                 )
                                                 norms[i][j][kc] += 1
                                         elif t == "see_saw_rect":
-                                            if thetam < self._params[i]["min_SPP"]:
-                                                if thetak < self._params[i]["min_SPP"] and phi < 0.75 * pi:
-                                                    tmp = (
-                                                        cos(self._params[i]["fac_AA"] * phi)
-                                                        ** self._params[i]["exp_cos_AA"]
-                                                    )
-                                                    tmp2 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                                    qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
-                                                    norms[i][j][kc] += 1.0
+                                            if (
+                                                thetam < self._params[i]["min_SPP"]
+                                                and thetak < self._params[i]["min_SPP"]
+                                                and phi < 0.75 * pi
+                                            ):
+                                                tmp = (
+                                                    cos(self._params[i]["fac_AA"] * phi)
+                                                    ** self._params[i]["exp_cos_AA"]
+                                                )
+                                                tmp2 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                norms[i][j][kc] += 1.0
                                         elif t in ["cuboct", "cuboct_max"]:
                                             if (
                                                 thetam < self._params[i]["min_SPP"]
@@ -3235,30 +3238,33 @@ class LocalStructOrderParams:
                                                         -0.5 * tmp2 * tmp2
                                                     )
                                                     norms[i][j][kc] += 1.0
-                                        elif t == "sq_face_cap_trig_pris" and not flag_yaxis:
-                                            if thetak < self._params[i]["TA3"]:
-                                                if thetam < self._params[i]["TA3"]:
-                                                    tmp = (
-                                                        cos(self._params[i]["fac_AA1"] * phi2)
-                                                        ** self._params[i]["exp_cos_AA1"]
+                                        elif (
+                                            t == "sq_face_cap_trig_pris"
+                                            and not flag_yaxis
+                                            and thetak < self._params[i]["TA3"]
+                                        ):
+                                            if thetam < self._params[i]["TA3"]:
+                                                tmp = (
+                                                    cos(self._params[i]["fac_AA1"] * phi2)
+                                                    ** self._params[i]["exp_cos_AA1"]
+                                                )
+                                                tmp2 = self._params[i]["IGW_TA1"] * (
+                                                    thetam * ipi - self._params[i]["TA1"]
+                                                )
+                                            else:
+                                                tmp = (
+                                                    cos(
+                                                        self._params[i]["fac_AA2"]
+                                                        * (phi2 + self._params[i]["shift_AA2"])
                                                     )
-                                                    tmp2 = self._params[i]["IGW_TA1"] * (
-                                                        thetam * ipi - self._params[i]["TA1"]
-                                                    )
-                                                else:
-                                                    tmp = (
-                                                        cos(
-                                                            self._params[i]["fac_AA2"]
-                                                            * (phi2 + self._params[i]["shift_AA2"])
-                                                        )
-                                                        ** self._params[i]["exp_cos_AA2"]
-                                                    )
-                                                    tmp2 = self._params[i]["IGW_TA2"] * (
-                                                        thetam * ipi - self._params[i]["TA2"]
-                                                    )
+                                                    ** self._params[i]["exp_cos_AA2"]
+                                                )
+                                                tmp2 = self._params[i]["IGW_TA2"] * (
+                                                    thetam * ipi - self._params[i]["TA2"]
+                                                )
 
-                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
-                                                norms[i][j][kc] += 1
+                                            qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                            norms[i][j][kc] += 1
 
                         kc += 1
 
@@ -4421,11 +4427,15 @@ def metal_edge_extender(
     for sites in metal_sites.values():
         for idx, indices in sites.items():
             for ii, site in enumerate(mol_graph.molecule):
-                if ii != idx and ii not in indices and str(site.specie) in coordinators:
-                    if site.distance(mol_graph.molecule[idx]) < cutoff:
-                        mol_graph.add_edge(idx, ii)
-                        num_new_edges += 1
-                        indices.append(ii)
+                if (
+                    ii != idx
+                    and ii not in indices
+                    and str(site.specie) in coordinators
+                    and site.distance(mol_graph.molecule[idx]) < cutoff
+                ):
+                    mol_graph.add_edge(idx, ii)
+                    num_new_edges += 1
+                    indices.append(ii)
     # If no metal edges are found, increase cutoff by 1 Ang and repeat analysis
     total_metal_edges = 0
     for sites in metal_sites.values():
@@ -4435,10 +4445,14 @@ def metal_edge_extender(
         for sites in metal_sites.values():
             for idx, indices in sites.items():
                 for ii, site in enumerate(mol_graph.molecule):
-                    if ii != idx and ii not in indices and str(site.specie) in coordinators:
-                        if site.distance(mol_graph.molecule[idx]) < (cutoff + 1):
-                            mol_graph.add_edge(idx, ii)
-                            num_new_edges += 1
-                            indices.append(ii)
+                    if (
+                        ii != idx
+                        and ii not in indices
+                        and str(site.specie) in coordinators
+                        and site.distance(mol_graph.molecule[idx]) < (cutoff + 1)
+                    ):
+                        mol_graph.add_edge(idx, ii)
+                        num_new_edges += 1
+                        indices.append(ii)
 
     return mol_graph

@@ -300,13 +300,16 @@ def compute_environments(chemenv_configuration):
                             cg = allcg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
                             mystring += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
-                    if test in ["d", "g"] and strategy.uniquely_determines_coordination_environments:
-                        if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
-                            mystring += "  <Continuous symmetry measures>  "
-                            mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
-                            for mingeom in mingeoms:
-                                csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                                mystring += f"{mingeom[0]} : {csm:.2f}       "
+                    if (
+                        test in ["d", "g"]
+                        and strategy.uniquely_determines_coordination_environments
+                        and thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL
+                    ):
+                        mystring += "  <Continuous symmetry measures>  "
+                        mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
+                        for mingeom in mingeoms:
+                            csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
+                            mystring += f"{mingeom[0]} : {csm:.2f}       "
                     print(mystring)
             if test == "g":
                 while True:
