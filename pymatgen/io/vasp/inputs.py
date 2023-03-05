@@ -1215,7 +1215,7 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(math.floor(max(mult / l, 1))) for l in lengths]
+        num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
 
         is_hexagonal = latt.is_hexagonal()
 
@@ -2151,7 +2151,7 @@ class PotcarSingle:
         # we have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.
         potcar_list = self.data.split("\n")
-        potcar_to_hash = [l for l in potcar_list if not l.strip().startswith(("SHA256", "COPYR"))]
+        potcar_to_hash = [line for line in potcar_list if not line.strip().startswith(("SHA256", "COPYR"))]
         potcar_to_hash_str = "\n".join(potcar_to_hash)
         return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
 

@@ -425,8 +425,8 @@ class AdfKey(MSONable):
                 return key
             elif key is not None:
                 key.add_subkey(AdfKey.from_string(line))
-        else:
-            raise Exception("IncompleteKey: 'END' is missing!")
+
+        raise Exception("IncompleteKey: 'END' is missing!")
 
 
 class AdfTask(MSONable):

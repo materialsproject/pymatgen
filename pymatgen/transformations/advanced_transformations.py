@@ -981,12 +981,12 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 sp = Species(sym, oxidation_state)
-                r = sp.ionic_radius
-                if r is not None:
-                    candidates.append((r, sp))
+                radius = sp.ionic_radius
+                if radius is not None:
+                    candidates.append((radius, sp))
         except Exception:
             pass
-    return min(candidates, key=lambda l: abs(l[0] / ref_radius - 1))[1]
+    return min(candidates, key=lambda tup: abs(tup[0] / ref_radius - 1))[1]
 
 
 class DopingTransformation(AbstractTransformation):

@@ -688,10 +688,10 @@ class QCInput(InputFile):
                 cdft_list.append(f"   {constraint['value']}")
 
                 type_strings = []
-                for t in types:
-                    if t is None and t.lower() in ["c", "charge"]:
+                for typ in types:
+                    if typ is None or typ.lower() in ["c", "charge"]:
                         type_strings.append("")
-                    elif t.lower() in ["s", "spin"]:
+                    elif typ.lower() in ["s", "spin"]:
                         type_strings.append("s")
                     else:
                         raise ValueError("Invalid CDFT constraint type!")
