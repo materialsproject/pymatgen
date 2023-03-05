@@ -56,6 +56,7 @@ ignore = [
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
   "SIM115",  # Use context handler for opening files
+  "PLW0603", # Using the global statement to update variables is discouraged
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
