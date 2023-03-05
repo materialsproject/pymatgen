@@ -4168,13 +4168,13 @@ class Xdatcar:
 
         # pylint: disable=E1136
         ionicstep_cnt = 1
-        with zopen(filename, "rt") as f:
-            for l in f:
-                l = l.strip()
+        with zopen(filename, "rt") as file:
+            for line in file:
+                line = line.strip()
                 if preamble is None:
-                    preamble = [l]
-                    title = l
-                elif title == l:
+                    preamble = [line]
+                    title = line
+                elif title == line:
                     preamble_done = False
                     p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
@@ -4187,9 +4187,9 @@ class Xdatcar:
                             break
                     ionicstep_cnt += 1
                     coords_str = []
-                    preamble = [l]
+                    preamble = [line]
                 elif not preamble_done:
-                    if l == "" or "Direct configuration=" in l:
+                    if line == "" or "Direct configuration=" in line:
                         preamble_done = True
                         tmp_preamble = [preamble[0]]
                         for i in range(1, len(preamble)):
@@ -4199,8 +4199,8 @@ class Xdatcar:
                                 break
                         preamble = tmp_preamble
                     else:
-                        preamble.append(l)
-                elif l == "" or "Direct configuration=" in l:
+                        preamble.append(line)
+                elif line == "" or "Direct configuration=" in line:
                     p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
@@ -4213,7 +4213,7 @@ class Xdatcar:
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
-                    coords_str.append(l)
+                    coords_str.append(line)
             p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
@@ -4266,12 +4266,12 @@ class Xdatcar:
         # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
-            for l in f:
-                l = l.strip()
+            for line in f:
+                line = line.strip()
                 if preamble is None:
-                    preamble = [l]
+                    preamble = [line]
                 elif not preamble_done:
-                    if l == "" or "Direct configuration=" in l:
+                    if line == "" or "Direct configuration=" in line:
                         preamble_done = True
                         tmp_preamble = [preamble[0]]
                         for i in range(1, len(preamble)):
@@ -4281,8 +4281,8 @@ class Xdatcar:
                                 break
                         preamble = tmp_preamble
                     else:
-                        preamble.append(l)
-                elif l == "" or "Direct configuration=" in l:
+                        preamble.append(line)
+                elif line == "" or "Direct configuration=" in line:
                     p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
@@ -4293,7 +4293,7 @@ class Xdatcar:
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
-                    coords_str.append(l)
+                    coords_str.append(line)
             p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:

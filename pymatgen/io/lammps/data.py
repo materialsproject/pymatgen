@@ -657,7 +657,7 @@ class LammpsData(MSONable):
         with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
-        section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
+        section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
 
         float_group = r"([0-9eE.+-]+)"

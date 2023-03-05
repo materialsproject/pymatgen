@@ -157,11 +157,11 @@ def parse_lammps_log(filename="log.lammps"):
     )
     end_flag = "Loop time of"
     begins, ends = [], []
-    for i, l in enumerate(lines):
-        if l.startswith(begin_flag):
-            begins.append(i)
-        elif l.startswith(end_flag):
-            ends.append(i)
+    for idx, line in enumerate(lines):
+        if line.startswith(begin_flag):
+            begins.append(idx)
+        elif line.startswith(end_flag):
+            ends.append(idx)
 
     def _parse_thermo(lines):
         multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"

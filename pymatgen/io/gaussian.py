@@ -185,8 +185,8 @@ class GaussianInput:
         """
         paras = {}
         var_pattern = re.compile(r"^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
-        for l in coord_lines:
-            m = var_pattern.match(l.strip())
+        for line in coord_lines:
+            m = var_pattern.match(line.strip())
             if m:
                 paras[m.group(1).strip("=")] = float(m.group(2))
 
@@ -195,21 +195,21 @@ class GaussianInput:
         # Stores whether a Zmatrix format is detected. Once a zmatrix format
         # is detected, it is assumed for the remaining of the parsing.
         zmode = False
-        for l in coord_lines:
-            l = l.strip()
-            if not l:
+        for line in coord_lines:
+            line = line.strip()
+            if not line:
                 break
-            if (not zmode) and GaussianInput._xyz_patt.match(l):
-                m = GaussianInput._xyz_patt.match(l)
+            if (not zmode) and GaussianInput._xyz_patt.match(line):
+                m = GaussianInput._xyz_patt.match(line)
                 species.append(m.group(1))
-                toks = re.split(r"[,\s]+", l.strip())
+                toks = re.split(r"[,\s]+", line.strip())
                 if len(toks) > 4:
                     coords.append([float(i) for i in toks[2:5]])
                 else:
                     coords.append([float(i) for i in toks[1:4]])
-            elif GaussianInput._zmat_patt.match(l):
+            elif GaussianInput._zmat_patt.match(line):
                 zmode = True
-                toks = re.split(r"[,\s]+", l.strip())
+                toks = re.split(r"[,\s]+", line.strip())
                 species.append(toks[0])
                 toks.pop(0)
                 if len(toks) == 0:

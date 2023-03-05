@@ -686,8 +686,8 @@ class NwOutput:
     @staticmethod
     def _parse_preamble(preamble):
         info = {}
-        for l in preamble.split("\n"):
-            toks = l.split("=")
+        for line in preamble.split("\n"):
+            toks = line.split("=")
             if len(toks) > 1:
                 info[toks[0].strip()] = toks[-1].strip()
         return info

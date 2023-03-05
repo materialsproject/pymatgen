@@ -280,8 +280,8 @@ class BasisSetReader:
         data_tmp.pop("preamble")
 
         for l_zeta_ng in data_tmp:
-            l = l_zeta_ng.split("_")[0]
-            nnlmo = nnlmo + (2 * int(l) + 1)
+            n_l = l_zeta_ng.split("_")[0]
+            nnlmo = nnlmo + (2 * int(n_l) + 1)
 
         return str(nnlmo)
 
