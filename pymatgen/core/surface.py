@@ -1594,6 +1594,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     is based on the symmetry of the reciprocal lattice of the structure.
 
     Args:
+        structure (Structure): Structure to analyze
         miller_index (tuple): Designates the family of Miller indices
             to find. Can be hkl or hkil for hexagonal systems
         return_hkil (bool): If true, return hkil form of Miller
