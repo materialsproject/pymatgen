@@ -515,12 +515,13 @@ class VasprunTest(PymatgenTest):
                 assert bs.as_dict() == bs_kpts_gzip.as_dict()
 
             # Test compressed files case 2: compressed vasprun in another dir
-            with ScratchDir("./"), open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
-                os.path.join("deeper", "vasprun.xml.gz"), "wb"
-            ) as f_out:
+            with ScratchDir("./"):
                 os.mkdir("deeper")
                 copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
-                copyfileobj(f_in, f_out)
+                with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
+                    os.path.join("deeper", "vasprun.xml.gz"), "wb"
+                ) as f_out:
+                    copyfileobj(f_in, f_out)
                 vasprun = Vasprun(
                     os.path.join("deeper", "vasprun.xml.gz"),
                     parse_projected_eigen=True,
