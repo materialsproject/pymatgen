@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import unittest
 
+import numpy as np
 import pytest
 
 from pymatgen.analysis.interfaces.zsl import (
     ZSLGenerator,
     fast_norm,
     get_factors,
+    is_same_vectors,
     reduce_vectors,
     vec_area,
 )
@@ -38,12 +40,18 @@ class ZSLGenTest(PymatgenTest):
     def test_zsl(self):
         z = ZSLGenerator()
 
-        assert fast_norm([3, 2, 1]) == pytest.approx(3.74165738)
-        self.assertArrayEqual(reduce_vectors([1, 0, 0], [2, 2, 0]), [[1, 0, 0], [0, 2, 0]])
-        assert vec_area([1, 0, 0], [0, 2, 0]) == 2
+        assert fast_norm(np.array([3.0, 2.0, 1.0])) == pytest.approx(3.74165738)
+        self.assertArrayEqual(
+            reduce_vectors(np.array([1.0, 0.0, 0.0]), np.array([2.0, 2.0, 0.0])), [[1, 0, 0], [0, 2, 0]]
+        )
+        assert vec_area(np.array([1.0, 0.0, 0.0]), np.array([0.0, 2.0, 0.0])) == 2
         self.assertArrayEqual(list(get_factors(18)), [1, 2, 3, 6, 9, 18])
-        assert z.is_same_vectors([[1.01, 0, 0], [0, 2, 0]], [[1, 0, 0], [0, 2.01, 0]])
-        assert not z.is_same_vectors([[1.01, 2, 0], [0, 2, 0]], [[1, 0, 0], [0, 2.01, 0]])
+        assert is_same_vectors(
+            np.array([[1.01, 0, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
+        )
+        assert not is_same_vectors(
+            np.array([[1.01, 2, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
+        )
 
         matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
         assert len(matches) == 8
