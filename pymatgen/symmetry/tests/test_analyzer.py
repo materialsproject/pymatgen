@@ -141,8 +141,8 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
     def test_get_crystal_system(self):
         crystal_system = self.sg.get_crystal_system()
-        assert "orthorhombic" == crystal_system
-        assert "tetragonal" == self.disordered_sg.get_crystal_system()
+        assert crystal_system == "orthorhombic"
+        assert self.disordered_sg.get_crystal_system() == "tetragonal"
 
         orig_spg = self.sg._space_group_data["number"]
         self.sg._space_group_data["number"] = 0

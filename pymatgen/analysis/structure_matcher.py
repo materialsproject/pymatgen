@@ -773,10 +773,7 @@ class StructureMatcher(MSONable):
                     inv_lll_abc = np.array(avg_l.get_lll_reduced_lattice().reciprocal_lattice.abc)
                     lll_frac_tol = inv_lll_abc * self.stol / (np.pi * normalization)
                     dist, t_adj, mapping = self._cart_dists(s1fc, t_s2fc, avg_l, mask, normalization, lll_frac_tol)
-                    if use_rms:
-                        val = np.linalg.norm(dist) / len(dist) ** 0.5
-                    else:
-                        val = max(dist)
+                    val = np.linalg.norm(dist) / len(dist) ** 0.5 if use_rms else max(dist)
                     # pylint: disable=E1136
                     if best_match is None or val < best_match[0]:
                         total_t = t + t_adj
@@ -901,6 +898,7 @@ class StructureMatcher(MSONable):
     ):
         """
         Tries all permutations of matching struct1 to struct2.
+
         Args:
             struct1 (Structure): First structure
             struct2 (Structure): Second structure

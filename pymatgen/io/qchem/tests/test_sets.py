@@ -994,9 +994,9 @@ class PESScanSetTest(PymatgenTest):
             "symmetry": "false",
         }
         assert test_pes_scan.rem == ref_dict
-        assert test_pes_scan.pcm == dict()
-        assert test_pes_scan.solvent == dict()
-        assert test_pes_scan.smx == dict()
+        assert test_pes_scan.pcm == {}
+        assert test_pes_scan.solvent == {}
+        assert test_pes_scan.smx == {}
         assert test_pes_scan.scan == {"stre": ["3 6 1.5 1.9 0.01"]}
         assert test_pes_scan.molecule == test_molecule
 

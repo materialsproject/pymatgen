@@ -419,7 +419,8 @@ class ElementBase(Enum):
     @property
     def icsd_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all oxidation states with at least 10 instances in
-        ICSD database AND at least 1% of entries for that element"""
+        ICSD database AND at least 1% of entries for that element
+        """
         return tuple(self._data.get("ICSD oxidation states", []))
 
     @property
@@ -466,10 +467,9 @@ class ElementBase(Enum):
         last_orbital = full_electron_config[-1]
         for n, l_symbol, ne in full_electron_config:
             l = L_symbols.lower().index(l_symbol)
-            if ne < (2 * l + 1) * 2:
-                valence.append((l, ne))
-            # check for full last shell (e.g. column 2)
-            elif (n, l_symbol, ne) == last_orbital and ne == (2 * l + 1) * 2 and len(valence) == 0:
+            if ne < (2 * l + 1) * 2 or (
+                (n, l_symbol, ne) == last_orbital and ne == (2 * l + 1) * 2 and len(valence) == 0
+            ):  # check for full last shell (e.g. column 2)
                 valence.append((l, ne))
         if len(valence) > 1:
             raise ValueError("Ambiguous valence")
@@ -606,6 +606,7 @@ class ElementBase(Enum):
         Args:
             name: Long name of the element, e.g. 'Hydrogen' or
                   'Iron'. Not case-sensitive.
+
         Returns:
             Element with the name 'name'
         """

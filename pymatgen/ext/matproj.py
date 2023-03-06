@@ -278,10 +278,7 @@ class _MPResterLegacy:
             else:
                 response = self.session.get(url, params=payload, verify=True)
             if response.status_code in [200, 400]:
-                if mp_decode:
-                    data = json.loads(response.text, cls=MontyDecoder)
-                else:
-                    data = json.loads(response.text)
+                data = json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
                 if data["valid_response"]:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
@@ -542,7 +539,7 @@ class _MPResterLegacy:
             "potcar_symbols",
             "oxide_type",
         ]
-        props = ["energy", "unit_cell_formula", "task_id"] + params
+        props = ["energy", "unit_cell_formula", "task_id", *params]
         if sort_by_e_above_hull:
             if property_data and "e_above_hull" not in property_data:
                 property_data.append("e_above_hull")

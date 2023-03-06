@@ -170,7 +170,7 @@ class EOSBase(metaclass=ABCMeta):
         Returns:
             dict
         """
-        return dict(e0=self.e0, b0=self.b0, b1=self.b1, v0=self.v0)
+        return {"e0": self.e0, "b0": self.b0, "b1": self.b1, "v0": self.v0}
 
     def plot(self, width=8, height=None, plt=None, dpi=None, **kwargs):
         """

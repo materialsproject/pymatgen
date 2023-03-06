@@ -71,7 +71,7 @@ class MPResterOldTest(PymatgenTest):
     def test_get_xas_data(self):
         # Test getting XAS data
         data = self.rester.get_xas_data("mp-19017", "Li")
-        assert "mp-19017,Li" == data["mid_and_el"]
+        assert data["mid_and_el"] == "mp-19017,Li"
         assert data["spectrum"]["x"][0] == pytest.approx(55.178)
         assert data["spectrum"]["y"][0] == pytest.approx(0.0164634)
 
@@ -526,7 +526,7 @@ class MPResterOldTest(PymatgenTest):
         # Test against ion sets with multiple equivalent ions (Bi-V regression)
         entries = self.rester.get_pourbaix_entries(["Bi", "V"])
         pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
-        assert all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries])
+        assert all("Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries)
 
 
 if __name__ == "__main__":

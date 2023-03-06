@@ -15,7 +15,7 @@ Read the following carefully before implementing new input sets:
 1. 99% of what needs to be done can be done by specifying user_incar_settings
    to override some of the defaults of various input sets. Unless there is an
    extremely good reason to add a new set, DO NOT add one. E.g., if you want
-   to turn the hubbard U off, just set "LDAU": False as a user_incar_setting.
+   to turn the Hubbard U off, just set "LDAU": False as a user_incar_setting.
 2. All derivative input sets should inherit from one of the usual MPRelaxSet or
    MITRelaxSet, and proper superclass delegation should be used where possible.
    In particular, you are not supposed to implement your own as_dict or
@@ -111,7 +111,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         return potcar_symbols
 
     @property
-    def potcar(self):
+    def potcar(self) -> Potcar:
         """
         Potcar object.
         """
@@ -146,12 +146,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
     def write_input(
         self,
-        output_dir,
-        make_dir_if_not_present=True,
-        include_cif=False,
-        potcar_spec=False,
-        zip_output=False,
-    ):
+        output_dir: str,
+        make_dir_if_not_present: bool = True,
+        include_cif: bool = False,
+        potcar_spec: bool = False,
+        zip_output: bool = False,
+    ) -> None:
         """
         Writes a set of VASP input to a directory.
 
@@ -174,17 +174,13 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             if make_dir_if_not_present and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
-                f.write("\n".join(self.potcar_symbols))
+            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as file:
+                file.write("\n".join(self.potcar_symbols))
 
-            for k, v in {
-                "INCAR": self.incar,
-                "POSCAR": self.poscar,
-                "KPOINTS": self.kpoints,
-            }.items():
-                if v is not None:
-                    with zopen(os.path.join(output_dir, k), "wt") as f:
-                        f.write(str(v))
+            for key in ["INCAR", "POSCAR", "KPOINTS"]:
+                if (val := getattr(self, key.lower())) is not None:
+                    with zopen(os.path.join(output_dir, key), "wt") as file:
+                        file.write(str(val))
         else:
             vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
@@ -198,14 +194,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         if zip_output:
             filename = type(self).__name__ + ".zip"
             with ZipFile(os.path.join(output_dir, filename), "w") as zip:
-                for file in [
-                    "INCAR",
-                    "POSCAR",
-                    "KPOINTS",
-                    "POTCAR",
-                    "POTCAR.spec",
-                    cif_name,
-                ]:
+                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
                     try:
                         zip.write(os.path.join(output_dir, file), arcname=file)
                     except FileNotFoundError:
@@ -586,9 +575,8 @@ class DictSet(VaspInputSet):
         # correct overly large KSPACING values (small number of kpoints)
         # if necessary.
         # if "KSPACING" not in self.user_incar_settings:
-        if self.kpoints is not None:
-            if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
-                incar["ISMEAR"] = 0
+        if self.kpoints is not None and np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
 
         if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get("ISMEAR", 0) == -5:
             warnings.warn(
@@ -598,14 +586,13 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all(k.is_metal for k in structure.composition):
-            if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
-                warnings.warn(
-                    "Relaxation of likely metal with ISMEAR < 1 "
-                    "detected. Please see VASP recommendations on "
-                    "ISMEAR for metals.",
-                    BadInputSetWarning,
-                )
+        if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
+            warnings.warn(
+                "Relaxation of likely metal with ISMEAR < 1 "
+                "detected. Please see VASP recommendations on "
+                "ISMEAR for metals.",
+                BadInputSetWarning,
+            )
 
         return incar
 
@@ -646,9 +633,12 @@ class DictSet(VaspInputSet):
         """
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
-        if self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get("KSPACING"):
-            if self.user_kpoints_settings == {}:
-                return None
+        if (
+            self.user_incar_settings.get("KSPACING")
+            or self._config_dict["INCAR"].get("KSPACING")
+            and self.user_kpoints_settings == {}
+        ):
+            return None
 
         settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
 
@@ -785,10 +775,8 @@ class DictSet(VaspInputSet):
                 "PREC = LOW/MEDIUM/HIGH from VASP 4.x and not supported, Please use NORMA/SINGLE/ACCURATE"
             )
 
-        if _PREC[0].lower() in {"a", "s"}:  # TODO This only works in VASP 6.x
-            _WFACT = 4
-        else:
-            _WFACT = 3
+        # TODO This only works in VASP 6.x
+        _WFACT = 4 if _PREC[0].lower() in {"a", "s"} else 3
 
         def next_g_size(cur_g_size):
             g_size = int(_WFACT * cur_g_size + 0.5)
@@ -796,10 +784,8 @@ class DictSet(VaspInputSet):
 
         ng_vec = [*map(next_g_size, _CUTOF)]
 
-        if _PREC[0].lower() in {"a", "n"}:  # TODO This works for VASP 5.x and 6.x
-            finer_g_scale = 2
-        else:
-            finer_g_scale = 1
+        # TODO This works for VASP 5.x and 6.x
+        finer_g_scale = 2 if _PREC[0].lower() in {"a", "n"} else 1
 
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 
@@ -987,18 +973,15 @@ class MPScanRelaxSet(DictSet):
         if self.user_incar_settings.get("SIGMA"):
             del updates["SIGMA"]
 
-        if self.vdw:
-            if self.vdw != "rvv10":
-                warnings.warn(
-                    "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. "
-                )
-                # delete any vdw parameters that may have been added to the INCAR
-                vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
-                for k in vdw_par[self.vdw]:
-                    try:
-                        del self._config_dict["INCAR"][k]
-                    except KeyError:
-                        pass
+        if self.vdw and self.vdw != "rvv10":
+            warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")
+            # delete any vdw parameters that may have been added to the INCAR
+            vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
+            for k in vdw_par[self.vdw]:
+                try:
+                    del self._config_dict["INCAR"][k]
+                except KeyError:
+                    pass
 
         self._config_dict["INCAR"].update(updates)
 
@@ -1128,7 +1111,7 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings):
+        for k in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1163,13 +1146,12 @@ class MPStaticSet(MPRelaxSet):
 
         # Prefer to use k-point scheme from previous run
         # except for when lepsilon = True is specified
-        if kpoints is not None:
-            if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
-                if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
-                    k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
-                    kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
-                else:
-                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
+        if kpoints is not None and self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
+            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
+                k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
+                kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
+            else:
+                kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
         return kpoints
 
     def override_from_prev_calc(self, prev_calc_dir="."):
@@ -3078,10 +3060,7 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     else:
         mode = spin_mode[0].lower()
 
-    if not inplace:
-        new_struct = structure.copy()
-    else:
-        new_struct = structure
+    new_struct = structure.copy() if not inplace else structure
     for isite in new_struct.sites:
         if mode == "n":
             if "magmom" in isite.properties:

@@ -243,7 +243,6 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
-
     with ScratchDir("."):
         name = "temp_zeo1"
         zeo_inp_filename = name + ".cssr"
@@ -335,7 +334,6 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
-
     with ScratchDir("."):
         name = "temp_zeo1"
         zeo_inp_filename = name + ".cssr"
@@ -401,7 +399,6 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
         voronoi face centers as pymatgen.core.structure.Structure within the
         unit cell defined by the lattice of input structure
     """
-
     with ScratchDir("."):
         name = "temp_zeo1"
         zeo_inp_filename = name + ".cssr"

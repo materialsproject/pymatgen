@@ -368,10 +368,7 @@ class Trajectory(MSONable):
             if si == 0 or not self.constant_lattice:
                 lines.extend([system, "1.0"])
 
-                if self.constant_lattice:
-                    _lattice = self.lattice
-                else:
-                    _lattice = self.lattice[si]
+                _lattice = self.lattice if self.constant_lattice else self.lattice[si]
 
                 for latt_vec in _lattice:
                     lines.append(f'{" ".join(map(str, latt_vec))}')

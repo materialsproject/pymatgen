@@ -102,16 +102,10 @@ class Critic2Caller:
         self._stdout = stdout
         self._stderr = stderr
 
-        if os.path.exists("cpreport.json"):
-            cpreport = loadfn("cpreport.json")
-        else:
-            cpreport = None
+        cpreport = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
         self._cpreport = cpreport
 
-        if os.path.exists("yt.json"):
-            yt = loadfn("yt.json")
-        else:
-            yt = None
+        yt = loadfn("yt.json") if os.path.exists("yt.json") else None
         self._yt = yt
 
     @classmethod
@@ -487,6 +481,7 @@ class Critic2Analysis(MSONable):
         """
         A StructureGraph object describing bonding information
         in the crystal.
+
         Args:
             include_critical_points: add DummySpecies for
             the critical points themselves, a list of
@@ -534,21 +529,20 @@ class Critic2Analysis(MSONable):
         for idx, edge in edges.items():
             unique_idx = self.nodes[idx]["unique_idx"]
             # only check edges representing bonds, not rings
-            if self.critical_points[unique_idx].type == CriticalPointType.bond:
-                if idx not in idx_to_delete:
-                    for idx2, edge2 in edges.items():
-                        if idx != idx2 and edge == edge2:
-                            idx_to_delete.append(idx2)
-                            warnings.warn(
-                                "Duplicate edge detected, try re-running "
-                                "critic2 with custom parameters to fix this. "
-                                "Mostly harmless unless user is also "
-                                "interested in rings/cages."
-                            )
-                            logger.debug(
-                                f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
-                                f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
-                            )
+            if self.critical_points[unique_idx].type == CriticalPointType.bond and idx not in idx_to_delete:
+                for idx2, edge2 in edges.items():
+                    if idx != idx2 and edge == edge2:
+                        idx_to_delete.append(idx2)
+                        warnings.warn(
+                            "Duplicate edge detected, try re-running "
+                            "critic2 with custom parameters to fix this. "
+                            "Mostly harmless unless user is also "
+                            "interested in rings/cages."
+                        )
+                        logger.debug(
+                            f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
+                            f"and {idx2} ({self.nodes[idx2]['unique_idx']})."
+                        )
         # and remove any duplicate bonds present
         for idx in idx_to_delete:
             del edges[idx]
@@ -786,27 +780,27 @@ class Critic2Analysis(MSONable):
         unique_critical_points = []
 
         # parse unique critical points
-        for i, line in enumerate(stdout):
+        for idx, line in enumerate(stdout):
             if "mult  name            f             |grad|           lap" in line:
-                start_i = i + 1
+                start_i = idx + 1
             elif "* Analysis of system bonds" in line:
-                end_i = i - 2
+                end_i = idx - 2
         # if start_i and end_i haven't been found, we
         # need to re-evaluate assumptions in this parser!
 
-        for i, line in enumerate(stdout):
-            if start_i <= i <= end_i:
-                l = line.replace("(", "").replace(")", "").split()
+        for idx, line in enumerate(stdout):
+            if start_i <= idx <= end_i:
+                split = line.replace("(", "").replace(")", "").split()
 
-                unique_idx = int(l[0]) - 1
-                point_group = l[1]
+                unique_idx = int(split[0]) - 1
+                point_group = split[1]
                 # type = l[2]  # type from definition of critical point e.g. (3, -3)
-                critical_point_type = l[3]  # type from name, e.g. nucleus
-                frac_coords = [float(l[4]), float(l[5]), float(l[6])]
-                multiplicity = float(l[7])
+                critical_point_type = split[3]  # type from name, e.g. nucleus
+                frac_coords = [float(split[4]), float(split[5]), float(split[6])]
+                multiplicity = float(split[7])
                 # name = float(l[8])
-                field = float(l[9])
-                field_gradient = float(l[10])
+                field = float(split[9])
+                field_gradient = float(split[10])
                 # laplacian = float(l[11])
 
                 point = CriticalPoint(
@@ -820,13 +814,13 @@ class Critic2Analysis(MSONable):
                 )
                 unique_critical_points.append(point)
 
-        for i, line in enumerate(stdout):
+        for idx, line in enumerate(stdout):
             if "+ Critical point no." in line:
                 unique_idx = int(line.split()[4]) - 1
             elif "Hessian:" in line:
-                l1 = list(map(float, stdout[i + 1].split()))
-                l2 = list(map(float, stdout[i + 2].split()))
-                l3 = list(map(float, stdout[i + 3].split()))
+                l1 = list(map(float, stdout[idx + 1].split()))
+                l2 = list(map(float, stdout[idx + 2].split()))
+                l3 = list(map(float, stdout[idx + 3].split()))
                 hessian = [
                     [l1[0], l1[1], l1[2]],
                     [l2[0], l2[1], l2[2]],
@@ -837,32 +831,32 @@ class Critic2Analysis(MSONable):
         self.critical_points = unique_critical_points
 
         # parse graph connecting critical points
-        for i, line in enumerate(stdout):
+        for idx, line in enumerate(stdout):
             if "#cp  ncp   typ        position " in line:
-                start_i = i + 1
+                start_i = idx + 1
             elif "* Attractor connectivity matrix" in line:
-                end_i = i - 2
+                end_i = idx - 2
         # if start_i and end_i haven't been found, we
         # need to re-evaluate assumptions in this parser!
 
-        for i, line in enumerate(stdout):
-            if start_i <= i <= end_i:
-                l = line.replace("(", "").replace(")", "").split()
+        for idx, line in enumerate(stdout):
+            if start_i <= idx <= end_i:
+                split = line.replace("(", "").replace(")", "").split()
 
-                idx = int(l[0]) - 1
-                unique_idx = int(l[1]) - 1
-                frac_coords = [float(l[3]), float(l[4]), float(l[5])]
+                idx = int(split[0]) - 1
+                unique_idx = int(split[1]) - 1
+                frac_coords = [float(split[3]), float(split[4]), float(split[5])]
 
                 self._add_node(idx, unique_idx, frac_coords)
-                if len(l) > 6:
-                    from_idx = int(l[6]) - 1
-                    to_idx = int(l[10]) - 1
+                if len(split) > 6:
+                    from_idx = int(split[6]) - 1
+                    to_idx = int(split[10]) - 1
                     self._add_edge(
                         idx,
                         from_idx=from_idx,
-                        from_lvec=(int(l[7]), int(l[8]), int(l[9])),
+                        from_lvec=(int(split[7]), int(split[8]), int(split[9])),
                         to_idx=to_idx,
-                        to_lvec=(int(l[11]), int(l[12]), int(l[13])),
+                        to_lvec=(int(split[11]), int(split[12]), int(split[13])),
                     )
 
     def _add_node(self, idx, unique_idx, frac_coords):

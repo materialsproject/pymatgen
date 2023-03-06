@@ -865,10 +865,7 @@ class IStructure(SiteCollection, MSONable):
         except ValueError:
             spg = SpaceGroup(sg)
 
-        if isinstance(lattice, Lattice):
-            latt = lattice
-        else:
-            latt = Lattice(lattice)
+        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         if not spg.is_compatible(latt):
             raise ValueError(
@@ -963,10 +960,7 @@ class IStructure(SiteCollection, MSONable):
         if not isinstance(msg, MagneticSpaceGroup):
             msg = MagneticSpaceGroup(msg)
 
-        if isinstance(lattice, Lattice):
-            latt = lattice
-        else:
-            latt = Lattice(lattice)
+        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         if not msg.is_compatible(latt):
             raise ValueError(
@@ -999,13 +993,25 @@ class IStructure(SiteCollection, MSONable):
 
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
+    def unset_charge(self):
+        """
+        Reset the charge to None, i.e., computed dynamically based on oxidation states.
+        """
+        self._charge = None
+
     @property
     def charge(self) -> float:
         """
         Overall charge of the structure
         """
+        formal_charge = super().charge
         if self._charge is None:
             return super().charge
+        if formal_charge != self._charge:
+            warnings.warn(
+                f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
+                f" ({formal_charge}). Use `unset_charge` if this is not desired."
+            )
         return self._charge
 
     @property
@@ -1102,10 +1108,7 @@ class IStructure(SiteCollection, MSONable):
             return False
         if self.lattice != other.lattice:
             return False
-        for site in self:
-            if site not in other:
-                return False
-        return True
+        return all(site in other for site in self)
 
     def __hash__(self) -> int:
         # For now, just use the composition hash code.
@@ -1341,13 +1344,11 @@ class IStructure(SiteCollection, MSONable):
                     points_indices.append(n.index)
                     offsets.append(n.image)
                     distances.append(n.nn_distance)
-        return tuple(
-            (
-                np.array(center_indices),
-                np.array(points_indices),
-                np.array(offsets),
-                np.array(distances),
-            )
+        return (
+            np.array(center_indices),
+            np.array(points_indices),
+            np.array(offsets),
+            np.array(distances),
         )
 
     def get_neighbor_list(
@@ -1406,13 +1407,11 @@ class IStructure(SiteCollection, MSONable):
             if exclude_self:
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
-            return tuple(
-                (
-                    center_indices[cond],
-                    points_indices[cond],
-                    images[cond],
-                    distances[cond],
-                )
+            return (
+                center_indices[cond],
+                points_indices[cond],
+                images[cond],
+                distances[cond],
             )
 
     def get_symmetric_neighbor_list(
@@ -1493,7 +1492,7 @@ class IStructure(SiteCollection, MSONable):
                     for it2, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
                         bool1 = i == j2
                         bool2 = j == i2
-                        bool3 = (R == -R2).all()
+                        bool3 = (-R2 == R).all()
                         bool4 = np.isclose(d, d2, atol=numerical_tol)
                         if bool1 and bool2 and bool3 and bool4:
                             redundant.append(it2)
@@ -1644,7 +1643,7 @@ class IStructure(SiteCollection, MSONable):
                 # returns True immediately once one of the conditions are satisfied.
                 psite.species != csite.species
                 or (not np.allclose(psite.coords, csite.coords, atol=atol))
-                or (not psite.properties == csite.properties)
+                or (psite.properties != csite.properties)
             ):
                 neighbor_dict[cindex].append(
                     PeriodicNeighbor(
@@ -1980,10 +1979,7 @@ class IStructure(SiteCollection, MSONable):
         if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
 
-        if not isinstance(nimages, collections.abc.Iterable):
-            images = np.arange(nimages + 1) / nimages
-        else:
-            images = nimages  # type: ignore
+        images = np.arange(nimages + 1) / nimages if not isinstance(nimages, collections.abc.Iterable) else nimages
 
         # Check that both structures have the same species
         for i, site in enumerate(self):
@@ -2091,8 +2087,8 @@ class IStructure(SiteCollection, MSONable):
         distance in the primitive cell, the algorithm will reject this lattice.
 
         Args:
-            tolerance (float), Angstroms: Tolerance for each coordinate of a
-                particular site. For example, [0.1, 0, 0.1] in cartesian
+            tolerance (float): Tolerance for each coordinate of a
+                particular site in Angstroms. For example, [0.1, 0, 0.1] in cartesian
                 coordinates will be considered to be on the same coordinates
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
@@ -2276,9 +2272,10 @@ class IStructure(SiteCollection, MSONable):
                     if type(constrain_latt).__name__ == "list":
                         if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
                             return p
-                    elif type(constrain_latt).__name__ == "dict":
-                        if all(getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt):  # type: ignore
-                            return p
+                    elif type(constrain_latt).__name__ == "dict" and all(
+                        getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt
+                    ):
+                        return p
 
         return self.copy()
 
@@ -2323,7 +2320,7 @@ class IStructure(SiteCollection, MSONable):
         outs.append(
             tabulate(
                 data,
-                headers=["#", "SP", "a", "b", "c"] + keys,
+                headers=["#", "SP", "a", "b", "c", *keys],
             )
         )
         return "\n".join(outs)
@@ -2420,23 +2417,24 @@ class IStructure(SiteCollection, MSONable):
 
     def as_dataframe(self):
         """
-        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:
+        Create a Pandas dataframe of the sites. Structure-level attributes are stored in DataFrame.attrs.
 
-        Species    a    b             c    x             y             z  magmom
-        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
-        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+        Example:
+            Species    a    b             c    x             y             z  magmom
+            0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
+            1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
         """
         data = []
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
-            row = [site.species] + list(site.frac_coords) + list(site.coords)
+            row = [site.species, *site.frac_coords, *site.coords]
             for k in prop_keys:
                 row.append(site.properties.get(k))
             data.append(row)
         import pandas as pd
 
-        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z"] + prop_keys)
+        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z", *prop_keys])
         df.attrs["Reduced Formula"] = self.composition.reduced_formula
         df.attrs["Lattice"] = self.lattice
         return df
@@ -2744,9 +2742,9 @@ class IMolecule(SiteCollection, MSONable):
         validate_proximity: bool = False,
         site_properties: dict | None = None,
         charge_spin_check: bool = True,
-    ):
+    ) -> None:
         """
-        Creates a Molecule.
+        Create a Molecule.
 
         Args:
             species: list of atomic species. Possible kinds of input include a
@@ -2771,11 +2769,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                (
-                    "The list of atomic species must be of the",
-                    " same length as the list of fractional ",
-                    "coordinates.",
-                )
+                "The list of atomic species must be of the same length as the list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
@@ -2802,8 +2796,8 @@ class IMolecule(SiteCollection, MSONable):
         if spin_multiplicity:
             if charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
-                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is not possible for "
-                    "this molecule!"
+                    f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} "
+                    "is not possible for this molecule!"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:
@@ -2909,10 +2903,7 @@ class IMolecule(SiteCollection, MSONable):
         sites = [site for i, site in enumerate(self._sites) if i not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
-            for test_site in cluster:
-                if CovalentBond.is_bonded(site, test_site, tol=tol):
-                    return True
-            return False
+            return any(CovalentBond.is_bonded(site, test_site, tol=tol) for test_site in cluster)
 
         while len(sites) > 0:
             unmatched = []
@@ -2961,10 +2952,7 @@ class IMolecule(SiteCollection, MSONable):
             return False
         if self.spin_multiplicity != other.spin_multiplicity:
             return False
-        for site in self:
-            if site not in other:
-                return False
-        return True
+        return all(site in other for site in self)
 
     def __hash__(self):
         # For now, just use the composition hash code.

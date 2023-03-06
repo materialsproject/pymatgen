@@ -8,6 +8,7 @@ functionals.
 from __future__ import annotations
 
 import abc
+import copy
 import os
 import warnings
 from collections import defaultdict
@@ -96,12 +97,9 @@ class Correction(metaclass=abc.ABCMeta):
         old_corr = ufloat(entry.correction, old_std_dev)
         updated_corr = new_corr + old_corr
 
-        if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0:
-            # if there are no error values available for the corrections applied,
-            # set correction uncertainty to not a number
-            uncertainty = np.nan
-        else:
-            uncertainty = updated_corr.std_dev
+        # if there are no error values available for the corrections applied,
+        # set correction uncertainty to not a number
+        uncertainty = np.nan if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0 else updated_corr.std_dev
 
         entry.energy_adjustments.append(ConstantEnergyAdjustment(updated_corr.nominal_value, uncertainty))
 
@@ -366,7 +364,7 @@ class AqueousCorrection(Correction):
                 err = self.cpd_errors[rform] * comp.num_atoms
 
                 correction += ufloat(corr, err)
-        if not rform == "H2O":
+        if rform != "H2O":
             # if the composition contains water molecules (e.g. FeO.nH2O),
             # correct the gibbs free energy such that the waters are assigned energy=MU_H2O
             # in other words, we assume that the DFT energy of such a compound is really
@@ -555,7 +553,11 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return None
 
     def process_entries(
-        self, entries: AnyComputedEntry | list[AnyComputedEntry], clean: bool = True, verbose: bool = False
+        self,
+        entries: AnyComputedEntry | list[AnyComputedEntry],
+        clean: bool = True,
+        verbose: bool = False,
+        inplace: bool = True,
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -566,21 +568,27 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Args:
             entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
                 Computed(Structure)Entry objects.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose: bool, whether to display progress bar for processing multiple entries.
+            verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
+            inplace (bool): Whether to adjust input entries in place.
+                Default is True.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         # if single entry convert to list
         if isinstance(entries, ComputedEntry):  # True for ComputedStructureEntry too
             entries = [entries]
 
         processed_entry_list: list[AnyComputedEntry] = []
+
+        # if inplace = False, process entries on a copy
+        if not inplace:
+            entries = copy.deepcopy(entries)
 
         for entry in tqdm(entries, disable=not verbose):
             ignore_entry = False
@@ -666,10 +674,7 @@ class CorrectionsList(Compatibility):
         corrections, uncertainties = self.get_corrections_dict(entry)
 
         for k, v in corrections.items():
-            if v != 0 and uncertainties[k] == 0:
-                uncertainty = np.nan
-            else:
-                uncertainty = uncertainties[k]
+            uncertainty = np.nan if v != 0 and uncertainties[k] == 0 else uncertainties[k]
             adjustment_list.append(ConstantEnergyAdjustment(v, uncertainty=uncertainty, name=k, cls=self.as_dict()))
 
         return adjustment_list
@@ -1366,7 +1371,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # where E is DFT energy, dE is an energy correction, and g is Gibbs free energy
         # This means we have to 1) remove energy corrections associated with H and O in water
         # and then 2) remove the free energy of the water molecules
-        if not rform == "H2O":
+        if rform != "H2O":
             # count the number of whole water molecules in the composition
             nH2O = int(min(comp["H"] / 2.0, comp["O"]))
             if nH2O > 0:
@@ -1392,26 +1397,30 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         return adjustments
 
     def process_entries(
-        self, entries: list[AnyComputedEntry], clean: bool = False, verbose: bool = False
+        self, entries: list[AnyComputedEntry], clean: bool = False, verbose: bool = False, inplace: bool = True
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:
             entries (list[ComputedEntry | ComputedStructureEntry]): Entries to be processed.
-            clean: bool, whether to remove any previously-applied energy adjustments.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is False.
-            verbose: bool, whether to display progress bar for processing multiple entries.
+            verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
 
         Returns:
-            A list of adjusted entries. Entries in the original list which
-            are not compatible are excluded.
+            list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
+                chosen correction scheme are excluded from the returned list.
         """
         # convert input arg to a list if not already
         if isinstance(entries, ComputedEntry):
             entries = [entries]
+
+        # if inplace = False, process entries on a copy
+        if not inplace:
+            entries = copy.deepcopy(entries)
 
         # pre-process entries with the given solid compatibility class
         if self.solid_compat:
@@ -1449,4 +1458,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
             self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]
 
-        return super().process_entries(entries, clean=clean, verbose=verbose)
+        return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace)

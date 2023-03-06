@@ -108,10 +108,7 @@ class DosPlotter:
             dos_dict: dict of {label: Dos}
             key_sort_func: function used to sort the dos_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(dos_dict, key=key_sort_func)
-        else:
-            keys = list(dos_dict)
+        keys = sorted(dos_dict, key=key_sort_func) if key_sort_func else list(dos_dict)
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
@@ -431,12 +428,8 @@ class BSPlotter:
             least one band crossing the fermi level).
         """
         if bs is None:
-            if isinstance(self._bs, list):
-                # if BSPlotter
-                bs = self._bs[0]
-            else:
-                # if BSPlotterProjected
-                bs = self._bs
+            # if: BSPlotter, else: BSPlotterProjected
+            bs = self._bs[0] if isinstance(self._bs, list) else self._bs
 
         energies = {str(sp): [] for sp in bs.bands}
 
@@ -448,18 +441,14 @@ class BSPlotter:
 
         zero_energy = 0.0
         if zero_to_efermi:
-            if bs_is_metal:
-                zero_energy = bs.efermi
-            else:
-                zero_energy = vbm["energy"]
+            zero_energy = bs.efermi if bs_is_metal else vbm["energy"]
 
         # rescale distances when a bs_ref is given as reference,
         # and when bs and bs_ref have different points in branches.
         # Usually bs_ref is the first one in self._bs list is bs_ref
         distances = bs.distance
-        if bs_ref is not None:
-            if bs_ref.branches != bs.branches:
-                distances = self._rescale_distances(bs_ref, bs)
+        if bs_ref is not None and bs_ref.branches != bs.branches:
+            distances = self._rescale_distances(bs_ref, bs)
 
         if split_branches:
             steps = [br["end_index"] + 1 for br in bs.branches][:-1]
@@ -642,11 +631,8 @@ class BSPlotter:
             for sp in bs.bands:
                 ls = "-" if str(sp) == "1" else "--"
 
-                if bs_labels is None:
-                    bs_label = f"Band {ibs} {sp.name}"
-                else:
-                    # assume bs_labels is Sequence[str]
-                    bs_label = f"{bs_labels[ibs]} {sp.name}"
+                # else case assumes bs_labels is Sequence[str]
+                bs_label = f"Band {ibs} {sp.name}" if bs_labels is None else f"{bs_labels[ibs]} {sp.name}"
 
                 handles.append(mlines.Line2D([], [], lw=2, ls=ls, color=colors[ibs], label=bs_label))
 
@@ -1553,7 +1539,8 @@ class BSPlotterProjected(BSPlotter):
                 {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]}
                 will give projections for Cu on site-1
                 and on site-5, O on site-3 and on site-4 in the cell.
-                Attention:
+
+        Attention:
                 The correct site numbers of atoms are consistent with
                 themselves in the structure computed. Normally,
                 the structure should be totally similar with POSCAR file,
@@ -1663,7 +1650,7 @@ class BSPlotterProjected(BSPlotter):
                         br += 1
                         for i in range(self._nb_bands):
                             plt.plot(
-                                list(map(lambda x: x - shift[br], data["distances"][b])),
+                                [x - shift[br] for x in data["distances"][b]],
                                 [data["energy"][str(Spin.up)][b][i][j] for j in range(len(data["distances"][b]))],
                                 "b-",
                                 linewidth=band_linewidth,
@@ -1671,12 +1658,7 @@ class BSPlotterProjected(BSPlotter):
 
                             if self._bs.is_spin_polarized:
                                 plt.plot(
-                                    list(
-                                        map(
-                                            lambda x: x - shift[br],
-                                            data["distances"][b],
-                                        )
-                                    ),
+                                    [x - shift[br] for x in data["distances"][b]],
                                     [data["energy"][str(Spin.down)][b][i][j] for j in range(len(data["distances"][b]))],
                                     "r--",
                                     linewidth=band_linewidth,
@@ -1764,9 +1746,8 @@ class BSPlotterProjected(BSPlotter):
                             )
                         if orb not in all_orbitals:
                             raise ValueError(f"The invalid name of orbital is given in 'dictio[{elt}]'.")
-                        if orb in individual_orbs:
-                            if len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
-                                raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
+                        if orb in individual_orbs and len(set(dictio[elt]).intersection(individual_orbs[orb])) != 0:
+                            raise ValueError(f"The 'dictio[{elt}]' contains orbitals repeated.")
                     nelems = Counter(dictio[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError(f"You put in at least two similar orbitals in dictio[{elt}].")
@@ -1793,9 +1774,8 @@ class BSPlotterProjected(BSPlotter):
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
-                            if orb in individual_orbs:
-                                if len(set(sum_morbs[elt]).intersection(individual_orbs[orb])) != 0:
-                                    raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
+                            if orb in individual_orbs and len(set(sum_morbs[elt]) & individual_orbs[orb]) != 0:
+                                raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(f"You put in at least two similar orbitals in sum_morbs[{elt}].")
@@ -2291,6 +2271,7 @@ class BSDOSPlotter:
     def get_plot(self, bs: BandStructureSymmLine, dos: Dos | CompleteDos | None = None):
         """
         Get a matplotlib plot object.
+
         Args:
             bs (BandStructureSymmLine): the bandstructure to plot. Projection
                 data must exist for projected plots.
@@ -3763,10 +3744,7 @@ class CohpPlotter:
 
             key_sort_func: function used to sort the cohp_dict keys.
         """
-        if key_sort_func:
-            keys = sorted(cohp_dict, key=key_sort_func)
-        else:
-            keys = list(cohp_dict)
+        keys = sorted(cohp_dict, key=key_sort_func) if key_sort_func else list(cohp_dict)
         for label in keys:
             self.add_cohp(label, cohp_dict[label])
 
@@ -3829,10 +3807,7 @@ class CohpPlotter:
         if plot_negative:
             cohp_label = "-" + cohp_label
 
-        if self.zero_at_efermi:
-            energy_label = "$E - E_f$ (eV)"
-        else:
-            energy_label = "$E$ (eV)"
+        energy_label = "$E - E_f$ (eV)" if self.zero_at_efermi else "$E$ (eV)"
 
         ncolors = max(3, len(self._cohps))
         ncolors = min(9, ncolors)
@@ -3848,10 +3823,7 @@ class CohpPlotter:
         keys = list(self._cohps)
         for i, key in enumerate(keys):
             energies = self._cohps[key]["energies"]
-            if not integrated:
-                populations = self._cohps[key]["COHP"]
-            else:
-                populations = self._cohps[key]["ICOHP"]
+            populations = self._cohps[key]["COHP"] if not integrated else self._cohps[key]["ICOHP"]
             for spin in [Spin.up, Spin.down]:
                 if spin in populations:
                     if invert_axes:
@@ -4308,10 +4280,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
     Returns:
         The Cartesian coordinates folded inside the first Brillouin zone
     """
-    if coords_are_cartesian:
-        p = lattice.get_fractional_coords(p)
-    else:
-        p = np.array(p)
+    p = lattice.get_fractional_coords(p) if coords_are_cartesian else np.array(p)
 
     p = np.mod(p + 0.5 - 1e-10, 1) - 0.5 + 1e-10
     p = lattice.get_cartesian_coords(p)

@@ -287,11 +287,11 @@ if __name__ == "__main__":
     alldeltacsmmins = []
     all_cn_pairs = []
     for ii in range(1, 14):
-        self_weight_max_csms_per_cn[str(ii)] = list()
+        self_weight_max_csms_per_cn[str(ii)] = []
         for jj in range(ii + 1, 14):
             cn_pair = f"{ii:d}_{jj:d}"
-            self_weight_max_csms[cn_pair] = list()
-            delta_csm_mins[cn_pair] = list()
+            self_weight_max_csms[cn_pair] = []
+            delta_csm_mins[cn_pair] = []
             all_cn_pairs.append(cn_pair)
     for ce_pair_dict in ce_pairs:
         ce1 = ce_pair_dict["initial_environment_symbol"]

@@ -9,3 +9,97 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 120
+
+[tool.cibuildwheel.linux]
+archs = ["auto64"]
+skip = ["*musllinux*"]
+before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
+
+[tool.cibuildwheel.macos]
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120
+select = [
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "D",   # pydocstyle
+  "E",   # pycodestyle
+  "F",   # pyflakes
+  "I",   # isort
+  "PLE", # pylint error
+  "PLW", # pylint warning
+  "Q",   # flake8-quotes
+  "RUF", # Ruff-specific rules
+  "SIM", # flake8-simplify
+  "TID", # tidy imports
+  "UP",  # pyupgrade
+  "W",   # pycodestyle
+  "YTT", # flake8-2020
+]
+ignore = [
+  "B019",    # functools.lru_cache on methods can lead to memory leaks
+  "B023",    # Function definition does not bind loop variable
+  "B904",    # Within an except clause, raise exceptions with ...
+  "D100",    # Missing docstring in public module
+  "D104",    # Missing docstring in public package
+  "D105",    # Missing docstring in magic method
+  "D107",    # Missing docstring in __init__
+  "D200",    # One-line docstring should fit on one line with quotes
+  "D205",    # 1 blank line required between summary line and description
+  "D212",    # Multi-line docstring summary should start at the first line
+  "D415",    # First line should end with a period, question mark, or exclamation point
+  "E741",    # tmp: we should fix all ambiguous variable names
+  "PLR2004", # Magic number
+  "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+  "SIM115",  # Use context handler for opening files
+  "PLW0603", # Using the global statement to update variables is discouraged
+]
+pydocstyle.convention = "google"
+isort.required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"*/tests/*" = ["D"]
+"tasks.py" = ["D"]
+
+[tool.pytest.ini_options]
+addopts = "-x --durations=30 --quiet -rxXs --color=yes -p no:warnings"
+
+[tool.coverage.run]
+omit = ["pymatgen/cli"]
+relative_files = true
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if 0:",
+  "if __name__ == .__main__.:",
+  "@deprecated",
+  "show_plot",
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+namespace_packages = true
+explicit_package_bases = true
+no_implicit_optional = false
+
+[[tool.mypy.overrides]]
+module = ["tabulate.*", "requests.*"]
+ignore_missing_imports = true
+
+[tool.codespell]
+ignore-words-list = """
+titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,ser,leary,thre,
+fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda
+"""
+skip = "pymatgen/analysis/aflow_prototypes.json"
+check-filenames = true

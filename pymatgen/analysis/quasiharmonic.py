@@ -50,12 +50,12 @@ class QuasiharmonicDebyeApprox:
         poisson=0.25,
         use_mie_gruneisen=False,
         anharmonic_contribution=False,
-    ):
+    ) -> None:
         """
         Args:
             energies (list): list of DFT energies in eV
             volumes (list): list of volumes in Ang^3
-            structure (Structure):
+            structure (Structure): pymatgen structure object
             t_min (float): min temperature
             t_step (float): temperature step
             t_max (float): max temperature
@@ -95,10 +95,10 @@ class QuasiharmonicDebyeApprox:
         self.kb = physical_constants["Boltzmann constant in eV/K"][0]
         self.hbar = physical_constants["Planck constant over 2 pi in eV s"][0]
         self.gpa_to_ev_ang = 1.0 / 160.21766208  # 1 GPa in ev/Ang^3
-        self.gibbs_free_energy = []  # optimized values, eV
+        self.gibbs_free_energy: list[float] = []  # optimized values, eV
         # list of temperatures for which the optimized values are available, K
-        self.temperatures = []
-        self.optimum_volumes = []  # in Ang^3
+        self.temperatures: list[float] = []
+        self.optimum_volumes: list[float] = []  # in Ang^3
         # fit E and V and get the bulk modulus(used to compute the Debye
         # temperature)
         logger.info("Fitting E and V")
@@ -252,16 +252,14 @@ class QuasiharmonicDebyeApprox:
     def gruneisen_parameter(self, temperature, volume):
         """
         Slater-gamma formulation(the default):
-            gruneisen parameter = - d log(theta)/ d log(V)
-                               = - ( 1/6 + 0.5 d log(B)/ d log(V) )
-                               = - (1/6 + 0.5 V/B dB/dV),
-                                    where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
+            gruneisen parameter = - d log(theta)/ d log(V) = - (1/6 + 0.5 d log(B)/ d log(V))
+                                = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
 
         Mie-gruneisen formulation:
             Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
             Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)
                 368 (1996) 245-255
-            Also se J.P. Poirier, Introduction to the Physics of the Earth’s
+            Also se J.P. Poirier, Introduction to the Physics of the Earth's
                 Interior, 2nd ed. (Cambridge University Press, Cambridge,
                 2000) Eq(3.53)
 

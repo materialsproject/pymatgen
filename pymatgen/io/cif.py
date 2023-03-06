@@ -139,10 +139,7 @@ class CifBlock:
         if v == "":
             return '""'
         if (" " in v or v[0] == "_") and not (v[0] == "'" and v[-1] == "'") and not (v[0] == '"' and v[-1] == '"'):
-            if "'" in v:
-                q = '"'
-            else:
-                q = "'"
+            q = '"' if "'" in v else "'"
             v = q + v + q
         return v
 
@@ -218,7 +215,7 @@ class CifBlock:
                     data[columns[-1]] = []
                 while q:
                     s = q[0]
-                    if s[0].startswith("loop_") or s[0].startswith("_"):
+                    if s[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(q.popleft()))
                 n = len(items) // len(columns)
@@ -226,8 +223,8 @@ class CifBlock:
                 loops.append(columns)
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
-            elif "".join(s).strip() != "":
-                warnings.warn(f"Possible issue in cif file at line: {''.join(s).strip()}")
+            elif issue := "".join(s).strip():
+                warnings.warn(f"Possible issue in cif file at line: {issue}")
         return cls(data, loops, header)
 
 
@@ -1001,7 +998,7 @@ class CifParser:
                     coord_to_magmoms[match] = None
 
         sum_occu = [
-            sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
+            sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
         if any(o > 1 for o in sum_occu):
             msg = (
@@ -1032,7 +1029,7 @@ class CifParser:
         if coord_to_species.items():
             for idx, (comp, group) in enumerate(
                 groupby(
-                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    sorted(coord_to_species.items(), key=lambda x: x[1]),
                     key=lambda x: x[1],
                 )
             ):
@@ -1208,9 +1205,8 @@ class CifParser:
             # convert to bibtex author format ('and' delimited)
             if "author" in bibtex_entry:
                 # separate out semicolon authors
-                if isinstance(bibtex_entry["author"], str):
-                    if ";" in bibtex_entry["author"]:
-                        bibtex_entry["author"] = bibtex_entry["author"].split(";")
+                if isinstance(bibtex_entry["author"], str) and ";" in bibtex_entry["author"]:
+                    bibtex_entry["author"] = bibtex_entry["author"].split(";")
 
                 if isinstance(bibtex_entry["author"], list):
                     bibtex_entry["author"] = " and ".join(bibtex_entry["author"])

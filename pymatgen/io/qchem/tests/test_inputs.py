@@ -45,6 +45,51 @@ $end"""
 
         assert molecule_actual == molecule_test
 
+    def test_multi_molecule_template(self):
+        self.maxDiff = None
+        species = ["C", "C", "H", "H", "H", "H"]
+        coords_1 = [
+            [0.000000, 0.000000, 0.000000],
+            [1.332000, 0.000000, 0.000000],
+            [-0.574301, 0.000000, -0.928785],
+            [-0.574301, 0.000000, 0.928785],
+            [1.906301, 0.000000, 0.928785],
+            [1.906301, 0.000000, -0.928785],
+        ]
+        coords_2 = [
+            [0.000000, 4.000000, 0.000000],
+            [1.332000, 4.000000, 0.000000],
+            [-0.574301, 4.000000, -0.928785],
+            [-0.574301, 4.000000, 0.928785],
+            [1.906301, 4.000000, 0.928785],
+            [1.906301, 4.000000, -0.928785],
+        ]
+
+        mol_1 = Molecule(species, coords_1, charge=1)
+        mol_2 = Molecule(species, coords_2)
+        molecule_test = QCInput.molecule_template([mol_1, mol_2])
+        molecule_actual = """$molecule
+ 1 2
+--
+ 1 2
+ C      0.0000000000      0.0000000000      0.0000000000
+ C      1.3320000000      0.0000000000      0.0000000000
+ H     -0.5743010000      0.0000000000     -0.9287850000
+ H     -0.5743010000      0.0000000000      0.9287850000
+ H      1.9063010000      0.0000000000      0.9287850000
+ H      1.9063010000      0.0000000000     -0.9287850000
+--
+ 0 1
+ C      0.0000000000      4.0000000000      0.0000000000
+ C      1.3320000000      4.0000000000      0.0000000000
+ H     -0.5743010000      4.0000000000     -0.9287850000
+ H     -0.5743010000      4.0000000000      0.9287850000
+ H      1.9063010000      4.0000000000      0.9287850000
+ H      1.9063010000      4.0000000000     -0.9287850000
+$end"""
+
+        assert molecule_test == molecule_actual
+
     # TODO improve this test maybe add ordered dicts
     def test_rem_template(self):
         rem_params = {
@@ -203,6 +248,46 @@ $end"""
         with pytest.raises(ValueError):  # bad vdw test
             QCInput.van_der_waals_template(vdw_params, mode="mymode")
 
+    def test_cdft_template(self):
+        cdft = [
+            [
+                {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
+                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+            ],
+            [
+                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
+                {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+            ],
+        ]
+
+        cdft_test = QCInput.cdft_template(cdft)
+        cdft_actual = """$cdft
+   1.0
+   1.0 1 27
+   0.0
+   1.0 1 27 s
+--------------
+   0.0
+   1.0 1 27
+   -1.0
+   1.0 1 27 s
+$end"""
+
+        assert cdft_test == cdft_actual
+
+    def test_almo_template(self):
+        almo = [[(1, 2), (0, 1)], [(0, 1), (1, 2)]]
+        almo_test = QCInput.almo_template(almo)
+        almo_actual = """$almo_coupling
+   1 2
+   0 1
+   --
+   0 1
+   1 2
+$end"""
+
+        assert almo_test == almo_actual
+
     def test_find_sections(self):
         str_single_job_input = """$molecule
  0  1
@@ -264,6 +349,52 @@ $end"""
         ]
         molecule_actual = Molecule(species, coords)
         assert molecule_actual == molecule_test
+
+    def test_read_multi_molecule(self):
+        str_molecule = """$molecule
+ 1 2
+--
+ 1 2
+ C      0.0000000000      0.0000000000      0.0000000000
+ C      1.3320000000      0.0000000000      0.0000000000
+ H     -0.5743010000      0.0000000000     -0.9287850000
+ H     -0.5743010000      0.0000000000      0.9287850000
+ H      1.9063010000      0.0000000000      0.9287850000
+ H      1.9063010000      0.0000000000     -0.9287850000
+--
+ 0 1
+ C      0.0000000000      4.0000000000      0.0000000000
+ C      1.3320000000      4.0000000000      0.0000000000
+ H     -0.5743010000      4.0000000000     -0.9287850000
+ H     -0.5743010000      4.0000000000      0.9287850000
+ H      1.9063010000      4.0000000000      0.9287850000
+ H      1.9063010000      4.0000000000     -0.9287850000
+$end"""
+
+        species = ["C", "C", "H", "H", "H", "H"]
+        coords_1 = [
+            [0.000000, 0.000000, 0.000000],
+            [1.332000, 0.000000, 0.000000],
+            [-0.574301, 0.000000, -0.928785],
+            [-0.574301, 0.000000, 0.928785],
+            [1.906301, 0.000000, 0.928785],
+            [1.906301, 0.000000, -0.928785],
+        ]
+        coords_2 = [
+            [0.000000, 4.000000, 0.000000],
+            [1.332000, 4.000000, 0.000000],
+            [-0.574301, 4.000000, -0.928785],
+            [-0.574301, 4.000000, 0.928785],
+            [1.906301, 4.000000, 0.928785],
+            [1.906301, 4.000000, -0.928785],
+        ]
+
+        mol_1 = Molecule(species, coords_1, charge=1)
+        mol_2 = Molecule(species, coords_2)
+
+        parsed = QCInput.read_molecule(str_molecule)
+        assert parsed[0], mol_1
+        assert parsed[1], mol_2
 
     def test_read_rem(self):
         str_rem = """Trying to break you!
@@ -998,6 +1129,54 @@ $end
 """
         qcinp = QCInput.from_string(str_molecule)
         assert str_molecule == str(qcinp)
+
+    def test_read_cdft(self):
+        str_cdft = """Once again, I'm trying to break you!
+
+$cdft
+   1.0
+   1.0 1 27
+   0.0
+   1.0 1 27 s
+--------------
+   0.0
+   1.0 1 27
+   -1.0
+   1.0 1 27 s
+$end
+"""
+
+        result = [
+            [
+                {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": [None]},
+                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+            ],
+            [
+                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": [None]},
+                {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+            ],
+        ]
+
+        parsed = QCInput.read_cdft(str_cdft)
+        self.assertDictEqual(parsed[0][0], result[0][0])
+        self.assertDictEqual(parsed[0][1], result[0][1])
+        self.assertDictEqual(parsed[1][0], result[1][0])
+        self.assertDictEqual(parsed[1][1], result[1][1])
+
+    def test_read_almo(self):
+        str_almo = """I remain resolute in trying to break you!
+
+$almo_coupling
+   1 2
+   0 1
+   --
+   0 1
+   1 2
+$end"""
+
+        result = [[(1, 2), (0, 1)], [(0, 1), (1, 2)]]
+
+        assert QCInput.read_almo(str_almo) == result
 
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet

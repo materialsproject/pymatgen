@@ -32,6 +32,7 @@ class CRESTOutput(MSONable):
     def __init__(self, output_filename, path="."):
         """
         Assumes runtype is iMTD-GC [default]
+
         Args:
             output_filename (str): Filename to parse
             path (str): Path to directory including output_filename and all
@@ -78,27 +79,19 @@ class CRESTOutput(MSONable):
         # Get CREST input flags
         for i, entry in enumerate(split_cmd):
             value = None
-            if entry:
-                if "-" in entry:
-                    option = entry[1:]
-                    if i + 1 < len(split_cmd):
-                        if "-" not in split_cmd[i + 1]:
-                            value = split_cmd[i + 1]
-                    self.cmd_options[option] = value
+            if entry and "-" in entry:
+                option = entry[1:]
+                if i + 1 < len(split_cmd) and "-" not in split_cmd[i + 1]:
+                    value = split_cmd[i + 1]
+                self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
         if "chrg" in self.cmd_options:
             str_chg = self.cmd_options["chrg"]
-            if "-" in str_chg:
-                chg = int(str_chg)
-            else:
-                chg = int(str_chg[-1])
+            chg = int(str_chg) if "-" in str_chg else int(str_chg[-1])
         elif "c" in self.cmd_options:
             str_chg = self.cmd_options["c"]
-            if "-" in str_chg:
-                chg = int(str_chg)
-            else:
-                chg = int(str_chg[-1])
+            chg = int(str_chg) if "-" in str_chg else int(str_chg[-1])
 
         # Check for proper termination
         with open(output_filepath, "rb+") as xtbout_file:

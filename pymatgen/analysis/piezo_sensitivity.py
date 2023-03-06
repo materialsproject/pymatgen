@@ -681,7 +681,6 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     Return:
         3x3x3 calculated Piezo tensor
     """
-
     numsites = len(BEC)
     temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (numsites * 3, numsites * 3))
 

@@ -49,13 +49,7 @@ def do_query(args):
         props += args.data
         entries = m.get_entries(criteria, property_data=props)
         t = []
-        headers = [
-            "mp-id",
-            "Formula",
-            "Spacegroup",
-            "E/atom (eV)",
-            "E above hull (eV)",
-        ] + args.data
+        headers = ["mp-id", "Formula", "Spacegroup", "E/atom (eV)", "E above hull (eV)", *args.data]
         for e in entries:
             row = [
                 e.entry_id,

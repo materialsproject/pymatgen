@@ -42,11 +42,11 @@ class BondDissociationEnergies(MSONable):
 
     def __init__(
         self,
-        molecule_entry,
-        fragment_entries,
-        allow_additional_charge_separation=False,
-        multibreak=False,
-    ):
+        molecule_entry: dict[str, str | dict[str, str | int]],
+        fragment_entries: list[dict[str, str | dict[str, str | int]]],
+        allow_additional_charge_separation: bool = False,
+        multibreak: bool = False,
+    ) -> None:
         """
         Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
         final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.
@@ -55,17 +55,17 @@ class BondDissociationEnergies(MSONable):
             molecule_entry (dict): Entry for the principle molecule. Should have the keys mentioned above.
             fragment_entries (list of dicts): List of fragment entries. Each should have the keys mentioned above.
             allow_additional_charge_separation (bool): If True, consider larger than normal charge separation
-                                                       among fragments. Defaults to False. See the definition
-                                                       of self.expected_charges below for more specific information.
+                among fragments. Defaults to False. See the definition of self.expected_charges below for more
+                specific information.
             multibreak (bool): If True, additionally attempt to break pairs of bonds. Defaults to False.
         """
         self.molecule_entry = molecule_entry
         self.filter_fragment_entries(fragment_entries)
-        print(str(len(self.filtered_entries)) + " filtered entries")
-        self.bond_dissociation_energies = []
-        self.done_frag_pairs = []
-        self.done_RO_frags = []
-        self.ring_bonds = []
+        print(f"{len(self.filtered_entries)} filtered entries")
+        self.bond_dissociation_energies: list[float | None] = []
+        self.done_frag_pairs: list[list] = []
+        self.done_RO_frags: list[dict] = []
+        self.ring_bonds: list[tuple[int, int]] = []
 
         required_keys = ["formula_pretty", "initial_molecule", "final_molecule"]
         if "pcm_dielectric" in self.molecule_entry:
@@ -78,36 +78,21 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(key + " must be present in all fragment entries! Exiting...")
 
         # Define expected charges
+        final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
         if not allow_additional_charge_separation:
-            if molecule_entry["final_molecule"]["charge"] == 0:
+            if final_charge == 0:
                 self.expected_charges = [-1, 0, 1]
-            elif molecule_entry["final_molecule"]["charge"] < 0:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"],
-                    molecule_entry["final_molecule"]["charge"] + 1,
-                ]
+            elif final_charge < 0:
+                self.expected_charges = [final_charge, final_charge + 1]
             else:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"] - 1,
-                    molecule_entry["final_molecule"]["charge"],
-                ]
+                self.expected_charges = [final_charge - 1, final_charge]
         else:
-            if molecule_entry["final_molecule"]["charge"] == 0:
+            if final_charge == 0:
                 self.expected_charges = [-2, -1, 0, 1, 2]
-            elif molecule_entry["final_molecule"]["charge"] < 0:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"] - 1,
-                    molecule_entry["final_molecule"]["charge"],
-                    molecule_entry["final_molecule"]["charge"] + 1,
-                    molecule_entry["final_molecule"]["charge"] + 2,
-                ]
+            elif final_charge < 0:
+                self.expected_charges = [final_charge - 1, final_charge, final_charge + 1, final_charge + 2]
             else:
-                self.expected_charges = [
-                    molecule_entry["final_molecule"]["charge"] - 2,
-                    molecule_entry["final_molecule"]["charge"] - 1,
-                    molecule_entry["final_molecule"]["charge"],
-                    molecule_entry["final_molecule"]["charge"] + 1,
-                ]
+                self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
 
         # Build principle molecule graph
         self.mol_graph = MoleculeGraph.with_local_env_strategy(
@@ -117,7 +102,7 @@ class BondDissociationEnergies(MSONable):
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0], bond[1])]
             self.fragment_and_process(bonds)
-        # If mulitbreak, loop through pairs of ring bonds.
+        # If multibreak, loop through pairs of ring bonds.
         if multibreak:
             print(
                 "Breaking pairs of ring bonds. WARNING: Structure changes much more likely, meaning dissociation values"
@@ -207,10 +192,9 @@ class BondDissociationEnergies(MSONable):
                     if frag_pair[1].isomorphic_to(frags[1]):
                         frags_done = True
                         break
-                elif frag_pair[1].isomorphic_to(frags[0]):
-                    if frag_pair[0].isomorphic_to(frags[1]):
-                        frags_done = True
-                        break
+                elif frag_pair[1].isomorphic_to(frags[0]) and frag_pair[0].isomorphic_to(frags[1]):
+                    frags_done = True
+                    break
             if not frags_done:
                 # If we haven't, we save this pair and search for the relevant fragment entries:
                 self.done_frag_pairs += [frags]
@@ -343,20 +327,19 @@ class BondDissociationEnergies(MSONable):
             found_similar_entry = False
             # Check for uniqueness
             for ii, filtered_entry in enumerate(self.filtered_entries):
-                if filtered_entry["formula_pretty"] == entry["formula_pretty"]:
-                    if (
-                        filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"])
-                        and filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"])
-                        and filtered_entry["initial_molecule"]["charge"] == entry["initial_molecule"]["charge"]
-                    ):
-                        found_similar_entry = True
-                        # If two entries are found that pass the above similarity check, take the one with the lower
-                        # energy:
-                        if entry["final_energy"] < filtered_entry["final_energy"]:
-                            self.filtered_entries[ii] = entry
-                        # Note that this will essentially choose between singlet and triplet entries assuming both have
-                        # the same structural details
-                        break
+                if filtered_entry["formula_pretty"] == entry["formula_pretty"] and (
+                    filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"])
+                    and filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"])
+                    and filtered_entry["initial_molecule"]["charge"] == entry["initial_molecule"]["charge"]
+                ):
+                    found_similar_entry = True
+                    # If two entries are found that pass the above similarity check, take the one with the lower
+                    # energy:
+                    if entry["final_energy"] < filtered_entry["final_energy"]:
+                        self.filtered_entries[ii] = entry
+                    # Note that this will essentially choose between singlet and triplet entries assuming both have
+                    # the same structural details
+                    break
             if not found_similar_entry:
                 self.filtered_entries += [entry]
 

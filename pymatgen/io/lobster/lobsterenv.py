@@ -64,7 +64,7 @@ class LobsterNeighbors(NearNeighbors):
         filename_blist_sg2=None,
         id_blist_sg1="ICOOP",
         id_blist_sg2="ICOBI",
-    ):
+    ) -> None:
         """
 
         Args:
@@ -155,6 +155,7 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("No correct additional condition")
 
         # will read in valences, will prefer manual setting of valences
+        self.valences: list[float] | None
         if valences is None:
             if valences_from_charges and filename_CHARGE is not None:
                 chg = Charge(filename=filename_CHARGE)
@@ -508,10 +509,7 @@ class LobsterNeighbors(NearNeighbors):
 
         if only_bonds_to is None:
             # sort by anion type
-            if per_bond:
-                divisor = len(labels)
-            else:
-                divisor = 1
+            divisor = len(labels) if per_bond else 1
 
             plotlabel = self._get_plot_label(atoms, per_bond)
             summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
@@ -549,10 +547,7 @@ class LobsterNeighbors(NearNeighbors):
                     new_atoms.append(atompair)
             # print(new_labels)
             if len(new_labels) > 0:
-                if per_bond:
-                    divisor = len(new_labels)
-                else:
-                    divisor = 1
+                divisor = len(new_labels) if per_bond else 1
 
                 plotlabel = self._get_plot_label(new_atoms, per_bond)
                 summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
@@ -664,17 +659,12 @@ class LobsterNeighbors(NearNeighbors):
 
                                 else:
                                     if not done:
+                                        icohp_trans = -np.asarray(
+                                            [icohp._translation[0], icohp._translation[1], icohp._translation[2]]
+                                        )
+
                                         if (np.all(np.asarray(translation) == np.asarray(icohp._translation))) or (
-                                            np.all(
-                                                np.asarray(translation)
-                                                == np.asarray(
-                                                    [
-                                                        -icohp._translation[0],
-                                                        -icohp._translation[1],
-                                                        -icohp._translation[2],
-                                                    ]
-                                                )
-                                            )
+                                            np.all(np.asarray(translation) == icohp_trans)
                                         ):
                                             summed_icohps += icohp.summed_icohp
                                             list_icohps.append(icohp.summed_icohp)
@@ -723,9 +713,7 @@ class LobsterNeighbors(NearNeighbors):
                 additional_condition=additional_condition,
             )
 
-        elif lowerlimit is None and upperlimit is not None:
-            raise ValueError("Please give two limits or leave them both at None")
-        elif upperlimit is None and lowerlimit is not None:
+        elif lowerlimit is None and (upperlimit is not None or lowerlimit is not None):
             raise ValueError("Please give two limits or leave them both at None")
 
         # find environments based on ICOHP values
@@ -1003,19 +991,22 @@ class LobsterNeighbors(NearNeighbors):
 
             elif additional_condition == 3:
                 # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
-                if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
-                    if icohp._atom1.rstrip("0123456789") != icohp._atom2.rstrip("0123456789"):
-                        if atomnr1 == isite:
-                            neighbors_from_ICOHPs.append(atomnr2)
-                            lengths_from_ICOHPs.append(icohp._length)
-                            icohps_from_ICOHPs.append(icohp.summed_icohp)
-                            keys_from_ICOHPs.append(key)
+                if (
+                    (val1 < 0.0 < val2)
+                    or (val2 < 0.0 < val1)
+                    and icohp._atom1.rstrip("0123456789") != icohp._atom2.rstrip("0123456789")
+                ):
+                    if atomnr1 == isite:
+                        neighbors_from_ICOHPs.append(atomnr2)
+                        lengths_from_ICOHPs.append(icohp._length)
+                        icohps_from_ICOHPs.append(icohp.summed_icohp)
+                        keys_from_ICOHPs.append(key)
 
-                        elif atomnr2 == isite:
-                            neighbors_from_ICOHPs.append(atomnr1)
-                            lengths_from_ICOHPs.append(icohp._length)
-                            icohps_from_ICOHPs.append(icohp.summed_icohp)
-                            keys_from_ICOHPs.append(key)
+                    elif atomnr2 == isite:
+                        neighbors_from_ICOHPs.append(atomnr1)
+                        lengths_from_ICOHPs.append(icohp._length)
+                        icohps_from_ICOHPs.append(icohp.summed_icohp)
+                        keys_from_ICOHPs.append(key)
 
             elif additional_condition == 4:
                 # ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
@@ -1047,20 +1038,19 @@ class LobsterNeighbors(NearNeighbors):
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
 
-            elif additional_condition == 6:
+            elif additional_condition == 6 and val1 > 0.0 and val2 > 0.0:
                 # ONLY_CATION_CATION_BONDS=6
-                if val1 > 0.0 and val2 > 0.0:
-                    if atomnr1 == isite:
-                        neighbors_from_ICOHPs.append(atomnr2)
-                        lengths_from_ICOHPs.append(icohp._length)
-                        icohps_from_ICOHPs.append(icohp.summed_icohp)
-                        keys_from_ICOHPs.append(key)
+                if atomnr1 == isite:
+                    neighbors_from_ICOHPs.append(atomnr2)
+                    lengths_from_ICOHPs.append(icohp._length)
+                    icohps_from_ICOHPs.append(icohp.summed_icohp)
+                    keys_from_ICOHPs.append(key)
 
-                    elif atomnr2 == isite:
-                        neighbors_from_ICOHPs.append(atomnr1)
-                        lengths_from_ICOHPs.append(icohp._length)
-                        icohps_from_ICOHPs.append(icohp.summed_icohp)
-                        keys_from_ICOHPs.append(key)
+                elif atomnr2 == isite:
+                    neighbors_from_ICOHPs.append(atomnr1)
+                    lengths_from_ICOHPs.append(icohp._length)
+                    icohps_from_ICOHPs.append(icohp.summed_icohp)
+                    keys_from_ICOHPs.append(key)
 
         return (
             keys_from_ICOHPs,
@@ -1152,12 +1142,10 @@ class LobsterNeighbors(NearNeighbors):
         Returns: [-100000, min(max_icohp*0.15,-0.1)]
         """
         # TODO: make it work for COOPs
-        if not adapt_extremum_to_add_cond:
+        if not adapt_extremum_to_add_cond or additional_condition == 0:
             extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
         else:
-            if additional_condition == 0:
-                extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
-            elif additional_condition == 1:
+            if additional_condition == 1:
                 # only cation anion bonds
                 list_icohps = []
                 for value in icohpcollection._icohplist.values():
@@ -1188,9 +1176,12 @@ class LobsterNeighbors(NearNeighbors):
                     val1 = self.valences[atomnr1]
                     val2 = self.valences[atomnr2]
 
-                    if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
-                        if value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789"):
-                            list_icohps.append(value.summed_icohp)
+                    if (
+                        (val1 < 0.0 < val2)
+                        or (val2 < 0.0 < val1)
+                        and value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789")
+                    ):
+                        list_icohps.append(value.summed_icohp)
                 extremum_based = min(list_icohps) * percentage
             elif additional_condition == 4:
                 list_icohps = []

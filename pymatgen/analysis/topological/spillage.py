@@ -22,6 +22,7 @@ class SOCSpillage:
     def __init__(self, wf_noso="", wf_so=""):
         """
         Requires path to WAVECAR files with and without LSORBIT = .TRUE.
+
         Args:
             wf_noso : WAVECAR without spin-orbit coupling
             wf_so : WAVECAR with spin-orbit coupling

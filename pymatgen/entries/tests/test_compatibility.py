@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import copy
+import json
 import os
 import unittest
 import warnings
@@ -558,7 +560,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             },
         )
         d = compat.get_explanation_dict(entry)
-        assert "MPRelaxSet Potcar Correction" == d["corrections"][0]["name"]
+        assert d["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_get_corrections_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -1124,7 +1126,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
         d = compat.get_explanation_dict(entry)
-        assert "MPRelaxSet Potcar Correction" == d["corrections"][0]["name"]
+        assert d["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_energy_adjustments(self):
         compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
@@ -1193,6 +1195,16 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
         assert isinstance(temp_compat, MaterialsProject2020Compatibility)
+
+    def test_processing_entries_inplace(self):
+        # load two entries in GGA_GGA_U_R2SCAN thermo type
+        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        with open(entriesJson) as file:
+            entries = json.load(file, cls=MontyDecoder)
+        # check whether the compatibility scheme can keep input entries unchanged
+        entries_copy = copy.deepcopy(entries)
+        self.compat.process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -1542,7 +1554,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
         d = compat.get_explanation_dict(entry)
-        assert "MITRelaxSet Potcar Correction" == d["corrections"][0]["name"]
+        assert d["corrections"][0]["name"] == "MITRelaxSet Potcar Correction"
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
@@ -2123,6 +2135,15 @@ class TestMaterialsProjectAqueousCompatibility:
         processed_energy = hydrate_entry.energy
 
         assert initial_energy - processed_energy == pytest.approx(2 * (compat.h2o_adjustments * 3 + MU_H2O))
+
+    def test_processing_entries_inplace(self):
+        h2o_entry = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)  # -5.195 eV/atom
+        o2_entry = ComputedEntry(Composition("O2"), -4.9276 * 2)
+        # check that compatibility scheme does not change input entries themselves
+        entries = [h2o_entry, o2_entry]
+        entries_copy = copy.deepcopy(entries)
+        MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
 class AqueousCorrectionTest(unittest.TestCase):

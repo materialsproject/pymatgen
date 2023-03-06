@@ -74,7 +74,7 @@ class VolumetricData(MSONable):
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = {} if not distance_matrix else distance_matrix
+        self._distance_matrix = distance_matrix if distance_matrix else {}
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
@@ -196,8 +196,10 @@ class VolumetricData(MSONable):
             List of n data points (mostly interpolated) representing a linear slice of the
             data from point p1 to point p2.
         """
-        assert type(p1) in [list, np.ndarray] and type(p2) in [list, np.ndarray]
-        assert len(p1) == 3 and len(p2) == 3
+        assert type(p1) in [list, np.ndarray]
+        assert type(p2) in [list, np.ndarray]
+        assert len(p1) == 3
+        assert len(p2) == 3
         xpts = np.linspace(p1[0], p2[0], num=n)
         ypts = np.linspace(p1[1], p2[1], num=n)
         zpts = np.linspace(p1[2], p2[2], num=n)

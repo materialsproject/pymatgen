@@ -280,10 +280,7 @@ class BoltztrapRunner(MSONable):
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
                     eigs = []
-                    if self.run_type == "DOS":
-                        spin_lst = [self.spin]
-                    else:
-                        spin_lst = self._bs.bands
+                    spin_lst = [self.spin] if self.run_type == "DOS" else self._bs.bands
 
                     for spin in spin_lst:
                         # use 90% of bottom bands since highest eigenvalues
@@ -542,6 +539,7 @@ class BoltztrapRunner(MSONable):
         """
         Write inputs (optional), run BoltzTraP, and ensure
         convergence (optional)
+
         Args:
             path_dir (str): directory in which to run BoltzTraP
             convergence (bool): whether to check convergence and make
@@ -1357,6 +1355,7 @@ class BoltztrapAnalyzer:
             temp:   temperature of calculated seebeck.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
                     relaxation time).
+
         Returns:
             a list of values for the seebeck effective mass w.r.t the chemical potential,
             if doping_levels is set at False;
@@ -1413,6 +1412,7 @@ class BoltztrapAnalyzer:
             temp:   temperature of calculated seebeck and conductivity.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
                     relaxation time).
+
         Returns:
             a list of values for the complexity factor w.r.t the chemical potential,
             if doping_levels is set at False;
@@ -1542,10 +1542,7 @@ class BoltztrapAnalyzer:
                             isotropic = is_isotropic(evs, isotropy_tolerance)
                             if absval:
                                 evs = [abs(x) for x in evs]
-                            if use_average:
-                                val = float(sum(evs)) / len(evs)
-                            else:
-                                val = max(evs)
+                            val = float(sum(evs)) / len(evs) if use_average else max(evs)
                             if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
                                 x_val = val
                                 x_temp = t
@@ -1680,7 +1677,7 @@ class BoltztrapAnalyzer:
         """
         gives the carrier concentration (in cm^-3)
 
-        Returns
+        Returns:
             a dictionary {temp:[]} with an array of carrier concentration
             (in cm^-3) at each temperature
             The array relates to each step of electron chemical potential
@@ -1693,7 +1690,7 @@ class BoltztrapAnalyzer:
         the Hall tensor (see Boltztrap source code) Hall carrier concentration
         are not always exactly the same than carrier concentration.
 
-        Returns
+        Returns:
             a dictionary {temp:[]} with an array of Hall carrier concentration
             (in cm^-3) at each temperature The array relates to each step of
             electron chemical potential
@@ -1841,6 +1838,7 @@ class BoltztrapAnalyzer:
     def parse_struct(path_dir):
         """
         Parses boltztrap.struct file (only the volume)
+
         Args:
             path_dir: (str) dir containing the boltztrap.struct file
 
@@ -2286,7 +2284,6 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     sym line, for all bands and locally (for each branches) the difference
     squared (%) if nb is specified.
     """
-
     if bands_ref_obj.is_spin_polarized:
         nbands = min(bands_obj.nb_bands, 2 * bands_ref_obj.nb_bands)
     else:
@@ -2353,7 +2350,12 @@ def seebeck_spb(eta, Lambda=0.5):
     """
     Seebeck analytic formula in the single parabolic model
     """
-    from fdint import fdk
+    try:
+        from fdint import fdk
+    except ImportError:
+        raise BoltztrapError(
+            "fdint module not found. Please, install it.\nIt is needed to calculate Fermi integral quickly."
+        )
 
     return (
         constants.k

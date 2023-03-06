@@ -74,7 +74,7 @@ H -0.513360 0.889165 -0.363000"""
             assert site.species_string == sp[i]
             assert len(site.coords) == 3
             if i == 0:
-                assert all([c == 0 for c in site.coords])
+                assert all(c == 0 for c in site.coords)
 
         mol_str = """2
 Random

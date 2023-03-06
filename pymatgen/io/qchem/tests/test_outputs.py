@@ -99,6 +99,29 @@ property_list = {
     "ccsd_total_energy",
     "ccsd(t)_correlation_energy",
     "ccsd(t)_total_energy",
+    "cdft_becke_excess_electrons",
+    "cdft_becke_population",
+    "cdft_becke_net_spin",
+    "direct_coupling_Hif_Hartree",
+    "direct_coupling_Sif_Hartree",
+    "direct_coupling_Hii_Hartree",
+    "direct_coupling_Sii_Hartree",
+    "direct_coupling_Hff_Hartree",
+    "direct_coupling_Sff_Hartree",
+    "direct_coupling_eV",
+    "almo_coupling_states",
+    "almo_diabat_energies_Hartree",
+    "almo_adiabat_energies_Hartree",
+    "almo_hamiltonian",
+    "almo_overlap_matrix",
+    "almo_s2_matrix",
+    "almo_diabat_basis_coeff",
+    "almo_h_coupling_matrix",
+    "almo_coupling_eV",
+    "pod_coupling_eV",
+    "fodft_had_eV",
+    "fodft_hda_eV",
+    "fodft_coupling_eV",
     "alpha_fock_matrix",
     "beta_fock_matrix",
     "alpha_eigenvalues",
@@ -186,6 +209,13 @@ single_job_out_names = {
     "new_qchem_files/ts.out",
     "new_qchem_files/ccsd.qout",
     "new_qchem_files/ccsdt.qout",
+    "new_qchem_files/almo.out",
+    "new_qchem_files/cdft_simple.qout",
+    "new_qchem_files/fodft.out",
+    "new_qchem_files/fodft_2.out",
+    "new_qchem_files/fodft_3.out",
+    "new_qchem_files/pod1.out",
+    "new_qchem_files/pod2_gs.out",
     "extra_scf_print.qcout",
     "new_qchem_files/cmirs_benzene_single.qcout",
     "new_qchem_files/cmirs_dielst10_single.qcout",
@@ -214,6 +244,7 @@ multi_job_out_names = {
     "killed.qcout",
     "aux_mpi_time_mol.qcout",
     "new_qchem_files/VCLi_solv_eps10.qcout",
+    "new_qchem_files/cdft_dc.qout",
     "new_qchem_files/cmirs_benzene.qcout",
     "new_qchem_files/cmirs_dielst10.qcout",
     "new_qchem_files/isosvp_water.qcout",
@@ -240,7 +271,7 @@ class TestQCOutput(PymatgenTest):
         multi_job_dict = {}
         for file in multi_job_out_names:
             outputs = QCOutput.multiple_outputs_from_file(
-                QCOutput, os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
             )
             data = []
             for sub_output in outputs:
@@ -276,7 +307,7 @@ class TestQCOutput(PymatgenTest):
         multi_outs = {}
         for file in multi_job_out_names:
             multi_outs[file] = QCOutput.multiple_outputs_from_file(
-                QCOutput, os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
             )
 
         for key in property_list:
@@ -365,12 +396,40 @@ class TestQCOutput(PymatgenTest):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_inf.qout")).data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0] == float("inf")
 
+    def test_cdft_parsing(self):
+        data = QCOutput(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_simple.qout")
+        ).data
+        assert data["cdft_becke_excess_electrons"][0][0] == 0.432641
+        assert len(data["cdft_becke_population"][0]) == 12
+        assert data["cdft_becke_net_spin"][0][6] == -0.000316
+
+    def test_cdft_dc_parsing(self):
+        data = QCOutput.multiple_outputs_from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_dc.qout"),
+            keep_sub_files=False,
+        )[-1].data
+        assert data["direct_coupling_eV"] == 0.0103038246
+
+    def test_almo_msdft2_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "almo.out")).data
+        self.assertListEqual(data["almo_coupling_states"], [[[1, 2], [0, 1]], [[0, 1], [1, 2]]])
+        assert data["almo_hamiltonian"][0][0] == -156.62929
+        self.assertAlmostEqual(data["almo_coupling_eV"], 0.26895)
+
+    def test_pod_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "pod2_gs.out")).data
+        assert data["pod_coupling_eV"] == 0.247818
+
+    def test_fodft_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "fodft.out")).data
+        assert data["fodft_coupling_eV"] == 0.268383
+
     def test_isosvp_water(self):
         data = QCOutput(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "isosvp_water_single.qcout")
         ).data
         assert data["solvent_method"] == "ISOSVP"
-
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
         assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == -40.4850599393
@@ -468,4 +527,6 @@ class TestQCOutput(PymatgenTest):
 
 
 if __name__ == "__main__":
+    # TestQCOutput.generate_single_job_dict()
+    # TestQCOutput.generate_multi_job_dict()
     unittest.main()

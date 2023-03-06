@@ -109,9 +109,9 @@ del T
 
 
 # Default values used if user does not specify them
-_DEFAULTS = dict(
-    kppa=1000,
-)
+_DEFAULTS = {
+    "kppa": 1000,
+}
 
 
 def as_structure(obj):
@@ -211,11 +211,9 @@ def _find_scf_nband(structure, pseudos, electrons, spinat=None):
     # If nband is too small we may kill the job, increase nband and restart
     # but this change could cause problems in the other steps of the calculation
     # if the change is not propagated e.g. phonons in metals.
-    if smearing:
-        # metallic occupation
-        nband = max(np.ceil(nband * 1.2), nband + 10)
-    else:
-        nband = max(np.ceil(nband * 1.1), nband + 4)
+
+    # metallic occupation
+    nband = max(np.ceil(nband * 1.2), nband + 10) if smearing else max(np.ceil(nband * 1.1), nband + 4)
 
     # Increase number of bands based on the starting magnetization
     if nsppol == 2 and spinat is not None:
@@ -560,10 +558,9 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
             shiftk = [0.0, 0.0, 0.0]
             shiftk[hex_ax] = 0.5
 
-        elif lattice_type == "tetragonal":
-            if "I" in spg_symbol:
-                # BCT
-                shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
+        elif lattice_type == "tetragonal" and "I" in spg_symbol:
+            # BCT
+            shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
 
     if shiftk is None:
         # Use default value.
@@ -637,7 +634,6 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         Return dict with the variables added to the input.
 
         Example:
-
             input.set_vars(ecut=10, ionmov=3)
         """
         kwargs.update(dict(*args))
@@ -651,7 +647,6 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         Return dict with the variables added to the input.
 
         Example:
-
             input.set_vars(ecut=10, ionmov=3)
         """
         kwargs.update(dict(*args))

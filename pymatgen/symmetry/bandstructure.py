@@ -344,10 +344,7 @@ class HighSymmKpath(KPathBase):
                 elif edge_euler[::-1] == edge_reg:
                     distances_map.append((plot_axis.index(edge_reg), True))
 
-        if bandstructure.is_spin_polarized:
-            spins = [Spin.up, Spin.down]
-        else:
-            spins = [Spin.up]
+        spins = [Spin.up, Spin.down] if bandstructure.is_spin_polarized else [Spin.up]
 
         new_kpoints = []
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}

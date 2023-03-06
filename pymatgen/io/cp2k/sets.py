@@ -213,12 +213,14 @@ class DftSet(Cp2kInput):
             # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
             # 0,0,0 will disable certain features. So, you have to drop it all together to
             # get full support
-            if self.kpoints.style in [Kpoints_supported_modes.Gamma, Kpoints_supported_modes.Monkhorst]:
-                if np.array_equal(self.kpoints.kpts[0], (1, 1, 1)):
-                    self.kpoints = None
-            elif self.kpoints.style in [Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian]:
-                if np.array_equal(self.kpoints.kpts[0], (0, 0, 0)):
-                    self.kpoints = None
+            if (
+                self.kpoints.style in [Kpoints_supported_modes.Gamma, Kpoints_supported_modes.Monkhorst]
+                and np.array_equal(self.kpoints.kpts[0], (1, 1, 1))
+            ) or (
+                self.kpoints.style in [Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian]
+                and np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
+            ):
+                self.kpoints = None
             if ot and self.kpoints:
                 warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
                 ot = False
@@ -510,12 +512,11 @@ class DftSet(Cp2kInput):
                 else:
                     raise ValueError("No explicit basis found and matching has failed.")
 
-            if aux_basis is None:
-                if basis_and_potential.get(el, {}).get("aux_basis"):
-                    warnings.warn(
-                        f"Unable to validate auxiliary basis for {el}. Exact name provided will be put in input file."
-                    )
-                    aux_basis = basis_and_potential[el].get("aux_basis")
+            if aux_basis is None and basis_and_potential.get(el, {}).get("aux_basis"):
+                warnings.warn(
+                    f"Unable to validate auxiliary basis for {el}. Exact name provided will be put in input file."
+                )
+                aux_basis = basis_and_potential[el].get("aux_basis")
 
             if potential is None:
                 if basis_and_potential.get(el, {}).get("potential"):
@@ -1352,10 +1353,12 @@ class DftSet(Cp2kInput):
             raise Cp2kValidationError("Does not support hartree fock with kpoints")
 
         for _, v in self["force_eval"]["subsys"].subsections.items():
-            if v.name.upper() == "KIND":
-                if v["POTENTIAL"].values[0].upper() == "ALL":
-                    if self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW":
-                        raise Cp2kValidationError("All electron basis sets require GAPW method")
+            if (
+                v.name.upper() == "KIND"
+                and v["POTENTIAL"].values[0].upper() == "ALL"
+                and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"
+            ):
+                raise Cp2kValidationError("All electron basis sets require GAPW method")
 
 
 class StaticSet(DftSet):

@@ -212,10 +212,7 @@ class DielectricFunctionCalculator(MSONable):
                 index to include in the calculation
             min_val: Minimum value below this value the matrix element will not be shown.
         """
-        if mask is not None:
-            cderm = self.cder * mask
-        else:
-            cderm = self.cder
+        cderm = self.cder * mask if mask is not None else self.cder
 
         norm_kweights = np.array(self.kweights) / np.sum(self.kweights)
         eigs_shifted = self.eigs - self.efermi
@@ -388,10 +385,7 @@ def epsilon_imag(
 
     # for the transition between two bands at one kpoint the contributions is:
     #  (fermi[band_i] - fermi[band_j]) * rspin * normalized_kpoint_weight
-    if mask is not None:
-        cderm = cder * mask
-    else:
-        cderm = cder
+    cderm = cder * mask if mask is not None else cder
 
     # min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
     # min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
