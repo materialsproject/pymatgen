@@ -159,10 +159,10 @@ class ZSLGenerator(MSONable):
         """
         for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films = np.array([reduce_vectors(*np.dot(f, film_vectors)) for f in film_transformations], dtype=float)
+            films = np.array([reduce_vectors(*v) for v in np.dot(film_transformations, film_vectors)], dtype=float)
 
             substrates = np.array(
-                [reduce_vectors(*np.dot(s, substrate_vectors)) for s in substrate_transformations], dtype=float
+                [reduce_vectors(*v) for v in np.dot(substrate_transformations, substrate_vectors)], dtype=float
             )
 
             # Check if equivalent super lattices
