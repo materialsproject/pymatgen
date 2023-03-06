@@ -15,12 +15,8 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from string import Template
 
-from monty.io import zopen
-
-from pymatgen.core import Structure
-from pymatgen.io.core import InputGenerator, InputSet
+from pymatgen.io.core import InputSet
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
 
@@ -60,7 +56,7 @@ class LammpsInputSet(InputSet):
                        It can be a LammpsInputFile object or a string representation.
             data: The data file containing structure and topology information.
                   It can be a LammpsData or a CombinedData object.
-            calc_type: String used to shortly describe the type of computations performed by LAMMPS.
+            calc_type: Human-readable string used to briefly describe the type of computations performed by LAMMPS.
             template_file: Path (string) to the template file used to create the input file for LAMMPS.
             keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
         """
@@ -74,15 +70,6 @@ class LammpsInputSet(InputSet):
         self.keep_stages = keep_stages
 
         super().__init__(inputs={"in.lammps": self.inputfile, "system.data": self.data})
-
-    def get_inputs(self) -> dict[str, LammpsInputFile | LammpsData | CombinedData]:  # pylint: disable=E1131
-        """
-        Generate a dictionary of one or more input files to be written. Keys
-        are filenames, values are the contents of each file.
-        This method is called by write_input(), which performs the actual file
-        write operations.
-        """
-        return {"in.lammps": self.inputfile, "system.data": self.data}
 
     @classmethod
     def from_directory(cls, directory: str | Path, keep_stages: bool = False):  # pylint: disable=E1131
@@ -107,113 +94,3 @@ class LammpsInputSet(InputSet):
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
         raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
-
-
-class BaseLammpsGenerator(InputGenerator):
-    r"""
-    Base class to generate LAMMPS input sets.
-    Uses template files for the input. The variables that can be changed
-    in the input template file are those starting with a $ sign, e.g., $nsteps.
-    This generic class is specialized for each template in subclasses, e.g. LammpsMinimization.
-    You can create a template for your own task following those present in pymatgen/io/lammps/templates.
-    The parameters are then replaced based on the values found
-    in the settings dictionary that you provide, e.g., `{"nsteps": 1000}`.
-
-    Parameters:
-        template: Path (string) to the template file used to create the input file for LAMMPS.
-        calc_type: String used to shortly describe the type of computations performed by LAMMPS.
-    Args:
-        settings: Dictionary containing the values of the parameters to replace in the template.
-        keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
-
-    /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
-    For instance, pymatgen will not detect whether a given variable should be adapted based on others
-    (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
-    For additional flexibility and automation, use the atomate2-lammps implementation
-    (https://github.com/Matgenix/atomate2-lammps).
-    """
-
-    template: str = os.path.join(template_dir, "md.template")
-    calc_type: str = "lammps"
-
-    def __init__(
-        self, settings: dict[str, str | float] | None = None, keep_stages: bool = False  # pylint: disable=E1131
-    ):
-        self.settings = settings or {}
-        self.keep_stages = keep_stages
-
-        # load the template
-        with zopen(self.template, "r") as f:
-            template_str = f.read()
-
-        # replace all variables
-        self.input_str = Template(template_str).safe_substitute(**self.settings)
-        self.input_file = LammpsInputFile.from_string(self.input_str, keep_stages=self.keep_stages)
-
-    def get_input_set(  # type: ignore
-        self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
-    ) -> LammpsInputSet:
-        """
-        Generate a LammpsInputSet from the structure/data, tailored to the template file.
-        """
-        if isinstance(structure, Structure):
-            data = LammpsData.from_structure(structure)
-        else:
-            data = structure
-
-        # Get the LammpsInputSet from the input file and data
-        input_set = LammpsInputSet(
-            inputfile=self.input_file, data=data, calc_type=self.calc_type, template_file=self.template
-        )
-
-        return input_set
-
-
-class LammpsMinimization(BaseLammpsGenerator):
-    r"""
-    Yields a LammpsInputSet tailored for minimizing the energy of a system by iteratively
-    adjusting atom coordinates.
-    Example usage:
-    ```
-    structure = Structure.from_file("mp-149.cif")
-    lmp_minimization = LammpsMinimization(units="atomic").get_input_set(structure)
-    ```
-
-    Do not forget to specify the force field, otherwise LAMMPS will not be able to run!
-
-    /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
-    For instance, pymatgen will not detect whether a given variable should be adapted based on others
-    (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
-    For additional flexibility and automation, use the atomate2-lammps implementation
-    (https://github.com/Matgenix/atomate2-lammps).
-    """
-
-    template = os.path.join(template_dir, "minimization.template")
-    calc_type = "minimization"
-
-    def __init__(
-        self,
-        units: str = "metal",
-        atom_style: str = "full",
-        dimension: int = 3,
-        boundary: str = "p p p",
-        read_data: str = "system.data",
-        force_field: str = "Unspecified force field!",
-        keep_stages: bool = False,
-    ):
-        self.units = units
-        self.atom_style = atom_style
-        self.dimension = dimension
-        self.boundary = boundary
-        self.read_data = read_data
-        self.force_field = force_field
-        self.settings = {
-            "units": units,
-            "atom_style": atom_style,
-            "dimension": dimension,
-            "boundary": boundary,
-            "read_structure": read_data,
-            "force_field": force_field,
-        }
-        self.keep_stages = keep_stages
-        super().__init__(settings=self.settings, keep_stages=self.keep_stages)

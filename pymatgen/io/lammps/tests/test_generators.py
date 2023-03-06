@@ -6,7 +6,7 @@ import os
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
-from pymatgen.io.lammps.sets import LammpsMinimization
+from pymatgen.io.lammps.generators import LammpsMinimization
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
@@ -20,7 +20,7 @@ class LammpsMinimizationTest(PymatgenTest):
         cls.structure = Structure.from_file(cls.cif)
 
     def test_get_input_set(self):
-        lmp_min = LammpsMinimization().get_input_set(self.structure)
+        lmp_min = LammpsMinimization(keep_stages=False).get_input_set(self.structure)
         assert list(lmp_min.data.as_dict().keys()) == list(LammpsData.from_structure(self.structure).as_dict().keys())
         assert (
             lmp_min.data.as_dict()["atoms"].values
@@ -53,7 +53,7 @@ class LammpsMinimizationTest(PymatgenTest):
             ]
         ]
 
-        lmp_min = LammpsMinimization(units="atomic", dimension=2).get_input_set(self.structure)
+        lmp_min = LammpsMinimization(units="atomic", dimension=2, keep_stages=False).get_input_set(self.structure)
         assert list(lmp_min.data.as_dict().keys()) == list(LammpsData.from_structure(self.structure).as_dict().keys())
         assert (
             lmp_min.data.as_dict()["atoms"].values

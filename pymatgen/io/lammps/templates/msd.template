@@ -5,7 +5,7 @@ dimension $dimension
 boundary $boundary
 
 # 2) System definition
-read_data $read_structure
+read_data $read_data
 neigh_modify every 1 delay 5 check yes
 group AtId type $type
 
