@@ -26,9 +26,9 @@ from pymatgen.io.lobster import (
     Lobsterin,
     Lobsterout,
     MadelungEnergies,
+    Ncicobilist,
     SitePotential,
     Wavefunction,
-    Ncicobilist,
 )
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
@@ -654,11 +654,10 @@ class IcohplistTest(unittest.TestCase):
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
 
+
 class NcicobilistTest(unittest.TestCase):
     def setUp(self):
-        self.ncicobi = Ncicobilist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "NcICOBILIST.lobster")
-        )
+        self.ncicobi = Ncicobilist(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "NcICOBILIST.lobster"))
 
         self.ncicobigz = Ncicobilist(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "NcICOBILIST.lobster.gz")
@@ -675,6 +674,7 @@ class NcicobilistTest(unittest.TestCase):
         self.ncicobiwo = Ncicobilist(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "NcICOBILIST.lobster.withoutorbitals")
         )
+
     def test_ncicobilist(self):
         self.assertTrue(self.ncicobi.is_spin_polarized)
         self.assertFalse(self.ncicobinospin.is_spin_polarized)
@@ -689,14 +689,21 @@ class NcicobilistTest(unittest.TestCase):
         self.assertAlmostEqual(self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up], 0.00009, places=5)
         self.assertAlmostEqual(self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.down], 0.00009, places=5)
         self.assertEqual(self.ncicobi.ncicobilist["2"]["interaction_type"], "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]")
-        self.assertEqual(self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up],
-                         self.ncicobiwo.ncicobilist["2"]["ncicobi"][Spin.up])
-        self.assertEqual(self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up],
-                         self.ncicobigz.ncicobilist["2"]["ncicobi"][Spin.up])
-        self.assertEqual(self.ncicobi.ncicobilist["2"]["interaction_type"],
-                         self.ncicobigz.ncicobilist["2"]["interaction_type"])
-        self.assertAlmostEqual(sum(list(self.ncicobi.ncicobilist["2"]["ncicobi"].values())),
-                               self.ncicobinospin.ncicobilist["2"]["ncicobi"][Spin.up], places=5)
+        self.assertEqual(
+            self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up], self.ncicobiwo.ncicobilist["2"]["ncicobi"][Spin.up]
+        )
+        self.assertEqual(
+            self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up], self.ncicobigz.ncicobilist["2"]["ncicobi"][Spin.up]
+        )
+        self.assertEqual(
+            self.ncicobi.ncicobilist["2"]["interaction_type"], self.ncicobigz.ncicobilist["2"]["interaction_type"]
+        )
+        self.assertAlmostEqual(
+            sum(list(self.ncicobi.ncicobilist["2"]["ncicobi"].values())),
+            self.ncicobinospin.ncicobilist["2"]["ncicobi"][Spin.up],
+            places=5,
+        )
+
 
 class DoscarTest(unittest.TestCase):
     def setUp(self):
