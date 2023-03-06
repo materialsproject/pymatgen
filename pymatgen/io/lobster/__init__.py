@@ -23,4 +23,5 @@ from .outputs import (
     MadelungEnergies,
     SitePotential,
     Wavefunction,
+    Ncicobilist,
 )
