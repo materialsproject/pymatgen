@@ -2002,7 +2002,7 @@ class MoleculeGraph(MSONable):
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
-    def get_disconnected_fragments(self):
+    def get_disconnected_fragments(self, return_index_map=False):
         """
         Determine if the MoleculeGraph is connected. If it is not, separate the
         MoleculeGraph into different MoleculeGraphs, where each resulting
@@ -2011,6 +2011,10 @@ class MoleculeGraph(MSONable):
         of the total molecule to a single submolecule. A
         later effort will be to actually accurately assign
         charge.
+
+        If return_index_map is True, then the function will return
+        a list that maps the new indices to the original indices.
+
         NOTE: This function does not modify the original
         MoleculeGraph. It creates a copy, modifies that, and
         returns two or more new MoleculeGraph objects.
@@ -2024,11 +2028,11 @@ class MoleculeGraph(MSONable):
 
         # Had to use nx.weakly_connected_components because of deprecation
         # of nx.weakly_connected_component_subgraphs
-        subgraphs = [original.graph.subgraph(c) for c in nx.weakly_connected_components(original.graph)]
-
-        for subg in subgraphs:
+        index_map = []
+        for c in nx.weakly_connected_components(original.graph):
+            subg = original.graph.subgraph(c)
             nodes = sorted(subg.nodes)
-
+            index_map += list(nodes)
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0
             mapping = {}
@@ -2066,6 +2070,8 @@ class MoleculeGraph(MSONable):
             # create new MoleculeGraph
             sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
 
+        if return_index_map:
+            return sub_mols, index_map
         return sub_mols
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
