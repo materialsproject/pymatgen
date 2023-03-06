@@ -166,7 +166,7 @@ class LammpsInputFile(InputFile):
         elif how == "all":
             getargs = self.get_args(command, stage_name)
             N = 1 if isinstance(getargs, str) else len(getargs)
-            how = [i for i in range(N)]
+            how = list(range(N))
         elif isinstance(how, int):
             how = [how]
 
