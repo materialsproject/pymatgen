@@ -27,6 +27,7 @@ import os
 import warnings
 from functools import reduce
 from math import gcd
+from typing import Literal
 
 import numpy as np
 from monty.fractions import lcm
@@ -828,9 +829,15 @@ class SlabGenerator:
         # pylint: disable=E1130
         # Add Wyckoff symbols of the bulk, will help with
         # identfying types of sites in the slab system
-        sg = SpacegroupAnalyzer(initial_structure)
-        initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
-        initial_structure.add_site_property("bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist())
+        if (
+            "bulk_wyckoff" not in initial_structure.site_properties
+            or "bulk_equivalent" not in initial_structure.site_properties
+        ):
+            sg = SpacegroupAnalyzer(initial_structure)
+            initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
+            initial_structure.add_site_property(
+                "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
+            )
         latt = initial_structure.lattice
         miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
@@ -1588,7 +1595,12 @@ def is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) 
     return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
 
 
-def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True):
+def get_symmetrically_equivalent_miller_indices(
+    structure,
+    miller_index,
+    return_hkil=True,
+    system: Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"] = None,
+):
     """
     Returns all symmetrically equivalent indices for a given structure. Analysis
     is based on the symmetry of the reciprocal lattice of the structure.
@@ -1598,6 +1610,8 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
             to find. Can be hkl or hkil for hexagonal systems
         return_hkil (bool): If true, return hkil form of Miller
             index for hexagonal systems, otherwise return hkl
+        system: If known, specify the crystal system of the structure
+            so that it does not need to be re-calculated.
     """
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     miller_index = (miller_index[0], miller_index[1], miller_index[3]) if len(miller_index) == 4 else miller_index
@@ -1605,10 +1619,16 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     r = list(range(-mmi, mmi + 1))
     r.reverse()
 
-    sg = SpacegroupAnalyzer(structure)
+    sg = None
+    if not system:
+        sg = SpacegroupAnalyzer(structure)
+        system = sg.get_crystal_system()
+
     # Get distinct hkl planes from the rhombohedral setting if trigonal
-    if sg.get_crystal_system() == "trigonal":
-        prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
+    if system == "trigonal":
+        if not sg:
+            sg = SpacegroupAnalyzer(structure)
+        prim_structure = sg.get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
@@ -1626,7 +1646,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
                 if is_already_analyzed(mmi * np.array(miller), equivalent_millers, symm_ops):
                     equivalent_millers.append(miller)
 
-    if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
+    if return_hkil and system in ("trigonal", "hexagonal"):
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in equivalent_millers]
     return equivalent_millers
 
