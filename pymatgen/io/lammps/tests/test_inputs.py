@@ -77,7 +77,7 @@ class LammpsInputFileTest(PymatgenTest):
     def test_get_string(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
         string = lmp_input.get_string()
-        assert "# LAMMPS input generated from LammpsInputFile\n\n" in string
+        assert "# LAMMPS input generated from LammpsInputFile with pymatgen v" in string
         assert "\nunits metal\natom_style full\ndimension 3\npair_style hybrid/overlay morse 15 coul/long" in string
         assert "15\nkspace_style ewald 1e-4\nboundary p p p\n# 2) System definition" in string
         assert "\nread_data run_init.data\nset type 1 charge 0.8803\nset type 2 charge" in string
