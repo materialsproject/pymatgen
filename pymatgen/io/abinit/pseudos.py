@@ -98,7 +98,7 @@ def str2l(s):
 class Pseudo(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class defining the methods that must be
-    implemented by the concrete pseudopotential sub-classes.
+    implemented by the concrete pseudo-potential sub-classes.
     """
 
     @classmethod

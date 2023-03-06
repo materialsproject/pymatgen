@@ -930,12 +930,12 @@ class BSPlotterProjected(BSPlotter):
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
-                        str(Spin.up): [[] for l in range(self._nb_bands)],
-                        str(Spin.down): [[] for l in range(self._nb_bands)],
+                        str(Spin.up): [[] for _ in range(self._nb_bands)],
+                        str(Spin.down): [[] for _ in range(self._nb_bands)],
                     }
                 )
             else:
-                proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
+                proj_br.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
             for i in range(self._nb_bands):
                 for j in range(b["start_index"], b["end_index"] + 1):
@@ -1259,12 +1259,12 @@ class BSPlotterProjected(BSPlotter):
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
-                        str(Spin.up): [[] for l in range(self._nb_bands)],
-                        str(Spin.down): [[] for l in range(self._nb_bands)],
+                        str(Spin.up): [[] for _ in range(self._nb_bands)],
+                        str(Spin.down): [[] for _ in range(self._nb_bands)],
                     }
                 )
             else:
-                proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
+                proj_br.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
             for i in range(self._nb_bands):
                 for j in range(b["start_index"], b["end_index"] + 1):
@@ -1303,12 +1303,12 @@ class BSPlotterProjected(BSPlotter):
                 if self._bs.is_spin_polarized:
                     proj_br_d.append(
                         {
-                            str(Spin.up): [[] for l in range(self._nb_bands)],
-                            str(Spin.down): [[] for l in range(self._nb_bands)],
+                            str(Spin.up): [[] for _ in range(self._nb_bands)],
+                            str(Spin.down): [[] for _ in range(self._nb_bands)],
                         }
                     )
                 else:
-                    proj_br_d.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
+                    proj_br_d.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
                 if (sum_atoms is not None) and (sum_morbs is None):
                     for i in range(self._nb_bands):
@@ -1773,7 +1773,7 @@ class BSPlotterProjected(BSPlotter):
                                     "They should be string."
                                 )
                             if orb not in all_orbitals:
-                                raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
+                                raise ValueError(f"The invalid name of orbita_ in 'sum_morbs[{elt}]' is given.")
                             if orb in individual_orbs and len(set(sum_morbs[elt]) & individual_orbs[orb]) != 0:
                                 raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()

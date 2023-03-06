@@ -305,12 +305,12 @@ class GrainBoundary(Structure):
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        s = Structure.from_sites(sites)
+        struct = Structure.from_sites(sites)
 
         return GrainBoundary(
             lattice=lattice,
-            species=s.species_and_occu,
-            coords=s.frac_coords,
+            species=struct.species_and_occu,
+            coords=struct.frac_coords,
             rotation_axis=d["rotation_axis"],
             rotation_angle=d["rotation_angle"],
             gb_plane=d["gb_plane"],
@@ -319,7 +319,7 @@ class GrainBoundary(Structure):
             vacuum_thickness=d["vacuum_thickness"],
             ab_shift=d["ab_shift"],
             oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
-            site_properties=s.site_properties,
+            site_properties=struct.site_properties,
         )
 
 

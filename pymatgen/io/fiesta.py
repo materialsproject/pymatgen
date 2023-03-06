@@ -782,23 +782,23 @@ class FiestaOutput:
         parse_gw_results = False
         parse_total_time = False
 
-        for l in output.split("\n"):
+        for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(l)
+                m = end_patt.search(line)
                 if m:
                     GW_results.update(end_normally=True)
 
-                m = total_time_patt.search(l)
+                m = total_time_patt.search(line)
                 if m:
                     GW_results.update(total_time=m.group(1))
 
             if parse_gw_results:
-                if l.find("Dumping eigen energies") != -1:
+                if line.find("Dumping eigen energies") != -1:
                     parse_total_time = True
                     parse_gw_results = False
                     continue
 
-                m = GW_BANDS_results_patt.search(l)
+                m = GW_BANDS_results_patt.search(line)
                 if m:
                     d = {}
                     d.update(
@@ -814,7 +814,7 @@ class FiestaOutput:
                     )
                     GW_results[m.group(1).strip()] = d
 
-                n = GW_GAPS_results_patt.search(l)
+                n = GW_GAPS_results_patt.search(line)
                 if n:
                     d = {}
                     d.update(
@@ -824,7 +824,7 @@ class FiestaOutput:
                     )
                     GW_results["Gaps"] = d
 
-            if l.find("GW Results") != -1:
+            if line.find("GW Results") != -1:
                 parse_gw_results = True
 
         return GW_results

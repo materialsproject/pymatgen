@@ -49,8 +49,8 @@ def min_max_indexes(seq):
     Uses enumerate, max, and min to return the indices of the values
     in a list with the maximum and minimum value:
     """
-    l = sorted(enumerate(seq), key=lambda s: s[1])
-    return l[0][0], l[-1][0]
+    lst = sorted(enumerate(seq), key=lambda s: s[1])
+    return lst[0][0], lst[-1][0]
 
 
 def strictly_increasing(values):

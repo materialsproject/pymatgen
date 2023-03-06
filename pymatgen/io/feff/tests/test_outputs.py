@@ -16,25 +16,25 @@ test_dir_reci = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_reci_dos")
 class FeffLdosTest(unittest.TestCase):
     filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp")
     filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "ldos")
-    l = LDos.from_file(filepath1, filepath2)
+    ldos = LDos.from_file(filepath1, filepath2)
 
     reci_feffinp = os.path.join(test_dir_reci, "feff.inp")
     reci_ldos = os.path.join(test_dir_reci, "ldos")
     reci_dos = LDos.from_file(reci_feffinp, reci_ldos)
 
     def test_init(self):
-        efermi = FeffLdosTest.l.complete_dos.efermi
-        assert efermi == -11.430, "Did not read correct Fermi energy from ldos file"
+        e_fermi = FeffLdosTest.ldos.complete_dos.efermi
+        assert e_fermi == -11.430, "Did not read correct Fermi energy from ldos file"
 
     def test_complete_dos(self):
-        complete_dos = FeffLdosTest.l.complete_dos
+        complete_dos = FeffLdosTest.ldos.complete_dos
         assert (
             complete_dos.as_dict()["spd_dos"]["s"]["efermi"] == -11.430
         ), "Failed to construct complete_dos dict properly"
 
     def test_as_dict_and_from_dict(self):
-        l2 = FeffLdosTest.l.charge_transfer_to_string()
-        d = FeffLdosTest.l.as_dict()
+        l2 = FeffLdosTest.ldos.charge_transfer_to_string()
+        d = FeffLdosTest.ldos.as_dict()
         l3 = LDos.from_dict(d).charge_transfer_to_string()
         assert l2 == l3, "Feffldos to and from dict does not match"
 

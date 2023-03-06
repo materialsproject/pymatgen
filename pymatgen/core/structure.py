@@ -2248,9 +2248,9 @@ class IStructure(SiteCollection, MSONable):
 
                 if valid:
                     inv_m = np.linalg.inv(m)
-                    new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
+                    new_latt = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(
-                        new_l,
+                        new_latt,
                         new_sp,
                         new_coords,
                         site_properties=new_props,

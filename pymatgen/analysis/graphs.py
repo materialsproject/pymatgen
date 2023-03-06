@@ -1099,8 +1099,8 @@ class StructureGraph(MSONable):
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
-        s = Structure.from_dict(d["structure"])
-        return cls(s, d["graphs"])
+        struct = Structure.from_dict(d["structure"])
+        return cls(struct, d["graphs"])
 
     def __mul__(self, scaling_matrix):
         """

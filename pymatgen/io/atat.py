@@ -39,8 +39,8 @@ class Mcsqs:
         :return (str):
         """
         # add lattice vectors
-        m = self.structure.lattice.matrix
-        output = [f"{l[0]:6f} {l[1]:6f} {l[2]:6f}" for l in m]
+        mat = self.structure.lattice.matrix
+        output = [f"{vec[0]:6f} {vec[1]:6f} {vec[2]:6f}" for vec in mat]
 
         # define coord system, use Cartesian
         output.append("1.0 0.0 0.0")

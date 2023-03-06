@@ -244,8 +244,8 @@ class InternalStrainTensor:
         Return:
             InternalStrainTensor object
         """
-        l = len(self.structure)
-        IST = np.zeros((l, 3, 3, 3))
+        n_atoms = len(self.structure)
+        IST = np.zeros((n_atoms, 3, 3, 3))
         for atom, ops in enumerate(self.IST_operations):
             temp_tensor = np.zeros([3, 3, 3])
             for op in ops:

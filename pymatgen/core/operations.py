@@ -314,16 +314,10 @@ class SymmOp(MSONable):
             SymmOp.
         """
         theta = angle * pi / 180 if not angle_in_radians else angle
-        a = origin[0]  # type: ignore
-        b = origin[1]  # type: ignore
-        c = origin[2]  # type: ignore
-        u = axis[0]  # type: ignore
-        v = axis[1]  # type: ignore
-        w = axis[2]  # type: ignore
+        a, b, c = origin  # type: ignore
+        u, v, w = axis
         # Set some intermediate values.
-        u2 = u * u  # type: ignore
-        v2 = v * v  # type: ignore
-        w2 = w * w  # type: ignore
+        u2, v2, w2 = u * u, v * v, w * w
         cos_t = cos(theta)
         sin_t = sin(theta)
         l2 = u2 + v2 + w2  # type: ignore

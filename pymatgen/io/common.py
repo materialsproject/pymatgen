@@ -400,15 +400,15 @@ class VolumetricData(MSONable):
         # The number of voxels along each axis (x, y, z) followed by the axis vector.
         line = file.readline().split()
         num_x_voxels = int(line[0])
-        voxel_x = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        voxel_x = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
 
         line = file.readline().split()
         num_y_voxels = int(line[0])
-        voxel_y = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        voxel_y = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
 
         line = file.readline().split()
         num_z_voxels = int(line[0])
-        voxel_z = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        voxel_z = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
 
         # The last section in the header is one line for each atom consisting of 5 numbers,
         # the first is the atom number, second is charge,
