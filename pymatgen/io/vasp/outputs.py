@@ -1990,7 +1990,6 @@ class Outcar:
             {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
             terminate_on_match=True,
         )
-
         try:
             self.data["nplwv"] = [[int(self.data["nplwv"][0][0])]]
         except ValueError:
@@ -2006,7 +2005,6 @@ class Outcar:
                 first_one_only=True,
             )
         ]
-
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
         for n, nplwv in enumerate(nplwvs_at_kpoints):
             try:
