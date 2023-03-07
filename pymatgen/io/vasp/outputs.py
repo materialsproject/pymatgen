@@ -1967,9 +1967,6 @@ class Outcar:
         run_stats["cores"] = None
         with zopen(filename, "rt") as f:
             for line in f:
-                if "serial" in line:
-                    run_stats["cores"] = 1
-                    break
                 if "running" in line:
                     if line.split()[1] == "on":
                         run_stats["cores"] = int(line.split()[2])
