@@ -259,7 +259,7 @@ def rel_angle(vec_set1, vec_set2):
 
 
 @njit
-def fast_norm(a: np.array) -> float:
+def fast_norm(a):
     """
     Much faster variant of numpy linalg norm
 
