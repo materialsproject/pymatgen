@@ -978,19 +978,9 @@ class Lattice(MSONable):
             "matrix": self._matrix.tolist(),
             "pbc": self._pbc,
         }
-        a, b, c, alpha, beta, gamma = self.parameters
         if verbosity > 0:
-            d.update(
-                {
-                    "a": a,
-                    "b": b,
-                    "c": c,
-                    "alpha": alpha,
-                    "beta": beta,
-                    "gamma": gamma,
-                    "volume": self.volume,
-                }
-            )
+            keys = ["a", "b", "c", "alpha", "beta", "gamma", "volume"]
+            d.update(dict(zip(keys, [*self.parameters, self.volume])))
 
         return d
 

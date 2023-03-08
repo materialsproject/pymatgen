@@ -28,6 +28,7 @@ import itertools
 import os
 import re
 import textwrap
+import typing
 from dataclasses import dataclass, field
 from hashlib import md5
 from pathlib import Path
@@ -201,7 +202,7 @@ class KeywordList(MSONable):
         """
         assert all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
         self.name = keywords[0].name if keywords else None
-        self.keywords = keywords
+        self.keywords = list(keywords)
 
     def __str__(self):
         return self.get_string()
@@ -226,7 +227,7 @@ class KeywordList(MSONable):
         """
         self.keywords.append(item)
 
-    def extend(self, lst: list[str]) -> None:
+    def extend(self, lst: Sequence[Keyword]) -> None:
         """
         Extend the keyword list
         """
@@ -650,7 +651,7 @@ class SectionList(MSONable):
         assert all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
         self.name = sections[0].name if sections else None
         self.alias = sections[0].alias if sections else None
-        self.sections = sections
+        self.sections = list(sections)
 
     def __str__(self):
         return self.get_string()
@@ -2482,9 +2483,13 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         """Number of exponents"""
         return [len(e) for e in self.exponents]
 
+    @typing.no_type_check
     def get_string(self) -> str:
         """Get standard cp2k GTO formatted string"""
-        if any(getattr(self, x, None) is None for x in "info nset n lmax lmin nshell exponents coefficients".split()):
+        if any(
+            getattr(self, x, None) is None
+            for x in ("info", "nset", "n", "lmax", "lmin", "nshell", "exponents", "coefficients")
+        ):
             raise ValueError("Must have all attributes defined to get string representation")
 
         out = f"{self.element} {self.name} {' '.join(self.alias_names)}\n"
