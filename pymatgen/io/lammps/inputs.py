@@ -58,19 +58,6 @@ class LammpsInputFile(InputFile):
     where cmd's are the LAMMPS command names (e.g., "units", or "pair_coeff")
     and the args are the corresponding arguments.
     "Stage 1" and "Stage 2" are examples of stage names.
-
-    In order to add a stage, e.g., defining the force field to be used, you can use:
-            ```
-            your_input_file.stages.append(
-                {
-                    "stage_name": "Definition of the force field",
-                    "commands": [
-                        ("pair_coeff", "1 1 morse 0.0580 3.987 3.404"),
-                        ("pair_coeff", "1 4 morse 0.0408 1.399 3.204")
-                    ],
-                }
-            )
-            ```
     """
 
     def __init__(self, stages: list | None = None):
@@ -80,18 +67,18 @@ class LammpsInputFile(InputFile):
         """
         self.stages = stages or []
 
-        # Enforce that all stage names are strings
-        if any([not isinstance(stage["stage_name"], str) for stage in self.stages]):
-            raise TypeError("Stage names should be strings.")
-
         # Enforce that all stage names are unique
         if len(self.stages_names) != len(set(self.stages_names)):
             raise ValueError("Stage names should be unique.")
 
+        # Check the format of each stage:
+        for stage in self.stages:
+            self._check_stage_format(stage)
+
     @property
     def stages_names(self) -> list:
         """List of names for all the stages present in `stages`."""
-        return [stage["stage_name"] for stage in self.stages] if self.stages else []
+        return [stage["stage_name"] for stage in self.stages]
 
     @property
     def nstages(self) -> int:
@@ -151,14 +138,14 @@ class LammpsInputFile(InputFile):
             stage_name (str): String giving the stage name where the change should take place.
 
         Returns:
-            True if the command is present, False is not.
+            True if the command is present, False if not.
         """
         return bool(self.get_args(command, stage_name))
 
     def set_args(self, command: str, argument: str, stage_name: str | None = None, how: str | int | list[int] = "all"):
         """
         Sets the arguments for the given command to the given string.
-        If the command is not found, nothing is done. Use LammpsInputFile.add_command instead.
+        If the command is not found, nothing is done. Use LammpsInputFile.add_commands instead.
         If a stage name is specified, it will be replaced or set only for this stage.
         If no stage name is given, it will apply the change in all of them that contain the given command.
         If the command is set multiple times in the file/stage, it will be replaced based on "how":
@@ -199,24 +186,35 @@ class LammpsInputFile(InputFile):
 
     def add_stage(
         self,
-        commands: str | list[str] | dict[str, str | float],
+        stage: dict = None,
+        commands: str | list[str] | dict[str, str | float] | None = None,
         stage_name: str | None = None,
         after_stage: str | int | None = None,
     ):
         r"""
-        Adds a new stage to the LammpsInputFile from a stage_name and a set of commands.
-        This method is only there to facilitate adding a stage, but you can also do this
-        through `LammpsInputFile.stages.append()`.
+        Adds a new stage to the LammpsInputFile, either from a whole stage (dict) or
+        from a stage_name and commands. Both ways are mutually exclusive.
 
         Examples:
-            1) In order to add a stage defining the potential to be used, you can use:
+            1) In order to add a stage defining the force field to be used, you can use:
             ```
             your_input_file.add_stage(
                 commands=["pair_coeff 1 1 morse 0.0580 3.987 3.404", "pair_coeff 1 4 morse 0.0408 1.399 3.204"],
-                stage_name="Definition of the potential"
+                stage_name="Definition of the force field"
             )
             ```
-
+            or
+            ```
+            your_input_file.add_stage(
+                {
+                    "stage_name": "Definition of the force field",
+                    "commands": [
+                        ("pair_coeff", "1 1 morse 0.0580 3.987 3.404"),
+                        ("pair_coeff", "1 4 morse 0.0408 1.399 3.204")
+                    ],
+                }
+            )
+            ```
             2) Another stage could consist in an energy minimization. In that case, the commands could look like
             ```
             commands = [
@@ -232,65 +230,58 @@ class LammpsInputFile(InputFile):
             or a dictionary such as `{"thermo": 1, ...}`, or a string with a single command (e.g., "units atomic").
 
         Args:
-            commands (str or list or dict): LAMMPS command(s) for this stage of the run.
+            stage (dict): if provided, this is the stage that will be added to the LammpsInputFile.stages
+            commands (str or list or dict): if provided, these are the LAMMPS command(s)
+                that will be included in the stage to add.
                 Can pass a list of LAMMPS commands with their arguments.
                 Also accepts a dictionary of LAMMPS commands and
                 corresponding arguments as key, value pairs.
                 A single string can also be passed (single command together with its arguments).
-            stage_name (str): If a stage name is mentioned, the command is added
+                Not used in case a whole stage is given.
+            stage_name (str): If a stage name is mentioned, the commands are added
                 under that stage block, else the new stage is named from numbering.
                 If given, stage_name cannot be one of the already present stage names.
+                Not used in case a whole stage is given.
             after_stage (str): Name of the stage after which this stage should be added.
                 If None, the stage is added at the end of the LammpsInputFile.
         """
-        # Name the stage if not given
-        # + 1 so that if a new (list of) command is added without stage name,
-        # it goes in a new stage.
-        if stage_name is None:
-            stage_name = f"Stage {self.nstages + 1}"
-
-        if not isinstance(stage_name, str):
-            raise TypeError("Stage names should be strings.")
-
-        if stage_name in self.stages_names:
-            raise ValueError("The provided stage name is already present in LammpsInputFile.stages.")
-
-        # Initialize the stage
+        # Get the index of the stage to add
         if after_stage is None:
             index_insert = -1
         elif isinstance(after_stage, int):
-            index_insert = after_stage
+            index_insert = after_stage + 1
         elif after_stage in self.stages_names:
             index_insert = self.stages_names.index(after_stage) + 1
             if index_insert == len(self.stages_names):
                 index_insert = -1
         else:
             raise ValueError("The stage after which this one should be added does not exist.")
-        if index_insert == -1:
-            self.stages.append({"stage_name": stage_name, "commands": []})
+
+        # Adds a stage depending on the given inputs.
+        # If a stage is given, we check its format and insert it where it should directly.
+        if stage:
+            if commands or stage_name:
+                warnings.warn(
+                    "A stage has been passed together with commands and stage_name. This is incompatible. "
+                    "Only the stage will be used."
+                )
+
+            # Make sure the given stage has the correct format
+            if stage["stage_name"] in self.stages_names:
+                raise ValueError("The provided stage name is already present in LammpsInputFile.stages.")
+            self._check_stage_format(stage)
+
+            # Insert the stage in the LammpsInputFile.stages
+            if index_insert == -1:
+                self.stages.append(stage)
+            else:
+                self.stages.insert(index_insert, stage)
         else:
-            self.stages.insert(index_insert, {"stage_name": stage_name, "commands": []})
-
-        # Handle the different input formats to add commands to the stage
-        if isinstance(commands, str):
-            self.add_command(command=commands, stage_name=stage_name)
-
-        elif isinstance(commands, list):
-            for comm in commands:
-                if comm[0] == "#":
-                    self.add_comment(comment=comm[1:].strip(), inline=True, stage_name=stage_name, index_comment=True)
-                else:
-                    self.add_command(command=comm, stage_name=stage_name)
-
-        elif isinstance(commands, dict):
-            for comm, args in commands.items():
-                if comm[0] == "#":
-                    self.add_comment(comment=comm[1:].strip(), inline=True, stage_name=stage_name, index_comment=True)
-                else:
-                    self.add_command(command=comm, args=args, stage_name=stage_name)
-
-        else:
-            raise TypeError("The command should be a string, list of strings or dictionary.")
+            # Initialize the stage (even if no commands are given)
+            self._initialize_stage(stage_name=stage_name, stage_index=index_insert)
+            if commands:
+                # Adds the commands to the created stage
+                self.add_commands(stage_name=self.stages_names[index_insert], commands=commands)
 
     def remove_stage(self, stage_name: str):
         """
@@ -341,9 +332,9 @@ class LammpsInputFile(InputFile):
 
         self.stages = stages
 
-    def add_command(self, stage_name: str, command: str, args: str | float | None = None):
+    def add_commands(self, stage_name: str, commands: str | list[str] | dict):
         """
-        Helper method to add a single LAMMPS command and its arguments to
+        Method to add a LAMMPS commands and their arguments to a stage of
         the LammpsInputFile. The stage name should be provided: a default behavior
         is avoided here to avoid mistakes.
 
@@ -351,37 +342,51 @@ class LammpsInputFile(InputFile):
             In order to add the command ``pair_coeff 1 1 morse 0.0580 3.987 3.404``
             to the stage "Definition of the potential", simply use
             ```
-            your_input_file.add_command(
+            your_input_file.add_commands(
                 stage_name="Definition of the potential",
-                command="pair_coeff 1 1 morse 0.0580 3.987 3.404"
+                commands="pair_coeff 1 1 morse 0.0580 3.987 3.404"
             )
             ```
-            or
+            To add multiple commands, use a dict or a list, e.g.,
             ```
-            your_input_file.add_command(
+            your_input_file.add_commands(
                 stage_name="Definition of the potential",
-                command="pair_coeff",
-                args="1 1 morse 0.0580 3.987 3.404"
+                commands=["pair_coeff 1 1 morse 0.0580 3.987 3.404", "units atomic"]
+            )
+            your_input_file.add_commands(
+                stage_name="Definition of the potential",
+                commands={"pair_coeff": "1 1 morse 0.0580 3.987 3.404", "units": "atomic"}
             )
             ```
 
         Args:
             stage_name (str): name of the stage to which the command should be added.
-            command (str): LAMMPS command, with or without the arguments.
-            args (str): Arguments for the LAMMPS command.
+            commands (str or list or dict): LAMMPS command, with or without the arguments.
         """
-        if args is None:
-            string_split = command.split()
-            command = string_split[0]
-            args = " ".join(string_split[1:])
 
-        # Find where the command should be added (stage index instead of stage name)
-        idx = self.stages_names.index(stage_name)
-        # Add the command
-        if not self.stages[idx]["commands"]:
-            self.stages[idx]["commands"] = [(command, args)]
+        if stage_name not in self.stages_names:
+            raise ValueError("The provided stage name does not correspond to one of the LammpsInputFile.stages.")
+
+        # Handle the different input formats to add commands to the stage
+        if isinstance(commands, str):
+            self._add_command(command=commands, stage_name=stage_name)
+
+        elif isinstance(commands, list):
+            for comm in commands:
+                if comm[0] == "#":
+                    self._add_comment(comment=comm[1:].strip(), inline=True, stage_name=stage_name, index_comment=True)
+                else:
+                    self._add_command(command=comm, stage_name=stage_name)
+
+        elif isinstance(commands, dict):
+            for comm, args in commands.items():
+                if comm[0] == "#":
+                    self._add_comment(comment=comm[1:].strip(), inline=True, stage_name=stage_name, index_comment=True)
+                else:
+                    self._add_command(command=comm, args=args, stage_name=stage_name)
+
         else:
-            self.stages[idx]["commands"].append((command, args))
+            raise TypeError("The command should be a string, list of strings or dictionary.")
 
     def remove_command(self, command: str, stage_name: str | list[str] | None = None, remove_empty_stages: bool = True):
         """
@@ -423,66 +428,31 @@ class LammpsInputFile(InputFile):
         if n_removed == 0:
             warnings.warn(f"{command} not found in the LammpsInputFile.")
 
-    def add_comment(
-        self, comment: str, inline: bool = False, stage_name: str | None = None, index_comment: bool = False
-    ):
-        """
-         Method to add a comment inside a stage (between actual commands)
-         or as a whole stage (which will do nothing when LAMMPS runs).
-
-        Args:
-            comment (str): Comment string to be added. The comment will be
-                preceded by '#' in the generated input.
-            inline (bool): True if the comment should be inline within a given block of commands.
-            stage_name (str): set the stage_name to which the comment will be written. Required if inline is True.
-            index_comment (bool): True if the comment should start with "Comment x" with x its number in the ordering.
-                Used only for inline comments.
-        """
-        # "Stage" of comments only
-        if not inline:
-            if stage_name is None:
-                stage_name = f"Comment {self.ncomments + 1}"
-                self.stages.append({"stage_name": stage_name, "commands": [("#", comment)]})
-            elif stage_name in self.stages_names:
-                self.add_command(command="#", args=comment, stage_name=stage_name)
-            else:
-                self.stages.append({"stage_name": stage_name, "commands": [("#", comment)]})
-
-        # Inline comment
-        elif inline and stage_name:
-            command = "#"
-            if index_comment:
-                if "Comment" in comment and comment.strip()[9] == ":":
-                    args = ":".join(comment.split(":")[1:])
-                else:
-                    args = comment
-            else:
-                args = comment
-            self.add_command(command=command, args=args, stage_name=stage_name)
-
-        else:
-            raise NotImplementedError("If you want to add an inline comment, please specify the stage name.")
-
-    def append(self, lmp_input_file: LammpsInputFile, renumbering: bool = True):
+    def append(self, lmp_input_file: LammpsInputFile):
         """
         Appends a LammpsInputFile to another. The `stages` are merged,
         and the numbering of stages/comments is either kept the same or updated.
 
         Args:
             lmp_input_file (LammpsInputFile): LammpsInputFile to append.
-            renumbering (bool): whether to renumber stages and comments for the added LammpsInputFile.
         """
         # Renumbering comments and stages of the lmp_input_file.stages
         new_list_to_add = lmp_input_file.stages
-        if renumbering:
-            for i_stage, stage in enumerate(lmp_input_file.stages):
-                stage_name = stage["stage_name"]
-                if "Comment" == stage_name.split()[0].strip() and stage_name.split()[1].isdigit():
-                    i_comment = int(stage_name.split()[1]) + self.ncomments
-                    new_list_to_add[i_stage]["stage_name"] = f"Comment {i_comment}"
-                if "Stage" == stage_name.split()[0] and stage_name.split()[1].isdigit():
-                    this_stage = int(stage_name.split()[1]) + self.nstages
-                    new_list_to_add[i_stage]["stage_name"] = f"Stage {this_stage}"
+        for i_stage, stage in enumerate(lmp_input_file.stages):
+            stage_name = stage["stage_name"]
+            if "Comment" == stage_name.split()[0].strip() and stage_name.split()[1].isdigit():
+                i_comment = int(stage_name.split()[1]) + self.ncomments
+                new_list_to_add[i_stage]["stage_name"] = f"Comment {i_comment}"
+            if "Stage" == stage_name.split()[0] and stage_name.split()[1].isdigit():
+                this_stage = int(stage_name.split()[1]) + self.nstages
+                new_list_to_add[i_stage]["stage_name"] = f"Stage {this_stage}"
+
+        # Making sure no stage_name of lmp_input_file clash with those from self
+        for i_stage, stage in enumerate(lmp_input_file.stages):
+            if stage["stage_name"] in self.stages_names:
+                stage["stage_name"] = f"Stage {self.nstages + i_stage + 1} (previously {stage['stage_name']})"
+
+        # Append the two list of stages
         self.stages += new_list_to_add
 
     def get_string(self, ignore_comments: bool = False, keep_stages: bool = True) -> str:
@@ -585,11 +555,11 @@ class LammpsInputFile(InputFile):
                 if ignore_comments:
                     keep_block = False
                 else:
-                    LIF.add_comment(comment=block[0][1:].strip(), inline=False)
+                    LIF._add_comment(comment=block[0][1:].strip(), inline=False)
                     stage_name = f"Comment {LIF.ncomments}"
                     if len(block) > 1:
                         for line in block[1:]:
-                            LIF.add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
+                            LIF._add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
 
             # Header of a stage
             elif block[0][0] == "#" and keep_block:
@@ -608,27 +578,11 @@ class LammpsInputFile(InputFile):
                 header = header.strip()
                 stage_name = f"Stage {LIF.nstages + 1}" if (ignore_comments or not keep_stages) else header
                 commands = block[icomm_max:]
-                # LIF.stages.append(
-                #     {
-                #         "stage_name": stage_name,
-                #         "commands": []
-                #     }
-                # )
-                # for command in commands:
-                #     LIF.add_command(stage_name=stage_name, command=command)
                 LIF.add_stage(commands=commands, stage_name=stage_name)
 
             # Stage with no header
             else:
                 stage_name = f"Stage {LIF.nstages + 1}"
-                # LIF.stages.append(
-                #     {
-                #         "stage_name": stage_name,
-                #         "commands": []
-                #     }
-                # )
-                # for command in block:
-                #     LIF.add_command(stage_name=stage_name, command=command)
                 LIF.add_stage(commands=block, stage_name=stage_name)
         return LIF
 
@@ -652,6 +606,140 @@ class LammpsInputFile(InputFile):
 
     def __repr__(self):
         return self.get_string()
+
+    def _initialize_stage(self, stage_name: str | None = None, stage_index: int | None = None):
+        """
+        Initialize an empty stage with the given name in the LammpsInputFile.
+
+        Args:
+            stage_name (str): If a stage name is mentioned, the command is added
+                under that stage block, else the new stage is named from numbering.
+                If given, stage_name cannot be one of the already present stage names.
+            stage_index (int): Index of the stage where it should be added.
+                If None, the stage is added at the end of the LammpsInputFile.
+        """
+        if stage_name is None:
+            stage_name = f"Stage {self.nstages + 1}"
+            if stage_name in self.stages_names:
+                # This situation can happen when some stages have been removed, then others added
+                stage_numbers = [
+                    int(stage_name.split()[1])
+                    for stage_name in self.stages_names
+                    if "Stage" == stage_name.split()[0] and stage_name.split()[1].isdigit()
+                ]
+                stage_name = f"Stage {np.max(stage_numbers) + 1}"
+
+        if not isinstance(stage_name, str):
+            raise TypeError("Stage names should be strings.")
+
+        if stage_name in self.stages_names:
+            raise ValueError("The provided stage name is already present in LammpsInputFile.stages.")
+
+        # Initialize the stage
+        if stage_index is None or stage_index == -1:
+            self.stages.append({"stage_name": stage_name, "commands": []})
+        elif stage_index > len(self.stages):
+            raise IndexError("The provided index is too large with respect to the current number of stages.")
+        else:
+            self.stages.insert(stage_index, {"stage_name": stage_name, "commands": []})
+
+    @staticmethod
+    def _check_stage_format(stage: dict):
+        if list(stage.keys()) != ["stage_name", "commands"]:
+            raise KeyError(
+                "The provided stage does not have the correct keys. It should be 'stage_name' and " "'commands'."
+            )
+        if not isinstance(stage["stage_name"], str):
+            raise TypeError("The value of 'stage_name' should be a string.")
+        if not isinstance(stage["commands"], list):
+            raise TypeError("The provided commands should be a list.")
+        if len(stage["commands"]) >= 1:
+            if not all([len(cmdargs) == 2 for cmdargs in stage["commands"]]) or not all(
+                [isinstance(cmd, str) and isinstance(arg, str) for (cmd, arg) in stage["commands"]]
+            ):
+                raise ValueError("The provided commands should be a list of 2-strings tuples.")
+
+    def _add_command(self, stage_name: str, command: str, args: str | float | None = None):
+        """
+        Helper method to add a single LAMMPS command and its arguments to
+        the LammpsInputFile. The stage name should be provided: a default behavior
+        is avoided here to avoid mistakes.
+
+        Example:
+            In order to add the command ``pair_coeff 1 1 morse 0.0580 3.987 3.404``
+            to the stage "Definition of the potential", simply use
+            ```
+            your_input_file._add_command(
+                stage_name="Definition of the potential",
+                command="pair_coeff 1 1 morse 0.0580 3.987 3.404"
+            )
+            ```
+            or
+            ```
+            your_input_file._add_command(
+                stage_name="Definition of the potential",
+                command="pair_coeff",
+                args="1 1 morse 0.0580 3.987 3.404"
+            )
+            ```
+
+        Args:
+            stage_name (str): name of the stage to which the command should be added.
+            command (str): LAMMPS command, with or without the arguments.
+            args (str): Arguments for the LAMMPS command.
+        """
+        if args is None:
+            string_split = command.split()
+            command = string_split[0]
+            args = " ".join(string_split[1:])
+
+        # Find where the command should be added (stage index instead of stage name)
+        idx = self.stages_names.index(stage_name)
+        # Add the command
+        if not self.stages[idx]["commands"]:
+            self.stages[idx]["commands"] = [(command, args)]
+        else:
+            self.stages[idx]["commands"].append((command, args))
+
+    def _add_comment(
+        self, comment: str, inline: bool = False, stage_name: str | None = None, index_comment: bool = False
+    ):
+        """
+         Method to add a comment inside a stage (between actual commands)
+         or as a whole stage (which will do nothing when LAMMPS runs).
+
+        Args:
+            comment (str): Comment string to be added. The comment will be
+                preceded by '#' in the generated input.
+            inline (bool): True if the comment should be inline within a given block of commands.
+            stage_name (str): set the stage_name to which the comment will be written. Required if inline is True.
+            index_comment (bool): True if the comment should start with "Comment x" with x its number in the ordering.
+                Used only for inline comments.
+        """
+        # "Stage" of comments only
+        if not inline:
+            if stage_name is None:
+                stage_name = f"Comment {self.ncomments + 1}"
+                self.stages.append({"stage_name": stage_name, "commands": [("#", comment)]})
+            elif stage_name in self.stages_names:
+                self._add_command(command="#", args=comment, stage_name=stage_name)
+            else:
+                self.stages.append({"stage_name": stage_name, "commands": [("#", comment)]})
+
+        # Inline comment
+        elif inline and stage_name:
+            command = "#"
+            if index_comment:
+                if "Comment" in comment and comment.strip()[9] == ":":
+                    args = ":".join(comment.split(":")[1:])
+                else:
+                    args = comment
+            else:
+                args = comment
+            self._add_command(command=command, args=args, stage_name=stage_name)
+
+        else:
+            raise NotImplementedError("If you want to add an inline comment, please specify the stage name.")
 
     @staticmethod
     def _clean_lines(string_list: list, ignore_comments: bool = False) -> list:

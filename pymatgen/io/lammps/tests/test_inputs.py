@@ -235,6 +235,50 @@ write_data run.data"""
             {"stage_name": "Pair style", "commands": [("pair_style", "eam")]},
             {"stage_name": "Cell", "commands": [("boundary", "p p p"), ("atom_style", "full")]},
         ]
+        lmp_input.add_stage(stage_name="Empty stage")
+        assert lmp_input.stages == [
+            {"stage_name": "Stage 1", "commands": [("units", "metal")]},
+            {"stage_name": "Stage 4", "commands": [("set", "type 2 charge 0.0")]},
+            {"stage_name": "Pair style", "commands": [("pair_style", "eam")]},
+            {"stage_name": "Cell", "commands": [("boundary", "p p p"), ("atom_style", "full")]},
+            {"stage_name": "Empty stage", "commands": []},
+        ]
+        lmp_input.add_stage(
+            {"stage_name": "New stage", "commands": [("newcommand", "newargs 1 2 3"), ("newcommand2", "newargs 4 5 6")]}
+        )
+        assert lmp_input.stages == [
+            {"stage_name": "Stage 1", "commands": [("units", "metal")]},
+            {"stage_name": "Stage 4", "commands": [("set", "type 2 charge 0.0")]},
+            {"stage_name": "Pair style", "commands": [("pair_style", "eam")]},
+            {"stage_name": "Cell", "commands": [("boundary", "p p p"), ("atom_style", "full")]},
+            {"stage_name": "Empty stage", "commands": []},
+            {
+                "stage_name": "New stage",
+                "commands": [("newcommand", "newargs 1 2 3"), ("newcommand2", "newargs 4 5 6")],
+            },
+        ]
+        lmp_input.add_stage(
+            {
+                "stage_name": "New stage 2",
+                "commands": [("newcommand", "newargs 1 2 3"), ("newcommand2", "newargs 4 5 6")],
+            },
+            after_stage="Stage 4",
+        )
+        assert lmp_input.stages == [
+            {"stage_name": "Stage 1", "commands": [("units", "metal")]},
+            {"stage_name": "Stage 4", "commands": [("set", "type 2 charge 0.0")]},
+            {
+                "stage_name": "New stage 2",
+                "commands": [("newcommand", "newargs 1 2 3"), ("newcommand2", "newargs 4 5 6")],
+            },
+            {"stage_name": "Pair style", "commands": [("pair_style", "eam")]},
+            {"stage_name": "Cell", "commands": [("boundary", "p p p"), ("atom_style", "full")]},
+            {"stage_name": "Empty stage", "commands": []},
+            {
+                "stage_name": "New stage",
+                "commands": [("newcommand", "newargs 1 2 3"), ("newcommand2", "newargs 4 5 6")],
+            },
+        ]
 
     def test_merge_stages(self):
         lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
@@ -385,7 +429,7 @@ write_data run.data"""
         ]
 
         lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
-        lmp_input.add_command(command="set type 1 charge 0.0", stage_name="1) Initialization")
+        lmp_input._add_command(command="set type 1 charge 0.0", stage_name="1) Initialization")
         lmp_input.remove_command("set")
         assert lmp_input.stages == [
             {"stage_name": "Comment 1", "commands": [("#", "LGPS")]},
@@ -455,33 +499,59 @@ write_data run.data"""
             "Part A : energy minimization",
             "Stage 6",
             "Comment 2",
-            "1) Initialization",
-            "2) System definition",
-            "3) Simulation settings",
-            "Part A : energy minimization",
+            "Stage 8 (previously 1) Initialization)",
+            "Stage 9 (previously 2) System definition)",
+            "Stage 10 (previously 3) Simulation settings)",
+            "Stage 11 (previously Part A : energy minimization)",
             "Stage 12",
         ]
 
     def test_add_command(self):
         lmp_input = LammpsInputFile()
         lmp_input.stages.append({"stage_name": "Init", "commands": [("units", "metal")]})
-        lmp_input.add_command(stage_name="Init", command="boundary p p p")
+        lmp_input._add_command(stage_name="Init", command="boundary p p p")
         assert lmp_input.stages == [{"stage_name": "Init", "commands": [("units", "metal"), ("boundary", "p p p")]}]
-        lmp_input.add_command(stage_name="Init", command="atom_style", args="full")
+        lmp_input._add_command(stage_name="Init", command="atom_style", args="full")
         assert lmp_input.stages == [
             {"stage_name": "Init", "commands": [("units", "metal"), ("boundary", "p p p"), ("atom_style", "full")]}
         ]
 
+    def test_add_commands(self):
+        lmp_input = LammpsInputFile()
+        lmp_input.add_stage({"stage_name": "Init", "commands": [("units", "metal")]})
+        lmp_input.add_commands(stage_name="Init", commands="boundary p p p")
+        assert lmp_input.stages == [{"stage_name": "Init", "commands": [("units", "metal"), ("boundary", "p p p")]}]
+        lmp_input.add_commands(stage_name="Init", commands=["atom_style full", "dimension 3"])
+        assert lmp_input.stages == [
+            {
+                "stage_name": "Init",
+                "commands": [("units", "metal"), ("boundary", "p p p"), ("atom_style", "full"), ("dimension", "3")],
+            }
+        ]
+        lmp_input.add_commands(stage_name="Init", commands={"kspace_style": "ewald 1e-4"})
+        assert lmp_input.stages == [
+            {
+                "stage_name": "Init",
+                "commands": [
+                    ("units", "metal"),
+                    ("boundary", "p p p"),
+                    ("atom_style", "full"),
+                    ("dimension", "3"),
+                    ("kspace_style", "ewald 1e-4"),
+                ],
+            }
+        ]
+
     def test_add_comment(self):
         lmp_input = LammpsInputFile()
-        lmp_input.add_comment(comment="First comment")
+        lmp_input._add_comment(comment="First comment")
         assert lmp_input.stages == [{"stage_name": "Comment 1", "commands": [("#", "First comment")]}]
-        lmp_input.add_comment(comment="Sub comment", stage_name="Comment 1")
+        lmp_input._add_comment(comment="Sub comment", stage_name="Comment 1")
         assert lmp_input.stages == [
             {"stage_name": "Comment 1", "commands": [("#", "First comment"), ("#", "Sub comment")]}
         ]
         lmp_input.stages.append({"stage_name": "Init", "commands": [("units", "metal")]})
-        lmp_input.add_comment(comment="Inline comment", stage_name="Init")
+        lmp_input._add_comment(comment="Inline comment", stage_name="Init")
         assert lmp_input.stages == [
             {"stage_name": "Comment 1", "commands": [("#", "First comment"), ("#", "Sub comment")]},
             {"stage_name": "Init", "commands": [("units", "metal"), ("#", "Inline comment")]},
