@@ -54,7 +54,7 @@ def prime_factors(n: int) -> list[int]:
     idx = 2
     while idx <= sqrt(n):
         if n % idx == 0:
-            lst = prime_factors(n / idx)
+            lst = prime_factors(n // idx)
             lst.append(idx)
             return lst
         idx += 1
