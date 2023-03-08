@@ -876,10 +876,10 @@ class BoltztrapAnalyzer:
             if kpt_line is None:
                 kpath = HighSymmKpath(structure)
                 kpt_line = [
-                    Kpoint(k, structure.lattice.reciprocal_lattice)
-                    for k in kpath.get_kpoints(coords_are_cartesian=False)[0]
+                    Kpoint(kpt, structure.lattice.reciprocal_lattice)
+                    for kpt in kpath.get_kpoints(coords_are_cartesian=False)[0]
                 ]
-                labels_dict = {l: k for k, l in zip(*kpath.get_kpoints(coords_are_cartesian=False)) if l}
+                labels_dict = {l: key for key, l in zip(*kpath.get_kpoints(coords_are_cartesian=False)) if l}
                 kpt_line = [kp.frac_coords for kp in kpt_line]
             elif isinstance(kpt_line[0], Kpoint):
                 kpt_line = [kp.frac_coords for kp in kpt_line]
@@ -901,11 +901,7 @@ class BoltztrapAnalyzer:
             bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}  # type: ignore
 
             sbs = BandStructureSymmLine(
-                kpt_line,
-                bands_dict,
-                structure.lattice.reciprocal_lattice,
-                efermi,
-                labels_dict=labels_dict,
+                kpt_line, bands_dict, structure.lattice.reciprocal_lattice, efermi, labels_dict=labels_dict
             )
 
             return sbs

@@ -403,7 +403,7 @@ def load_O_adsorption():
     # Load the adsorbate as an entry
     with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
         isolated_O_entry = json.loads(isolated_O_entry.read())
-    O = ComputedStructureEntry.from_dict(isolated_O_entry)
+    O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
     # entry_dict for the adsorption case, O adsorption on Ni, Rh and Pt
     metals_O_entry_dict = {
@@ -441,7 +441,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 1, 1),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
@@ -452,7 +452,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 1, 0),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
@@ -463,7 +463,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 0, 0),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]

@@ -879,15 +879,15 @@ class SlabGenerator:
                 if (not any(uvw)) or abs(np.linalg.det([*slab_scale_factor, uvw])) < 1e-8:
                     continue
                 vec = latt.get_cartesian_coords(uvw)
-                l = np.linalg.norm(vec)
-                cosine = abs(np.dot(vec, normal) / l)
-                candidates.append((uvw, cosine, l))
+                osdm = np.linalg.norm(vec)
+                cosine = abs(np.dot(vec, normal) / osdm)
+                candidates.append((uvw, cosine, osdm))
                 if abs(abs(cosine) - 1) < 1e-8:
                     # If cosine of 1 is found, no need to search further.
                     break
             # We want the indices with the maximum absolute cosine,
             # but smallest possible length.
-            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -x[2]))
+            uvw, cosine, osdm = max(candidates, key=lambda x: (x[1], -x[2]))
             slab_scale_factor.append(uvw)
 
         slab_scale_factor = np.array(slab_scale_factor)

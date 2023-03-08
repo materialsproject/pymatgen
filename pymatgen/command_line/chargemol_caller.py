@@ -464,17 +464,17 @@ class ChargemolAnalysis:
 
         with open(filename) as r:
             for line in r:
-                l = line.strip().split()
+                line = line.strip().split()
                 if "Printing BOs" in line:
-                    start_idx = int(l[5]) - 1
-                    start_el = Element(l[7])
+                    start_idx = int(line[5]) - 1
+                    start_el = Element(line[7])
                     bond_order_info[start_idx] = {"element": start_el, "bonded_to": []}
                 elif "Bonded to the" in line:
-                    direction = tuple(int(i.split(")")[0].split(",")[0]) for i in l[4:7])
-                    end_idx = int(l[12]) - 1
-                    end_el = Element(l[14])
-                    bo = float(l[20])
-                    spin_bo = float(l[-1])
+                    direction = tuple(int(i.split(")")[0].split(",")[0]) for i in line[4:7])
+                    end_idx = int(line[12]) - 1
+                    end_el = Element(line[14])
+                    bo = float(line[20])
+                    spin_bo = float(line[-1])
                     bond_order_info[start_idx]["bonded_to"].append(
                         {
                             "index": end_idx,
@@ -485,7 +485,7 @@ class ChargemolAnalysis:
                         }
                     )
                 elif "The sum of bond orders for this atom" in line:
-                    bond_order_info[start_idx]["bond_order_sum"] = float(l[-1])
+                    bond_order_info[start_idx]["bond_order_sum"] = float(line[-1])
 
         return bond_order_info
 
