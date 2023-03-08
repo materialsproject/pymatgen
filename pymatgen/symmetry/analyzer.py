@@ -37,7 +37,7 @@ from pymatgen.util.coord import find_in_coord_list, pbc_diff
 logger = logging.getLogger(__name__)
 
 
-@lru_cache(maxsize=512)
+@lru_cache(maxsize=32)
 def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """Simple wrapper to cache results of spglib.get_symmetry_dataset since this call is
     expensive."""
