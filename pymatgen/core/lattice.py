@@ -997,8 +997,8 @@ class Lattice(MSONable):
     def find_all_mappings(
         self,
         other_lattice: Lattice,
-        l_tol: float = 1e-5,
-        a_tol: float = 1,
+        ltol: float = 1e-5,
+        atol: float = 1,
         skip_rotation_matrix: bool = False,
     ) -> Iterator[tuple[Lattice, np.ndarray | None, np.ndarray]]:
         """
@@ -1032,11 +1032,11 @@ class Lattice(MSONable):
         (alpha, beta, gamma) = other_lattice.angles
 
         frac, dist, _, _ = self.get_points_in_sphere(
-            [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + l_tol), zip_results=False
+            [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False
         )
         cart = self.get_cartesian_coords(frac)  # type: ignore
         # this can't be broadcast because they're different lengths
-        inds = [np.logical_and(dist / len < 1 + l_tol, dist / len > 1 / (1 + l_tol)) for len in lengths]  # type: ignore
+        inds = [np.logical_and(dist / len < 1 + ltol, dist / len > 1 / (1 + ltol)) for len in lengths]  # type: ignore
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)  # type: ignore
         l_a, l_b, l_c = (np.sum(c**2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
@@ -1048,9 +1048,9 @@ class Lattice(MSONable):
             angles = np.arccos(x) * 180.0 / pi
             return angles
 
-        alpha_b = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < a_tol
-        beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < a_tol
-        gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < a_tol
+        alpha_b = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
+        beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
+        gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
 
         for i, all_j in enumerate(gamma_b):
             inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[i][None, :]))

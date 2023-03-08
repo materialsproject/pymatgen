@@ -330,7 +330,7 @@ class LatticeTestCase(PymatgenTest):
 
         # catch the singular matrix error
         lattice = Lattice.from_parameters(1, 1, 1, 10, 10, 10)
-        for latt, _, _ in lattice.find_all_mappings(lattice, l_tol=0.05, a_tol=11):
+        for latt, _, _ in lattice.find_all_mappings(lattice, ltol=0.05, atol=11):
             assert isinstance(latt, Lattice)
 
     def test_mapping_symmetry(self):
