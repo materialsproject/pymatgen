@@ -14,6 +14,8 @@ from typing import Iterator
 import numpy as np
 from monty.json import MSONable
 
+from pymatgen.util.numba import njit
+
 
 @dataclass
 class ZSLMatch(MSONable):
@@ -42,13 +44,16 @@ class ZSLMatch(MSONable):
         # Generate 3D lattice vectors for film super lattice
         film_matrix = list(self.film_sl_vectors)
         film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
+        film_matrix = np.array(film_matrix, dtype=float)  # type conversion required if using numba
 
         # Generate 3D lattice vectors for substrate super lattice
         # Out of plane substrate super lattice has to be same length as
         # Film out of plane vector to ensure no extra deformation in that
         # direction
         substrate_matrix = list(self.substrate_sl_vectors)
-        temp_sub = np.cross(substrate_matrix[0], substrate_matrix[1])
+        temp_sub = np.cross(substrate_matrix[0], substrate_matrix[1]).astype(
+            float
+        )  # type conversion required if using numba
         temp_sub = temp_sub * fast_norm(film_matrix[2]) / fast_norm(temp_sub)
         substrate_matrix.append(temp_sub)
 
@@ -100,41 +105,6 @@ class ZSLGenerator(MSONable):
         self.max_length_tol = max_length_tol
         self.max_angle_tol = max_angle_tol
         self.bidirectional = bidirectional
-
-    def is_same_vectors(self, vec_set1, vec_set2) -> bool:
-        """
-        Determine if two sets of vectors are the same within length and angle
-        tolerances
-        Args:
-            vec_set1(array[array]): an array of two vectors
-            vec_set2(array[array]): second array of two vectors
-        """
-        if self.bidirectional:
-            return self._bidirectional_same_vectors(vec_set1, vec_set2)
-
-        return self._unidirectional_is_same_vectors(vec_set1, vec_set2)
-
-    def _unidirectional_is_same_vectors(self, vec_set1, vec_set2):
-        """
-        Determine if two sets of vectors are the same within length and angle
-        tolerances
-        Args:
-            vec_set1(array[array]): an array of two vectors
-            vec_set2(array[array]): second array of two vectors
-        """
-        if np.absolute(rel_strain(vec_set1[0], vec_set2[0])) > self.max_length_tol:
-            return False
-        if np.absolute(rel_strain(vec_set1[1], vec_set2[1])) > self.max_length_tol:
-            return False
-        if np.absolute(rel_angle(vec_set1, vec_set2)) > self.max_angle_tol:
-            return False
-        return True
-
-    def _bidirectional_same_vectors(self, vec_set1, vec_set2):
-        """Bidirectional version of above matching constraint check"""
-        return self._unidirectional_is_same_vectors(vec_set1, vec_set2) or self._unidirectional_is_same_vectors(
-            vec_set2, vec_set1
-        )
 
     def generate_sl_transformation_sets(self, film_area, substrate_area):
         """
@@ -189,16 +159,24 @@ class ZSLGenerator(MSONable):
         """
         for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films = [reduce_vectors(*np.dot(f, film_vectors)) for f in film_transformations]
+            films = np.array([reduce_vectors(*v) for v in np.dot(film_transformations, film_vectors)], dtype=float)
 
-            substrates = [reduce_vectors(*np.dot(s, substrate_vectors)) for s in substrate_transformations]
+            substrates = np.array(
+                [reduce_vectors(*v) for v in np.dot(substrate_transformations, substrate_vectors)], dtype=float
+            )
 
             # Check if equivalent super lattices
             for (f_trans, s_trans), (f, s) in zip(
                 product(film_transformations, substrate_transformations),
                 product(films, substrates),
             ):
-                if self.is_same_vectors(f, s):
+                if is_same_vectors(
+                    f,
+                    s,
+                    bidirectional=self.bidirectional,
+                    max_length_tol=self.max_length_tol,
+                    max_angle_tol=self.max_angle_tol,
+                ):
                     yield [f, s, f_trans, s_trans]
 
     def __call__(self, film_vectors, substrate_vectors, lowest=False) -> Iterator[ZSLMatch]:
@@ -206,15 +184,20 @@ class ZSLGenerator(MSONable):
         Runs the ZSL algorithm to generate all possible matching
         :return:
         """
+
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)
 
         # Generate all super lattice combinations for a given set of miller
-        # indices
+        # indices (optimization note: this function did not benefit from an njit decorator,
+        # and had to be re-written as a staticmethod if using numba, so was left unchanged)
         transformation_sets = self.generate_sl_transformation_sets(film_area, substrate_area)
 
+        # Optimization note: could not use njit here due to use of itertools.product
+        equiv_transformations = self.get_equiv_transformations(transformation_sets, film_vectors, substrate_vectors)
+
         # Check each super-lattice pair to see if they match
-        for match in self.get_equiv_transformations(transformation_sets, film_vectors, substrate_vectors):
+        for match in equiv_transformations:
             # Yield the match area, the miller indices,
             yield ZSLMatch(
                 film_sl_vectors=match[0],
@@ -230,6 +213,7 @@ class ZSLGenerator(MSONable):
                 break
 
 
+@njit
 def gen_sl_transform_matricies(area_multiple):
     """
     Generates the transformation matricies that convert a set of 2D
@@ -254,6 +238,7 @@ def gen_sl_transform_matricies(area_multiple):
     ]
 
 
+@njit
 def rel_strain(vec1, vec2):
     """
     Calculate relative strain between two vectors
@@ -261,6 +246,7 @@ def rel_strain(vec1, vec2):
     return fast_norm(vec2) / fast_norm(vec1) - 1
 
 
+@njit
 def rel_angle(vec_set1, vec_set2):
     """
     Calculate the relative angle between two vector sets
@@ -272,13 +258,18 @@ def rel_angle(vec_set1, vec_set2):
     return vec_angle(vec_set2[0], vec_set2[1]) / vec_angle(vec_set1[0], vec_set1[1]) - 1
 
 
+@njit
 def fast_norm(a):
     """
     Much faster variant of numpy linalg norm
+
+    Note that if numba is installed, this cannot be provided a list of ints;
+    please ensure input a is an np.array of floats.
     """
     return np.sqrt(np.dot(a, a))
 
 
+@njit
 def vec_angle(a, b):
     """
     Calculate angle between two vectors
@@ -288,6 +279,7 @@ def vec_angle(a, b):
     return np.arctan2(sinang, cosang)
 
 
+@njit
 def vec_area(a, b):
     """
     Area of lattice plane defined by two vectors
@@ -295,6 +287,7 @@ def vec_area(a, b):
     return fast_norm(np.cross(a, b))
 
 
+@njit
 def reduce_vectors(a, b):
     """
     Generate independent and unique basis vectors based on the
@@ -303,18 +296,21 @@ def reduce_vectors(a, b):
     if np.dot(a, b) < 0:
         return reduce_vectors(a, -b)
 
-    if fast_norm(a) > fast_norm(b):
+    fast_norm_b = fast_norm(b)
+
+    if fast_norm(a) > fast_norm_b:
         return reduce_vectors(b, a)
 
-    if fast_norm(b) > fast_norm(np.add(b, a)):
+    if fast_norm_b > fast_norm(np.add(b, a)):
         return reduce_vectors(a, np.add(b, a))
 
-    if fast_norm(b) > fast_norm(np.subtract(b, a)):
+    if fast_norm_b > fast_norm(np.subtract(b, a)):
         return reduce_vectors(a, np.subtract(b, a))
 
-    return [a, b]
+    return (a, b)
 
 
+@njit
 def get_factors(n):
     """
     Generate all factors of n
@@ -322,3 +318,48 @@ def get_factors(n):
     for x in range(1, n + 1):
         if n % x == 0:
             yield x
+
+
+@njit
+def _unidirectional_is_same_vectors(vec_set1, vec_set2, max_length_tol, max_angle_tol):
+    """
+    Determine if two sets of vectors are the same within length and angle
+    tolerances
+    Args:
+        vec_set1(array[array]): an array of two vectors
+        vec_set2(array[array]): second array of two vectors
+    """
+    if np.absolute(rel_strain(vec_set1[0], vec_set2[0])) > max_length_tol:
+        return False
+    if np.absolute(rel_strain(vec_set1[1], vec_set2[1])) > max_length_tol:
+        return False
+    if np.absolute(rel_angle(vec_set1, vec_set2)) > max_angle_tol:
+        return False
+    return True
+
+
+@njit
+def _bidirectional_same_vectors(vec_set1, vec_set2, max_length_tol, max_angle_tol):
+    """Bidirectional version of above matching constraint check"""
+    return _unidirectional_is_same_vectors(
+        vec_set1, vec_set2, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol
+    ) or _unidirectional_is_same_vectors(vec_set2, vec_set1, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol)
+
+
+@njit
+def is_same_vectors(vec_set1, vec_set2, bidirectional=False, max_length_tol=0.03, max_angle_tol=0.01) -> bool:
+    """
+    Determine if two sets of vectors are the same within length and angle
+    tolerances
+    Args:
+        vec_set1(array[array]): an array of two vectors
+        vec_set2(array[array]): second array of two vectors
+    """
+    if bidirectional:
+        return _bidirectional_same_vectors(
+            vec_set1, vec_set2, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol
+        )
+
+    return _unidirectional_is_same_vectors(
+        vec_set1, vec_set2, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol
+    )

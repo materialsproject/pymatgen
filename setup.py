@@ -85,6 +85,9 @@ setup(
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
         ],
+        "numba": [
+            "numba",
+        ],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
