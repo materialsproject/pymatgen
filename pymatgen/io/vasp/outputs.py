@@ -1828,6 +1828,11 @@ class Outcar:
         self.filename = filename
         self.is_stopped = False
 
+        # Assume a compilation with parallelization enabled.
+        # Will be checked later.
+        # If VASP is compiled in serial, the OUTCAR is written slightly differently.
+        serial_compilation = False
+
         # data from end of OUTCAR
         charge = []
         mag_x = []
@@ -1967,6 +1972,11 @@ class Outcar:
         run_stats["cores"] = None
         with zopen(filename, "rt") as f:
             for line in f:
+                if "serial" in line:
+                    # activate the serial parallelization
+                    run_stats["cores"] = 1
+                    serial_compilation = True
+                    break
                 if "running" in line:
                     if line.split()[1] == "on":
                         run_stats["cores"] = int(line.split()[2])
@@ -2000,7 +2010,9 @@ class Outcar:
             for [n] in self.read_table_pattern(
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
-                r"maximum and minimum number of plane-waves",
+                r"maximum number of plane-waves"
+                if serial_compilation
+                else r"maximum and minimum number of plane-waves",
                 last_one_only=False,
                 first_one_only=True,
             )

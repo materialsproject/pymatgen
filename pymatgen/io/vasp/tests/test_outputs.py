@@ -1405,6 +1405,11 @@ class OutcarTest(PymatgenTest):
         assert outcar.data["nplwv"] == [[None]]
         assert outcar.data["nplwvs_at_kpoints"] == [85687]
 
+    def test_serial_compilation(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.serial.gz")
+        assert outcar.data["nplwv"] == [[74088]]
+        assert outcar.data["nplwvs_at_kpoints"] == [4418, 4390, 4421, 4404]
+
     def test_vasp620_format(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
         outcar = Outcar(filepath)
