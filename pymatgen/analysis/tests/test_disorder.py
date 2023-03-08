@@ -12,19 +12,19 @@ from pymatgen.util.testing import PymatgenTest
 
 class OrderParameterTest(PymatgenTest):
     def test_compute_warren_cowley_parameters(self):
-        s = Structure.from_prototype("CsCl", ["Mo", "W"], a=4)
-        aij = get_warren_cowley_parameters(s, r=3.4, dr=0.3)
+        struct = Structure.from_prototype("CsCl", ["Mo", "W"], a=4)
+        aij = get_warren_cowley_parameters(struct, r=3.4, dr=0.3)
         assert aij[(Element.Mo, Element.W)] == approx(-1.0)
-        aij = get_warren_cowley_parameters(s, r=4, dr=0.2)
+        aij = get_warren_cowley_parameters(struct, r=4, dr=0.2)
         assert aij[(Element.Mo, Element.Mo)] == approx(1.0)
-        s = Structure.from_prototype("CsCl", ["Mo", "W"], a=4)
-        s = s * 4
+        struct = Structure.from_prototype("CsCl", ["Mo", "W"], a=4)
+        struct = struct * 4
 
         # Swap the first and last sites to cause disorder
-        s[0] = "W"
-        s[len(s) - 1] = "Mo"
+        struct[0] = "W"
+        struct[len(struct) - 1] = "Mo"
 
-        aij = get_warren_cowley_parameters(s, r=3.4, dr=0.3)
+        aij = get_warren_cowley_parameters(struct, r=3.4, dr=0.3)
         assert aij[(Element.Mo, Element.W)] == approx(-0.9453125)
         assert aij[(Element.Mo, Element.W)] == aij[(Element.W, Element.Mo)]
 

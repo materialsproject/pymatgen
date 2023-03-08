@@ -194,13 +194,13 @@ class BaderAnalysis:
                 raw.pop(0)
                 raw.pop(0)
                 while True:
-                    l = raw.pop(0).strip()
-                    if l.startswith("-"):
+                    line = raw.pop(0).strip()
+                    if line.startswith("-"):
                         break
-                    vals = map(float, l.split()[1:])
+                    vals = map(float, line.split()[1:])
                     data.append(dict(zip(headers, vals)))
-                for l in raw:
-                    toks = l.strip().split(":")
+                for line in raw:
+                    toks = line.strip().split(":")
                     if toks[0] == "VACUUM CHARGE":
                         self.vacuum_charge = float(toks[1])
                     elif toks[0] == "VACUUM VOLUME":

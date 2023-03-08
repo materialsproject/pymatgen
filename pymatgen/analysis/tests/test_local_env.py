@@ -164,11 +164,11 @@ class VoronoiNNTest(PymatgenTest):
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
-        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
 
         # Compute the NNs with adjacency
         self.nn.targets = None
-        neighbors = self.nn.get_voronoi_polyhedra(s, 0)
+        neighbors = self.nn.get_voronoi_polyhedra(struct, 0)
 
         # Each neighbor has 4 adjacent neighbors, all orthogonal
         for nn_info in neighbors.values():

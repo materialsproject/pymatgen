@@ -46,18 +46,18 @@ def _cartesian_product(lists):
     return reduce(_append_es2sequences, lists, [])
 
 
-def prime_factors(n):
+def prime_factors(n: int) -> list[int]:
     """Lists prime factors of a given natural integer, from greatest to smallest
     :param n: Natural integer
     :rtype : list of all prime factors of the given natural n
     """
-    i = 2
-    while i <= sqrt(n):
-        if n % i == 0:
-            l = prime_factors(n / i)
-            l.append(i)
-            return l
-        i += 1
+    idx = 2
+    while idx <= sqrt(n):
+        if n % idx == 0:
+            lst = prime_factors(n // idx)
+            lst.append(idx)
+            return lst
+        idx += 1
     return [n]  # n is prime
 
 

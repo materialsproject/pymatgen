@@ -69,9 +69,9 @@ class EntrySetTest(unittest.TestCase):
             self.entry_set.get_subset_in_chemsys(["Fe", "F"])
 
     def test_remove_non_ground_states(self):
-        l = len(self.entry_set)
+        length = len(self.entry_set)
         self.entry_set.remove_non_ground_states()
-        assert len(self.entry_set) < l
+        assert len(self.entry_set) < length
 
     def test_as_dict(self):
         dumpfn(self.entry_set, "temp_entry_set.json")

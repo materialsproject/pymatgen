@@ -455,12 +455,12 @@ class Simplex(MSONable):
         """
         b1 = self.bary_coords(point1)
         b2 = self.bary_coords(point2)
-        l = b1 - b2
+        line = b1 - b2
         # don't use barycentric dimension where line is parallel to face
-        valid = np.abs(l) > 1e-10
+        valid = np.abs(line) > 1e-10
         # array of all the barycentric coordinates on the line where
         # one of the values is 0
-        possible = b1 - (b1[valid] / l[valid])[:, None] * l
+        possible = b1 - (b1[valid] / line[valid])[:, None] * line
         barys = []
         for p in possible:
             # it's only an intersection if its in the simplex

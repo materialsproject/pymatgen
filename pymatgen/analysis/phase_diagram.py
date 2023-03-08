@@ -1045,9 +1045,9 @@ class PhaseDiagram(MSONable):
         intersections = self._get_simplex_intersections(c1, c2)
 
         # find position along line
-        l = c2 - c1
-        l /= np.sum(l**2) ** 0.5
-        proj = np.dot(intersections - c1, l)
+        line = c2 - c1
+        line /= np.sum(line**2) ** 0.5
+        proj = np.dot(intersections - c1, line)
 
         # only take compositions between endpoints
         proj = proj[
@@ -1060,13 +1060,13 @@ class PhaseDiagram(MSONable):
         valid[1:] = proj[1:] > proj[:-1] + self.numerical_tol
         proj = proj[valid]
 
-        ints = c1 + l * proj[:, None]
+        ints = c1 + line * proj[:, None]
 
         # reconstruct full-dimensional composition array
         cs = np.concatenate([np.array([1 - np.sum(ints, axis=-1)]).T, ints], axis=-1)
 
         # mixing fraction when compositions are normalized
-        x = proj / np.dot(c2 - c1, l)
+        x = proj / np.dot(c2 - c1, line)
 
         # mixing fraction when compositions are not normalized
         x_unnormalized = x * n1 / (n2 + x * (n1 - n2))

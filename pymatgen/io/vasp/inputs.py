@@ -724,7 +724,7 @@ class Incar(dict, MSONable):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str(tabulate([[l[0], "=", l[1]] for l in lines], tablefmt="plain"))
+            return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))
         return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):

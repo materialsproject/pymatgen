@@ -297,7 +297,7 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        lines = [l.strip() for l in contents.split("\n")]
+        lines = [line.strip() for line in contents.split("\n")]
 
         link0_patt = re.compile(r"^(%.+)\s*=\s*(.+)")
         link0_dict = {}
@@ -1252,9 +1252,9 @@ class GaussianOutput:
             labelled by their name as defined in the calculation.
         """
 
-        def floatList(l):
+        def floatList(lst):
             """return a list of float from a list of string"""
-            return [float(v) for v in l]
+            return [float(val) for val in lst]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")

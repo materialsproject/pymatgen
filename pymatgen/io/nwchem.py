@@ -758,18 +758,18 @@ class NwOutput:
         parse_time = False
         time = 0
 
-        for l in output.split("\n"):
+        for line in output.split("\n"):
             # pylint: disable=E1136
             for e, v in error_defs.items():
-                if l.find(e) != -1:
+                if line.find(e) != -1:
                     errors.append(v)
             if parse_time:
-                m = time_patt.search(l)
+                m = time_patt.search(line)
                 if m:
                     time = m.group(1)
                     parse_time = False
             if parse_geom:
-                if l.strip() == "Atomic Mass":
+                if line.strip() == "Atomic Mass":
                     if lattice:
                         structures.append(Structure(lattice, species, coords, coords_are_cartesian=True))
                     else:
@@ -779,16 +779,16 @@ class NwOutput:
                     lattice = []
                     parse_geom = False
                 else:
-                    m = coord_patt.search(l)
+                    m = coord_patt.search(line)
                     if m:
                         species.append(m.group(1).capitalize())
                         coords.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
-                    m = lat_vector_patt.search(l)
+                    m = lat_vector_patt.search(line)
                     if m:
                         lattice.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
 
             if parse_force:
-                m = force_patt.search(l)
+                m = force_patt.search(line)
                 if m:
                     forces.extend(map(float, m.groups()[5:]))
                 elif len(forces) > 0:
@@ -797,32 +797,32 @@ class NwOutput:
                     parse_force = False
 
             elif parse_freq:
-                if len(l.strip()) == 0:
+                if len(line.strip()) == 0:
                     if len(normal_frequencies[-1][1]) == 0:
                         continue
                     parse_freq = False
                 else:
-                    vibs = [float(vib) for vib in l.strip().split()[1:]]
+                    vibs = [float(vib) for vib in line.strip().split()[1:]]
                     num_vibs = len(vibs)
                     for mode, dis in zip(normal_frequencies[-num_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_projected_freq:
-                if len(l.strip()) == 0:
+                if len(line.strip()) == 0:
                     if len(frequencies[-1][1]) == 0:
                         continue
                     parse_projected_freq = False
                 else:
-                    vibs = [float(vib) for vib in l.strip().split()[1:]]
+                    vibs = [float(vib) for vib in line.strip().split()[1:]]
                     num_vibs = len(vibs)
                     for mode, dis in zip(frequencies[-num_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_bset:
-                if l.strip() == "":
+                if line.strip() == "":
                     parse_bset = False
                 else:
-                    toks = l.split()
+                    toks = line.split()
                     if toks[0] != "Tag" and not re.match(r"-+", toks[0]):
                         basis_set[toks[0]] = dict(zip(bset_header[1:], toks[1:]))
                     elif toks[0] == "Tag":
@@ -831,12 +831,12 @@ class NwOutput:
                         bset_header = [h.lower() for h in bset_header]
 
             elif parse_hess:
-                if l.strip() == "":
+                if line.strip() == "":
                     continue
-                if len(hessian) > 0 and l.find("----------") != -1:
+                if len(hessian) > 0 and line.find("----------") != -1:
                     parse_hess = False
                     continue
-                toks = l.strip().split()
+                toks = line.strip().split()
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
@@ -851,10 +851,10 @@ class NwOutput:
                         hessian[row - 1].extend(vals)
 
             elif parse_proj_hess:
-                if l.strip() == "":
+                if line.strip() == "":
                     continue
                 nat3 = len(hessian)
-                toks = l.strip().split()
+                toks = line.strip().split()
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
@@ -871,24 +871,24 @@ class NwOutput:
                         parse_proj_hess = False
 
             else:
-                m = energy_patt.search(l)
+                m = energy_patt.search(line)
                 if m:
                     energies.append(Energy(m.group(1), "Ha").to("eV"))
                     parse_time = True
                     continue
 
-                m = energy_gas_patt.search(l)
+                m = energy_gas_patt.search(line)
                 if m:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
                     energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
-                m = energy_sol_patt.search(l)
+                m = energy_sol_patt.search(line)
                 if m:
                     energies[-1].update({"sol phase": Energy(m.group(1), "Ha").to("eV")})
 
-                m = preamble_patt.search(l)
+                m = preamble_patt.search(line)
                 if m:
                     try:
                         val = int(m.group(2))
@@ -896,43 +896,43 @@ class NwOutput:
                         val = m.group(2)
                     k = m.group(1).replace("No. of ", "n").replace(" ", "_")
                     data[k.lower()] = val
-                elif l.find('Geometry "geometry"') != -1:
+                elif line.find('Geometry "geometry"') != -1:
                     parse_geom = True
-                elif l.find('Summary of "ao basis"') != -1:
+                elif line.find('Summary of "ao basis"') != -1:
                     parse_bset = True
-                elif l.find("P.Frequency") != -1:
+                elif line.find("P.Frequency") != -1:
                     parse_projected_freq = True
                     if frequencies is None:
                         frequencies = []
-                    toks = l.strip().split()[1:]
+                    toks = line.strip().split()[1:]
                     frequencies.extend([(float(freq), []) for freq in toks])
 
-                elif l.find("Frequency") != -1:
-                    toks = l.strip().split()
+                elif line.find("Frequency") != -1:
+                    toks = line.strip().split()
                     if len(toks) > 1 and toks[0] == "Frequency":
                         parse_freq = True
                         if normal_frequencies is None:
                             normal_frequencies = []
-                        normal_frequencies.extend([(float(freq), []) for freq in l.strip().split()[1:]])
+                        normal_frequencies.extend([(float(freq), []) for freq in line.strip().split()[1:]])
 
-                elif l.find("MASS-WEIGHTED NUCLEAR HESSIAN") != -1:
+                elif line.find("MASS-WEIGHTED NUCLEAR HESSIAN") != -1:
                     parse_hess = True
                     if not hessian:
                         hessian = []
-                elif l.find("MASS-WEIGHTED PROJECTED HESSIAN") != -1:
+                elif line.find("MASS-WEIGHTED PROJECTED HESSIAN") != -1:
                     parse_proj_hess = True
                     if not projected_hessian:
                         projected_hessian = []
 
-                elif l.find("atom               coordinates                        gradient") != -1:
+                elif line.find("atom               coordinates                        gradient") != -1:
                     parse_force = True
 
-                elif job_type == "" and l.strip().startswith("NWChem"):
-                    job_type = l.strip()
+                elif job_type == "" and line.strip().startswith("NWChem"):
+                    job_type = line.strip()
                     if job_type == "NWChem DFT Module" and "COSMO solvation results" in output:
                         job_type += " COSMO"
                 else:
-                    m = corrections_patt.search(l)
+                    m = corrections_patt.search(line)
                     if m:
                         corrections[m.group(1)] = FloatWithUnit(m.group(2), "kJ mol^-1").to("eV atom^-1")
 

@@ -1404,9 +1404,9 @@ class KPathLatimerMunro(KPathBase):
 
             if add_rep:
                 line_orbits_in_path.append(i)
-                l = key_lines_inds_orbits[i][0]
-                ind0 = l[0]
-                ind1 = l[1]
+                line = key_lines_inds_orbits[i][0]
+                ind0 = line[0]
+                ind1 = line[1]
                 found0 = False
                 found1 = False
                 for j, orbit in enumerate(key_points_inds_orbits):
@@ -1447,9 +1447,9 @@ class KPathLatimerMunro(KPathBase):
                 else:
                     pass
             if connect:
-                l = (key_points_inds_orbits[ind][0], gamma_ind)
+                line = (key_points_inds_orbits[ind][0], gamma_ind)
                 for j, orbit in enumerate(key_lines_inds_orbits):
-                    if l in orbit:
+                    if line in orbit:
                         line_orbits_in_path.append(j)
                         break
                 if gamma_ind not in point_orbits_in_path:

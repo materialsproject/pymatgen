@@ -41,14 +41,14 @@ def _load_cross_sections(fname):
             continue
         orb = row.orbital
         shell = int(orb[0])
-        orbtype = orb[1]
-        nelect = None
-        for l in el.full_electronic_structure:
-            if l[0] == shell and l[1] == orbtype:
-                nelect = l[2]
+        orb_type = orb[1]
+        n_elect = None
+        for shell, orb, n_ele in el.full_electronic_structure:
+            if shell == shell and orb == orb_type:
+                n_elect = n_ele
                 break
-        if nelect is not None:
-            d[sym][orbtype] = row.weight / nelect
+        if n_elect is not None:
+            d[sym][orb_type] = row.weight / n_elect
     return d
 
 

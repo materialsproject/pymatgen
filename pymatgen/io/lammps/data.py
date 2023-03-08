@@ -669,10 +669,10 @@ class LammpsData(MSONable):
 
         header = {"counts": {}, "types": {}}
         bounds = {}
-        for l in clean_lines(parts[0][1:]):  # skip the 1st line
+        for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
             for k, v in header_pattern.items():  # noqa: B007
-                match = re.match(v, l)
+                match = re.match(v, line)
                 if match:
                     break
             if match and k in ["counts", "types"]:

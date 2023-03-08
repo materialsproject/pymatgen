@@ -238,22 +238,22 @@ class BasisSetReader:
 
         for line in input.split("\n"):
             if parse_nl_orbital:
-                m = nl_orbital_patt.search(line)
-                n = coef_alpha_patt.search(line)
-                if m:
-                    l = m.group(1)
-                    zeta = m.group(2)
-                    ng = m.group(3)
-                    basis_set[l + "_" + zeta + "_" + ng] = []
-                elif n:
-                    alpha = n.group(1)
-                    coef = n.group(2)
-                    basis_set[l + "_" + zeta + "_" + ng].append((alpha, coef))
+                match_orb = nl_orbital_patt.search(line)
+                match_alpha = coef_alpha_patt.search(line)
+                if match_orb:
+                    l_angular = match_orb.group(1)
+                    zeta = match_orb.group(2)
+                    ng = match_orb.group(3)
+                    basis_set[l_angular + "_" + zeta + "_" + ng] = []
+                elif match_alpha:
+                    alpha = match_alpha.group(1)
+                    coef = match_alpha.group(2)
+                    basis_set[l_angular + "_" + zeta + "_" + ng].append((alpha, coef))
             elif parse_lmax_nnlo:
-                m = lmax_nnlo_patt.search(line)
-                if m:
-                    lmax = m.group(1)
-                    nnlo = m.group(2)
+                match_orb = lmax_nnlo_patt.search(line)
+                if match_orb:
+                    lmax = match_orb.group(1)
+                    nnlo = match_orb.group(2)
                     parse_lmax_nnlo = False
                     parse_nl_orbital = True
             elif parse_preamble:
@@ -782,23 +782,23 @@ class FiestaOutput:
         parse_gw_results = False
         parse_total_time = False
 
-        for l in output.split("\n"):
+        for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(l)
+                m = end_patt.search(line)
                 if m:
                     GW_results.update(end_normally=True)
 
-                m = total_time_patt.search(l)
+                m = total_time_patt.search(line)
                 if m:
                     GW_results.update(total_time=m.group(1))
 
             if parse_gw_results:
-                if l.find("Dumping eigen energies") != -1:
+                if line.find("Dumping eigen energies") != -1:
                     parse_total_time = True
                     parse_gw_results = False
                     continue
 
-                m = GW_BANDS_results_patt.search(l)
+                m = GW_BANDS_results_patt.search(line)
                 if m:
                     d = {}
                     d.update(
@@ -814,7 +814,7 @@ class FiestaOutput:
                     )
                     GW_results[m.group(1).strip()] = d
 
-                n = GW_GAPS_results_patt.search(l)
+                n = GW_GAPS_results_patt.search(line)
                 if n:
                     d = {}
                     d.update(
@@ -824,7 +824,7 @@ class FiestaOutput:
                     )
                     GW_results["Gaps"] = d
 
-            if l.find("GW Results") != -1:
+            if line.find("GW Results") != -1:
                 parse_gw_results = True
 
         return GW_results
