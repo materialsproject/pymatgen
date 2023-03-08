@@ -330,7 +330,7 @@ class LatticeTestCase(PymatgenTest):
 
         # catch the singular matrix error
         lattice = Lattice.from_parameters(1, 1, 1, 10, 10, 10)
-        for latt, _, _ in lattice.find_all_mappings(lattice, ltol=0.05, atol=11):
+        for latt, _, _ in lattice.find_all_mappings(lattice, l_tol=0.05, a_tol=11):
             assert isinstance(latt, Lattice)
 
     def test_mapping_symmetry(self):
@@ -366,8 +366,8 @@ class LatticeTestCase(PymatgenTest):
     def test_get_wigner_seitz_cell(self):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]).get_wigner_seitz_cell()
         assert len(ws_cell) == 6
-        for l in ws_cell[3]:
-            assert [abs(i) for i in l] == [5.0, 2.5, 0.5]
+        for vec in ws_cell[3]:
+            assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
 
     def test_dot_and_norm(self):
         frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]

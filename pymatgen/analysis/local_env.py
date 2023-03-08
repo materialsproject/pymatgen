@@ -2910,7 +2910,7 @@ class LocalStructOrderParams:
         # Prepare angle calculations, if applicable.
         rij: list[np.ndarray] = []
         rjk: list[list[np.ndarray]] = []
-        rijnorm: list[list[float]] = []
+        rij_norm: list[list[float]] = []
         rjknorm: list[list[np.ndarray]] = []
         dist: list[float] = []
         distjk_unique: list[float] = []
@@ -2920,7 +2920,7 @@ class LocalStructOrderParams:
             for j, neigh in enumerate(neighsites):
                 rij.append(neigh.coords - centvec)
                 dist.append(float(np.linalg.norm(rij[j])))
-                rijnorm.append(rij[j] / dist[j])  # type: ignore
+                rij_norm.append(rij[j] / dist[j])  # type: ignore
         if self._computerjks:
             for j, neigh in enumerate(neighsites):
                 rjk.append([])
@@ -2955,7 +2955,7 @@ class LocalStructOrderParams:
         if self._boops:
             thetas = []
             phis = []
-            for vec in rijnorm:
+            for vec in rij_norm:
                 # z is North pole --> theta between vec and (0, 0, 1)^T.
                 # Because vec is normalized, dot product is simply vec[2].
                 thetas.append(acos(max(-1.0, min(vec[2], 1.0))))
@@ -2999,16 +2999,16 @@ class LocalStructOrderParams:
             onethird = 1.0 / 3.0
             twothird = 2.0 / 3.0
             for j in range(nneigh):  # Neighbor j is put to the North pole.
-                zaxis = rijnorm[j]
+                zaxis = rij_norm[j]
                 kc = 0
                 for k in range(nneigh):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         for i in range(len(self._types)):
                             qsptheta[i][j].append(0.0)
                             norms[i][j].append(0)
-                        tmp = max(-1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
+                        tmp = max(-1.0, min(np.inner(zaxis, rij_norm[k]), 1.0))
                         thetak = acos(tmp)
-                        xaxis = gramschmidt(rijnorm[k], zaxis)
+                        xaxis = gramschmidt(rij_norm[k], zaxis)
                         if np.linalg.norm(xaxis) < very_small:
                             flag_xaxis = True
                         else:
@@ -3087,14 +3087,14 @@ class LocalStructOrderParams:
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
-                                tmp = max(-1.0, min(np.inner(zaxis, rijnorm[m]), 1.0))
+                                tmp = max(-1.0, min(np.inner(zaxis, rij_norm[m]), 1.0))
                                 thetam = acos(tmp)
-                                xtwoaxistmp = gramschmidt(rijnorm[m], zaxis)
-                                l = np.linalg.norm(xtwoaxistmp)
-                                if l < very_small:
+                                x_two_axis_tmp = gramschmidt(rij_norm[m], zaxis)
+                                norm = np.linalg.norm(x_two_axis_tmp)
+                                if norm < very_small:
                                     flag_xtwoaxis = True
                                 else:
-                                    xtwoaxis = xtwoaxistmp / l
+                                    xtwoaxis = x_two_axis_tmp / norm
                                     phi = acos(max(-1.0, min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
                                     if self._comp_azi:
@@ -3340,9 +3340,9 @@ class LocalStructOrderParams:
         if self._geomops2:
             # Compute all (unique) angles and sort the resulting list.
             aij = []
-            for ir, r in enumerate(rijnorm):
-                for j in range(ir + 1, len(rijnorm)):
-                    aij.append(acos(max(-1.0, min(np.inner(r, rijnorm[j]), 1.0))))
+            for ir, r in enumerate(rij_norm):
+                for j in range(ir + 1, len(rij_norm)):
+                    aij.append(acos(max(-1.0, min(np.inner(r, rij_norm[j]), 1.0))))
             aijs = sorted(aij)
 
             # Compute height, side and diagonal length estimates.

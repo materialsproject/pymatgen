@@ -115,8 +115,8 @@ class CifBlock:
 
     def _loop_to_string(self, loop):
         out = "loop_"
-        for l in loop:
-            out += "\n " + l
+        for line in loop:
+            out += "\n " + line
         for fields in zip(*(self.data[k] for k in loop)):
             line = "\n"
             for val in map(self._format_field, fields):

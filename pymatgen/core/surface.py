@@ -867,10 +867,10 @@ class SlabGenerator:
         if len(non_orth_ind) > 1:
             lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
             for (ii, _di), (jj, _dj) in itertools.combinations(non_orth_ind, 2):
-                l = [0, 0, 0]
-                l[ii] = -int(round(lcm_miller / miller_index[ii]))
-                l[jj] = int(round(lcm_miller / miller_index[jj]))
-                slab_scale_factor.append(l)
+                scale_factor = [0, 0, 0]
+                scale_factor[ii] = -int(round(lcm_miller / miller_index[ii]))
+                scale_factor[jj] = int(round(lcm_miller / miller_index[jj]))
+                slab_scale_factor.append(scale_factor)
                 if len(slab_scale_factor) == 2:
                     break
 

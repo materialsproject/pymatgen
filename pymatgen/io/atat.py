@@ -111,12 +111,12 @@ class Mcsqs:
 
         all_coords = []
         all_species = []
-        for l in data[first_species_line:]:
-            coords = np.array([l[0], l[1], l[2]], dtype=float)
+        for line in data[first_species_line:]:
+            coords = np.array([line[0], line[1], line[2]], dtype=float)
             scaled_coords = np.matmul(coords, np.linalg.inv(lattice_vecs))
             all_coords.append(scaled_coords)
 
-            species_strs = "".join(l[3:])  # join multiple strings back together
+            species_strs = "".join(line[3:])  # join multiple strings back together
             species_strs = species_strs.replace(" ", "")  # trim any white space
             species_strs = species_strs.split(",")  # comma-delimited
 

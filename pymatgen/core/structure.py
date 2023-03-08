@@ -409,7 +409,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         v2 = self[k].coords - self[j].coords
         return get_angle(v1, v2, units="degrees")
 
-    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:
+    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:  # noqa: E741
         """
         Returns dihedral angle specified by four sites.
 

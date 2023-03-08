@@ -78,8 +78,8 @@ class LMTOCtrl:
             lines.append("VERS".ljust(10) + self.version)
 
         lines.append("STRUC".ljust(10) + "ALAT=" + str(round(ctrl_dict["ALAT"], sigfigs)))
-        for l, latt in enumerate(ctrl_dict["PLAT"]):
-            line = "PLAT=".rjust(15) if l == 0 else " ".ljust(15)
+        for idx, latt in enumerate(ctrl_dict["PLAT"]):
+            line = "PLAT=".rjust(15) if idx == 0 else " ".ljust(15)
             line += " ".join(str(round(v, sigfigs)) for v in latt)
             lines.append(line)
 

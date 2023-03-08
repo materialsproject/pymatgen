@@ -556,7 +556,7 @@ class DftSet(Cp2kInput):
             if b.potential == "All Electron":
                 radius = 1.2 if b.element == Element("H") else 1.512  # Hard radius defaults for gapw
                 threshold = 1e-4  # Default for gapw
-                max_lshell = max(l for l in b.lmax)
+                max_lshell = max(shell for shell in b.lmax)
                 exponent = np.log(radius**max_lshell / threshold) / radius**2
                 return [[exponent]]
             else:

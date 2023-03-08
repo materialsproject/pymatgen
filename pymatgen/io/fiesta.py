@@ -238,22 +238,22 @@ class BasisSetReader:
 
         for line in input.split("\n"):
             if parse_nl_orbital:
-                m = nl_orbital_patt.search(line)
-                n = coef_alpha_patt.search(line)
-                if m:
-                    l = m.group(1)
-                    zeta = m.group(2)
-                    ng = m.group(3)
-                    basis_set[l + "_" + zeta + "_" + ng] = []
-                elif n:
-                    alpha = n.group(1)
-                    coef = n.group(2)
-                    basis_set[l + "_" + zeta + "_" + ng].append((alpha, coef))
+                match_orb = nl_orbital_patt.search(line)
+                match_alpha = coef_alpha_patt.search(line)
+                if match_orb:
+                    l_angular = match_orb.group(1)
+                    zeta = match_orb.group(2)
+                    ng = match_orb.group(3)
+                    basis_set[l_angular + "_" + zeta + "_" + ng] = []
+                elif match_alpha:
+                    alpha = match_alpha.group(1)
+                    coef = match_alpha.group(2)
+                    basis_set[l_angular + "_" + zeta + "_" + ng].append((alpha, coef))
             elif parse_lmax_nnlo:
-                m = lmax_nnlo_patt.search(line)
-                if m:
-                    lmax = m.group(1)
-                    nnlo = m.group(2)
+                match_orb = lmax_nnlo_patt.search(line)
+                if match_orb:
+                    lmax = match_orb.group(1)
+                    nnlo = match_orb.group(2)
                     parse_lmax_nnlo = False
                     parse_nl_orbital = True
             elif parse_preamble:

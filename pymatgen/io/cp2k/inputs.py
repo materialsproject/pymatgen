@@ -226,11 +226,11 @@ class KeywordList(MSONable):
         """
         self.keywords.append(item)
 
-    def extend(self, l):
+    def extend(self, lst: list[str]) -> None:
         """
         Extend the keyword list
         """
-        self.keywords.extend(l)
+        self.keywords.extend(lst)
 
     def get_string(self, indent=0):
         """
@@ -1516,7 +1516,7 @@ class DftPlusU(Section):
         self,
         eps_u_ramping=1e-5,
         init_u_ramping_each_scf=False,
-        l=-1,
+        l=-1,  # noqa: E741
         u_minus_j=0,
         u_ramping=0,
         keywords: dict | None = None,

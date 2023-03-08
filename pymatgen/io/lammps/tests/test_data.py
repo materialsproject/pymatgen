@@ -219,7 +219,7 @@ class LammpsDataTest(unittest.TestCase):
             "Dihedrals",
             "Impropers",
         ]
-        kw_inds = {l: i for i, l in enumerate(c2h6_lines) if l in c2h6_kws}
+        kw_inds = {line: idx for idx, line in enumerate(c2h6_lines) if line in c2h6_kws}
         # section sequence
         assert sorted(kw_inds, key=kw_inds.get) == c2h6_kws
         # header
