@@ -296,6 +296,25 @@ class LammpsInputFile(InputFile):
         else:
             raise LookupError("The given stage name is not present in this LammpsInputFile.")
 
+    def rename_stage(self, stage_name: str, new_name: str):
+        """
+        Renames a stage `stage_name` from LammpsInputFile into `new_name`.
+        First checks that the stage to rename is present, and that
+        the new name is not already a stage name.
+
+        Args:
+            stage_name (str): name of the stage to rename.
+            new_name (str): new name of the stage.
+        """
+        if stage_name in self.stages_names:
+            if new_name in self.stages_names:
+                raise ValueError("The provided stage name is already present in LammpsInputFile.stages.")
+            else:
+                idx = self.stages_names.index(stage_name)
+                self.stages[idx]["stage_name"] = new_name
+        else:
+            raise LookupError("The given stage name is not present in this LammpsInputFile.")
+
     def merge_stages(self, stage_names: list[str]):
         """
         Merges multiple stages of a LammpsInputFile together.
@@ -336,7 +355,7 @@ class LammpsInputFile(InputFile):
         """
         Method to add a LAMMPS commands and their arguments to a stage of
         the LammpsInputFile. The stage name should be provided: a default behavior
-        is avoided here to avoid mistakes.
+        is avoided here to avoid mistakes (e.g., the commands are added to the wrong stage).
 
         Example:
             In order to add the command ``pair_coeff 1 1 morse 0.0580 3.987 3.404``
@@ -447,7 +466,8 @@ class LammpsInputFile(InputFile):
                 this_stage = int(stage_name.split()[1]) + self.nstages
                 new_list_to_add[i_stage]["stage_name"] = f"Stage {this_stage}"
 
-        # Making sure no stage_name of lmp_input_file clash with those from self
+        # Making sure no stage_name of lmp_input_file clash with those from self.
+        # If it is the case, we rename them.
         for i_stage, stage in enumerate(lmp_input_file.stages):
             if stage["stage_name"] in self.stages_names:
                 stage["stage_name"] = f"Stage {self.nstages + i_stage + 1} (previously {stage['stage_name']})"
@@ -457,7 +477,7 @@ class LammpsInputFile(InputFile):
 
     def get_string(self, ignore_comments: bool = False, keep_stages: bool = True) -> str:
         """
-        Generates and returns the string representation of the LammpsInputFile.
+        Generates and ² the string representation of the LammpsInputFile.
         Stages are separated by empty lines.
         The headers of the stages will be put in comments preceding each stage.
         Other comments will be put inline within stages, where they have been added.

@@ -60,7 +60,7 @@ class BaseLammpsGenerator(InputGenerator):
     """
 
     template: str = field(default_factory=str)
-    settings: dict = field(default_factory=dict)  # dict[str, str | float] | None = None
+    settings: dict = field(default_factory=dict)
     calc_type: str = field(default="lammps")
     keep_stages: bool = field(default=True)
 

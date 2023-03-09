@@ -76,6 +76,7 @@ class LammpsDump(MSONable):
         """
         Args:
             d (dict): Dict representation
+
         Returns:
             LammpsDump
         """

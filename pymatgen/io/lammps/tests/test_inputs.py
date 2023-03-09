@@ -393,6 +393,22 @@ write_data run.data"""
             "Stage 6",
         ]
 
+    def test_rename_stage(self):
+        lmp_input = LammpsInputFile().from_file(self.filename)
+        lmp_input.rename_stage("Stage 1", "Global stage")
+        assert lmp_input.stages_names == ["Global stage"]
+
+        lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
+        lmp_input.rename_stage("Stage 6", "Final stage")
+        assert lmp_input.stages_names == [
+            "Comment 1",
+            "1) Initialization",
+            "2) System definition",
+            "3) Simulation settings",
+            "Part A : energy minimization",
+            "Final stage",
+        ]
+
     def test_remove_command(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
         lmp_input.remove_command("set")
