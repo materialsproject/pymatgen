@@ -6,7 +6,6 @@ This module implements classes and methods for processing LAMMPS output
 files (log and dump).
 """
 
-
 from __future__ import annotations
 
 import glob

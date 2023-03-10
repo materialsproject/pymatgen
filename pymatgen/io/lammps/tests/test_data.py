@@ -508,6 +508,24 @@ class LammpsDataTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(ld.masses["mass"], [22.989769, 190.23, 15.9994])
         np.testing.assert_array_equal(ld.atoms["type"], [2] * 4 + [3] * 16)
 
+    def test_set_charge_atom(self):
+        peptide = self.peptide
+        charges = {1: 0.8803}
+        peptide.set_charge_atom(charges)
+        assert peptide.atoms.loc[1, "q"] == 0.8803
+        assert peptide.atoms.loc[2, "q"] == -0.270
+
+    def test_set_charge_atom_type(self):
+        peptide = self.peptide
+        charges = {1: 0.8803}
+        peptide.set_charge_atom_type(charges)
+        assert peptide.atoms.loc[1, "q"] == 0.8803
+        assert peptide.atoms.loc[2, "q"] == -0.270
+        peptide.set_charge_atom_type({4: 2.345})
+        assert peptide.atoms.loc[4, "q"] == 2.345
+        assert peptide.atoms.loc[5, "q"] == 2.345
+        assert peptide.atoms.loc[2004, "q"] == 0.4170
+
     def test_json_dict(self):
         encoded = json.dumps(self.ethane.as_dict(), cls=MontyEncoder)
         c2h6 = json.loads(encoded, cls=MontyDecoder)

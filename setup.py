@@ -111,7 +111,7 @@ setup(
         "pymatgen.command_line": ["*"],
         "pymatgen.util": ["structures/*.json", "*.json"],
         "pymatgen.vis": ["*.yaml"],
-        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/md.txt"],
+        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "cmd_line": ["**/*"],
     },
