@@ -382,7 +382,6 @@ class LammpsInputFile(InputFile):
             stage_name (str): name of the stage to which the command should be added.
             commands (str or list or dict): LAMMPS command, with or without the arguments.
         """
-
         if stage_name not in self.stages_names:
             raise ValueError("The provided stage name does not correspond to one of the LammpsInputFile.stages.")
 
@@ -459,10 +458,10 @@ class LammpsInputFile(InputFile):
         new_list_to_add = lmp_input_file.stages
         for i_stage, stage in enumerate(lmp_input_file.stages):
             stage_name = stage["stage_name"]
-            if "Comment" == stage_name.split()[0].strip() and stage_name.split()[1].isdigit():
+            if stage_name.split()[0].strip() == "Comment" and stage_name.split()[1].isdigit():
                 i_comment = int(stage_name.split()[1]) + self.ncomments
                 new_list_to_add[i_stage]["stage_name"] = f"Comment {i_comment}"
-            if "Stage" == stage_name.split()[0] and stage_name.split()[1].isdigit():
+            if stage_name.split()[0] == "Stage" and stage_name.split()[1].isdigit():
                 this_stage = int(stage_name.split()[1]) + self.nstages
                 new_list_to_add[i_stage]["stage_name"] = f"Stage {this_stage}"
 
@@ -645,7 +644,7 @@ class LammpsInputFile(InputFile):
                 stage_numbers = [
                     int(stage_name.split()[1])
                     for stage_name in self.stages_names
-                    if "Stage" == stage_name.split()[0] and stage_name.split()[1].isdigit()
+                    if stage_name.split()[0] == "Stage" and stage_name.split()[1].isdigit()
                 ]
                 stage_name = f"Stage {np.max(stage_numbers) + 1}"
 
@@ -673,11 +672,11 @@ class LammpsInputFile(InputFile):
             raise TypeError("The value of 'stage_name' should be a string.")
         if not isinstance(stage["commands"], list):
             raise TypeError("The provided commands should be a list.")
-        if len(stage["commands"]) >= 1:
-            if not all([len(cmdargs) == 2 for cmdargs in stage["commands"]]) or not all(
-                [isinstance(cmd, str) and isinstance(arg, str) for (cmd, arg) in stage["commands"]]
-            ):
-                raise ValueError("The provided commands should be a list of 2-strings tuples.")
+        if len(stage["commands"]) >= 1 and (
+            not all([len(cmdargs) == 2 for cmdargs in stage["commands"]])
+            or not all([isinstance(cmd, str) and isinstance(arg, str) for (cmd, arg) in stage["commands"]])
+        ):
+            raise ValueError("The provided commands should be a list of 2-strings tuples.")
 
     def _add_command(self, stage_name: str, command: str, args: str | float | None = None):
         """
@@ -788,30 +787,31 @@ class LammpsInputFile(InputFile):
         # and final empty lines
         imin = len(string_list)
         imax = 0
-        for i, s in enumerate(string_list):
-            if s != "" and i <= imin:
-                imin = i
-            if s != "" and i >= imax:
-                imax = i
+        for idx, string in enumerate(string_list):
+            if string != "" and idx <= imin:
+                imin = idx
+            if string != "" and idx >= imax:
+                imax = idx
         string_list = string_list[imin : imax + 1]
 
         # Get rid of empty comments that are there just for cosmetic reasons
         new_list = []
-        for s in string_list:
-            if len(s) > 1:
-                new_list.append(s)
-            elif not (len(s.strip()) == 1 and s[0] == "#"):
-                new_list.append(s)
+        for string in string_list:
+            if len(string) > 1 or not (len(string.strip()) == 1 and string[0] == "#"):
+                new_list.append(string)
         string_list = new_list
 
         # Keep only a single empty lines when there are multiple ones
         lines = [string_list[0]]
 
-        for i, s in enumerate(string_list[1:-1]):
-            if s != "" and not (s[0] == "#" and ignore_comments):
-                lines.append(s)
-            elif s == "" and string_list[i + 2] != "":
-                lines.append(s)
+        for idx, string in enumerate(string_list[1:-1]):
+            if (
+                string != ""
+                and not (string[0] == "#" and ignore_comments)
+                or string == ""
+                and string_list[idx + 2] != ""
+            ):
+                lines.append(string)
 
         lines.append(string_list[-1])
 

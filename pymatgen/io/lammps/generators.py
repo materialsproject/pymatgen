@@ -73,10 +73,7 @@ class BaseLammpsGenerator(InputGenerator):
         """
         Generate a LammpsInputSet from the structure/data, tailored to the template file.
         """
-        if isinstance(structure, Structure):
-            data = LammpsData.from_structure(structure)
-        else:
-            data = structure
+        data = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 
         # Load the template
         with zopen(self.template, "r") as f:
