@@ -1373,7 +1373,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # and then 2) remove the free energy of the water molecules
         if rform != "H2O":
             # count the number of whole water molecules in the composition
-            nH2O = int(min(comp["H"] / 2.0, comp["O"]))
+            nH2O = int(min(comp.reduced_composition["H"] / 2.0, comp.reduced_composition["O"]))
             if nH2O > 0:
                 # first, remove any H or O corrections already applied to H2O in the
                 # formation energy so that we don't double count them
