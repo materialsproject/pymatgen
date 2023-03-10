@@ -15,8 +15,10 @@ Submodules
    :maxdepth: 7
 
    pymatgen.io.lammps.data
+   pymatgen.io.lammps.generators
    pymatgen.io.lammps.inputs
    pymatgen.io.lammps.outputs
+   pymatgen.io.lammps.sets
    pymatgen.io.lammps.utils
 
 Module contents
