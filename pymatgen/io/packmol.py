@@ -54,7 +54,7 @@ class PackmolSet(InputSet):
             ValueError if packmol does not succeed in packing the box.
             TimeoutExpiredError if packmold does not finish within the timeout.
         """
-        cw = os.getcwd()
+        wd = os.getcwd()
         if not which("packmol"):
             raise RuntimeError(
                 "Running a PackmolSet requires the executable 'packmol' to be in "
@@ -89,7 +89,7 @@ class PackmolSet(InputSet):
             with open(Path(path, self.stdoutfile), "w") as out:
                 out.write(p.stdout.decode())
         finally:
-            os.chdir(cw)
+            os.chdir(wd)
 
     @classmethod
     @abc.abstractmethod
