@@ -972,10 +972,10 @@ class SquareTensor(Tensor):
 
 def get_uvec(vec):
     """Gets a unit vector parallel to input vector"""
-    l = np.linalg.norm(vec)
-    if l < 1e-8:
+    norm = np.linalg.norm(vec)
+    if norm < 1e-8:
         return vec
-    return vec / l
+    return vec / norm
 
 
 def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):

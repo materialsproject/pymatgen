@@ -86,12 +86,11 @@ EPS=12
         with open(filepath) as f:
             txt = f.read()
         toks = txt.split("--link1--")
-        for i, t in enumerate(toks):
-            lines = t.strip().split("\n")
-            lines = [l.strip() for l in lines]
+        for idx, tok in enumerate(toks):
+            lines = [line.strip() for line in tok.strip().split("\n")]
             gau = GaussianInput.from_string("\n".join(lines))
             assert gau.molecule is not None
-            if i == 0:
+            if idx == 0:
                 mol = gau.molecule
         answer = """Full Formula (H4 O2)
 Reduced Formula: H2O

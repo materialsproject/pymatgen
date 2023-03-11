@@ -97,12 +97,9 @@ class Correction(metaclass=abc.ABCMeta):
         old_corr = ufloat(entry.correction, old_std_dev)
         updated_corr = new_corr + old_corr
 
-        if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0:
-            # if there are no error values available for the corrections applied,
-            # set correction uncertainty to not a number
-            uncertainty = np.nan
-        else:
-            uncertainty = updated_corr.std_dev
+        # if there are no error values available for the corrections applied,
+        # set correction uncertainty to not a number
+        uncertainty = np.nan if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0 else updated_corr.std_dev
 
         entry.energy_adjustments.append(ConstantEnergyAdjustment(updated_corr.nominal_value, uncertainty))
 

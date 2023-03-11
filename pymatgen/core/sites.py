@@ -325,13 +325,10 @@ class PeriodicSite(Site, MSONable):
             create the site. Use this if the PeriodicSite is created in a
             controlled manner and speed is desired.
         """
-        if coords_are_cartesian:
-            frac_coords = lattice.get_fractional_coords(coords)
-        else:
-            frac_coords = coords  # type: ignore
+        frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         if to_unit_cell:
-            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)])
+            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)])  # type: ignore
 
         if not skip_checks:
             frac_coords = np.array(frac_coords)

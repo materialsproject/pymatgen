@@ -506,9 +506,10 @@ class VasprunTest(PymatgenTest):
                     _ = vasprun.get_band_structure(line_mode=True)
 
                 # Check KPOINTS.gz successfully inferred and used if present
-                with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in:
-                    with gzip.open("KPOINTS.gz", "wb") as f_out:
-                        copyfileobj(f_in, f_out)
+                with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open(
+                    "KPOINTS.gz", "wb"
+                ) as f_out:
+                    copyfileobj(f_in, f_out)
                 bs_kpts_gzip = vasprun.get_band_structure()
                 assert bs.efermi == bs_kpts_gzip.efermi
                 assert bs.as_dict() == bs_kpts_gzip.as_dict()
@@ -517,9 +518,10 @@ class VasprunTest(PymatgenTest):
             with ScratchDir("./"):
                 os.mkdir("deeper")
                 copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
-                with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in:
-                    with gzip.open(os.path.join("deeper", "vasprun.xml.gz"), "wb") as f_out:
-                        copyfileobj(f_in, f_out)
+                with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
+                    os.path.join("deeper", "vasprun.xml.gz"), "wb"
+                ) as f_out:
+                    copyfileobj(f_in, f_out)
                 vasprun = Vasprun(
                     os.path.join("deeper", "vasprun.xml.gz"),
                     parse_projected_eigen=True,
@@ -1402,6 +1404,11 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.CL")
         assert outcar.data["nplwv"] == [[None]]
         assert outcar.data["nplwvs_at_kpoints"] == [85687]
+
+    def test_serial_compilation(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.serial.gz")
+        assert outcar.data["nplwv"] == [[74088]]
+        assert outcar.data["nplwvs_at_kpoints"] == [4418, 4390, 4421, 4404]
 
     def test_vasp620_format(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"

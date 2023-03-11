@@ -82,8 +82,8 @@ class COD:
         sql = f'select file from data where formula="- {Composition(formula).hill_formula} -"'
         text = self.query(sql).split("\n")
         cod_ids = []
-        for l in text:
-            m = re.search(r"(\d+)", l)
+        for line in text:
+            m = re.search(r"(\d+)", line)
             if m:
                 cod_ids.append(int(m.group(1)))
         return cod_ids
@@ -122,9 +122,9 @@ class COD:
         sql = f'select file, sg from data where formula="- {Composition(formula).hill_formula} -"'
         text = self.query(sql).split("\n")
         text.pop(0)
-        for l in text:
-            if l.strip():
-                cod_id, sg = l.split("\t")
+        for line in text:
+            if line.strip():
+                cod_id, sg = line.split("\t")
                 r = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif")
                 try:
                     s = Structure.from_str(r.text, fmt="cif", **kwargs)

@@ -6,7 +6,7 @@ ci:
 
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.253
+    rev: v0.0.254
     hooks:
       - id: ruff
         args: [--fix, --ignore, 'D,SIM']
@@ -38,7 +38,7 @@ repos:
         additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: v0.12.4
+    rev: v0.12.5
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]

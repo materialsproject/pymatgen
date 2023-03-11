@@ -428,12 +428,8 @@ class BSPlotter:
             least one band crossing the fermi level).
         """
         if bs is None:
-            if isinstance(self._bs, list):
-                # if BSPlotter
-                bs = self._bs[0]
-            else:
-                # if BSPlotterProjected
-                bs = self._bs
+            # if: BSPlotter, else: BSPlotterProjected
+            bs = self._bs[0] if isinstance(self._bs, list) else self._bs
 
         energies = {str(sp): [] for sp in bs.bands}
 
@@ -635,11 +631,8 @@ class BSPlotter:
             for sp in bs.bands:
                 ls = "-" if str(sp) == "1" else "--"
 
-                if bs_labels is None:
-                    bs_label = f"Band {ibs} {sp.name}"
-                else:
-                    # assume bs_labels is Sequence[str]
-                    bs_label = f"{bs_labels[ibs]} {sp.name}"
+                # else case assumes bs_labels is Sequence[str]
+                bs_label = f"Band {ibs} {sp.name}" if bs_labels is None else f"{bs_labels[ibs]} {sp.name}"
 
                 handles.append(mlines.Line2D([], [], lw=2, ls=ls, color=colors[ibs], label=bs_label))
 
@@ -769,8 +762,7 @@ class BSPlotter:
         bs = self._bs[0] if isinstance(self._bs, list) else self._bs
         ticks, distance = [], []
         for br in bs.branches:
-            s, e = br["start_index"], br["end_index"]
-
+            start, end = br["start_index"], br["end_index"]
             labels = br["name"].split("-")
 
             # skip those branches with only one point
@@ -778,9 +770,9 @@ class BSPlotter:
                 continue
 
             # add latex $$
-            for i, l in enumerate(labels):
-                if l.startswith("\\") or "_" in l:
-                    labels[i] = "$" + l + "$"
+            for idx, label in enumerate(labels):
+                if label.startswith("\\") or "_" in label:
+                    labels[idx] = "$" + label + "$"
 
             # If next branch is not continuous,
             # join the first lbl to the previous tick label
@@ -790,10 +782,10 @@ class BSPlotter:
             if ticks and labels[0] != ticks[-1]:
                 ticks[-1] += "$\\mid$" + labels[0]
                 ticks.append(labels[1])
-                distance.append(bs.distance[e])
+                distance.append(bs.distance[end])
             else:
                 ticks.extend(labels)
-                distance.extend([bs.distance[s], bs.distance[e]])
+                distance.extend([bs.distance[start], bs.distance[end]])
 
         return {"distance": distance, "label": ticks}
 
@@ -937,12 +929,12 @@ class BSPlotterProjected(BSPlotter):
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
-                        str(Spin.up): [[] for l in range(self._nb_bands)],
-                        str(Spin.down): [[] for l in range(self._nb_bands)],
+                        str(Spin.up): [[] for _ in range(self._nb_bands)],
+                        str(Spin.down): [[] for _ in range(self._nb_bands)],
                     }
                 )
             else:
-                proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
+                proj_br.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
             for i in range(self._nb_bands):
                 for j in range(b["start_index"], b["end_index"] + 1):
@@ -1266,12 +1258,12 @@ class BSPlotterProjected(BSPlotter):
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
-                        str(Spin.up): [[] for l in range(self._nb_bands)],
-                        str(Spin.down): [[] for l in range(self._nb_bands)],
+                        str(Spin.up): [[] for _ in range(self._nb_bands)],
+                        str(Spin.down): [[] for _ in range(self._nb_bands)],
                     }
                 )
             else:
-                proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
+                proj_br.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
             for i in range(self._nb_bands):
                 for j in range(b["start_index"], b["end_index"] + 1):
@@ -1310,12 +1302,12 @@ class BSPlotterProjected(BSPlotter):
                 if self._bs.is_spin_polarized:
                     proj_br_d.append(
                         {
-                            str(Spin.up): [[] for l in range(self._nb_bands)],
-                            str(Spin.down): [[] for l in range(self._nb_bands)],
+                            str(Spin.up): [[] for _ in range(self._nb_bands)],
+                            str(Spin.down): [[] for _ in range(self._nb_bands)],
                         }
                     )
                 else:
-                    proj_br_d.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
+                    proj_br_d.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
                 if (sum_atoms is not None) and (sum_morbs is None):
                     for i in range(self._nb_bands):
@@ -1781,9 +1773,8 @@ class BSPlotterProjected(BSPlotter):
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
-                            if orb in individual_orbs:
-                                if len(set(sum_morbs[elt]).intersection(individual_orbs[orb])) != 0:
-                                    raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
+                            if orb in individual_orbs and len(set(sum_morbs[elt]) & individual_orbs[orb]) != 0:
+                                raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(f"You put in at least two similar orbitals in sum_morbs[{elt}].")
@@ -2031,18 +2022,18 @@ class BSPlotterProjected(BSPlotter):
                     divide[orb[0]] = []
                     divide[orb[0]].append(orb)
             label = ""
-            for elem, v in divide.items():
+            for elem, orbs in divide.items():
                 if elem == "s":
                     label += "s,"
                 else:
-                    if len(v) == len(individual_orbs[elem]):
+                    if len(orbs) == len(individual_orbs[elem]):
                         label += elem + ","
                     else:
-                        l = [o[1:] for o in v]
-                        label += elem + str(l).replace("['", "").replace("']", "").replace("', '", "-") + ","
+                        orb_label = [orb[1:] for orb in orbs]
+                        label += elem + str(orb_label).replace("['", "").replace("']", "").replace("', '", "-") + ","
             return label[:-1]
 
-        if (sum_atoms is None) and (sum_morbs is None):
+        if sum_atoms is None and sum_morbs is None:
             dictio_d = dictio
             dictpa_d = {elt: [str(anum) for anum in dictpa[elt]] for elt in dictpa}
 

@@ -45,12 +45,12 @@ TITLE sites: 4
         print(header)
 
         ref = self.header_string.splitlines()
-        last4 = [" ".join(l.split()[2:]) for l in ref[-4:]]
-        for i, l in enumerate(header.splitlines()):
-            if i < 9:
-                assert l == ref[i]
+        last4 = [" ".join(line.split()[2:]) for line in ref[-4:]]
+        for idx, line in enumerate(header.splitlines()):
+            if idx < 9:
+                assert line == ref[idx]
             else:
-                s = " ".join(l.split()[2:])
+                s = " ".join(line.split()[2:])
                 assert s in last4
 
     def test_getfefftags(self):

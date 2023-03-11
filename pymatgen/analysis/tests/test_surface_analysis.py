@@ -54,7 +54,7 @@ class SlabEntryTest(PymatgenTest):
 
     def test_properties(self):
         # Test cases for getting adsorption related quantities for a 1/4
-        # monolalyer adsorption of O on the low MMI surfaces of Pt, Ni and Rh
+        # monolayer adsorption of O on the low MMI surfaces of Pt, Ni and Rh
 
         for el, val in self.metals_O_entry_dict.items():
             el_ucell = ComputedStructureEntry.from_dict(self.ucell_entries[el])
@@ -71,11 +71,11 @@ class SlabEntryTest(PymatgenTest):
                         # Determine the correct binding energy
                         with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
                             isolated_O_entry = json.loads(isolated_O_entry.read())
-                        O = ComputedStructureEntry.from_dict(isolated_O_entry)
-                        gbind = (ads.energy - ml * clean.energy) / Nads - O.energy_per_atom
-                        assert gbind == ads.gibbs_binding_energy()
+                        O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
+                        g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
+                        assert g_bind == ads.gibbs_binding_energy()
                         # Determine the correction Gibbs adsorption energy
-                        eads = Nads * gbind
+                        eads = Nads * g_bind
                         assert eads == ads.gibbs_binding_energy(eads=True)
                         se = ads.surface_energy(el_ucell)
                         assert se.as_coefficients_dict()[Symbol("delu_O")] == approx(
@@ -403,7 +403,7 @@ def load_O_adsorption():
     # Load the adsorbate as an entry
     with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
         isolated_O_entry = json.loads(isolated_O_entry.read())
-    O = ComputedStructureEntry.from_dict(isolated_O_entry)
+    O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
     # entry_dict for the adsorption case, O adsorption on Ni, Rh and Pt
     metals_O_entry_dict = {
@@ -441,7 +441,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 1, 1),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
@@ -452,7 +452,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 1, 0),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
@@ -463,7 +463,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 0, 0),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]

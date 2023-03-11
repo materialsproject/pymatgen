@@ -409,7 +409,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         v2 = self[k].coords - self[j].coords
         return get_angle(v1, v2, units="degrees")
 
-    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:
+    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:  # noqa: E741
         """
         Returns dihedral angle specified by four sites.
 
@@ -1335,21 +1335,16 @@ class IStructure(SiteCollection, MSONable):
         points_indices = []
         offsets = []
         distances = []
-        for i, nns in enumerate(neighbors):
+        for idx, nns in enumerate(neighbors):
             if len(nns) > 0:
-                for n in nns:
-                    if exclude_self and (i == n.index) and (n.nn_distance <= numerical_tol):
+                for nn in nns:
+                    if exclude_self and idx == nn.index and nn.nn_distance <= numerical_tol:
                         continue
-                    center_indices.append(i)
-                    points_indices.append(n.index)
-                    offsets.append(n.image)
-                    distances.append(n.nn_distance)
-        return (
-            np.array(center_indices),
-            np.array(points_indices),
-            np.array(offsets),
-            np.array(distances),
-        )
+                    center_indices.append(idx)
+                    points_indices.append(nn.index)
+                    offsets.append(nn.image)
+                    distances.append(nn.nn_distance)
+        return tuple(map(np.array, (center_indices, points_indices, offsets, distances)))
 
     def get_neighbor_list(
         self,
@@ -1979,10 +1974,7 @@ class IStructure(SiteCollection, MSONable):
         if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
 
-        if not isinstance(nimages, collections.abc.Iterable):
-            images = np.arange(nimages + 1) / nimages
-        else:
-            images = nimages  # type: ignore
+        images = np.arange(nimages + 1) / nimages if not isinstance(nimages, collections.abc.Iterable) else nimages
 
         # Check that both structures have the same species
         for i, site in enumerate(self):
@@ -2090,8 +2082,8 @@ class IStructure(SiteCollection, MSONable):
         distance in the primitive cell, the algorithm will reject this lattice.
 
         Args:
-            tolerance (float), Angstroms: Tolerance for each coordinate of a
-                particular site. For example, [0.1, 0, 0.1] in cartesian
+            tolerance (float): Tolerance for each coordinate of a
+                particular site in Angstroms. For example, [0.1, 0, 0.1] in cartesian
                 coordinates will be considered to be on the same coordinates
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
@@ -2251,9 +2243,9 @@ class IStructure(SiteCollection, MSONable):
 
                 if valid:
                     inv_m = np.linalg.inv(m)
-                    new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
+                    new_latt = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(
-                        new_l,
+                        new_latt,
                         new_sp,
                         new_coords,
                         site_properties=new_props,
@@ -2275,9 +2267,10 @@ class IStructure(SiteCollection, MSONable):
                     if type(constrain_latt).__name__ == "list":
                         if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
                             return p
-                    elif type(constrain_latt).__name__ == "dict":
-                        if all(getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt):  # type: ignore
-                            return p
+                    elif type(constrain_latt).__name__ == "dict" and all(
+                        getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt
+                    ):
+                        return p
 
         return self.copy()
 

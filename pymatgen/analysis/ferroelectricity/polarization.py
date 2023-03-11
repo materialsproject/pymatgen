@@ -311,12 +311,9 @@ class Polarization:
             d = PolarizationLattice(lattice, ["C"], [np.array(frac_coord).ravel()])
             d_structs.append(d)
             site = d[0]
-            if i == 0:
-                # Adjust nonpolar polarization to be closest to zero.
-                # This is compatible with both a polarization of zero or a half quantum.
-                prev_site = [0, 0, 0]
-            else:
-                prev_site = sites[-1].coords
+            # Adjust nonpolar polarization to be closest to zero.
+            # This is compatible with both a polarization of zero or a half quantum.
+            prev_site = [0, 0, 0] if i == 0 else sites[-1].coords
             new_site = d.get_nearest_site(prev_site, site)
             sites.append(new_site[0])
 
@@ -354,7 +351,7 @@ class Polarization:
                 lattice = lattices[-1]
                 lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
-        quanta = np.array([np.array(l.lengths) for l in lattices])
+        quanta = np.array([np.array(latt.lengths) for latt in lattices])
 
         return quanta
 

@@ -214,7 +214,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 
     Returns:
         LammpsBox, SymmOp
-
     """
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
@@ -235,7 +234,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 class LammpsData(MSONable):
     """
     Object for representing the data in a LAMMPS data file.
-
     """
 
     def __init__(
@@ -657,7 +655,7 @@ class LammpsData(MSONable):
         with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
-        section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
+        section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
 
         float_group = r"([0-9eE.+-]+)"
@@ -669,10 +667,10 @@ class LammpsData(MSONable):
 
         header = {"counts": {}, "types": {}}
         bounds = {}
-        for l in clean_lines(parts[0][1:]):  # skip the 1st line
+        for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
             for k, v in header_pattern.items():  # noqa: B007
-                match = re.match(v, l)
+                match = re.match(v, line)
                 if match:
                     break
             if match and k in ["counts", "types"]:
@@ -862,6 +860,35 @@ class LammpsData(MSONable):
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
 
+    def set_charge_atom(self, charges: dict[int, float]):
+        """
+        Set the charges of specific atoms of the data.
+
+        Args:
+            charges: A dictionary with atom indexes as keys and
+                     charges as values, e.g., to set the charge
+                     of the atom with index 3 to -2, use `{3: -2}`.
+        """
+        for iat, q in charges.items():
+            self.atoms.loc[iat, "q"] = q
+
+    def set_charge_atom_type(self, charges: dict[str | int, float]):
+        """
+        Add or modify charges of all atoms of a given type in the data
+
+        Args:
+            charges: Dict containing the charges for the atom types to set.
+                     The dict should contain atom types as integers or labels and charges.
+                     Example: change the charge of Li atoms to +3:
+                         charges={"Li": 3}
+                         charges={1: 3} if Li atoms are of type 1
+        """
+        for iat, q in charges.items():
+            if isinstance(iat, str):
+                mass_iat = Element(iat).atomic_mass
+                iat = self.masses.loc[self.masses["mass"] == mass_iat].index.values[0]
+            self.atoms.loc[self.atoms["type"] == iat, "q"] = q
+
 
 class Topology(MSONable):
     """
@@ -974,10 +1001,10 @@ class Topology(MSONable):
                 angle_list.extend([[i, k, j] for i, j in itertools.combinations(v, 2)])
         if dihedral:
             hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-            for i, j in hub_cons.tolist():
-                ks = [k for k in hub_spokes[i] if k != j]
-                ls = [l for l in hub_spokes[j] if l != i]
-                dihedral_list.extend([[k, i, j, l] for k, l in itertools.product(ks, ls) if k != l])
+            for ii, jj in hub_cons.tolist():
+                ks = [ki for ki in hub_spokes[ii] if ki != jj]
+                ls = [li for li in hub_spokes[jj] if li != ii]
+                dihedral_list.extend([[ki, ii, jj, li] for ki, li in itertools.product(ks, ls) if ki != li])
 
         topologies = {
             k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0
@@ -994,7 +1021,6 @@ class ForceField(MSONable):
         force_field (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.
-
     """
 
     @staticmethod

@@ -348,7 +348,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         # add lattice centerings
         centered_ops = []
-        lattice_vectors = [l["vector"] for l in self._data["bns_lattice"]]
+        lattice_vectors = [latt["vector"] for latt in self._data["bns_lattice"]]
 
         for vec in lattice_vectors:
             if not (np.array_equal(vec, [1, 0, 0]) or np.array_equal(vec, [0, 1, 0]) or np.array_equal(vec, [0, 0, 1])):
@@ -539,7 +539,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                 break_on_hyphens=False,
             )
 
-            description += ("\n{d[og_operators]}\nWyckoff Positions (OG): {d[og_lattice]}\n" "{d[og_wyckoff]}").format(
+            description += "\n{d[og_operators]}\nWyckoff Positions (OG): {d[og_lattice]}\n{d[og_wyckoff]}".format(
                 d=desc
             )
         elif desc["magtype"] == 4:

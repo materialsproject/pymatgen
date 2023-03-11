@@ -22,10 +22,9 @@ def parse_libxc_docs(path):
 
     def parse_section(section):
         d = {}
-        for l in section:
-            key, value = l.split(":")
-            key = key.strip()
-            d[key] = value.strip()
+        for line in section:
+            key, value = line.split(":")
+            d[key.strip()] = value.strip()
 
         return int(d["Number"]), d
 

@@ -878,10 +878,8 @@ class StructureEnvironments(MSONable):
                 "distance_parameter": ("initial_normalized", None),
                 "angle_parameter": ("initial_normalized_inverted", None),
             }
-        if colormap is None:
-            mycm = cm.jet  # pylint: disable=E1101
-        else:
-            mycm = colormap
+
+        mycm = cm.jet if colormap is None else colormap
         mymin = 0.0
         mymax = 10.0
         norm = Normalize(vmin=mymin, vmax=mymax)
@@ -1822,13 +1820,14 @@ class LightStructureEnvironments(MSONable):
         csms = []
         fractions = []
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species]:
-                if self.valences == "undefined" or oxi_state == self.valences[isite]:
-                    for ce_dict in self.coordination_environments[isite]:
-                        if ce_symbol == ce_dict["ce_symbol"]:
-                            isites.append(isite)
-                            csms.append(ce_dict["csm"])
-                            fractions.append(ce_dict["ce_fraction"])
+            if element in [sp.symbol for sp in site.species] and (
+                self.valences == "undefined" or oxi_state == self.valences[isite]
+            ):
+                for ce_dict in self.coordination_environments[isite]:
+                    if ce_symbol == ce_dict["ce_symbol"]:
+                        isites.append(isite)
+                        csms.append(ce_dict["csm"])
+                        fractions.append(ce_dict["ce_fraction"])
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0):
@@ -1846,22 +1845,25 @@ class LightStructureEnvironments(MSONable):
         element = specie.symbol
         oxi_state = specie.oxi_state
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species]:
-                if self.valences == "undefined" or oxi_state == self.valences[isite]:
-                    if self.coordination_environments[isite] is None:
+            if (
+                element in [sp.symbol for sp in site.species]
+                and self.valences == "undefined"
+                or oxi_state == self.valences[isite]
+            ):
+                if self.coordination_environments[isite] is None:
+                    continue
+                for ce_dict in self.coordination_environments[isite]:
+                    if ce_dict["ce_fraction"] < min_fraction:
                         continue
-                    for ce_dict in self.coordination_environments[isite]:
-                        if ce_dict["ce_fraction"] < min_fraction:
-                            continue
-                        if ce_dict["ce_symbol"] not in allces:
-                            allces[ce_dict["ce_symbol"]] = {
-                                "isites": [],
-                                "fractions": [],
-                                "csms": [],
-                            }
-                        allces[ce_dict["ce_symbol"]]["isites"].append(isite)
-                        allces[ce_dict["ce_symbol"]]["fractions"].append(ce_dict["ce_fraction"])
-                        allces[ce_dict["ce_symbol"]]["csms"].append(ce_dict["csm"])
+                    if ce_dict["ce_symbol"] not in allces:
+                        allces[ce_dict["ce_symbol"]] = {
+                            "isites": [],
+                            "fractions": [],
+                            "csms": [],
+                        }
+                    allces[ce_dict["ce_symbol"]]["isites"].append(isite)
+                    allces[ce_dict["ce_symbol"]]["fractions"].append(ce_dict["ce_fraction"])
+                    allces[ce_dict["ce_symbol"]]["csms"].append(ce_dict["csm"])
         return allces
 
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):

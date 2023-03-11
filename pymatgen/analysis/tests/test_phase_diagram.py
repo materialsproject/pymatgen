@@ -262,10 +262,10 @@ class PhaseDiagramTest(unittest.TestCase):
                 decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
                 assert e_hull < 1e-11, "Stable entries should have e_above_hull of zero!"
                 assert decomp[entry] == 1, "Decomposition of stable entry should be itself."
-            else:
-                e_ah = self.pd.get_e_above_hull(entry)
-                assert isinstance(e_ah, Number)
-                assert e_ah >= 0
+
+            e_ah = self.pd.get_e_above_hull(entry)
+            assert isinstance(e_ah, Number)
+            assert e_ah >= 0
 
     def test_get_decomp_and_e_above_hull_on_error(self):
         for method, expected in (

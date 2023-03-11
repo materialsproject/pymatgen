@@ -254,10 +254,10 @@ class LatticeTestCase(PymatgenTest):
         reduced_cell = latt.get_niggli_reduced_lattice()
         abc = reduced_cell.lengths
         angles = reduced_cell.angles
-        for l in abc:
-            assert round(abs(l - 5), 3) == 0
-        for a in angles:
-            assert round(abs(a - 90), 3) == 0
+        for length in abc:
+            assert round(abs(length - 5), 3) == 0
+        for angle in angles:
+            assert round(abs(angle - 90), 3) == 0
 
         latt = Lattice(
             [
@@ -311,7 +311,7 @@ class LatticeTestCase(PymatgenTest):
 
     def test_find_all_mappings(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
-        latt = Lattice(m)
+        lattice = Lattice(m)
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, -1, 3], 40)
         rot = op.rotation_matrix
@@ -319,28 +319,28 @@ class LatticeTestCase(PymatgenTest):
 
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
 
-        for aligned_out, rot_out, scale_out in latt.find_all_mappings(latt2):
+        for aligned_out, rot_out, scale_out in lattice.find_all_mappings(latt2):
             self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out), aligned_out.matrix, 5)
-            self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix), aligned_out.matrix)
+            self.assertArrayAlmostEqual(np.dot(scale_out, lattice.matrix), aligned_out.matrix)
             self.assertArrayAlmostEqual(aligned_out.parameters, latt2.parameters)
-            assert not np.allclose(aligned_out.parameters, latt.parameters)
+            assert not np.allclose(aligned_out.parameters, lattice.parameters)
 
-        latt = Lattice.orthorhombic(9, 9, 5)
-        assert len(list(latt.find_all_mappings(latt))) == 16
+        lattice = Lattice.orthorhombic(9, 9, 5)
+        assert len(list(lattice.find_all_mappings(lattice))) == 16
 
         # catch the singular matrix error
-        latt = Lattice.from_parameters(1, 1, 1, 10, 10, 10)
-        for l, _, _ in latt.find_all_mappings(latt, ltol=0.05, atol=11):
-            assert isinstance(l, Lattice)
+        lattice = Lattice.from_parameters(1, 1, 1, 10, 10, 10)
+        for latt, _, _ in lattice.find_all_mappings(lattice, ltol=0.05, atol=11):
+            assert isinstance(latt, Lattice)
 
     def test_mapping_symmetry(self):
-        l = Lattice.cubic(1)
+        latt = Lattice.cubic(1)
         l2 = Lattice.orthorhombic(1.1001, 1, 1)
-        assert l.find_mapping(l2, ltol=0.1) is None
-        assert l2.find_mapping(l, ltol=0.1) is None
+        assert latt.find_mapping(l2, ltol=0.1) is None
+        assert l2.find_mapping(latt, ltol=0.1) is None
         l2 = Lattice.orthorhombic(1.0999, 1, 1)
-        assert l2.find_mapping(l, ltol=0.1) is not None
-        assert l.find_mapping(l2, ltol=0.1) is not None
+        assert l2.find_mapping(latt, ltol=0.1) is not None
+        assert latt.find_mapping(l2, ltol=0.1) is not None
 
     def test_to_from_dict(self):
         d = self.tetragonal.as_dict()
@@ -366,8 +366,8 @@ class LatticeTestCase(PymatgenTest):
     def test_get_wigner_seitz_cell(self):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]).get_wigner_seitz_cell()
         assert len(ws_cell) == 6
-        for l in ws_cell[3]:
-            assert [abs(i) for i in l] == [5.0, 2.5, 0.5]
+        for vec in ws_cell[3]:
+            assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
 
     def test_dot_and_norm(self):
         frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]

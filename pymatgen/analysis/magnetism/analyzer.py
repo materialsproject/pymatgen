@@ -585,12 +585,12 @@ class CollinearMagneticStructureAnalyzer:
         """
         frac_coords = self.structure.frac_coords
         sorted_indices = np.lexsort((frac_coords[:, 2], frac_coords[:, 1], frac_coords[:, 0]))
-        s = Structure.from_sites([self.structure[idx] for idx in sorted_indices])
+        struct = Structure.from_sites([self.structure[idx] for idx in sorted_indices])
 
         # adapted from Structure.__repr__
-        outs = ["Structure Summary", repr(s.lattice)]
+        outs = ["Structure Summary", repr(struct.lattice)]
         outs.append("Magmoms Sites")
-        for site in s:
+        for site in struct:
             prefix = f"{site.properties['magmom']:+.2f}   " if site.properties["magmom"] != 0 else "        "
             outs.append(prefix + repr(site))
         return "\n".join(outs)
@@ -996,9 +996,12 @@ class MagneticStructureEnumerator:
             if idx not in structures_to_remove:
                 duplicate_checker = CollinearMagneticStructureAnalyzer(ordered_structure, overwrite_magmom_mode="none")
                 for check_idx, check_structure in enumerate(ordered_structures):
-                    if check_idx not in structures_to_remove and check_idx != idx:
-                        if duplicate_checker.matches_ordering(check_structure):
-                            structures_to_remove.append(check_idx)
+                    if (
+                        check_idx not in structures_to_remove
+                        and check_idx != idx
+                        and duplicate_checker.matches_ordering(check_structure)
+                    ):
+                        structures_to_remove.append(check_idx)
 
         if len(structures_to_remove) == 0:
             self.logger.info(f"Removing {len(structures_to_remove)} duplicate ordered structures")

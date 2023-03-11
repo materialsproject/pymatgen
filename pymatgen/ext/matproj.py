@@ -562,7 +562,7 @@ class _MPResterLegacy:
         entries: list[ComputedEntry] = []
         for d in data:
             d["potcar_symbols"] = [
-                f"{d['pseudo_potential']['functional']} {l}" for l in d["pseudo_potential"]["labels"]
+                f"{d['pseudo_potential']['functional']} {label}" for label in d["pseudo_potential"]["labels"]
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:

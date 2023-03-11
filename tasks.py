@@ -100,14 +100,14 @@ def make_dash(ctx):
     ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.svg -u https://pymatgen.org/")
     plist = "pymatgen.docset/Contents/Info.plist"
     xml = []
-    with open(plist) as f:
-        for l in f:
-            xml.append(l.strip())
-            if l.strip() == "<dict>":
+    with open(plist) as file:
+        for line in file:
+            xml.append(line.strip())
+            if line.strip() == "<dict>":
                 xml.append("<key>dashIndexFilePath</key>")
                 xml.append("<string>index.html</string>")
-    with open(plist, "w") as f:
-        f.write("\n".join(xml))
+    with open(plist, "w") as file:
+        file.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
     # xml = []
     # with open("docs/pymatgen.xml") as f:
@@ -309,7 +309,7 @@ def release(ctx, version=None, nodoc=False):
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
-        ctx.run('git commit -a -m "Update docs"')
+        ctx.run('git commit --no-verify -a -m "Update docs"')
         ctx.run("git push")
     release_github(ctx, version)
 

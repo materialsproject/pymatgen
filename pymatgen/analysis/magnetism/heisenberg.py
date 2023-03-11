@@ -118,10 +118,7 @@ class HeisenbergMapper:
             sgraphs (list): StructureGraph objects.
         """
         # Strategy for finding neighbors
-        if cutoff:
-            strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True)
-        else:
-            strategy = MinimumDistanceNN()  # only NN
+        strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
 
         # Generate structure graphs
         sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]

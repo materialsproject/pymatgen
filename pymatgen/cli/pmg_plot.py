@@ -86,9 +86,9 @@ def get_xrd_plot(args):
     Args:
         args (dict): Args from argparse
     """
-    s = Structure.from_file(args.xrd_structure_file)
+    struct = Structure.from_file(args.xrd_structure_file)
     c = XRDCalculator()
-    return c.get_plot(s)
+    return c.get_plot(struct)
 
 
 def plot(args):

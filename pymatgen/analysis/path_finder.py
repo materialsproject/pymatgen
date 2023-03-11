@@ -223,11 +223,8 @@ class NEBPathfinder:
 
         # Evolve string
         for step in range(0, max_iter):
-            if step > min_iter:
-                # Gradually decay step size to prevent oscillations
-                h = h0 * np.exp(-2.0 * (step - min_iter) / max_iter)
-            else:
-                h = h0
+            # Gradually decay step size to prevent oscillations
+            h = h0 * np.exp(-2.0 * (step - min_iter) / max_iter) if step > min_iter else h0
             # Calculate forces acting on string
             d = V.shape
             s0 = s.copy()  # store copy for endpoint fixing below (fixes GH 2732)
