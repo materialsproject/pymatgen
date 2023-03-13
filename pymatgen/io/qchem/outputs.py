@@ -1371,7 +1371,11 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = []
             if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["back_transform_error"]
-            elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True,).get(
+            elif read_pattern(
+                self.text,
+                {"key": r"pinv\(\)\: svd failed"},
+                terminate_on_match=True,
+            ).get(
                 "key"
             ) == [[]]:
                 self.data["errors"] += ["svd_failed"]

@@ -46,7 +46,7 @@ def _load_pmg_settings() -> dict[str, Any]:
     yaml = YAML()
     for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
         try:
-            with open(file_path, "rt", encoding="utf-8") as yml_file:
+            with open(file_path, encoding="utf-8") as yml_file:
                 settings = yaml.load(yml_file) or {}
             break
         except FileNotFoundError:
