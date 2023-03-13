@@ -448,6 +448,7 @@ class Ncicobilist:
         """
 
         if filename is None:
+            warnings.warn("Please consider using the newest LOBSTER version (4.1.0+). See http://www.cohp.de/.")
             filename = "NcICOBILIST.lobster"
 
         # LOBSTER list files have an extra trailing blank line
@@ -456,15 +457,6 @@ class Ncicobilist:
             data = f.read().split("\n")[1:-1]
         if len(data) == 0:
             raise OSError("NcICOBILIST file contains no data.")
-
-        # # Which LOBSTER version?
-        # if len(data[0].split()) == 8:
-        #     version = "3.1.1"
-        # elif len(data[0].split()) == 6:
-        #     version = "2.2.1"
-        #     warnings.warn("Please consider using the new LOBSTER version. See www.cohp.de.")
-        # else:
-        #     raise ValueError
 
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
