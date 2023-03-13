@@ -409,7 +409,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         v2 = self[k].coords - self[j].coords
         return get_angle(v1, v2, units="degrees")
 
-    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:
+    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:  # noqa: E741
         """
         Returns dihedral angle specified by four sites.
 
@@ -1335,21 +1335,16 @@ class IStructure(SiteCollection, MSONable):
         points_indices = []
         offsets = []
         distances = []
-        for i, nns in enumerate(neighbors):
+        for idx, nns in enumerate(neighbors):
             if len(nns) > 0:
-                for n in nns:
-                    if exclude_self and (i == n.index) and (n.nn_distance <= numerical_tol):
+                for nn in nns:
+                    if exclude_self and idx == nn.index and nn.nn_distance <= numerical_tol:
                         continue
-                    center_indices.append(i)
-                    points_indices.append(n.index)
-                    offsets.append(n.image)
-                    distances.append(n.nn_distance)
-        return (
-            np.array(center_indices),
-            np.array(points_indices),
-            np.array(offsets),
-            np.array(distances),
-        )
+                    center_indices.append(idx)
+                    points_indices.append(nn.index)
+                    offsets.append(nn.image)
+                    distances.append(nn.nn_distance)
+        return tuple(map(np.array, (center_indices, points_indices, offsets, distances)))
 
     def get_neighbor_list(
         self,
@@ -2248,9 +2243,9 @@ class IStructure(SiteCollection, MSONable):
 
                 if valid:
                     inv_m = np.linalg.inv(m)
-                    new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
+                    new_latt = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(
-                        new_l,
+                        new_latt,
                         new_sp,
                         new_coords,
                         site_properties=new_props,

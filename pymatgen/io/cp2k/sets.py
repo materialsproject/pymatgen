@@ -548,15 +548,15 @@ class DftSet(Cp2kInput):
     @staticmethod
     def get_cutoff_from_basis(basis_sets, rel_cutoff) -> int | float:
         """Given a basis and a relative cutoff. Determine the ideal cutoff variable"""
-        for b in basis_sets:
-            if not b.exponents:
-                raise ValueError(f"Basis set {b} contains missing exponent info. Please specify cutoff manually")
+        for basis in basis_sets:
+            if not basis.exponents:
+                raise ValueError(f"Basis set {basis} contains missing exponent info. Please specify cutoff manually")
 
         def get_soft_exponents(b):
             if b.potential == "All Electron":
                 radius = 1.2 if b.element == Element("H") else 1.512  # Hard radius defaults for gapw
                 threshold = 1e-4  # Default for gapw
-                max_lshell = max(l for l in b.lmax)
+                max_lshell = max(shell for shell in b.lmax)
                 exponent = np.log(radius**max_lshell / threshold) / radius**2
                 return [[exponent]]
             else:
@@ -575,7 +575,10 @@ class DftSet(Cp2kInput):
         """
         names = xc_functionals if xc_functionals else SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
         if not names:
-            raise ValueError("No XC functional provided. Specify kwarg xc_functional or configure your pmgrc.yaml file")
+            raise ValueError(
+                "No XC functional provided. Specify kwarg xc_functional or configure PMG_DEFAULT_FUNCTIONAL "
+                "in your .pmgrc.yaml file"
+            )
         if isinstance(names, str):
             names = [names]
         names = [n.upper() for n in names]

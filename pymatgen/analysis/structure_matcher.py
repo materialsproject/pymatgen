@@ -449,9 +449,9 @@ class StructureMatcher(MSONable):
             atol=self.angle_tol,
             skip_rotation_matrix=True,
         )
-        for l, _, scale_m in lattices:
+        for latt, _, scale_m in lattices:
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
-                yield l, scale_m
+                yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
         """
@@ -471,18 +471,18 @@ class StructureMatcher(MSONable):
             s2_fc = np.array(s2.frac_coords)
             if fu == 1:
                 cc = np.array(s1.cart_coords)
-                for l, sc_m in self._get_lattices(s2.lattice, s1, fu):
-                    fc = l.get_fractional_coords(cc)
+                for latt, sc_m in self._get_lattices(s2.lattice, s1, fu):
+                    fc = latt.get_fractional_coords(cc)
                     fc -= np.floor(fc)
-                    yield fc, s2_fc, av_lat(l, s2.lattice), sc_m
+                    yield fc, s2_fc, av_lat(latt, s2.lattice), sc_m
             else:
                 fc_init = np.array(s1.frac_coords)
-                for l, sc_m in self._get_lattices(s2.lattice, s1, fu):
+                for latt, sc_m in self._get_lattices(s2.lattice, s1, fu):
                     fc = np.dot(fc_init, np.linalg.inv(sc_m))
                     lp = lattice_points_in_supercell(sc_m)
                     fc = (fc[:, None, :] + lp[None, :, :]).reshape((-1, 3))
                     fc -= np.floor(fc)
-                    yield fc, s2_fc, av_lat(l, s2.lattice), sc_m
+                    yield fc, s2_fc, av_lat(latt, s2.lattice), sc_m
 
         if s1_supercell:
             for x in sc_generator(struct1, struct2):

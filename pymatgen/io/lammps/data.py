@@ -214,7 +214,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 
     Returns:
         LammpsBox, SymmOp
-
     """
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
@@ -235,7 +234,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 class LammpsData(MSONable):
     """
     Object for representing the data in a LAMMPS data file.
-
     """
 
     def __init__(
@@ -669,10 +667,10 @@ class LammpsData(MSONable):
 
         header = {"counts": {}, "types": {}}
         bounds = {}
-        for l in clean_lines(parts[0][1:]):  # skip the 1st line
+        for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
             for k, v in header_pattern.items():  # noqa: B007
-                match = re.match(v, l)
+                match = re.match(v, line)
                 if match:
                     break
             if match and k in ["counts", "types"]:
@@ -862,6 +860,35 @@ class LammpsData(MSONable):
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
 
+    def set_charge_atom(self, charges: dict[int, float]):
+        """
+        Set the charges of specific atoms of the data.
+
+        Args:
+            charges: A dictionary with atom indexes as keys and
+                     charges as values, e.g., to set the charge
+                     of the atom with index 3 to -2, use `{3: -2}`.
+        """
+        for iat, q in charges.items():
+            self.atoms.loc[iat, "q"] = q
+
+    def set_charge_atom_type(self, charges: dict[str | int, float]):
+        """
+        Add or modify charges of all atoms of a given type in the data
+
+        Args:
+            charges: Dict containing the charges for the atom types to set.
+                     The dict should contain atom types as integers or labels and charges.
+                     Example: change the charge of Li atoms to +3:
+                         charges={"Li": 3}
+                         charges={1: 3} if Li atoms are of type 1
+        """
+        for iat, q in charges.items():
+            if isinstance(iat, str):
+                mass_iat = Element(iat).atomic_mass
+                iat = self.masses.loc[self.masses["mass"] == mass_iat].index.values[0]
+            self.atoms.loc[self.atoms["type"] == iat, "q"] = q
+
 
 class Topology(MSONable):
     """
@@ -994,7 +1021,6 @@ class ForceField(MSONable):
         force_field (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.
-
     """
 
     @staticmethod

@@ -585,12 +585,12 @@ class CollinearMagneticStructureAnalyzer:
         """
         frac_coords = self.structure.frac_coords
         sorted_indices = np.lexsort((frac_coords[:, 2], frac_coords[:, 1], frac_coords[:, 0]))
-        s = Structure.from_sites([self.structure[idx] for idx in sorted_indices])
+        struct = Structure.from_sites([self.structure[idx] for idx in sorted_indices])
 
         # adapted from Structure.__repr__
-        outs = ["Structure Summary", repr(s.lattice)]
+        outs = ["Structure Summary", repr(struct.lattice)]
         outs.append("Magmoms Sites")
-        for site in s:
+        for site in struct:
             prefix = f"{site.properties['magmom']:+.2f}   " if site.properties["magmom"] != 0 else "        "
             outs.append(prefix + repr(site))
         return "\n".join(outs)

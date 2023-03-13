@@ -305,12 +305,12 @@ class GrainBoundary(Structure):
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        s = Structure.from_sites(sites)
+        struct = Structure.from_sites(sites)
 
         return GrainBoundary(
             lattice=lattice,
-            species=s.species_and_occu,
-            coords=s.frac_coords,
+            species=struct.species_and_occu,
+            coords=struct.frac_coords,
             rotation_axis=d["rotation_axis"],
             rotation_angle=d["rotation_angle"],
             gb_plane=d["gb_plane"],
@@ -319,7 +319,7 @@ class GrainBoundary(Structure):
             vacuum_thickness=d["vacuum_thickness"],
             ab_shift=d["ab_shift"],
             oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
-            site_properties=s.site_properties,
+            site_properties=struct.site_properties,
         )
 
 
@@ -1239,24 +1239,24 @@ class GrainBoundaryGenerator:
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
         eye = np.eye(3, dtype=int)
-        for h in range(3):
-            if abs(r_axis[h]) != 0:
-                eye[h] = np.array(r_axis)
-                k = h + 1 if h + 1 < 3 else abs(2 - h)
-                l = h + 2 if h + 2 < 3 else abs(1 - h)
+        for hh in range(3):
+            if abs(r_axis[hh]) != 0:
+                eye[hh] = np.array(r_axis)
+                kk = hh + 1 if hh + 1 < 3 else abs(2 - hh)
+                ll = hh + 2 if hh + 2 < 3 else abs(1 - hh)
                 break
         trans = eye.T
         new_rot = np.array(r_matrix)
 
         # with the rotation matrix to construct the CSL lattice, check reference for details
-        fractions = [Fraction(x).limit_denominator() for x in new_rot[:, k]]
+        fractions = [Fraction(x).limit_denominator() for x in new_rot[:, kk]]
         least_mul = reduce(lcm, [f.denominator for f in fractions])
         scale = np.zeros((3, 3))
-        scale[h, h] = 1
-        scale[k, k] = least_mul
-        scale[l, l] = sigma / least_mul
+        scale[hh, hh] = 1
+        scale[kk, kk] = least_mul
+        scale[ll, ll] = sigma / least_mul
         for i in range(least_mul):
-            check_int = i * new_rot[:, k] + (sigma / least_mul) * new_rot[:, l]
+            check_int = i * new_rot[:, kk] + (sigma / least_mul) * new_rot[:, ll]
             if all(np.round(x, 5).is_integer() for x in list(check_int)):
                 n_final = i
                 break
@@ -1264,11 +1264,11 @@ class GrainBoundaryGenerator:
             n_final
         except NameError:
             raise RuntimeError("Something is wrong. Check if this GB exists or not")
-        scale[k, l] = n_final
+        scale[kk, ll] = n_final
         # each row of mat_csl is the CSL lattice vector
         csl_init = np.rint(np.dot(np.dot(r_matrix, trans), scale)).astype(int).T
-        if abs(r_axis[h]) > 1:
-            csl_init = GrainBoundaryGenerator.reduce_mat(np.array(csl_init), r_axis[h], r_matrix)
+        if abs(r_axis[hh]) > 1:
+            csl_init = GrainBoundaryGenerator.reduce_mat(np.array(csl_init), r_axis[hh], r_matrix)
         csl = np.rint(Lattice(csl_init).get_niggli_reduced_lattice().matrix).astype(int)
 
         # find the best slab supercell in terms of the conventional cell from the csl lattice,
@@ -2047,20 +2047,20 @@ class GrainBoundaryGenerator:
         if quick_gen:
             scale_factor = []
             eye = np.eye(3, dtype=int)
-            for i, j in enumerate(miller):
-                if j == 0:
-                    scale_factor.append(eye[i])
+            for ii, jj in enumerate(miller):
+                if jj == 0:
+                    scale_factor.append(eye[ii])
                 else:
-                    miller_nonzero.append(i)
+                    miller_nonzero.append(ii)
             if len(scale_factor) < 2:
                 index_len = len(miller_nonzero)
-                for i in range(index_len):
-                    for j in range(i + 1, index_len):
-                        lcm_miller = lcm(miller[miller_nonzero[i]], miller[miller_nonzero[j]])
-                        l = [0, 0, 0]
-                        l[miller_nonzero[i]] = -int(round(lcm_miller / miller[miller_nonzero[i]]))
-                        l[miller_nonzero[j]] = int(round(lcm_miller / miller[miller_nonzero[j]]))
-                        scale_factor.append(l)
+                for ii in range(index_len):
+                    for jj in range(ii + 1, index_len):
+                        lcm_miller = lcm(miller[miller_nonzero[ii]], miller[miller_nonzero[jj]])
+                        scl_factor = [0, 0, 0]
+                        scl_factor[miller_nonzero[ii]] = -int(round(lcm_miller / miller[miller_nonzero[ii]]))
+                        scl_factor[miller_nonzero[jj]] = int(round(lcm_miller / miller[miller_nonzero[jj]]))
+                        scale_factor.append(scl_factor)
                         if len(scale_factor) == 2:
                             break
             t_matrix[0] = np.array(np.dot(scale_factor[0], csl))
@@ -2070,22 +2070,22 @@ class GrainBoundaryGenerator:
                 warnings.warn("Too large matrix. Suggest to use quick_gen=False")
             return t_matrix
 
-        for i, j in enumerate(miller):
-            if j == 0:
-                ab_vector.append(csl[i])
+        for ii, jj in enumerate(miller):
+            if jj == 0:
+                ab_vector.append(csl[ii])
             else:
-                c_index = i
-                miller_nonzero.append(j)
+                c_index = ii
+                miller_nonzero.append(jj)
 
         if len(miller_nonzero) > 1:
             t_matrix[2] = csl[c_index]
             index_len = len(miller_nonzero)
             lcm_miller = []
-            for i in range(index_len):
-                for j in range(i + 1, index_len):
-                    com_gcd = gcd(miller_nonzero[i], miller_nonzero[j])
-                    mil1 = int(round(miller_nonzero[i] / com_gcd))
-                    mil2 = int(round(miller_nonzero[j] / com_gcd))
+            for ii in range(index_len):
+                for jj in range(ii + 1, index_len):
+                    com_gcd = gcd(miller_nonzero[ii], miller_nonzero[jj])
+                    mil1 = int(round(miller_nonzero[ii] / com_gcd))
+                    mil2 = int(round(miller_nonzero[jj] / com_gcd))
                     lcm_miller.append(max(abs(mil1), abs(mil2)))
             lcm_sorted = sorted(lcm_miller)
             max_j = lcm_sorted[0] if index_len == 2 else lcm_sorted[1]
@@ -2108,23 +2108,23 @@ class GrainBoundaryGenerator:
             c_cross = np.cross(np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans))
             normal_init = np.linalg.norm(c_cross) < 1e-8
 
-        j = np.arange(0, max_j + 1)
+        jj = np.arange(0, max_j + 1)
         combination = []
-        for i in itertools.product(j, repeat=3):
-            if sum(abs(np.array(i))) != 0:
-                combination.append(list(i))
-            if len(np.nonzero(i)[0]) == 3:
+        for ii in itertools.product(jj, repeat=3):
+            if sum(abs(np.array(ii))) != 0:
+                combination.append(list(ii))
+            if len(np.nonzero(ii)[0]) == 3:
                 for i1 in range(3):
-                    new_i = list(i).copy()
+                    new_i = list(ii).copy()
                     new_i[i1] = -1 * new_i[i1]
                     combination.append(new_i)
-            elif len(np.nonzero(i)[0]) == 2:
-                new_i = list(i).copy()
-                new_i[np.nonzero(i)[0][0]] = -1 * new_i[np.nonzero(i)[0][0]]
+            elif len(np.nonzero(ii)[0]) == 2:
+                new_i = list(ii).copy()
+                new_i[np.nonzero(ii)[0][0]] = -1 * new_i[np.nonzero(ii)[0][0]]
                 combination.append(new_i)
-        for i in combination:
-            if reduce(gcd, i) == 1:
-                temp = np.dot(np.array(i), csl)
+        for ii in combination:
+            if reduce(gcd, ii) == 1:
+                temp = np.dot(np.array(ii), csl)
                 if abs(np.dot(temp, surface) - 0) < 1.0e-8:
                     ab_vector.append(temp)
                 else:
@@ -2157,23 +2157,23 @@ class GrainBoundaryGenerator:
                     break
                 max_j = 3 * max_j
                 max_j = min(max_j, max_search)
-                j = np.arange(0, max_j + 1)
+                jj = np.arange(0, max_j + 1)
                 combination = []
-                for i in itertools.product(j, repeat=3):
-                    if sum(abs(np.array(i))) != 0:
-                        combination.append(list(i))
-                    if len(np.nonzero(i)[0]) == 3:
+                for ii in itertools.product(jj, repeat=3):
+                    if sum(abs(np.array(ii))) != 0:
+                        combination.append(list(ii))
+                    if len(np.nonzero(ii)[0]) == 3:
                         for i1 in range(3):
-                            new_i = list(i).copy()
+                            new_i = list(ii).copy()
                             new_i[i1] = -1 * new_i[i1]
                             combination.append(new_i)
-                    elif len(np.nonzero(i)[0]) == 2:
-                        new_i = list(i).copy()
-                        new_i[np.nonzero(i)[0][0]] = -1 * new_i[np.nonzero(i)[0][0]]
+                    elif len(np.nonzero(ii)[0]) == 2:
+                        new_i = list(ii).copy()
+                        new_i[np.nonzero(ii)[0][0]] = -1 * new_i[np.nonzero(ii)[0][0]]
                         combination.append(new_i)
-                for i in combination:
-                    if reduce(gcd, i) == 1:
-                        temp = np.dot(np.array(i), csl)
+                for ii in combination:
+                    if reduce(gcd, ii) == 1:
+                        temp = np.dot(np.array(ii), csl)
                         if abs(np.dot(temp, surface) - 0) > 1.0e-8:
                             c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
                             if np.linalg.norm(c_cross) < 1.0e-8:
@@ -2191,18 +2191,18 @@ class GrainBoundaryGenerator:
                     logger.info("Found perpendicular c vector")
 
         # find the best a, b vectors with their formed area smallest and average norm of a,b smallest.
-        for i in itertools.combinations(ab_vector, 2):
-            area_temp = np.linalg.norm(np.cross(np.matmul(i[0], trans), np.matmul(i[1], trans)))
+        for ii in itertools.combinations(ab_vector, 2):
+            area_temp = np.linalg.norm(np.cross(np.matmul(ii[0], trans), np.matmul(ii[1], trans)))
             if abs(area_temp - 0) > 1.0e-8:
-                ab_norm_temp = np.linalg.norm(np.matmul(i[0], trans)) + np.linalg.norm(np.matmul(i[1], trans))
+                ab_norm_temp = np.linalg.norm(np.matmul(ii[0], trans)) + np.linalg.norm(np.matmul(ii[1], trans))
                 if area is None:
                     area = area_temp
                     ab_norm = ab_norm_temp
-                    t_matrix[0] = i[0]
-                    t_matrix[1] = i[1]
+                    t_matrix[0] = ii[0]
+                    t_matrix[1] = ii[1]
                 elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):
-                    t_matrix[0] = i[0]
-                    t_matrix[1] = i[1]
+                    t_matrix[0] = ii[0]
+                    t_matrix[1] = ii[1]
                     area = area_temp
                     ab_norm = ab_norm_temp
 
@@ -2231,11 +2231,11 @@ class GrainBoundaryGenerator:
         max_j = abs(int(round(np.linalg.det(mat) / mag)))
         reduced = False
         for h in range(3):
-            k = h + 1 if h + 1 < 3 else abs(2 - h)
-            l = h + 2 if h + 2 < 3 else abs(1 - h)
-            j = np.arange(-max_j, max_j + 1)
-            for j1, j2 in itertools.product(j, repeat=2):
-                temp = mat[h] + j1 * mat[k] + j2 * mat[l]
+            kk = h + 1 if h + 1 < 3 else abs(2 - h)
+            ll = h + 2 if h + 2 < 3 else abs(1 - h)
+            jj = np.arange(-max_j, max_j + 1)
+            for j1, j2 in itertools.product(jj, repeat=2):
+                temp = mat[h] + j1 * mat[kk] + j2 * mat[ll]
                 if all(np.round(x, 5).is_integer() for x in list(temp / mag)):
                     mat_copy = mat.copy()
                     mat_copy[h] = np.array([int(round(ele / mag)) for ele in temp])

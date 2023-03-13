@@ -119,10 +119,10 @@ class ZeoCssr(Cssr):
         sp = []
         coords = []
         chrg = []
-        for l in lines[4:]:
+        for line in lines[4:]:
             m = re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
-                l.strip(),
+                line.strip(),
             )
             if m:
                 sp.append(m.group(1))

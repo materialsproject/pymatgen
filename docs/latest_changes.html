@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2023.2.28 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.3.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,9 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.2.28
+                2023.3.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -72,8 +72,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">Change log</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Change log</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/latest_changes.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -83,21 +83,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="change-log">
-<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline"></a></h1>
-<div class="section" id="v2023-2-22">
-<h2>v2023.2.22<a class="headerlink" href="#v2023-2-22" title="Permalink to this headline"></a></h2>
+  <section id="change-log">
+<h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2023-3-10">
+<h2>v2023.3.10<a class="headerlink" href="#v2023-3-10" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><dl class="simple">
-<dt>PR #2848 from &#64;ml-evs ml-evs/update_optimade_aliases</dt><dd><p>Currently <cite>OptimadeRester</cite> defaults to an outdated list of OPTIMADE database URLs (several of which fail) and the design of the class is such that refreshing these aliases can only be done post-init which means they will not be used if the user provides their own filtered list of aliases, without doing some extra work.
-This PR refreshes the vendored list of aliases (which should be much more stable now since their initial addition 2 years ago), and also adds the option to refresh the aliases on initialization of the class.
-This currently affects the pymatgen OPTIMADE tutorials at <a class="reference external" href="https://github.com/Materials-Consortia/optimade-tutorial-exercises">https://github.com/Materials-Consortia/optimade-tutorial-exercises</a>.</p>
-</dd>
-</dl>
-</li>
+<li><p>PR #2882 substrate-optimizations for speed up (&#64;mkhorton)</p></li>
+<li><p>Fix very fragile POTCAR parsing.</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

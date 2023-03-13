@@ -75,10 +75,10 @@ class TransformedStructure(MSONable):
             raise IndexError("Can't undo. Latest history has no input_structure")
         h = self.history.pop()
         self._undone.append((h, self.final_structure))
-        s = h["input_structure"]
-        if isinstance(s, dict):
-            s = Structure.from_dict(s)
-        self.final_structure = s
+        struct = h["input_structure"]
+        if isinstance(struct, dict):
+            struct = Structure.from_dict(struct)
+        self.final_structure = struct
 
     def redo_next_change(self) -> None:
         """
@@ -347,8 +347,8 @@ class TransformedStructure(MSONable):
         """
         Creates a TransformedStructure from a dict.
         """
-        s = Structure.from_dict(d)
-        return cls(s, history=d["history"], other_parameters=d.get("other_parameters", None))
+        struct = Structure.from_dict(d)
+        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters", None))
 
     def to_snl(self, authors, **kwargs) -> StructureNL:
         """

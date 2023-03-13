@@ -268,9 +268,9 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
     def test_max_disordered_sites(self):
-        l = Lattice.cubic(4)
+        latt = Lattice.cubic(4)
         s_orig = Structure(
-            l,
+            latt,
             [{"Li": 0.2, "Na": 0.2, "K": 0.6}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )

@@ -540,13 +540,13 @@ def get_dimensionality_gorai(
         bonds = get_max_bond_lengths(structure, el_radius_updates)
 
     num_surfaces = 0
-    for h in range(max_hkl):
-        for k in range(max_hkl):
-            for l in range(max_hkl):
-                if max([h, k, l]) > 0 and num_surfaces < 2:
+    for hh in range(max_hkl):
+        for kk in range(max_hkl):
+            for ll in range(max_hkl):
+                if max([hh, kk, ll]) > 0 and num_surfaces < 2:
                     sg = SlabGenerator(
                         structure,
-                        (h, k, l),
+                        (hh, kk, ll),
                         min_slab_size=min_slab_size,
                         min_vacuum_size=min_vacuum_size,
                     )

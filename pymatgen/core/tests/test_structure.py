@@ -435,11 +435,11 @@ class IStructureTest(PymatgenTest):
         assert len(s.get_primitive_structure()) == 4
 
     def test_primitive_cell_site_merging(self):
-        l = Lattice.cubic(10)
+        latt = Lattice.cubic(10)
         coords = [[0, 0, 0], [0, 0, 0.5], [0, 0, 0.26], [0, 0, 0.74]]
         sp = ["Ag", "Ag", "Be", "Be"]
-        s = Structure(l, sp, coords)
-        dm = s.get_primitive_structure().distance_matrix
+        struct = Structure(latt, sp, coords)
+        dm = struct.get_primitive_structure().distance_matrix
         self.assertArrayAlmostEqual(dm, [[0, 2.5], [2.5, 0]])
 
     def test_primitive_on_large_supercell(self):
@@ -465,7 +465,7 @@ class IStructureTest(PymatgenTest):
             assert round(abs(prim.distance_matrix[0, 1] - 1.0203432356739286), 7) == 0
 
     def test_primitive_structure_volume_check(self):
-        l = Lattice.tetragonal(10, 30)
+        latt = Lattice.tetragonal(10, 30)
         coords = [
             [0.5, 0.8, 0],
             [0.5, 0.2, 0],
@@ -474,7 +474,7 @@ class IStructureTest(PymatgenTest):
             [0.5, 0.5, 0.666],
             [0.5, 0.2, 0.666],
         ]
-        s = IStructure(l, ["Ag"] * 6, coords)
+        s = IStructure(latt, ["Ag"] * 6, coords)
         sprim = s.get_primitive_structure(tolerance=0.1)
         assert len(sprim) == 6
 
@@ -1034,13 +1034,13 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
 
     def test_disordered_supercell_primitive_cell(self):
-        l = Lattice.cubic(2)
-        f = [[0.5, 0.5, 0.5]]
+        latt = Lattice.cubic(2)
+        coords = [[0.5, 0.5, 0.5]]
         sp = [{"Si": 0.54738}]
-        s = Structure(l, sp, f)
+        struct = Structure(latt, sp, coords)
         # this supercell often breaks things
-        s.make_supercell([[0, -1, 1], [-1, 1, 0], [1, 1, 1]])
-        assert len(s.get_primitive_structure()) == 1
+        struct.make_supercell([[0, -1, 1], [-1, 1, 0], [1, 1, 1]])
+        assert len(struct.get_primitive_structure()) == 1
 
     def test_another_supercell(self):
         # this is included b/c for some reason the old algo was failing on it
@@ -1179,19 +1179,19 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(s[1].frac_coords, [0.5, 0.5, 0.5005])
 
         # Test for TaS2 with spacegroup 166 in 160 setting.
-        l = Lattice.hexagonal(3.374351, 20.308941)
+        latt = Lattice.hexagonal(3.374351, 20.308941)
         species = ["Ta", "S", "S"]
         coords = [
             [0.000000, 0.000000, 0.944333],
             [0.333333, 0.666667, 0.353424],
             [0.666667, 0.333333, 0.535243],
         ]
-        tas2 = Structure.from_spacegroup(160, l, species, coords)
+        tas2 = Structure.from_spacegroup(160, latt, species, coords)
         assert len(tas2) == 13
         tas2.merge_sites(mode="d")
         assert len(tas2) == 9
 
-        l = Lattice.hexagonal(3.587776, 19.622793)
+        latt = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [
             [0.333333, 0.666667, 0.165000],
@@ -1199,13 +1199,13 @@ class StructureTest(PymatgenTest):
             [0.333333, 0.666667, 0.399394],
             [0.666667, 0.333333, 0.597273],
         ]
-        navs2 = Structure.from_spacegroup(160, l, species, coords)
+        navs2 = Structure.from_spacegroup(160, latt, species, coords)
         assert len(navs2) == 18
         navs2.merge_sites(mode="d")
         assert len(navs2) == 12
 
         # Test that we can average the site properties that are floats
-        l = Lattice.hexagonal(3.587776, 19.622793)
+        latt = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [
             [0.333333, 0.666667, 0.165000],
@@ -1214,7 +1214,7 @@ class StructureTest(PymatgenTest):
             [0.666667, 0.333333, 0.597273],
         ]
         site_props = {"prop1": [3.0, 5.0, 7.0, 11.0]}
-        navs2 = Structure.from_spacegroup(160, l, species, coords, site_properties=site_props)
+        navs2 = Structure.from_spacegroup(160, latt, species, coords, site_properties=site_props)
         navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
         navs2.merge_sites(mode="a")
         assert len(navs2) == 12

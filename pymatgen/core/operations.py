@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 import string
+import typing
 import warnings
 from math import cos, pi, sin, sqrt
 from typing import Any
@@ -294,6 +295,7 @@ class SymmOp(MSONable):
 
         return SymmOp.from_rotation_and_translation(r, vec)
 
+    @typing.no_type_check
     @staticmethod
     def from_origin_axis_angle(
         origin: ArrayLike, axis: ArrayLike, angle: float, angle_in_radians: bool = False
@@ -314,60 +316,47 @@ class SymmOp(MSONable):
             SymmOp.
         """
         theta = angle * pi / 180 if not angle_in_radians else angle
-        a = origin[0]  # type: ignore
-        b = origin[1]  # type: ignore
-        c = origin[2]  # type: ignore
-        u = axis[0]  # type: ignore
-        v = axis[1]  # type: ignore
-        w = axis[2]  # type: ignore
+        a, b, c = origin
+        ax_u, ax_v, ax_w = axis
         # Set some intermediate values.
-        u2 = u * u  # type: ignore
-        v2 = v * v  # type: ignore
-        w2 = w * w  # type: ignore
+        u2, v2, w2 = ax_u * ax_u, ax_v * ax_v, ax_w * ax_w
         cos_t = cos(theta)
         sin_t = sin(theta)
-        l2 = u2 + v2 + w2  # type: ignore
-        l = sqrt(l2)  # type: ignore
+        l2 = u2 + v2 + w2
+        lsqrt = sqrt(l2)
 
         # Build the matrix entries element by element.
-        m11 = (u2 + (v2 + w2) * cos_t) / l2  # type: ignore
-        m12 = (u * v * (1 - cos_t) - w * l * sin_t) / l2  # type: ignore
-        m13 = (u * w * (1 - cos_t) + v * l * sin_t) / l2  # type: ignore
-        m14 = (  # type: ignore
-            a * (v2 + w2)  # type: ignore
-            - u * (b * v + c * w)  # type: ignore
-            + (u * (b * v + c * w) - a * (v2 + w2)) * cos_t  # type: ignore
-            + (b * w - c * v) * l * sin_t  # type: ignore
+        m11 = (u2 + (v2 + w2) * cos_t) / l2
+        m12 = (ax_u * ax_v * (1 - cos_t) - ax_w * lsqrt * sin_t) / l2
+        m13 = (ax_u * ax_w * (1 - cos_t) + ax_v * lsqrt * sin_t) / l2
+        m14 = (
+            a * (v2 + w2)
+            - ax_u * (b * ax_v + c * ax_w)
+            + (ax_u * (b * ax_v + c * ax_w) - a * (v2 + w2)) * cos_t
+            + (b * ax_w - c * ax_v) * lsqrt * sin_t
         ) / l2
 
-        m21 = (u * v * (1 - cos_t) + w * l * sin_t) / l2  # type: ignore
-        m22 = (v2 + (u2 + w2) * cos_t) / l2  # type: ignore
-        m23 = (v * w * (1 - cos_t) - u * l * sin_t) / l2  # type: ignore
-        m24 = (  # type: ignore
-            b * (u2 + w2)  # type: ignore
-            - v * (a * u + c * w)  # type: ignore
-            + (v * (a * u + c * w) - b * (u2 + w2)) * cos_t  # type: ignore
-            + (c * u - a * w) * l * sin_t  # type: ignore
+        m21 = (ax_u * ax_v * (1 - cos_t) + ax_w * lsqrt * sin_t) / l2
+        m22 = (v2 + (u2 + w2) * cos_t) / l2
+        m23 = (ax_v * ax_w * (1 - cos_t) - ax_u * lsqrt * sin_t) / l2
+        m24 = (
+            b * (u2 + w2)
+            - ax_v * (a * ax_u + c * ax_w)
+            + (ax_v * (a * ax_u + c * ax_w) - b * (u2 + w2)) * cos_t
+            + (c * ax_u - a * ax_w) * lsqrt * sin_t
         ) / l2
 
-        m31 = (u * w * (1 - cos_t) - v * l * sin_t) / l2  # type: ignore
-        m32 = (v * w * (1 - cos_t) + u * l * sin_t) / l2  # type: ignore
-        m33 = (w2 + (u2 + v2) * cos_t) / l2  # type: ignore
-        m34 = (  # type: ignore
-            c * (u2 + v2)  # type: ignore
-            - w * (a * u + b * v)  # type: ignore
-            + (w * (a * u + b * v) - c * (u2 + v2)) * cos_t  # type: ignore
-            + (a * v - b * u) * l * sin_t  # type: ignore
+        m31 = (ax_u * ax_w * (1 - cos_t) - ax_v * lsqrt * sin_t) / l2
+        m32 = (ax_v * ax_w * (1 - cos_t) + ax_u * lsqrt * sin_t) / l2
+        m33 = (w2 + (u2 + v2) * cos_t) / l2
+        m34 = (
+            c * (u2 + v2)
+            - ax_w * (a * ax_u + b * ax_v)
+            + (ax_w * (a * ax_u + b * ax_v) - c * (u2 + v2)) * cos_t
+            + (a * ax_v - b * ax_u) * lsqrt * sin_t
         ) / l2
 
-        return SymmOp(
-            [  # type: ignore
-                [m11, m12, m13, m14],
-                [m21, m22, m23, m24],
-                [m31, m32, m33, m34],
-                [0, 0, 0, 1],
-            ]
-        )
+        return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24], [m31, m32, m33, m34], [0, 0, 0, 1]])
 
     @staticmethod
     def reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0)) -> SymmOp:

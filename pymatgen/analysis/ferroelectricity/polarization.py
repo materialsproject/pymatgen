@@ -351,7 +351,7 @@ class Polarization:
                 lattice = lattices[-1]
                 lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
-        quanta = np.array([np.array(l.lengths) for l in lattices])
+        quanta = np.array([np.array(latt.lengths) for latt in lattices])
 
         return quanta
 

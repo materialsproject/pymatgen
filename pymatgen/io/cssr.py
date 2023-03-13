@@ -73,14 +73,14 @@ class Cssr:
         """
         lines = string.split("\n")
         toks = lines[0].split()
-        lengths = [float(i) for i in toks]
+        lengths = [float(tok) for tok in toks]
         toks = lines[1].split()
-        angles = [float(i) for i in toks[0:3]]
+        angles = [float(tok) for tok in toks[0:3]]
         latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
-        for l in lines[4:]:
-            m = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", l.strip())
+        for line in lines[4:]:
+            m = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip())
             if m:
                 sp.append(m.group(1))
                 coords.append([float(m.group(i)) for i in range(2, 5)])

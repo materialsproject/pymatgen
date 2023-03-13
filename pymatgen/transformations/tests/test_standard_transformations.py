@@ -367,11 +367,11 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         sp.append({"Si4+": 0.5})
         c.append([0.75, 0.25, 0.25])
         sp.append({"Si4+": 0.5})
-        l = Lattice.cubic(5)
-        s = Structure(l, sp, c)
-        test_site = PeriodicSite("Si4+", c[2], l)
-        s = SymmetrizedStructure(s, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
-        output = t.apply_transformation(s)
+        latt = Lattice.cubic(5)
+        struct = Structure(latt, sp, c)
+        test_site = PeriodicSite("Si4+", c[2], latt)
+        struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
+        output = t.apply_transformation(struct)
         assert test_site in output.sites
 
     def test_too_small_cell(self):
@@ -537,9 +537,9 @@ class DeformStructureTransformationTest(unittest.TestCase):
 
 class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        l = Lattice.cubic(4)
+        latt = Lattice.cubic(4)
         s_orig = Structure(
-            l,
+            latt,
             [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
@@ -552,7 +552,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
             dot.apply_transformation(s_orig)
 
         s_orig_2 = Structure(
-            l,
+            latt,
             [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )

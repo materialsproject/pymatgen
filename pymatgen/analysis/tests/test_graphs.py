@@ -448,10 +448,10 @@ from    to  to_image
             "H6PbCI3N_mp-977013_symmetrized.cif",
         )
 
-        s = Structure.from_file(structure_file)
+        struct = Structure.from_file(structure_file)
 
         nn = MinimumDistanceNN()
-        sg = StructureGraph.with_local_env_strategy(s, nn)
+        sg = StructureGraph.with_local_env_strategy(struct, nn)
 
         molecules = sg.get_subgraphs_as_molecules()
         assert molecules[0].composition.formula == "H3 C1"

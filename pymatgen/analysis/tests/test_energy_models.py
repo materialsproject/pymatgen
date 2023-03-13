@@ -71,12 +71,12 @@ class IsingModelTest(unittest.TestCase):
         m = IsingModel(5, 6)
         from pymatgen.core.periodic_table import Species
 
-        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
-        s.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
-        assert m.get_energy(s) == approx(172.81260515787977)
-        s[4] = Species("Fe", 2, {"spin": -4})
-        s[5] = Species("Fe", 2, {"spin": -4})
-        assert m.get_energy(s) == approx(51.97424405382921)
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
+        struct.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
+        assert m.get_energy(struct) == approx(172.81260515787977)
+        struct[4] = Species("Fe", 2, {"spin": -4})
+        struct[5] = Species("Fe", 2, {"spin": -4})
+        assert m.get_energy(struct) == approx(51.97424405382921)
 
     def test_to_from_dict(self):
         m = IsingModel(5, 4)

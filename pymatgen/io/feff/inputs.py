@@ -495,13 +495,13 @@ class Atoms(MSONable):
                 is the one at the origin.
         """
         atoms_string = Atoms.atoms_string_from_file(filename)
-        line_list = [l.split() for l in atoms_string.splitlines()[3:]]
+        lines = [line.split() for line in atoms_string.splitlines()[3:]]
         coords = []
         symbols = []
-        for l in line_list:
-            if l:
-                coords.append([float(i) for i in l[:3]])
-                symbols.append(l[4])
+        for line in lines:
+            if line:
+                coords.append([float(val) for val in line[:3]])
+                symbols.append(line[4])
         return Molecule(symbols, coords)
 
     def get_lines(self) -> list[list[str | int]]:
@@ -1017,11 +1017,11 @@ class Paths(MSONable):
         for i, legs in enumerate(self.paths):
             lines.append(f"{path_index} {len(legs)} {self.degeneracies[i]}")
             lines.append("x y z ipot label")
-            for l in legs:
-                coords = self.atoms.cluster[l].coords.tolist()
+            for leg in legs:
+                coords = self.atoms.cluster[leg].coords.tolist()
 
                 tmp = f"{coords[0]:.6f} {coords[1]:.6f} {coords[2]:.6f}"
-                element = str(self.atoms.cluster[l].specie.name)
+                element = str(self.atoms.cluster[leg].specie.name)
                 # the potential index for the absorbing atom(the one at the cluster origin) is 0
                 potential = 0 if np.linalg.norm(coords) <= 1e-6 else self.atoms.pot_dict[element]
                 tmp = f"{tmp} {potential} {element}"

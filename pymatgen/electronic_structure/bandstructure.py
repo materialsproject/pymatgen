@@ -710,15 +710,15 @@ class BandStructure:
             projections = {}
             for spin in d["projections"]:
                 dd = []
-                for i in range(len(d["projections"][spin])):
+                for ii in range(len(d["projections"][spin])):
                     ddd = []
-                    for j in range(len(d["projections"][spin][i])):
+                    for jj in range(len(d["projections"][spin][ii])):
                         dddd = []
-                        for k in range(len(d["projections"][spin][i][j])):
+                        for kk in range(len(d["projections"][spin][ii][jj])):
                             ddddd = []
-                            orb = Orbital(k).name
-                            for l in range(len(d["projections"][spin][i][j][orb])):
-                                ddddd.append(d["projections"][spin][i][j][orb][l])
+                            orb = Orbital(kk).name
+                            for ll in range(len(d["projections"][spin][ii][jj][orb])):
+                                ddddd.append(d["projections"][spin][ii][jj][orb][ll])
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))

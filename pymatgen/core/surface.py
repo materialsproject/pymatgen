@@ -27,6 +27,7 @@ import os
 import warnings
 from functools import reduce
 from math import gcd
+from typing import Literal
 
 import numpy as np
 from monty.fractions import lcm
@@ -564,46 +565,46 @@ class Slab(Structure):
         # Get a dictionary of coordination numbers
         # for each distinct site in the structure
         a = SpacegroupAnalyzer(self.oriented_unit_cell)
-        ucell = a.get_symmetrized_structure()
+        u_cell = a.get_symmetrized_structure()
         cn_dict = {}
-        v = VoronoiNN()
-        unique_indices = [equ[0] for equ in ucell.equivalent_indices]
+        voronoi_nn = VoronoiNN()
+        unique_indices = [equ[0] for equ in u_cell.equivalent_indices]
 
-        for i in unique_indices:
-            el = ucell[i].species_string
+        for idx in unique_indices:
+            el = u_cell[idx].species_string
             if el not in cn_dict:
                 cn_dict[el] = []
             # Since this will get the cn as a result of the weighted polyhedra, the
             # slightest difference in cn will indicate a different environment for a
             # species, eg. bond distance of each neighbor or neighbor species. The
             # decimal place to get some cn to be equal.
-            cn = v.get_cn(ucell, i, use_weights=True)
+            cn = voronoi_nn.get_cn(u_cell, idx, use_weights=True)
             cn = float(f"{round(cn, 5):.5f}")
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
-        v = VoronoiNN()
+        voronoi_nn = VoronoiNN()
 
         surf_sites_dict, properties = {"top": [], "bottom": []}, []
-        for i, site in enumerate(self):
+        for idx, site in enumerate(self):
             # Determine if site is closer to the top or bottom of the slab
             top = site.frac_coords[2] > self.center_of_mass[2]
 
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = float(f"{round(v.get_cn(self, i, use_weights=True), 5):.5f}")
+                cn = float(f"{round(voronoi_nn.get_cn(self, idx, use_weights=True), 5):.5f}")
                 if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
-                    surf_sites_dict[key].append([site, i])
+                    surf_sites_dict[key].append([site, idx])
                 else:
                     properties.append(False)
             except RuntimeError:
                 # or if pathological error is returned, indicating a surface site
                 properties.append(True)
                 key = "top" if top else "bottom"
-                surf_sites_dict[key].append([site, i])
+                surf_sites_dict[key].append([site, idx])
 
         if tag:
             self.add_site_property("is_surf_site", properties)
@@ -682,27 +683,27 @@ class Slab(Structure):
             indices ([indices]): The indices of the sites
                 in the slab to remove.
         """
-        slabcopy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
-        points = [slabcopy[i].frac_coords for i in indices]
+        slab_copy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
+        points = [slab_copy[i].frac_coords for i in indices]
         removal_list = []
 
         for pt in points:
             # Get the index of the original site on top
-            cart_point = slabcopy.lattice.get_cartesian_coords(pt)
-            dist = [site.distance_from_point(cart_point) for site in slabcopy]
+            cart_point = slab_copy.lattice.get_cartesian_coords(pt)
+            dist = [site.distance_from_point(cart_point) for site in slab_copy]
             site1 = dist.index(min(dist))
 
             # Get the index of the corresponding site at the bottom
-            for i, eq_sites in enumerate(slabcopy.equivalent_sites):
-                if slabcopy[site1] in eq_sites:
-                    eq_indices = slabcopy.equivalent_indices[i]
+            for i, eq_sites in enumerate(slab_copy.equivalent_sites):
+                if slab_copy[site1] in eq_sites:
+                    eq_indices = slab_copy.equivalent_indices[i]
                     break
-            i1 = eq_indices[eq_sites.index(slabcopy[site1])]
+            i1 = eq_indices[eq_sites.index(slab_copy[site1])]
 
             for i2 in eq_indices:
                 if i2 == i1:
                     continue
-                if slabcopy[i2].frac_coords[2] == slabcopy[i1].frac_coords[2]:
+                if slab_copy[i2].frac_coords[2] == slab_copy[i1].frac_coords[2]:
                     continue
                 # Test site remove to see if it results in symmetric slab
                 s = self.copy()
@@ -827,10 +828,16 @@ class SlabGenerator:
         """
         # pylint: disable=E1130
         # Add Wyckoff symbols of the bulk, will help with
-        # identfying types of sites in the slab system
-        sg = SpacegroupAnalyzer(initial_structure)
-        initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
-        initial_structure.add_site_property("bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist())
+        # identifying types of sites in the slab system
+        if (
+            "bulk_wyckoff" not in initial_structure.site_properties
+            or "bulk_equivalent" not in initial_structure.site_properties
+        ):
+            sg = SpacegroupAnalyzer(initial_structure)
+            initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
+            initial_structure.add_site_property(
+                "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
+            )
         latt = initial_structure.lattice
         miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
@@ -860,10 +867,10 @@ class SlabGenerator:
         if len(non_orth_ind) > 1:
             lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
             for (ii, _di), (jj, _dj) in itertools.combinations(non_orth_ind, 2):
-                l = [0, 0, 0]
-                l[ii] = -int(round(lcm_miller / miller_index[ii]))
-                l[jj] = int(round(lcm_miller / miller_index[jj]))
-                slab_scale_factor.append(l)
+                scale_factor = [0, 0, 0]
+                scale_factor[ii] = -int(round(lcm_miller / miller_index[ii]))
+                scale_factor[jj] = int(round(lcm_miller / miller_index[jj]))
+                slab_scale_factor.append(scale_factor)
                 if len(slab_scale_factor) == 2:
                     break
 
@@ -879,15 +886,15 @@ class SlabGenerator:
                 if (not any(uvw)) or abs(np.linalg.det([*slab_scale_factor, uvw])) < 1e-8:
                     continue
                 vec = latt.get_cartesian_coords(uvw)
-                l = np.linalg.norm(vec)
-                cosine = abs(np.dot(vec, normal) / l)
-                candidates.append((uvw, cosine, l))
+                osdm = np.linalg.norm(vec)
+                cosine = abs(np.dot(vec, normal) / osdm)
+                candidates.append((uvw, cosine, osdm))
                 if abs(abs(cosine) - 1) < 1e-8:
                     # If cosine of 1 is found, no need to search further.
                     break
             # We want the indices with the maximum absolute cosine,
             # but smallest possible length.
-            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -x[2]))
+            uvw, cosine, osdm = max(candidates, key=lambda x: (x[1], -x[2]))
             slab_scale_factor.append(uvw)
 
         slab_scale_factor = np.array(slab_scale_factor)
@@ -1588,7 +1595,12 @@ def is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) 
     return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
 
 
-def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True):
+def get_symmetrically_equivalent_miller_indices(
+    structure,
+    miller_index,
+    return_hkil=True,
+    system: Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"] = None,
+):
     """
     Returns all symmetrically equivalent indices for a given structure. Analysis
     is based on the symmetry of the reciprocal lattice of the structure.
@@ -1599,6 +1611,8 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
             to find. Can be hkl or hkil for hexagonal systems
         return_hkil (bool): If true, return hkil form of Miller
             index for hexagonal systems, otherwise return hkl
+        system: If known, specify the crystal system of the structure
+            so that it does not need to be re-calculated.
     """
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     miller_index = (miller_index[0], miller_index[1], miller_index[3]) if len(miller_index) == 4 else miller_index
@@ -1606,10 +1620,16 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     r = list(range(-mmi, mmi + 1))
     r.reverse()
 
-    sg = SpacegroupAnalyzer(structure)
+    sg = None
+    if not system:
+        sg = SpacegroupAnalyzer(structure)
+        system = sg.get_crystal_system()
+
     # Get distinct hkl planes from the rhombohedral setting if trigonal
-    if sg.get_crystal_system() == "trigonal":
-        prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
+    if system == "trigonal":
+        if not sg:
+            sg = SpacegroupAnalyzer(structure)
+        prim_structure = sg.get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
@@ -1630,7 +1650,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
             ):
                 equivalent_millers.append(miller)
 
-    if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
+    if return_hkil and system in ("trigonal", "hexagonal"):
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in equivalent_millers]
     return equivalent_millers
 
