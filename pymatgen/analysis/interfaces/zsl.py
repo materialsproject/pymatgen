@@ -184,7 +184,6 @@ class ZSLGenerator(MSONable):
         Runs the ZSL algorithm to generate all possible matching
         :return:
         """
-
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)
 

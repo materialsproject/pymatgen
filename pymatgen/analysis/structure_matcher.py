@@ -347,7 +347,7 @@ class StructureMatcher(MSONable):
         comparator: AbstractComparator | None = None,
         supercell_size: Literal["num_sites", "num_atoms", "volume"] = "num_sites",
         ignored_species: Sequence[SpeciesLike] = (),
-    ):
+    ) -> None:
         """
         Args:
             ltol (float): Fractional length tolerance. Default is 0.2.
@@ -403,9 +403,8 @@ class StructureMatcher(MSONable):
 
     def _get_supercell_size(self, s1, s2):
         """
-        Returns the supercell size, and whether the supercell should
-        be applied to s1. If fu == 1, s1_supercell is returned as
-        true, to avoid ambiguity.
+        Returns the supercell size, and whether the supercell should be applied to s1.
+        If fu == 1, s1_supercell is returned as true, to avoid ambiguity.
         """
         if self._supercell_size == "num_sites":
             fu = s2.num_sites / s1.num_sites
@@ -699,7 +698,7 @@ class StructureMatcher(MSONable):
         s1_supercell=True,
         use_rms=False,
         break_on_match=False,
-    ):
+    ) -> tuple[float, float, np.ndarray, float, Mapping] | None:
         """
         Matches one struct onto the other
         """
@@ -742,6 +741,10 @@ class StructureMatcher(MSONable):
             s1_supercell (bool): whether to create the supercell of struct1 (vs struct2)
             use_rms (bool): whether to minimize the rms of the matching
             break_on_match (bool): whether to stop search at first match
+
+        Returns:
+            tuple[float, float, np.ndarray, float, Mapping]: (rms, max_dist, mask, cost, mapping)
+                if a match is found, else None
         """
         if fu < 1:
             raise ValueError("fu cannot be less than 1")
@@ -1054,7 +1057,7 @@ class StructureMatcher(MSONable):
 
     def fit_anonymous(
         self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
-    ):
+    ) -> bool:
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. E.g., to compare if the Li2O and Na2O
@@ -1077,7 +1080,7 @@ class StructureMatcher(MSONable):
 
         return bool(matches)
 
-    def get_supercell_matrix(self, supercell, struct):
+    def get_supercell_matrix(self, supercell, struct) -> np.ndarray | None:
         """
         Returns the matrix for transforming struct to supercell. This
         can be used for very distorted 'supercells' where the primitive cell
