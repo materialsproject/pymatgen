@@ -334,7 +334,7 @@ class GaussianInput:
         for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
-            if spaces >= 2:
+            if spaces >= 1:
                 d = lines[i].split("=")
                 if len(d) == 2:
                     input_paras[d[0]] = d[1]
