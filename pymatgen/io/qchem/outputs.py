@@ -632,7 +632,7 @@ class QCOutput(MSONable):
             self._check_completion_errors()
 
     @staticmethod
-    def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
+    def multiple_outputs_from_file(filename, keep_sub_files=True):
         """
         Parses a QChem output file with multiple calculations
         # 1.) Separates the output into sub-files
@@ -649,7 +649,7 @@ class QCOutput(MSONable):
         for i, sub_text in enumerate(text):
             with open(filename + "." + str(i), "w") as temp:
                 temp.write(sub_text)
-            tempOutput = cls(filename + "." + str(i))
+            tempOutput = QCOutput(filename + "." + str(i))
             to_return.append(tempOutput)
             if not keep_sub_files:
                 os.remove(filename + "." + str(i))
@@ -1371,11 +1371,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = []
             if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["back_transform_error"]
-            elif read_pattern(
-                self.text,
-                {"key": r"pinv\(\)\: svd failed"},
-                terminate_on_match=True,
-            ).get(
+            elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True,).get(
                 "key"
             ) == [[]]:
                 self.data["errors"] += ["svd_failed"]
