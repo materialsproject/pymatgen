@@ -368,14 +368,14 @@ class GaussianOutputTest(unittest.TestCase):
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
         d = gau.read_scan()
-        assert -548.02102 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -548.02102
         assert len(d["coords"]) == 1
         assert len(d["energies"]) == len(gau.energies)
         assert len(d["energies"]) == 21
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan_opt.log"))
         assert len(gau.opt_structures) == 21
         d = gau.read_scan()
-        assert -548.02336 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -548.02336
         assert len(d["coords"]) == 2
         assert len(d["energies"]) == 21
         assert approx(d["coords"]["DSO"][6]) == 1.60000
@@ -389,7 +389,7 @@ class GaussianOutputTest(unittest.TestCase):
         ]
         assert gau.opt_structures[-1].cart_coords.tolist() == coords
         d = gau.read_scan()
-        assert -0.00523 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -0.00523
         assert len(d["coords"]) == 3
         assert len(d["energies"]) == 21
         assert approx(d["coords"]["R1"][6]) == 0.94710
@@ -400,7 +400,7 @@ class GaussianOutputTest(unittest.TestCase):
         Test an optimization where no "input orientation" is outputted
         """
         gau = GaussianOutput(os.path.join(test_dir, "acene-n_gaussian09_opt.out"))
-        assert -1812.58399675 == approx(gau.energies[-1])
+        assert approx(gau.energies[-1]) == -1812.58399675
         assert len(gau.structures) == 6
         # Test the first 3 atom coordinates
         coords = [
