@@ -74,6 +74,28 @@ EPS=12
         assert gau.functional == "HF"
         assert gau.input_parameters["EPS"] == "12"
 
+    def test_from_cart_coords(self):
+        answer = """#P HF/6-31G(d) SCF=Tight SP
+
+H4 C1
+
+0 1
+C 0.000000 0.000000 0.000000
+H 0.000000 0.000000 1.089000
+H 1.026719 0.000000 -0.363000
+H -0.513360 -0.889165 -0.363000
+H -0.513360 0.889165 -0.363000
+
+EPS=12
+
+"""
+        assert self.gau.to_string(cart_coords=True) == answer
+        gau = GaussianInput.from_string(answer)
+        assert gau.functional == "HF"
+        assert gau.charge == 0
+        assert gau.spin_multiplicity == 1
+        assert gau.input_parameters["EPS"] == "12"
+
     def test_from_file(self):
         filepath = os.path.join(test_dir, "MethylPyrrolidine_drawn.gjf")
         gau = GaussianInput.from_file(filepath)
