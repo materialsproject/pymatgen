@@ -422,7 +422,7 @@ class GaussianInput:
 
         outs = []
         for site in self._mol:
-            outs.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
+            outs.append(" ".join([site.species_string, " ".join(map(to_s, site.coords))]))
         return "\n".join(outs)
 
     def __str__(self):
