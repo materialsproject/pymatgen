@@ -1826,7 +1826,7 @@ class PotcarSingle:
                 UnknownPotcarWarning,
             )
         elif has_sh256 and not hash_check_passed:
-            raise ValueError(
+            warnings.warn(
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
                 "but the computed hash differs.\n"
