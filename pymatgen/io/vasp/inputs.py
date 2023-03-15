@@ -1878,8 +1878,9 @@ class PotcarSingle:
                 return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
+            import codecs
 
-            with open(filename, encoding="utf-8", errors="ignore") as f:
+            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
                 return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
@@ -2274,11 +2275,9 @@ class Potcar(list, MSONable):
         with zopen(filename, "rt") as f:
             fdata = f.read()
         potcar = Potcar()
-        potcar_strings = fdata.split("End of Dataset")
-        # potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
-        functionals = []
 
-        for p in potcar_strings:
+        functionals = []
+        for p in fdata.split("End of Dataset"):
             if p.strip():
                 single = PotcarSingle(p + "End of Dataset\n")
                 potcar.append(single)
