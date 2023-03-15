@@ -56,7 +56,7 @@ if __name__ == "__main__":
             )
         myindices = range(coordination)
 
-        if test == "all" or test == "a":
+        if test in ("all", "a"):
             perms_type = "all"
             perms_iterator = itertools.permutations(myindices)
             nperms = factorial(coordination)
