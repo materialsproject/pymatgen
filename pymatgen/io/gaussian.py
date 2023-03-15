@@ -331,10 +331,12 @@ class GaussianInput:
         spaces = 0
         input_paras = {}
         ind += 1
+        if GaussianInput._xyz_patt.match(lines[route_index + ind]):
+            spaces += 1
         for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
-            if spaces >= 1:
+            if spaces >= 2:
                 d = lines[i].split("=")
                 if len(d) == 2:
                     input_paras[d[0]] = d[1]
@@ -420,7 +422,7 @@ class GaussianInput:
 
         outs = []
         for site in self._mol:
-            outs.append(" ".join(site.species_string, " ".join([to_s(j) for j in site.coords])))
+            outs.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
         return "\n".join(outs)
 
     def __str__(self):
