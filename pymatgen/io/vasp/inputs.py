@@ -2274,7 +2274,7 @@ class Potcar(list, MSONable):
         with zopen(filename, "rt") as f:
             fdata = f.read()
         potcar = Potcar()
-        potcar_strings = fdata.split("End of Dataset")
+        potcar_strings = fdata.split("End of Dataset\n")
         # potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
         functionals = []
 
