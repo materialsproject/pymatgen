@@ -1878,9 +1878,8 @@ class PotcarSingle:
                 return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
-            import codecs
 
-            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
+            with open(filename, encoding="utf-8", errors="ignore") as f:
                 return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod

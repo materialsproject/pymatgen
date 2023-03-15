@@ -56,10 +56,10 @@ class RelaxationAnalyzerTest(unittest.TestCase):
 
     def test_vol_and_para_changes(self):
         for v in self.analyzer.get_percentage_lattice_parameter_changes().values():
-            assert -0.0092040921155279731 == approx(v)
+            assert approx(v) == -0.0092040921155279731
             latt_change = v
         vol_change = self.analyzer.get_percentage_volume_change()
-        assert -0.0273589101391 == approx(vol_change)
+        assert approx(vol_change) == -0.0273589101391
         # This is a simple cubic cell, so the latt and vol change are simply
         # Related. So let's test that.
         assert (1 + latt_change) ** 3 - 1 == approx(vol_change)
@@ -67,7 +67,7 @@ class RelaxationAnalyzerTest(unittest.TestCase):
     def test_get_percentage_bond_dist_changes(self):
         for v in self.analyzer.get_percentage_bond_dist_changes().values():
             for v2 in v.values():
-                assert -0.009204092115527862 == approx(v2)
+                assert approx(v2) == -0.009204092115527862
 
 
 class VoronoiConnectivityTest(PymatgenTest):

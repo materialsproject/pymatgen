@@ -40,7 +40,8 @@ logger = logging.getLogger(__name__)
 @lru_cache(maxsize=32)
 def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """Simple wrapper to cache results of spglib.get_symmetry_dataset since this call is
-    expensive."""
+    expensive.
+    """
     return spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
 
 

@@ -1507,7 +1507,7 @@ class LocpotTest(PymatgenTest):
     def test_init(self):
         filepath = self.TEST_FILES_DIR / "LOCPOT"
         locpot = Locpot.from_file(filepath)
-        assert -217.05226954 == approx(sum(locpot.get_average_along_axis(0)))
+        assert approx(sum(locpot.get_average_along_axis(0))) == -217.05226954
         assert locpot.get_axis_grid(0)[-1] == approx(2.87629, abs=1e-2)
         assert locpot.get_axis_grid(1)[-1] == approx(2.87629, abs=1e-2)
         assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
