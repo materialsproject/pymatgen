@@ -40,11 +40,11 @@ def _load_cross_sections(fname):
         if el.Z > 92:
             continue
         orb = row.orbital
-        shell = int(orb[0])
+        outer_shell = int(orb[0])
         orb_type = orb[1]
         n_elect = None
         for shell, orb, n_ele in el.full_electronic_structure:
-            if shell == shell and orb == orb_type:
+            if shell == outer_shell and orb == orb_type:
                 n_elect = n_ele
                 break
         if n_elect is not None:

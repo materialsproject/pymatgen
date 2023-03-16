@@ -1251,7 +1251,7 @@ class Lattice(MSONable):
                 k = -1 if n == -1 else 1
                 M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
                 G = dot(transpose(M), dot(G, M))
-            elif ll * m * n == 0 or ll * m * n == -1:
+            elif ll * m * n in (0, -1):
                 # A4
                 i = -1 if ll == 1 else 1
                 j = -1 if m == 1 else 1
@@ -1363,8 +1363,8 @@ class Lattice(MSONable):
         vec3 = self._matrix[2]
 
         list_k_points = []
-        for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
-            list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+        for ii, jj, kk in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
+            list_k_points.append(ii * vec1 + jj * vec2 + kk * vec3)
         # pylint: disable=C0415
         from scipy.spatial import Voronoi
 

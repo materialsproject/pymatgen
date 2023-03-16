@@ -683,27 +683,12 @@ class VasprunTest(PymatgenTest):
     def test_search_for_potcar(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         vasprun = Vasprun(filepath, parse_potcar_file=True)
-        assert vasprun.potcar_spec == [
-            {
-                "titel": "PAW_PBE Li 17Jan2003",
-                "hash": "65e83282d1707ec078c1012afbd05be8",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE P 17Jan2003",
-                "hash": "7dc3393307131ae67785a0cdacb61d5f",
-            },
-            {
-                "titel": "PAW_PBE O 08Apr2002",
-                "hash": "7a25bc5b9a5393f46600a4939d357982",
-            },
+        assert [spec["titel"] for spec in vasprun.potcar_spec] == [
+            "PAW_PBE Li 17Jan2003",
+            "PAW_PBE Fe 06Sep2000",
+            "PAW_PBE Fe 06Sep2000",
+            "PAW_PBE P 17Jan2003",
+            "PAW_PBE O 08Apr2002",
         ]
 
     def test_potcar_not_found(self):

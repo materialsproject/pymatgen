@@ -123,22 +123,22 @@ class ZSLGenerator(MSONable):
                 a super lattice of area j*film area
         """
         transformation_indices = [
-            (i, j)
-            for i in range(1, int(self.max_area / film_area))
-            for j in range(1, int(self.max_area / substrate_area))
-            if np.absolute(film_area / substrate_area - float(j) / i) < self.max_area_ratio_tol
+            (ii, jj)
+            for ii in range(1, int(self.max_area / film_area))
+            for jj in range(1, int(self.max_area / substrate_area))
+            if np.absolute(film_area / substrate_area - float(jj) / ii) < self.max_area_ratio_tol
         ] + [
-            (i, j)
-            for i in range(1, int(self.max_area / film_area))
-            for j in range(1, int(self.max_area / substrate_area))
-            if np.absolute(substrate_area / film_area - float(i) / j) < self.max_area_ratio_tol
+            (ii, jj)
+            for ii in range(1, int(self.max_area / film_area))
+            for jj in range(1, int(self.max_area / substrate_area))
+            if np.absolute(substrate_area / film_area - float(ii) / jj) < self.max_area_ratio_tol
         ]
         transformation_indices = list(set(transformation_indices))
 
         # Sort sets by the square of the matching area and yield in order
         # from smallest to largest
-        for i, j in sorted(transformation_indices, key=lambda x: x[0] * x[1]):
-            yield (gen_sl_transform_matricies(i), gen_sl_transform_matricies(j))
+        for ii, jj in sorted(transformation_indices, key=lambda x: x[0] * x[1]):
+            yield (gen_sl_transform_matrices(ii), gen_sl_transform_matrices(jj))
 
     def get_equiv_transformations(self, transformation_sets, film_vectors, substrate_vectors):
         """
@@ -213,9 +213,9 @@ class ZSLGenerator(MSONable):
 
 
 @njit
-def gen_sl_transform_matricies(area_multiple):
+def gen_sl_transform_matrices(area_multiple):
     """
-    Generates the transformation matricies that convert a set of 2D
+    Generates the transformation matrices that convert a set of 2D
     vectors into a super lattice of integer area multiple as proven
     in Cassels:
 
@@ -227,7 +227,7 @@ def gen_sl_transform_matricies(area_multiple):
         lattice area
 
     Returns:
-        matrix_list: transformation matricies to convert unit vectors to
+        matrix_list: transformation matrices to convert unit vectors to
         super lattice vectors
     """
     return [

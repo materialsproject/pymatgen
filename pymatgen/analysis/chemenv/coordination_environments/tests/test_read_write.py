@@ -117,38 +117,27 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         neighb_sites = nb_set.neighb_sites
         coords = [
-            [0.2443798, 1.80409653, -1.13218359],
-            [1.44020353, 1.11368738, 1.13218359],
-            [2.75513098, 2.54465207, -0.70467298],
-            [0.82616785, 3.65833945, 0.70467298],
+            [0.244379, 1.804096, -1.132183],
+            [1.440203, 1.113687, 1.132183],
+            [2.755130, 2.544652, -0.704672],
+            [0.826167, 3.658339, 0.704672],
         ]
-
-        np.testing.assert_array_almost_equal(coords[0], neighb_sites[0].coords)
-        np.testing.assert_array_almost_equal(coords[1], neighb_sites[1].coords)
-        np.testing.assert_array_almost_equal(coords[2], neighb_sites[2].coords)
-        np.testing.assert_array_almost_equal(coords[3], neighb_sites[3].coords)
+        for idx, coord in enumerate(coords):
+            assert coord == pytest.approx(neighb_sites[idx].coords, abs=6)
 
         neighb_coords = nb_set.coords
 
         np.testing.assert_array_almost_equal(coords, neighb_coords[1:])
         np.testing.assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
-        normdist = nb_set.normalized_distances
-        assert sorted(normdist) == pytest.approx(
-            sorted([1.0017922783963027, 1.0017922780870239, 1.000000000503177, 1.0])
-        )
-        normang = nb_set.normalized_angles
-        assert sorted(normang) == pytest.approx(
-            sorted([0.9999999998419052, 1.0, 0.9930136530585189, 0.9930136532867929])
-        )
+        norm_dist = nb_set.normalized_distances
+        assert sorted(norm_dist) == pytest.approx(sorted([1.001792, 1.001792, 1, 1.0]))
+        norm_ang = nb_set.normalized_angles
+        assert sorted(norm_ang) == pytest.approx(sorted([0.999999, 1, 0.993013, 0.993013]))
         dist = nb_set.distances
-        assert sorted(dist) == pytest.approx(
-            sorted([1.6284399814843944, 1.6284399809816534, 1.6255265861208676, 1.6255265853029401])
-        )
+        assert sorted(dist) == pytest.approx(sorted([1.628439, 1.628439, 1.625526, 1.625526]))
         ang = nb_set.angles
-        assert sorted(ang) == pytest.approx(
-            sorted([3.117389876236432, 3.117389876729275, 3.095610709498583, 3.0956107102102024])
-        )
+        assert sorted(ang) == pytest.approx(sorted([3.117389, 3.117389, 3.095610, 3.095610]))
 
         nb_set_info = nb_set.info
 

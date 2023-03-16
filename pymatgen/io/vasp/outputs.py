@@ -1140,8 +1140,7 @@ class Vasprun(MSONable):
         :param path: Path to search for POTCARs
         :return: Potcar spec from path.
         """
-        potcar = self.get_potcars(path)
-        if potcar:
+        if potcar := self.get_potcars(path):
             self.potcar_spec = [
                 {"titel": sym, "hash": ps.get_potcar_hash()}
                 for sym in self.potcar_symbols

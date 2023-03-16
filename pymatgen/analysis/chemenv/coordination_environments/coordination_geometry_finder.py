@@ -730,7 +730,7 @@ class LocalGeometryFinder:
 
         # Variables used for checking timelimit
         max_time_one_site = 0.0
-        breakit = False
+        break_it = False
 
         if optimization > 0:
             self.detailed_voronoi.local_planes = [None] * len(self.structure)
@@ -741,7 +741,7 @@ class LocalGeometryFinder:
             if isite not in sites_indices:
                 logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string}) : skipped")
                 continue
-            if breakit:
+            if break_it:
                 logging.debug(
                     f" ... in site #{isite}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
                 )
@@ -765,7 +765,7 @@ class LocalGeometryFinder:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
                     logging.debug(f"    ... getting environments for nb_set ({cn:d}, {inb_set:d})")
-                    tnbset1 = time.process_time()
+                    t_nbset1 = time.process_time()
                     ce = self.update_nb_set_environments(
                         se=se,
                         isite=isite,
@@ -775,10 +775,10 @@ class LocalGeometryFinder:
                         recompute=do_recompute,
                         optimization=optimization,
                     )
-                    tnbset2 = time.process_time()
+                    t_nbset2 = time.process_time()
                     if cn not in nb_sets_info:
                         nb_sets_info[cn] = {}
-                    nb_sets_info[cn][inb_set] = {"time": tnbset2 - tnbset1}
+                    nb_sets_info[cn][inb_set] = {"time": t_nbset2 - t_nbset1}
                     if get_from_hints:
                         for cg_symbol, cg_dict in ce:
                             cg = self.allcg[cg_symbol]
@@ -793,8 +793,8 @@ class LocalGeometryFinder:
                             }
                             for nb_sets_hints in cg.neighbors_sets_hints:
                                 suggested_nb_set_voronoi_indices = nb_sets_hints.hints(hints_info)
-                                for inew, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
-                                    logging.debug(f"           hint # {inew:d}")
+                                for idx_new, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
+                                    logging.debug(f"           hint # {idx_new:d}")
                                     new_nb_set = se.NeighborsSet(
                                         structure=se.structure,
                                         isite=isite,
@@ -803,7 +803,7 @@ class LocalGeometryFinder:
                                         sources={
                                             "origin": "nb_set_hints",
                                             "hints_type": nb_sets_hints.hints_type,
-                                            "suggestion_index": inew,
+                                            "suggestion_index": idx_new,
                                             "cn_map_source": [cn, inb_set],
                                             "cg_source_symbol": cg_symbol,
                                         },
@@ -839,7 +839,7 @@ class LocalGeometryFinder:
                 new_nb_set = missing_nb_set_to_add["new_nb_set"]
                 inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
                 logging.debug(f"    ... getting environments for nb_set ({cn_new_nb_set}, {inew_nb_set}) - from hints")
-                tnbset1 = time.process_time()
+                t_nbset1 = time.process_time()
                 self.update_nb_set_environments(
                     se=se,
                     isite=isite_new_nb_set,
@@ -848,17 +848,17 @@ class LocalGeometryFinder:
                     nb_set=new_nb_set,
                     optimization=optimization,
                 )
-                tnbset2 = time.process_time()
+                t_nbset2 = time.process_time()
                 if cn not in nb_sets_info:
                     nb_sets_info[cn] = {}
-                nb_sets_info[cn][inew_nb_set] = {"time": tnbset2 - tnbset1}
+                nb_sets_info[cn][inew_nb_set] = {"time": t_nbset2 - t_nbset1}
             t2 = time.process_time()
             se.update_site_info(isite=isite, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
             if timelimit is not None:
                 time_elapsed = t2 - time_init
                 time_left = timelimit - time_elapsed
                 if time_left < 2.0 * max_time_one_site:
-                    breakit = True
+                    break_it = True
             max_time_one_site = max(max_time_one_site, t2 - t1)
             logging.debug(f"    ... computed in {t2 - t1:.2f} seconds")
         time_end = time.process_time()
