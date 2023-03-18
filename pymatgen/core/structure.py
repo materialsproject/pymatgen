@@ -21,6 +21,7 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Iterable,
@@ -49,6 +50,9 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
+
+if TYPE_CHECKING:
+    from m3gnet.models._dynamics import TrajectoryObserver
 
 
 class Neighbor(Site):
@@ -3996,8 +4000,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         stress_weight: float = 0.01,
         steps: int = 500,
         fmax: float = 0.1,
+        return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Structure:
+    ) -> Structure | tuple[Structure, TrajectoryObserver]:
         """
         Performs a crystal structure relaxation using some algorithm.
 
@@ -4008,9 +4013,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
             steps (int): max number of steps for relaxation. Defaults to 500.
             fmax (float): total force tolerance for relaxation convergence.
                 Here fmax is a sum of force and stress forces. Defaults to 0.1.
+            return_trajectory (bool): Whether to return the trajectory of relaxation.
+                Defaults to False.
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
-        Returns: Relaxed structure
+        Returns:
+            Structure: IAP-relaxed structure
         """
         import contextlib
         import io
@@ -4019,6 +4027,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         from ase.constraints import ExpCellFilter
         from ase.optimize.fire import FIRE
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+        from m3gnet.models._dynamics import TrajectoryObserver
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -4026,20 +4035,28 @@ class Structure(IStructure, collections.abc.MutableSequence):
             potential = Potential(M3GNet.load())
             calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
 
-        optimizer = FIRE
         adaptor = AseAtomsAdaptor()
         atoms = adaptor.get_atoms(self)
+
+        if return_trajectory:
+            # monitor the relaxation
+            traj_observer = TrajectoryObserver(atoms)
+
         atoms.set_calculator(calculator)
         stream = sys.stdout if verbose else io.StringIO()
         with contextlib.redirect_stdout(stream):
             if relax_cell:
                 atoms = ExpCellFilter(atoms)
-            optimizer = optimizer(atoms)
+            optimizer = FIRE(atoms)
             optimizer.run(fmax=fmax, steps=steps)
         if isinstance(atoms, ExpCellFilter):
             atoms = atoms.atoms
 
-        return adaptor.get_structure(atoms)
+        struct = adaptor.get_structure(atoms)
+        if return_trajectory:
+            traj_observer()  # save properties of the Atoms during the relaxation
+            return struct, traj_observer
+        return struct
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:

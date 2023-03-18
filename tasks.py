@@ -273,7 +273,7 @@ def update_changelog(ctx, version=None, dry_run=False):
                 for ll in map(str.strip, json_resp["body"].split("\n")):
                     if ll in ["", "## Summary"]:
                         continue
-                    elif ll.startswith(("## Checklist", "## TODO")):
+                    if ll.startswith(("## Checklist", "## TODO")):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)
@@ -334,7 +334,7 @@ def open_doc(ctx):
 
 @task
 def lint(ctx):
-    for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
+    for cmd in ["ruff", "mypy", "black", "pylint"]:
         ctx.run(f"{cmd} pymatgen")
 
 
