@@ -1086,19 +1086,20 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             other (IStructure/Structure): Another structure.
+            anonymous (bool): Whether to use anonymous structure matching which allows distinct
+                species in one structure to map to another.
             **kwargs: Same **kwargs as in
                 :class:`pymatgen.analysis.structure_matcher.StructureMatcher`.
 
         Returns:
-            (bool) True is the structures are similar under some affine
-            transformation.
+            bool: True if the structures are similar under some affine transformation.
         """
         from pymatgen.analysis.structure_matcher import StructureMatcher
 
-        m = StructureMatcher(**kwargs)
-        if not anonymous:
-            return m.fit(self, other)
-        return m.fit_anonymous(self, other)
+        matcher = StructureMatcher(**kwargs)
+        if anonymous:
+            return matcher.fit_anonymous(self, other)
+        return matcher.fit(self, other)
 
     def __eq__(self, other: object) -> bool:
         # check for valid operand following class Student example from official functools docs

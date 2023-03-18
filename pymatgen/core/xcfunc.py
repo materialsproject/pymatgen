@@ -199,7 +199,8 @@ class XcFunc(MSONable):
         """
         Args:
             xc: LibxcFunc for XC functional.
-            x, c: LibxcFunc for exchange and correlation part. Mutually exclusive with xc.
+            x: LibxcFunc for exchange part. Mutually exclusive with xc.
+            c: LibxcFunc for correlation part. Mutually exclusive with xc.
         """
         # Consistency check
         if xc is None:
@@ -216,7 +217,7 @@ class XcFunc(MSONable):
         """The type of the functional."""
         if self.xc in self.defined_aliases:
             return self.defined_aliases[self.xc].type
-        xc = (self.x, self.c)
+        xc = self.x, self.c
         if xc in self.defined_aliases:
             return self.defined_aliases[xc].type
 

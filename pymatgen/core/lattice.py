@@ -1394,7 +1394,8 @@ class Lattice(MSONable):
         Compute the scalar product of vector(s).
 
         Args:
-            coords_a, coords_b: Array-like objects with the coordinates.
+            coords_a: Array-like coordinates.
+            coords_b: Array-like coordinates.
             frac_coords (bool): Boolean stating whether the vector
                 corresponds to fractional or Cartesian coordinates.
 
