@@ -6,8 +6,18 @@ from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
 
+from pymatgen.entries import Entry
 
-class MoleculeEntry:
+
+__author__ = "Evan Spotte-Smith, Samuel Blau, Daniel Barter"
+__copyright__ = "Copyright 2023, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Evan Spotte-Smith"
+__email__ = "espottesmith@gmail.com"
+__date__ = "02/04/2023"
+
+
+class MoleculeEntry(Entry):
     """
     A class to provide easy access to Molecule properties.
 
@@ -33,7 +43,11 @@ class MoleculeEntry:
     ):
         self.molecule = molecule
 
-        self.energy = energy
+        super().__init__(
+            self.molecule.composition,
+            self._energy
+        )
+
         self.enthalpy = enthalpy
         self.entropy = entropy
 
@@ -49,11 +63,6 @@ class MoleculeEntry:
             self.data = dict()
         else:
             self.data = data
-
-
-    @property
-    def free_energy():
-        pass
 
     @property
     def graph(self):
@@ -75,16 +84,38 @@ class MoleculeEntry:
     def num_atoms(self):
         return len(self.molecule)
 
+    @property
+    def energy(self):
+        return self._energy
+
+    def free_energy(self, temperature: float = 298.15) -> float:
+        """
+        Gibbs free energy of the molecule (in eV) at a given temperature.
+
+        Args:
+            temperature (float): Temperature in Kelvin. Default is 298.15, room temperature
+        """
+
+        if self.enthalpy is None or self.entropy is None:
+            raise ValueError("Gibbs free energy requires enthalpy and entropy to be known!")
+
+        u = self.energy * 27.2114
+        h = self.enthalpy * 0.043363
+        s = self.entropy * 0.000043363
+
+        return u + h - temperature * s
+
     @classmethod
-    def from_dataset_entry(
+    def from_libe_madeira(
         cls,
         doc: Dict,
         use_thermo: str = "raw",
     ):
         """
         Initialize a MoleculeEntry from a document in the LIBE (Lithium-Ion
-        Battery Electrolyte) or MADEIRA (MAgnesium Dataset of Electrolyte and
-        Interphase ReAgents) datasets.
+        Battery Electrolyte; Spotte-Smith*, Blau*, et al., Sci. Data 8(203), 2021
+        ) or MADEIRA (MAgnesium Dataset of Electrolyte and
+        Interphase ReAgents; manuscript in submission) datasets.
 
         Args:
             doc: Dictionary representing an entry from LIBE or MADEIRA
@@ -135,26 +166,28 @@ class MoleculeEntry:
             else:
                 mol_graph = MoleculeGraph.from_dict(doc["molecule_graph"])
 
-            partial_charges_resp = doc['partial_charges']['resp']
-            partial_charges_mulliken = doc['partial_charges']['mulliken']
-            spin_multiplicity = doc['spin_multiplicity']
+            data = dict()
+            
+            partial_charges_resp = doc.get('partial_charges', dict()).get('resp')
+            if partial_charges_resp:
+                data["partial_charges_resp"] = partial_charges_resp
+            partial_charges_mulliken = doc.get('partial_charges', dict()).get('mulliken')
+            if partial_charges_mulliken:
+                data["partial_charges_mulliken"] = partial_charges_mulliken
 
+            partial_charges_nbo = doc.get('partial_charges', dict()).get('nbo')
+            if partial_charges_nbo:
+                data["partial_charges_nbo"] = partial_charges_nbo
+            partial_spins_nbo = doc.get('partial_spins', dict()).get('nbo')
+            if partial_spins_nbo:
+                data["partial_spins_nbo"] = partial_spins_nbo
 
-            if doc['number_atoms'] == 1:
-                partial_charges_nbo = doc['partial_charges']['mulliken']
-                partial_spins_nbo = doc['partial_spins']['mulliken']
-            else:
-                partial_charges_nbo = doc['partial_charges']['nbo']
-                partial_spins_nbo = doc['partial_spins']['nbo']
-
-            electron_affinity_eV = None
-            ionization_energy_eV = None
             if 'redox' in doc:
                 if 'electron_affinity_eV' in doc['redox']:
-                    electron_affinity_eV = doc['redox']['electron_affinity_eV']
+                    data["electron_affinity_eV"] = doc['redox']['electron_affinity_eV']
 
                 if 'ionization_energy_eV' in doc['redox']:
-                    ionization_energy_eV = doc['redox']['ionization_energy_eV']
+                    data["ionization_energy_eV"] = doc['redox']['ionization_energy_eV']
 
         except KeyError as e:
             raise Exception(
@@ -162,52 +195,47 @@ class MoleculeEntry:
                 f"attribute {e} in `doc`."
             )
 
-
-
         return cls(
             molecule=molecule,
             energy=energy,
+            entry_id=entry_id,
             enthalpy=enthalpy,
             entropy=entropy,
-            entry_id=entry_id,
             mol_graph=mol_graph,
-            partial_charges_resp=partial_charges_resp,
-            partial_charges_mulliken=partial_charges_mulliken,
-            partial_charges_nbo=partial_charges_nbo,
-            electron_affinity=electron_affinity_eV,
-            ionization_energy=ionization_energy_eV,
-            spin_multiplicity=spin_multiplicity,
-            partial_spins_nbo=partial_spins_nbo
+            data=data
         )
 
-
-
-    def get_free_energy(self, temperature: float = ROOM_TEMP) -> Optional[float]:
+    @classmethod
+    def from_mpcule_summary_doc(d: Dict[str, Any],
+                                solvent: str):
         """
-        Get the free energy at the give temperature.
+        Initialize a MoleculeEntry from a summary document in the Materials Project
+        molecules (MPcules) database.
+
+        
         """
-        if self.enthalpy is not None and self.entropy is not None:
-            # TODO: fix these hard coded vals
-            return (
-                self.energy * 27.21139
-                + 0.0433641 * self.enthalpy
-                - temperature * self.entropy * 0.0000433641
-            )
-        else:
-            return None
+
+    @classmethod
+    def from_dict(d: Dict[str, Any]):
+        pass
+
+    @classmethod
+    def as_dict():
+        pass
 
     def __repr__(self):
 
         output = [
             f"MoleculeEntry {self.entry_id} - {self.formula}",
-            f"Total charge = {self.charge}",
+            f"Charge = {self.charge}",
+            f"Spin = {self.spin_multiplicity}"
         ]
 
         energies = [
             ("Energy", "Hartree", self.energy),
             ("Enthalpy", "kcal/mol", self.enthalpy),
             ("Entropy", "cal/mol.K", self.entropy),
-            ("Free Energy (298.15 K)", "eV", self.get_free_energy()),
+            ("Free Energy (298.15 K)", "eV", self.free_energy()),
         ]
         for name, unit, value in energies:
             if value is None:
@@ -216,7 +244,12 @@ class MoleculeEntry:
                 output.append(f"{name} = {value:.4f} {unit}")
 
         if self.ind:
-            output.append("index: {}".format(self.ind))
+            output.append("Index: {}".format(self.ind))
+        
+        if len(self.data) > 0:
+            output.append("Additional Data:")
+        for k, v in self.data.items():
+            output.append(f"\t{k} = {v}")
 
         return "\n".join(output)
 
@@ -228,3 +261,7 @@ class MoleculeEntry:
             return str(self) == str(other)
         else:
             return False
+
+
+class MoleculeCalculationEntry(Entry):
+    pass
