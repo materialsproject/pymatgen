@@ -5,6 +5,7 @@ import random
 import unittest
 
 import numpy as np
+from pytest import approx
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 from pymatgen.util.testing import PymatgenTest
@@ -66,7 +67,7 @@ class PlanesUtilsTest(PymatgenTest):
                 coeff[3] * plane.d,
             )
             fit_error = plane_not_changed.fit_error(points, fit=best_fit)
-            assert round(abs(fit_error - fit_error_plane), 7) == 0
+            assert fit_error == approx(fit_error_plane)
 
     def test_is_in_plane(self):
         assert self.plane.is_in_plane(self.p1, 0.001)
