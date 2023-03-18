@@ -2352,7 +2352,7 @@
     "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_data": 0.0002802919771056622,
     "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_eq": 0.0014617490232922137,
     "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_from_structures": 0.0002590420190244913,
-    "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_historynodes": 0.00024591601686552167,
+    "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_history_nodes": 0.00024591601686552167,
     "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_references": 0.004677499964600429,
     "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_remarks": 0.0002656250144354999,
     "pymatgen/util/tests/test_provenance.py::StructureNLCase::test_to_from_dict": 0.002873707970138639,

@@ -320,12 +320,12 @@ class TensorTest(PymatgenTest):
         vtens[3, 3] = 73.48
         et = Tensor.from_voigt(vtens)
         populated = et.populate(sn, prec=1e-3).voigt.round(2)
-        assert round(abs(populated[1, 1] - 259.31), 7) == 0
-        assert round(abs(populated[2, 2] - 259.31), 7) == 0
-        assert round(abs(populated[0, 2] - 160.71), 7) == 0
-        assert round(abs(populated[1, 2] - 160.71), 7) == 0
-        assert round(abs(populated[4, 4] - 73.48), 7) == 0
-        assert round(abs(populated[5, 5] - 73.48), 7) == 0
+        assert populated[1, 1] == pytest.approx(259.31)
+        assert populated[2, 2] == pytest.approx(259.31)
+        assert populated[0, 2] == pytest.approx(160.71)
+        assert populated[1, 2] == pytest.approx(160.71)
+        assert populated[4, 4] == pytest.approx(73.48)
+        assert populated[5, 5] == pytest.approx(73.48)
         # test a rank 6 example
         vtens = np.zeros([6] * 3)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
@@ -334,13 +334,13 @@ class TensorTest(PymatgenTest):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
-        assert round(abs(toec.voigt[1, 1, 1] - -1271), 7) == 0
-        assert round(abs(toec.voigt[0, 1, 1] - -814), 7) == 0
-        assert round(abs(toec.voigt[0, 2, 2] - -814), 7) == 0
-        assert round(abs(toec.voigt[1, 4, 4] - -3), 7) == 0
-        assert round(abs(toec.voigt[2, 5, 5] - -3), 7) == 0
-        assert round(abs(toec.voigt[1, 2, 0] - -50), 7) == 0
-        assert round(abs(toec.voigt[4, 5, 3] - -95), 7) == 0
+        assert toec.voigt[1, 1, 1] == pytest.approx(-1271)
+        assert toec.voigt[0, 1, 1] == pytest.approx(-814)
+        assert toec.voigt[0, 2, 2] == pytest.approx(-814)
+        assert toec.voigt[1, 4, 4] == pytest.approx(-3)
+        assert toec.voigt[2, 5, 5] == pytest.approx(-3)
+        assert toec.voigt[1, 2, 0] == pytest.approx(-50)
+        assert toec.voigt[4, 5, 3] == pytest.approx(-95)
 
         et = Tensor.from_voigt(test_data["C3_raw"]).fit_to_structure(sn)
         new = np.zeros(et.voigt.shape)

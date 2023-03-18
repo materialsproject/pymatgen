@@ -23,8 +23,8 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         assert csm_finite_ratio.evaluate(0.0) == 1.0
-        assert round(abs(csm_finite_ratio.evaluate(2.0) - 0.43807544047766522), 7) == 0
-        assert round(abs(csm_finite_ratio.evaluate(4.0) - 0.15163266492815836), 7) == 0
+        assert csm_finite_ratio.evaluate(2.0) == pytest.approx(0.4380754)
+        assert csm_finite_ratio.evaluate(4.0) == pytest.approx(0.1516326)
         assert csm_finite_ratio.evaluate(8.0) == 0.0
         assert csm_finite_ratio.evaluate(9.0) == 0.0
 
@@ -35,7 +35,7 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         assert csm_finite_ratio.evaluate(0.0) == 1.0
-        assert round(abs(csm_finite_ratio.evaluate(4.0) - 0.091969860292860584), 7) == 0
+        assert csm_finite_ratio.evaluate(4.0) == pytest.approx(0.09196986)
         assert csm_finite_ratio.evaluate(8.0) == 0.0
         assert csm_finite_ratio.evaluate(9.0) == 0.0
 
@@ -46,8 +46,8 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         assert csm_finite_ratio.evaluate(0.0) == 1.0
-        assert round(abs(csm_finite_ratio.evaluate(1.0) - 0.43807544047766522), 7) == 0
-        assert round(abs(csm_finite_ratio.evaluate(2.0) - 0.15163266492815836), 7) == 0
+        assert csm_finite_ratio.evaluate(1.0) == pytest.approx(0.4380754)
+        assert csm_finite_ratio.evaluate(2.0) == pytest.approx(0.1516326)
         assert csm_finite_ratio.evaluate(4.0) == 0.0
         assert csm_finite_ratio.evaluate(4.5) == 0.0
 
@@ -76,7 +76,7 @@ class FuncUtilsTest(unittest.TestCase):
         )
         # csm_infinite_ratio = CSMInfiniteRatioFunction(function='power2_inverse_decreasing')
         assert csm_infinite_ratio.evaluate(0.0) == np.inf
-        assert round(abs(csm_infinite_ratio.evaluate(2.0) - 2.25), 7) == 0
+        assert csm_infinite_ratio.evaluate(2.0) == pytest.approx(2.25)
         assert csm_infinite_ratio.evaluate(4.0) == 0.5
         assert csm_infinite_ratio.evaluate(8.0) == 0.0
         assert csm_infinite_ratio.evaluate(9.0) == 0.0

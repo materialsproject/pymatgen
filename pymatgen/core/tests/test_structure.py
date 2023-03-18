@@ -1328,11 +1328,22 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 assert cluster.formula == "H4 C1"
 
-    @unittest.skipIf(m3gnet is None, "Relaxation test requires m3gnet.")
+    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
-        assert round(abs(relaxed.lattice.a - 3.849563), 4) == 0
+        assert relaxed.lattice.a == pytest.approx(3.849563)
+
+    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
+    def test_relax_with_observer(self):
+        structure = self.get_structure("Si")
+        relaxed, trajectory = structure.relax(return_trajectory=True)
+        assert relaxed.lattice.a == pytest.approx(3.849563)
+        expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
+        assert sorted(trajectory.__dict__) == expected_attrs
+        for key in expected_attrs:
+            # check for 2 atoms in Structure, 1 relax step in all observed trajectory attributes
+            assert len(getattr(trajectory, key)) == {"atoms": 2}.get(key, 1)
 
     def test_from_prototype(self):
         for pt in ["bcc", "fcc", "hcp", "diamond"]:
