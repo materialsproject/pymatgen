@@ -98,9 +98,9 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
 
 class TestAbinitHeader(PymatgenTest):
-
     def test_api(self):
         from pymatgen.io.abinit.netcdf import AbinitHeader
+
         head = AbinitHeader(foo=1, bar=2)
         assert head.foo == 1
         assert str(head)
