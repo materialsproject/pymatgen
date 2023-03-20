@@ -120,9 +120,7 @@ def _parse_varray(elem):
 
 
 def _parse_from_incar(filename, key):
-    """
-    Helper function to parse a parameter from the INCAR.
-    """
+    """Helper function to parse a parameter from the INCAR."""
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
         if re.search(r"INCAR", f):
@@ -432,11 +430,7 @@ class Vasprun(MSONable):
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
                         if not hasattr(self, "kpoints"):
-                            (
-                                self.kpoints,
-                                self.actual_kpoints,
-                                self.actual_kpoints_weights,
-                            ) = self._parse_kpoints(elem)
+                            self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == "initialpos":
@@ -460,10 +454,7 @@ class Vasprun(MSONable):
                 elif parse_eigen and tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    (
-                        self.projected_eigenvalues,
-                        self.projected_magnetisation,
-                    ) = self._parse_projected_eigen(elem)
+                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
                 elif tag == "dielectricfunction":
                     if (
                         "comment" not in elem.attrib
@@ -624,11 +615,8 @@ class Vasprun(MSONable):
             True if electronic step convergence has been reached in the final
             ionic step
         """
-        if self.incar not in ["CHI"]:
-            final_esteps = self.ionic_steps[-1]["electronic_steps"]
-        else:
-            final_esteps = 0
-            # In a response function run there is no ionic steps, there is no scf step
+        final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
+        # In a response function run there is no ionic steps, there is no scf step
         if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
@@ -870,8 +858,7 @@ class Vasprun(MSONable):
         line_mode: bool = False,
         force_hybrid_mode: bool = False,
     ):
-        """
-        Returns the band structure as a BandStructure object
+        """Get the band structure as a BandStructure object.
 
         Args:
             kpoints_filename: Full path of the KPOINTS file from which
@@ -907,9 +894,8 @@ class Vasprun(MSONable):
         """
         if not kpoints_filename:
             kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
-        if kpoints_filename:
-            if not os.path.exists(kpoints_filename) and line_mode is True:
-                raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
+        if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
+            raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
@@ -918,7 +904,7 @@ class Vasprun(MSONable):
         else:
             e_fermi = efermi
 
-        kpoint_file = None
+        kpoint_file: Kpoints = None  # type: ignore
         if kpoints_filename and os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
@@ -954,9 +940,8 @@ class Vasprun(MSONable):
         if self.parameters.get("LHFCALC", False) or 0.0 in self.actual_kpoints_weights:
             hybrid_band = True
 
-        if kpoint_file is not None:
-            if kpoint_file.style == Kpoints.supported_modes.Line_mode:
-                line_mode = True
+        if kpoint_file is not None and kpoint_file.style == Kpoints.supported_modes.Line_mode:
+            line_mode = True
 
         if line_mode:
             labels_dict = {}
@@ -1155,8 +1140,7 @@ class Vasprun(MSONable):
         :param path: Path to search for POTCARs
         :return: Potcar spec from path.
         """
-        potcar = self.get_potcars(path)
-        if potcar:
+        if potcar := self.get_potcars(path):
             self.potcar_spec = [
                 {"titel": sym, "hash": ps.get_potcar_hash()}
                 for sym in self.potcar_symbols
@@ -1208,7 +1192,7 @@ class Vasprun(MSONable):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = self.hubbards
 
-        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        unique_symbols = sorted(set(self.atomic_symbols))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
@@ -1258,7 +1242,7 @@ class Vasprun(MSONable):
             eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 vout["projected_eigenvalues"] = {
@@ -1370,11 +1354,11 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem):
         imag = [
-            [_vasprun_float(l) for l in r.text.split()]
+            [_vasprun_float(line) for line in r.text.split()]
             for r in elem.find("imag").find("array").find("set").findall("r")
         ]
         real = [
-            [_vasprun_float(l) for l in r.text.split()]
+            [_vasprun_float(line) for line in r.text.split()]
             for r in elem.find("real").find("array").find("set").findall("r")
         ]
         elem.clear()
@@ -1470,10 +1454,7 @@ class Vasprun(MSONable):
                     data = np.array(_parse_varray(ss))
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
-                        if lm:
-                            orb = Orbital(j - 1)
-                        else:
-                            orb = OrbitalType(j - 1)
+                        orb = Orbital(j - 1) if lm else OrbitalType(j - 1)
                         pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
@@ -1636,7 +1617,7 @@ class BSVasprun(Vasprun):
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = self.hubbards
 
-        unique_symbols = sorted(list(set(self.atomic_symbols)))
+        unique_symbols = sorted(set(self.atomic_symbols))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
@@ -1671,7 +1652,7 @@ class BSVasprun(Vasprun):
                     eigen[i][str(spin)] = v
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 peigen = [{} for _ in eigen]
@@ -1846,6 +1827,11 @@ class Outcar:
         self.filename = filename
         self.is_stopped = False
 
+        # Assume a compilation with parallelization enabled.
+        # Will be checked later.
+        # If VASP is compiled in serial, the OUTCAR is written slightly differently.
+        serial_compilation = False
+
         # data from end of OUTCAR
         charge = []
         mag_x = []
@@ -1985,6 +1971,11 @@ class Outcar:
         run_stats["cores"] = None
         with zopen(filename, "rt") as f:
             for line in f:
+                if "serial" in line:
+                    # activate the serial parallelization
+                    run_stats["cores"] = 1
+                    serial_compilation = True
+                    break
                 if "running" in line:
                     if line.split()[1] == "on":
                         run_stats["cores"] = int(line.split()[2])
@@ -2018,7 +2009,9 @@ class Outcar:
             for [n] in self.read_table_pattern(
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
-                r"maximum and minimum number of plane-waves",
+                r"maximum number of plane-waves"
+                if serial_compilation
+                else r"maximum and minimum number of plane-waves",
                 last_one_only=False,
                 first_one_only=True,
             )
@@ -2241,10 +2234,7 @@ class Outcar:
             tables.append(table_contents)
             if first_one_only:
                 break
-        if last_one_only or first_one_only:
-            retained_data = tables[-1]
-        else:
-            retained_data = tables
+        retained_data = tables[-1] if last_one_only or first_one_only else tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
@@ -2308,27 +2298,27 @@ class Outcar:
         data = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
-        with zopen(self.filename, "rt") as f:
-            for l in f:
-                l = l.strip()
-                if re.match(plasma_pattern, l):
-                    read_plasma = "intraband" if "intraband" in l else "interband"
-                elif re.match(dielectric_pattern, l):
+        with zopen(self.filename, "rt") as file:
+            for line in file:
+                line = line.strip()
+                if re.match(plasma_pattern, line):
+                    read_plasma = "intraband" if "intraband" in line else "interband"
+                elif re.match(dielectric_pattern, line):
                     read_plasma = False
                     read_dielectric = True
                     row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
 
-                if read_plasma and re.match(row_pattern, l):
-                    plasma_frequencies[read_plasma].append([float(t) for t in l.strip().split()])
-                elif read_plasma and Outcar._parse_sci_notation(l):
-                    plasma_frequencies[read_plasma].append(Outcar._parse_sci_notation(l))
+                if read_plasma and re.match(row_pattern, line):
+                    plasma_frequencies[read_plasma].append([float(t) for t in line.strip().split()])
+                elif read_plasma and Outcar._parse_sci_notation(line):
+                    plasma_frequencies[read_plasma].append(Outcar._parse_sci_notation(line))
                 elif read_dielectric:
                     toks = None
-                    if re.match(row_pattern, l.strip()):
-                        toks = l.strip().split()
-                    elif Outcar._parse_sci_notation(l.strip()):
-                        toks = Outcar._parse_sci_notation(l.strip())
-                    elif re.match(r"\s*-+\s*", l):
+                    if re.match(row_pattern, line.strip()):
+                        toks = line.strip().split()
+                    elif Outcar._parse_sci_notation(line.strip()):
+                        toks = Outcar._parse_sci_notation(line.strip())
+                    elif re.match(r"\s*-+\s*", line):
                         count += 1
 
                     if toks:
@@ -4189,15 +4179,15 @@ class Xdatcar:
 
         # pylint: disable=E1136
         ionicstep_cnt = 1
-        with zopen(filename, "rt") as f:
-            for l in f:
-                l = l.strip()
+        with zopen(filename, "rt") as file:
+            for line in file:
+                line = line.strip()
                 if preamble is None:
-                    preamble = [l]
-                    title = l
-                elif title == l:
+                    preamble = [line]
+                    title = line
+                elif title == line:
                     preamble_done = False
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4208,9 +4198,9 @@ class Xdatcar:
                             break
                     ionicstep_cnt += 1
                     coords_str = []
-                    preamble = [l]
+                    preamble = [line]
                 elif not preamble_done:
-                    if l == "" or "Direct configuration=" in l:
+                    if line == "" or "Direct configuration=" in line:
                         preamble_done = True
                         tmp_preamble = [preamble[0]]
                         for i in range(1, len(preamble)):
@@ -4220,9 +4210,9 @@ class Xdatcar:
                                 break
                         preamble = tmp_preamble
                     else:
-                        preamble.append(l)
-                elif l == "" or "Direct configuration=" in l:
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                        preamble.append(line)
+                elif line == "" or "Direct configuration=" in line:
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4234,8 +4224,8 @@ class Xdatcar:
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
-                    coords_str.append(l)
-            p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    coords_str.append(line)
+            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4287,12 +4277,12 @@ class Xdatcar:
         # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
-            for l in f:
-                l = l.strip()
+            for line in f:
+                line = line.strip()
                 if preamble is None:
-                    preamble = [l]
+                    preamble = [line]
                 elif not preamble_done:
-                    if l == "" or "Direct configuration=" in l:
+                    if line == "" or "Direct configuration=" in line:
                         preamble_done = True
                         tmp_preamble = [preamble[0]]
                         for i in range(1, len(preamble)):
@@ -4302,9 +4292,9 @@ class Xdatcar:
                                 break
                         preamble = tmp_preamble
                     else:
-                        preamble.append(l)
-                elif l == "" or "Direct configuration=" in l:
-                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                        preamble.append(line)
+                elif line == "" or "Direct configuration=" in line:
+                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4314,8 +4304,8 @@ class Xdatcar:
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
-                    coords_str.append(l)
-            p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    coords_str.append(line)
+            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4408,9 +4398,9 @@ class Dynmat:
             self._masses = map(float, lines[1].split())
             self.data = defaultdict(dict)
             atom, disp = None, None
-            for i, l in enumerate(lines[2:]):
-                v = list(map(float, l.split()))
-                if not i % (self._natoms + 1):
+            for idx, line in enumerate(lines[2:]):
+                v = list(map(float, line.split()))
+                if not idx % (self._natoms + 1):
                     atom, disp = map(int, v[:2])
                     if atom not in self.data:
                         self.data[atom] = {}
@@ -4828,10 +4818,7 @@ class Wavecar:
         Returns:
             a list containing valid G-points
         """
-        if gamma:
-            kmax = self._nbmax[0] + 1
-        else:
-            kmax = 2 * self._nbmax[0] + 1
+        kmax = self._nbmax[0] + 1 if gamma else 2 * self._nbmax[0] + 1
 
         gpoints = []
         extra_gpoints = []
@@ -4849,7 +4836,7 @@ class Wavecar:
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
                     E = g**2 / self._C
-                    if E < self.encut:
+                    if self.encut > E:
                         gpoints.append(G)
                         if gamma and (k1, j2, i3) != (0, 0, 0):
                             extra_gpoints.append(-G)

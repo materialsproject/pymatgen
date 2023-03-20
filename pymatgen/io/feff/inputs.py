@@ -495,13 +495,13 @@ class Atoms(MSONable):
                 is the one at the origin.
         """
         atoms_string = Atoms.atoms_string_from_file(filename)
-        line_list = [l.split() for l in atoms_string.splitlines()[3:]]
+        lines = [line.split() for line in atoms_string.splitlines()[3:]]
         coords = []
         symbols = []
-        for l in line_list:
-            if l:
-                coords.append([float(i) for i in l[:3]])
-                symbols.append(l[4])
+        for line in lines:
+            if line:
+                coords.append([float(val) for val in line[:3]])
+                symbols.append(line[4])
         return Molecule(symbols, coords)
 
     def get_lines(self) -> list[list[str | int]]:
@@ -723,12 +723,10 @@ class Tags(dict):
                         ieels_max = ieels + 5
                     else:
                         params[key] = val
-            if ieels >= 0:
-                if ieels <= i <= ieels_max:
-                    if i == ieels + 1:
-                        if int(line.split()[1]) == 1:
-                            ieels_max -= 1
-                    eels_params.append(line)
+            if ieels >= 0 and ieels <= i <= ieels_max:
+                if i == ieels + 1 and int(line.split()[1]) == 1:
+                    ieels_max -= 1
+                eels_params.append(line)
 
         if eels_params:
             if len(eels_params) == 6:
@@ -823,9 +821,8 @@ class Tags(dict):
             else:
                 similar_param[k1] = v1
         for k2, v2 in other.items():
-            if k2 not in similar_param and k2 not in different_param:
-                if k2 not in self:
-                    different_param[k2] = {"FEFF_TAGS1": "Default", "FEFF_TAGS2": v2}
+            if k2 not in similar_param and k2 not in different_param and k2 not in self:
+                different_param[k2] = {"FEFF_TAGS1": "Default", "FEFF_TAGS2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def __add__(self, other):
@@ -1020,11 +1017,11 @@ class Paths(MSONable):
         for i, legs in enumerate(self.paths):
             lines.append(f"{path_index} {len(legs)} {self.degeneracies[i]}")
             lines.append("x y z ipot label")
-            for l in legs:
-                coords = self.atoms.cluster[l].coords.tolist()
+            for leg in legs:
+                coords = self.atoms.cluster[leg].coords.tolist()
 
                 tmp = f"{coords[0]:.6f} {coords[1]:.6f} {coords[2]:.6f}"
-                element = str(self.atoms.cluster[l].specie.name)
+                element = str(self.atoms.cluster[leg].specie.name)
                 # the potential index for the absorbing atom(the one at the cluster origin) is 0
                 potential = 0 if np.linalg.norm(coords) <= 1e-6 else self.atoms.pot_dict[element]
                 tmp = f"{tmp} {potential} {element}"
@@ -1063,9 +1060,8 @@ def get_atom_map(structure, absorbing_atom=None):
 
     # if there is only a single absorbing atom in the structure,
     # it should be excluded from this list
-    if absorbing_atom:
-        if len(structure.indices_from_symbol(absorbing_atom)) == 1:
-            unique_pot_atoms.remove(absorbing_atom)
+    if absorbing_atom and len(structure.indices_from_symbol(absorbing_atom)) == 1:
+        unique_pot_atoms.remove(absorbing_atom)
 
     atom_map = {}
     for i, atom in enumerate(unique_pot_atoms):

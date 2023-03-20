@@ -28,6 +28,7 @@ import itertools
 import os
 import re
 import textwrap
+import typing
 from dataclasses import dataclass, field
 from hashlib import md5
 from pathlib import Path
@@ -109,9 +110,8 @@ class Keyword(MSONable):
         if self.name.upper() == other.name.upper():
             v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]
             v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]
-            if v1 == v2:
-                if self.units == self.units:
-                    return True
+            if v1 == v2 and self.units == self.units:
+                return True
         return False
 
     def __add__(self, other):
@@ -203,7 +203,7 @@ class KeywordList(MSONable):
         """
         assert all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
         self.name = keywords[0].name if keywords else None
-        self.keywords = keywords
+        self.keywords = list(keywords)
 
     def __str__(self):
         return self.get_string()
@@ -228,11 +228,11 @@ class KeywordList(MSONable):
         """
         self.keywords.append(item)
 
-    def extend(self, l):
+    def extend(self, lst: Sequence[Keyword]) -> None:
         """
         Extend the keyword list
         """
-        self.keywords.extend(l)
+        self.keywords.extend(lst)
 
     def get_string(self, indent=0):
         """
@@ -380,13 +380,13 @@ class Section(MSONable):
         Delete section with name matching key OR delete all keywords
         with names matching this key
         """
-        l = [s for s in self.subsections if s.upper() == key.upper()]
-        if l:
-            del self.subsections[l[0]]
+        lst = [ss for ss in self.subsections if ss.upper() == key.upper()]
+        if lst:
+            del self.subsections[lst[0]]
             return
-        l = [k for k in self.keywords if k.upper() == key.upper()]
-        if l:
-            del self.keywords[l[0]]
+        lst = [kw for kw in self.keywords if kw.upper() == key.upper()]
+        if lst:
+            del self.keywords[lst[0]]
             return
         raise KeyError("No section or keyword matching the given key.")
 
@@ -652,7 +652,7 @@ class SectionList(MSONable):
         assert all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
         self.name = sections[0].name if sections else None
         self.alias = sections[0].alias if sections else None
-        self.sections = sections
+        self.sections = list(sections)
 
     def __str__(self):
         return self.get_string()
@@ -692,19 +692,19 @@ class SectionList(MSONable):
         """
         return self.sections[index].get(d)
 
-    def append(self, item):
+    def append(self, item) -> None:
         """
         Append the section list
         """
         self.sections.append(item)
 
-    def extend(self, l):
+    def extend(self, lst: list) -> None:
         """
         Extend the section list
         """
-        self.sections.extend(l)
+        self.sections.extend(lst)
 
-    def verbosity(self, verbosity):
+    def verbosity(self, verbosity) -> None:
         """
         Silence all sections in section list
         """
@@ -1518,7 +1518,7 @@ class DftPlusU(Section):
         self,
         eps_u_ramping=1e-5,
         init_u_ramping_each_scf=False,
-        l=-1,
+        l=-1,  # noqa: E741
         u_minus_j=0,
         u_ramping=0,
         keywords: dict | None = None,
@@ -1898,10 +1898,7 @@ class BrokenSymmetry(Section):
         n_beta = []
         unpaired_orbital = None
         while tmp:
-            if tmp > 0:
-                tmp2 = -min((esv[0][2], tmp))
-            else:
-                tmp2 = min((f2(esv[0][1]) - esv[0][2], -tmp))
+            tmp2 = -min((esv[0][2], tmp)) if tmp > 0 else min((f2(esv[0][1]) - esv[0][2], -tmp))
             l_alpha.append(esv[0][1])
             l_beta.append(esv[0][1])
             nel_alpha.append(tmp2)
@@ -2318,10 +2315,7 @@ class BasisInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        for k, v in d1.items():
-            if v is not None and v != d2[k]:
-                return False
-        return True
+        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
     def from_string(cls, string: str) -> BasisInfo:
@@ -2420,10 +2414,7 @@ class AtomicMetadata(MSONable):
         other_names = [other.name]
         if other.alias_names:
             other_names.extend(other.alias_names)
-        for nm in this_names:
-            if nm is not None and nm not in other_names:
-                return False
-        return True
+        return all(not (nm is not None and nm not in other_names) for nm in this_names)
 
     def get_hash(self) -> str:
         """Get a hash of this object"""
@@ -2493,37 +2484,29 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         """Number of exponents"""
         return [len(e) for e in self.exponents]
 
+    @typing.no_type_check
     def get_string(self) -> str:
         """Get standard cp2k GTO formatted string"""
-        if (
-            self.info is None
-            or self.nset is None
-            or self.n is None
-            or self.lmax is None
-            or self.lmin is None
-            or self.nshell is None
-            or self.exponents is None
-            or self.coefficients is None
+        if any(
+            getattr(self, x, None) is None
+            for x in ("info", "nset", "n", "lmax", "lmin", "nshell", "exponents", "coefficients")
         ):
             raise ValueError("Must have all attributes defined to get string representation")
 
-        s = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
-        s += f"{str(self.nset)}\n"
+        out = f"{self.element} {self.name} {' '.join(self.alias_names)}\n"
+        out += f"{self.nset}\n"
         for set_index in range(self.nset):
-            s += (
-                f"{str(self.n[set_index])} "
-                f"{str(self.lmin[set_index])} "
-                f"{str(self.lmax[set_index])} "
-                f"{str(self.nexp[set_index])} "
+            out += (
+                f"{self.n[set_index]} {self.lmin[set_index]} {self.lmax[set_index]} {self.nexp[set_index]} "
                 f"{' '.join(map(str, self.nshell[set_index].values()))}\n"
             )
             for exp in self.coefficients[set_index]:
-                s += f"\t {self.exponents[set_index][exp]: .14f} "
-                for l in self.coefficients[set_index][exp]:
-                    for shell in self.coefficients[set_index][exp][l]:
-                        s += f"{self.coefficients[set_index][exp][l][shell]: .14f} "
-                s += "\n"
-        return s
+                out += f"\t {self.exponents[set_index][exp]: .14f} "
+                for ll in self.coefficients[set_index][exp]:
+                    for shell in self.coefficients[set_index][exp][ll]:
+                        out += f"{self.coefficients[set_index][exp][ll][shell]: .14f} "
+                out += "\n"
+        return out
 
     @classmethod
     def from_string(cls, string: str) -> GaussianTypeOrbitalBasisSet:
@@ -2542,7 +2525,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
                     _info[k] = v
         info = BasisInfo.from_dict(_info)
         potential: Literal["All Electron", "Pseudopotential"]
-        if any("ALL" in x for x in [name] + aliases):
+        if any("ALL" in x for x in [name, *aliases]):
             info.electrons = element.Z
             potential = "All Electron"
         else:
@@ -2564,21 +2547,21 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
             lmax.append(_lmax)
 
             _nshell = map(int, setinfo[4:])
-            nshell.append({l: int(next(_nshell, 0)) for l in range(_lmin, _lmax + 1)})
+            nshell.append({ll: int(next(_nshell, 0)) for ll in range(_lmin, _lmax + 1)})
             exponents.append([])
-            coefficients.append({i: {l: {} for l in range(_lmin, _lmax + 1)} for i in range(_nexp)})
+            coefficients.append({i: {ll: {} for ll in range(_lmin, _lmax + 1)} for i in range(_nexp)})
             line_index += 1
 
-            for i in range(_nexp):
+            for ii in range(_nexp):
                 line = lines[line_index].split()
                 exponents[set_index].append(float(line[0]))
                 coeffs = list(map(float, line[1:]))
 
-                j = 0
-                for l in range(_lmin, _lmax + 1):
-                    for shell in range(nshell[set_index][l]):
-                        coefficients[set_index][i][l][shell] = coeffs[j]
-                        j += 1
+                jj = 0
+                for ll in range(_lmin, _lmax + 1):
+                    for shell in range(nshell[set_index][ll]):
+                        coefficients[set_index][ii][ll][shell] = coeffs[jj]
+                        jj += 1
 
                 line_index += 1
 
@@ -2625,10 +2608,7 @@ class PotentialInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        for k, v in d1.items():
-            if v is not None and v != d2[k]:
-                return False
-        return True
+        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
     def from_string(cls, string):
@@ -2755,23 +2735,23 @@ class GthPotential(AtomicMetadata):
         ):
             raise ValueError("Must initialize all attributes in order to get string")
 
-        s = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
-        s += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
-        s += f"{self.r_loc: .14f} {str(self.nexp_ppl)} "
+        out = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
+        out += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
+        out += f"{self.r_loc: .14f} {str(self.nexp_ppl)} "
         for i in range(self.nexp_ppl):
-            s += f"{self.c_exp_ppl[i]: .14f} "
-        s += "\n"
-        s += f"{self.nprj} \n"
-        for l in range(self.nprj):
-            total_fill = self.nprj_ppnl[l] * 20 + 24
-            tmp = f"{self.radii[l]: .14f} {self.nprj_ppnl[l]: d}"
-            s += f"{tmp:>{''}{24}}"
-            for i in range(self.nprj_ppnl[l]):
+            out += f"{self.c_exp_ppl[i]: .14f} "
+        out += "\n"
+        out += f"{self.nprj} \n"
+        for idx in range(self.nprj):
+            total_fill = self.nprj_ppnl[idx] * 20 + 24
+            tmp = f"{self.radii[idx]: .14f} {self.nprj_ppnl[idx]: d}"
+            out += f"{tmp:>{''}{24}}"
+            for i in range(self.nprj_ppnl[idx]):
                 k = total_fill - 24 if i == 0 else total_fill
-                tmp = " ".join(f"{v: .14f}" for v in self.hprj_ppnl[l][i].values())
-                s += f"{tmp:>{''}{k}}"
-                s += "\n"
-        return s
+                tmp = " ".join(f"{v: .14f}" for v in self.hprj_ppnl[idx][i].values())
+                out += f"{tmp:>{''}{k}}"
+                out += "\n"
+        return out
 
     @classmethod
     def from_string(cls, string):
@@ -2788,7 +2768,7 @@ class GthPotential(AtomicMetadata):
                     info[k] = v
         info = PotentialInfo.from_dict(info)
         potential: Literal["All Electron", "Pseudopotential"]
-        if any("ALL" in x for x in [name] + aliases):
+        if any("ALL" in x for x in [name, *aliases]):
             potential = "All Electron"
             info.electrons = Element(element).Z
         else:
@@ -2808,25 +2788,25 @@ class GthPotential(AtomicMetadata):
         hprj_ppnl = {}
         lines = lines[4:]
         i = 0
-        l = 0
+        ll = 0
         L = 0
 
-        while l < nprj:
+        while ll < nprj:
             line = lines[i].split()
-            radii[l] = float(line[0])
-            nprj_ppnl[l] = int(line[1])
-            hprj_ppnl[l] = {x: {} for x in range(nprj_ppnl[l])}
+            radii[ll] = float(line[0])
+            nprj_ppnl[ll] = int(line[1])
+            hprj_ppnl[ll] = {x: {} for x in range(nprj_ppnl[ll])}
             line = list(map(float, line[2:]))
-            hprj_ppnl[l][0] = {j: float(ln) for j, ln in enumerate(line)}
+            hprj_ppnl[ll][0] = {j: float(ln) for j, ln in enumerate(line)}
 
             L = 1
             i += 1
-            while L < nprj_ppnl[l]:
+            while nprj_ppnl[ll] > L:
                 line2 = list(map(float, lines[i].split()))
-                hprj_ppnl[l][L] = {j: float(ln) for j, ln in enumerate(line2)}
+                hprj_ppnl[ll][L] = {j: float(ln) for j, ln in enumerate(line2)}
                 i += 1
                 L += 1
-            l += 1
+            ll += 1
 
         return cls(
             element=Element(element),

@@ -74,6 +74,28 @@ EPS=12
         assert gau.functional == "HF"
         assert gau.input_parameters["EPS"] == "12"
 
+    def test_from_cart_coords(self):
+        answer = """#P HF/6-31G(d) SCF=Tight SP
+
+H4 C1
+
+0 1
+C 0.000000 0.000000 0.000000
+H 0.000000 0.000000 1.089000
+H 1.026719 0.000000 -0.363000
+H -0.513360 -0.889165 -0.363000
+H -0.513360 0.889165 -0.363000
+
+EPS=12
+
+"""
+        assert self.gau.to_string(cart_coords=True) == answer
+        gau = GaussianInput.from_string(answer)
+        assert gau.functional == "HF"
+        assert gau.charge == 0
+        assert gau.spin_multiplicity == 1
+        assert gau.input_parameters["EPS"] == "12"
+
     def test_from_file(self):
         filepath = os.path.join(test_dir, "MethylPyrrolidine_drawn.gjf")
         gau = GaussianInput.from_file(filepath)
@@ -86,12 +108,11 @@ EPS=12
         with open(filepath) as f:
             txt = f.read()
         toks = txt.split("--link1--")
-        for i, t in enumerate(toks):
-            lines = t.strip().split("\n")
-            lines = [l.strip() for l in lines]
+        for idx, tok in enumerate(toks):
+            lines = [line.strip() for line in tok.strip().split("\n")]
             gau = GaussianInput.from_string("\n".join(lines))
             assert gau.molecule is not None
-            if i == 0:
+            if idx == 0:
                 mol = gau.molecule
         answer = """Full Formula (H4 O2)
 Reduced Formula: H2O
@@ -130,7 +151,7 @@ Sites (6)
         HALF3=11.861807"""
 
         gau = GaussianInput.from_string(gau_str)
-        assert "X3SiH4" == gau.molecule.composition.reduced_formula
+        assert gau.molecule.composition.reduced_formula == "X3SiH4"
 
     def test_gen_basis(self):
         gau_str = """#N B3LYP/Gen Pseudo=Read
@@ -198,7 +219,6 @@ H 0
 
     def test_no_molecule(self):
         """Test that we can write input files without a geometry"""
-
         # Makes a file without geometry
         input_file = GaussianInput(None, charge=0, spin_multiplicity=2)
         input_str = input_file.to_string().strip()
@@ -257,10 +277,10 @@ class GaussianOutputTest(unittest.TestCase):
         for mol in gau.structures:
             assert mol.formula == "H4 C1"
         assert "opt" in gau.route_parameters
-        assert "Minimum" == gau.stationary_type
-        assert "hf" == gau.functional
-        assert "3-21G" == gau.basis_set
-        assert 17 == gau.num_basis_func
+        assert gau.stationary_type == "Minimum"
+        assert gau.functional == "hf"
+        assert gau.basis_set == "3-21G"
+        assert gau.num_basis_func == 17
         d = gau.as_dict()
         assert d["input"]["functional"] == "hf"
         assert d["output"]["final_energy"] == approx(-39.9768775602)
@@ -370,20 +390,20 @@ class GaussianOutputTest(unittest.TestCase):
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
         d = gau.read_scan()
-        assert -548.02102 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -548.02102
         assert len(d["coords"]) == 1
         assert len(d["energies"]) == len(gau.energies)
         assert len(d["energies"]) == 21
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan_opt.log"))
-        assert 21 == len(gau.opt_structures)
+        assert len(gau.opt_structures) == 21
         d = gau.read_scan()
-        assert -548.02336 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -548.02336
         assert len(d["coords"]) == 2
         assert len(d["energies"]) == 21
-        assert 1.60000 == approx(d["coords"]["DSO"][6])
-        assert 124.01095 == approx(d["coords"]["ASO"][2])
+        assert approx(d["coords"]["DSO"][6]) == 1.60000
+        assert approx(d["coords"]["ASO"][2]) == 124.01095
         gau = GaussianOutput(os.path.join(test_dir, "H2O_scan_G16.out"))
-        assert 21 == len(gau.opt_structures)
+        assert len(gau.opt_structures) == 21
         coords = [
             [0.000000, 0.000000, 0.094168],
             [0.000000, 0.815522, -0.376673],
@@ -391,18 +411,18 @@ class GaussianOutputTest(unittest.TestCase):
         ]
         assert gau.opt_structures[-1].cart_coords.tolist() == coords
         d = gau.read_scan()
-        assert -0.00523 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -0.00523
         assert len(d["coords"]) == 3
         assert len(d["energies"]) == 21
-        assert 0.94710 == approx(d["coords"]["R1"][6])
-        assert 0.94277 == approx(d["coords"]["R2"][17])
+        assert approx(d["coords"]["R1"][6]) == 0.94710
+        assert approx(d["coords"]["R2"][17]) == 0.94277
 
     def test_geo_opt(self):
         """
         Test an optimization where no "input orientation" is outputted
         """
         gau = GaussianOutput(os.path.join(test_dir, "acene-n_gaussian09_opt.out"))
-        assert -1812.58399675 == approx(gau.energies[-1])
+        assert approx(gau.energies[-1]) == -1812.58399675
         assert len(gau.structures) == 6
         # Test the first 3 atom coordinates
         coords = [

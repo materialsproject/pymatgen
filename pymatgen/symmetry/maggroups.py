@@ -124,9 +124,8 @@ class MagneticSpaceGroup(SymmetryGroup):
         if isinstance(setting_transformation, str):
             if setting_transformation != "a,b,c;0,0,0":
                 self.jf = JonesFaithfulTransformation.from_transformation_string(setting_transformation)
-        elif isinstance(setting_transformation, JonesFaithfulTransformation):
-            if setting_transformation != self.jf:
-                self.jf = setting_transformation
+        elif isinstance(setting_transformation, JonesFaithfulTransformation) and setting_transformation != self.jf:
+            self.jf = setting_transformation
 
         self._data["magtype"] = raw_data[0]  # int from 1 to 4
         self._data["bns_number"] = [raw_data[1], raw_data[2]]
@@ -349,7 +348,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         # add lattice centerings
         centered_ops = []
-        lattice_vectors = [l["vector"] for l in self._data["bns_lattice"]]
+        lattice_vectors = [latt["vector"] for latt in self._data["bns_lattice"]]
 
         for vec in lattice_vectors:
             if not (np.array_equal(vec, [1, 0, 0]) or np.array_equal(vec, [0, 1, 0]) or np.array_equal(vec, [0, 0, 1])):
@@ -540,7 +539,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                 break_on_hyphens=False,
             )
 
-            description += ("\n{d[og_operators]}\nWyckoff Positions (OG): {d[og_lattice]}\n" "{d[og_wyckoff]}").format(
+            description += "\n{d[og_operators]}\nWyckoff Positions (OG): {d[og_lattice]}\n{d[og_wyckoff]}".format(
                 d=desc
             )
         elif desc["magtype"] == 4:

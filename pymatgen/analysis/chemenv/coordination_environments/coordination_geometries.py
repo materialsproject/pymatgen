@@ -241,6 +241,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         Simple and safe permutations for this separation plane.
 
         This is not meant to be used in production. Default configuration for ChemEnv does not use this method.
+
         Args:
             ordered_plane: Whether the order of the points in the plane can be used to reduce the
                 number of permutations.
@@ -857,10 +858,7 @@ class CoordinationGeometry:
         Returns the list of faces of this coordination geometry. Each face is given as a
         list of its vertices coordinates.
         """
-        if permutation is None:
-            coords = [site.coords for site in sites]
-        else:
-            coords = [sites[ii].coords for ii in permutation]
+        coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         return [[coords[ii] for ii in f] for f in self._faces]
 
     def edges(self, sites, permutation=None, input="sites"):
@@ -895,10 +893,7 @@ class CoordinationGeometry:
         """
         pmeshes = []
         # _vertices = [site.coords for site in sites]
-        if permutation is None:
-            _vertices = [site.coords for site in sites]
-        else:
-            _vertices = [sites[ii].coords for ii in permutation]
+        _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         _face_centers = []
         number_of_faces = 0
         for face in self._faces:
@@ -1233,36 +1228,30 @@ class AllCoordinationGeometries(dict):
         if mp_symbol is not None:
             try:
                 cg = self.get_geometry_from_mp_symbol(mp_symbol)
-                if IUPAC_symbol is not None:
-                    if IUPAC_symbol != cg.IUPAC_symbol:
-                        return False
-                if IUCr_symbol is not None:
-                    if IUCr_symbol != cg.IUCr_symbol:
-                        return False
-                if cn is not None:
-                    if int(cn) != int(cg.coordination_number):
-                        return False
+                if IUPAC_symbol is not None and IUPAC_symbol != cg.IUPAC_symbol:
+                    return False
+                if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
+                    return False
+                if cn is not None and int(cn) != int(cg.coordination_number):
+                    return False
                 return True
             except LookupError:
                 return False
         elif IUPAC_symbol is not None:
             try:
                 cg = self.get_geometry_from_IUPAC_symbol(IUPAC_symbol)
-                if IUCr_symbol is not None:
-                    if IUCr_symbol != cg.IUCr_symbol:
-                        return False
-                if cn is not None:
-                    if cn != cg.coordination_number:
-                        return False
+                if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
+                    return False
+                if cn is not None and cn != cg.coordination_number:
+                    return False
                 return True
             except LookupError:
                 return False
         elif IUCr_symbol is not None:
             try:
                 cg = self.get_geometry_from_IUCr_symbol(IUCr_symbol)
-                if cn is not None:
-                    if cn != cg.coordination_number:
-                        return False
+                if cn is not None and cn != cg.coordination_number:
+                    return False
                 return True
             except LookupError:
                 return True
@@ -1318,10 +1307,7 @@ class AllCoordinationGeometries(dict):
                     for cg in self.get_implemented_geometries(coordination=cn):
                         if additional_info is not None:
                             if "nb_hints" in additional_info:
-                                if cg.neighbors_sets_hints is not None:
-                                    addinfo = " *"
-                                else:
-                                    addinfo = ""
+                                addinfo = " *" if cg.neighbors_sets_hints is not None else ""
                             else:
                                 addinfo = ""
                         else:

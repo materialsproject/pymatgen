@@ -75,10 +75,10 @@ class TransformedStructure(MSONable):
             raise IndexError("Can't undo. Latest history has no input_structure")
         h = self.history.pop()
         self._undone.append((h, self.final_structure))
-        s = h["input_structure"]
-        if isinstance(s, dict):
-            s = Structure.from_dict(s)
-        self.final_structure = s
+        struct = h["input_structure"]
+        if isinstance(struct, dict):
+            struct = Structure.from_dict(struct)
+        self.final_structure = struct
 
     def redo_next_change(self) -> None:
         """
@@ -247,7 +247,7 @@ class TransformedStructure(MSONable):
         is in the case of performing a substitution transformation on the
         structure when the specie to replace isn't in the structure.
         """
-        return not self.final_structure == self.structures[-2]
+        return self.final_structure != self.structures[-2]
 
     @property
     def structures(self) -> list[Structure]:
@@ -256,7 +256,7 @@ class TransformedStructure(MSONable):
         structure is stored after every single transformation.
         """
         h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
-        return h_structs + [self.final_structure]
+        return [*h_structs, self.final_structure]
 
     @staticmethod
     def from_cif_string(
@@ -347,8 +347,8 @@ class TransformedStructure(MSONable):
         """
         Creates a TransformedStructure from a dict.
         """
-        s = Structure.from_dict(d)
-        return cls(s, history=d["history"], other_parameters=d.get("other_parameters", None))
+        struct = Structure.from_dict(d)
+        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters", None))
 
     def to_snl(self, authors, **kwargs) -> StructureNL:
         """

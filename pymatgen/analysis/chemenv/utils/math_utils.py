@@ -33,7 +33,7 @@ def _append_es2sequences(sequences, es):
             result.append([e])
     else:
         for e in es:
-            result += [seq + [e] for seq in sequences]
+            result += [[*seq, e] for seq in sequences]
     return result
 
 
@@ -46,18 +46,18 @@ def _cartesian_product(lists):
     return reduce(_append_es2sequences, lists, [])
 
 
-def prime_factors(n):
+def prime_factors(n: int) -> list[int]:
     """Lists prime factors of a given natural integer, from greatest to smallest
     :param n: Natural integer
     :rtype : list of all prime factors of the given natural n
     """
-    i = 2
-    while i <= sqrt(n):
-        if n % i == 0:
-            l = prime_factors(n / i)
-            l.append(i)
-            return l
-        i += 1
+    idx = 2
+    while idx <= sqrt(n):
+        if n % idx == 0:
+            lst = prime_factors(n // idx)
+            lst.append(idx)
+            return lst
+        idx += 1
     return [n]  # n is prime
 
 
@@ -307,10 +307,7 @@ def power2_tangent_decreasing(xx, edges=None, prefactor=None):
     :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
         return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)  # pylint: disable=E1130
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
@@ -325,10 +322,7 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
     :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
         return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx)
         # return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
@@ -343,10 +337,7 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
     :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
         return np.where(
             np.isclose(xx, 0.0),
             aa * float("inf"),
@@ -365,10 +356,7 @@ def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0)
     :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
         return aa * np.power(xx - 1.0, 2) / xx**powern
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)

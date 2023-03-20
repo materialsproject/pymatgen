@@ -100,14 +100,14 @@ def make_dash(ctx):
     ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.svg -u https://pymatgen.org/")
     plist = "pymatgen.docset/Contents/Info.plist"
     xml = []
-    with open(plist) as f:
-        for l in f:
-            xml.append(l.strip())
-            if l.strip() == "<dict>":
+    with open(plist) as file:
+        for line in file:
+            xml.append(line.strip())
+            if line.strip() == "<dict>":
                 xml.append("<key>dashIndexFilePath</key>")
                 xml.append("<string>index.html</string>")
-    with open(plist, "wt") as f:
-        f.write("\n".join(xml))
+    with open(plist, "w") as file:
+        file.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
     # xml = []
     # with open("docs/pymatgen.xml") as f:
@@ -131,7 +131,7 @@ def contribute_dash(ctx, version):
         with open("docset.json") as f:
             data = json.load(f)
             data["version"] = version
-        with open("docset.json", "wt") as f:
+        with open("docset.json", "w") as f:
             json.dump(data, f, indent=4)
         ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
         ctx.run("git push")
@@ -185,14 +185,14 @@ def set_ver(ctx, version):
         contents = f.read()
         contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
-    with open("pymatgen/core/__init__.py", "wt") as f:
+    with open("pymatgen/core/__init__.py", "w") as f:
         f.write(contents)
 
     with open("setup.py") as f:
         contents = f.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", "wt") as f:
+    with open("setup.py", "w") as f:
         f.write(contents)
 
 
@@ -270,11 +270,10 @@ def update_changelog(ctx, version=None, dry_run=False):
             lines.append(f"* PR #{pr_number} from @{contributor} {pr_name}")
             json_resp = response.json()
             if "body" in json_resp and json_resp["body"]:
-                for ll in json_resp["body"].split("\n"):
-                    ll = ll.strip()
+                for ll in map(str.strip, json_resp["body"].split("\n")):
                     if ll in ["", "## Summary"]:
                         continue
-                    elif ll.startswith(("## Checklist", "## TODO")):
+                    if ll.startswith(("## Checklist", "## TODO")):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)
@@ -310,7 +309,7 @@ def release(ctx, version=None, nodoc=False):
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
-        ctx.run('git commit -a -m "Update docs"')
+        ctx.run('git commit --no-verify -a -m "Update docs"')
         ctx.run("git push")
     release_github(ctx, version)
 
@@ -335,7 +334,7 @@ def open_doc(ctx):
 
 @task
 def lint(ctx):
-    for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
+    for cmd in ["ruff", "mypy", "black", "pylint"]:
         ctx.run(f"{cmd} pymatgen")
 
 

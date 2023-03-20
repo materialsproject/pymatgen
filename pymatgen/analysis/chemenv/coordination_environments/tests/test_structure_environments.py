@@ -106,7 +106,7 @@ class StructureEnvironmentsTest(PymatgenTest):
 
             assert len(se.differences_wrt(se)) == 0
 
-            assert not se != se
+            assert se == se
 
             ce = se.ce_list[isite][4][0]
 
@@ -148,7 +148,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             assert ce.is_close_to(ce2, rtol=0.01, atol=1e-4)
             assert not ce.is_close_to(ce2, rtol=0.0, atol=1e-8)
 
-            assert not ce == ce2
+            assert ce != ce2
             assert ce != ce2
 
     def test_light_structure_environments(self):
@@ -185,7 +185,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             assert len(nb_set) == 4
             assert hash(nb_set) == 4
 
-            assert not nb_set != nb_set
+            assert nb_set == nb_set
 
             assert (
                 str(nb_set) == "Neighbors Set for site #6 :\n"
@@ -235,7 +235,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             assert lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="T:4")
             assert not lse.structure_contains_atom_environment(atom_symbol="O", ce_symbol="T:4")
             assert lse.uniquely_determines_coordination_environments
-            assert not lse != lse
+            assert lse == lse
 
             envs = lse.strategy.get_site_coordination_environments(lse.structure[6])
             assert len(envs) == 1

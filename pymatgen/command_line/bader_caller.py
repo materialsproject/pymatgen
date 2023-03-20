@@ -161,14 +161,12 @@ class BaderAnalysis:
 
         with ScratchDir("."):
             tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
-            with zopen(fpath, "rt") as f_in:
-                with open(tmpfile, "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+            with zopen(fpath, "rt") as f_in, open(tmpfile, "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
             args = [BADEREXE, tmpfile]
             if chgref_filename:
-                with zopen(chgrefpath, "rt") as f_in:
-                    with open("CHGCAR_ref", "w") as f_out:
-                        shutil.copyfileobj(f_in, f_out)
+                with zopen(chgrefpath, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
                 args += ["-ref", "CHGCAR_ref"]
             if parse_atomic_densities:
                 args += ["-p", "all_atom"]
@@ -196,13 +194,13 @@ class BaderAnalysis:
                 raw.pop(0)
                 raw.pop(0)
                 while True:
-                    l = raw.pop(0).strip()
-                    if l.startswith("-"):
+                    line = raw.pop(0).strip()
+                    if line.startswith("-"):
                         break
-                    vals = map(float, l.split()[1:])
+                    vals = map(float, line.split()[1:])
                     data.append(dict(zip(headers, vals)))
-                for l in raw:
-                    toks = l.strip().split(":")
+                for line in raw:
+                    toks = line.strip().split(":")
                     if toks[0] == "VACUUM CHARGE":
                         self.vacuum_charge = float(toks[1])
                     elif toks[0] == "VACUUM VOLUME":
@@ -530,7 +528,6 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     :param aeccar2: (optional) Chgcar object from aeccar2 file
     :return: summary dict
     """
-
     with ScratchDir(".") as temp_dir:
         if aeccar0 and aeccar2:
             # construct reference file

@@ -254,8 +254,8 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
     def test_factors(self):
         e = EnergyArray([27.21138386, 1], "eV").to("Ha")
         assert str(e).endswith("Ha")
-        l = LengthArray([1.0], "ang").to("bohr")
-        assert str(l).endswith(" bohr")
+        len_arr = LengthArray([1.0], "ang").to("bohr")
+        assert str(len_arr).endswith(" bohr")
         v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
         assert str(v).endswith(" ang^3")
 
@@ -267,7 +267,6 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 class DataPersistenceTest(PymatgenTest):
     def test_pickle(self):
         """Test whether FloatWithUnit and ArrayWithUnit support pickle"""
-
         for cls in [FloatWithUnit, ArrayWithUnit]:
             a = cls(1, "eV")
             b = cls(10, "N bohr")

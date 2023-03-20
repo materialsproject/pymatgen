@@ -1,10 +1,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+# pylint: disable=C0414,W0718,C0301
 
-"""
-This package contains core modules and classes for representing structures and
-operations on them.
-"""
+"""This package contains core modules and classes for representing structures and operations on them."""
 
 from __future__ import annotations
 
@@ -34,7 +32,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2023.1.30"
+__version__ = "2023.3.10"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
@@ -48,7 +46,7 @@ def _load_pmg_settings() -> dict[str, Any]:
     yaml = YAML()
     for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
         try:
-            with open(file_path) as yml_file:
+            with open(file_path, encoding="utf-8") as yml_file:
                 settings = yaml.load(yml_file) or {}
             break
         except FileNotFoundError:

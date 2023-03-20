@@ -212,10 +212,7 @@ class StructureEnvironments(MSONable):
                     rtol=0.0,
                     atol=self.detailed_voronoi.normalized_distance_tolerance,
                 ):
-                    if idist == 0:
-                        plateau = np.inf
-                    else:
-                        plateau = all_nbs_normalized_distances_sorted[idist - 1] - maxdist
+                    plateau = np.inf if idist == 0 else all_nbs_normalized_distances_sorted[idist - 1] - maxdist
                     break
             if plateau is None:
                 raise ValueError("Plateau not found ...")
@@ -237,10 +234,7 @@ class StructureEnvironments(MSONable):
                     rtol=0.0,
                     atol=self.detailed_voronoi.normalized_angle_tolerance,
                 ):
-                    if iang == 0:
-                        plateau = minang
-                    else:
-                        plateau = minang - all_nbs_normalized_angles_sorted[iang - 1]
+                    plateau = minang if iang == 0 else minang - all_nbs_normalized_angles_sorted[iang - 1]
                     break
             if plateau is None:
                 raise ValueError("Plateau not found ...")
@@ -722,10 +716,7 @@ class StructureEnvironments(MSONable):
         if symmetry_measure_type is None:
             symmetry_measure_type = "csm_wcs_ctwcc"
         # Initializes the figure
-        if figsize is None:
-            fig = plt.figure()
-        else:
-            fig = plt.figure(figsize=figsize)
+        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         gs = GridSpec(2, 1, hspace=0.0, wspace=0.0)
         subplot = fig.add_subplot(gs[:])
         subplot_distang = subplot.twinx()
@@ -797,10 +788,7 @@ class StructureEnvironments(MSONable):
 
         for ix, was in enumerate(all_was):
             subplot_distang.plot(0.2 + ix * np.ones_like(was), yang(was), "<g")
-            if np.mod(ix, 2) == 0:
-                alpha = 0.3
-            else:
-                alpha = 0.1
+            alpha = 0.3 if np.mod(ix, 2) == 0 else 0.1
             subplot_distang.fill_between(
                 [-0.5 + ix, 0.5 + ix],
                 [1.0, 1.0],
@@ -881,10 +869,7 @@ class StructureEnvironments(MSONable):
             return None
 
         # Initializes the figure
-        if figsize is None:
-            fig = mpl.figure()
-        else:
-            fig = mpl.figure(figsize=figsize)
+        fig = mpl.figure() if figsize is None else mpl.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
 
         # Initializes the distance and angle parameters
@@ -893,10 +878,8 @@ class StructureEnvironments(MSONable):
                 "distance_parameter": ("initial_normalized", None),
                 "angle_parameter": ("initial_normalized_inverted", None),
             }
-        if colormap is None:
-            mycm = cm.jet  # pylint: disable=E1101
-        else:
-            mycm = colormap
+
+        mycm = cm.jet if colormap is None else colormap
         mymin = 0.0
         mymax = 10.0
         norm = Normalize(vmin=mymin, vmax=mymax)
@@ -1837,13 +1820,14 @@ class LightStructureEnvironments(MSONable):
         csms = []
         fractions = []
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species]:
-                if self.valences == "undefined" or oxi_state == self.valences[isite]:
-                    for ce_dict in self.coordination_environments[isite]:
-                        if ce_symbol == ce_dict["ce_symbol"]:
-                            isites.append(isite)
-                            csms.append(ce_dict["csm"])
-                            fractions.append(ce_dict["ce_fraction"])
+            if element in [sp.symbol for sp in site.species] and (
+                self.valences == "undefined" or oxi_state == self.valences[isite]
+            ):
+                for ce_dict in self.coordination_environments[isite]:
+                    if ce_symbol == ce_dict["ce_symbol"]:
+                        isites.append(isite)
+                        csms.append(ce_dict["csm"])
+                        fractions.append(ce_dict["ce_fraction"])
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0):
@@ -1861,27 +1845,31 @@ class LightStructureEnvironments(MSONable):
         element = specie.symbol
         oxi_state = specie.oxi_state
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species]:
-                if self.valences == "undefined" or oxi_state == self.valences[isite]:
-                    if self.coordination_environments[isite] is None:
+            if (
+                element in [sp.symbol for sp in site.species]
+                and self.valences == "undefined"
+                or oxi_state == self.valences[isite]
+            ):
+                if self.coordination_environments[isite] is None:
+                    continue
+                for ce_dict in self.coordination_environments[isite]:
+                    if ce_dict["ce_fraction"] < min_fraction:
                         continue
-                    for ce_dict in self.coordination_environments[isite]:
-                        if ce_dict["ce_fraction"] < min_fraction:
-                            continue
-                        if ce_dict["ce_symbol"] not in allces:
-                            allces[ce_dict["ce_symbol"]] = {
-                                "isites": [],
-                                "fractions": [],
-                                "csms": [],
-                            }
-                        allces[ce_dict["ce_symbol"]]["isites"].append(isite)
-                        allces[ce_dict["ce_symbol"]]["fractions"].append(ce_dict["ce_fraction"])
-                        allces[ce_dict["ce_symbol"]]["csms"].append(ce_dict["csm"])
+                    if ce_dict["ce_symbol"] not in allces:
+                        allces[ce_dict["ce_symbol"]] = {
+                            "isites": [],
+                            "fractions": [],
+                            "csms": [],
+                        }
+                    allces[ce_dict["ce_symbol"]]["isites"].append(isite)
+                    allces[ce_dict["ce_symbol"]]["fractions"].append(ce_dict["ce_fraction"])
+                    allces[ce_dict["ce_symbol"]]["csms"].append(ce_dict["csm"])
         return allces
 
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
         """
         Get the statistics of environments for this structure.
+
         Args:
             statistics_fields: Which statistics to get.
             bson_compatible: Whether to make the dictionary BSON-compatible.
@@ -2220,9 +2208,8 @@ class ChemicalEnvironments(MSONable):
             csms = np.array([self.coord_geoms[cg]["other_symmetry_measures"][symmetry_measure_type] for cg in cglist])
         csmlist = [self.coord_geoms[cg] for cg in cglist]
         imin = np.argmin(csms)
-        if max_csm is not None:
-            if csmlist[imin] > max_csm:
-                return None
+        if max_csm is not None and csmlist[imin] > max_csm:
+            return None
         return cglist[imin], csmlist[imin]
 
     def minimum_geometries(self, n=None, symmetry_measure_type=None, max_csm=None):

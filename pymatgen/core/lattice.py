@@ -978,19 +978,9 @@ class Lattice(MSONable):
             "matrix": self._matrix.tolist(),
             "pbc": self._pbc,
         }
-        a, b, c, alpha, beta, gamma = self.parameters
         if verbosity > 0:
-            d.update(
-                {
-                    "a": a,
-                    "b": b,
-                    "c": c,
-                    "alpha": alpha,
-                    "beta": beta,
-                    "gamma": gamma,
-                    "volume": self.volume,
-                }
-            )
+            keys = ["a", "b", "c", "alpha", "beta", "gamma", "volume"]
+            d.update(dict(zip(keys, [*self.parameters, self.volume])))
 
         return d
 
@@ -1036,7 +1026,7 @@ class Lattice(MSONable):
         )
         cart = self.get_cartesian_coords(frac)  # type: ignore
         # this can't be broadcast because they're different lengths
-        inds = [np.logical_and(dist / l < 1 + ltol, dist / l > 1 / (1 + ltol)) for l in lengths]  # type: ignore
+        inds = [np.logical_and(dist / len < 1 + ltol, dist / len > 1 / (1 + ltol)) for len in lengths]  # type: ignore
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)  # type: ignore
         l_a, l_b, l_c = (np.sum(c**2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
@@ -1048,12 +1038,12 @@ class Lattice(MSONable):
             angles = np.arccos(x) * 180.0 / pi
             return angles
 
-        alphab = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
-        betab = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
-        gammab = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
+        alpha_b = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
+        beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
+        gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
 
-        for i, all_j in enumerate(gammab):
-            inds = np.logical_and(all_j[:, None], np.logical_and(alphab, betab[i][None, :]))
+        for i, all_j in enumerate(gamma_b):
+            inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[i][None, :]))
             for j, k in np.argwhere(inds):
                 scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=int)  # type: ignore
                 if abs(np.linalg.det(scale_m)) < 1e-8:  # type: ignore
@@ -1061,10 +1051,7 @@ class Lattice(MSONable):
 
                 aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
 
-                if skip_rotation_matrix:
-                    rotation_m = None
-                else:
-                    rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+                rotation_m = None if skip_rotation_matrix else np.linalg.solve(aligned_m, other_lattice.matrix)
 
                 yield Lattice(aligned_m), rotation_m, scale_m
 
@@ -1244,29 +1231,29 @@ class Lattice(MSONable):
                 2 * G[0, 1],
             )
 
-            if A > B + e or (abs(A - B) < e and abs(E) > abs(N) + e):
+            if B + e < A or (abs(A - B) < e and abs(E) > abs(N) + e):
                 # A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
                 G = dot(transpose(M), dot(G, M))
-            if (B > C + e) or (abs(B - C) < e and abs(N) > abs(Y) + e):
+            if (C + e < B) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 # A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
-            l = 0 if abs(E) < e else E / abs(E)
+            ll = 0 if abs(E) < e else E / abs(E)
             m = 0 if abs(N) < e else N / abs(N)
             n = 0 if abs(Y) < e else Y / abs(Y)
-            if l * m * n == 1:
+            if ll * m * n == 1:
                 # A3
-                i = -1 if l == -1 else 1
+                i = -1 if ll == -1 else 1
                 j = -1 if m == -1 else 1
                 k = -1 if n == -1 else 1
                 M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
                 G = dot(transpose(M), dot(G, M))
-            elif l * m * n == 0 or l * m * n == -1:
+            elif ll * m * n in (0, -1):
                 # A4
-                i = -1 if l == 1 else 1
+                i = -1 if ll == 1 else 1
                 j = -1 if m == 1 else 1
                 k = -1 if n == 1 else 1
 
@@ -1275,7 +1262,7 @@ class Lattice(MSONable):
                         k = -1
                     elif m == 0:
                         j = -1
-                    elif l == 0:
+                    elif ll == 0:
                         i = -1
                 M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
                 G = dot(transpose(M), dot(G, M))
@@ -1290,19 +1277,19 @@ class Lattice(MSONable):
             )
 
             # A5
-            if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or (abs(E + B) < e and Y < -e):
+            if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or (abs(E + B) < e and -e > Y):
                 M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             # A6
-            if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or (abs(A + N) < e and Y < -e):
+            if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or (abs(A + N) < e and -e > Y):
                 M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             # A7
-            if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or (abs(A + Y) < e and N < -e):
+            if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or (abs(A + Y) < e and -e > N):
                 M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
@@ -1376,18 +1363,18 @@ class Lattice(MSONable):
         vec3 = self._matrix[2]
 
         list_k_points = []
-        for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
-            list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+        for ii, jj, kk in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
+            list_k_points.append(ii * vec1 + jj * vec2 + kk * vec3)
         # pylint: disable=C0415
         from scipy.spatial import Voronoi
 
         tess = Voronoi(list_k_points)
-        to_return = []
+        out = []
         for r in tess.ridge_dict:
             if r[0] == 13 or r[1] == 13:
-                to_return.append([tess.vertices[i] for i in tess.ridge_dict[r]])
+                out.append([tess.vertices[i] for i in tess.ridge_dict[r]])
 
-        return to_return
+        return out
 
     def get_brillouin_zone(self) -> list[list[np.ndarray]]:
         """
@@ -1407,7 +1394,8 @@ class Lattice(MSONable):
         Compute the scalar product of vector(s).
 
         Args:
-            coords_a, coords_b: Array-like objects with the coordinates.
+            coords_a: Array-like coordinates.
+            coords_b: Array-like coordinates.
             frac_coords (bool): Boolean stating whether the vector
                 corresponds to fractional or Cartesian coordinates.
 
@@ -1940,11 +1928,11 @@ def get_points_in_spheres(
         image_offsets = lattice.get_fractional_coords(all_coords)
         all_fcoords = []
         # only wrap periodic boundary
-        for k in range(3):
-            if pbc[k]:  # type: ignore
-                all_fcoords.append(np.mod(image_offsets[:, k : k + 1], 1))
+        for kk in range(3):
+            if pbc[kk]:  # type: ignore
+                all_fcoords.append(np.mod(image_offsets[:, kk : kk + 1], 1))
             else:
-                all_fcoords.append(image_offsets[:, k : k + 1])
+                all_fcoords.append(image_offsets[:, kk : kk + 1])
         all_fcoords = np.concatenate(all_fcoords, axis=1)
         image_offsets = image_offsets - all_fcoords
         coords_in_cell = np.dot(all_fcoords, matrix)
@@ -1982,17 +1970,17 @@ def get_points_in_spheres(
     cube_to_coords: dict[int, list] = collections.defaultdict(list)
     cube_to_images: dict[int, list] = collections.defaultdict(list)
     cube_to_indices: dict[int, list] = collections.defaultdict(list)
-    for i, j, k, l in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices):
-        cube_to_coords[i].append(j)
-        cube_to_images[i].append(k)
-        cube_to_indices[i].append(l)
+    for ii, jj, kk, ll in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices):
+        cube_to_coords[ii].append(jj)
+        cube_to_images[ii].append(kk)
+        cube_to_indices[ii].append(ll)
 
     # find all neighboring cubes for each atom in the lattice cell
     site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
     neighbors: list[list[tuple[np.ndarray, float, int, np.ndarray]]] = []
 
-    for i, j in zip(center_coords, site_neighbors):
-        l1 = np.array(_three_to_one(j, ny, nz), dtype=int).ravel()
+    for ii, jj in zip(center_coords, site_neighbors):
+        l1 = np.array(_three_to_one(jj, ny, nz), dtype=int).ravel()
         # use the cube index map to find the all the neighboring
         # coords, images, and indices
         ks = [k for k in l1 if k in cube_to_coords]
@@ -2002,7 +1990,7 @@ def get_points_in_spheres(
         nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
         nn_images = itertools.chain(*(cube_to_images[k] for k in ks))
         nn_indices = itertools.chain(*(cube_to_indices[k] for k in ks))
-        dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
+        dist = np.linalg.norm(nn_coords - ii[None, :], axis=1)
         nns: list[tuple[np.ndarray, float, int, np.ndarray]] = []
         for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):
             # filtering out all sites that are beyond the cutoff
@@ -2071,10 +2059,7 @@ def find_neighbors(label: np.ndarray, nx: int, ny: int, nz: int) -> list[np.ndar
     """
     array = [[-1, 0, 1]] * 3
     neighbor_vectors = np.array(list(itertools.product(*array)), dtype=int)
-    if np.shape(label)[1] == 1:
-        label3d = _one_to_three(label, ny, nz)
-    else:
-        label3d = label
+    label3d = _one_to_three(label, ny, nz) if np.shape(label)[1] == 1 else label
     all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
     filtered_labels = []
     # filter out out-of-bound labels i.e., label < 0

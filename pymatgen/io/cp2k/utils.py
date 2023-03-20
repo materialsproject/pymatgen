@@ -100,7 +100,7 @@ def chunk(string: str):
     """
     Chunk the string from a cp2k basis or potential file
     """
-    lines = iter(line for line in (l.strip() for l in string.split("\n")) if line and not line.startswith("#"))
+    lines = iter(line for line in (line.strip() for line in string.split("\n")) if line and not line.startswith("#"))
     chunks: list = []
     for line in lines:
         if line.split()[0].isalpha():

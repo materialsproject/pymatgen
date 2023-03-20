@@ -200,7 +200,7 @@ class CohpcarTest(PymatgenTest):
                     assert len(val["ICOHP"][Spin.up]) == 6
 
     def test_orbital_resolved_cohp(self):
-        orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4) for i in range(4)]
+        orbitals = [(Orbital(i), Orbital(j)) for j in range(4) for i in range(4)]
         assert self.cohp_bise.orb_res_cohp is None
         assert self.coop_bise.orb_res_cohp is None
         assert self.cohp_fe.orb_res_cohp is None
@@ -211,7 +211,7 @@ class CohpcarTest(PymatgenTest):
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
             assert orb_set[0][0] == 4
             assert orb_set[1][0] == 4
-            assert tuple((orb_set[0][1], orb_set[1][1])) in orbitals
+            assert (orb_set[0][1], orb_set[1][1]) in orbitals
 
         # test d and f orbitals
         comparelist = [
@@ -640,18 +640,18 @@ class IcohplistTest(unittest.TestCase):
         }
 
         assert icohplist_bise == self.icohp_bise.icohplist
-        assert -2.38796 == self.icohp_bise.icohpcollection.extremum_icohpvalue()
+        assert self.icohp_bise.icohpcollection.extremum_icohpvalue() == -2.38796
         assert icooplist_fe == self.icoop_fe.icohplist
-        assert -0.29919 == self.icoop_fe.icohpcollection.extremum_icohpvalue()
+        assert self.icoop_fe.icohpcollection.extremum_icohpvalue() == -0.29919
         assert icooplist_bise == self.icoop_bise.icohplist
-        assert 0.24714 == self.icoop_bise.icohpcollection.extremum_icohpvalue()
+        assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == 0.24714
         assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
-        assert 0.58649 == self.icobi.icohpcollection.extremum_icohpvalue()
+        assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
 
 
 class DoscarTest(unittest.TestCase):
@@ -1337,9 +1337,7 @@ class LobsteroutTest(PymatgenTest):
                     assert comparedict[key] == item
                 elif key in ("charge_spilling", "total_spilling"):
                     assert item[0] == approx(comparedict[key][0])
-                elif isinstance(item, list):
-                    assert item == comparedict[key]
-                elif isinstance(item, dict):
+                elif isinstance(item, (list, dict)):
                     assert item == comparedict[key]
 
 
@@ -2073,13 +2071,9 @@ class LobsterinTest(unittest.TestCase):
                 np.isclose(-kpoint[0], kpoint2[0])
                 and np.isclose(-kpoint[1], kpoint2[1])
                 and np.isclose(-kpoint[2], kpoint2[2])
-            ):
-                if weight == weightlist[ikpoint2]:
-                    found += 1
-        if found == 1:
-            return True
-        else:
-            return False
+            ) and weight == weightlist[ikpoint2]:
+                found += 1
+        return found == 1
 
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods

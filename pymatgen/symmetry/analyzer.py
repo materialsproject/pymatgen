@@ -20,6 +20,7 @@ import math
 import warnings
 from collections import defaultdict
 from fractions import Fraction
+from functools import lru_cache
 from math import cos, sin
 from typing import Any, Literal
 
@@ -34,6 +35,14 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
 logger = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=32)
+def _get_symmetry_dataset(cell, symprec, angle_tolerance):
+    """Simple wrapper to cache results of spglib.get_symmetry_dataset since this call is
+    expensive.
+    """
+    return spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
 
 
 class SpacegroupAnalyzer:
@@ -81,13 +90,20 @@ class SpacegroupAnalyzer:
         self._numbers = zs
 
         if len(magmoms) > 0:
-            self._cell: tuple[Any, ...] = structure.lattice.matrix, structure.frac_coords, zs, magmoms
+            self._cell: tuple[Any, ...] = (
+                tuple(map(tuple, structure.lattice.matrix.tolist())),
+                tuple(map(tuple, structure.frac_coords.tolist())),
+                tuple(zs),
+                tuple(magmoms),
+            )
         else:  # if no magmoms given do not add to cell
-            self._cell = structure.lattice.matrix, structure.frac_coords, zs
+            self._cell = (
+                tuple(map(tuple, structure.lattice.matrix.tolist())),
+                tuple(map(tuple, structure.frac_coords.tolist())),
+                tuple(zs),
+            )
 
-        self._space_group_data = spglib.get_symmetry_dataset(
-            self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance
-        )
+        self._space_group_data = _get_symmetry_dataset(self._cell, symprec, angle_tolerance)
 
     def get_space_group_symbol(self) -> str:
         """Get the spacegroup symbol (e.g., Pnma) for structure.
@@ -1033,7 +1049,7 @@ class PointGroupAnalyzer:
         else:
             for v in self.principal_axes:
                 mirror_type = self._find_mirror(v)
-                if not mirror_type == "":
+                if mirror_type != "":
                     self.sch_symbol = "Cs"
                     break
 
@@ -1046,9 +1062,8 @@ class PointGroupAnalyzer:
             self.sch_symbol += "h"
         elif mirror_type == "v":
             self.sch_symbol += "v"
-        elif mirror_type == "":
-            if self.is_valid_op(SymmOp.rotoreflection(main_axis, angle=180 / rot)):
-                self.sch_symbol = f"S{2 * rot}"
+        elif mirror_type == "" and self.is_valid_op(SymmOp.rotoreflection(main_axis, angle=180 / rot)):
+            self.sch_symbol = f"S{2 * rot}"
 
     def _proc_dihedral(self):
         """Handles dihedral group molecules, i.e those with intersecting R2 axes and a
@@ -1059,7 +1074,7 @@ class PointGroupAnalyzer:
         mirror_type = self._find_mirror(main_axis)
         if mirror_type == "h":
             self.sch_symbol += "h"
-        elif not mirror_type == "":
+        elif mirror_type != "":
             self.sch_symbol += "d"
 
     def _check_R2_axes_asym(self):
@@ -1098,10 +1113,9 @@ class PointGroupAnalyzer:
                             if len(self.rot_sym) > 1:
                                 mirror_type = "d"
                                 for v, _ in self.rot_sym:
-                                    if np.linalg.norm(v - axis) >= self.tol:
-                                        if np.dot(v, normal) < self.tol:
-                                            mirror_type = "v"
-                                            break
+                                    if np.linalg.norm(v - axis) >= self.tol and np.dot(v, normal) < self.tol:
+                                        mirror_type = "v"
+                                        break
                             else:
                                 mirror_type = "v"
                             break
@@ -1529,10 +1543,7 @@ def cluster_sites(mol, tol, give_only_index=False):
     origin_site = None
     for idx, site in enumerate(mol):
         if avg_dist[f[idx]] < tol:
-            if give_only_index:
-                origin_site = idx
-            else:
-                origin_site = site
+            origin_site = idx if give_only_index else site
         else:
             if give_only_index:
                 clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
@@ -1618,10 +1629,7 @@ class SpacegroupOperations(list):
         """
 
         def in_sites(site):
-            for test_site in sites1:
-                if test_site.is_periodic_image(site, symm_prec, False):
-                    return True
-            return False
+            return any(test_site.is_periodic_image(site, symm_prec, False) for test_site in sites1)
 
         for op in self:
             newsites2 = [PeriodicSite(site.species, op.operate(site.frac_coords), site.lattice) for site in sites2]

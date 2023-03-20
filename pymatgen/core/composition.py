@@ -97,13 +97,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         dict(). Also extended to allow simple string init.
 
         Args:
-            Any form supported by the Python built-in {} function.
+            Any form supported by the Python built-in dict function.
 
             1. A dict of either {Element/Species: amount},
 
                {string symbol:amount}, or {atomic number:amount} or any mixture
-               of these. E.g., {Element("Li"):2 ,Element("O"):1},
-               {"Li":2, "O":1}, {3:2, 8:1} all result in a Li2O composition.
+               of these. E.g., {Element("Li"): 2, Element("O"): 1},
+               {"Li":2, "O":1}, {3: 2, 8: 1} all result in a Li2O composition.
             2. Keyword arg initialization, similar to a dict, e.g.,
 
                Composition(Li = 2, O = 1)
@@ -415,7 +415,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         g = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
         d = {k: round(v / g) for k, v in el_amt.items()}
-        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+        formula, factor = reduce_formula(d, iupac_ordering=iupac_ordering)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
@@ -666,7 +666,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
         dic: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
@@ -675,30 +675,30 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def as_dict(self) -> dict[str, float]:
         """
+        Note: Subtly different from get_el_amt_dict in that they keys here are str(Element) instead of Element.symbol.
+
         Returns:
-            dict with species symbol and (unreduced) amount e.g.,
-            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+            dict[str, float]: element symbol and (unreduced) amount. E.g.
+                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        d: dict[str, float] = collections.defaultdict(float)
-        for e, a in self.items():
-            d[str(e)] += a
-        return d
+        dic: dict[str, float] = collections.defaultdict(float)
+        for el, amt in self.items():
+            dic[str(el)] += amt
+        return dic
 
     @property
-    def to_reduced_dict(self) -> dict:
+    def to_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
-            Dict with element symbol and reduced amount e.g.,
-            {"Fe": 2.0, "O":3.0}
+            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
         """
-        return self.get_reduced_composition_and_factor()[0].as_dict()
+        return self.reduced_composition.as_dict()
 
     @property
-    def to_weight_dict(self) -> dict:
+    def to_weight_dict(self) -> dict[str, float]:
         """
         Returns:
-            Dict with weight fraction of each component
-            {"Ti": 0.90, "V": 0.06, "Al": 0.04}
+            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
@@ -711,11 +711,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             reduced_cell_formula, elements and nelements.
         """
         return {
-            "reduced_cell_composition": self.get_reduced_composition_and_factor()[0],
+            "reduced_cell_composition": self.reduced_composition,
             "unit_cell_composition": self.as_dict(),
             "reduced_cell_formula": self.reduced_formula,
-            "elements": list(self.as_dict()),
-            "nelements": len(self.as_dict()),
+            "elements": list(map(str, self)),
+            "nelements": len(self),
         }
 
     def oxi_state_guesses(
@@ -1252,11 +1252,12 @@ class ChemicalPotential(dict, MSONable):
     def __init__(self, *args, **kwargs):
         """
         Args:
-            *args, **kwargs: any valid dict init arguments
+            *args: any valid dict init arguments
+            **kwargs: any valid dict init arguments
         """
-        d = dict(*args, **kwargs)
-        super().__init__((get_el_sp(k), v) for k, v in d.items())
-        if len(d) != len(self):
+        dct = dict(*args, **kwargs)
+        super().__init__((get_el_sp(k), v) for k, v in dct.items())
+        if len(dct) != len(self):
             raise ValueError("Duplicate potential specified")
 
     def __mul__(self, other: object) -> ChemicalPotential:

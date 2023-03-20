@@ -353,7 +353,7 @@ class BVAnalyzer:
                     return None
                 for v in valences[i]:
                     new_assigned = list(assigned)
-                    _recurse(new_assigned + [v])
+                    _recurse([*new_assigned, v])
                 return None
 
         else:
@@ -434,7 +434,7 @@ class BVAnalyzer:
 
                 for v in new_valences[i]:
                     new_assigned = list(assigned)
-                    _recurse(new_assigned + [v])
+                    _recurse([*new_assigned, v])
 
                 return None
 
@@ -475,14 +475,14 @@ class BVAnalyzer:
         Raises:
             ValueError if the valences cannot be determined.
         """
-        s = structure.copy()
-        if s.is_ordered:
-            valences = self.get_valences(s)
-            s.add_oxidation_state_by_site(valences)
+        struct = structure.copy()
+        if struct.is_ordered:
+            valences = self.get_valences(struct)
+            struct.add_oxidation_state_by_site(valences)
         else:
-            valences = self.get_valences(s)
-            s = add_oxidation_state_by_site_fraction(s, valences)
-        return s
+            valences = self.get_valences(struct)
+            struct = add_oxidation_state_by_site_fraction(struct, valences)
+        return struct
 
 
 def get_z_ordered_elmap(comp):

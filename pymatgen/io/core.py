@@ -68,7 +68,6 @@ class InputFile(MSONable):
 
         Args:
             filename: The filename to output to, including path.
-            kwargs: Keyword arguments passed to get_string()
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, "wt") as f:
@@ -101,6 +100,9 @@ class InputFile(MSONable):
         filename = path if isinstance(path, Path) else Path(path)
         with zopen(filename, "rt") as f:
             return cls.from_string(f.read())
+
+    def __str__(self):
+        return self.get_string()
 
 
 class InputSet(MSONable, MutableMapping):
@@ -179,9 +181,8 @@ class InputSet(MSONable, MutableMapping):
         for fname, contents in self.inputs.items():
             file = path / fname
 
-            if not path.exists():
-                if make_dir:
-                    path.mkdir(parents=True, exist_ok=True)
+            if not path.exists() and make_dir:
+                path.mkdir(parents=True, exist_ok=True)
 
             if file.exists() and not overwrite:
                 raise FileExistsError(f"File {str(fname)} already exists!")

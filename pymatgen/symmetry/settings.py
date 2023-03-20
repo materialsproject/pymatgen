@@ -168,12 +168,11 @@ class JonesFaithfulTransformation:
         :param symmop: SymmOp or MagSymmOp
         :return:
         """
-        W = symmop.rotation_matrix
-        w = symmop.translation_vector
+        W_rot = symmop.rotation_matrix
+        w_translation = symmop.translation_vector
         Q = np.linalg.inv(self.P)
-        W_ = np.matmul(np.matmul(Q, W), self.P)
-        I = np.identity(3)
-        w_ = np.matmul(Q, (w + np.matmul(W - I, self.p)))
+        W_ = np.matmul(np.matmul(Q, W_rot), self.P)
+        w_ = np.matmul(Q, (w_translation + np.matmul(W_rot - np.identity(3), self.p)))
         w_ = np.mod(w_, 1.0)
         if isinstance(symmop, MagSymmOp):
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(

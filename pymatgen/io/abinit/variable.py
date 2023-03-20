@@ -57,7 +57,7 @@ class InputVariable:
     def get_value(self):
         """Return the value."""
         if self.units:
-            return list(self.value) + [self.units]
+            return [*self.value, self.units]
         return self.value
 
     @property

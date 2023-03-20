@@ -33,8 +33,8 @@ def convert_fmt(args):
     """
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
-    s = Structure.from_file(args.filenames[0], primitive="prim" in args.filenames[1].lower())
-    s.to(filename=args.filenames[1])
+    struct = Structure.from_file(args.filenames[0], primitive="prim" in args.filenames[1].lower())
+    struct.to(filename=args.filenames[1])
 
 
 def analyze_symmetry(args):
@@ -47,8 +47,8 @@ def analyze_symmetry(args):
     tolerance = args.symmetry
     t = []
     for filename in args.filenames:
-        s = Structure.from_file(filename, primitive=False)
-        finder = SpacegroupAnalyzer(s, tolerance)
+        struct = Structure.from_file(filename, primitive=False)
+        finder = SpacegroupAnalyzer(struct, tolerance)
         dataset = finder.get_symmetry_dataset()
         t.append([filename, dataset["international"], dataset["number"], dataset["hall"]])
     print(tabulate(t, headers=["Filename", "Int Symbol", "Int number", "Hall"]))

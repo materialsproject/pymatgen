@@ -5,6 +5,7 @@ import os
 import unittest
 
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
@@ -225,7 +226,7 @@ class StrategyWeightsTest(PymatgenTest):
             {"type": "linearly_equidistant", "weight_cn1": 2.0, "weight_cn13": 26.0}
         )
         for cn in range(1, 14):
-            assert round(abs(bias_weight4.cn_weights[cn] - 2.0 * cn), 7) == 0
+            assert bias_weight4.cn_weights[cn] == approx(2.0 * cn)
 
         bias_weight5 = CNBiasNbSetWeight.from_description(
             {
@@ -234,19 +235,19 @@ class StrategyWeightsTest(PymatgenTest):
                 "weight_cn13": 13.0,
             }
         )
-        assert round(abs(bias_weight5.cn_weights[1] - 1.0), 7) == 0
-        assert round(abs(bias_weight5.cn_weights[3] - 1.5334062370163877), 7) == 0
-        assert round(abs(bias_weight5.cn_weights[9] - 5.5287748136788739), 7) == 0
-        assert round(abs(bias_weight5.cn_weights[12] - 10.498197520079623), 7) == 0
+        assert bias_weight5.cn_weights[1] == approx(1.0)
+        assert bias_weight5.cn_weights[3] == approx(1.5334062370163877)
+        assert bias_weight5.cn_weights[9] == approx(5.5287748136788739)
+        assert bias_weight5.cn_weights[12] == approx(10.498197520079623)
 
         cn_weights = {cn: 0.0 for cn in range(1, 14)}
         cn_weights[6] = 2.0
         cn_weights[4] = 1.0
         bias_weight6 = CNBiasNbSetWeight.from_description({"type": "explicit", "cn_weights": cn_weights})
 
-        assert round(abs(bias_weight6.cn_weights[1] - 0.0), 7) == 0
-        assert round(abs(bias_weight6.cn_weights[4] - 1.0), 7) == 0
-        assert round(abs(bias_weight6.cn_weights[6] - 2.0), 7) == 0
+        assert bias_weight6.cn_weights[1] == approx(0.0)
+        assert bias_weight6.cn_weights[4] == approx(1.0)
+        assert bias_weight6.cn_weights[6] == approx(2.0)
 
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)

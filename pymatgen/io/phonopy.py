@@ -81,7 +81,6 @@ def get_structure_from_dict(d):
     Adds "phonopy_masses" in the site_properties of the structures.
     Compatible with older phonopy versions.
     """
-
     species = []
     frac_coords = []
     masses = []
@@ -117,7 +116,6 @@ def eigvec_to_eigdispl(v, q, frac_coords, mass):
         frac_coords: the fractional coordinates of the atom
         mass: the mass of the atom
     """
-
     c = np.exp(2j * np.pi * np.dot(frac_coords, q)) / np.sqrt(mass)
 
     return c * v
@@ -142,7 +140,6 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
         labels_dict: dict that links a qpoint in frac coords to a label.
             Its value will replace the data contained in the band.yaml.
     """
-
     structure = get_structure_from_dict(bands_dict)
 
     qpts = []
@@ -272,7 +269,6 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
         A list of symmetrically inequivalent structures with displacements, in
         which the first element is the perfect supercell structure.
     """
-
     is_plusminus = kwargs.get("is_plusminus", "auto")
     is_diagonal = kwargs.get("is_diagonal", True)
     is_trigonal = kwargs.get("is_trigonal", False)
@@ -451,7 +447,6 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
     Returns: GruneisenParameter object
 
     """
-
     gruneisen_dict = loadfn(gruneisen_path)
 
     if structure_path and structure is None:
@@ -468,10 +463,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
     for p in gruneisen_dict["phonon"]:
         q = p["q-position"]
         qpts.append(q)
-        if "multiplicity" in p:
-            m = p["multiplicity"]
-        else:
-            m = 1
+        m = p["multiplicity"] if "multiplicity" in p else 1
         multiplicities.append(m)
         bands, gruneisenband = [], []
         for b in p["band"]:
@@ -526,7 +518,6 @@ def get_gs_ph_bs_symm_line_from_dict(
             These derivations occur because of very small frequencies
             (and therefore numerical inaccuracies) close to gamma.
     """
-
     if structure_path and structure is None:
         structure = Structure.from_file(structure_path)
     else:

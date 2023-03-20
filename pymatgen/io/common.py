@@ -74,7 +74,7 @@ class VolumetricData(MSONable):
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = {} if not distance_matrix else distance_matrix
+        self._distance_matrix = distance_matrix if distance_matrix else {}
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
@@ -196,8 +196,10 @@ class VolumetricData(MSONable):
             List of n data points (mostly interpolated) representing a linear slice of the
             data from point p1 to point p2.
         """
-        assert type(p1) in [list, np.ndarray] and type(p2) in [list, np.ndarray]
-        assert len(p1) == 3 and len(p2) == 3
+        assert type(p1) in [list, np.ndarray]
+        assert type(p2) in [list, np.ndarray]
+        assert len(p1) == 3
+        assert len(p2) == 3
         xpts = np.linspace(p1[0], p2[0], num=n)
         ypts = np.linspace(p1[1], p2[1], num=n)
         zpts = np.linspace(p1[2], p2[2], num=n)
@@ -398,15 +400,15 @@ class VolumetricData(MSONable):
         # The number of voxels along each axis (x, y, z) followed by the axis vector.
         line = file.readline().split()
         num_x_voxels = int(line[0])
-        voxel_x = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        voxel_x = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
 
         line = file.readline().split()
         num_y_voxels = int(line[0])
-        voxel_y = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        voxel_y = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
 
         line = file.readline().split()
         num_z_voxels = int(line[0])
-        voxel_z = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        voxel_z = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
 
         # The last section in the header is one line for each atom consisting of 5 numbers,
         # the first is the atom number, second is charge,

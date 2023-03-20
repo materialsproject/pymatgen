@@ -192,13 +192,12 @@ class Poscar(MSONable):
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
     def __setattr__(self, name, value):
-        if name in ("selective_dynamics", "velocities"):
-            if value is not None and len(value) > 0:
-                value = np.array(value)
-                dim = value.shape
-                if dim[1] != 3 or dim[0] != len(self.structure):
-                    raise ValueError(name + " array must be same length as the structure.")
-                value = value.tolist()
+        if name in ("selective_dynamics", "velocities") and value is not None and len(value) > 0:
+            value = np.array(value)
+            dim = value.shape
+            if dim[1] != 3 or dim[0] != len(self.structure):
+                raise ValueError(name + " array must be same length as the structure.")
+            value = value.tolist()
         super().__setattr__(name, value)
 
     @staticmethod
@@ -375,7 +374,7 @@ class Poscar(MSONable):
             ind = 3 if not has_selective_dynamics else 6
             try:
                 # Check if names are appended at the end of the coordinates.
-                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + n_sites]]
+                atomic_symbols = [line.split()[ind] for line in lines[ipos + 1 : ipos + 1 + n_sites]]
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
@@ -387,7 +386,6 @@ class Poscar(MSONable):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * nat)
                 warnings.warn(f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.")
-
         # read the atomic coordinates
         coords = []
         selective_dynamics = [] if has_selective_dynamics else None
@@ -397,7 +395,6 @@ class Poscar(MSONable):
             coords.append([float(j) * crd_scale for j in toks[:3]])
             if has_selective_dynamics:
                 selective_dynamics.append([tok.upper()[0] == "T" for tok in toks[3:6]])
-
         struct = Structure(
             lattice,
             atomic_symbols,
@@ -725,7 +722,7 @@ class Incar(dict, MSONable):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str(tabulate([[l[0], "=", l[1]] for l in lines], tablefmt="plain"))
+            return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))
         return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
@@ -924,9 +921,8 @@ class Incar(dict, MSONable):
             else:
                 similar_param[k1] = v1
         for k2, v2 in other.items():
-            if k2 not in similar_param and k2 not in different_param:
-                if k2 not in self:
-                    different_param[k2] = {"INCAR1": None, "INCAR2": v2}
+            if k2 not in similar_param and k2 not in different_param and k2 not in self:
+                different_param[k2] = {"INCAR1": None, "INCAR2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def __add__(self, other):
@@ -976,13 +972,12 @@ class Incar(dict, MSONable):
 
                 # if we have a list of possible parameters, check
                 # if the user given parameter is in this list
-                elif type(incar_params[k]).__name__ == "list":
-                    if v not in incar_params[k]:
-                        warnings.warn(
-                            f"{k}: Cannot find {v} in the list of parameters",
-                            BadIncarWarning,
-                            stacklevel=2,
-                        )
+                elif type(incar_params[k]).__name__ == "list" and v not in incar_params[k]:
+                    warnings.warn(
+                        f"{k}: Cannot find {v} in the list of parameters",
+                        BadIncarWarning,
+                        stacklevel=2,
+                    )
 
 
 class Kpoints_supported_modes(Enum):
@@ -1218,7 +1213,7 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(math.floor(max(mult / l, 1))) for l in lengths]
+        num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
 
         is_hexagonal = latt.is_hexagonal()
 
@@ -1249,7 +1244,7 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
-        num_div = [int(round(mult / l)) for l in lengths]
+        num_div = [int(round(mult / length)) for length in lengths]
 
         # ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
@@ -1831,7 +1826,7 @@ class PotcarSingle:
                 UnknownPotcarWarning,
             )
         elif has_sh256 and not hash_check_passed:
-            raise ValueError(
+            warnings.warn(
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
                 "but the computed hash differs.\n"
@@ -1876,10 +1871,7 @@ class PotcarSingle:
         :return: PotcarSingle.
         """
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
-        if match:
-            symbol = match.group(0)
-        else:
-            symbol = ""
+        symbol = match.group(0) if match else ""
 
         try:
             with zopen(filename, "rt") as f:
@@ -1995,7 +1987,7 @@ class PotcarSingle:
         If no SHA256 hash is found in the file, the file hash (md5 hash of the
         whole file) is checked against all POTCAR file hashes known to pymatgen.
 
-        Returns
+        Returns:
         -------
         (bool, bool)
             has_sh256 and passed_hash_check are returned.
@@ -2003,20 +1995,14 @@ class PotcarSingle:
         """
         if hasattr(self, "SHA256"):
             has_sha256 = True
-            if self.hash_sha256_from_file == self.hash_sha256_computed:
-                passed_hash_check = True
-            else:
-                passed_hash_check = False
+            passed_hash_check = self.hash_sha256_from_file == self.hash_sha256_computed
         else:
             has_sha256 = False
             # if no sha256 hash is found in the POTCAR file, compare the whole
             # file with known potcar file hashes.
             md5_file_hash = self.file_hash
             hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
-            if md5_file_hash in hash_db:
-                passed_hash_check = True
-            else:
-                passed_hash_check = False
+            passed_hash_check = md5_file_hash in hash_db
         return (has_sha256, passed_hash_check)
 
     def identify_potcar(self, mode: Literal["data", "file"] = "data"):
@@ -2163,7 +2149,7 @@ class PotcarSingle:
         # we have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.
         potcar_list = self.data.split("\n")
-        potcar_to_hash = [l for l in potcar_list if not l.strip().startswith(("SHA256", "COPYR"))]
+        potcar_to_hash = [line for line in potcar_list if not line.strip().startswith(("SHA256", "COPYR"))]
         potcar_to_hash_str = "\n".join(potcar_to_hash)
         return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
 
@@ -2286,23 +2272,16 @@ class Potcar(list, MSONable):
         :param filename: Filename
         :return: Potcar
         """
-        try:
-            with zopen(filename, "rt") as f:
-                fdata = f.read()
-        except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
-            import codecs
-
-            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
-                fdata = f.read()
-
+        with zopen(filename, "rt") as f:
+            fdata = f.read()
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
+
         functionals = []
-        for p in potcar_strings:
-            single = PotcarSingle(p)
-            potcar.append(single)
-            functionals.append(single.functional)
+        for p in fdata.split("End of Dataset"):
+            if p.strip():
+                single = PotcarSingle(p + "End of Dataset\n")
+                potcar.append(single)
+                functionals.append(single.functional)
         if len(set(functionals)) != 1:
             raise ValueError("File contains incompatible functionals!")
         potcar.functional = functionals[0]
@@ -2489,6 +2468,5 @@ class VaspInput(dict, MSONable):
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
-        with cd(run_dir):
-            with open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
-                subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
+        with cd(run_dir), open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
+            subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)

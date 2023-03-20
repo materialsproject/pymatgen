@@ -40,9 +40,8 @@ class BabelMolAdaptor:
 
     @requires(
         openbabel,
-        "BabelMolAdaptor requires openbabel to be installed with "
-        "Python bindings. Please get it at http://openbabel.org "
-        "(version >=3.0.0).",
+        "BabelMolAdaptor requires openbabel to be installed with Python bindings. "
+        "Please get it at http://openbabel.org (version >=3.0.0).",
     )
     def __init__(self, mol):
         """
@@ -59,24 +58,24 @@ class BabelMolAdaptor:
             # the correct OBMol representation to do things like force field
             # optimization. So we go through the indirect route of creating
             # an XYZ file and reading in that file.
-            obmol = openbabel.OBMol()
-            obmol.BeginModify()
+            ob_mol = openbabel.OBMol()
+            ob_mol.BeginModify()
             for site in mol:
                 coords = list(site.coords)
-                atomno = site.specie.Z
-                obatom = openbabel.OBAtom()
-                obatom.thisown = 0
-                obatom.SetAtomicNum(atomno)
-                obatom.SetVector(*coords)
-                obmol.AddAtom(obatom)
-                del obatom
-            obmol.ConnectTheDots()
-            obmol.PerceiveBondOrders()
-            obmol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
-            obmol.SetTotalCharge(int(mol.charge))
-            obmol.Center()
-            obmol.EndModify()
-            self._obmol = obmol
+                atom_no = site.specie.Z
+                ob_atom = openbabel.OBAtom()
+                ob_atom.thisown = 0
+                ob_atom.SetAtomicNum(atom_no)
+                ob_atom.SetVector(*coords)
+                ob_mol.AddAtom(ob_atom)
+                del ob_atom
+            ob_mol.ConnectTheDots()
+            ob_mol.PerceiveBondOrders()
+            ob_mol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
+            ob_mol.SetTotalCharge(int(mol.charge))
+            ob_mol.Center()
+            ob_mol.EndModify()
+            self._obmol = ob_mol
         elif isinstance(mol, openbabel.OBMol):
             self._obmol = mol
         elif isinstance(mol, pb.Molecule):

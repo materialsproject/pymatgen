@@ -220,7 +220,6 @@ def ms_complete():
     """
     Mixing state where we have R2SCAN for all GGA
     """
-
     gga_entries = [
         ComputedStructureEntry(
             Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"
@@ -1101,7 +1100,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = mixing_scheme_no_compat.process_entries(
-            ms_complete.all_entries + [foreign_entry], mixing_state_data=ms_complete.state_data
+            [*ms_complete.all_entries, foreign_entry], mixing_state_data=ms_complete.state_data
         )
         assert len(entries) == 7
         for e in entries:
@@ -1439,12 +1438,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_same.state_data)
 
         for e in ms_gga_2_scan_same.scan_entries:
-            if e.entry_id == "r2scan-6":
+            if e.entry_id in ["r2scan-6", "r2scan-4"]:
                 # gga-4 energy is -18 eV or -6 eV/atom. r2scan-6 is 1 eV/atom above r2scan-4 (ground state),
                 # so r2scan-6 should be adjusted to -5 eV/atom or -15 eV, which is 3 eV higher than its
                 # original energy of -18 eV.
-                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)[0].value == 3
-            elif e.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)[0].value == 3
             else:

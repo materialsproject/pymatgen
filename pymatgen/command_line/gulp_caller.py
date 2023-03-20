@@ -439,9 +439,7 @@ class GulpIO:
         for key in val_dict:
             use_bush = True
             el = re.sub(r"[1-9,+,\-]", "", key)
-            if el not in bpb.species_dict:
-                use_bush = False
-            elif val_dict[key] != bpb.species_dict[el]["oxi"]:
+            if el not in bpb.species_dict or val_dict[key] != bpb.species_dict[el]["oxi"]:
                 use_bush = False
             if use_bush:
                 gin += "species \n"
@@ -545,9 +543,7 @@ class GulpIO:
         """
         energy = None
         for line in gout.split("\n"):
-            if "Total lattice energy" in line and "eV" in line:
-                energy = line.split()
-            elif "Non-primitive unit cell" in line and "eV" in line:
+            if "Total lattice energy" in line and "eV" in line or "Non-primitive unit cell" in line and "eV" in line:
                 energy = line.split()
         if energy:
             return float(energy[4])
@@ -629,7 +625,7 @@ class GulpIO:
                 fields = line.split()
                 if fields[2] == "c":
                     sp.append(fields[1])
-                    coords.append(list(float(x) for x in fields[3:6]))
+                    coords.append([float(x) for x in fields[3:6]])
         else:
             raise OSError("No structure found")
 

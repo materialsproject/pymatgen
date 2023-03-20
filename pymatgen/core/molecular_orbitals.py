@@ -93,6 +93,7 @@ class MolecularOrbitals:
     def obtain_band_edges(self):
         """
         Fill up the atomic orbitals with available electrons.
+
         Returns:
             HOMO, LUMO, and whether it's a metal.
         """

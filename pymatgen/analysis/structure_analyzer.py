@@ -217,8 +217,8 @@ class RelaxationAnalyzer:
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
-        d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1 for l in ["a", "b", "c"]}
-        return d
+        dct = {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
+        return dct
 
     def get_percentage_bond_dist_changes(self, max_radius=3.0):
         """
@@ -483,10 +483,9 @@ class OxideType:
         elif np.any(dist_matrix < relative_cutoff * 1.49):
             is_peroxide = True
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.49)[0]
-        if is_superoxide:
-            if len(bond_atoms) > len(set(bond_atoms)):
-                is_superoxide = False
-                is_ozonide = True
+        if is_superoxide and len(bond_atoms) > len(set(bond_atoms)):
+            is_superoxide = False
+            is_ozonide = True
         try:
             n_bonds = len(set(bond_atoms))
         except UnboundLocalError:

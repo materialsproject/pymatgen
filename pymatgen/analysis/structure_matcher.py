@@ -347,7 +347,7 @@ class StructureMatcher(MSONable):
         comparator: AbstractComparator | None = None,
         supercell_size: Literal["num_sites", "num_atoms", "volume"] = "num_sites",
         ignored_species: Sequence[SpeciesLike] = (),
-    ):
+    ) -> None:
         """
         Args:
             ltol (float): Fractional length tolerance. Default is 0.2.
@@ -403,9 +403,8 @@ class StructureMatcher(MSONable):
 
     def _get_supercell_size(self, s1, s2):
         """
-        Returns the supercell size, and whether the supercell should
-        be applied to s1. If fu == 1, s1_supercell is returned as
-        true, to avoid ambiguity.
+        Returns the supercell size, and whether the supercell should be applied to s1.
+        If fu == 1, s1_supercell is returned as true, to avoid ambiguity.
         """
         if self._supercell_size == "num_sites":
             fu = s2.num_sites / s1.num_sites
@@ -449,9 +448,9 @@ class StructureMatcher(MSONable):
             atol=self.angle_tol,
             skip_rotation_matrix=True,
         )
-        for l, _, scale_m in lattices:
+        for latt, _, scale_m in lattices:
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
-                yield l, scale_m
+                yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
         """
@@ -471,18 +470,18 @@ class StructureMatcher(MSONable):
             s2_fc = np.array(s2.frac_coords)
             if fu == 1:
                 cc = np.array(s1.cart_coords)
-                for l, sc_m in self._get_lattices(s2.lattice, s1, fu):
-                    fc = l.get_fractional_coords(cc)
+                for latt, sc_m in self._get_lattices(s2.lattice, s1, fu):
+                    fc = latt.get_fractional_coords(cc)
                     fc -= np.floor(fc)
-                    yield fc, s2_fc, av_lat(l, s2.lattice), sc_m
+                    yield fc, s2_fc, av_lat(latt, s2.lattice), sc_m
             else:
                 fc_init = np.array(s1.frac_coords)
-                for l, sc_m in self._get_lattices(s2.lattice, s1, fu):
+                for latt, sc_m in self._get_lattices(s2.lattice, s1, fu):
                     fc = np.dot(fc_init, np.linalg.inv(sc_m))
                     lp = lattice_points_in_supercell(sc_m)
                     fc = (fc[:, None, :] + lp[None, :, :]).reshape((-1, 3))
                     fc -= np.floor(fc)
-                    yield fc, s2_fc, av_lat(l, s2.lattice), sc_m
+                    yield fc, s2_fc, av_lat(latt, s2.lattice), sc_m
 
         if s1_supercell:
             for x in sc_generator(struct1, struct2):
@@ -699,7 +698,7 @@ class StructureMatcher(MSONable):
         s1_supercell=True,
         use_rms=False,
         break_on_match=False,
-    ):
+    ) -> tuple[float, float, np.ndarray, float, Mapping] | None:
         """
         Matches one struct onto the other
         """
@@ -742,6 +741,10 @@ class StructureMatcher(MSONable):
             s1_supercell (bool): whether to create the supercell of struct1 (vs struct2)
             use_rms (bool): whether to minimize the rms of the matching
             break_on_match (bool): whether to stop search at first match
+
+        Returns:
+            tuple[float, float, np.ndarray, float, Mapping]: (rms, max_dist, mask, cost, mapping)
+                if a match is found, else None
         """
         if fu < 1:
             raise ValueError("fu cannot be less than 1")
@@ -773,10 +776,7 @@ class StructureMatcher(MSONable):
                     inv_lll_abc = np.array(avg_l.get_lll_reduced_lattice().reciprocal_lattice.abc)
                     lll_frac_tol = inv_lll_abc * self.stol / (np.pi * normalization)
                     dist, t_adj, mapping = self._cart_dists(s1fc, t_s2fc, avg_l, mask, normalization, lll_frac_tol)
-                    if use_rms:
-                        val = np.linalg.norm(dist) / len(dist) ** 0.5
-                    else:
-                        val = max(dist)
+                    val = np.linalg.norm(dist) / len(dist) ** 0.5 if use_rms else max(dist)
                     # pylint: disable=E1136
                     if best_match is None or val < best_match[0]:
                         total_t = t + t_adj
@@ -901,6 +901,7 @@ class StructureMatcher(MSONable):
     ):
         """
         Tries all permutations of matching struct1 to struct2.
+
         Args:
             struct1 (Structure): First structure
             struct2 (Structure): Second structure
@@ -1056,11 +1057,10 @@ class StructureMatcher(MSONable):
 
     def fit_anonymous(
         self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
-    ):
+    ) -> bool:
         """
-        Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. E.g., to compare if the Li2O and Na2O
-        structures are similar.
+        Performs an anonymous fitting, which allows distinct species in one structure to map
+        to another. E.g., to compare if the Li2O and Na2O structures are similar.
 
         Args:
             struct1 (Structure): 1st structure
@@ -1079,7 +1079,7 @@ class StructureMatcher(MSONable):
 
         return bool(matches)
 
-    def get_supercell_matrix(self, supercell, struct):
+    def get_supercell_matrix(self, supercell, struct) -> np.ndarray | None:
         """
         Returns the matrix for transforming struct to supercell. This
         can be used for very distorted 'supercells' where the primitive cell

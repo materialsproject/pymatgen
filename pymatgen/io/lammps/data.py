@@ -214,7 +214,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 
     Returns:
         LammpsBox, SymmOp
-
     """
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
@@ -235,7 +234,6 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 class LammpsData(MSONable):
     """
     Object for representing the data in a LAMMPS data file.
-
     """
 
     def __init__(
@@ -308,7 +306,7 @@ class LammpsData(MSONable):
         masses = self.masses
         atoms = self.atoms.copy()
         if "nx" in atoms.columns:
-            atoms.drop(["nx", "ny", "nz"], axis=1, inplace=True)
+            atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
         ld_copy = self.__class__(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
@@ -389,7 +387,7 @@ class LammpsData(MSONable):
         right_indent = len(str(max(all_stats)))
         count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
         type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
-        stats = "\n".join(count_lines + [""] + type_lines)
+        stats = "\n".join([*count_lines, "", *type_lines])
 
         def map_coords(q):
             return f"{q:.{distance}f}"
@@ -630,7 +628,7 @@ class LammpsData(MSONable):
             for kw in SECTION_KEYWORDS["topology"]:
                 if data.get(kw):
                     topologies[kw] = (np.array(data[kw]) - shift).tolist()
-            topologies = None if not topologies else topologies
+            topologies = topologies if topologies else None
             topo_list.append(
                 Topology(
                     sites=m,
@@ -657,7 +655,7 @@ class LammpsData(MSONable):
         with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
-        section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
+        section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
 
         float_group = r"([0-9eE.+-]+)"
@@ -669,10 +667,10 @@ class LammpsData(MSONable):
 
         header = {"counts": {}, "types": {}}
         bounds = {}
-        for l in clean_lines(parts[0][1:]):  # skip the 1st line
+        for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
             for k, v in header_pattern.items():  # noqa: B007
-                match = re.match(v, l)
+                match = re.match(v, line)
                 if match:
                     break
             if match and k in ["counts", "types"]:
@@ -717,9 +715,9 @@ class LammpsData(MSONable):
             df.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
-                df.sort_values(sort_by, inplace=True)
+                df = df.sort_values(sort_by)
             if "id" in df.columns:
-                df.set_index("id", drop=True, inplace=True)
+                df = df.set_index("id", drop=True)
                 df.index.name = None
             return kw, df
 
@@ -774,7 +772,7 @@ class LammpsData(MSONable):
         atom_types = set.union(*(t.species for t in topologies))
         assert atom_types.issubset(ff.maps["Atoms"]), "Unknown atom type found in topologies"
 
-        items = dict(box=box, atom_style=atom_style, masses=ff.masses, force_field=ff.force_field)
+        items = {"box": box, "atom_style": atom_style, "masses": ff.masses, "force_field": ff.force_field}
 
         mol_ids, charges, coords, labels = [], [], [], []
         v_collector = [] if topologies[0].velocities else None
@@ -812,8 +810,8 @@ class LammpsData(MSONable):
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
             if any(pd.isnull(df["type"])):  # Throw away undefined topologies
                 warnings.warn(f"Undefined {k.lower()} detected and removed")
-                df.dropna(subset=["type"], inplace=True)
-                df.reset_index(drop=True, inplace=True)
+                df = df.dropna(subset=["type"])
+                df = df.reset_index(drop=True)
             df.index += 1
             topology[k] = df[SECTION_HEADERS[k]]
         topology = {k: v for k, v in topology.items() if not v.empty}
@@ -836,10 +834,7 @@ class LammpsData(MSONable):
                 "charge" (charged). Default to "charge".
             is_sort (bool): whether to sort sites
         """
-        if is_sort:
-            s = structure.get_sorted_structure()
-        else:
-            s = structure.copy()
+        s = structure.get_sorted_structure() if is_sort else structure.copy()
         box, symm_op = lattice_2_lmpbox(s.lattice)
         coords = symm_op.operate_multi(s.cart_coords)
         site_properties = s.site_properties
@@ -864,6 +859,35 @@ class LammpsData(MSONable):
         ff = ForceField(mass_info)
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
+
+    def set_charge_atom(self, charges: dict[int, float]):
+        """
+        Set the charges of specific atoms of the data.
+
+        Args:
+            charges: A dictionary with atom indexes as keys and
+                     charges as values, e.g., to set the charge
+                     of the atom with index 3 to -2, use `{3: -2}`.
+        """
+        for iat, q in charges.items():
+            self.atoms.loc[iat, "q"] = q
+
+    def set_charge_atom_type(self, charges: dict[str | int, float]):
+        """
+        Add or modify charges of all atoms of a given type in the data
+
+        Args:
+            charges: Dict containing the charges for the atom types to set.
+                     The dict should contain atom types as integers or labels and charges.
+                     Example: change the charge of Li atoms to +3:
+                         charges={"Li": 3}
+                         charges={1: 3} if Li atoms are of type 1
+        """
+        for iat, q in charges.items():
+            if isinstance(iat, str):
+                mass_iat = Element(iat).atomic_mass
+                iat = self.masses.loc[self.masses["mass"] == mass_iat].index.values[0]
+            self.atoms.loc[self.atoms["type"] == iat, "q"] = q
 
 
 class Topology(MSONable):
@@ -903,10 +927,7 @@ class Topology(MSONable):
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
-        if ff_label:
-            type_by_sites = sites.site_properties.get(ff_label)
-        else:
-            type_by_sites = [site.specie.symbol for site in sites]
+        type_by_sites = sites.site_properties.get(ff_label) if ff_label else [site.specie.symbol for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")
@@ -980,10 +1001,10 @@ class Topology(MSONable):
                 angle_list.extend([[i, k, j] for i, j in itertools.combinations(v, 2)])
         if dihedral:
             hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-            for i, j in hub_cons.tolist():
-                ks = [k for k in hub_spokes[i] if k != j]
-                ls = [l for l in hub_spokes[j] if l != i]
-                dihedral_list.extend([[k, i, j, l] for k, l in itertools.product(ks, ls) if k != l])
+            for ii, jj in hub_cons.tolist():
+                ks = [ki for ki in hub_spokes[ii] if ki != jj]
+                ls = [li for li in hub_spokes[jj] if li != ii]
+                dihedral_list.extend([[ki, ii, jj, li] for ki, li in itertools.product(ks, ls) if ki != li])
 
         topologies = {
             k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0
@@ -1000,7 +1021,6 @@ class ForceField(MSONable):
         force_field (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.
-
     """
 
     @staticmethod

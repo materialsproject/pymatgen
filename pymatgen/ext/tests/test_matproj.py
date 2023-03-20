@@ -71,7 +71,7 @@ class MPResterOldTest(PymatgenTest):
     def test_get_xas_data(self):
         # Test getting XAS data
         data = self.rester.get_xas_data("mp-19017", "Li")
-        assert "mp-19017,Li" == data["mid_and_el"]
+        assert data["mid_and_el"] == "mp-19017,Li"
         assert data["spectrum"]["x"][0] == pytest.approx(55.178)
         assert data["spectrum"]["y"][0] == pytest.approx(0.0164634)
 
