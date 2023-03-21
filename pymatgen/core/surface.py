@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements representations of slabs and surfaces, as well as
 algorithms for generating them. If you use this module, please consider

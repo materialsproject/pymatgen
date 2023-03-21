@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides so-called "strategies" to determine the coordination environments of an atom in a structure.
 Some strategies can favour larger or smaller environments. Some strategies uniquely identifies the environments while

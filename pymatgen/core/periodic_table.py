@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """Module contains classes presenting Element and Species (Element + oxidation state) and PeriodicTable."""
 
 from __future__ import annotations

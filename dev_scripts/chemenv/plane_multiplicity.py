@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Development script to get the multiplicity of the separation facets for some model coordination environments
 """

@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module implements the construction and plotting of chemical potential diagrams
 from a list of entries within a chemical system containing 2 or more elements. The

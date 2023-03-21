@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team

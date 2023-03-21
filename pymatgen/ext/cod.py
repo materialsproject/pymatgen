@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to interface with the Crystallography Open
 Database. If you use data from the COD, please cite the following works (as

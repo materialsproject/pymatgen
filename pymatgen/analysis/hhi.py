@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is used to estimate the Herfindahl-Hirschman Index, or HHI, of
 chemical compounds. The HHI is a measure of how geographically confined or

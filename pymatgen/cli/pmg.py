@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
 """
 A master convenience script with many tools for vasp and structure analysis.

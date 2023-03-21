@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a base class for tensor-like objects and methods for
 basic tensor manipulation. It also provides a class, SquareTensor,

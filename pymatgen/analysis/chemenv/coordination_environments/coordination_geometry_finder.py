@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains the main object used to identify the coordination environments in a given structure.
 If you use this module, please cite the following:

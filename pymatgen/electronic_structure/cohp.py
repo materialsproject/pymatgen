@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes to represent crystal orbital Hamilton
 populations (COHP) and integrated COHP (ICOHP), but can also be used

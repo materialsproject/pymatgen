@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the FeffInputSet abstract base class and a concrete
 implementation for the Materials Project. The basic concept behind an input

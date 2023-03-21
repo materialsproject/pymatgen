@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines standard transformations which transforms a structure into
 another structure. Standard transformations operate in a structure-wide manner,
