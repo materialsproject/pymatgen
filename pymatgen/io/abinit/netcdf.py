@@ -494,5 +494,5 @@ class AbinitHeader(AttrDict):
 
         s = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join(marquee(title, mark="="), s)
+            return "\n".join([marquee(title, mark="="), s])
         return s
