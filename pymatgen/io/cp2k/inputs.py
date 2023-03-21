@@ -175,7 +175,8 @@ class Keyword(MSONable):
             description = None
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
-        args = list(map(postprocessor, s.split()))
+        args = s.split()
+        args = list(map(postprocessor if args[0].upper() != "ELEMENT" else str, args))
         args[0] = str(args[0])
         return Keyword(*args, units=units[0], description=description)
 
@@ -1438,10 +1439,10 @@ class Kind(Section):
         self.name = "KIND"
         self.specie = specie
         self.alias = alias
-        self.magnetization = magnetization
+        self.magnetization = magnetization or 0  # if None, set 0
         self.basis_set = basis_set
         self.potential = potential
-        self.ghost = ghost
+        self.ghost = ghost or False  # if None, set False
         self.aux_basis = aux_basis
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
