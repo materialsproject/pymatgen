@@ -1439,10 +1439,10 @@ class Kind(Section):
         self.name = "KIND"
         self.specie = specie
         self.alias = alias
-        self.magnetization = magnetization if magnetization else 0
+        self.magnetization = magnetization or 0  # if None, set 0
         self.basis_set = basis_set
         self.potential = potential
-        self.ghost = ghost if ghost else False
+        self.ghost = ghost or False  # if None, set False
         self.aux_basis = aux_basis
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
