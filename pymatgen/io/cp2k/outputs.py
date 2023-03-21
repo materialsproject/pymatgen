@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the Cp2k output parser along with a few other functions for parsing cp2k-related
 outputs.
@@ -112,7 +109,7 @@ class Cp2kOutput:
         """
         The cp2k version used in the calculation
         """
-        return self.data.get("cp2k_version", None)[0][0]
+        return self.data.get("cp2k_version")[0][0]
 
     @property
     def completed(self):
@@ -161,8 +158,8 @@ class Cp2kOutput:
         }
 
         functional = self.data.get("dft", {}).get("functional", [None])
-        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential", None)
-        frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION", None)
+        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
+        frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION")
 
         if len(functional) > 1:
             rt = "Mixed: " + ", ".join(functional)
@@ -216,7 +213,7 @@ class Cp2kOutput:
     @property
     def multiplicity(self):
         """Get the spin multiplicity from input file"""
-        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("", None)).values[0]
+        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]
 
     @property
     def is_molecule(self) -> bool:
@@ -1707,13 +1704,13 @@ class Cp2kOutput:
         d["total_time"] = self.timing["CP2K"]["total_time"]["maximum"]
         d["run_type"] = self.run_type
         d["input"]["global"] = self.data.get("global")
-        d["input"]["dft"] = self.data.get("dft", None)
-        d["input"]["scf"] = self.data.get("scf", None)
-        d["input"]["qs"] = self.data.get("QS", None)
+        d["input"]["dft"] = self.data.get("dft")
+        d["input"]["scf"] = self.data.get("scf")
+        d["input"]["qs"] = self.data.get("QS")
         d["input"]["run_type"] = self.run_type
         d["input"]["calculation_type"] = self.calculation_type
         d["input"]["structure"] = self.initial_structure.as_dict()
-        d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info", None)
+        d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info")
         d["input"]["cp2k_input"] = self.input.as_dict()
         d["ran_successfully"] = self.completed
         d["cp2k_version"] = self.cp2k_version

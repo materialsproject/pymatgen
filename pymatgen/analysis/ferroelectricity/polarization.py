@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 r"""
 This module contains classes useful for analyzing ferroelectric candidates.
 The Polarization class can recover the spontaneous polarization using

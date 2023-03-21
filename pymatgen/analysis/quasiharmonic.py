@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements the Quasi-harmonic Debye approximation that can
 be used to compute thermal properties.

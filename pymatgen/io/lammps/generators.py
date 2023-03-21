@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Input set generators for LAMMPS.
 This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.

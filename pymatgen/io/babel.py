@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be

@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.

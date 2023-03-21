@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly

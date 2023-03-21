@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using

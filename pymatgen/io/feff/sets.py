@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the FeffInputSet abstract base class and a concrete
 implementation for the Materials Project. The basic concept behind an input
@@ -250,7 +247,7 @@ class FEFFDictSet(AbstractFeffInputSet):
                 self.config_dict["TARGET"] = self.atoms.center_index + 1
                 self.config_dict["COREHOLE"] = "RPA"
                 logger.warning("Setting COREHOLE = RPA for K-space calculation")
-                if not self.config_dict.get("KMESH", None):
+                if not self.config_dict.get("KMESH"):
                     abc = self.structure.lattice.abc
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
                     self.config_dict["KMESH"] = [int(round(mult / length)) for length in abc]

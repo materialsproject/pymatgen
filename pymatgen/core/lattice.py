@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Defines the classes relating to 3D lattices.
 """
@@ -90,7 +87,7 @@ class Lattice(MSONable):
         for i in range(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
+            angles[i] = abs_cap(np.dot(m[j], m[k]) / (lengths[j] * lengths[k]))
         angles = np.arccos(angles) * 180.0 / pi
         return tuple(angles.tolist())  # type: ignore
 
@@ -161,7 +158,7 @@ class Lattice(MSONable):
         """
         The metric tensor of the lattice.
         """
-        return dot(self._matrix, self._matrix.T)
+        return np.dot(self._matrix, self._matrix.T)
 
     def get_cartesian_coords(self, fractional_coords: ArrayLike) -> np.ndarray:
         """
@@ -173,7 +170,7 @@ class Lattice(MSONable):
         Returns:
             Cartesian coordinates
         """
-        return dot(fractional_coords, self._matrix)
+        return np.dot(fractional_coords, self._matrix)
 
     def get_fractional_coords(self, cart_coords: ArrayLike) -> np.ndarray:
         """
@@ -185,7 +182,7 @@ class Lattice(MSONable):
         Returns:
             Fractional coordinates.
         """
-        return dot(cart_coords, self.inv_matrix)
+        return np.dot(cart_coords, self.inv_matrix)
 
     def get_vector_along_lattice_directions(self, cart_coords: ArrayLike) -> np.ndarray:
         """
@@ -219,7 +216,7 @@ class Lattice(MSONable):
         """
         gstar = self.reciprocal_lattice_crystallographic.metric_tensor
         hkl = np.array(miller_index)
-        return 1 / ((dot(dot(hkl, gstar), hkl.T)) ** (1 / 2))
+        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
     def cubic(a: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
@@ -457,10 +454,10 @@ class Lattice(MSONable):
     @property
     def volume(self) -> float:
         """
-        Volume of the unit cell.
+        Volume of the unit cell in Angstrom^3.
         """
-        m = self._matrix
-        return float(abs(dot(np.cross(m[0], m[1]), m[2])))
+        matrix = self._matrix
+        return float(abs(np.dot(np.cross(matrix[0], matrix[1]), matrix[2])))
 
     @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:

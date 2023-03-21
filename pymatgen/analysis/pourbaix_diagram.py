@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module is intended to be used to compute Pourbaix diagrams
 of arbitrary compositions and formation energies. If you use

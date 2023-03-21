@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
@@ -561,8 +558,8 @@ class Poscar(MSONable):
             comment=d["comment"],
             selective_dynamics=d["selective_dynamics"],
             true_names=d["true_names"],
-            velocities=d.get("velocities", None),
-            predictor_corrector=d.get("predictor_corrector", None),
+            velocities=d.get("velocities"),
+            predictor_corrector=d.get("predictor_corrector"),
         )
 
     def set_temperature(self, temperature: float):

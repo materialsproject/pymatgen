@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains objects that are used to describe the environments in a structure. The most detailed object
 (StructureEnvironments) contains a very thorough analysis of the environments of a given atom but is difficult to

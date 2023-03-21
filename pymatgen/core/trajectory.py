@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to define a simulation trajectory, which could come from
 either relaxation or molecular dynamics.

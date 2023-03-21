@@ -534,12 +534,6 @@ record of what changes/contributions they have specific copyright on, they
 should indicate their copyright in the commit message of the change, when
 they commit the change to one of the pymatgen repositories.
 
-With this in mind, the following banner should be used in any source code file
-to indicate the copyright and license terms::
-
-    # Copyright (c) Pymatgen Development Team.
-    # Distributed under the terms of the MIT License.
-
 Indices and tables
 ==================
 

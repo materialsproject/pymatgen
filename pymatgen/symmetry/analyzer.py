@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
 

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
@@ -519,11 +516,11 @@ class InsertionVoltagePair(AbstractVoltagePair):
         )
 
         # Step 4: add (optional) hull and muO2 data
-        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy", None)
-        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy", None)
+        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy")
+        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy")
 
-        vpair.muO2_charge = entry_charge.data.get("muO2", None)
-        vpair.muO2_discharge = entry_discharge.data.get("muO2", None)
+        vpair.muO2_charge = entry_charge.data.get("muO2")
+        vpair.muO2_discharge = entry_discharge.data.get("muO2")
 
         return vpair
 

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a class to predict and analyze interfacial reactions between two
 solids, with or without an open element (e.g., flowing O2).

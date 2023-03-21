@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements methods for reading/manupilating/writing LAMMPS input files.
 It does not implement methods for automatically creating inputs based on a structure

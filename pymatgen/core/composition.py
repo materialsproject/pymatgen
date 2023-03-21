@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a Composition class to represent compositions,
 and a ChemicalPotential class to represent potentials.

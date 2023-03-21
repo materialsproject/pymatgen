@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import json
@@ -554,7 +551,7 @@ Direct
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assertArrayAlmostEqual(sorted(c_distances), sorted(p_distances))
 
-    # @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
+    # @unittest.skipIf(not os.getenv("CI"), "Only run this in CI tests.")
     # def test_get_all_neighbors_crosscheck_old(self):
     #     warnings.simplefilter("ignore")
     #     for i in range(100):

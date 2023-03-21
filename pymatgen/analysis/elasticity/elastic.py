@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
