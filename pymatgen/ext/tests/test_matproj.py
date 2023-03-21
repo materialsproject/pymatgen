@@ -43,7 +43,7 @@ if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
     msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
     if len(PMG_MAPI_KEY) == 32:
         msg += " (this looks like a new API key)"
-    if os.environ.get("CI"):
+    if os.getenv("CI"):
         raise ValueError(msg)
 
 

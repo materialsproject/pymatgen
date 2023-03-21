@@ -394,7 +394,7 @@ class ChargemolAnalysis:
             )
 
         # atomic_densities dir
-        atomic_densities_path = self._atomic_densities_path or os.environ.get("DDEC6_ATOMIC_DENSITIES_DIR", None)
+        atomic_densities_path = self._atomic_densities_path or os.getenv("DDEC6_ATOMIC_DENSITIES_DIR", None)
         if atomic_densities_path is None:
             raise OSError(
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"

@@ -1186,7 +1186,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def volume(self) -> float:
         """
-        Returns the volume of the structure.
+        Returns the volume of the structure in Angstrom^3.
         """
         return self._lattice.volume
 
