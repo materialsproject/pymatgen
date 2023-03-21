@@ -4379,6 +4379,18 @@ class Critic2NN(NearNeighbors):
 
 
 def oxygen_edge_extender(mol_graph):
+    """
+    Function to identify and add missed O-C or O-H bonds. This is particularly
+    important when oxygen is forming three bonds, e.g. in H3O+ or XOH2+
+
+    Args:
+        mol_graph: pymatgen.analysis.graphs.MoleculeGraph object
+
+    Returns:
+        mol_graph: pymatgen.analysis.graphs.MoleculeGraph object with additional
+            O-C or O-H bonds (if any found) added
+
+    """
     num_new_edges = 0
     for idx in mol_graph.graph.nodes():
         if mol_graph.graph.nodes()[idx]["specie"] == "O":
@@ -4396,7 +4408,6 @@ def oxygen_edge_extender(mol_graph):
                         if site.distance(mol_graph.molecule[idx]) < 1.0:
                             mol_graph.add_edge(idx, ii)
                             num_new_edges += 1
-    print(num_new_edges, "edges added by oxygen_edge_extender")
     return mol_graph
 
 

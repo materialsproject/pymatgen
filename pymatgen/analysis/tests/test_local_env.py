@@ -33,6 +33,7 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
     get_neighbors_of_site_with_index,
     metal_edge_extender,
+    oxygen_edge_extender,
     on_disorder_options,
     site_is_of_motif_type,
     solid_angle,
@@ -1441,6 +1442,7 @@ class Critic2NNTest(PymatgenTest):
 class MetalEdgeExtenderTest(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
+        self.phsh = Molecule.from_file(os.path.join(test_dir, "phsh.xyz"))
         self.LiEC_graph = MoleculeGraph.with_edges(
             molecule=self.LiEC,
             edges={
@@ -1477,6 +1479,12 @@ class MetalEdgeExtenderTest(PymatgenTest):
         assert len(self.LiEC_graph.graph.edges) == 11
         extended_mol_graph = metal_edge_extender(self.LiEC_graph)
         assert len(extended_mol_graph.graph.edges) == 12
+
+    def test_oxygen_edge_extender(self):
+        phsh_ob_mg = MoleculeGraph.with_local_env_strategy(self.phsh, OpenBabelNN())
+        assert len(phsh_ob_mg.graph.edges) == 25
+        phsh_fixed_mg = oxygen_edge_extender(phsh_ob_mg)
+        assert len(phsh_fixed_mg.graph.edges) == 26
 
     def test_custom_metals(self):
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})
