@@ -805,7 +805,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for idx, site in enumerate(structure):
             if isinstance(site.specie, DummySpecies):
                 sites_to_remove.append(idx)
-                spin = site.specie._properties.get("spin", None)
+                spin = site.specie._properties.get("spin")
                 neighbors = structure.get_neighbors(
                     site,
                     0.05,  # arbitrary threshold, needs to be << any bond length
@@ -839,7 +839,7 @@ class MagOrderingTransformation(AbstractTransformation):
         """
         for idx, site in enumerate(structure):
             if getattr(site.specie, "_properties", None):
-                spin = site.specie._properties.get("spin", None)
+                spin = site.specie._properties.get("spin")
                 sign = int(spin) if spin else 0
                 if spin:
                     new_properties = site.specie._properties.copy()
@@ -889,7 +889,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         enum_kwargs["min_cell_size"] = max(int(self.determine_min_cell(structure)), enum_kwargs.get("min_cell_size", 1))
 
-        if enum_kwargs.get("max_cell_size", None):
+        if enum_kwargs.get("max_cell_size"):
             if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
                 warnings.warn(
                     f"Specified max cell size ({enum_kwargs['max_cell_size']}) is "

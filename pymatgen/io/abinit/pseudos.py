@@ -478,7 +478,7 @@ class AbinitPseudo(Pseudo):
         self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
         for attr_name in header:
-            value = header.get(attr_name, None)
+            value = header.get(attr_name)
 
             # Hide these attributes since one should always use the public interface.
             setattr(self, "_" + attr_name, value)

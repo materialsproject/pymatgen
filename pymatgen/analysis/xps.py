@@ -74,7 +74,7 @@ class XPS(Spectrum):
         for el in dos.structure.composition:
             spd_dos = dos.get_element_spd_dos(el)
             for orb, pdos in spd_dos.items():
-                weight = CROSS_SECTIONS[el.symbol].get(str(orb), None)
+                weight = CROSS_SECTIONS[el.symbol].get(str(orb))
                 if weight is not None:
                     total += pdos.get_densities() * weight
                 else:

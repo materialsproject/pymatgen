@@ -321,11 +321,11 @@ class StructureNL:
         return cls(
             structure,
             a["authors"],
-            projects=a.get("projects", None),
+            projects=a.get("projects"),
             references=a.get("references", ""),
-            remarks=a.get("remarks", None),
+            remarks=a.get("remarks"),
             data=data,
-            history=a.get("history", None),
+            history=a.get("history"),
             created_at=created_at,
         )
 

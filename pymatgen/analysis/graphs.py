@@ -518,8 +518,8 @@ class StructureGraph(MSONable):
                         edge["to_index"],
                         from_jimage=(0, 0, 0),
                         to_jimage=edge["to_jimage"],
-                        weight=edge.get("weight", None),
-                        edge_properties=edge.get("properties", None),
+                        weight=edge.get("weight"),
+                        edge_properties=edge.get("properties"),
                     )
                 except KeyError:
                     raise RuntimeError("Some edges are invalid.")
@@ -797,7 +797,7 @@ class StructureGraph(MSONable):
             relative_jimage = np.subtract(to_jimage, jimage)
             dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
 
-            weight = d.get("weight", None)
+            weight = d.get("weight")
 
             if (v, to_jimage) not in connected_site_images:
                 connected_site = ConnectedSite(site=site, jimage=to_jimage, index=v, weight=weight, dist=dist)
@@ -1026,7 +1026,7 @@ class StructureGraph(MSONable):
         :return: A dict with an 'all_weights' list, 'minimum',
             'maximum', 'median', 'mean', 'std_dev'
         """
-        all_weights = [d.get("weight", None) for u, v, d in self.graph.edges(data=True)]
+        all_weights = [d.get("weight") for u, v, d in self.graph.edges(data=True)]
         stats = describe(all_weights, nan_policy="omit")
 
         return {
@@ -1896,8 +1896,8 @@ class MoleculeGraph(MSONable):
                     self.add_edge(
                         edge["from_index"],
                         edge["to_index"],
-                        weight=edge.get("weight", None),
-                        edge_properties=edge.get("properties", None),
+                        weight=edge.get("weight"),
+                        edge_properties=edge.get("properties"),
                     )
                 except KeyError:
                     raise RuntimeError("Some edges are invalid.")
@@ -2477,7 +2477,7 @@ class MoleculeGraph(MSONable):
         in_edges = list(self.graph.in_edges(n, data=True))
 
         for u, v, d in out_edges + in_edges:
-            weight = d.get("weight", None)
+            weight = d.get("weight")
 
             if v == n:
                 site = self.molecule[u]

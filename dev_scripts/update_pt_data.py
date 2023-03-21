@@ -274,7 +274,7 @@ def add_electron_affinities():
     print(ea)
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
-        v["Electron affinity"] = ea.get(Element(k).Z, None)
+        v["Electron affinity"] = ea.get(Element(k).Z)
     dumpfn(pt, "../pymatgen/core/periodic_table.json")
 
 

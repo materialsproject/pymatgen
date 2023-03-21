@@ -611,7 +611,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     Species(
                         sym,
                         oxidation_state=oxi_state,
-                        properties={"spin": spins.get(str(sp), spins.get(sym, None))},
+                        properties={"spin": spins.get(str(sp), spins.get(sym))},
                     )
                 ] = occu
             site.species = Composition(new_sp)
@@ -2459,7 +2459,7 @@ class IStructure(SiteCollection, MSONable):
 
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        charge = d.get("charge", None)
+        charge = d.get("charge")
         return cls.from_sites(sites, charge=charge)
 
     def to(self, filename: str = "", fmt: str = "", **kwargs) -> str | None:

@@ -200,7 +200,7 @@ class GasCorrection(Correction):
         # set error to 0 because old MPCompatibility doesn't have errors
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         rform = entry.composition.reduced_formula
@@ -247,7 +247,7 @@ class AnionCorrection(Correction):
         correction = ufloat(0.0, 0.0)
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
@@ -348,7 +348,7 @@ class AqueousCorrection(Correction):
         cpd_energies = self.cpd_energies
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
@@ -477,7 +477,7 @@ class UCorrection(Correction):
                 f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
             )
 
-        calc_u = entry.parameters.get("hubbards", None)
+        calc_u = entry.parameters.get("hubbards")
         calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
 
@@ -486,7 +486,7 @@ class UCorrection(Correction):
         correction = ufloat(0.0, 0.0)
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         u_corr = self.u_corrections.get(most_electroneg, {})

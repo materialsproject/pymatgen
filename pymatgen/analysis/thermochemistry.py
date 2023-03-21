@@ -88,7 +88,7 @@ class ThermoData:
             d["ref"],
             d["method"],
             d["temp_range"],
-            d.get("uncertainty", None),
+            d.get("uncertainty"),
         )
 
     def as_dict(self):

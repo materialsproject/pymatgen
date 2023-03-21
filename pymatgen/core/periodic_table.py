@@ -272,7 +272,7 @@ class ElementBase(Enum):
             "ionization_energies",
         ]:
             kstr = item.capitalize().replace("_", " ")
-            val = self._data.get(kstr, None)
+            val = self._data.get(kstr)
             if str(val).startswith("no data"):
                 val = None
             elif isinstance(val, (list, dict)):
@@ -1365,7 +1365,7 @@ class Species(MSONable, Stringify):
         :param d: Dict representation.
         :return: Species.
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
 
 @functools.total_ordering
@@ -1531,7 +1531,7 @@ class DummySpecies(Species):
         :param d: Dict representation
         :return: DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
     def __repr__(self):
         return f"DummySpecies {self}"
