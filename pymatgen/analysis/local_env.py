@@ -4396,13 +4396,9 @@ def oxygen_edge_extender(mol_graph):
         if mol_graph.graph.nodes()[idx]["specie"] == "O":
             neighbors = [site[2] for site in mol_graph.get_connected_sites(idx)]
             for ii, site in enumerate(mol_graph.molecule):
-                if ii != idx and ii not in neighbors and site.distance(mol_graph.molecule[idx]) < 1.5:
-                    if str(site.specie) == "C":
-                        mol_graph.add_edge(idx, ii)
-                        num_new_edges += 1
-                    elif str(site.specie) == "H" and site.distance(mol_graph.molecule[idx]) < 1.0:
-                        mol_graph.add_edge(idx, ii)
-                        num_new_edges += 1
+                if ii != idx and ii not in neighbors and ((str(site.specie) == "C" and site.distance(mol_graph.molecule[idx]) < 1.5) or (str(site.specie) == "H" and site.distance(mol_graph.molecule[idx]) < 1.0)):
+                    mol_graph.add_edge(idx, ii)
+                    num_new_edges += 1
     return mol_graph
 
 
