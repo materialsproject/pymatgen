@@ -1443,6 +1443,36 @@ class MetalEdgeExtenderTest(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
         self.phsh = Molecule.from_file(os.path.join(test_dir, "phsh.xyz"))
+        self.phsh_graph = MoleculeGraph.with_edges(
+            molecule=self.phsh,
+            edges={
+                (0, 1): None,
+                (0, 2): None,
+                (0, 3): None,
+                (0, 4): None,
+                (4, 5): None,
+                (4, 6): None,
+                (4, 18): None,
+                (6, 7): None,
+                (6, 16): None,
+                (7, 8): None,
+                (7, 9): None,
+                (9, 10): None,
+                (9, 11): None,
+                (11, 14): None,
+                (12, 13): None,
+                (12, 25): None,
+                (14, 15): None,
+                (14, 16): None,
+                (16, 17): None,
+                (18, 19): None,
+                (18, 20): None,
+                (18, 21): None,
+                (21, 22): None,
+                (21, 23): None,
+                (21, 24): None,
+            },
+        )
         self.LiEC_graph = MoleculeGraph.with_edges(
             molecule=self.LiEC,
             edges={
@@ -1481,10 +1511,9 @@ class MetalEdgeExtenderTest(PymatgenTest):
         assert len(extended_mol_graph.graph.edges) == 12
 
     def test_oxygen_edge_extender(self):
-        phsh_ob_mg = MoleculeGraph.with_local_env_strategy(self.phsh, OpenBabelNN())
-        assert len(phsh_ob_mg.graph.edges) == 25
-        phsh_fixed_mg = oxygen_edge_extender(phsh_ob_mg)
-        assert len(phsh_fixed_mg.graph.edges) == 26
+        assert len(self.phsh_graph.graph.edges) == 25
+        phsh_fixed_graph = oxygen_edge_extender(self.phsh_graph)
+        assert len(phsh_fixed_graph.graph.edges) == 26
 
     def test_custom_metals(self):
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})
