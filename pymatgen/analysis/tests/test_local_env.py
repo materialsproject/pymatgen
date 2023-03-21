@@ -33,8 +33,8 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
     get_neighbors_of_site_with_index,
     metal_edge_extender,
-    oxygen_edge_extender,
     on_disorder_options,
+    oxygen_edge_extender,
     site_is_of_motif_type,
     solid_angle,
 )
