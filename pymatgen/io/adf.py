@@ -359,7 +359,7 @@ class AdfKey(MSONable):
             An AdfKey object recovered from the JSON dict ``d``.
         """
         key = d.get("name")
-        options = d.get("options", None)
+        options = d.get("options")
         subkey_list = d.get("subkeys", [])
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] if len(subkey_list) > 0 else None
         return cls(key, options, subkeys)

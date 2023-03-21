@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the BorgQueen class, which manages drones to assimilate
 data using Python's multiprocessing.

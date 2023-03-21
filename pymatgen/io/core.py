@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the abstract interface for reading and writing calculation
 inputs in pymatgen. The interface comprises a 3-tiered hierarchy of classes.

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """Module contains classes presenting Element and Species (Element + oxidation state) and PeriodicTable."""
 
 from __future__ import annotations
@@ -272,7 +269,7 @@ class ElementBase(Enum):
             "ionization_energies",
         ]:
             kstr = item.capitalize().replace("_", " ")
-            val = self._data.get(kstr, None)
+            val = self._data.get(kstr)
             if str(val).startswith("no data"):
                 val = None
             elif isinstance(val, (list, dict)):
@@ -1365,7 +1362,7 @@ class Species(MSONable, Stringify):
         :param d: Dict representation.
         :return: Species.
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
 
 @functools.total_ordering
@@ -1397,7 +1394,7 @@ class DummySpecies(Species):
         symbol: str = "X",
         oxidation_state: float | None = 0,
         properties: dict | None = None,
-    ):
+    ) -> None:
         """
         Args:
             symbol (str): An assigned symbol for the dummy specie. Strict
@@ -1406,25 +1403,24 @@ class DummySpecies(Species):
                 constitute an Element symbol. Otherwise, a composition may
                 be parsed wrongly. E.g., "X" is fine, but "Vac" is not
                 because Vac contains V, a valid Element.
-            oxidation_state (float): Oxidation state for dummy specie.
-                Defaults to zero.
+            oxidation_state (float): Oxidation state for dummy specie. Defaults to 0.
+            properties (dict): Arbitrary properties associated with dummy specie.
         """
         # enforce title case to match other elements, reduces confusion
         # when multiple DummySpecies in a "formula" string
         symbol = symbol.title()
 
-        for i in range(1, min(2, len(symbol)) + 1):
-            if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError(f"{symbol} contains {symbol[:i]}, which is a valid element symbol.")
+        for idx in range(1, min(2, len(symbol)) + 1):
+            if Element.is_valid_symbol(symbol[:idx]):
+                raise ValueError(f"{symbol} contains {symbol[:idx]}, which is a valid element symbol.")
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
         self._properties = properties or {}
-        for k, _ in self._properties.items():
-            if k not in Species.supported_properties:
-                raise ValueError(f"{k} is not a supported property")
+        if invalid := set(self._properties) - set(Species.supported_properties):
+            raise ValueError(f"Invalid properties: {invalid}")
 
     def __getattr__(self, a):
         # overriding getattr doesn't play nice with pickle, so we
@@ -1532,7 +1528,7 @@ class DummySpecies(Species):
         :param d: Dict representation
         :return: DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
     def __repr__(self):
         return f"DummySpecies {self}"

@@ -362,7 +362,7 @@ def ebands_input(
     )
 
     if scf_electrons.nband is None:
-        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat", None))
+        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat"))
 
     multi[0].set_vars(scf_ksampling.to_abivars())
     multi[0].set_vars(scf_electrons.to_abivars())
@@ -456,7 +456,7 @@ def ion_ioncell_relax_input(
     )
 
     if electrons.nband is None:
-        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat", None))
+        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat"))
 
     ion_relax = aobj.RelaxationMethod.atoms_only(atoms_constraints=None)
     ioncell_relax = aobj.RelaxationMethod.atoms_and_cell(atoms_constraints=None)

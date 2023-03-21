@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -15,6 +12,7 @@ from __future__ import annotations
 import collections
 import numbers
 from functools import partial
+from typing import Any
 
 import numpy as np
 import scipy.constants as const
@@ -318,8 +316,9 @@ class FloatWithUnit(float):
 
     @classmethod
     def from_string(cls, s):
-        """
-        Initialize a FloatWithUnit from a string. Example Memory.from_string("1. Mb")
+        """Parse string to FloatWithUnit.
+
+        Example: Memory.from_string("1. Mb")
         """
         # Extract num and unit string.
         s = s.strip()
@@ -484,7 +483,7 @@ class FloatWithUnit(float):
 
 class ArrayWithUnit(np.ndarray):
     """
-    Subclasses `numpy.ndarray` to attach a unit type. Typically, you should
+    Subclasses numpy.ndarray to attach a unit type. Typically, you should
     use the pre-defined unit type subclasses such as EnergyArray,
     LengthArray, etc. instead of using ArrayWithFloatWithUnit directly.
 
@@ -766,21 +765,22 @@ Args:
 """
 
 
-def obj_with_unit(obj, unit):
+def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[str, FloatWithUnit | ArrayWithUnit]:
     """
-    Returns a `FloatWithUnit` instance if obj is scalar, a dictionary of
+    Returns a FloatWithUnit instance if obj is scalar, a dictionary of
     objects with units if obj is a dict, else an instance of
-    `ArrayWithFloatWithUnit`.
+    ArrayWithFloatWithUnit.
 
     Args:
-        unit: Specific units (eV, Ha, m, ang, etc.).
+        obj (Any): Object to be given a unit.
+        unit (str): Specific units (eV, Ha, m, ang, etc.).
     """
     unit_type = _UNAME2UTYPE[unit]
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
     if isinstance(obj, collections.abc.Mapping):
-        return {k: obj_with_unit(v, unit) for k, v in obj.items()}
+        return {k: obj_with_unit(v, unit) for k, v in obj.items()}  # type: ignore
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 

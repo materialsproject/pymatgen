@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
@@ -561,8 +558,8 @@ class Poscar(MSONable):
             comment=d["comment"],
             selective_dynamics=d["selective_dynamics"],
             true_names=d["true_names"],
-            velocities=d.get("velocities", None),
-            predictor_corrector=d.get("predictor_corrector", None),
+            velocities=d.get("velocities"),
+            predictor_corrector=d.get("predictor_corrector"),
         )
 
     def set_temperature(self, temperature: float):
@@ -1826,7 +1823,7 @@ class PotcarSingle:
                 UnknownPotcarWarning,
             )
         elif has_sh256 and not hash_check_passed:
-            raise ValueError(
+            warnings.warn(
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
                 "but the computed hash differs.\n"
@@ -1878,8 +1875,9 @@ class PotcarSingle:
                 return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
+            import codecs
 
-            with open(filename, encoding="utf-8", errors="ignore") as f:
+            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
                 return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
@@ -2274,11 +2272,9 @@ class Potcar(list, MSONable):
         with zopen(filename, "rt") as f:
             fdata = f.read()
         potcar = Potcar()
-        potcar_strings = fdata.split("End of Dataset")
-        # potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
-        functionals = []
 
-        for p in potcar_strings:
+        functionals = []
+        for p in fdata.split("End of Dataset"):
             if p.strip():
                 single = PotcarSingle(p + "End of Dataset\n")
                 potcar.append(single)

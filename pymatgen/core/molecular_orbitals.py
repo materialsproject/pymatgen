@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a MolecularOrbital class to represent band character in
 solids. Useful for predicting PDOS character from structural information.

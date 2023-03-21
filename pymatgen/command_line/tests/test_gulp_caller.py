@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Created on Jan 22, 2013
 
@@ -29,7 +26,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
-gulp_present = which("gulp") and os.environ.get("GULP_LIB") and ("win" not in sys.platform)
+gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
 # disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
 # Ubuntu 20.04.
 gulp_present = False

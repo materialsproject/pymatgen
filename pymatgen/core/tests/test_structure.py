@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import json
@@ -554,7 +551,7 @@ Direct
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assertArrayAlmostEqual(sorted(c_distances), sorted(p_distances))
 
-    # @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
+    # @unittest.skipIf(not os.getenv("CI"), "Only run this in CI tests.")
     # def test_get_all_neighbors_crosscheck_old(self):
     #     warnings.simplefilter("ignore")
     #     for i in range(100):
@@ -1328,11 +1325,22 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 assert cluster.formula == "H4 C1"
 
-    @unittest.skipIf(m3gnet is None, "Relaxation test requires m3gnet.")
+    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
-        assert round(abs(relaxed.lattice.a - 3.849563), 4) == 0
+        assert relaxed.lattice.a == pytest.approx(3.849563)
+
+    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
+    def test_relax_with_observer(self):
+        structure = self.get_structure("Si")
+        relaxed, trajectory = structure.relax(return_trajectory=True)
+        assert relaxed.lattice.a == pytest.approx(3.849563)
+        expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
+        assert sorted(trajectory.__dict__) == expected_attrs
+        for key in expected_attrs:
+            # check for 2 atoms in Structure, 1 relax step in all observed trajectory attributes
+            assert len(getattr(trajectory, key)) == {"atoms": 2}.get(key, 1)
 
     def test_from_prototype(self):
         for pt in ["bcc", "fcc", "hcp", "diamond"]:

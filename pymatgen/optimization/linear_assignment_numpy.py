@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains an algorithm to solve the Linear Assignment Problem.
 It has the same functionality as linear_assignment.pyx, but is much slower

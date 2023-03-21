@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes representing non-periodic and periodic sites.
 """
@@ -278,7 +275,7 @@ class Site(collections.abc.Hashable, MSONable):
             else:
                 sp = Element(sp_occu["element"])  # type: ignore
             atoms_n_occu[sp] = sp_occu["occu"]
-        props = d.get("properties", None)
+        props = d.get("properties")
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
@@ -642,7 +639,7 @@ class PeriodicSite(Site, MSONable):
             else:
                 sp = Element(sp_occu["element"])  # type: ignore
             species[sp] = sp_occu["occu"]
-        props = d.get("properties", None)
+        props = d.get("properties")
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)

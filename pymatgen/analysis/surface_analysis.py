@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines tools to analyze surface and adsorption related
 quantities as well as related plots. If you use this module, please

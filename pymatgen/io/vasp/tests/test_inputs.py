@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -980,7 +977,7 @@ class PotcarSingleTest(PymatgenTest):
         filename = (
             PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
         )
-        with pytest.raises(ValueError):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR with symbol Fe_pv has metadata that "):
             PotcarSingle.from_file(filename)
 
     def test_verify_correct_potcar_with_hash(self):

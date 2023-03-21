@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Module implementing classes and functions to use Zeo++
 by Maciej Haranczyk.

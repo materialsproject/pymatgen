@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements input and output processing from Nwchem.
 
@@ -37,7 +34,7 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
 
 NWCHEM_BASIS_LIBRARY = None
-if os.environ.get("NWCHEM_BASIS_LIBRARY"):
+if os.getenv("NWCHEM_BASIS_LIBRARY"):
     NWCHEM_BASIS_LIBRARY = set(os.listdir(os.environ["NWCHEM_BASIS_LIBRARY"]))
 
 

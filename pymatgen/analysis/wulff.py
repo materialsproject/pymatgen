@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module define a WulffShape class to generate the Wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
@@ -604,7 +601,10 @@ class WulffShape:
             )
 
             # normalize surface energy from a scale of 0 to 1 for colorbar
-            norm_e = (plane.e_surf - min(e_surf_on_wulff)) / (max(e_surf_on_wulff) - min(e_surf_on_wulff))
+            if max(e_surf_on_wulff) == min(e_surf_on_wulff):
+                norm_e = 1
+            else:
+                norm_e = (plane.e_surf - min(e_surf_on_wulff)) / (max(e_surf_on_wulff) - min(e_surf_on_wulff))
             c = [norm_e, color]
             if c not in color_scale:
                 color_scale.append(c)

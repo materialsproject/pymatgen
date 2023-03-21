@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import itertools
@@ -168,7 +164,7 @@ class LatticeTestCase(PymatgenTest):
 
     def test_lattice_matrices(self):
         """
-        If alpha == 90 and beta == 90, two matricies are identical.
+        If alpha == 90 and beta == 90, two matrices are identical.
         """
 
         def _identical(a, b, c, alpha, beta, gamma):

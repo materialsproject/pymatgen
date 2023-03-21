@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes that operate on points or vectors in 3D space.
 """
@@ -609,7 +606,7 @@ class MagSymmOp(SymmOp):
     def from_xyzt_string(xyzt_string: str) -> MagSymmOp:
         """
         Args:
-            xyz_string: string of the form 'x, y, z, +1', '-x, -y, z, -1',
+            xyzt_string (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
                 '-2y+1/2, 3x+1/2, z-y+1/2, +1', etc.
 
         Returns:

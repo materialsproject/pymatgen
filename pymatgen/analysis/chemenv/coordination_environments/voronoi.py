@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
 """

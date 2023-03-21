@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides some useful functions for dealing with magnetic Structures
 (e.g. Structures with associated magmom tags).

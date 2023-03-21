@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
@@ -348,7 +345,7 @@ class TransformedStructure(MSONable):
         Creates a TransformedStructure from a dict.
         """
         struct = Structure.from_dict(d)
-        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters", None))
+        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters"))
 
     def to_snl(self, authors, **kwargs) -> StructureNL:
         """

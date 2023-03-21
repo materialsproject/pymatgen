@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
@@ -171,7 +167,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         sg = SpacegroupAnalyzer(structure, 0.01)
         refined_struct = sg.get_refined_structure(keep_site_properties=False)
-        assert refined_struct.site_properties.get("magmom", None) is None
+        assert refined_struct.site_properties.get("magmom") is None
 
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
@@ -204,7 +200,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         s = SpacegroupAnalyzer(structure)
         primitive_structure = s.find_primitive()
         assert primitive_structure.formula == "Li2 O1"
-        assert primitive_structure.site_properties.get("magmom", None) is None
+        assert primitive_structure.site_properties.get("magmom") is None
         # This isn't what is expected. All the angles should be 60
         assert primitive_structure.lattice.alpha == pytest.approx(60)
         assert primitive_structure.lattice.beta == pytest.approx(60)
@@ -221,7 +217,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         s = SpacegroupAnalyzer(structure)
         primitive_structure = s.find_primitive(keep_site_properties=False)
-        assert primitive_structure.site_properties.get("magmom", None) is None
+        assert primitive_structure.site_properties.get("magmom") is None
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
@@ -338,7 +334,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure(keep_site_properties=False)
-        assert conv.site_properties.get("magmom", None) is None
+        assert conv.site_properties.get("magmom") is None
 
     def test_get_primitive_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
@@ -441,7 +437,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure(keep_site_properties=False)
-        assert prim.site_properties.get("magmom", None) is None
+        assert prim.site_properties.get("magmom") is None
 
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9

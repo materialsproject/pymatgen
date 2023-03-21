@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to perform fitting of structures.
 """
@@ -1059,9 +1056,8 @@ class StructureMatcher(MSONable):
         self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
     ) -> bool:
         """
-        Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. E.g., to compare if the Li2O and Na2O
-        structures are similar.
+        Performs an anonymous fitting, which allows distinct species in one structure to map
+        to another. E.g., to compare if the Li2O and Na2O structures are similar.
 
         Args:
             struct1 (Structure): 1st structure
