@@ -409,33 +409,27 @@ class GaussianInput:
                 outputvar.append(f"D{i}={dih:.6f}")
         return "\n".join(output) + "\n\n" + "\n".join(outputvar)
 
-    def get_cart_coords(self):
-        """
-        Return the Cartesian coordinates of the molecule
-        """
-
-        def to_s(x):
-            return f"{x:0.6f}"
-
+    def get_cart_coords(self) -> str:
+        """Return the Cartesian coordinates of the molecule"""
         outs = []
         for site in self._mol:
-            outs.append(" ".join([site.species_string, " ".join(map(to_s, site.coords))]))
+            outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
         return "\n".join(outs)
 
     def __str__(self):
         return self.to_string()
 
     def to_string(self, cart_coords=False):
-        """
-        Return GaussianInput string
+        """Return GaussianInput string.
 
-        Option: when cart_coords is set to True return the Cartesian coordinates
-                instead of the z-matrix
+        Args:
+            cart_coords (bool): If True, return Cartesian coordinates instead of z-matrix.
+                Defaults to False.
         """
 
         def para_dict_to_string(para, joiner=" "):
             para_str = []
-            # sorted is only done to make unittests work reliably
+            # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
@@ -489,8 +483,8 @@ class GaussianInput:
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as f:
-            f.write(self.to_string(cart_coords))
+        with zopen(filename, "w") as file:
+            file.write(self.to_string(cart_coords))
 
     def as_dict(self):
         """

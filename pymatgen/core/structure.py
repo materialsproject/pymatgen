@@ -267,8 +267,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         # Cannot use set since we want a deterministic algorithm.
         types: list[Element | Species | DummySpecies] = []
         for site in self:
-            for sp, v in site.species.items():
-                if v != 0:
+            for sp, amt in site.species.items():
+                if amt != 0:
                     types.append(sp)
         return tuple(sorted(set(types)))  # type: ignore
 
@@ -729,34 +729,28 @@ class IStructure(SiteCollection, MSONable):
                 fractional_coords. Defaults to None for no properties.
         """
         if len(species) != len(coords):
-            raise StructureError(
-                "The list of atomic species must be of the same length as the list of fractional coordinates."
-            )
+            raise StructureError("atomic species and fractional coordinates must have same length")
 
-        if isinstance(lattice, Lattice):
-            self._lattice = lattice
-        else:
-            self._lattice = Lattice(lattice)
+        self._lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         sites = []
-        for i, sp in enumerate(species):
+        for idx, specie in enumerate(species):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
+                prop = {k: v[idx] for k, v in site_properties.items()}
 
-            sites.append(
-                PeriodicSite(
-                    sp,
-                    coords[i],
-                    self._lattice,
-                    to_unit_cell,
-                    coords_are_cartesian=coords_are_cartesian,
-                    properties=prop,  # type: ignore
-                )
+            site = PeriodicSite(
+                specie,
+                coords[idx],
+                self._lattice,
+                to_unit_cell,
+                coords_are_cartesian=coords_are_cartesian,
+                properties=prop,  # type: ignore
             )
+            sites.append(site)
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
         if validate_proximity and not self.is_valid():
-            raise StructureError(("Structure contains sites that are ", "less than 0.01 Angstrom apart!"))
+            raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
         self._charge = charge
 
     @classmethod
@@ -4520,5 +4514,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as f:
-    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(f).items()}
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as file:
+    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}

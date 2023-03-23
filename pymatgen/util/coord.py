@@ -77,13 +77,15 @@ def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     return all(any_close)
 
 
-def coord_list_mapping(subset, superset, atol=1e-8):
+def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8):
     """
     Gives the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows
 
     Args:
-        subset, superset: List of coords
+        subset (ArrayLike): List of coords
+        superset (ArrayLike): List of coords
+        atol (float): Absolute tolerance. Defaults to 1e-8.
 
     Returns:
         list of indices such that superset[indices] = subset
