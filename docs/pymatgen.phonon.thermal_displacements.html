@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.phonon.thermal_displacements module &mdash; pymatgen 2023.3.10 documentation</title>
+  <title>pymatgen.phonon.thermal_displacements module &mdash; pymatgen 2023.3.23 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,8 +14,10 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +41,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.10
+                2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -99,11 +101,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.phonon.html">pymatgen.phonon package</a> &raquo;</li>
-      <li>pymatgen.phonon.thermal_displacements module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+      <li class="breadcrumb-item active">pymatgen.phonon.thermal_displacements module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.phonon.thermal_displacements.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -118,7 +120,7 @@
 <p>This module provides classes to handle thermal displacement matrices (anisotropic displacement parameters).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ThermalDisplacementMatrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L39-L560"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ThermalDisplacementMatrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L36-L557"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Class to handle thermal displacement matrices
 This class stores thermal displacement matrices in Ucart format</p>
@@ -149,49 +151,49 @@ convention similar to “thermal_displacement_matrices.yaml” in phonopy</p>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.B">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">B</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.B" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">B</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.B" title="Permalink to this definition"></a></dt>
 <dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 Returns: B as a numpy array, first dimension are the atoms in the structure</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.U1U2U3">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">U1U2U3</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.U1U2U3" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">U1U2U3</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.U1U2U3" title="Permalink to this definition"></a></dt>
 <dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ucif">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ucif</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ucif" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ucif</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ucif" title="Permalink to this definition"></a></dt>
 <dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 Returns: Ucif as a numpy array, first dimension are the atoms in the structure</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ustar">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ustar</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ustar" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ustar</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ustar" title="Permalink to this definition"></a></dt>
 <dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 Returns: Ustar as a numpy array, first dimension are the atoms in the structure</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.beta">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">beta</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.beta" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">beta</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.beta" title="Permalink to this definition"></a></dt>
 <dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 Returns: beta as a numpy array, first dimension are the atoms in the structure</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.compute_directionality_quality_criterion">
-<span class="sig-name descname"><span class="pre">compute_directionality_quality_criterion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L239-L291"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.compute_directionality_quality_criterion" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compute_directionality_quality_criterion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L236-L288"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.compute_directionality_quality_criterion" title="Permalink to this definition"></a></dt>
 <dd><p>Will compute directionality of prolate displacement ellipsoids as described in
 <a class="reference external" href="https://doi.org/10.1039/C9CE00794F">https://doi.org/10.1039/C9CE00794F</a> with the earlier implementation: <a class="reference external" href="https://github.com/damMroz/Angle/">https://github.com/damMroz/Angle/</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>other</strong> – ThermalDisplacementMatrix</p></li>
-<li><p><strong>compared</strong> (<em>please make sure that the order</em><em> of </em><em>the atoms in both objects that are</em>) – </p></li>
+<li><p><strong>compared</strong> (<em>please make sure that the order of the atoms in both objects that are</em>) – </p></li>
 <li><p><strong>Otherwise</strong> (<em>is the same.</em>) – </p></li>
 <li><p><strong>results</strong> (<em>this analysis will deliver wrong</em>) – </p></li>
 </ul>
@@ -213,7 +215,7 @@ Vectors are given in Cartesian coordinates</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_Ucif">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_Ucif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cif</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L402-L442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_Ucif" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_Ucif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cif</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L399-L439"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_Ucif" title="Permalink to this definition"></a></dt>
 <dd><p>Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -235,7 +237,7 @@ Corresponding temperature</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_cif_P1">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cif_P1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L500-L560"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_cif_P1" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cif_P1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L497-L557"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_cif_P1" title="Permalink to this definition"></a></dt>
 <dd><p>Reads a cif with P1 symmetry including positions and ADPs.
 Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
 :param filename: Filename of the cif</p>
@@ -244,7 +246,7 @@ Currently, no check of symmetry is performed as CifParser methods cannot be easi
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure_with_site_properties_Ucif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L471-L498"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure_with_site_properties_Ucif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L468-L495"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif" title="Permalink to this definition"></a></dt>
 <dd><p>Will create this object with the help of a structure with site properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -260,7 +262,7 @@ Currently, no check of symmetry is performed as CifParser methods cannot be easi
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_full_matrix">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_full_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L81-L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_full_matrix" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_full_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L78-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_full_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -274,7 +276,7 @@ Currently, no check of symmetry is performed as CifParser methods cannot be easi
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_reduced_matrix">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_reduced_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L106-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_reduced_matrix" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_reduced_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L103-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_reduced_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -288,14 +290,14 @@ Currently, no check of symmetry is performed as CifParser methods cannot be easi
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.ratio_prolate">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ratio_prolate</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.ratio_prolate" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ratio_prolate</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.ratio_prolate" title="Permalink to this definition"></a></dt>
 <dd><p>This will compute ratio between largest eigenvalue of Ucart and smallest one
 Returns:</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif">
-<span class="sig-name descname"><span class="pre">to_structure_with_site_properties_Ucif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L444-L469"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_structure_with_site_properties_Ucif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L441-L466"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif" title="Permalink to this definition"></a></dt>
 <dd><p>Transfers this object into a structure with site properties (Ucif).
 This is useful for sorting the atoms in the structure including site properties.
 E.g., with code like this:
@@ -309,7 +311,7 @@ def sort_order(site):</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.visualize_directionality_quality_criterion">
-<span class="sig-name descname"><span class="pre">visualize_directionality_quality_criterion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'visualization.vesta'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L293-L388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.visualize_directionality_quality_criterion" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">visualize_directionality_quality_criterion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'visualization.vesta'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L290-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.visualize_directionality_quality_criterion" title="Permalink to this definition"></a></dt>
 <dd><p>Will create a VESTA file for visualization of the directionality criterion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -325,7 +327,7 @@ object will be used</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.write_cif">
-<span class="sig-name descname"><span class="pre">write_cif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.10/pymatgen/core/../phonon/thermal_displacements.py#L200-L228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.write_cif" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_cif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../phonon/thermal_displacements.py#L197-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.write_cif" title="Permalink to this definition"></a></dt>
 <dd><p>Writes a cif including thermal displacements</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
