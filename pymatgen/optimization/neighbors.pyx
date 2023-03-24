@@ -37,7 +37,7 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
 
 
 def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
-                           float r, long[:] pbc, double[:, ::1] lattice,
+                           float r, object pbc, double[:, ::1] lattice,
                            double tol=1e-8, float min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
@@ -67,6 +67,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
             mask]
 
+    cdef long[:] pbc_int = np.array(pbc, dtype=long)  # convert bool to int
     cdef int i, j, k, l, m, n
     cdef double maxr[3]
     # valid boundary, that is the minimum in center_coords - r
@@ -97,7 +98,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     get_frac_coords(lattice, all_coords, offset_correction)
     for i in range(n_total):
         for j in range(3):
-            if pbc[j]:
+            if pbc_int[j]:
                 # only wrap atoms when this dimension is PBC
                 all_fcoords[i, j] = offset_correction[i, j] % 1
                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
@@ -107,7 +108,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     get_max_r(lattice, maxr, r)
     # Get fractional coordinates of center points
     get_frac_coords(lattice, center_coords, frac_coords)
-    get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+    get_bounds(frac_coords, maxr, pbc_int, max_bounds, min_bounds)
     for i in range(3):
         nlattice *= (max_bounds[i] - min_bounds[i])
     matmul(all_fcoords, lattice, coords_in_cell)
