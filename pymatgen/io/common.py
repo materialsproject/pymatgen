@@ -349,21 +349,21 @@ class VolumetricData(MSONable):
             file.write(f"\t {self.structure.num_sites} 0.000000 0.000000 0.000000" + "\n")
             file.write(
                 f"\t {self.dim[0]} "
-                f"{self.structure.lattice.matrix[0][0] * ang_to_bohr :.6f} "
-                f"{self.structure.lattice.matrix[0][1] * ang_to_bohr :.6f} "
-                f"{self.structure.lattice.matrix[0][2] * ang_to_bohr :.6f} \n"
+                f"{self.structure.lattice.matrix[0][0] / self.dim[0] * ang_to_bohr :.6f} "
+                f"{self.structure.lattice.matrix[0][1] / self.dim[0] * ang_to_bohr :.6f} "
+                f"{self.structure.lattice.matrix[0][2] / self.dim[0] * ang_to_bohr :.6f} \n"
             )
             file.write(
                 f"\t {self.dim[1]} "
-                f"{self.structure.lattice.matrix[1][0] * ang_to_bohr :.6f} "
-                f"{self.structure.lattice.matrix[1][1] * ang_to_bohr :.6f} "
-                f"{self.structure.lattice.matrix[1][2] * ang_to_bohr :.6f} \n"
+                f"{self.structure.lattice.matrix[1][0] / self.dim[1] * ang_to_bohr :.6f} "
+                f"{self.structure.lattice.matrix[1][1] / self.dim[1] * ang_to_bohr :.6f} "
+                f"{self.structure.lattice.matrix[1][2] / self.dim[1] * ang_to_bohr :.6f} \n"
             )
             file.write(
                 f"\t {self.dim[2]} "
-                f"{self.structure.lattice.matrix[2][0] * ang_to_bohr :.6f} "
-                f"{self.structure.lattice.matrix[2][1] * ang_to_bohr :.6f} "
-                f"{self.structure.lattice.matrix[2][2] * ang_to_bohr :.6f} \n"
+                f"{self.structure.lattice.matrix[2][0] / self.dim[2] * ang_to_bohr :.6f} "
+                f"{self.structure.lattice.matrix[2][1] / self.dim[2] * ang_to_bohr :.6f} "
+                f"{self.structure.lattice.matrix[2][2] / self.dim[2] * ang_to_bohr :.6f} \n"
             )
 
             for site in self.structure.sites:
