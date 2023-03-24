@@ -3018,8 +3018,8 @@ class PDPlotter:
 
         stable_coords = list(self.pd_plot_data[1])
         stable_entries = self.pd_plot_data[1].values()
-        unstable_coords = list(self.pd_plot_data[2])
-        unstable_entries = self.pd_plot_data[2].values()
+        unstable_entries = list(self.pd_plot_data[2])
+        unstable_coords = self.pd_plot_data[2].values()
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 
