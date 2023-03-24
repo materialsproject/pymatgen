@@ -878,6 +878,13 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter_quaternary_mpl = PDPlotter(self.pd_quaternary, backend="matplotlib")
         self.plotter_quaternary_plotly = PDPlotter(self.pd_quaternary, backend="plotly")
 
+    def test_plot_pd_with_no_unstable(self):
+        # https://github.com/materialsproject/pymatgen/issues/2885
+        pd_entries = [PDEntry(comp, 0) for comp in ["Li", "Co", "O"]]
+        pd = PhaseDiagram(pd_entries)
+        plotter = PDPlotter(pd, backend="plotly", show_unstable=False)
+        plotter.get_plot()
+
     def test_pd_plot_data(self):
         lines, labels, unstable_entries = self.plotter_ternary_mpl.pd_plot_data
         assert len(lines) == 22
