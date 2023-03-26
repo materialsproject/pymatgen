@@ -2275,8 +2275,7 @@ class Potcar(list, MSONable):
 
         functionals = []
         for p in fdata.split("End of Dataset"):
-            p_strip = p.strip()
-            if p_strip:
+            if p_strip := p.strip():
                 single = PotcarSingle(p_strip + "End of Dataset\n")
                 potcar.append(single)
                 functionals.append(single.functional)
@@ -2285,10 +2284,10 @@ class Potcar(list, MSONable):
         potcar.functional = functionals[0]
         return potcar
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Write Potcar to a file.
 
