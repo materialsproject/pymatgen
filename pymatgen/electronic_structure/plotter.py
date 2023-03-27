@@ -2285,7 +2285,7 @@ class BSDOSPlotter:
 
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
-        if isinstance(dos, CompleteDos): # Dos obj has no structure
+        if isinstance(dos, CompleteDos):  # Dos obj has no structure
             elements = [e.symbol for e in dos.structure.composition.elements]
         elif bs_projection and bs.structure:
             elements = [e.symbol for e in bs.structure.composition.elements]
