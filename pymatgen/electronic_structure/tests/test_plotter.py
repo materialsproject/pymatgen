@@ -206,39 +206,39 @@ class BSDOSPlotterTest(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml"))
-        p = BSDOSPlotter()
-        plt = p.get_plot(
-            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands"))
+        vasprun = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml"))
+        plotter = BSDOSPlotter()
+        plt = plotter.get_plot(
+            vasprun.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands"))
         )
         plt.close()
-        plt = p.get_plot(
-            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")),
-            v.complete_dos,
+        plt = plotter.get_plot(
+            vasprun.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")),
+            vasprun.complete_dos,
         )
         plt.close("all")
 
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "SrBa2Sn2O7.json")) as f:
-            bandstr_dict = json.load(f)
+            band_struct_dict = json.load(f)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
-        bandstr_dict["projections"]["1"] = data_structure
-        d = bandstr_dict["projections"]["1"]
-        for i in range(len(d)):
-            for j in range(len(d[i])):
-                for k in range(len(d[i][j])):
-                    for m in range(len(d[i][j][k])):
-                        d[i][j][k][m] = 0
+        band_struct_dict["projections"]["1"] = data_structure
+        projections = band_struct_dict["projections"]["1"]
+        for i in range(len(projections)):
+            for j in range(len(projections[i])):
+                for k in range(len(projections[i][j])):
+                    for m in range(len(projections[i][j][k])):
+                        projections[i][j][k][m] = 0
                         # d[i][j][k][m] = np.random.rand()
                     # generate random number for two atoms
                     a = np.random.randint(0, 7)
                     b = np.random.randint(0, 7)
                     # c = np.random.randint(0,7)
-                    d[i][j][k][a] = np.random.rand()
-                    d[i][j][k][b] = np.random.rand()
+                    projections[i][j][k][a] = np.random.rand()
+                    projections[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
-        bandstr = BandStructureSymmLine.from_dict(bandstr_dict)
-        plt = p.get_plot(bandstr)
+        band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
+        plt = plotter.get_plot(band_struct)
         plt.show()
 
 
