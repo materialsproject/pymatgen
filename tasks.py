@@ -30,8 +30,8 @@ def make_doc(ctx):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
+    with open("CHANGES.rst") as file:
+        contents = file.read()
 
     toks = re.split(r"\-{3,}", contents)
     n = len(toks[0].split()[-1])
@@ -39,20 +39,20 @@ def make_doc(ctx):
     changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
     changes = ("-" * n).join(changes)
 
-    with open("docs_rst/latest_changes.rst", "w") as f:
-        f.write(changes)
+    with open("docs_rst/latest_changes.rst", "w") as file:
+        file.write(changes)
 
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("rm pymatgen.*.rst", warn=True)
         ctx.run("sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm *.tests.*rst")
-        for f in glob("*.rst"):
-            if f.startswith("pymatgen") and f.endswith("rst"):
+        for file in glob("*.rst"):
+            if file.startswith("pymatgen") and file.endswith("rst"):
                 new_output = []
                 sub_output = []
                 sub_package = False
-                with open(f) as fid:
+                with open(file) as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
@@ -67,7 +67,7 @@ def make_doc(ctx):
                                 sub_package = False
                                 sub_output = []
 
-                with open(f, "w") as fid:
+                with open(file, "w") as fid:
                     fid.write("".join(new_output))
         ctx.run("make html")
 

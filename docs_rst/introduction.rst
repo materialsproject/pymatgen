@@ -97,7 +97,7 @@ One of the ways you can contribute is to fork the matgenb repo and add your own 
 
 Below are a quick look at some of the graphical output possible.
 
-.. figure:: _static/examples.png
+.. figure:: _static/phase_diagram.png
    :width: 100%
    :alt: Examples
    :align: center
