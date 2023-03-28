@@ -109,16 +109,6 @@ def make_dash(ctx):
     with open(plist, "w") as file:
         file.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
-    # xml = []
-    # with open("docs/pymatgen.xml") as f:
-    #     for l in f:
-    #         l = l.strip()
-    #         if l.startswith("<version>"):
-    #             xml.append(f"<version>{version}</version>")
-    #         else:
-    #             xml.append(l)
-    # with open("docs/pymatgen.xml", "wt") as f:
-    #     f.write("\n".join(xml))
     ctx.run("rm -r pymatgen.docset")
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
 
@@ -128,11 +118,11 @@ def contribute_dash(ctx, version):
     make_dash(ctx)
     ctx.run("cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz")
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        with open("docset.json") as f:
-            data = json.load(f)
+        with open("docset.json") as file:
+            data = json.load(file)
             data["version"] = version
-        with open("docset.json", "w") as f:
-            json.dump(data, f, indent=4)
+        with open("docset.json", "w") as file:
+            json.dump(data, file, indent=4)
         ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
         ctx.run("git push")
     ctx.run("rm pymatgen.tgz")
@@ -181,19 +171,19 @@ def publish(ctx):
 
 @task
 def set_ver(ctx, version):
-    with open("pymatgen/core/__init__.py") as f:
-        contents = f.read()
+    with open("pymatgen/core/__init__.py") as file:
+        contents = file.read()
         contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
-    with open("pymatgen/core/__init__.py", "w") as f:
-        f.write(contents)
+    with open("pymatgen/core/__init__.py", "w") as file:
+        file.write(contents)
 
-    with open("setup.py") as f:
-        contents = f.read()
+    with open("setup.py") as file:
+        contents = file.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", "w") as f:
-        f.write(contents)
+    with open("setup.py", "w") as file:
+        file.write(contents)
 
 
 @task
@@ -203,12 +193,12 @@ def release_github(ctx, version):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
-    toks = re.split(r"\-+", contents)
-    desc = toks[1].strip()
-    toks = desc.split("\n")
-    desc = "\n".join(toks[:-1]).strip()
+    with open("CHANGES.rst") as file:
+        contents = file.read()
+    tokens = re.split(r"\-+", contents)
+    desc = tokens[1].strip()
+    tokens = desc.split("\n")
+    desc = "\n".join(tokens[:-1]).strip()
     payload = {
         "tag_name": f"v{version}",
         "target_commitish": "master",
