@@ -62,14 +62,14 @@ which is a general python supplementary library arising from pymatgen.
 The output from an as_dict method is always json/yaml serializable. So if you
 want to save a structure, you may do the following::
 
-    with open('structure.json','w') as f:
+    with open('structure.json', 'w') as f:
         json.dump(structure.as_dict(), f)
 
 Similarly, to get the structure back from a json, you can do the following to
-restore the structure (or any object with a as_dict method) from the json as
+restore the structure (or any object with an as_dict method) from the json as
 follows::
 
-    with open('structure.json', 'r') as f:
+    with open('structure.json') as f:
         d = json.load(f)
         structure = Structure.from_dict(d)
 
