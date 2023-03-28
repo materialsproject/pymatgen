@@ -96,10 +96,9 @@ class ChemicalPotentialDiagram(MSONable):
             for entry in entries:
                 comp_dict = entry.composition.as_dict()
                 renormalisation_energy = sum(
-                    [comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in
-                     comp_dict.keys()])
-                renormalised_entries.append(
-                    _renormalise_entry(entry, renormalisation_energy / sum(comp_dict.values())))
+                    [comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in comp_dict]
+                )
+                renormalised_entries.append(_renormalise_entry(entry, renormalisation_energy / sum(comp_dict.values())))
 
             entries = renormalised_entries
 
@@ -730,9 +729,7 @@ def _renormalise_entry(entry, renormalisation_energy_per_atom):
     Regenerate the input entry with an energy per atom decreased by renormalisation_energy_per_atom
     """
     renormalised_entry_dict = entry.as_dict().copy()
-    renormalised_entry_dict[
-        "energy"
-    ] = entry.energy - renormalisation_energy_per_atom * sum(
+    renormalised_entry_dict["energy"] = entry.energy - renormalisation_energy_per_atom * sum(
         entry.composition.values()
     )  # entry.energy includes MP corrections as desired
     renormalised_entry = PDEntry.from_dict(renormalised_entry_dict)
