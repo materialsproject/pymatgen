@@ -3856,25 +3856,25 @@ class CrystalNN(NearNeighbors):
                 to the coordination number (1 or smaller), 'site_index' gives index of
                 the corresponding site in the original structure.
         """
-        nndata = self.get_nn_data(structure, n)
+        nn_data = self.get_nn_data(structure, n)
 
         if not self.weighted_cn:
-            max_key = max(nndata.cn_weights, key=lambda k: nndata.cn_weights[k])
-            nn = nndata.cn_nninfo[max_key]
+            max_key = max(nn_data.cn_weights, key=lambda k: nn_data.cn_weights[k])
+            nn = nn_data.cn_nninfo[max_key]
             for entry in nn:
                 entry["weight"] = 1
             return nn
 
-        for entry in nndata.all_nninfo:
+        for entry in nn_data.all_nninfo:
             weight = 0
-            for cn in nndata.cn_nninfo:
-                for cn_entry in nndata.cn_nninfo[cn]:
+            for cn in nn_data.cn_nninfo:
+                for cn_entry in nn_data.cn_nninfo[cn]:
                     if entry["site"] == cn_entry["site"]:
-                        weight += nndata.cn_weights[cn]
+                        weight += nn_data.cn_weights[cn]
 
             entry["weight"] = weight
 
-        return nndata.all_nninfo
+        return nn_data.all_nninfo
 
     def get_nn_data(self, structure: Structure, n: int, length=None):
         """
@@ -3887,9 +3887,9 @@ class CrystalNN(NearNeighbors):
 
         Returns:
             a namedtuple (NNData) object that contains:
-                - all near neighbor sites with weights
-                - a dict of CN -> weight
-                - a dict of CN -> associated near neighbor sites
+            - all near neighbor sites with weights
+            - a dict of CN -> weight
+            - a dict of CN -> associated near neighbor sites
         """
         length = length or self.fingerprint_length
 
@@ -4082,23 +4082,23 @@ class CrystalNN(NearNeighbors):
         return (area1 - area2) / (0.25 * math.pi * r**2)
 
     @staticmethod
-    def transform_to_length(nndata, length):
+    def transform_to_length(nn_data, length):
         """
         Given NNData, transforms data to the specified fingerprint length
         Args:
-            nndata: (NNData)
+            nn_data: (NNData)
             length: (int) desired length of NNData
         """
         if length is None:
-            return nndata
+            return nn_data
 
         if length:
             for cn in range(length):
-                if cn not in nndata.cn_weights:
-                    nndata.cn_weights[cn] = 0
-                    nndata.cn_nninfo[cn] = []
+                if cn not in nn_data.cn_weights:
+                    nn_data.cn_weights[cn] = 0
+                    nn_data.cn_nninfo[cn] = []
 
-        return nndata
+        return nn_data
 
 
 def _get_default_radius(site):
