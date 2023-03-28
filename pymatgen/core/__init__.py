@@ -10,21 +10,21 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
-from .composition import Composition as Composition
-from .lattice import Lattice as Lattice
-from .operations import SymmOp as SymmOp
-from .periodic_table import DummySpecies as DummySpecies
-from .periodic_table import Element as Element
-from .periodic_table import Species as Species
-from .sites import PeriodicSite as PeriodicSite
-from .sites import Site as Site
-from .structure import IMolecule as IMolecule
-from .structure import IStructure as IStructure
-from .structure import Molecule as Molecule
-from .structure import Structure as Structure
-from .units import ArrayWithUnit as ArrayWithUnit
-from .units import FloatWithUnit as FloatWithUnit
-from .units import Unit as Unit
+from pymatgen.core.composition import Composition as Composition
+from pymatgen.core.lattice import Lattice as Lattice
+from pymatgen.core.operations import SymmOp as SymmOp
+from pymatgen.core.periodic_table import DummySpecies as DummySpecies
+from pymatgen.core.periodic_table import Element as Element
+from pymatgen.core.periodic_table import Species as Species
+from pymatgen.core.sites import PeriodicSite as PeriodicSite
+from pymatgen.core.sites import Site as Site
+from pymatgen.core.structure import IMolecule as IMolecule
+from pymatgen.core.structure import IStructure as IStructure
+from pymatgen.core.structure import Molecule as Molecule
+from pymatgen.core.structure import Structure as Structure
+from pymatgen.core.units import ArrayWithUnit as ArrayWithUnit
+from pymatgen.core.units import FloatWithUnit as FloatWithUnit
+from pymatgen.core.units import Unit as Unit
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"

@@ -60,11 +60,18 @@ Lead Maintainers
 
 | **Janosh Riebesell** |janosh|
 | University of Cambridge
+| Materials Project Staff
 .. |janosh| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh
    :width: 16
    :height: 16
-   :alt: GitHub profile for janosh
+   :alt: janosh GitHub profile
+
+.. |janosh.dev| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/browser.svg
+   :target: https://janosh.dev
+   :width: 16
+   :height: 16
+   :alt: janosh homepage
 
 Newest Contributors
 ===================
