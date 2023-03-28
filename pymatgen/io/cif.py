@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Wrapper classes for Cif input and output from Structures.
 """
@@ -92,44 +89,44 @@ class CifBlock:
         """
         Returns the cif string for the data block
         """
-        s = [f"data_{self.header}"]
+        out = [f"data_{self.header}"]
         keys = list(self.data)
         written = []
-        for k in keys:
-            if k in written:
+        for key in keys:
+            if key in written:
                 continue
-            for l in self.loops:
+            for loop in self.loops:
                 # search for a corresponding loop
-                if k in l:
-                    s.append(self._loop_to_string(l))
-                    written.extend(l)
+                if key in loop:
+                    out.append(self._loop_to_string(loop))
+                    written.extend(loop)
                     break
-            if k not in written:
+            if key not in written:
                 # k didn't belong to a loop
-                v = self._format_field(self.data[k])
-                if len(k) + len(v) + 3 < self.maxlen:
-                    s.append(f"{k}   {v}")
+                v = self._format_field(self.data[key])
+                if len(key) + len(v) + 3 < self.maxlen:
+                    out.append(f"{key}   {v}")
                 else:
-                    s.extend([k, v])
-        return "\n".join(s)
+                    out.extend([key, v])
+        return "\n".join(out)
 
     def _loop_to_string(self, loop):
-        s = "loop_"
-        for l in loop:
-            s += "\n " + l
+        out = "loop_"
+        for line in loop:
+            out += "\n " + line
         for fields in zip(*(self.data[k] for k in loop)):
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
-                    s += line + "\n" + val
+                    out += line + "\n" + val
                     line = "\n"
                 elif len(line) + len(val) + 2 < self.maxlen:
                     line += "  " + val
                 else:
-                    s += line
+                    out += line
                     line = "\n  " + val
-            s += line
-        return s
+            out += line
+        return out
 
     def _format_field(self, v):
         v = str(v).strip()
@@ -139,10 +136,7 @@ class CifBlock:
         if v == "":
             return '""'
         if (" " in v or v[0] == "_") and not (v[0] == "'" and v[-1] == "'") and not (v[0] == '"' and v[-1] == '"'):
-            if "'" in v:
-                q = '"'
-            else:
-                q = "'"
+            q = '"' if "'" in v else "'"
             v = q + v + q
         return v
 
@@ -165,21 +159,21 @@ class CifBlock:
         # (these get eaten by the first expression)
         # ending quotes must not be followed by non-whitespace
         p = re.compile(r"""([^'"\s][\S]*)|'(.*?)'(?!\S)|"(.*?)"(?!\S)""")
-        for l in string.splitlines():
+        for line in string.splitlines():
             if multiline:
-                if l.startswith(";"):
+                if line.startswith(";"):
                     multiline = False
                     q.append(("", "", "", " ".join(ml)))
                     ml = []
-                    l = l[1:].strip()
+                    line = line[1:].strip()
                 else:
-                    ml.append(l)
+                    ml.append(line)
                     continue
-            if l.startswith(";"):
+            if line.startswith(";"):
                 multiline = True
-                ml.append(l[1:].strip())
+                ml.append(line[1:].strip())
             else:
-                for s in p.findall(l):
+                for s in p.findall(line):
                     # s is tuple. location of the data in the tuple
                     # depends on whether it was quoted in the input
                     q.append(s)
@@ -615,16 +609,13 @@ class CifParser:
 
         except KeyError:
             # Missing Key search for cell setting
-            for lattice_lable in [
-                "_symmetry_cell_setting",
-                "_space_group_crystal_system",
-            ]:
+            for lattice_lable in ["_symmetry_cell_setting", "_space_group_crystal_system"]:
                 if data.data.get(lattice_lable):
                     lattice_type = data.data.get(lattice_lable).lower()
                     try:
                         required_args = getargspec(getattr(Lattice, lattice_type)).args
 
-                        lengths = (l for l in length_strings if l in required_args)
+                        lengths = (len for len in length_strings if len in required_args)
                         angles = (a for a in angle_strings if a in required_args)
                         return self.get_lattice(data, lengths, angles, lattice_type=lattice_type)
                     except AttributeError as exc:
@@ -1001,7 +992,7 @@ class CifParser:
                     coord_to_magmoms[match] = None
 
         sum_occu = [
-            sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
+            sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
         if any(o > 1 for o in sum_occu):
             msg = (
@@ -1032,7 +1023,7 @@ class CifParser:
         if coord_to_species.items():
             for idx, (comp, group) in enumerate(
                 groupby(
-                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    sorted(coord_to_species.items(), key=lambda x: x[1]),
                     key=lambda x: x[1],
                 )
             ):
@@ -1208,9 +1199,8 @@ class CifParser:
             # convert to bibtex author format ('and' delimited)
             if "author" in bibtex_entry:
                 # separate out semicolon authors
-                if isinstance(bibtex_entry["author"], str):
-                    if ";" in bibtex_entry["author"]:
-                        bibtex_entry["author"] = bibtex_entry["author"].split(";")
+                if isinstance(bibtex_entry["author"], str) and ";" in bibtex_entry["author"]:
+                    bibtex_entry["author"] = bibtex_entry["author"].split(";")
 
                 if isinstance(bibtex_entry["author"], list):
                     bibtex_entry["author"] = " and ".join(bibtex_entry["author"])

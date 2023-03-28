@@ -182,7 +182,7 @@ class TensorTest(PymatgenTest):
         x = [1, 0, 0]
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         self.assertArrayAlmostEqual([0, 27, 54], test.einsum_sequence([x] * 3))
-        assert 360 == test.einsum_sequence([np.eye(3)] * 2)
+        assert test.einsum_sequence([np.eye(3)] * 2) == 360
         with pytest.raises(ValueError):
             test.einsum_sequence(Tensor(np.zeros(3)))
 
@@ -289,7 +289,7 @@ class TensorTest(PymatgenTest):
         for k, v in reduced.items():
             reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
         reconstructed = sorted(reconstructed, key=lambda x: np.argmax(x))
-        self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6) * 0.01)
+        self.assertArrayAlmostEqual(list(reconstructed), np.eye(6) * 0.01)
 
     def test_tensor_mapping(self):
         # Test get
@@ -320,12 +320,12 @@ class TensorTest(PymatgenTest):
         vtens[3, 3] = 73.48
         et = Tensor.from_voigt(vtens)
         populated = et.populate(sn, prec=1e-3).voigt.round(2)
-        assert round(abs(populated[1, 1] - 259.31), 7) == 0
-        assert round(abs(populated[2, 2] - 259.31), 7) == 0
-        assert round(abs(populated[0, 2] - 160.71), 7) == 0
-        assert round(abs(populated[1, 2] - 160.71), 7) == 0
-        assert round(abs(populated[4, 4] - 73.48), 7) == 0
-        assert round(abs(populated[5, 5] - 73.48), 7) == 0
+        assert populated[1, 1] == pytest.approx(259.31)
+        assert populated[2, 2] == pytest.approx(259.31)
+        assert populated[0, 2] == pytest.approx(160.71)
+        assert populated[1, 2] == pytest.approx(160.71)
+        assert populated[4, 4] == pytest.approx(73.48)
+        assert populated[5, 5] == pytest.approx(73.48)
         # test a rank 6 example
         vtens = np.zeros([6] * 3)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
@@ -334,13 +334,13 @@ class TensorTest(PymatgenTest):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
-        assert round(abs(toec.voigt[1, 1, 1] - -1271), 7) == 0
-        assert round(abs(toec.voigt[0, 1, 1] - -814), 7) == 0
-        assert round(abs(toec.voigt[0, 2, 2] - -814), 7) == 0
-        assert round(abs(toec.voigt[1, 4, 4] - -3), 7) == 0
-        assert round(abs(toec.voigt[2, 5, 5] - -3), 7) == 0
-        assert round(abs(toec.voigt[1, 2, 0] - -50), 7) == 0
-        assert round(abs(toec.voigt[4, 5, 3] - -95), 7) == 0
+        assert toec.voigt[1, 1, 1] == pytest.approx(-1271)
+        assert toec.voigt[0, 1, 1] == pytest.approx(-814)
+        assert toec.voigt[0, 2, 2] == pytest.approx(-814)
+        assert toec.voigt[1, 4, 4] == pytest.approx(-3)
+        assert toec.voigt[2, 5, 5] == pytest.approx(-3)
+        assert toec.voigt[1, 2, 0] == pytest.approx(-50)
+        assert toec.voigt[4, 5, 3] == pytest.approx(-95)
 
         et = Tensor.from_voigt(test_data["C3_raw"]).fit_to_structure(sn)
         new = np.zeros(et.voigt.shape)
@@ -392,9 +392,9 @@ class TensorTest(PymatgenTest):
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
-        self.seq_tc = [t for t in np.arange(4 * 3**3).reshape((4, 3, 3, 3))]
+        self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
-        self.rand_tc = TensorCollection([t for t in np.random.random((4, 3, 3))])
+        self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
         ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json")
@@ -467,7 +467,7 @@ class TensorCollectionTest(PymatgenTest):
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt
-        tc_input = [t for t in np.random.random((3, 6, 6))]
+        tc_input = list(np.random.random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
         for t_input, t in zip(tc_input, tc):
             self.assertArrayAlmostEqual(Tensor.from_voigt(t_input), t)

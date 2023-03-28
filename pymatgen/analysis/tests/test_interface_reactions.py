@@ -148,8 +148,8 @@ class InterfaceReactionTest(unittest.TestCase):
         with pytest.raises(Exception) as context1:
             _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
             assert (
-                "Please use the GrandPotentialInterfacialReactivity "
-                "class for interfacial reactions with open elements!" == str(context1.exception)
+                str(context1.exception) == "Please use the GrandPotentialInterfacialReactivity "
+                "class for interfacial reactions with open elements!"
             )
         with pytest.raises(Exception) as context2:
             _ = GrandPotentialInterfacialReactivity(
@@ -160,7 +160,7 @@ class InterfaceReactionTest(unittest.TestCase):
                 norm=False,
                 include_no_mixing_energy=True,
             )
-            assert "Please provide non-grand phase diagram to compute no_mixing_energy!" == str(context2.exception)
+            assert str(context2.exception) == "Please provide non-grand phase diagram to compute no_mixing_energy!"
 
         self.ir = [ir_0, ir_1, ir_2, ir_3, ir_4, ir_5, ir_6, ir_7, ir_8, ir_9, ir_10, ir_11, ir_12]
 

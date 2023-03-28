@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements an interface to Thomas Manz's
 Chargemol code (https://sourceforge.net/projects/ddec/files) for
@@ -157,7 +154,7 @@ class ChargemolAnalysis:
         Returns:
             (str): Absolute path to the file.
         """
-        name_pattern = filename + suffix + "*" if filename != "POTCAR" else filename + "*"
+        name_pattern = f"{filename}{suffix}*" if filename != "POTCAR" else f"{filename}*"
         paths = glob.glob(os.path.join(path, name_pattern))
         fpath = None
         if len(paths) >= 1:
@@ -167,7 +164,8 @@ class ChargemolAnalysis:
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
             warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
-            warnings.warn(warning_msg)
+            if warning_msg:
+                warnings.warn(warning_msg)
             fpath = paths[0]
         return fpath
 
@@ -183,18 +181,14 @@ class ChargemolAnalysis:
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
         with ScratchDir("."):
-            with zopen(self._chgcarpath, "rt") as f_in:
-                with open("CHGCAR", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._potcarpath, "rt") as f_in:
-                with open("POTCAR", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar0path, "rt") as f_in:
-                with open("AECCAR0", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar2path, "rt") as f_in:
-                with open("AECCAR2", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+            with zopen(self._chgcarpath, "rt") as f_in, open("CHGCAR", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            with zopen(self._potcarpath, "rt") as f_in, open("POTCAR", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            with zopen(self._aeccar0path, "rt") as f_in, open("AECCAR0", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            with zopen(self._aeccar2path, "rt") as f_in, open("AECCAR2", "w") as f_out:
+                shutil.copyfileobj(f_in, f_out)
 
             # write job_script file:
             self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
@@ -354,10 +348,7 @@ class ChargemolAnalysis:
         """
         bonded_set = self.bond_order_dict[index_from]["bonded_to"]
         bond_orders = [v["bond_order"] for v in bonded_set if v["index"] == index_to]
-        if bond_orders == []:
-            sum_bo = 0.0
-        else:
-            sum_bo = np.sum(bond_orders)
+        sum_bo = 0.0 if bond_orders == [] else np.sum(bond_orders)
         return sum_bo
 
     def _write_jobscript_for_chargemol(
@@ -400,7 +391,7 @@ class ChargemolAnalysis:
             )
 
         # atomic_densities dir
-        atomic_densities_path = self._atomic_densities_path or os.environ.get("DDEC6_ATOMIC_DENSITIES_DIR", None)
+        atomic_densities_path = self._atomic_densities_path or os.getenv("DDEC6_ATOMIC_DENSITIES_DIR", None)
         if atomic_densities_path is None:
             raise OSError(
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"
@@ -471,17 +462,17 @@ class ChargemolAnalysis:
 
         with open(filename) as r:
             for line in r:
-                l = line.strip().split()
+                split = line.strip().split()
                 if "Printing BOs" in line:
-                    start_idx = int(l[5]) - 1
-                    start_el = Element(l[7])
+                    start_idx = int(split[5]) - 1
+                    start_el = Element(split[7])
                     bond_order_info[start_idx] = {"element": start_el, "bonded_to": []}
                 elif "Bonded to the" in line:
-                    direction = tuple(int(i.split(")")[0].split(",")[0]) for i in l[4:7])
-                    end_idx = int(l[12]) - 1
-                    end_el = Element(l[14])
-                    bo = float(l[20])
-                    spin_bo = float(l[-1])
+                    direction = tuple(int(i.split(")")[0].split(",")[0]) for i in split[4:7])
+                    end_idx = int(split[12]) - 1
+                    end_el = Element(split[14])
+                    bo = float(split[20])
+                    spin_bo = float(split[-1])
                     bond_order_info[start_idx]["bonded_to"].append(
                         {
                             "index": end_idx,
@@ -492,7 +483,7 @@ class ChargemolAnalysis:
                         }
                     )
                 elif "The sum of bond orders for this atom" in line:
-                    bond_order_info[start_idx]["bond_order_sum"] = float(l[-1])
+                    bond_order_info[start_idx]["bond_order_sum"] = float(split[-1])
 
         return bond_order_info
 
@@ -501,7 +492,7 @@ class ChargemolAnalysis:
         Takes CHGCAR's structure object and updates it with properties
         from the Chargemol analysis.
 
-        Returns
+        Returns:
             Pymatgen structure with site properties added
         """
         struct = self.structure.copy()
@@ -554,10 +545,7 @@ class ChargemolAnalysis:
         if self.bond_order_dict:
             ddec_summary["bond_order_dict"] = self.bond_order_dict
 
-        if self.cm5_charges:
-            cm5_summary = {"partial_charges": self.cm5_charges}
-        else:
-            cm5_summary = None
+        cm5_summary = {"partial_charges": self.cm5_charges} if self.cm5_charges else None
 
         summary["ddec"] = ddec_summary
         summary["cm5"] = cm5_summary

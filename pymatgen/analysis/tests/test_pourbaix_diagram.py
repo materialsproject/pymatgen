@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import logging
@@ -222,7 +218,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
         custom_ion_entry = PourbaixEntry(ion, entry_id="my_ion")
         pbx = PourbaixDiagram(
-            entries + [custom_ion_entry],
+            [*entries, custom_ion_entry],
             filter_solids=True,
             comp_dict={"Na": 1, "Sn": 12, "C": 24},
         )

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
@@ -575,9 +572,8 @@ class DictSet(VaspInputSet):
         # correct overly large KSPACING values (small number of kpoints)
         # if necessary.
         # if "KSPACING" not in self.user_incar_settings:
-        if self.kpoints is not None:
-            if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
-                incar["ISMEAR"] = 0
+        if self.kpoints is not None and np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
 
         if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get("ISMEAR", 0) == -5:
             warnings.warn(
@@ -587,14 +583,13 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all(k.is_metal for k in structure.composition):
-            if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
-                warnings.warn(
-                    "Relaxation of likely metal with ISMEAR < 1 "
-                    "detected. Please see VASP recommendations on "
-                    "ISMEAR for metals.",
-                    BadInputSetWarning,
-                )
+        if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
+            warnings.warn(
+                "Relaxation of likely metal with ISMEAR < 1 "
+                "detected. Please see VASP recommendations on "
+                "ISMEAR for metals.",
+                BadInputSetWarning,
+            )
 
         return incar
 
@@ -635,9 +630,12 @@ class DictSet(VaspInputSet):
         """
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
-        if self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get("KSPACING"):
-            if self.user_kpoints_settings == {}:
-                return None
+        if (
+            self.user_incar_settings.get("KSPACING")
+            or self._config_dict["INCAR"].get("KSPACING")
+            and self.user_kpoints_settings == {}
+        ):
+            return None
 
         settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
 
@@ -774,10 +772,8 @@ class DictSet(VaspInputSet):
                 "PREC = LOW/MEDIUM/HIGH from VASP 4.x and not supported, Please use NORMA/SINGLE/ACCURATE"
             )
 
-        if _PREC[0].lower() in {"a", "s"}:  # TODO This only works in VASP 6.x
-            _WFACT = 4
-        else:
-            _WFACT = 3
+        # TODO This only works in VASP 6.x
+        _WFACT = 4 if _PREC[0].lower() in {"a", "s"} else 3
 
         def next_g_size(cur_g_size):
             g_size = int(_WFACT * cur_g_size + 0.5)
@@ -785,10 +781,8 @@ class DictSet(VaspInputSet):
 
         ng_vec = [*map(next_g_size, _CUTOF)]
 
-        if _PREC[0].lower() in {"a", "n"}:  # TODO This works for VASP 5.x and 6.x
-            finer_g_scale = 2
-        else:
-            finer_g_scale = 1
+        # TODO This works for VASP 5.x and 6.x
+        finer_g_scale = 2 if _PREC[0].lower() in {"a", "n"} else 1
 
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 
@@ -976,18 +970,15 @@ class MPScanRelaxSet(DictSet):
         if self.user_incar_settings.get("SIGMA"):
             del updates["SIGMA"]
 
-        if self.vdw:
-            if self.vdw != "rvv10":
-                warnings.warn(
-                    "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. "
-                )
-                # delete any vdw parameters that may have been added to the INCAR
-                vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
-                for k in vdw_par[self.vdw]:
-                    try:
-                        del self._config_dict["INCAR"][k]
-                    except KeyError:
-                        pass
+        if self.vdw and self.vdw != "rvv10":
+            warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")
+            # delete any vdw parameters that may have been added to the INCAR
+            vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
+            for k in vdw_par[self.vdw]:
+                try:
+                    del self._config_dict["INCAR"][k]
+                except KeyError:
+                    pass
 
         self._config_dict["INCAR"].update(updates)
 
@@ -1117,10 +1108,10 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings):
+        for k in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
             # For these parameters as well as user specified settings, override
             # the incar settings.
-            if parent_incar.get(k, None) is not None:
+            if parent_incar.get(k) is not None:
                 incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
@@ -1152,13 +1143,12 @@ class MPStaticSet(MPRelaxSet):
 
         # Prefer to use k-point scheme from previous run
         # except for when lepsilon = True is specified
-        if kpoints is not None:
-            if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
-                if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
-                    k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
-                    kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
-                else:
-                    kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
+        if kpoints is not None and self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
+            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
+                k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
+                kpoints = Kpoints.monkhorst_automatic(k_div)  # type: ignore
+            else:
+                kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])  # type: ignore
         return kpoints
 
     def override_from_prev_calc(self, prev_calc_dir="."):
@@ -1271,7 +1261,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         for k in list(self.user_incar_settings):
             # For user specified settings, override
             # the incar settings.
-            if parent_incar.get(k, None) is not None:
+            if parent_incar.get(k) is not None:
                 incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
@@ -1921,9 +1911,7 @@ class MPNMRSet(MPStaticSet):
         elif self.mode.lower() == "efg":
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
-            quad_efg = [
-                float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None))) for p in self.poscar.site_symbols
-            ]
+            quad_efg = [float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p))) for p in self.poscar.site_symbols]
 
             incar.update(
                 {
@@ -3067,10 +3055,7 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     else:
         mode = spin_mode[0].lower()
 
-    if not inplace:
-        new_struct = structure.copy()
-    else:
-        new_struct = structure
+    new_struct = structure.copy() if not inplace else structure
     for isite in new_struct.sites:
         if mode == "n":
             if "magmom" in isite.properties:

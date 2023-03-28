@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import platform
@@ -12,13 +9,24 @@ from setuptools import Extension, find_namespace_packages, setup
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
 extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 
+with open("README.md") as file:
+    long_description = file.read()
+
+# unlike GitHub readme's, PyPI doesn't support <picture> tags used for responsive images
+# (i.e. adaptive to OS light/dark mode)
+# TODO this manual fix won't work once we migrate to pyproject.toml
+logo_url = "https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg"
+long_description = (
+    f"<h1 align='center'><img alt='Logo' src='{logo_url}' height='70'></h1>" + long_description.split("</picture>")[-1]
+)
+
 setup(
     name="pymatgen",
     packages=find_namespace_packages(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.1.30",
+    version="2023.3.23",
     python_requires=">=3.8",
     install_requires=[
         "matplotlib>=1.5",
@@ -44,18 +52,15 @@ setup(
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
         "relaxation": ["m3gnet"],
+        "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "black",
-            "coverage",
-            "coveralls",
-            "flake8",
             "mypy",
             "pre-commit",
-            "pydocstyle",
-            "pylint",
-            "pytest",
             "pytest-cov",
             "pytest-split",
+            "pytest",
+            "ruff",
         ],
         "docs": [
             "sphinx",
@@ -70,14 +75,15 @@ setup(
             "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
             "f90nml>=1.1.2",
-            "fdint>=2.0.2",
             "galore>=0.6.1",
-            "h5py==3.6.0",  # pinned due to 3.7 crashing on windows
-            # https://github.com/h5py/h5py/issues/2110
+            "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
+        ],
+        "numba": [
+            "numba",
         ],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
@@ -102,7 +108,7 @@ setup(
         "pymatgen.command_line": ["*"],
         "pymatgen.util": ["structures/*.json", "*.json"],
         "pymatgen.vis": ["*.yaml"],
-        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/md.txt"],
+        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "cmd_line": ["**/*"],
     },
@@ -123,7 +129,7 @@ setup(
     "structure codes. It is currently the core analysis code "
     "powering the Materials Project "
     "(https://materialsproject.org).",
-    long_description=open("README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     keywords=[
         "ABINIT",
@@ -149,6 +155,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Information Analysis",

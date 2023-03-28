@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import unittest
@@ -217,9 +214,7 @@ class InputTest(PymatgenTest):
                     scramble += " "
                 elif s == " ":
                     scramble += "  "
-                elif s == "&":
-                    scramble += s
-                elif s == "\n":
+                elif s in ("&", "\n"):
                     scramble += s
                 elif s.isalpha():
                     scramble += s.lower()

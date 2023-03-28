@@ -131,7 +131,7 @@ class CorrectionCalculator:
 
             allow = True
 
-            compound = self.calc_compounds.get(name, None)
+            compound = self.calc_compounds.get(name)
             if not compound:
                 warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
                 continue
@@ -392,7 +392,7 @@ class CorrectionCalculator:
         o_error: dict[str, float] = {}
         f_error: dict[str, float] = {}
 
-        for specie in list(self.species) + ["ozonide"]:
+        for specie in [*self.species, "ozonide"]:
             if specie in ggau_correction_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
@@ -418,10 +418,7 @@ class CorrectionCalculator:
             CompositionCorrections:
         """
         fn = name + "Compatibility.yaml"
-        if dir:
-            path = os.path.join(dir, fn)
-        else:
-            path = fn
+        path = os.path.join(dir, fn) if dir else fn
 
         yml = yaml.YAML()
         yml.default_flow_style = False

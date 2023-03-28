@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2023.1.30 documentation</title>
+  <title>Introduction &mdash; pymatgen 2023.3.23 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,8 +14,10 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +41,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.30
+                2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,7 +57,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2023-1-30">v2023.1.30</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2023-3-23">v2023.3.23</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -227,25 +229,12 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h2>
-<section id="v2023-1-30">
-<h3>v2023.1.30<a class="headerlink" href="#v2023-1-30" title="Permalink to this heading"></a></h3>
+<section id="v2023-3-23">
+<h3>v2023.3.23<a class="headerlink" href="#v2023-3-23" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><dl class="simple">
-<dt>PR #2806 from &#64;samblau qchem</dt><dd><ul>
-<li><p>Major changes to Q-Chem IO (inputs.py and outputs.py) to accommodate differences and new features in version 6+</p></li>
-<li><p>Additional parsing capabilities for HOMO/LUMO, dipoles, NBO info (hyperbonds and 3C bonds) in outputs.py</p></li>
-<li><p>Utility for processing a parsed binary Hessian scratch file</p></li>
-<li><p>Overdue updates to default values in sets.py and new defaults associated with differences and new features in Q-Chem 6+</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>PR #2814 from &#64;jmmshn patch_dos</dt><dd><p>## Added Convenience to obtain the normalized CompleteDos object
-Added tests to make sure calling it multiple time still only gives one result.</p>
-</dd>
-</dl>
-</li>
+<li><p>Misc bug fixes.</p></li>
+<li><p>Enable Structure relaxations with TrajectoryObserver (&#64;janosh)</p></li>
+<li><p>Breaking: Rename <cite>gen_sl_transform_matricies-&gt;gen_sl_transform_matrices</cite> (#2894)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
@@ -588,12 +577,6 @@ entire pymatgen Development Team. If individual contributors want to maintain a
 record of what changes/contributions they have specific copyright on, they
 should indicate their copyright in the commit message of the change, when
 they commit the change to one of the pymatgen repositories.</p>
-<p>With this in mind, the following banner should be used in any source code file
-to indicate the copyright and license terms:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copyright (c) Pymatgen Development Team.</span>
-<span class="c1"># Distributed under the terms of the MIT License.</span>
-</pre></div>
-</div>
 </section>
 <section id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>

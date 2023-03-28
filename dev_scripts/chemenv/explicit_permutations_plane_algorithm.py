@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
 with the separation plane algorithms (typically with coordination numbers >= 6)

@@ -122,38 +122,32 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         res = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
             coordination_geometry=cg_tet, NRANDOM=5, points_perfect=points_perfect_tet
         )
-        (
-            permutations_symmetry_measures,
-            permutations,
-            algos,
-            local2perfect_maps,
-            perfect2local_maps,
-        ) = res
+        permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps = res
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == pytest.approx(0.140355832317)
 
-    #
     # def _strategy_test(self, strategy):
     #     files = []
-    #     for (dirpath, dirnames, filenames) in os.walk(json_files_dir):
+    #     for (_dirpath, _dirnames, filenames) in os.walk(json_files_dir):
     #         files.extend(filenames)
     #         break
-    #
-    #     for ifile, json_file in enumerate(files):
+
+    #     for _ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             with open("{}/{}".format(json_files_dir, json_file), 'r') as f:
+    #             with open(f"{json_files_dir}/{json_file}") as f:
     #                 dd = json.load(f)
-    #
-    #             atom_indices = dd['atom_indices']
-    #             expected_geoms = dd['expected_geoms']
-    #
-    #             struct = Structure.from_dict(dd['structure'])
-    #
+
+    #             atom_indices = dd["atom_indices"]
+    #             expected_geoms = dd["expected_geoms"]
+
+    #             struct = Structure.from_dict(dd["structure"])
+
     #             struct = self.lgf.setup_structure(struct)
-    #             se = self.lgf.compute_structure_environments_detailed_voronoi(only_indices=atom_indices,
-    #                                                                           maximum_distance_factor=1.5)
-    #
-    #             #All strategies should get the correct environment with their default parameters
+    #             se = self.lgf.compute_structure_environments_detailed_voronoi(
+    #                 only_indices=atom_indices, maximum_distance_factor=1.5
+    #             )
+
+    #             # All strategies should get the correct environment with their default parameters
     #             strategy.set_structure_environments(se)
     #             for ienv, isite in enumerate(atom_indices):
     #                 ce = strategy.get_site_coordination_environment(struct[isite])
@@ -161,13 +155,13 @@ class CoordinationGeometryFinderTest(PymatgenTest):
     #                     coord_env = ce[0]
     #                 except TypeError:
     #                     coord_env = ce
-    #                 #Check that the environment found is the expected one
+    #                 # Check that the environment found is the expected one
     #                 self.assertEqual(coord_env, expected_geoms[ienv])
-    #
+
     # def test_simplest_chemenv_strategy(self):
     #     strategy = SimplestChemenvStrategy()
     #     self._strategy_test(strategy)
-    #
+
     # def test_simple_abundance_chemenv_strategy(self):
     #     strategy = SimpleAbundanceChemenvStrategy()
     #     self._strategy_test(strategy)

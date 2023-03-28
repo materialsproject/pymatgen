@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the Cp2k output parser along with a few other functions for parsing cp2k-related
 outputs.
@@ -112,7 +109,7 @@ class Cp2kOutput:
         """
         The cp2k version used in the calculation
         """
-        return self.data.get("cp2k_version", None)[0][0]
+        return self.data.get("cp2k_version")[0][0]
 
     @property
     def completed(self):
@@ -161,8 +158,8 @@ class Cp2kOutput:
         }
 
         functional = self.data.get("dft", {}).get("functional", [None])
-        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential", None)
-        frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION", None)
+        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
+        frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION")
 
         if len(functional) > 1:
             rt = "Mixed: " + ", ".join(functional)
@@ -216,7 +213,7 @@ class Cp2kOutput:
     @property
     def multiplicity(self):
         """Get the spin multiplicity from input file"""
-        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("", None)).values[0]
+        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]
 
     @property
     def is_molecule(self) -> bool:
@@ -243,9 +240,8 @@ class Cp2kOutput:
     def is_hubbard(self) -> bool:
         """Returns True if hubbard +U correction was used"""
         for v in self.data.get("atomic_kind_info", {}).values():
-            if "DFT_PLUS_U" in v:
-                if v.get("DFT_PLUS_U").get("U_MINUS_J") > 0:
-                    return True
+            if "DFT_PLUS_U" in v and v.get("DFT_PLUS_U").get("U_MINUS_J") > 0:
+                return True
         return False
 
     def parse_files(self):
@@ -316,19 +312,19 @@ class Cp2kOutput:
 
         if lattice_file is None:
             if len(self.filenames["cell"]) == 0:
-                lattice = self.parse_cell_params()
+                lattices = self.parse_cell_params()
             elif len(self.filenames["cell"]) == 1:
-                latfile = np.loadtxt(self.filenames["cell"][0])
-                lattice = (
-                    [l[2:11].reshape(3, 3) for l in latfile]
-                    if len(latfile.shape) > 1
-                    else [latfile[2:11].reshape(3, 3)]
+                latt_file = np.loadtxt(self.filenames["cell"][0])
+                lattices = (
+                    [latt[2:11].reshape(3, 3) for latt in latt_file]
+                    if len(latt_file.shape) > 1
+                    else [latt_file[2:11].reshape(3, 3)]
                 )
             else:
                 raise FileNotFoundError("Unable to automatically determine lattice file. More than one exist.")
         else:
-            latfile = np.loadtxt(lattice_file)
-            lattice = [l[2:].reshape(3, 3) for l in latfile]
+            latt_file = np.loadtxt(lattice_file)
+            lattices = [latt[2:].reshape(3, 3) for latt in latt_file]
 
         if not trajectory_file:
             self.structures = []
@@ -336,17 +332,17 @@ class Cp2kOutput:
             self.final_structure = self.structures[-1]
         else:
             mols = XYZ.from_file(trajectory_file).all_molecules
-            for m in mols:
-                m.set_charge_and_spin(charge=self.charge, spin_multiplicity=self.multiplicity)
+            for mol in mols:
+                mol.set_charge_and_spin(charge=self.charge, spin_multiplicity=self.multiplicity)
             self.structures = []
             gs = self.initial_structure.site_properties.get("ghost")
             if not self.is_molecule:
-                for m, l in zip(mols, lattice):
+                for mol, latt in zip(mols, lattices):
                     self.structures.append(
                         Structure(
-                            lattice=l,
-                            coords=[s.coords for s in m.sites],
-                            species=[s.specie for s in m.sites],
+                            lattice=latt,
+                            coords=[s.coords for s in mol.sites],
+                            species=[s.specie for s in mol.sites],
                             coords_are_cartesian=True,
                             site_properties={"ghost": gs} if gs else {},
                             charge=self.charge,
@@ -681,12 +677,7 @@ class Cp2kOutput:
 
         # HF exchange info
         hfx = re.compile(r"\s+HFX_INFO\|\s+(.+):\s+(.*)$")
-        self.read_pattern(
-            {"hfx": hfx},
-            terminate_on_match=False,
-            postprocess=postprocessor,
-            reverse=False,
-        )
+        self.read_pattern({"hfx": hfx}, terminate_on_match=False, postprocess=postprocessor, reverse=False)
         self.data["dft"]["hfx"] = dict(self.data.pop("hfx"))
 
         # Van der waals correction
@@ -700,14 +691,14 @@ class Cp2kOutput:
         if self.data.get("vdw"):
             found = False
             suffix = ""
-            for l in self.data.get("vdw"):
+            for ll in self.data.get("vdw"):
                 for _possible, _name in zip(
                     ["RVV10", "LMKLL", "DRSLL", "DFT-D3", "DFT-D2"],
                     ["RVV10", "LMKLL", "DRSLL", "D3", "D2"],
                 ):
-                    if _possible in l[0]:
+                    if _possible in ll[0]:
                         found = _name
-                    if "BJ" in l[0]:
+                    if "BJ" in ll[0]:
                         suffix = "(BJ)"
 
             self.data["dft"]["vdw"] = found + suffix if found else self.data.pop("vdw")[0][0]
@@ -1115,7 +1106,7 @@ class Cp2kOutput:
                             if "Fermi" in line:
                                 efermi[-1][Spin.up] = float(line.split()[-1])
                                 break
-                            eigenvalues[-1]["occupied"][Spin.up].extend([Ha_to_eV * float(l) for l in line.split()])
+                            eigenvalues[-1]["occupied"][Spin.up].extend([Ha_to_eV * float(val) for val in line.split()])
                         next(lines)
                         line = next(lines)
                         if " occupied subspace spin" in line:
@@ -1126,7 +1117,7 @@ class Cp2kOutput:
                                     efermi[-1][Spin.down] = float(line.split()[-1])
                                     break
                                 eigenvalues[-1]["occupied"][Spin.down].extend(
-                                    [Ha_to_eV * float(l) for l in line.split()]
+                                    [Ha_to_eV * float(val) for val in line.split()]
                                 )
                     if " unoccupied subspace spin" in line:
                         next(lines)
@@ -1141,7 +1132,7 @@ class Cp2kOutput:
                                 next(lines)
                                 line = next(lines)
                                 eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                    [Ha_to_eV * float(l) for l in line.split()]
+                                    [Ha_to_eV * float(line) for line in line.split()]
                                 )
                                 next(lines)
                                 line = next(lines)
@@ -1152,7 +1143,9 @@ class Cp2kOutput:
 
                             if "eigenvalues" in line.lower() or "HOMO" in line or "|" in line:
                                 break
-                            eigenvalues[-1]["unoccupied"][Spin.up].extend([Ha_to_eV * float(l) for l in line.split()])
+                            eigenvalues[-1]["unoccupied"][Spin.up].extend(
+                                [Ha_to_eV * float(val) for val in line.split()]
+                            )
                             line = next(lines)
 
                         if " unoccupied subspace spin" in line:
@@ -1168,7 +1161,7 @@ class Cp2kOutput:
                                     next(lines)
                                     line = next(lines)
                                     eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                        [Ha_to_eV * float(l) for l in line.split()]
+                                        [Ha_to_eV * float(line) for line in line.split()]
                                     )
                                     break
 
@@ -1180,7 +1173,7 @@ class Cp2kOutput:
                                     break
                                 try:
                                     eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                        [Ha_to_eV * float(l) for l in line.split()]
+                                        [Ha_to_eV * float(val) for val in line.split()]
                                     )
                                 except AttributeError:
                                     break
@@ -1381,15 +1374,15 @@ class Cp2kOutput:
         labels = {}
         kpts = []
         nkpts = 0
-        for l in lines:
-            if not l.startswith("#"):
+        for line in lines:
+            if not line.startswith("#"):
                 continue
-            if l.split()[1] == "Set":
+            if line.split()[1] == "Set":
                 nkpts += int(lines[0].split()[6])
-            elif l.split()[1] == "Point":
-                kpts.append(list(map(float, l.split()[-4:-1])))
-            elif l.split()[1] == "Special" in l:
-                splt = l.split()
+            elif line.split()[1] == "Point":
+                kpts.append(list(map(float, line.split()[-4:-1])))
+            elif line.split()[1] == "Special" in line:
+                splt = line.split()
                 label = splt[7]
                 if label.upper() == "GAMMA":
                     label = "\\Gamma"
@@ -1532,10 +1525,7 @@ class Cp2kOutput:
             elif "LOCAL" in first:
                 dat = "chi_local"
             elif "Total" in first:
-                if "ppm" in first:
-                    dat = "chi_total_ppm_cgs"
-                else:
-                    dat = "chi_total"
+                dat = "chi_total_ppm_cgs" if "ppm" in first else "chi_total"
             elif first.startswith("PV1"):
                 splt = [postprocessor(s) for s in line.split()]
                 splt = [s for s in splt if isinstance(s, float)]
@@ -1701,10 +1691,7 @@ class Cp2kOutput:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
             tables.append(table_contents)
-        if last_one_only:
-            retained_data = tables[-1]
-        else:
-            retained_data = tables
+        retained_data = tables[-1] if last_one_only else tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
@@ -1717,13 +1704,13 @@ class Cp2kOutput:
         d["total_time"] = self.timing["CP2K"]["total_time"]["maximum"]
         d["run_type"] = self.run_type
         d["input"]["global"] = self.data.get("global")
-        d["input"]["dft"] = self.data.get("dft", None)
-        d["input"]["scf"] = self.data.get("scf", None)
-        d["input"]["qs"] = self.data.get("QS", None)
+        d["input"]["dft"] = self.data.get("dft")
+        d["input"]["scf"] = self.data.get("scf")
+        d["input"]["qs"] = self.data.get("QS")
         d["input"]["run_type"] = self.run_type
         d["input"]["calculation_type"] = self.calculation_type
         d["input"]["structure"] = self.initial_structure.as_dict()
-        d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info", None)
+        d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info")
         d["input"]["cp2k_input"] = self.input.as_dict()
         d["ran_successfully"] = self.completed
         d["cp2k_version"] = self.cp2k_version
@@ -1808,10 +1795,7 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         DOS object is not created here
 
     """
-    if spin_channel:
-        spin = Spin(spin_channel)
-    else:
-        spin = Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
+    spin = Spin(spin_channel) if spin_channel else Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
 
     with zopen(dos_file, "rt") as f:
         lines = f.readlines()

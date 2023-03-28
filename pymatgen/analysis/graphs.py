@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Module for graph representations of crystals and molecules.
 """
@@ -518,8 +515,8 @@ class StructureGraph(MSONable):
                         edge["to_index"],
                         from_jimage=(0, 0, 0),
                         to_jimage=edge["to_jimage"],
-                        weight=edge.get("weight", None),
-                        edge_properties=edge.get("properties", None),
+                        weight=edge.get("weight"),
+                        edge_properties=edge.get("properties"),
                     )
                 except KeyError:
                     raise RuntimeError("Some edges are invalid.")
@@ -797,7 +794,7 @@ class StructureGraph(MSONable):
             relative_jimage = np.subtract(to_jimage, jimage)
             dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
 
-            weight = d.get("weight", None)
+            weight = d.get("weight")
 
             if (v, to_jimage) not in connected_site_images:
                 connected_site = ConnectedSite(site=site, jimage=to_jimage, index=v, weight=weight, dist=dist)
@@ -1026,7 +1023,7 @@ class StructureGraph(MSONable):
         :return: A dict with an 'all_weights' list, 'minimum',
             'maximum', 'median', 'mean', 'std_dev'
         """
-        all_weights = [d.get("weight", None) for u, v, d in self.graph.edges(data=True)]
+        all_weights = [d.get("weight") for u, v, d in self.graph.edges(data=True)]
         stats = describe(all_weights, nan_policy="omit")
 
         return {
@@ -1075,7 +1072,7 @@ class StructureGraph(MSONable):
             motif = f"{centre_sp}-{','.join(labels)}"
             motifs.add(motif)
 
-        return sorted(list(motifs))
+        return sorted(motifs)
 
     def as_dict(self):
         """
@@ -1099,8 +1096,8 @@ class StructureGraph(MSONable):
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
-        s = Structure.from_dict(d["structure"])
-        return cls(s, d["graphs"])
+        struct = Structure.from_dict(d["structure"])
+        return cls(struct, d["graphs"])
 
     def __mul__(self, scaling_matrix):
         """
@@ -1737,10 +1734,7 @@ class MoleculeGraph(MSONable):
             structure = None
 
         for n in range(len(molecule)):
-            if structure is None:
-                neighbors = strategy.get_nn_info(molecule, n)
-            else:
-                neighbors = strategy.get_nn_info(structure, n)
+            neighbors = strategy.get_nn_info(molecule, n) if structure is None else strategy.get_nn_info(structure, n)
             for neighbor in neighbors:
                 # all bonds in molecules should not cross
                 # (artificial) periodic boundaries
@@ -1899,8 +1893,8 @@ class MoleculeGraph(MSONable):
                     self.add_edge(
                         edge["from_index"],
                         edge["to_index"],
-                        weight=edge.get("weight", None),
-                        edge_properties=edge.get("properties", None),
+                        weight=edge.get("weight"),
+                        edge_properties=edge.get("properties"),
                     )
                 except KeyError:
                     raise RuntimeError("Some edges are invalid.")
@@ -2030,7 +2024,7 @@ class MoleculeGraph(MSONable):
         subgraphs = [original.graph.subgraph(c) for c in nx.weakly_connected_components(original.graph)]
 
         for subg in subgraphs:
-            nodes = sorted(list(subg.nodes))
+            nodes = sorted(subg.nodes)
 
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0
@@ -2040,10 +2034,7 @@ class MoleculeGraph(MSONable):
 
             # just give charge to whatever subgraph has node with index 0
             # TODO: actually figure out how to distribute charge
-            if 0 in nodes:
-                charge = self.molecule.charge
-            else:
-                charge = 0
+            charge = self.molecule.charge if 0 in nodes else 0
 
             # relabel nodes in graph to match mapping
             new_graph = nx.relabel_nodes(subg, mapping)
@@ -2483,7 +2474,7 @@ class MoleculeGraph(MSONable):
         in_edges = list(self.graph.in_edges(n, data=True))
 
         for u, v, d in out_edges + in_edges:
-            weight = d.get("weight", None)
+            weight = d.get("weight")
 
             if v == n:
                 site = self.molecule[u]
@@ -2612,10 +2603,7 @@ class MoleculeGraph(MSONable):
         # add display options for edges
         for u, v, k, d in g.edges(keys=True, data=True):
             # retrieve from/to images, set as origin if not defined
-            if "to_image" in d:
-                to_image = d["to_jimage"]
-            else:
-                to_image = (0, 0, 0)
+            to_image = d["to_jimage"] if "to_image" in d else (0, 0, 0)
 
             # set edge style
             d["style"] = "solid"

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Implementation for `pmg analyze` CLI.
 """
@@ -34,6 +31,7 @@ SAVE_FILE = "vasp_data.gz"
 def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     """
     Get energies of all vaspruns in directory (nested).
+
     Args:
         rootdir (str): Root directory.
         reanalyze (bool): Whether to ignore saved results and reanalyze

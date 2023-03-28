@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines utility classes and functions.
 """
@@ -312,9 +309,10 @@ class PackmolRunner:
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
-            with open(os.path.join(scratch_dir, self.input_file)) as packmol_input:
-                with Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as p:
-                    (stdout, stderr) = p.communicate()
+            with open(os.path.join(scratch_dir, self.input_file)) as packmol_input, Popen(
+                self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE
+            ) as p:
+                (stdout, stderr) = p.communicate()
             output_file = os.path.join(self.control_params["output"])
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
@@ -464,7 +462,7 @@ class LammpsRunner:
         """
         Write the input/data files and run LAMMPS.
         """
-        lammps_cmd = self.lammps_bin + ["-in", self.input_filename]
+        lammps_cmd = [*self.lammps_bin, "-in", self.input_filename]
         print(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as p:
             (stdout, stderr) = p.communicate()

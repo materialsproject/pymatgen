@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
@@ -331,10 +328,7 @@ class Magmom(MSONable):
         :return: (list of Magmoms, global spin axis) tuple
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
-        if saxis is None:
-            saxis = Magmom.get_suggested_saxis(magmoms)
-        else:
-            saxis = saxis / np.linalg.norm(saxis)
+        saxis = Magmom.get_suggested_saxis(magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
         magmoms = [magmom.get_moment(saxis=saxis) for magmom in magmoms]
         return magmoms, saxis
 

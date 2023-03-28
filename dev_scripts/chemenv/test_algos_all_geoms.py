@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Development script to test the algorithms of all the model coordination environments
 """
@@ -46,10 +43,7 @@ if __name__ == "__main__":
         symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
 
         if perms_def == "standard":
-            if coordination > 6:
-                test = "500"
-            else:
-                test = "all"
+            test = "500" if coordination > 6 else "all"
         elif perms_def == "ndefined":
             test = nperms  # type: ignore[assignment]
         else:
@@ -59,7 +53,7 @@ if __name__ == "__main__":
             )
         myindices = range(coordination)
 
-        if test == "all" or test == "a":
+        if test in ("all", "a"):
             perms_type = "all"
             perms_iterator = itertools.permutations(myindices)
             nperms = factorial(coordination)

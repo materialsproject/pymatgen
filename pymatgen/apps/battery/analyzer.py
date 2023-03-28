@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Analysis classes for batteries
 """
@@ -252,7 +249,6 @@ def is_redox_active_intercalation(element) -> bool:
     Args:
         element: Element object
     """
-
     ns = [
         "Ti",
         "V",

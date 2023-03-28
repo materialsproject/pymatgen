@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
@@ -80,13 +77,15 @@ def is_coord_subset(subset, superset, atol=1e-8) -> bool:
     return all(any_close)
 
 
-def coord_list_mapping(subset, superset, atol=1e-8):
+def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8):
     """
     Gives the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows
 
     Args:
-        subset, superset: List of coords
+        subset (ArrayLike): List of coords
+        superset (ArrayLike): List of coords
+        atol (float): Absolute tolerance. Defaults to 1e-8.
 
     Returns:
         list of indices such that superset[indices] = subset
@@ -95,9 +94,8 @@ def coord_list_mapping(subset, superset, atol=1e-8):
     c2 = np.array(superset)
     inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol), axis=2))[1]
     result = c2[inds]
-    if not np.allclose(c1, result, atol=atol):
-        if not is_coord_subset(subset, superset):
-            raise ValueError("subset is not a subset of superset")
+    if not np.allclose(c1, result, atol=atol) and not is_coord_subset(subset, superset):
+        raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
         raise ValueError("Something wrong with the inputs, likely duplicates in superset")
     return inds
@@ -274,10 +272,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
     # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
-    if mask is not None:
-        m = np.array(mask, dtype=int)
-    else:
-        m = np.zeros((len(subset), len(superset)), dtype=int)
+    m = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)
     atol = np.zeros(3, dtype=np.float64) + atol
     return cuc.is_coord_subset_pbc(c1, c2, atol, m, pbc)
 
@@ -294,18 +289,7 @@ def lattice_points_in_supercell(supercell_matrix):
     Returns:
         numpy array of the fractional coordinates
     """
-    diagonals = np.array(
-        [
-            [0, 0, 0],
-            [0, 0, 1],
-            [0, 1, 0],
-            [0, 1, 1],
-            [1, 0, 0],
-            [1, 0, 1],
-            [1, 1, 0],
-            [1, 1, 1],
-        ]
-    )
+    diagonals = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]])
     d_points = np.dot(diagonals, supercell_matrix)
 
     mins = np.min(d_points, axis=0)
@@ -459,12 +443,12 @@ class Simplex(MSONable):
         """
         b1 = self.bary_coords(point1)
         b2 = self.bary_coords(point2)
-        l = b1 - b2
+        line = b1 - b2
         # don't use barycentric dimension where line is parallel to face
-        valid = np.abs(l) > 1e-10
+        valid = np.abs(line) > 1e-10
         # array of all the barycentric coordinates on the line where
         # one of the values is 0
-        possible = b1 - (b1[valid] / l[valid])[:, None] * l
+        possible = b1 - (b1[valid] / line[valid])[:, None] * line
         barys = []
         for p in possible:
             # it's only an intersection if its in the simplex
@@ -483,10 +467,7 @@ class Simplex(MSONable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Simplex):
             return NotImplemented
-        for p in itertools.permutations(self._coords):
-            if np.allclose(p, other.coords):
-                return True
-        return False
+        return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
 
     def __hash__(self):
         return len(self._coords)

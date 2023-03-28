@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module implements Compatibility corrections for mixing runs of different
 functionals.
@@ -97,12 +95,9 @@ class Correction(metaclass=abc.ABCMeta):
         old_corr = ufloat(entry.correction, old_std_dev)
         updated_corr = new_corr + old_corr
 
-        if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0:
-            # if there are no error values available for the corrections applied,
-            # set correction uncertainty to not a number
-            uncertainty = np.nan
-        else:
-            uncertainty = updated_corr.std_dev
+        # if there are no error values available for the corrections applied,
+        # set correction uncertainty to not a number
+        uncertainty = np.nan if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0 else updated_corr.std_dev
 
         entry.energy_adjustments.append(ConstantEnergyAdjustment(updated_corr.nominal_value, uncertainty))
 
@@ -203,7 +198,7 @@ class GasCorrection(Correction):
         # set error to 0 because old MPCompatibility doesn't have errors
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         rform = entry.composition.reduced_formula
@@ -250,7 +245,7 @@ class AnionCorrection(Correction):
         correction = ufloat(0.0, 0.0)
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
@@ -351,7 +346,7 @@ class AqueousCorrection(Correction):
         cpd_energies = self.cpd_energies
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
@@ -367,7 +362,7 @@ class AqueousCorrection(Correction):
                 err = self.cpd_errors[rform] * comp.num_atoms
 
                 correction += ufloat(corr, err)
-        if not rform == "H2O":
+        if rform != "H2O":
             # if the composition contains water molecules (e.g. FeO.nH2O),
             # correct the gibbs free energy such that the waters are assigned energy=MU_H2O
             # in other words, we assume that the DFT energy of such a compound is really
@@ -480,7 +475,7 @@ class UCorrection(Correction):
                 f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
             )
 
-        calc_u = entry.parameters.get("hubbards", None)
+        calc_u = entry.parameters.get("hubbards")
         calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
 
@@ -489,7 +484,7 @@ class UCorrection(Correction):
         correction = ufloat(0.0, 0.0)
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         u_corr = self.u_corrections.get(most_electroneg, {})
@@ -677,10 +672,7 @@ class CorrectionsList(Compatibility):
         corrections, uncertainties = self.get_corrections_dict(entry)
 
         for k, v in corrections.items():
-            if v != 0 and uncertainties[k] == 0:
-                uncertainty = np.nan
-            else:
-                uncertainty = uncertainties[k]
+            uncertainty = np.nan if v != 0 and uncertainties[k] == 0 else uncertainties[k]
             adjustment_list.append(ConstantEnergyAdjustment(v, uncertainty=uncertainty, name=k, cls=self.as_dict()))
 
         return adjustment_list
@@ -1377,7 +1369,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # where E is DFT energy, dE is an energy correction, and g is Gibbs free energy
         # This means we have to 1) remove energy corrections associated with H and O in water
         # and then 2) remove the free energy of the water molecules
-        if not rform == "H2O":
+        if rform != "H2O":
             # count the number of whole water molecules in the composition
             nH2O = int(min(comp["H"] / 2.0, comp["O"]))
             if nH2O > 0:

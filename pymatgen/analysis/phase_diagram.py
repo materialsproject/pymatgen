@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines tools to generate and analyze phase diagrams.
 """
@@ -474,16 +471,16 @@ class PhaseDiagram(MSONable):
 
         simplexes = [Simplex(qhull_data[f, :-1]) for f in facets]
         self.elements = elements
-        return dict(
-            facets=facets,
-            simplexes=simplexes,
-            all_entries=all_entries,
-            qhull_data=qhull_data,
-            dim=dim,
+        return {
+            "facets": facets,
+            "simplexes": simplexes,
+            "all_entries": all_entries,
+            "qhull_data": qhull_data,
+            "dim": dim,
             # Dictionary with Element keys is not JSON-serializable
-            el_refs=list(el_refs.items()),
-            qhull_entries=qhull_entries,
-        )
+            "el_refs": list(el_refs.items()),
+            "qhull_entries": qhull_entries,
+        }
 
     def pd_coords(self, comp: Composition) -> np.ndarray:
         """
@@ -852,6 +849,7 @@ class PhaseDiagram(MSONable):
                 when finding the equilibrium reaction. Tighter tolerances tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
+            **kwargs: Passed to get_decomp_and_e_above_hull.
 
         Returns:
             (decomp, energy). The decomposition  is given as a dict of {PDEntry, amount}
@@ -894,8 +892,7 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit and not stable_only:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Calculating inner hull to discard "
-                "additional unstable entries"
+                f"for {entry.composition} - Calculating inner hull to discard additional unstable entries"
             )
 
             reduced_space = competing_entries - {*self._get_stable_entries_in_space(entry_elems)} | {
@@ -912,8 +909,7 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Using SLSQP to find "
-                "decomposition likely to be slow"
+                f"for {entry.composition} - Using SLSQP to find decomposition likely to be slow"
             )
 
         decomp = _get_slsqp_decomp(entry.composition, competing_entries, tols, maxiter)
@@ -1008,11 +1004,8 @@ class PhaseDiagram(MSONable):
 
         clean_pots = []
         for c in sorted(critical_chempots):
-            if len(clean_pots) == 0:
+            if len(clean_pots) == 0 or abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
                 clean_pots.append(c)
-            else:
-                if abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
-                    clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
 
@@ -1023,7 +1016,8 @@ class PhaseDiagram(MSONable):
         The endpoints are also returned.
 
         Args:
-            comp1, comp2 (Composition): compositions that define the tieline
+            comp1 (Composition): First composition to define the tieline
+            comp2 (Composition): Second composition to define the tieline
 
         Returns:
             [(Composition)]: list of critical compositions. All are of
@@ -1048,9 +1042,9 @@ class PhaseDiagram(MSONable):
         intersections = self._get_simplex_intersections(c1, c2)
 
         # find position along line
-        l = c2 - c1
-        l /= np.sum(l**2) ** 0.5
-        proj = np.dot(intersections - c1, l)
+        line = c2 - c1
+        line /= np.sum(line**2) ** 0.5
+        proj = np.dot(intersections - c1, line)
 
         # only take compositions between endpoints
         proj = proj[
@@ -1063,13 +1057,13 @@ class PhaseDiagram(MSONable):
         valid[1:] = proj[1:] > proj[:-1] + self.numerical_tol
         proj = proj[valid]
 
-        ints = c1 + l * proj[:, None]
+        ints = c1 + line * proj[:, None]
 
         # reconstruct full-dimensional composition array
         cs = np.concatenate([np.array([1 - np.sum(ints, axis=-1)]).T, ints], axis=-1)
 
         # mixing fraction when compositions are normalized
-        x = proj / np.dot(c2 - c1, l)
+        x = proj / np.dot(c2 - c1, line)
 
         # mixing fraction when compositions are not normalized
         x_unnormalized = x * n1 / (n2 + x * (n1 - n2))
@@ -1110,7 +1104,7 @@ class PhaseDiagram(MSONable):
         for cc in self.get_critical_compositions(el_comp, gc_comp)[1:]:
             decomp_entries = list(self.get_decomposition(cc))
             decomp = [k.composition for k in decomp_entries]
-            rxn = Reaction([comp], decomp + [el_comp])
+            rxn = Reaction([comp], [*decomp, el_comp])
             rxn.normalize_to(comp)
             c = self.get_composition_chempots(cc + el_comp * 1e-5)[element]
             amt = -rxn.coeffs[rxn.all_comp.index(el_comp)]
@@ -1410,9 +1404,9 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.original_entries = entries
         self.terminal_compositions = terminal_compositions
         self.normalize_terminals = normalize_terminal_compositions
-        (pentries, species_mapping) = self.transform_entries(entries, terminal_compositions)
+        p_entries, species_mapping = self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
-        super().__init__(pentries, elements=species_mapping.values())
+        super().__init__(p_entries, elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):
         """
@@ -1860,7 +1854,7 @@ class ReactionDiagram:
 
         logger.debug(f"{len(all_entries)} total entries.")
 
-        pd = PhaseDiagram(all_entries + [entry1, entry2])
+        pd = PhaseDiagram([*all_entries, entry1, entry2])
         terminal_formulas = [
             entry1.composition.reduced_formula,
             entry2.composition.reduced_formula,
@@ -1968,7 +1962,7 @@ class ReactionDiagram:
         entry2 = PDEntry(self.entry2.composition, 0)
 
         cpd = CompoundPhaseDiagram(
-            self.rxn_entries + [entry1, entry2],
+            [*self.rxn_entries, entry1, entry2],
             [
                 Composition(entry1.composition.reduced_formula),
                 Composition(entry2.composition.reduced_formula),
@@ -2297,10 +2291,7 @@ class PDPlotter:
             x1 = v
             y1 = d["evolution"] / num_atoms
 
-            if i != len(evolution) - 1:
-                x2 = -(evolution[i + 1]["chempot"] - element_energy)
-            else:
-                x2 = 5.0
+            x2 = -(evolution[i + 1]["chempot"] - element_energy) if i != len(evolution) - 1 else 5.0
             if show_label_index is not None and i in show_label_index:
                 products = [
                     re.sub(r"(\d+)", r"$_{\1}$", p.reduced_formula)
@@ -2354,10 +2345,10 @@ class PDPlotter:
         from matplotlib.font_manager import FontProperties
 
         if ordering is None:
-            (lines, labels, unstable) = self.pd_plot_data
+            lines, labels, unstable = self.pd_plot_data
         else:
-            (_lines, _labels, _unstable) = self.pd_plot_data
-            (lines, labels, unstable) = order_phase_diagram(_lines, _labels, _unstable, ordering)
+            _lines, _labels, _unstable = self.pd_plot_data
+            lines, labels, unstable = order_phase_diagram(_lines, _labels, _unstable, ordering)
         if energy_colormap is None:
             if process_attributes:
                 for x, y in lines:
@@ -2662,7 +2653,7 @@ class PDPlotter:
         # Shade the forbidden chemical potential regions.
         excluded_region.append([xlim[1], ylim[1]])
         excluded_region = sorted(excluded_region, key=lambda c: c[0])
-        (x, y) = np.transpose(excluded_region)
+        x, y = np.transpose(excluded_region)
         plt.fill(x, y, "0.80")
 
         # The hull does not generate the missing horizontal and vertical lines.
@@ -2751,7 +2742,7 @@ class PDPlotter:
 
     def _create_plotly_lines(self):
         """
-        Creates Plotly scatter (line) plots for all phase diagram facets.
+        Create Plotly scatter (line) plots for all phase diagram facets.
 
         Returns:
             go.Scatter (or go.Scatter3d) plot
@@ -2760,31 +2751,29 @@ class PDPlotter:
         x, y, z, energies = [], [], [], []
 
         for line in self.pd_plot_data[0]:
-            x.extend(list(line[0]) + [None])
-            y.extend(list(line[1]) + [None])
+            x.extend([*line[0], None])
+            y.extend([*line[1], None])
 
             if self._dim == 3:
-                z.extend(
-                    [self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord]) for coord in zip(line[0], line[1])]
-                    + [None]
-                )
+                form_enes = [
+                    self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord]) for coord in zip(line[0], line[1])
+                ]
+                z.extend([*form_enes, None])
 
             elif self._dim == 4:
-                energies.extend(
-                    [
-                        self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord])
-                        for coord in zip(line[0], line[1], line[2])
-                    ]
-                    + [None]
-                )
-                z.extend(list(line[2]) + [None])
+                form_enes = [
+                    self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord])
+                    for coord in zip(line[0], line[1], line[2])
+                ]
+                energies.extend([*form_enes, None])
+                z.extend([*line[2], None])
 
-        plot_args = dict(
-            mode="lines",
-            hoverinfo="none",
-            line={"color": "rgba(0,0,0,1.0)", "width": 7.0},
-            showlegend=False,
-        )
+        plot_args = {
+            "mode": "lines",
+            "hoverinfo": "none",
+            "line": {"color": "rgba(0,0,0,1.0)", "width": 7.0},
+            "showlegend": False,
+        }
 
         if self._dim == 2:
             line_plot = go.Scatter(x=x, y=y, **plot_args)
@@ -2863,16 +2852,16 @@ class PDPlotter:
         if not label_stable or self._dim == 4:
             visible = "legendonly"
 
-        plot_args = dict(
-            text=text,
-            textposition=textpositions,
-            mode="text",
-            name="Labels (stable)",
-            hoverinfo="skip",
-            opacity=1.0,
-            visible=visible,
-            showlegend=True,
-        )
+        plot_args = {
+            "text": text,
+            "textposition": textpositions,
+            "mode": "text",
+            "name": "Labels (stable)",
+            "hoverinfo": "skip",
+            "opacity": 1.0,
+            "visible": visible,
+            "showlegend": True,
+        }
 
         if self._dim == 2:
             stable_labels_plot = go.Scatter(x=x, y=y, **plot_args)
@@ -2938,7 +2927,7 @@ class PDPlotter:
 
         # extra point ensures equilateral triangular scaling is displayed
         if self._dim == 3:
-            annotations_list.append(dict(x=1, y=1, z=0, opacity=0, text=""))
+            annotations_list.append({"x": 1, "y": 1, "z": 0, "opacity": 0, "text": ""})
 
         return annotations_list
 
@@ -3025,17 +3014,12 @@ class PDPlotter:
                 elif self._dim == 4:
                     z.append(coord[2])
 
-            return {
-                "x": x,
-                "y": y,
-                "z": z,
-                "texts": texts,
-                "energies": energies,
-                "uncertainties": uncertainties,
-            }
+            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
-        stable_coords, stable_entries = zip(*self.pd_plot_data[1].items())
-        unstable_entries, unstable_coords = zip(*self.pd_plot_data[2].items())
+        stable_coords = list(self.pd_plot_data[1])
+        stable_entries = self.pd_plot_data[1].values()
+        unstable_entries = list(self.pd_plot_data[2])
+        unstable_coords = self.pd_plot_data[2].values()
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 
@@ -3046,117 +3030,117 @@ class PDPlotter:
         if self._dim == 2:
             stable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             stable_markers.update(
-                dict(
-                    x=list(stable_props["x"]),
-                    y=list(stable_props["y"]),
-                    name="Stable",
-                    marker=dict(color="darkgreen", size=11, line=dict(color="black", width=2)),
-                    opacity=0.9,
-                    hovertext=stable_props["texts"],
-                    error_y=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="gray",
-                        thickness=2.5,
-                        width=5,
-                    ),
-                )
+                {
+                    "x": list(stable_props["x"]),
+                    "y": list(stable_props["y"]),
+                    "name": "Stable",
+                    "marker": {"color": "darkgreen", "size": 11, "line": {"color": "black", "width": 2}},
+                    "opacity": 0.9,
+                    "hovertext": stable_props["texts"],
+                    "error_y": {
+                        "array": list(stable_props["uncertainties"]),
+                        "type": "data",
+                        "color": "gray",
+                        "thickness": 2.5,
+                        "width": 5,
+                    },
+                }
             )
 
             unstable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             unstable_markers.update(
-                dict(
-                    x=list(unstable_props["x"]),
-                    y=list(unstable_props["y"]),
-                    name="Above Hull",
-                    marker=dict(
-                        color=unstable_props["energies"],
-                        colorscale=plotly_layouts["unstable_colorscale"],
-                        size=6,
-                        symbol="diamond",
-                    ),
-                    hovertext=unstable_props["texts"],
-                )
+                {
+                    "x": list(unstable_props["x"]),
+                    "y": list(unstable_props["y"]),
+                    "name": "Above Hull",
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 6,
+                        "symbol": "diamond",
+                    },
+                    "hovertext": unstable_props["texts"],
+                }
             )
 
         elif self._dim == 3:
             stable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
             stable_markers.update(
-                dict(
-                    x=list(stable_props["y"]),
-                    y=list(stable_props["x"]),
-                    z=list(stable_props["z"]),
-                    name="Stable",
-                    marker=dict(
-                        color="black",
-                        size=12,
-                        opacity=0.8,
-                        line=dict(color="black", width=3),
-                    ),
-                    hovertext=stable_props["texts"],
-                    error_z=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="darkgray",
-                        width=10,
-                        thickness=5,
-                    ),
-                )
+                {
+                    "x": list(stable_props["y"]),
+                    "y": list(stable_props["x"]),
+                    "z": list(stable_props["z"]),
+                    "name": "Stable",
+                    "marker": {
+                        "color": "black",
+                        "size": 12,
+                        "opacity": 0.8,
+                        "line": {"color": "black", "width": 3},
+                    },
+                    "hovertext": stable_props["texts"],
+                    "error_z": {
+                        "array": list(stable_props["uncertainties"]),
+                        "type": "data",
+                        "color": "darkgray",
+                        "width": 10,
+                        "thickness": 5,
+                    },
+                }
             )
 
             unstable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
             unstable_markers.update(
-                dict(
-                    x=unstable_props["y"],
-                    y=unstable_props["x"],
-                    z=unstable_props["z"],
-                    name="Above Hull",
-                    marker=dict(
-                        color=unstable_props["energies"],
-                        colorscale=plotly_layouts["unstable_colorscale"],
-                        size=6,
-                        symbol="diamond",
-                        colorbar=dict(title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75),
-                    ),
-                    hovertext=unstable_props["texts"],
-                )
+                {
+                    "x": unstable_props["y"],
+                    "y": unstable_props["x"],
+                    "z": unstable_props["z"],
+                    "name": "Above Hull",
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 6,
+                        "symbol": "diamond",
+                        "colorbar": {"title": "Energy Above Hull<br>(eV/atom)", "x": 0.05, "len": 0.75},
+                    },
+                    "hovertext": unstable_props["texts"],
+                }
             )
 
         elif self._dim == 4:
             stable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             stable_markers.update(
-                dict(
-                    x=stable_props["x"],
-                    y=stable_props["y"],
-                    z=stable_props["z"],
-                    name="Stable",
-                    marker=dict(
-                        color=stable_props["energies"],
-                        colorscale=plotly_layouts["stable_markers_colorscale"],
-                        size=8,
-                        opacity=0.9,
-                    ),
-                    hovertext=stable_props["texts"],
-                )
+                {
+                    "x": stable_props["x"],
+                    "y": stable_props["y"],
+                    "z": stable_props["z"],
+                    "name": "Stable",
+                    "marker": {
+                        "color": stable_props["energies"],
+                        "colorscale": plotly_layouts["stable_markers_colorscale"],
+                        "size": 8,
+                        "opacity": 0.9,
+                    },
+                    "hovertext": stable_props["texts"],
+                }
             )
 
             unstable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             unstable_markers.update(
-                dict(
-                    x=unstable_props["x"],
-                    y=unstable_props["y"],
-                    z=unstable_props["z"],
-                    name="Above Hull",
-                    marker=dict(
-                        color=unstable_props["energies"],
-                        colorscale=plotly_layouts["unstable_colorscale"],
-                        size=5,
-                        symbol="diamond",
-                        colorbar=dict(title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75),
-                    ),
-                    hovertext=unstable_props["texts"],
-                    visible="legendonly",
-                )
+                {
+                    "x": unstable_props["x"],
+                    "y": unstable_props["y"],
+                    "z": unstable_props["z"],
+                    "name": "Above Hull",
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 5,
+                        "symbol": "diamond",
+                        "colorbar": {"title": "Energy Above Hull<br>(eV/atom)", "x": 0.05, "len": 0.75},
+                    },
+                    "hovertext": unstable_props["texts"],
+                    "visible": "legendonly",
+                }
             )
 
         stable_marker_plot = go.Scatter(**stable_markers) if self._dim == 2 else go.Scatter3d(**stable_markers)
@@ -3209,7 +3193,7 @@ class PDPlotter:
                 name="Uncertainty (window)",
                 fill="toself",
                 mode="lines",
-                line=dict(width=0),
+                line={"width": 0},
                 fillcolor="lightblue",
                 hoverinfo="skip",
                 opacity=0.4,
@@ -3248,7 +3232,7 @@ class PDPlotter:
             z=list(z),
             mode="lines",
             hoverinfo="none",
-            line=dict(color="rgba (0, 0, 0, 0.4)", dash="solid", width=1.0),
+            line={"color": "rgba (0, 0, 0, 0.4)", "dash": "solid", "width": 1.0},
             showlegend=False,
         )
 
@@ -3273,9 +3257,9 @@ class PDPlotter:
             opacity=0.8,
             intensity=list(energies),
             colorscale=plotly_layouts["stable_colorscale"],
-            colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.9, len=0.75),
+            colorbar={"title": "Formation energy<br>(eV/atom)", "x": 0.9, "len": 0.75},
             hoverinfo="none",
-            lighting=dict(diffuse=0.0, ambient=1.0),
+            lighting={"diffuse": 0.0, "ambient": 1.0},
             name="Convex Hull (shading)",
             flatshading=True,
             showlegend=True,

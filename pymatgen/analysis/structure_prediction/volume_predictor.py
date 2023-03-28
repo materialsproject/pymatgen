@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Predict volumes of crystal structures.
 """
@@ -62,6 +59,7 @@ class RLSVolumePredictor:
             structure (Structure): structure w/unknown volume
             ref_structure (Structure): A reference structure with a similar
                 structure but different species.
+
         Returns:
             a float value of the predicted volume
         """
@@ -126,10 +124,12 @@ class RLSVolumePredictor:
         """
         Given a structure, returns back the structure scaled to predicted
         volume.
+
         Args:
             structure (Structure): structure w/unknown volume
             ref_structure (Structure): A reference structure with a similar
                 structure but different species.
+
         Returns:
             a Structure object with predicted volume
         """
@@ -239,6 +239,7 @@ class DLSVolumePredictor:
         """
         Given a structure, returns back the structure scaled to predicted
         volume.
+
         Args:
             structure (Structure): structure w/unknown volume
 

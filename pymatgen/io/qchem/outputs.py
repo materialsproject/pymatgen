@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Parsers for Qchem output files.
 """
@@ -70,15 +67,14 @@ class QCOutput(MSONable):
         self.data["multiple_outputs"] = read_pattern(
             self.text, {"key": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True
         ).get("key")
-        if self.data.get("multiple_outputs") is not None:
-            if self.data.get("multiple_outputs") != [["1"]]:
-                raise ValueError(
-                    "ERROR: multiple calculation outputs found in file "
-                    + filename
-                    + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
-                    + filename
-                    + "')"
-                )
+        if self.data.get("multiple_outputs") is not None and self.data.get("multiple_outputs") != [["1"]]:
+            raise ValueError(
+                "ERROR: multiple calculation outputs found in file "
+                + filename
+                + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
+                + filename
+                + "')"
+            )
 
         # Parse the Q-Chem major version
         if read_pattern(
@@ -567,17 +563,18 @@ class QCOutput(MSONable):
             ).get("key")
             if temp_constraint is not None:
                 self.data["opt_constraint"] = temp_constraint[0]
-                if self.data.get("opt_constraint") is not None:
-                    if float(self.data["opt_constraint"][5]) != float(self.data["opt_constraint"][6]):
-                        if abs(float(self.data["opt_constraint"][5])) != abs(float(self.data["opt_constraint"][6])):
-                            raise ValueError("ERROR: Opt section value and constraint should be the same!")
-                        if abs(float(self.data["opt_constraint"][5])) not in [
-                            0.0,
-                            180.0,
-                        ]:
-                            raise ValueError(
-                                "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
-                            )
+                if self.data.get("opt_constraint") is not None and float(self.data["opt_constraint"][5]) != float(
+                    self.data["opt_constraint"][6]
+                ):
+                    if abs(float(self.data["opt_constraint"][5])) != abs(float(self.data["opt_constraint"][6])):
+                        raise ValueError("ERROR: Opt section value and constraint should be the same!")
+                    if abs(float(self.data["opt_constraint"][5])) not in [
+                        0.0,
+                        180.0,
+                    ]:
+                        raise ValueError(
+                            "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
+                        )
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
@@ -631,8 +628,8 @@ class QCOutput(MSONable):
         if not self.data.get("completion", []) and self.data.get("errors") == []:
             self._check_completion_errors()
 
-    @classmethod
-    def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
+    @staticmethod
+    def multiple_outputs_from_file(filename, keep_sub_files=True):
         """
         Parses a QChem output file with multiple calculations
         # 1.) Separates the output into sub-files
@@ -649,7 +646,7 @@ class QCOutput(MSONable):
         for i, sub_text in enumerate(text):
             with open(filename + "." + str(i), "w") as temp:
                 temp.write(sub_text)
-            tempOutput = cls(filename + "." + str(i))
+            tempOutput = QCOutput(filename + "." + str(i))
             to_return.append(tempOutput)
             if not keep_sub_files:
                 os.remove(filename + "." + str(i))
@@ -657,8 +654,8 @@ class QCOutput(MSONable):
 
     def _read_eigenvalues(self):
         """Parse the orbital energies from the output file. An array of the
-        dimensions of the number of orbitals used in the calculation is stored."""
-
+        dimensions of the number of orbitals used in the calculation is stored.
+        """
         # Find the pattern corresponding to the "Final Alpha MO Eigenvalues" section
         header_pattern = r"Final Alpha MO Eigenvalues"
         # The elements of the matrix are always floats, they are surrounded by
@@ -695,8 +692,8 @@ class QCOutput(MSONable):
 
     def _read_fock_matrix(self):
         """Parses the Fock matrix. The matrix is read in whole
-        from the output file and then transformed into the right dimensions."""
-
+        from the output file and then transformed into the right dimensions.
+        """
         # The header is the same for both spin-restricted and spin-unrestricted calculations.
         header_pattern = r"Final Alpha Fock Matrix"
         # The elements of the matrix are always floats, they are surrounded by
@@ -734,7 +731,8 @@ class QCOutput(MSONable):
 
     def _read_coefficient_matrix(self):
         """Parses the coefficient matrix from the output file. Done is much
-        the same was as the Fock matrix."""
+        the same was as the Fock matrix.
+        """
         # The header is the same for both spin-restricted and spin-unrestricted calculations.
         header_pattern = r"Final Alpha MO Coefficients"
         # The elements of the matrix are always floats, they are surrounded by
@@ -967,7 +965,6 @@ class QCOutput(MSONable):
         Parses associated dipoles.
         Also parses spins given an unrestricted SCF.
         """
-
         self.data["dipoles"] = {}
         temp_dipole_total = read_pattern(
             self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
@@ -1042,8 +1039,9 @@ class QCOutput(MSONable):
             ).get("key")
             temp_RESP_dipole = read_pattern(
                 self.text,
-                {  # pylint: disable=line-too-long
-                    "key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\)"
+                {
+                    "key": r"Related Dipole Moment =\s*[\d\-\.]+\s*\(X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)"
+                    r"\s*Z\s*([\d\-\.]+)\)"
                 },
             ).get("key")
             if temp_RESP_dipole is not None:
@@ -1222,12 +1220,18 @@ class QCOutput(MSONable):
                 )
 
             # Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
-            if self.data.get("new_optimizer") is None:  # pylint: disable-next=line-too-long
-                header_pattern = r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            if self.data.get("new_optimizer") is None:
+                header_pattern = (
+                    r"\*+\s+(OPTIMIZATION|TRANSITION STATE)\s+CONVERGED\s+\*+\s+\*+\s+Coordinates "
+                    r"\(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+                )
                 table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 footer_pattern = r"\s+Z-matrix Print:"
-            else:  # pylint: disable-next=line-too-long
-                header_pattern = r"(OPTIMIZATION|TRANSITION STATE)\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+            else:
+                header_pattern = (
+                    r"(OPTIMIZATION|TRANSITION STATE)\sCONVERGED\s+\*+\s+\*+\s+-+\s+Standard "
+                    r"Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+                )
                 table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
                 footer_pattern = r"\s*-+"
             parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
@@ -1355,16 +1359,23 @@ class QCOutput(MSONable):
             temp_energy_trajectory = read_pattern(self.text, {"key": r"\sStep\s*\d+\s*:\s*Energy\s*([\d\-\.]+)"}).get(
                 "key"
             )
-        if self.data.get("new_optimizer") == [[]]:
+        if self.data.get("new_optimizer") == [[]] and temp_energy_trajectory is not None:
             # Formatting of the new optimizer means we need to prepend the first energy
-            if temp_energy_trajectory is not None:
-                temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
+            temp_energy_trajectory.insert(0, [str(self.data["Total_energy_in_the_final_basis_set"][0])])
         self._read_geometries()
         self._read_gradients()
         if temp_energy_trajectory is None:
             self.data["energy_trajectory"] = []
             if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["back_transform_error"]
+            elif read_pattern(
+                self.text,
+                {"key": r"pinv\(\)\: svd failed"},
+                terminate_on_match=True,
+            ).get(
+                "key"
+            ) == [[]]:
+                self.data["errors"] += ["svd_failed"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
             for ii, entry in enumerate(temp_energy_trajectory):
@@ -1394,13 +1405,15 @@ class QCOutput(MSONable):
                     self.text,
                     {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"},
                     terminate_on_match=True,
-                ).get("key") == [[]]:
-                    self.data["errors"] += ["out_of_opt_cycles"]
-                elif read_pattern(
+                ).get("key") == [[]] or read_pattern(
                     self.text,
                     {"key": r"Maximum number of iterations reached during minimization algorithm"},
                     terminate_on_match=True,
-                ).get("key") == [[]]:
+                ).get(
+                    "key"
+                ) == [
+                    []
+                ]:
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
@@ -1709,11 +1722,10 @@ class QCOutput(MSONable):
                         self.data["scan_constraint_sets"]["bend"].append(
                             {"atoms": atoms, "current": current, "target": target}
                         )
-                elif entry[0] == "Dihedral":
-                    if len(atoms) == 4:
-                        self.data["scan_constraint_sets"]["tors"].append(
-                            {"atoms": atoms, "current": current, "target": target}
-                        )
+                elif entry[0] == "Dihedral" and len(atoms) == 4:
+                    self.data["scan_constraint_sets"]["tors"].append(
+                        {"atoms": atoms, "current": current, "target": target}
+                    )
 
     def _read_pcm_information(self):
         """
@@ -1795,8 +1807,10 @@ class QCOutput(MSONable):
                 "final_soln_phase_e": r"\s*The Final Solution-Phase Energy\s+=\s+([\d\-\.]+)\s*",
                 "solute_internal_e": r"\s*The Solute Internal Energy\s+=\s+([\d\-\.]+)\s*",
                 "total_solvation_free_e": r"\s*The Total Solvation Free Energy\s+=\s+([\d\-\.]+)\s*",
-                "change_solute_internal_e": r"\s*The Change in Solute Internal Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
-                "reaction_field_free_e": r"\s*The Reaction Field Free Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "change_solute_internal_e": r"\s*The Change in Solute Internal Energy\s+=\s+(\s+[\d\-\.]+)"
+                r"\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "reaction_field_free_e": r"\s*The Reaction Field Free Energy\s+=\s+(\s+[\d\-\.]+)\s+"
+                r"\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
                 "isosvp_dielectric": r"\s*DIELST=\s+(\s+[\d\-\.]+)\s*",
             },
         )
@@ -1841,8 +1855,10 @@ class QCOutput(MSONable):
             {
                 "dispersion_e": r"\s*The Dispersion Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
                 "exchange_e": r"\s*The Exchange Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
-                "min_neg_field_e": r"\s*Min. Negative Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
-                "max_pos_field_e": r"\s*Max. Positive Field Energy\s+=\s+(\s+[\d\-\.]+)\s+\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",  # pylint: disable=line-too-long
+                "min_neg_field_e": r"\s*Min. Negative Field Energy\s+=\s+(\s+[\d\-\.]+)\s+"
+                r"\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
+                "max_pos_field_e": r"\s*Max. Positive Field Energy\s+=\s+(\s+[\d\-\.]+)\s+"
+                r"\(\s+([\d\-\.]+)\s+KCAL/MOL\)\s*",
             },
         )
 
@@ -1871,13 +1887,12 @@ class QCOutput(MSONable):
         """
         Parses output from charge- or spin-constrained DFT (CDFT) calculations.
         """
-
         # Parse constraint and optimization parameters
         temp_dict = read_pattern(
             self.text, {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)", "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
         )
 
-        self.data["cdft_constraints_multipliers"] = list()
+        self.data["cdft_constraints_multipliers"] = []
         for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", [])):
             entry = {"index": int(const[0]), "constraint": float(const[1]), "multiplier": float(multip[0])}
             self.data["cdft_constraints_multipliers"].append(entry)
@@ -1895,14 +1910,14 @@ class QCOutput(MSONable):
             self.data["cdft_becke_population"] = None
             self.data["cdft_becke_net_spin"] = None
         else:
-            self.data["cdft_becke_excess_electrons"] = list()
-            self.data["cdft_becke_population"] = list()
-            self.data["cdft_becke_net_spin"] = list()
+            self.data["cdft_becke_excess_electrons"] = []
+            self.data["cdft_becke_population"] = []
+            self.data["cdft_becke_net_spin"] = []
 
             for table in becke_table:
-                excess = list()
-                population = list()
-                spin = list()
+                excess = []
+                population = []
+                spin = []
 
                 for row in table:
                     excess.append(float(row[0]))
@@ -1919,7 +1934,6 @@ class QCOutput(MSONable):
         """
         Parse output of ALMO(MSDFT) calculations for coupling between diabatic states
         """
-
         temp_dict = read_pattern(
             self.text,
             {
@@ -2060,9 +2074,9 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["hessian_eigenvalue_error"]
-        elif read_pattern(self.text, {"key": r"FlexNet Licensing error"}, terminate_on_match=True).get("key") == [[]]:
-            self.data["errors"] += ["licensing_error"]
-        elif read_pattern(self.text, {"key": r"Unable to validate license"}, terminate_on_match=True).get("key") == [
+        elif read_pattern(self.text, {"key": r"FlexNet Licensing error"}, terminate_on_match=True).get("key") == [
+            []
+        ] or read_pattern(self.text, {"key": r"Unable to validate license"}, terminate_on_match=True).get("key") == [
             []
         ]:
             self.data["errors"] += ["licensing_error"]
@@ -2078,9 +2092,11 @@ class QCOutput(MSONable):
             self.data["errors"] += ["basis_not_supported"]
         elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True).get(
             "key"
-        ) == [[]]:
-            self.data["errors"] += ["failed_cpscf"]
-        elif read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get("key") == [[]]:
+        ) == [[]] or read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get(
+            "key"
+        ) == [
+            []
+        ]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,
@@ -2106,17 +2122,13 @@ class QCOutput(MSONable):
             self.data["errors"] += ["esp_chg_fit_error"]
         elif read_pattern(self.text, {"key": r"Please use larger MEM_STATIC"}, terminate_on_match=True).get("key") == [
             []
-        ]:
-            self.data["errors"] += ["mem_static_too_small"]
-        elif read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True).get("key") == [
+        ] or read_pattern(self.text, {"key": r"Please increase MEM_STATIC"}, terminate_on_match=True).get("key") == [
             []
         ]:
             self.data["errors"] += ["mem_static_too_small"]
         elif read_pattern(self.text, {"key": r"Please increase MEM_TOTAL"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["mem_total_too_small"]
-        elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian":
-            self.data["errors"] += ["probably_out_of_memory"]
-        elif self.text[-16:-1] == "Roots Converged":
+        elif self.text[-34:-2] == "Computing fast CPCM-SWIG hessian" or self.text[-16:-1] == "Roots Converged":
             self.data["errors"] += ["probably_out_of_memory"]
         else:
             tmp_failed_line_searches = read_pattern(
@@ -2124,9 +2136,8 @@ class QCOutput(MSONable):
                 {"key": r"\d+\s+failed line searches\.\s+Resetting"},
                 terminate_on_match=False,
             ).get("key")
-            if tmp_failed_line_searches is not None:
-                if len(tmp_failed_line_searches) > 10:
-                    self.data["errors"] += ["SCF_failed_to_converge"]
+            if tmp_failed_line_searches is not None and len(tmp_failed_line_searches) > 10:
+                self.data["errors"] += ["SCF_failed_to_converge"]
         if self.data.get("errors") == []:
             self.data["errors"] += ["unknown_error"]
 
@@ -2159,6 +2170,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
     Args:
         mol1: Pymatgen Molecule object to be compared.
         mol2: Pymatgen Molecule object to be compared.
+
     Returns:
         One of ["unconnected_fragments", "fewer_bonds", "more_bonds",
         "bond_change", "no_change"]
@@ -2220,7 +2232,6 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
     Raises:
             RuntimeError
     """
-
     # Search for the header
     for i, line in enumerate(lines):
         if header in line.strip():
@@ -2244,7 +2255,6 @@ def get_percentage(line: str, orbital: str) -> str:
     Raises:
             n/a
     """
-
     # Locate orbital in line
     index = line.find(orbital)
     line = line[index:]
@@ -2290,7 +2300,6 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     no_failures = True
     pop_dfs = []
 
@@ -2351,7 +2360,6 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     no_failures = True
     hyperbond_dfs = []
 
@@ -2433,7 +2441,6 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     # Orbitals
     orbitals = ["s", "p", "d", "f"]
 
@@ -2669,7 +2676,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     Raises:
             RuntimeError
     """
-
     no_failures = True
     e2_dfs = []
 
@@ -2821,7 +2827,6 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     Raises:
             RuntimeError
     """
-
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
         lines = f.readlines()

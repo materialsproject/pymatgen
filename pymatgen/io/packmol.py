@@ -19,6 +19,7 @@ executable to the PATH environment variable.
 
 from __future__ import annotations
 
+import abc
 import os
 import subprocess
 from pathlib import Path
@@ -44,9 +45,11 @@ class PackmolSet(InputSet):
 
     def run(self, path: str | Path, timeout=30):
         """Run packmol and write out the packed structure.
+
         Args:
             path: The path in which packmol input files are located.
             timeout: Timeout in seconds.
+
         Raises:
             ValueError if packmol does not succeed in packing the box.
             TimeoutExpiredError if packmold does not finish within the timeout.
@@ -80,8 +83,8 @@ class PackmolSet(InputSet):
                     )
                 msg = p.stdout.decode().split("ERROR")[-1]
                 raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
-        except subprocess.CalledProcessError as e:
-            raise ValueError(f"Packmol failed with errorcode {e.returncode} and stderr: {e.stderr}") from e
+        except subprocess.CalledProcessError as exc:
+            raise ValueError(f"Packmol failed with error code {exc.returncode} and stderr: {exc.stderr}") from exc
         else:
             with open(Path(path, self.stdoutfile), "w") as out:
                 out.write(p.stdout.decode())
@@ -89,12 +92,13 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
+    @abc.abstractmethod
     def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.
 
         Args:
-            directory: Directory to read input files from
+            directory (str | Path): Directory to read input files from.
         """
         raise NotImplementedError(f"from_directory has not been implemented in {cls}")
 
@@ -113,7 +117,7 @@ class PackmolBoxGen(InputGenerator):
         inputfile: str | Path = "packmol.inp",
         outputfile: str | Path = "packmol_out.xyz",
         stdoutfile: str | Path = "packmol.stdout",
-    ):
+    ) -> None:
         """
         Instantiate a PackmolBoxGen class. The init method defines simulations parameters
         like filenames, random seed, tolerance, etc.
@@ -137,7 +141,7 @@ class PackmolBoxGen(InputGenerator):
         self,
         molecules: list[dict],
         box: list[float] | None = None,
-    ):
+    ) -> PackmolSet:
         """
         Generate a Packmol InputSet for a set of molecules.
 
@@ -148,7 +152,8 @@ class PackmolBoxGen(InputGenerator):
                     2. "number" - the number of that molecule to pack into the box
                     3. "coords" - Coordinates in the form of either a Molecule object or
                         a path to a file.
-                Example:
+
+        Example:
                     {"name": "water",
                      "number": 500,
                      "coords": "/path/to/input/file.xyz"}
@@ -172,7 +177,7 @@ class PackmolBoxGen(InputGenerator):
         if " " in str(self.outputfile):
             # NOTE - double quotes are deliberately used inside the f-string here, do not change
             # fmt: off
-            file_contents += f'output {self.outputfile!r}\n\n'
+            file_contents += f'output "{self.outputfile}"\n\n'
             # fmt: on
         else:
             file_contents += f"output {self.outputfile}\n\n"
@@ -183,10 +188,7 @@ class PackmolBoxGen(InputGenerator):
             # estimate the total volume of all molecules in cubic Å
             net_volume = 0.0
             for d in molecules:
-                if not isinstance(d["coords"], Molecule):
-                    mol = Molecule.from_file(d["coords"])
-                else:
-                    mol = d["coords"]
+                mol = Molecule.from_file(d["coords"]) if not isinstance(d["coords"], Molecule) else d["coords"]
                 # pad the calculated length by an amount related to the tolerance parameter
                 # the amount to add was determined arbitrarily
                 length = (
@@ -210,7 +212,7 @@ class PackmolBoxGen(InputGenerator):
             if " " in str(fname):
                 # NOTE - double quotes are deliberately used inside the f-string here, do not change
                 # fmt: off
-                file_contents += f'structure {fname!r}\n'
+                file_contents += f"structure {fname!r}\n"
                 # fmt: on
             else:
                 file_contents += f"structure {fname}\n"

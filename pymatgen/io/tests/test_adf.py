@@ -79,7 +79,7 @@ def readfile(file_object):
     file_object : file or str
         The file to read. This can be either a File object or a file path.
 
-    Returns
+    Returns:
     -------
     content : str
         The content of the file.

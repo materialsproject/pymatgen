@@ -202,7 +202,7 @@ def _int_to_roman(number):
 
     result = []
     for arabic, roman in roman_conv:
-        (factor, number) = divmod(number, arabic)
+        factor, number = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:
             break

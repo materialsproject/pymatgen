@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Entries are containers for calculated information, which is used in
 many analyses. This module contains entry related tools and implements

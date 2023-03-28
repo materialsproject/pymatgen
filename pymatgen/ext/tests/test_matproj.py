@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 from __future__ import annotations
 
 import os
@@ -43,7 +41,7 @@ if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
     msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
     if len(PMG_MAPI_KEY) == 32:
         msg += " (this looks like a new API key)"
-    if os.environ.get("CI"):
+    if os.getenv("CI"):
         raise ValueError(msg)
 
 
@@ -71,7 +69,7 @@ class MPResterOldTest(PymatgenTest):
     def test_get_xas_data(self):
         # Test getting XAS data
         data = self.rester.get_xas_data("mp-19017", "Li")
-        assert "mp-19017,Li" == data["mid_and_el"]
+        assert data["mid_and_el"] == "mp-19017,Li"
         assert data["spectrum"]["x"][0] == pytest.approx(55.178)
         assert data["spectrum"]["y"][0] == pytest.approx(0.0164634)
 

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
@@ -309,7 +306,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         els: set[Element] = set()
         for entry in self.entries:
             els.update(entry.composition.elements)
-        elements = sorted(list(els), key=lambda a: a.X)
+        elements = sorted(els, key=lambda a: a.X)
         with open(filename, "w") as f:
             writer = csv.writer(
                 f,

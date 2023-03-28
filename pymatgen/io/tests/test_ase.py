@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
@@ -25,8 +21,10 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         ase_composition = Composition(atoms.get_chemical_formula())
         assert ase_composition == structure.composition
-        assert atoms.cell is not None and atoms.cell.any()
-        assert atoms.get_pbc() is not None and atoms.get_pbc().all()
+        assert atoms.cell is not None
+        assert atoms.cell.any()
+        assert atoms.get_pbc() is not None
+        assert atoms.get_pbc().all()
         assert atoms.get_chemical_symbols() == [s.species_string for s in structure]
         assert not atoms.has("initial_magmoms")
         assert atoms.calc is None
@@ -216,8 +214,8 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         assert molecule.charge == np.sum(initial_charges)
         assert molecule.spin_multiplicity == np.sum(initial_mags) + 1
-        assert molecule.site_properties.get("charge", None) == initial_charges
-        assert molecule.site_properties.get("magmom", None) == initial_mags
+        assert molecule.site_properties.get("charge") == initial_charges
+        assert molecule.site_properties.get("magmom") == initial_mags
 
     @unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
     def test_back_forth(self):

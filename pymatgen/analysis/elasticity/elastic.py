@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
@@ -975,10 +972,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
     independent = {tuple(np.nonzero(vstrain)[0].tolist()) for vstrain in vstrains}
     strain_state_dict = {}
     if add_eq:
-        if eq_stress is not None:
-            veq_stress = Stress(eq_stress).voigt
-        else:
-            veq_stress = find_eq_stress(strains, stresses).voigt
+        veq_stress = Stress(eq_stress).voigt if eq_stress is not None else find_eq_stress(strains, stresses).voigt
 
     for ind in independent:
         # match strains with templates

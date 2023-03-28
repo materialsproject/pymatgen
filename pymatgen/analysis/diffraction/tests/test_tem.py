@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Unit tests for TEM calculator.
 """
@@ -265,8 +262,9 @@ class TEMCalculatorTest(PymatgenTest):
         structure = self.get_structure("Si")
         fig = c.get_plot_2d_concise(structure)
         width = fig.layout.width
+        assert width == 121
         height = fig.layout.height
-        assert width == 121 and height == 121
+        assert height == 121
 
 
 if __name__ == "__main__":

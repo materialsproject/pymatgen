@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import collections
@@ -262,10 +259,10 @@ class PhaseDiagramTest(unittest.TestCase):
                 decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
                 assert e_hull < 1e-11, "Stable entries should have e_above_hull of zero!"
                 assert decomp[entry] == 1, "Decomposition of stable entry should be itself."
-            else:
-                e_ah = self.pd.get_e_above_hull(entry)
-                assert isinstance(e_ah, Number)
-                assert e_ah >= 0
+
+            e_ah = self.pd.get_e_above_hull(entry)
+            assert isinstance(e_ah, Number)
+            assert e_ah >= 0
 
     def test_get_decomp_and_e_above_hull_on_error(self):
         for method, expected in (
@@ -542,7 +539,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
         # For the moment, should also fail even if compositions are in the gppd
         # because it isn't handled properly
-        gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {"Xe": 1}, self.pd.elements + [Element("Xe")])
+        gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {"Xe": 1}, [*self.pd.elements, Element("Xe")])
         with pytest.raises(ValueError):
             gppd.get_critical_compositions(
                 Composition("Fe2O3"),
@@ -626,7 +623,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_val_err_on_no_entries(self):
         # check that PhaseDiagram raises ValueError when building phase diagram with no entries
-        for entries in [None, [], set(), tuple()]:
+        for entries in [None, [], set(), ()]:
             with pytest.raises(ValueError, match="Unable to build phase diagram without entries."):
                 PhaseDiagram(entries=entries)
 
@@ -871,8 +868,8 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter_ternary_mpl = PDPlotter(self.pd_ternary, backend="matplotlib")
         self.plotter_ternary_plotly = PDPlotter(self.pd_ternary, backend="plotly")
 
-        entrieslio = [e for e in entries if "Fe" not in e.composition]
-        self.pd_binary = PhaseDiagram(entrieslio)
+        entries_LiO = [e for e in entries if "Fe" not in e.composition]
+        self.pd_binary = PhaseDiagram(entries_LiO)
         self.plotter_binary_mpl = PDPlotter(self.pd_binary, backend="matplotlib")
         self.plotter_binary_plotly = PDPlotter(self.pd_binary, backend="plotly")
 
@@ -881,18 +878,25 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter_quaternary_mpl = PDPlotter(self.pd_quaternary, backend="matplotlib")
         self.plotter_quaternary_plotly = PDPlotter(self.pd_quaternary, backend="plotly")
 
+    def test_plot_pd_with_no_unstable(self):
+        # https://github.com/materialsproject/pymatgen/issues/2885
+        pd_entries = [PDEntry(comp, 0) for comp in ["Li", "Co", "O"]]
+        pd = PhaseDiagram(pd_entries)
+        plotter = PDPlotter(pd, backend="plotly", show_unstable=False)
+        plotter.get_plot()
+
     def test_pd_plot_data(self):
-        (lines, labels, unstable_entries) = self.plotter_ternary_mpl.pd_plot_data
+        lines, labels, unstable_entries = self.plotter_ternary_mpl.pd_plot_data
         assert len(lines) == 22
         assert len(labels) == len(self.pd_ternary.stable_entries), "Incorrect number of lines generated!"
         assert len(unstable_entries) == len(self.pd_ternary.all_entries) - len(
             self.pd_ternary.stable_entries
         ), "Incorrect number of lines generated!"
-        (lines, labels, unstable_entries) = self.plotter_quaternary_mpl.pd_plot_data
+        lines, labels, unstable_entries = self.plotter_quaternary_mpl.pd_plot_data
         assert len(lines) == 33
         assert len(labels) == len(self.pd_quaternary.stable_entries)
         assert len(unstable_entries) == len(self.pd_quaternary.all_entries) - len(self.pd_quaternary.stable_entries)
-        (lines, labels, unstable_entries) = self.plotter_binary_mpl.pd_plot_data
+        lines, labels, unstable_entries = self.plotter_binary_mpl.pd_plot_data
         assert len(lines) == 3
         assert len(labels) == len(self.pd_binary.stable_entries)
 

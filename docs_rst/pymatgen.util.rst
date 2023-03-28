@@ -19,6 +19,7 @@ Submodules
    pymatgen.util.coord_cython
    pymatgen.util.io_utils
    pymatgen.util.num
+   pymatgen.util.numba
    pymatgen.util.plotting
    pymatgen.util.provenance
    pymatgen.util.string
