@@ -5,6 +5,7 @@ import warnings
 from pathlib import Path
 
 import numpy as np
+import pytest
 from plotly.graph_objects import Figure
 
 from pymatgen.analysis.chempot_diagram import (
@@ -23,7 +24,10 @@ module_dir = Path(__file__).absolute().parent
 class ChemicalPotentialDiagramTest(PymatgenTest):
     def setUp(self):
         self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
-        self.cpd_ternary = ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25)
+        self.cpd_ternary = ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25, formal_chempots=False)
+        self.cpd_ternary_formal = ChemicalPotentialDiagram(
+            entries=self.entries, default_min_limit=-25, formal_chempots=True
+        )
         elements = [Element("Fe"), Element("O")]
         binary_entries = list(
             filter(
@@ -31,7 +35,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
                 self.entries,
             )
         )
-        self.cpd_binary = ChemicalPotentialDiagram(entries=binary_entries, default_min_limit=-25)
+        self.cpd_binary = ChemicalPotentialDiagram(entries=binary_entries, default_min_limit=-25, formal_chempots=False)
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -40,6 +44,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
     def test_dim(self):
         assert self.cpd_binary.dim == 2
         assert self.cpd_ternary.dim == 3
+        assert self.cpd_ternary_formal.dim == 3
 
     def test_el_refs(self):
         el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary.el_refs.items()}
@@ -48,17 +53,26 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         energies = [-1.91301487, -6.5961471, -25.54966885]
         correct_el_refs = dict(zip(elems, energies))
 
-        self.assertDictsAlmostEqual(el_refs, correct_el_refs)
+        assert el_refs == pytest.approx(correct_el_refs)
+
+    def test_el_refs_formal(self):
+        el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary_formal.el_refs.items()}
+        elems = [Element("Li"), Element("Fe"), Element("O")]
+        energies = [0, 0, 0]
+        correct_el_refs = dict(zip(elems, energies))
+        assert el_refs == pytest.approx(correct_el_refs)
 
     def test_border_hyperplanes(self):
         desired = np.array(
             [[-1, 0, 0, -25], [1, 0, 0, 0], [0, -1, 0, -25], [0, 1, 0, 0], [0, 0, -1, -25], [0, 0, 1, 0]]
         )
-        self.assertArrayAlmostEqual(self.cpd_ternary.border_hyperplanes, desired)
+        assert self.cpd_ternary.border_hyperplanes == pytest.approx(desired)
+        assert self.cpd_ternary_formal.border_hyperplanes == pytest.approx(desired)
 
     def test_lims(self):
         desired_lims = np.array([[-25, 0], [-25, 0], [-25, 0]])
-        self.assertArrayAlmostEqual(self.cpd_ternary.lims, desired_lims)
+        assert self.cpd_ternary.lims == pytest.approx(desired_lims)
+        assert self.cpd_ternary_formal.lims == pytest.approx(desired_lims)
 
     def test_pca(self):
         points_3d = np.array(
@@ -80,7 +94,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
 
         points_2d, _, _ = simple_pca(points_3d, k=2)
 
-        self.assertArrayAlmostEqual(points_2d, points_2d_desired)
+        assert points_2d == pytest.approx(points_2d_desired)
 
     def test_centroid(self):
         vertices = np.array(
@@ -97,7 +111,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         centroid = get_centroid_2d(vertices)
         centroid_desired = np.array([-0.00069433, -0.00886174])
 
-        self.assertArrayAlmostEqual(centroid, centroid_desired)
+        assert centroid == pytest.approx(centroid_desired, abs=1e-6)
 
     def test_get_2d_orthonormal_vector(self):
         pts_1 = np.array([[1, 1], [2, 2]])
@@ -109,18 +123,25 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         vec_1_desired = np.array([0.70710678, 0.70710678])
         vec_2_desired = np.array([0.98386991, 0.17888544])
 
-        self.assertArrayAlmostEqual(vec_1, vec_1_desired)
-        self.assertArrayAlmostEqual(vec_2, vec_2_desired)
+        assert vec_1 == pytest.approx(vec_1_desired)
+        assert vec_2 == pytest.approx(vec_2_desired)
 
     def test_get_plot(self):
         fig_2d = self.cpd_binary.get_plot()
         fig_3d = self.cpd_ternary.get_plot()
+        fig_3d_formal = self.cpd_ternary_formal.get_plot()
 
         assert isinstance(fig_2d, Figure)
-        assert fig_2d["data"][0]["type"] == "scatter"
+        assert fig_2d.data[0].type == "scatter"
 
         assert isinstance(fig_3d, Figure)
-        assert fig_3d["data"][0]["type"] == "scatter3d"
+        assert fig_3d.data[0].type == "scatter3d"
+
+        assert isinstance(fig_3d_formal, Figure)
+        assert fig_3d_formal.data[0].type == "scatter3d"
+        assert fig_3d_formal.data[0].mode == "lines"
+        assert fig_3d_formal.layout.plot_bgcolor == "rgba(0,0,0,0)"
+        assert fig_3d_formal.layout.scene.annotations[0].text == "FeO"
 
     def test_domains(self):
         correct_domains = {
@@ -229,7 +250,114 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
             d = self.cpd_ternary.domains[formula]
             d = d.round(6)  # to get rid of numerical errors from qhull
             actual_domain_sorted = d[np.lexsort((d[:, 2], d[:, 1], d[:, 0]))]
-            self.assertArrayAlmostEqual(actual_domain_sorted, domain)
+            assert actual_domain_sorted == pytest.approx(domain)
+
+        formal_domains = {
+            "FeO": np.array(
+                [
+                    [-2.50000000e01, 3.55271368e-15, -2.85707600e00],
+                    [-2.01860032e00, 3.55271368e-15, -2.85707600e00],
+                    [-2.50000000e01, -1.45446765e-01, -2.71162923e00],
+                    [-2.16404709e00, -1.45446765e-01, -2.71162923e00],
+                ]
+            ),
+            "Fe2O3": np.array(
+                [
+                    [-25.0, -4.14354109, 0.0],
+                    [-3.637187, -4.14354108, 0.0],
+                    [-3.49325969, -3.85568646, -0.19190308],
+                    [-25.0, -0.70024301, -2.29553205],
+                    [-2.44144521, -0.70024301, -2.29553205],
+                ]
+            ),
+            "Fe3O4": np.array(
+                [
+                    [-25.0, -0.70024301, -2.29553205],
+                    [-25.0, -0.14544676, -2.71162923],
+                    [-2.44144521, -0.70024301, -2.29553205],
+                    [-2.16404709, -0.14544676, -2.71162923],
+                ]
+            ),
+            "LiFeO2": np.array(
+                [
+                    [-3.49325969e00, -3.85568646e00, -1.91903083e-01],
+                    [-2.01860032e00, 3.55271368e-15, -2.85707600e00],
+                    [-2.44144521e00, -7.00243005e-01, -2.29553205e00],
+                    [-2.16404709e00, -1.45446765e-01, -2.71162923e00],
+                    [-1.71198739e00, 3.55271368e-15, -3.01038246e00],
+                    [-2.74919447e00, -3.11162124e00, -9.35968300e-01],
+                ]
+            ),
+            "Li2O": np.array(
+                [
+                    [0.00000000e00, -2.50000000e01, -6.22930387e00],
+                    [-2.69949567e00, -2.50000000e01, -8.30312528e-01],
+                    [3.55271368e-15, 3.55271368e-15, -6.22930387e00],
+                    [-1.43858289e00, 3.55271368e-15, -3.35213809e00],
+                    [-2.69949567e00, -3.78273835e00, -8.30312528e-01],
+                ]
+            ),
+            "Li2O2": np.array(
+                [
+                    [-3.52980820e00, -2.50000000e01, 0.00000000e00],
+                    [-2.69949567e00, -2.50000000e01, -8.30312528e-01],
+                    [-3.52980820e00, -4.35829869e00, 3.55271368e-15],
+                    [-2.69949567e00, -3.78273835e00, -8.30312528e-01],
+                    [-2.82687176e00, -3.65536226e00, -7.02936437e-01],
+                ]
+            ),
+            "Li2FeO3": np.array(
+                [
+                    [-3.52980820e00, -4.35829869e00, 3.55271368e-15],
+                    [-3.63718700e00, -4.14354108e00, 0.00000000e00],
+                    [-3.49325969e00, -3.85568646e00, -1.91903083e-01],
+                    [-2.74919447e00, -3.11162124e00, -9.35968300e-01],
+                    [-2.82687176e00, -3.65536226e00, -7.02936437e-01],
+                ]
+            ),
+            "Li5FeO4": np.array(
+                [
+                    [-1.43858289e00, 3.55271368e-15, -3.35213809e00],
+                    [-1.71198739e00, 3.55271368e-15, -3.01038246e00],
+                    [-2.74919447e00, -3.11162124e00, -9.35968300e-01],
+                    [-2.69949567e00, -3.78273835e00, -8.30312528e-01],
+                    [-2.82687176e00, -3.65536226e00, -7.02936437e-01],
+                ]
+            ),
+            "O2": np.array(
+                [
+                    [-2.50000000e01, -2.50000000e01, 3.55271368e-15],
+                    [-3.52980820e00, -2.50000000e01, 0.00000000e00],
+                    [-2.50000000e01, -4.14354109e00, 0.00000000e00],
+                    [-3.52980820e00, -4.35829869e00, 3.55271368e-15],
+                    [-3.63718700e00, -4.14354108e00, 0.00000000e00],
+                ]
+            ),
+            "Fe": np.array(
+                [
+                    [0.00000000e00, 0.00000000e00, -2.50000000e01],
+                    [-2.50000000e01, 0.00000000e00, -2.50000000e01],
+                    [3.55271368e-15, 3.55271368e-15, -6.22930387e00],
+                    [-2.50000000e01, 3.55271368e-15, -2.85707600e00],
+                    [-2.01860032e00, 3.55271368e-15, -2.85707600e00],
+                    [-1.43858289e00, 3.55271368e-15, -3.35213809e00],
+                    [-1.71198739e00, 3.55271368e-15, -3.01038246e00],
+                ]
+            ),
+            "Li": np.array(
+                [
+                    [3.55271368e-15, -2.50000000e01, -2.50000000e01],
+                    [0.00000000e00, -2.50000000e01, -6.22930387e00],
+                    [0.00000000e00, 0.00000000e00, -2.50000000e01],
+                    [3.55271368e-15, 3.55271368e-15, -6.22930387e00],
+                ]
+            ),
+        }
+
+        for formula, domain in formal_domains.items():
+            d = self.cpd_ternary_formal.domains[formula]
+            d = d.round(6)  # to get rid of numerical errors from qhull
+            assert d == pytest.approx(domain, abs=1e-5)
 
 
 if __name__ == "__main__":

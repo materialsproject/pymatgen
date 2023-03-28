@@ -65,24 +65,42 @@ class ChemicalPotentialDiagram(MSONable):
     def __init__(
         self,
         entries: list[PDEntry],
-        limits: dict[Element, float] | None = None,
+        limits: dict[Element, tuple[float, float]] | None = None,
         default_min_limit: float = -50.0,
-    ):
+        formal_chempots: bool = True,
+    ) -> None:
         """
         Args:
-            entries: List of PDEntry-like objects containing a composition and
+            entries (list[PDEntry]): PDEntry-like objects containing a composition and
                 energy. Must contain elemental references and be suitable for typical
                 phase diagram construction. Entries must be within a chemical system
                 of with 2+ elements.
-            limits: Bounds of elemental chemical potentials (min, max), which are
-                used to construct the border hyperplanes used in the
-                HalfSpaceIntersection algorithm; these constrain the space over which the
-                domains are calculated and also determine the size of the plotted
-                diagram. Any elemental limits not specified are covered in the
-                default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
+            limits (dict[Element, float] | None): Bounds of elemental chemical potentials (min, max),
+                which are used to construct the border hyperplanes used in the HalfSpaceIntersection
+                algorithm; these constrain the space over which the domains are calculated and also
+                determine the size of the plotted diagram. Any elemental limits not specified are
+                covered in the default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
             default_min_limit (float): Default minimum chemical potential limit (i.e.,
                 lower bound) for unspecified elements within the "limits" argument.
+            formal_chempots (bool): Whether to plot the formal ('reference') chemical potentials
+                (i.e. μ_X - μ_X^0) or the absolute DFT reference energies (i.e. μ_X(DFT)).
+                Default is True (i.e. plot formal chemical potentials).
         """
+        entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
+        _min_entries, _el_refs = self._get_min_entries_and_el_refs(entries)
+
+        if formal_chempots:
+            # renormalize entry energies to be relative to the elemental references
+            renormalized_entries = []
+            for entry in entries:
+                comp_dict = entry.composition.as_dict()
+                renormalization_energy = sum(
+                    [comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in comp_dict]
+                )
+                renormalized_entries.append(_renormalize_entry(entry, renormalization_energy / sum(comp_dict.values())))
+
+            entries = renormalized_entries
+
         self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
@@ -622,7 +640,7 @@ class ChemicalPotentialDiagram(MSONable):
 
 def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    A barebones implementation of principal component analysis (PCA) used in the
+    A bare-bones implementation of principal component analysis (PCA) used in the
     ChemicalPotentialDiagram class for plotting.
 
     Args:
@@ -645,15 +663,15 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
 
 def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     """
-    A barebones implementation of the formula for calculating the centroid of a 2D
+    A bare-bones implementation of the formula for calculating the centroid of a 2D
     polygon. Useful for calculating the location of an annotation on a chemical
     potential domain within a 3D chemical potential diagram.
 
-    **NOTE**: vertices must be ordered circumfrentially!
+    **NOTE**: vertices must be ordered circumferentially!
 
     Args:
         vertices: array of 2-d coordinates corresponding to a polygon, ordered
-            circumfrentially
+            circumferentially
 
     Returns:
         Array giving 2-d centroid coordinates
@@ -690,7 +708,7 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
             coordinates of a line
 
     Returns:
-
+        np.ndarray: A length-2 vector that is orthonormal to the line.
     """
     x = line_pts[:, 0]
     y = line_pts[:, 1]
@@ -703,3 +721,15 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
     vec = np.array([np.sin(theta), np.cos(theta)])
 
     return vec
+
+
+def _renormalize_entry(entry: PDEntry, renormalization_energy_per_atom: float) -> PDEntry:
+    """
+    Regenerate the input entry with an energy per atom decreased by renormalization_energy_per_atom
+    """
+    renormalized_entry_dict = entry.as_dict()
+    renormalized_entry_dict["energy"] = entry.energy - renormalization_energy_per_atom * sum(
+        entry.composition.values()
+    )  # entry.energy includes MP corrections as desired
+    renormalized_entry = PDEntry.from_dict(renormalized_entry_dict)
+    return renormalized_entry
