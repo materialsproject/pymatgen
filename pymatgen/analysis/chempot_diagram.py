@@ -67,6 +67,7 @@ class ChemicalPotentialDiagram(MSONable):
         entries: list[PDEntry],
         limits: dict[Element, float] | None = None,
         default_min_limit: float = -50.0,
+        formal_chempots: bool = True,
     ):
         """
         Args:
@@ -82,7 +83,26 @@ class ChemicalPotentialDiagram(MSONable):
                 default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
             default_min_limit (float): Default minimum chemical potential limit (i.e.,
                 lower bound) for unspecified elements within the "limits" argument.
+            formal_chempots (bool): Whether to plot the formal ('reference') chemical potentials
+                (i.e. μ_X - μ_X^0) or the absolute DFT reference energies (i.e. μ_X(DFT)).
+                Default is True (i.e. plot formal chemical potentials).
         """
+
+        _min_entries, _el_refs = self._get_min_entries_and_el_refs(entries)
+
+        if formal_chempots:
+            # renormalise entry energies to be relative to the elemental references
+            renormalised_entries = []
+            for entry in entries:
+                comp_dict = entry.composition.as_dict()
+                renormalisation_energy = sum(
+                    [comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in
+                     comp_dict.keys()])
+                renormalised_entries.append(
+                    _renormalise_entry(entry, renormalisation_energy / sum(comp_dict.values())))
+
+            entries = renormalised_entries
+
         self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
@@ -703,3 +723,17 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
     vec = np.array([np.sin(theta), np.cos(theta)])
 
     return vec
+
+
+def _renormalise_entry(entry, renormalisation_energy_per_atom):
+    """
+    Regenerate the input entry with an energy per atom decreased by renormalisation_energy_per_atom
+    """
+    renormalised_entry_dict = entry.as_dict().copy()
+    renormalised_entry_dict[
+        "energy"
+    ] = entry.energy - renormalisation_energy_per_atom * sum(
+        entry.composition.values()
+    )  # entry.energy includes MP corrections as desired
+    renormalised_entry = PDEntry.from_dict(renormalised_entry_dict)
+    return renormalised_entry
