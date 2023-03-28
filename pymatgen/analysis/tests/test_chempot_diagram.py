@@ -5,6 +5,7 @@ import warnings
 from pathlib import Path
 
 import numpy as np
+import pytest
 from plotly.graph_objects import Figure
 
 from pymatgen.analysis.chempot_diagram import (
@@ -52,26 +53,26 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         energies = [-1.91301487, -6.5961471, -25.54966885]
         correct_el_refs = dict(zip(elems, energies))
 
-        self.assertDictsAlmostEqual(el_refs, correct_el_refs)
+        assert el_refs == pytest.approx(correct_el_refs)
 
     def test_el_refs_formal(self):
         el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary_formal.el_refs.items()}
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [0, 0, 0]
         correct_el_refs = dict(zip(elems, energies))
-        self.assertDictsAlmostEqual(el_refs, correct_el_refs)
+        assert el_refs == pytest.approx(correct_el_refs)
 
     def test_border_hyperplanes(self):
         desired = np.array(
             [[-1, 0, 0, -25], [1, 0, 0, 0], [0, -1, 0, -25], [0, 1, 0, 0], [0, 0, -1, -25], [0, 0, 1, 0]]
         )
-        self.assertArrayAlmostEqual(self.cpd_ternary.border_hyperplanes, desired)
-        self.assertArrayAlmostEqual(self.cpd_ternary_formal.border_hyperplanes, desired)
+        assert self.cpd_ternary.border_hyperplanes == pytest.approx(desired)
+        assert self.cpd_ternary_formal.border_hyperplanes == pytest.approx(desired)
 
     def test_lims(self):
         desired_lims = np.array([[-25, 0], [-25, 0], [-25, 0]])
-        self.assertArrayAlmostEqual(self.cpd_ternary.lims, desired_lims)
-        self.assertArrayAlmostEqual(self.cpd_ternary_formal.lims, desired_lims)
+        assert self.cpd_ternary.lims == pytest.approx(desired_lims)
+        assert self.cpd_ternary_formal.lims == pytest.approx(desired_lims)
 
     def test_pca(self):
         points_3d = np.array(
@@ -93,7 +94,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
 
         points_2d, _, _ = simple_pca(points_3d, k=2)
 
-        self.assertArrayAlmostEqual(points_2d, points_2d_desired)
+        assert points_2d == pytest.approx(points_2d_desired)
 
     def test_centroid(self):
         vertices = np.array(
@@ -110,7 +111,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         centroid = get_centroid_2d(vertices)
         centroid_desired = np.array([-0.00069433, -0.00886174])
 
-        self.assertArrayAlmostEqual(centroid, centroid_desired)
+        assert centroid == pytest.approx(centroid_desired, abs=1e-6)
 
     def test_get_2d_orthonormal_vector(self):
         pts_1 = np.array([[1, 1], [2, 2]])
@@ -122,8 +123,8 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         vec_1_desired = np.array([0.70710678, 0.70710678])
         vec_2_desired = np.array([0.98386991, 0.17888544])
 
-        self.assertArrayAlmostEqual(vec_1, vec_1_desired)
-        self.assertArrayAlmostEqual(vec_2, vec_2_desired)
+        assert vec_1 == pytest.approx(vec_1_desired)
+        assert vec_2 == pytest.approx(vec_2_desired)
 
     def test_get_plot(self):
         fig_2d = self.cpd_binary.get_plot()
@@ -246,7 +247,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
             d = self.cpd_ternary.domains[formula]
             d = d.round(6)  # to get rid of numerical errors from qhull
             actual_domain_sorted = d[np.lexsort((d[:, 2], d[:, 1], d[:, 0]))]
-            self.assertArrayAlmostEqual(actual_domain_sorted, domain)
+            assert actual_domain_sorted == pytest.approx(domain)
 
         formal_domains = {
             "FeO": np.array(
@@ -353,7 +354,7 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         for formula, domain in formal_domains.items():
             d = self.cpd_ternary_formal.domains[formula]
             d = d.round(6)  # to get rid of numerical errors from qhull
-            self.assertArrayAlmostEqual(d, domain, decimal=5)
+            assert d == pytest.approx(domain, abs=1e-5)
 
 
 if __name__ == "__main__":
