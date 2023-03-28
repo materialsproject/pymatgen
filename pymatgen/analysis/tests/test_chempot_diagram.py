@@ -132,13 +132,16 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
         fig_3d_formal = self.cpd_ternary_formal.get_plot()
 
         assert isinstance(fig_2d, Figure)
-        assert fig_2d["data"][0]["type"] == "scatter"
+        assert fig_2d.data[0].type == "scatter"
 
         assert isinstance(fig_3d, Figure)
-        assert fig_3d["data"][0]["type"] == "scatter3d"
+        assert fig_3d.data[0].type == "scatter3d"
 
         assert isinstance(fig_3d_formal, Figure)
-        assert fig_3d_formal["data"][0]["type"] == "scatter3d"
+        assert fig_3d_formal.data[0].type == "scatter3d"
+        assert fig_3d_formal.data[0].mode == "lines"
+        assert fig_3d_formal.layout.plot_bgcolor == "rgba(0,0,0,0)"
+        assert fig_3d_formal.layout.scene.annotations[0].text == "FeO"
 
     def test_domains(self):
         correct_domains = {
