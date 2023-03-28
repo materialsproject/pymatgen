@@ -87,7 +87,7 @@ class ChemicalPotentialDiagram(MSONable):
                 (i.e. μ_X - μ_X^0) or the absolute DFT reference energies (i.e. μ_X(DFT)).
                 Default is True (i.e. plot formal chemical potentials).
         """
-
+        entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         _min_entries, _el_refs = self._get_min_entries_and_el_refs(entries)
 
         if formal_chempots:
