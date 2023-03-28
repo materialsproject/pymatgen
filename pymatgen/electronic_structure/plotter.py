@@ -231,8 +231,6 @@ class DosPlotter:
                 plt.ylabel("Density of states (states/eV)")
             plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
 
-        # TODO: add different labels in legend f. different spin channels?
-
         # Remove duplicate labels with a dictionary
         handles, labels = plt.gca().get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
