@@ -2634,7 +2634,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs):
+    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs) -> Structure | IStructure:
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -3766,8 +3766,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 modify_lattice with a lattice with lattice parameters that
                 are 1% larger.
         """
-        s = (1 + np.array(strain)) * np.eye(3)
-        self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
+        strain_matrix = (1 + np.array(strain)) * np.eye(3)
+        self.lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
 
     def sort(self, key: Callable | None = None, reverse: bool = False) -> None:
         """

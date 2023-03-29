@@ -1657,7 +1657,7 @@ class PotcarSingle:
         "pb": {"name": "Perdew-Becke", "class": "GGA"},
         "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
         "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
-        "wi": {"name": "Wigner Interpoloation", "class": "LDA"},
+        "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
     parse_functions = {

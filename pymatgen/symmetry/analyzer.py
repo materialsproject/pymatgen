@@ -69,13 +69,13 @@ class SpacegroupAnalyzer:
         zs = []
         magmoms = []
 
-        for species, g in itertools.groupby(structure, key=lambda s: s.species):
+        for species, group in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
-                zs.extend([ind + 1] * len(tuple(g)))
+                zs.extend([ind + 1] * len(tuple(group)))
             else:
                 unique_species.append(species)
-                zs.extend([len(unique_species)] * len(tuple(g)))
+                zs.extend([len(unique_species)] * len(tuple(group)))
 
         for site in structure:
             if hasattr(site, "magmom"):

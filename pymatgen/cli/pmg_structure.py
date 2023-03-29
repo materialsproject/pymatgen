@@ -6,8 +6,6 @@ Implementation for `pmg structure` CLI.
 
 from __future__ import annotations
 
-import sys
-
 from tabulate import tabulate
 
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
@@ -88,14 +86,12 @@ def compare_structures(args):
     """
     filenames = args.filenames
     if len(filenames) < 2:
-        print("You need more than one structure to compare!")
-        sys.exit(-1)
+        raise SystemExit("You need more than one structure to compare!")
     try:
         structures = [Structure.from_file(fn) for fn in filenames]
-    except Exception as ex:
+    except Exception as exc:
         print("Error converting file. Are they in the right format?")
-        print(str(ex))
-        sys.exit(-1)
+        raise SystemExit(exc)
 
     m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
     for idx, grp in enumerate(m.group_structures(structures)):
