@@ -68,6 +68,35 @@ class DosPlotterTest(unittest.TestCase):
         os.remove("dosplot.png")
         plt.close("all")
 
+    def test_get_plot_limits(self):
+        # Tests limit determination and if inverted_axes case
+        # reproduces the same energy and DOS axis limits
+        from matplotlib import rc
+
+        rc("text", usetex=False)
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
+        # Contains energy and DOS limits and expected results
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos_limits.json")) as f:
+            limits_results = json.load(f)
+
+        for item in limits_results:
+            plt = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
+            param_dict = self.get_plot_attributes(plt)
+            plt_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
+            param_dict_invert = self.get_plot_attributes(plt_invert)
+            self.assertEqual(item["energy_result"], param_dict["xaxis_limits"])
+            self.assertEqual(item["energy_result"], param_dict_invert["yaxis_limits"])
+            self.assertEqual(item["DOS_result"], param_dict["yaxis_limits"])
+            self.assertEqual(item["DOS_result"], param_dict_invert["xaxis_limits"])
+
+    @staticmethod
+    def get_plot_attributes(plt):
+        if plt.axes:
+            ax = plt.gca()
+            return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
+        else:
+            return None
+
 
 class BSPlotterTest(unittest.TestCase):
     def setUp(self):

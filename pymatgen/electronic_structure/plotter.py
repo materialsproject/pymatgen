@@ -8,6 +8,7 @@ import copy
 import itertools
 import logging
 import math
+import typing
 import warnings
 from collections import Counter
 from typing import List, Literal, cast
@@ -122,17 +123,26 @@ class DosPlotter:
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None):
+    @typing.no_type_check
+    def get_plot(
+        self,
+        xlim: tuple[float, float] | None = None,
+        ylim: tuple[float, float] | None = None,
+        invert_axes: bool = False,
+        beta_dashed: bool = False,
+    ):
         """
         Get a matplotlib plot showing the DOS.
 
         Args:
-            xlim: Specifies the x-axis limits. Set to None for automatic
+            xlim (tuple[float, float]): The energy axis limits. Defaults to None for automatic
                 determination.
-            ylim: Specifies the y-axis limits.
+            ylim (tuple[float, float]): The y-axis limits. Defaults to None for automatic determination.
+            invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
+            beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
-        ncolors = max(3, len(self._doses))
-        ncolors = min(9, ncolors)
+        n_colors = min(9, max(3, len(self._doses)))
 
         import palettable
 
@@ -140,8 +150,8 @@ class DosPlotter:
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         ys = None
-        alldensities = []
-        allenergies = []
+        all_densities = []
+        all_energies = []
         plt = pretty_plot(12, 8)
 
         # Note that this complicated processing of energies is to allow for
@@ -162,70 +172,78 @@ class DosPlotter:
                         newdens[spin] = ys[spin].copy()
                     else:
                         newdens[spin] = densities[spin]
-            allenergies.append(energies)
-            alldensities.append(newdens)
+            all_energies.append(energies)
+            all_densities.append(newdens)
 
         keys = list(self._doses)
         keys.reverse()
-        alldensities.reverse()
-        allenergies.reverse()
+        all_densities.reverse()
+        all_energies.reverse()
         allpts = []
+
         for idx, key in enumerate(keys):
-            xs = []
-            ys = []
             for spin in [Spin.up, Spin.down]:
-                if spin in alldensities[idx]:
-                    densities = list(int(spin) * alldensities[idx][spin])
-                    energies = list(allenergies[idx])
-                    if spin == Spin.down:
-                        energies.reverse()
-                        densities.reverse()
-                    xs.extend(energies)
-                    ys.extend(densities)
-            allpts.extend(list(zip(xs, ys)))
-            if self.stack:
-                plt.fill(xs, ys, color=colors[idx % ncolors], label=str(key))
-            else:
-                plt.plot(xs, ys, color=colors[idx % ncolors], label=str(key), linewidth=3)
-            if not self.zero_at_efermi:
-                ylim = plt.ylim()
-                plt.plot(
-                    [self._doses[key]["efermi"], self._doses[key]["efermi"]],
-                    ylim,
-                    color=colors[idx % ncolors],
-                    linestyle="--",
-                    linewidth=2,
-                )
+                if spin in all_densities[idx]:
+                    energy = all_energies[idx]
+                    densities = list(int(spin) * all_densities[idx][spin])
+                    if invert_axes:
+                        x = densities
+                        y = energy
+                    else:
+                        x = energy
+                        y = densities
+                    allpts.extend(list(zip(x, y)))
+                    if self.stack:
+                        plt.fill(x, y, color=colors[idx % n_colors], label=str(key))
+                    elif spin == Spin.down and beta_dashed:
+                        plt.plot(x, y, color=colors[idx % n_colors], label=str(key), linestyle="--", linewidth=3)
+                    else:
+                        plt.plot(x, y, color=colors[idx % n_colors], label=str(key), linewidth=3)
 
         if xlim:
             plt.xlim(xlim)
         if ylim:
             plt.ylim(ylim)
-        else:
+        elif not invert_axes:
             xlim = plt.xlim()
             relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
             plt.ylim((min(relevanty), max(relevanty)))
+        if not xlim and invert_axes:
+            ylim = plt.ylim()
+            relevanty = [p[0] for p in allpts if ylim[0] < p[1] < ylim[1]]
+            plt.xlim((min(relevanty), max(relevanty)))
 
         if self.zero_at_efermi:
+            xlim = plt.xlim()
             ylim = plt.ylim()
-            plt.plot([0, 0], ylim, "k--", linewidth=2)
+            plt.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else plt.plot([0, 0], ylim, "k--", linewidth=2)
 
-        plt.xlabel("Energies (eV)")
-
-        if self._norm_val:
-            plt.ylabel("Density of states (states/eV/Å³)")
+        if invert_axes:
+            plt.ylabel("Energies (eV)")
+            if self._norm_val:
+                plt.xlabel("Density of states (states/eV/Å³)")
+            else:
+                plt.xlabel("Density of states (states/eV)")
+            plt.axvline(x=0, color="k", linestyle="--", linewidth=2)
         else:
-            plt.ylabel("Density of states (states/eV)")
+            plt.xlabel("Energies (eV)")
+            if self._norm_val:
+                plt.ylabel("Density of states (states/eV/Å³)")
+            else:
+                plt.ylabel("Density of states (states/eV)")
+            plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
 
-        plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
-        plt.legend()
+        # Remove duplicate labels with a dictionary
+        handles, labels = plt.gca().get_legend_handles_labels()
+        label_dict = dict(zip(labels, handles))
+        plt.legend(label_dict.values(), label_dict.keys())
         leg = plt.gca().get_legend()
         ltext = leg.get_texts()  # all the text.Text instance in the legend
         plt.setp(ltext, fontsize=30)
         plt.tight_layout()
         return plt
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
         """
         Save matplotlib plot to a file.
 
@@ -236,10 +254,10 @@ class DosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot(xlim, ylim)
+        plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.savefig(filename, format=img_format)
 
-    def show(self, xlim=None, ylim=None):
+    def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
         """
         Show the plot using matplotlib.
 
@@ -248,7 +266,7 @@ class DosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot(xlim, ylim)
+        plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.show()
 
 
@@ -3846,15 +3864,19 @@ class CohpPlotter:
             plt.xlim(xlim)
         if ylim:
             plt.ylim(ylim)
-        else:
+        elif not invert_axes:
             xlim = plt.xlim()
             relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
             plt.ylim((min(relevanty), max(relevanty)))
+        if not xlim and invert_axes:
+            ylim = plt.ylim()
+            relevanty = [p[0] for p in allpts if ylim[0] < p[1] < ylim[1]]
+            plt.xlim((min(relevanty), max(relevanty)))
 
         xlim = plt.xlim()
         ylim = plt.ylim()
         if not invert_axes:
-            plt.plot(xlim, [0, 0], "k-", linewidth=2)
+            plt.axhline(y=0, color="k", linewidth=2)
             if self.zero_at_efermi:
                 plt.plot([0, 0], ylim, "k--", linewidth=2)
             else:
@@ -3866,7 +3888,7 @@ class CohpPlotter:
                     linewidth=2,
                 )
         else:
-            plt.plot([0, 0], ylim, "k-", linewidth=2)
+            plt.axvline(x=0, color="k", linewidth=2)
             if self.zero_at_efermi:
                 plt.plot(xlim, [0, 0], "k--", linewidth=2)
             else:
