@@ -215,9 +215,6 @@ class ConversionElectrode(AbstractElectrode):
     def __hash__(self):
         return 7
 
-    def __str__(self):
-        return self.__repr__()
-
     def __repr__(self):
         output = [
             f"Conversion electrode with formula {self.initial_comp.reduced_formula} and nsteps {self.num_steps}",
@@ -395,6 +392,3 @@ class ConversionVoltagePair(AbstractVoltagePair):
             f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",
         ]
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()

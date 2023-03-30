@@ -360,9 +360,6 @@ class InsertionElectrode(AbstractElectrode):
 
         return d
 
-    def __str__(self):
-        return self.__repr__()
-
     def __repr__(self):
         output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
@@ -533,6 +530,3 @@ class InsertionVoltagePair(AbstractVoltagePair):
             f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",
         ]
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()

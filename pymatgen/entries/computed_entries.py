@@ -476,9 +476,6 @@ class ComputedEntry(Entry):
             output.append(f"  {k:<22} = {v}")
         return "\n".join(output)
 
-    def __str__(self):
-        return self.__repr__()
-
     def __eq__(self, other: object) -> bool:
         # NOTE: Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately.

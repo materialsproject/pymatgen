@@ -20,27 +20,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # List of electronegative elements specified in M. O'Keefe, & N. Brese,
 # JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
-ELECTRONEG = [
-    Element(sym)
-    for sym in [
-        "H",
-        "B",
-        "C",
-        "Si",
-        "N",
-        "P",
-        "As",
-        "Sb",
-        "O",
-        "S",
-        "Se",
-        "Te",
-        "F",
-        "Cl",
-        "Br",
-        "I",
-    ]
-]
+ELECTRONEG = [Element(sym) for sym in "H B C Si N P As Sb O S Se Te F Cl Br I".split()]
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -227,18 +207,16 @@ class BVAnalyzer:
 
     def get_valences(self, structure):
         """
-        Returns a list of valences for the structure. This currently works only
-        for ordered structures only.
+        Returns a list of valences for each site in the structure.
 
         Args:
             structure: Structure to analyze
 
         Returns:
-            A list of valences for each site in the structure (for an ordered
-            structure), e.g., [1, 1, -2] or a list of lists with the
-            valences for each fractional element of each site in the
-            structure (for an unordered structure),
-            e.g., [[2, 4], [3], [-2], [-2], [-2]]
+            A list of valences for each site in the structure (for an ordered structure),
+            e.g., [1, 1, -2] or a list of lists with the valences for each fractional
+            element of each site in the structure (for an unordered structure), e.g., [[2,
+            4], [3], [-2], [-2], [-2]]
 
         Raises:
             A ValueError if the valences cannot be determined.
@@ -259,8 +237,7 @@ class BVAnalyzer:
         # Sort the equivalent sites by decreasing electronegativity.
         equi_sites = sorted(equi_sites, key=lambda sites: -sites[0].species.average_electroneg)
 
-        # Get a list of valences and probabilities for each symmetrically
-        # distinct site.
+        # Get a list of valences and probabilities for each symmetrically distinct site.
         valences = []
         all_prob = []
         if structure.is_ordered:
@@ -283,25 +260,18 @@ class BVAnalyzer:
                 all_prob.append(prob)
                 full_all_prob.extend(prob.values())
                 vals = []
-                for elsp, _ in get_z_ordered_elmap(test_site.species):
-                    val = list(prob[elsp.symbol])
+                for elem, _ in get_z_ordered_elmap(test_site.species):
+                    val = list(prob[elem.symbol])
                     # Sort valences in order of decreasing probability.
-                    val = sorted(val, key=lambda v: -prob[elsp.symbol][v])
-                    # Retain probabilities that are at least 1/100 of highest
-                    # prob.
-                    vals.append(
-                        list(
-                            filter(
-                                lambda v: prob[elsp.symbol][v] > 0.001 * prob[elsp.symbol][val[0]],
-                                val,
-                            )
-                        )
-                    )
+                    val = sorted(val, key=lambda v: -prob[elem.symbol][v])
+                    # Retain probabilities that are at least 1/100 of highest prob.
+                    filtered = list(filter(lambda v: prob[elem.symbol][v] > 0.001 * prob[elem.symbol][val[0]], val))
+                    vals.append(filtered)
                 valences.append(vals)
 
         # make variables needed for recursion
         if structure.is_ordered:
-            nsites = np.array([len(i) for i in equi_sites])
+            n_sites = np.array([len(i) for i in equi_sites])
             vmin = np.array([min(i) for i in valences])
             vmax = np.array([max(i) for i in valences])
 
@@ -332,12 +302,12 @@ class BVAnalyzer:
                 i = len(assigned)
                 highest = vmax.copy()
                 highest[:i] = assigned
-                highest *= nsites
+                highest *= n_sites
                 highest = np.sum(highest)
 
                 lowest = vmin.copy()
                 lowest[:i] = assigned
-                lowest *= nsites
+                lowest *= n_sites
                 lowest = np.sum(lowest)
 
                 if highest < 0 or lowest > 0:
@@ -354,10 +324,10 @@ class BVAnalyzer:
                 return None
 
         else:
-            nsites = np.array([len(i) for i in equi_sites])
+            n_sites = np.array([len(i) for i in equi_sites])
             tmp = []
             attrib = []
-            for insite, nsite in enumerate(nsites):
+            for insite, nsite in enumerate(n_sites):
                 for _ in valences[insite]:
                     tmp.append(nsite)
                     attrib.append(insite)
@@ -484,7 +454,7 @@ class BVAnalyzer:
 
 def get_z_ordered_elmap(comp):
     """
-    Arbitrary ordered elmap on the elements/species of a composition of a
+    Arbitrary ordered element map on the elements/species of a composition of a
     given site in an unordered structure. Returns a list of tuples (
     element_or_specie: occupation) in the arbitrary order.
 
@@ -495,7 +465,7 @@ def get_z_ordered_elmap(comp):
     Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
     Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
     """
-    return sorted((elsp, comp[elsp]) for elsp in comp)
+    return sorted((elem, comp[elem]) for elem in comp)
 
 
 def add_oxidation_state_by_site_fraction(structure, oxidation_states):
@@ -508,12 +478,12 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
             E.g., [[2, 4], [3], [-2], [-2], [-2]]
     """
     try:
-        for i, site in enumerate(structure):
+        for idx, site in enumerate(structure):
             new_sp = collections.defaultdict(float)
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
-                specie = Species(el.symbol, oxidation_states[i][j])
+                specie = Species(el.symbol, oxidation_states[idx][j])
                 new_sp[specie] += occu
-            structure[i] = new_sp
+            structure[idx] = new_sp
         return structure
     except IndexError:
         raise ValueError("Oxidation state of all sites must be specified in the list.")

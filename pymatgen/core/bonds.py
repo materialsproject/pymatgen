@@ -46,9 +46,7 @@ class CovalentBond:
 
     @property
     def length(self) -> float:
-        """
-        Length of the bond.
-        """
+        """Length of the bond."""
         return self.site1.distance(self.site2)
 
     def get_bond_order(self, tol: float = 0.2, default_bl: float | None = None) -> float:
@@ -109,9 +107,6 @@ class CovalentBond:
 
     def __repr__(self):
         return f"Covalent bond between {self.site1} and {self.site2}"
-
-    def __str__(self):
-        return self.__repr__()
 
 
 def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):

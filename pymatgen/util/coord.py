@@ -461,7 +461,7 @@ class Simplex(MSONable):
                         break
                 if not found:
                     barys.append(p)
-        assert len(barys) < 3
+        assert len(barys) < 3, "More than 2 intersections found"
         return [self.point_from_bary_coords(b) for b in barys]
 
     def __eq__(self, other: object) -> bool:
@@ -473,16 +473,10 @@ class Simplex(MSONable):
         return len(self._coords)
 
     def __repr__(self):
-        output = [
-            f"{self.simplex_dim}-simplex in {self.space_dim}D space",
-            "Vertices:",
-        ]
+        output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
         for coord in self._coords:
             output.append(f"\t({', '.join(map(str, coord))})")
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()
 
     @property
     def coords(self):

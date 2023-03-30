@@ -236,9 +236,6 @@ class Unit(collections.abc.Mapping):
             [f"{k}^{self._unit[k]}" if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
         )
 
-    def __str__(self):
-        return self.__repr__()
-
     @property
     def as_base_units(self):
         """
