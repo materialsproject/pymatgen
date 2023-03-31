@@ -72,37 +72,42 @@ class Cohpcar:
 
     """
 
-    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str | None = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, are_multicenter_cobis: bool = False, filename: str | None = None):
         """
         Args:
-            are_coops: Determines if the file is a list of COHPs or COOPs.
+            are_coops: Determines if the file includes COOPs.
               Default is False for COHPs.
-            are_cobis: Determines if the file is a list of COHPs or COOPs.
+            are_cobis: Determines if the file includes COBIS.
               Default is False for COHPs.
-
+            are_multicenter_cobis: Determines if the file include multicenter COBIS.
+                Default is False for COHPs.
             filename: Name of the COHPCAR file. If it is None, the default
               file name will be chosen, depending on the value of are_coops.
         """
-        if are_coops and are_cobis:
-            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
+        if (are_coops and are_cobis) or (are_coops and are_multicenter_cobis) or (are_cobis and are_multicenter_cobis):
+            raise ValueError("You cannot have info about COOPs, COBIs and/or multicenter COBIS in the same file.")
         self.are_coops = are_coops
         self.are_cobis = are_cobis
+        self.are_multicenter_cobis=are_multicenter_cobis
+
         if filename is None:
             if are_coops:
                 filename = "COOPCAR.lobster"
-            elif are_cobis:
+            elif are_cobis or are_multicenter_cobis:
                 filename = "COBICAR.lobster"
             else:
                 filename = "COHPCAR.lobster"
 
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
-
         # The parameters line is the second line in a COHPCAR file. It
         # contains all parameters that are needed to map the file.
         parameters = contents[1].split()
         # Subtract 1 to skip the average
-        num_bonds = int(parameters[0]) - 1
+        if not self.are_multicenter_cobis:
+            num_bonds = int(parameters[0]) - 1
+        else:
+            num_bonds = int(parameters[0])
         self.efermi = float(parameters[-1])
         if int(parameters[1]) == 2:
             spins = [Spin.up, Spin.down]
@@ -111,17 +116,23 @@ class Cohpcar:
             spins = [Spin.up]
             self.is_spin_polarized = False
 
-        # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
-        self.energies = data[0]
-        cohp_data: dict[str, dict[str, Any]] = {
-            "average": {
-                "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
-                "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
+        if not self.are_multicenter_cobis:
+            # The COHP data start in row num_bonds + 3
+            data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+            self.energies = data[0]
+            cohp_data: dict[str, dict[str, Any]] = {
+                "average": {
+                    "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
+                    "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
+                }
             }
-        }
+        else:
+            # The COBI data start in row num_bonds + 3 if multicenter cobis exist
+            data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
+            self.energies = data[0]
+            cohp_data: dict[str, dict[str, Any]] = {
 
+            }
         orb_cohp: dict[str, Any] = {}
         # present for Lobster versions older than Lobster 2.2.0
         veryold = False
@@ -129,27 +140,45 @@ class Cohpcar:
         # this is done to make the labeling consistent with ICOHPLIST.lobster
         bondnumber = 0
         for bond in range(num_bonds):
-            bond_data = self._get_bond_data(contents[3 + bond])
-
-            label = str(bondnumber)
-
-            orbs = bond_data["orbitals"]
-            cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
-
-            icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4] for s, spin in enumerate(spins)}
-            if orbs is None:
-                bondnumber = bondnumber + 1
+            if not self.are_multicenter_cobis:
+                bond_data = self._get_bond_data(contents[3 + bond])
                 label = str(bondnumber)
-                cohp_data[label] = {
-                    "COHP": cohp,
-                    "ICOHP": icohp,
-                    "length": bond_data["length"],
-                    "sites": bond_data["sites"],
-                }
 
-            elif label in orb_cohp:
-                orb_cohp[label].update(
-                    {
+                orbs = bond_data["orbitals"]
+                cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
+
+                icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4] for s, spin in enumerate(spins)}
+                if orbs is None:
+                    bondnumber = bondnumber + 1
+                    label = str(bondnumber)
+                    cohp_data[label] = {
+                        "COHP": cohp,
+                        "ICOHP": icohp,
+                        "length": bond_data["length"],
+                        "sites": bond_data["sites"],
+                    }
+
+                elif label in orb_cohp:
+                    orb_cohp[label].update(
+                        {
+                            bond_data["orb_label"]: {
+                                "COHP": cohp,
+                                "ICOHP": icohp,
+                                "orbitals": orbs,
+                                "length": bond_data["length"],
+                                "sites": bond_data["sites"],
+                            }
+                        }
+                    )
+                else:
+                    # present for Lobster versions older than Lobster 2.2.0
+                    if bondnumber == 0:
+                        veryold = True
+                    if veryold:
+                        bondnumber += 1
+                        label = str(bondnumber)
+
+                    orb_cohp[label] = {
                         bond_data["orb_label"]: {
                             "COHP": cohp,
                             "ICOHP": icohp,
@@ -158,24 +187,56 @@ class Cohpcar:
                             "sites": bond_data["sites"],
                         }
                     }
-                )
-            else:
-                # present for Lobster versions older than Lobster 2.2.0
-                if bondnumber == 0:
-                    veryold = True
-                if veryold:
-                    bondnumber += 1
-                    label = str(bondnumber)
 
-                orb_cohp[label] = {
-                    bond_data["orb_label"]: {
+            else:
+                bond_data = self._get_bond_data(contents[2+bond], are_multicenter_cobis=self.are_multicenter_cobis)
+
+                label = str(bondnumber)
+
+                orbs = bond_data["orbitals"]
+
+                cohp = {spin: data[2 * (bond + s * (num_bonds)) + 1] for s, spin in enumerate(spins)}
+
+                icohp = {spin: data[2 * (bond + s * (num_bonds )) + 2] for s, spin in enumerate(spins)}
+                if orbs is None:
+                    bondnumber = bondnumber + 1
+                    label = str(bondnumber)
+                    cohp_data[label] = {
                         "COHP": cohp,
                         "ICOHP": icohp,
-                        "orbitals": orbs,
                         "length": bond_data["length"],
                         "sites": bond_data["sites"],
                     }
-                }
+
+                elif label in orb_cohp:
+                    orb_cohp[label].update(
+                        {
+                            bond_data["orb_label"]: {
+                                "COHP": cohp,
+                                "ICOHP": icohp,
+                                "orbitals": orbs,
+                                "length": bond_data["length"],
+                                "sites": bond_data["sites"],
+                            }
+                        }
+                    )
+                else:
+                    # present for Lobster versions older than Lobster 2.2.0
+                    if bondnumber == 0:
+                        veryold = True
+                    if veryold:
+                        bondnumber += 1
+                        label = str(bondnumber)
+
+                    orb_cohp[label] = {
+                        bond_data["orb_label"]: {
+                            "COHP": cohp,
+                            "ICOHP": icohp,
+                            "orbitals": orbs,
+                            "length": bond_data["length"],
+                            "sites": bond_data["sites"],
+                        }
+                    }
 
         # present for lobster older than 2.2.0
         if veryold:
@@ -191,7 +252,7 @@ class Cohpcar:
         self.cohp_data = cohp_data
 
     @staticmethod
-    def _get_bond_data(line: str) -> dict:
+    def _get_bond_data(line: str, are_multicenter_cobis: bool=False) -> dict:
         """
         Subroutine to extract bond label, site indices, and length from
         a LOBSTER header line. The site indices are zero-based, so they
@@ -203,6 +264,7 @@ class Cohpcar:
 
         Args:
             line: line in the COHPCAR header describing the bond.
+            are_multicenter_cobis: indicates multi-center COBIs
 
         Returns:
             Dict with the bond label, the bond length, a tuple of the site
@@ -227,29 +289,51 @@ class Cohpcar:
             "f_z(x^2-y^2)",
             "f_x(x^2-3y^2)",
         ]
+        if not are_multicenter_cobis:
+            line_new = line.rsplit("(", 1)
+            length = float(line_new[-1][:-1])
 
-        line_new = line.rsplit("(", 1)
-        length = float(line_new[-1][:-1])
+            sites = line_new[0].replace("->", ":").split(":")[1:3]
+            site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
 
-        sites = line_new[0].replace("->", ":").split(":")[1:3]
-        site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
+            if "[" in sites[0]:
+                orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
+                orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
+                orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
 
-        if "[" in sites[0]:
-            orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
-            orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
+            else:
+                orbitals = None
+                orb_label = None
 
+            bond_data = {
+                "length": length,
+                "sites": site_indices,
+                "orbitals": orbitals,
+                "orb_label": orb_label,
+            }
+            return bond_data
         else:
-            orbitals = None
-            orb_label = None
+            line_new = line.rsplit("(", 1)
 
-        bond_data = {
-            "length": length,
-            "sites": site_indices,
-            "orbitals": orbitals,
-            "orb_label": orb_label,
-        }
-        return bond_data
+            sites = line_new[0].replace("->", ":").split(":")[1:]
+
+            site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
+            if sites[0].count("[")>1:
+                orbs = [re.findall(r"\]\[(.*)\]", site)[0] for site in sites]
+                orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
+                orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
+
+            else:
+                orbitals = None
+                orb_label = None
+
+            bond_data = {
+                "sites": site_indices,
+                "length": None,
+                "orbitals": orbitals,
+                "orb_label": orb_label,
+            }
+            return bond_data
 
 
 class Icohplist:
