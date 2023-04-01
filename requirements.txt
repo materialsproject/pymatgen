@@ -15,5 +15,5 @@ beautifulsoup4==4.11.1
 uncertainties==3.1.6
 Cython==0.29.32
 pybtex==0.24.0
-mp-api==0.27.3
+mp-api==0.30.11
 tqdm==4.64.1
