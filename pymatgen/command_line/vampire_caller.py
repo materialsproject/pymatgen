@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.

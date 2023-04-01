@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
@@ -1114,7 +1111,7 @@ class MPStaticSet(MPRelaxSet):
         for k in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
             # For these parameters as well as user specified settings, override
             # the incar settings.
-            if parent_incar.get(k, None) is not None:
+            if parent_incar.get(k) is not None:
                 incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
@@ -1264,7 +1261,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         for k in list(self.user_incar_settings):
             # For user specified settings, override
             # the incar settings.
-            if parent_incar.get(k, None) is not None:
+            if parent_incar.get(k) is not None:
                 incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
@@ -1914,9 +1911,7 @@ class MPNMRSet(MPStaticSet):
         elif self.mode.lower() == "efg":
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
-            quad_efg = [
-                float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None))) for p in self.poscar.site_symbols
-            ]
+            quad_efg = [float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p))) for p in self.poscar.site_symbols]
 
             incar.update(
                 {

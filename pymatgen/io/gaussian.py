@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements input and output processing from Gaussian.
 """
@@ -297,7 +294,7 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        lines = [l.strip() for l in contents.split("\n")]
+        lines = [line.strip() for line in contents.split("\n")]
 
         link0_patt = re.compile(r"^(%.+)\s*=\s*(.+)")
         link0_dict = {}
@@ -331,6 +328,8 @@ class GaussianInput:
         spaces = 0
         input_paras = {}
         ind += 1
+        if GaussianInput._xyz_patt.match(lines[route_index + ind]):
+            spaces += 1
         for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
@@ -410,33 +409,27 @@ class GaussianInput:
                 outputvar.append(f"D{i}={dih:.6f}")
         return "\n".join(output) + "\n\n" + "\n".join(outputvar)
 
-    def get_cart_coords(self):
-        """
-        Return the Cartesian coordinates of the molecule
-        """
-
-        def to_s(x):
-            return f"{x:0.6f}"
-
+    def get_cart_coords(self) -> str:
+        """Return the Cartesian coordinates of the molecule"""
         outs = []
         for site in self._mol:
-            outs.append(" ".join(site.species_string, " ".join([to_s(j) for j in site.coords])))
+            outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
         return "\n".join(outs)
 
     def __str__(self):
         return self.to_string()
 
     def to_string(self, cart_coords=False):
-        """
-        Return GaussianInput string
+        """Return GaussianInput string.
 
-        Option: when cart_coords is set to True return the Cartesian coordinates
-                instead of the z-matrix
+        Args:
+            cart_coords (bool): If True, return Cartesian coordinates instead of z-matrix.
+                Defaults to False.
         """
 
         def para_dict_to_string(para, joiner=" "):
             para_str = []
-            # sorted is only done to make unittests work reliably
+            # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
@@ -490,8 +483,8 @@ class GaussianInput:
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as f:
-            f.write(self.to_string(cart_coords))
+        with zopen(filename, "w") as file:
+            file.write(self.to_string(cart_coords))
 
     def as_dict(self):
         """
@@ -1252,9 +1245,9 @@ class GaussianOutput:
             labelled by their name as defined in the calculation.
         """
 
-        def floatList(l):
+        def floatList(lst):
             """return a list of float from a list of string"""
-            return [float(v) for v in l]
+            return [float(val) for val in lst]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is intended to match crystal structures against known crystallographic "prototype"
 structures.

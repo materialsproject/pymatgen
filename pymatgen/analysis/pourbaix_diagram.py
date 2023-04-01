@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module is intended to be used to compute Pourbaix diagrams
 of arbitrary compositions and formation energies. If you use
@@ -269,9 +267,6 @@ class PourbaixEntry(MSONable, Stringify):
             f"nPhi = {self.nPhi}, nH2O = {self.nH2O}, entry_id = {self.entry_id} "
         )
 
-    def __str__(self):
-        return self.__repr__()
-
 
 class MultiEntry(PourbaixEntry):
     """
@@ -336,9 +331,6 @@ class MultiEntry(PourbaixEntry):
             f"Multiple Pourbaix Entry: energy = {self.energy:.4f}, npH = {self.npH}, nPhi = {self.nPhi}, "
             f"nH2O = {self.nH2O}, entry_id = {self.entry_id}, species: {self.name}"
         )
-
-    def __str__(self):
-        return self.__repr__()
 
     def as_dict(self):
         """
@@ -407,9 +399,6 @@ class IonEntry(PDEntry):
 
     def __repr__(self):
         return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
-
-    def __str__(self):
-        return self.__repr__()
 
 
 def ion_or_solid_comp_object(formula):

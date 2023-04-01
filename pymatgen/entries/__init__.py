@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Entries are containers for calculated information, which is used in
 many analyses. This module contains entry related tools and implements
@@ -90,9 +87,6 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __repr__(self):
         return f"{type(self).__name__} : {self.composition} with energy = {self.energy:.4f}"
 
-    def __str__(self):
-        return self.__repr__()
-
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> Entry:
         """
         Normalize the entry's composition and energy.
@@ -125,9 +119,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         return factor
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

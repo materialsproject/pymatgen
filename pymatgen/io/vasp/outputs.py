@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/manipulating/writing VASP output files.
 """
@@ -112,7 +109,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    if elem.get("type", None) == "logical":
+    if elem.get("type") == "logical":
         m = [[i == "T" for i in v.text.split()] for v in elem]
     else:
         m = [[_vasprun_float(i) for i in v.text.split()] for v in elem]
@@ -1140,8 +1137,7 @@ class Vasprun(MSONable):
         :param path: Path to search for POTCARs
         :return: Potcar spec from path.
         """
-        potcar = self.get_potcars(path)
-        if potcar:
+        if potcar := self.get_potcars(path):
             self.potcar_spec = [
                 {"titel": sym, "hash": ps.get_potcar_hash()}
                 for sym in self.potcar_symbols
@@ -1828,6 +1824,11 @@ class Outcar:
         self.filename = filename
         self.is_stopped = False
 
+        # Assume a compilation with parallelization enabled.
+        # Will be checked later.
+        # If VASP is compiled in serial, the OUTCAR is written slightly differently.
+        serial_compilation = False
+
         # data from end of OUTCAR
         charge = []
         mag_x = []
@@ -1967,6 +1968,11 @@ class Outcar:
         run_stats["cores"] = None
         with zopen(filename, "rt") as f:
             for line in f:
+                if "serial" in line:
+                    # activate the serial parallelization
+                    run_stats["cores"] = 1
+                    serial_compilation = True
+                    break
                 if "running" in line:
                     if line.split()[1] == "on":
                         run_stats["cores"] = int(line.split()[2])
@@ -2000,7 +2006,9 @@ class Outcar:
             for [n] in self.read_table_pattern(
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
-                r"maximum and minimum number of plane-waves",
+                r"maximum number of plane-waves"
+                if serial_compilation
+                else r"maximum and minimum number of plane-waves",
                 last_one_only=False,
                 first_one_only=True,
             )
@@ -2071,7 +2079,7 @@ class Outcar:
 
         self.nmr_cs = False
         self.read_pattern({"nmr_cs": r"LCHIMAG   =     (T)"})
-        if self.data.get("nmr_cs", None):
+        if self.data.get("nmr_cs"):
             self.nmr_cs = True
             self.read_chemical_shielding()
             self.read_cs_g0_contribution()
@@ -2080,7 +2088,7 @@ class Outcar:
 
         self.nmr_efg = False
         self.read_pattern({"nmr_efg": r"NMR quadrupolar parameters"})
-        if self.data.get("nmr_efg", None):
+        if self.data.get("nmr_efg"):
             self.nmr_efg = True
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
@@ -3538,10 +3546,10 @@ class VolumetricData(BaseVolumetricData):
                     "diff_z": all_dataset[3],
                 }
                 data_aug = {
-                    "total": all_dataset_aug.get(0, None),
-                    "diff_x": all_dataset_aug.get(1, None),
-                    "diff_y": all_dataset_aug.get(2, None),
-                    "diff_z": all_dataset_aug.get(3, None),
+                    "total": all_dataset_aug.get(0),
+                    "diff_x": all_dataset_aug.get(1),
+                    "diff_y": all_dataset_aug.get(2),
+                    "diff_z": all_dataset_aug.get(3),
                 }
 
                 # construct a "diff" dict for scalar-like magnetization density,
@@ -3561,12 +3569,12 @@ class VolumetricData(BaseVolumetricData):
             elif len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
                 data_aug = {
-                    "total": all_dataset_aug.get(0, None),
-                    "diff": all_dataset_aug.get(1, None),
+                    "total": all_dataset_aug.get(0),
+                    "diff": all_dataset_aug.get(1),
                 }
             else:
                 data = {"total": all_dataset[0]}
-                data_aug = {"total": all_dataset_aug.get(0, None)}
+                data_aug = {"total": all_dataset_aug.get(0)}
             return poscar, data, data_aug
 
     def write_file(self, file_name, vasp4_compatible=False):

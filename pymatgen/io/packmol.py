@@ -19,6 +19,7 @@ executable to the PATH environment variable.
 
 from __future__ import annotations
 
+import abc
 import os
 import subprocess
 from pathlib import Path
@@ -82,8 +83,8 @@ class PackmolSet(InputSet):
                     )
                 msg = p.stdout.decode().split("ERROR")[-1]
                 raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
-        except subprocess.CalledProcessError as e:
-            raise ValueError(f"Packmol failed with errorcode {e.returncode} and stderr: {e.stderr}") from e
+        except subprocess.CalledProcessError as exc:
+            raise ValueError(f"Packmol failed with error code {exc.returncode} and stderr: {exc.stderr}") from exc
         else:
             with open(Path(path, self.stdoutfile), "w") as out:
                 out.write(p.stdout.decode())
@@ -91,12 +92,13 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
+    @abc.abstractmethod
     def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.
 
         Args:
-            directory: Directory to read input files from
+            directory (str | Path): Directory to read input files from.
         """
         raise NotImplementedError(f"from_directory has not been implemented in {cls}")
 
@@ -115,7 +117,7 @@ class PackmolBoxGen(InputGenerator):
         inputfile: str | Path = "packmol.inp",
         outputfile: str | Path = "packmol_out.xyz",
         stdoutfile: str | Path = "packmol.stdout",
-    ):
+    ) -> None:
         """
         Instantiate a PackmolBoxGen class. The init method defines simulations parameters
         like filenames, random seed, tolerance, etc.
@@ -139,7 +141,7 @@ class PackmolBoxGen(InputGenerator):
         self,
         molecules: list[dict],
         box: list[float] | None = None,
-    ):
+    ) -> PackmolSet:
         """
         Generate a Packmol InputSet for a set of molecules.
 

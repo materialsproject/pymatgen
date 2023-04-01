@@ -1,6 +1,17 @@
 Change log
 ==========
 
+v2023.3.23
+----------
+* Misc bug fixes.
+* Enable Structure relaxations with TrajectoryObserver (@janosh)
+* Breaking: Rename `gen_sl_transform_matricies->gen_sl_transform_matrices` (#2894)
+
+v2023.3.10
+----------
+* PR #2882 substrate-optimizations for speed up (@mkhorton)
+* Fix very fragile POTCAR parsing.
+
 v2023.2.28
 ----------
 

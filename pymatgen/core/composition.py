@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a Composition class to represent compositions,
 and a ChemicalPotential class to represent potentials.
@@ -97,13 +94,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         dict(). Also extended to allow simple string init.
 
         Args:
-            Any form supported by the Python built-in {} function.
+            Any form supported by the Python built-in dict function.
 
             1. A dict of either {Element/Species: amount},
 
                {string symbol:amount}, or {atomic number:amount} or any mixture
-               of these. E.g., {Element("Li"):2 ,Element("O"):1},
-               {"Li":2, "O":1}, {3:2, 8:1} all result in a Li2O composition.
+               of these. E.g., {Element("Li"): 2, Element("O"): 1},
+               {"Li":2, "O":1}, {3: 2, 8: 1} all result in a Li2O composition.
             2. Keyword arg initialization, similar to a dict, e.g.,
 
                Composition(Li = 2, O = 1)
@@ -1252,11 +1249,12 @@ class ChemicalPotential(dict, MSONable):
     def __init__(self, *args, **kwargs):
         """
         Args:
-            *args, **kwargs: any valid dict init arguments
+            *args: any valid dict init arguments
+            **kwargs: any valid dict init arguments
         """
-        d = dict(*args, **kwargs)
-        super().__init__((get_el_sp(k), v) for k, v in d.items())
-        if len(d) != len(self):
+        dct = dict(*args, **kwargs)
+        super().__init__((get_el_sp(k), v) for k, v in dct.items())
+        if len(dct) != len(self):
             raise ValueError("Duplicate potential specified")
 
     def __mul__(self, other: object) -> ChemicalPotential:

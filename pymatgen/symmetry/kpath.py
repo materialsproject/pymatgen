@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Provides classes for generating high-symmetry k-paths using different conventions.
 """
@@ -976,13 +973,13 @@ class KPathSeek(KPathBase):
         unique_species: list[SpeciesLike] = []
         numbers = []
 
-        for species, g in itertools.groupby(site_data):
+        for species, group in itertools.groupby(site_data):
             if species in unique_species:
                 ind = unique_species.index(species)
-                numbers.extend([ind + 1] * len(tuple(g)))
+                numbers.extend([ind + 1] * len(tuple(group)))
             else:
                 unique_species.append(species)
-                numbers.extend([len(unique_species)] * len(tuple(g)))
+                numbers.extend([len(unique_species)] * len(tuple(group)))
 
         cell = (self._latt.matrix, positions, numbers)
 
@@ -1404,9 +1401,9 @@ class KPathLatimerMunro(KPathBase):
 
             if add_rep:
                 line_orbits_in_path.append(i)
-                l = key_lines_inds_orbits[i][0]
-                ind0 = l[0]
-                ind1 = l[1]
+                line = key_lines_inds_orbits[i][0]
+                ind0 = line[0]
+                ind1 = line[1]
                 found0 = False
                 found1 = False
                 for j, orbit in enumerate(key_points_inds_orbits):
@@ -1447,9 +1444,9 @@ class KPathLatimerMunro(KPathBase):
                 else:
                     pass
             if connect:
-                l = (key_points_inds_orbits[ind][0], gamma_ind)
+                line = (key_points_inds_orbits[ind][0], gamma_ind)
                 for j, orbit in enumerate(key_lines_inds_orbits):
-                    if l in orbit:
+                    if line in orbit:
                         line_orbits_in_path.append(j)
                         break
                 if gamma_ind not in point_orbits_in_path:

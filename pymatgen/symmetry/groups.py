@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
 Shyue Ping Ong thanks Marc De Graef for his generous sharing of his

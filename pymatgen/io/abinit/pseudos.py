@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module provides objects describing the basic parameters of the
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
@@ -69,25 +67,17 @@ def _read_nlines(filename, nlines):
         return lines
 
 
-_l2str = {
-    0: "s",
-    1: "p",
-    2: "d",
-    3: "f",
-    4: "g",
-    5: "h",
-    6: "i",
-}
+_l2str = {0: "s", 1: "p", 2: "d", 3: "f", 4: "g", 5: "h", 6: "i"}
 
 _str2l = {v: k for k, v in _l2str.items()}
 
 
-def l2str(l):
+def l2str(l_ang_mom):
     """Convert the angular momentum l (int) to string."""
     try:
-        return _l2str[l]
+        return _l2str[l_ang_mom]
     except KeyError:
-        return f"Unknown angular momentum, received {l = }"
+        return f"Unknown angular momentum, received {l_ang_mom = }"
 
 
 def str2l(s):
@@ -98,7 +88,7 @@ def str2l(s):
 class Pseudo(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class defining the methods that must be
-    implemented by the concrete pseudopotential sub-classes.
+    implemented by the concrete pseudo-potential sub-classes.
     """
 
     @classmethod
@@ -486,7 +476,7 @@ class AbinitPseudo(Pseudo):
         self.xc = XcFunc.from_abinit_ixc(header["pspxc"])
 
         for attr_name in header:
-            value = header.get(attr_name, None)
+            value = header.get(attr_name)
 
             # Hide these attributes since one should always use the public interface.
             setattr(self, "_" + attr_name, value)

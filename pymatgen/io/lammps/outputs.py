@@ -1,11 +1,7 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements classes and methods for processing LAMMPS output
 files (log and dump).
 """
-
 
 from __future__ import annotations
 
@@ -167,7 +163,7 @@ def parse_lammps_log(filename="log.lammps"):
         multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
         # multi line thermo data
         if re.match(multi_pattern, lines[0]):
-            timestep_marks = [i for i, l in enumerate(lines) if re.match(multi_pattern, l)]
+            timestep_marks = [idx for idx, line in enumerate(lines) if re.match(multi_pattern, line)]
             timesteps = np.split(lines, timestep_marks)[1:]
             dicts = []
             kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"

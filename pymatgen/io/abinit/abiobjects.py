@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 #
 # pylint: disable=no-member, chained-comparison
 """
@@ -38,8 +36,8 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     kwargs.update(dict(*args))
     d = kwargs
 
-    rprim = d.get("rprim", None)
-    angdeg = d.get("angdeg", None)
+    rprim = d.get("rprim")
+    angdeg = d.get("angdeg")
     acell = d["acell"]
 
     if rprim is not None:
@@ -127,16 +125,16 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
     # lattice = Lattice.from_dict(d, fmt="abivars")
     lattice = lattice_from_abivars(**d)
-    coords, coords_are_cartesian = d.get("xred", None), False
+    coords, coords_are_cartesian = d.get("xred"), False
 
     if coords is None:
-        coords = d.get("xcart", None)
+        coords = d.get("xcart")
         if coords is not None:
             if "xangst" in d:
                 raise ValueError("xangst and xcart are mutually exclusive")
             coords = ArrayWithUnit(coords, "bohr").to("ang")
         else:
-            coords = d.get("xangst", None)
+            coords = d.get("xangst")
         coords_are_cartesian = True
 
     if coords is None:

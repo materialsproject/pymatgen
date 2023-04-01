@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """Module contains classes presenting Element and Species (Element + oxidation state) and PeriodicTable."""
 
 from __future__ import annotations
@@ -272,7 +269,7 @@ class ElementBase(Enum):
             "ionization_energies",
         ]:
             kstr = item.capitalize().replace("_", " ")
-            val = self._data.get(kstr, None)
+            val = self._data.get(kstr)
             if str(val).startswith("no data"):
                 val = None
             elif isinstance(val, (list, dict)):
@@ -438,15 +435,15 @@ class ElementBase(Enum):
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)]
         """
-        estr = self.electronic_structure
+        e_str = self.electronic_structure
 
-        def parse_orbital(orbstr):
-            m = re.match(r"(\d+)([spdfg]+)(\d+)", orbstr)
+        def parse_orbital(orb_str):
+            m = re.match(r"(\d+)([spdfg]+)(\d+)", orb_str)
             if m:
                 return int(m.group(1)), m.group(2), int(m.group(3))
-            return orbstr
+            return orb_str
 
-        data = [parse_orbital(s) for s in estr.split(".")]
+        data = [parse_orbital(s) for s in e_str.split(".")]
         if data[0][0] == "[":
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
@@ -466,11 +463,11 @@ class ElementBase(Enum):
         full_electron_config = self.full_electronic_structure
         last_orbital = full_electron_config[-1]
         for n, l_symbol, ne in full_electron_config:
-            l = L_symbols.lower().index(l_symbol)
-            if ne < (2 * l + 1) * 2 or (
-                (n, l_symbol, ne) == last_orbital and ne == (2 * l + 1) * 2 and len(valence) == 0
+            idx = L_symbols.lower().index(l_symbol)
+            if ne < (2 * idx + 1) * 2 or (
+                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valence) == 0
             ):  # check for full last shell (e.g. column 2)
-                valence.append((l, ne))
+                valence.append((idx, ne))
         if len(valence) > 1:
             raise ValueError("Ambiguous valence")
 
@@ -918,7 +915,7 @@ class Element(ElementBase):
     B = "B"
     C = "C"
     N = "N"
-    O = "O"
+    O = "O"  # noqa: E741
     F = "F"
     Ne = "Ne"
     Na = "Na"
@@ -963,7 +960,7 @@ class Element(ElementBase):
     Sn = "Sn"
     Sb = "Sb"
     Te = "Te"
-    I = "I"
+    I = "I"  # noqa: E741
     Xe = "Xe"
     Cs = "Cs"
     Ba = "Ba"
@@ -1365,7 +1362,7 @@ class Species(MSONable, Stringify):
         :param d: Dict representation.
         :return: Species.
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
 
 @functools.total_ordering
@@ -1397,7 +1394,7 @@ class DummySpecies(Species):
         symbol: str = "X",
         oxidation_state: float | None = 0,
         properties: dict | None = None,
-    ):
+    ) -> None:
         """
         Args:
             symbol (str): An assigned symbol for the dummy specie. Strict
@@ -1406,25 +1403,24 @@ class DummySpecies(Species):
                 constitute an Element symbol. Otherwise, a composition may
                 be parsed wrongly. E.g., "X" is fine, but "Vac" is not
                 because Vac contains V, a valid Element.
-            oxidation_state (float): Oxidation state for dummy specie.
-                Defaults to zero.
+            oxidation_state (float): Oxidation state for dummy specie. Defaults to 0.
+            properties (dict): Arbitrary properties associated with dummy specie.
         """
         # enforce title case to match other elements, reduces confusion
         # when multiple DummySpecies in a "formula" string
         symbol = symbol.title()
 
-        for i in range(1, min(2, len(symbol)) + 1):
-            if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError(f"{symbol} contains {symbol[:i]}, which is a valid element symbol.")
+        for idx in range(1, min(2, len(symbol)) + 1):
+            if Element.is_valid_symbol(symbol[:idx]):
+                raise ValueError(f"{symbol} contains {symbol[:idx]}, which is a valid element symbol.")
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
         self._properties = properties or {}
-        for k, _ in self._properties.items():
-            if k not in Species.supported_properties:
-                raise ValueError(f"{k} is not a supported property")
+        if invalid := set(self._properties) - set(Species.supported_properties):
+            raise ValueError(f"Invalid properties: {invalid}")
 
     def __getattr__(self, a):
         # overriding getattr doesn't play nice with pickle, so we
@@ -1532,7 +1528,7 @@ class DummySpecies(Species):
         :param d: Dict representation
         :return: DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
     def __repr__(self):
         return f"DummySpecies {self}"

@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 #
 # pylint: disable=no-member
 """Wrapper for netCDF readers."""
@@ -494,5 +492,5 @@ class AbinitHeader(AttrDict):
 
         s = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join(marquee(title, mark="="), s)
+            return "\n".join([marquee(title, mark="="), s])
         return s

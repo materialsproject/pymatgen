@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import platform
@@ -29,7 +26,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.2.28",
+    version="2023.3.23",
     python_requires=">=3.8",
     install_requires=[
         "matplotlib>=1.5",
@@ -85,6 +82,9 @@ setup(
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
         ],
+        "numba": [
+            "numba",
+        ],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
@@ -108,7 +108,7 @@ setup(
         "pymatgen.command_line": ["*"],
         "pymatgen.util": ["structures/*.json", "*.json"],
         "pymatgen.vis": ["*.yaml"],
-        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/md.txt"],
+        "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "cmd_line": ["**/*"],
     },

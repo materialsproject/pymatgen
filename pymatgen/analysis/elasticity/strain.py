@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes and methods used to describe deformations and
 strains, including applying those deformations to structure objects and

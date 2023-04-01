@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
@@ -386,7 +383,6 @@ class Poscar(MSONable):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * nat)
                 warnings.warn(f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.")
-
         # read the atomic coordinates
         coords = []
         selective_dynamics = [] if has_selective_dynamics else None
@@ -396,7 +392,6 @@ class Poscar(MSONable):
             coords.append([float(j) * crd_scale for j in toks[:3]])
             if has_selective_dynamics:
                 selective_dynamics.append([tok.upper()[0] == "T" for tok in toks[3:6]])
-
         struct = Structure(
             lattice,
             atomic_symbols,
@@ -563,8 +558,8 @@ class Poscar(MSONable):
             comment=d["comment"],
             selective_dynamics=d["selective_dynamics"],
             true_names=d["true_names"],
-            velocities=d.get("velocities", None),
-            predictor_corrector=d.get("predictor_corrector", None),
+            velocities=d.get("velocities"),
+            predictor_corrector=d.get("predictor_corrector"),
         )
 
     def set_temperature(self, temperature: float):
@@ -724,7 +719,7 @@ class Incar(dict, MSONable):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str(tabulate([[l[0], "=", l[1]] for l in lines], tablefmt="plain"))
+            return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))
         return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
@@ -1662,7 +1657,7 @@ class PotcarSingle:
         "pb": {"name": "Perdew-Becke", "class": "GGA"},
         "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
         "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
-        "wi": {"name": "Wigner Interpoloation", "class": "LDA"},
+        "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
     parse_functions = {
@@ -1828,7 +1823,7 @@ class PotcarSingle:
                 UnknownPotcarWarning,
             )
         elif has_sh256 and not hash_check_passed:
-            raise ValueError(
+            warnings.warn(
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
                 "but the computed hash differs.\n"
@@ -2274,23 +2269,16 @@ class Potcar(list, MSONable):
         :param filename: Filename
         :return: Potcar
         """
-        try:
-            with zopen(filename, "rt") as f:
-                fdata = f.read()
-        except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
-            import codecs
-
-            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
-                fdata = f.read()
-
+        with zopen(filename, "rt") as f:
+            fdata = f.read()
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
+
         functionals = []
-        for p in potcar_strings:
-            single = PotcarSingle(p)
-            potcar.append(single)
-            functionals.append(single.functional)
+        for p in fdata.split("End of Dataset"):
+            if p.strip():
+                single = PotcarSingle(p + "End of Dataset\n")
+                potcar.append(single)
+                functionals.append(single.functional)
         if len(set(functionals)) != 1:
             raise ValueError("File contains incompatible functionals!")
         potcar.functional = functionals[0]

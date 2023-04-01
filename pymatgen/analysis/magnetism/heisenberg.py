@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a simple algorithm for extracting nearest neighbor
 exchange parameters by mapping low energy magnetic orderings to a Heisenberg
@@ -11,7 +8,6 @@ from __future__ import annotations
 
 import copy
 import logging
-import sys
 from ast import literal_eval
 
 import numpy as np
@@ -98,8 +94,7 @@ class HeisenbergMapper:
 
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:
-            print("We need at least 2 unique orderings.")
-            sys.exit(1)
+            raise SystemExit("We need at least 2 unique orderings.")
         else:  # Set attributes
             self._get_nn_dict()
             self._get_exchange_df()

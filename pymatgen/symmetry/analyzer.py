@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
 
@@ -20,6 +17,7 @@ import math
 import warnings
 from collections import defaultdict
 from fractions import Fraction
+from functools import lru_cache
 from math import cos, sin
 from typing import Any, Literal
 
@@ -34,6 +32,14 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
 logger = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=32)
+def _get_symmetry_dataset(cell, symprec, angle_tolerance):
+    """Simple wrapper to cache results of spglib.get_symmetry_dataset since this call is
+    expensive.
+    """
+    return spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
 
 
 class SpacegroupAnalyzer:
@@ -63,13 +69,13 @@ class SpacegroupAnalyzer:
         zs = []
         magmoms = []
 
-        for species, g in itertools.groupby(structure, key=lambda s: s.species):
+        for species, group in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
-                zs.extend([ind + 1] * len(tuple(g)))
+                zs.extend([ind + 1] * len(tuple(group)))
             else:
                 unique_species.append(species)
-                zs.extend([len(unique_species)] * len(tuple(g)))
+                zs.extend([len(unique_species)] * len(tuple(group)))
 
         for site in structure:
             if hasattr(site, "magmom"):
@@ -81,13 +87,20 @@ class SpacegroupAnalyzer:
         self._numbers = zs
 
         if len(magmoms) > 0:
-            self._cell: tuple[Any, ...] = structure.lattice.matrix, structure.frac_coords, zs, magmoms
+            self._cell: tuple[Any, ...] = (
+                tuple(map(tuple, structure.lattice.matrix.tolist())),
+                tuple(map(tuple, structure.frac_coords.tolist())),
+                tuple(zs),
+                tuple(magmoms),
+            )
         else:  # if no magmoms given do not add to cell
-            self._cell = structure.lattice.matrix, structure.frac_coords, zs
+            self._cell = (
+                tuple(map(tuple, structure.lattice.matrix.tolist())),
+                tuple(map(tuple, structure.frac_coords.tolist())),
+                tuple(zs),
+            )
 
-        self._space_group_data = spglib.get_symmetry_dataset(
-            self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance
-        )
+        self._space_group_data = _get_symmetry_dataset(self._cell, symprec, angle_tolerance)
 
     def get_space_group_symbol(self) -> str:
         """Get the spacegroup symbol (e.g., Pnma) for structure.

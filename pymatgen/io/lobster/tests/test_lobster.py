@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import json
@@ -640,9 +637,9 @@ class IcohplistTest(unittest.TestCase):
         }
 
         assert icohplist_bise == self.icohp_bise.icohplist
-        assert -2.38796 == self.icohp_bise.icohpcollection.extremum_icohpvalue()
+        assert self.icohp_bise.icohpcollection.extremum_icohpvalue() == -2.38796
         assert icooplist_fe == self.icoop_fe.icohplist
-        assert -0.29919 == self.icoop_fe.icohpcollection.extremum_icohpvalue()
+        assert self.icoop_fe.icohpcollection.extremum_icohpvalue() == -0.29919
         assert icooplist_bise == self.icoop_bise.icohplist
         assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == 0.24714
         assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)

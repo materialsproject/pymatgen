@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 from __future__ import annotations
 
 import os
@@ -36,6 +34,7 @@ from pymatgen.analysis.local_env import (
     get_neighbors_of_site_with_index,
     metal_edge_extender,
     on_disorder_options,
+    oxygen_edge_extender,
     site_is_of_motif_type,
     solid_angle,
 )
@@ -164,11 +163,11 @@ class VoronoiNNTest(PymatgenTest):
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
-        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
 
         # Compute the NNs with adjacency
         self.nn.targets = None
-        neighbors = self.nn.get_voronoi_polyhedra(s, 0)
+        neighbors = self.nn.get_voronoi_polyhedra(struct, 0)
 
         # Each neighbor has 4 adjacent neighbors, all orthogonal
         for nn_info in neighbors.values():
@@ -1318,9 +1317,9 @@ class CrystalNNTest(PymatgenTest):
 
     def test_fixed_length(self):
         cnn = CrystalNN(fingerprint_length=30)
-        nndata = cnn.get_nn_data(self.lifepo4, 0)
-        assert len(nndata.cn_weights) == 30
-        assert len(nndata.cn_nninfo) == 30
+        nn_data = cnn.get_nn_data(self.lifepo4, 0)
+        assert len(nn_data.cn_weights) == 30
+        assert len(nn_data.cn_nninfo) == 30
 
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
@@ -1443,6 +1442,37 @@ class Critic2NNTest(PymatgenTest):
 class MetalEdgeExtenderTest(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
+        self.phsh = Molecule.from_file(os.path.join(test_dir, "phsh.xyz"))
+        self.phsh_graph = MoleculeGraph.with_edges(
+            molecule=self.phsh,
+            edges={
+                (0, 1): None,
+                (0, 2): None,
+                (0, 3): None,
+                (0, 4): None,
+                (4, 5): None,
+                (4, 6): None,
+                (4, 18): None,
+                (6, 7): None,
+                (6, 16): None,
+                (7, 8): None,
+                (7, 9): None,
+                (9, 10): None,
+                (9, 11): None,
+                (11, 14): None,
+                (12, 13): None,
+                (12, 25): None,
+                (14, 15): None,
+                (14, 16): None,
+                (16, 17): None,
+                (18, 19): None,
+                (18, 20): None,
+                (18, 21): None,
+                (21, 22): None,
+                (21, 23): None,
+                (21, 24): None,
+            },
+        )
         self.LiEC_graph = MoleculeGraph.with_edges(
             molecule=self.LiEC,
             edges={
@@ -1479,6 +1509,11 @@ class MetalEdgeExtenderTest(PymatgenTest):
         assert len(self.LiEC_graph.graph.edges) == 11
         extended_mol_graph = metal_edge_extender(self.LiEC_graph)
         assert len(extended_mol_graph.graph.edges) == 12
+
+    def test_oxygen_edge_extender(self):
+        assert len(self.phsh_graph.graph.edges) == 25
+        phsh_fixed_graph = oxygen_edge_extender(self.phsh_graph)
+        assert len(phsh_fixed_graph.graph.edges) == 26
 
     def test_custom_metals(self):
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})

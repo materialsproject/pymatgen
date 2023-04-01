@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes used to define a non-periodic molecule and a
 periodic structure.
@@ -21,6 +18,7 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Iterable,
@@ -49,6 +47,9 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
+
+if TYPE_CHECKING:
+    from m3gnet.models._dynamics import TrajectoryObserver
 
 
 class Neighbor(Site):
@@ -266,8 +267,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         # Cannot use set since we want a deterministic algorithm.
         types: list[Element | Species | DummySpecies] = []
         for site in self:
-            for sp, v in site.species.items():
-                if v != 0:
+            for sp, amt in site.species.items():
+                if amt != 0:
                     types.append(sp)
         return tuple(sorted(set(types)))  # type: ignore
 
@@ -409,7 +410,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         v2 = self[k].coords - self[j].coords
         return get_angle(v1, v2, units="degrees")
 
-    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:
+    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:  # noqa: E741
         """
         Returns dihedral angle specified by four sites.
 
@@ -607,7 +608,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     Species(
                         sym,
                         oxidation_state=oxi_state,
-                        properties={"spin": spins.get(str(sp), spins.get(sym, None))},
+                        properties={"spin": spins.get(str(sp), spins.get(sym))},
                     )
                 ] = occu
             site.species = Composition(new_sp)
@@ -728,34 +729,28 @@ class IStructure(SiteCollection, MSONable):
                 fractional_coords. Defaults to None for no properties.
         """
         if len(species) != len(coords):
-            raise StructureError(
-                "The list of atomic species must be of the same length as the list of fractional coordinates."
-            )
+            raise StructureError("atomic species and fractional coordinates must have same length")
 
-        if isinstance(lattice, Lattice):
-            self._lattice = lattice
-        else:
-            self._lattice = Lattice(lattice)
+        self._lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         sites = []
-        for i, sp in enumerate(species):
+        for idx, specie in enumerate(species):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
+                prop = {k: v[idx] for k, v in site_properties.items()}
 
-            sites.append(
-                PeriodicSite(
-                    sp,
-                    coords[i],
-                    self._lattice,
-                    to_unit_cell,
-                    coords_are_cartesian=coords_are_cartesian,
-                    properties=prop,  # type: ignore
-                )
+            site = PeriodicSite(
+                specie,
+                coords[idx],
+                self._lattice,
+                to_unit_cell,
+                coords_are_cartesian=coords_are_cartesian,
+                properties=prop,  # type: ignore
             )
+            sites.append(site)
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
         if validate_proximity and not self.is_valid():
-            raise StructureError(("Structure contains sites that are ", "less than 0.01 Angstrom apart!"))
+            raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
         self._charge = charge
 
     @classmethod
@@ -1082,19 +1077,20 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             other (IStructure/Structure): Another structure.
+            anonymous (bool): Whether to use anonymous structure matching which allows distinct
+                species in one structure to map to another.
             **kwargs: Same **kwargs as in
                 :class:`pymatgen.analysis.structure_matcher.StructureMatcher`.
 
         Returns:
-            (bool) True is the structures are similar under some affine
-            transformation.
+            bool: True if the structures are similar under some affine transformation.
         """
         from pymatgen.analysis.structure_matcher import StructureMatcher
 
-        m = StructureMatcher(**kwargs)
-        if not anonymous:
-            return m.fit(self, other)
-        return m.fit_anonymous(self, other)
+        matcher = StructureMatcher(**kwargs)
+        if anonymous:
+            return matcher.fit_anonymous(self, other)
+        return matcher.fit(self, other)
 
     def __eq__(self, other: object) -> bool:
         # check for valid operand following class Student example from official functools docs
@@ -1181,7 +1177,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def volume(self) -> float:
         """
-        Returns the volume of the structure.
+        Returns the volume of the structure in Angstrom^3.
         """
         return self._lattice.volume
 
@@ -1335,21 +1331,16 @@ class IStructure(SiteCollection, MSONable):
         points_indices = []
         offsets = []
         distances = []
-        for i, nns in enumerate(neighbors):
+        for idx, nns in enumerate(neighbors):
             if len(nns) > 0:
-                for n in nns:
-                    if exclude_self and (i == n.index) and (n.nn_distance <= numerical_tol):
+                for nn in nns:
+                    if exclude_self and idx == nn.index and nn.nn_distance <= numerical_tol:
                         continue
-                    center_indices.append(i)
-                    points_indices.append(n.index)
-                    offsets.append(n.image)
-                    distances.append(n.nn_distance)
-        return (
-            np.array(center_indices),
-            np.array(points_indices),
-            np.array(offsets),
-            np.array(distances),
-        )
+                    center_indices.append(idx)
+                    points_indices.append(nn.index)
+                    offsets.append(nn.image)
+                    distances.append(nn.nn_distance)
+        return tuple(map(np.array, (center_indices, points_indices, offsets, distances)))
 
     def get_neighbor_list(
         self,
@@ -2248,9 +2239,9 @@ class IStructure(SiteCollection, MSONable):
 
                 if valid:
                     inv_m = np.linalg.inv(m)
-                    new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
+                    new_latt = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(
-                        new_l,
+                        new_latt,
                         new_sp,
                         new_coords,
                         site_properties=new_props,
@@ -2459,7 +2450,7 @@ class IStructure(SiteCollection, MSONable):
 
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        charge = d.get("charge", None)
+        charge = d.get("charge")
         return cls.from_sites(sites, charge=charge)
 
     def to(self, filename: str = "", fmt: str = "", **kwargs) -> str | None:
@@ -2643,7 +2634,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs):
+    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs) -> Structure | IStructure:
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -3775,8 +3766,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 modify_lattice with a lattice with lattice parameters that
                 are 1% larger.
         """
-        s = (1 + np.array(strain)) * np.eye(3)
-        self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
+        strain_matrix = (1 + np.array(strain)) * np.eye(3)
+        self.lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
 
     def sort(self, key: Callable | None = None, reverse: bool = False) -> None:
         """
@@ -4001,8 +3992,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         stress_weight: float = 0.01,
         steps: int = 500,
         fmax: float = 0.1,
+        return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Structure:
+    ) -> Structure | tuple[Structure, TrajectoryObserver]:
         """
         Performs a crystal structure relaxation using some algorithm.
 
@@ -4013,9 +4005,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
             steps (int): max number of steps for relaxation. Defaults to 500.
             fmax (float): total force tolerance for relaxation convergence.
                 Here fmax is a sum of force and stress forces. Defaults to 0.1.
+            return_trajectory (bool): Whether to return the trajectory of relaxation.
+                Defaults to False.
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
-        Returns: Relaxed structure
+        Returns:
+            Structure: IAP-relaxed structure
         """
         import contextlib
         import io
@@ -4024,6 +4019,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         from ase.constraints import ExpCellFilter
         from ase.optimize.fire import FIRE
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+        from m3gnet.models._dynamics import TrajectoryObserver
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -4031,20 +4027,28 @@ class Structure(IStructure, collections.abc.MutableSequence):
             potential = Potential(M3GNet.load())
             calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
 
-        optimizer = FIRE
         adaptor = AseAtomsAdaptor()
         atoms = adaptor.get_atoms(self)
+
+        if return_trajectory:
+            # monitor the relaxation
+            traj_observer = TrajectoryObserver(atoms)
+
         atoms.set_calculator(calculator)
         stream = sys.stdout if verbose else io.StringIO()
         with contextlib.redirect_stdout(stream):
             if relax_cell:
                 atoms = ExpCellFilter(atoms)
-            optimizer = optimizer(atoms)
+            optimizer = FIRE(atoms)
             optimizer.run(fmax=fmax, steps=steps)
         if isinstance(atoms, ExpCellFilter):
             atoms = atoms.atoms
 
-        return adaptor.get_structure(atoms)
+        struct = adaptor.get_structure(atoms)
+        if return_trajectory:
+            traj_observer()  # save properties of the Atoms during the relaxation
+            return struct, traj_observer
+        return struct
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
@@ -4510,5 +4514,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as f:
-    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(f).items()}
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as file:
+    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}

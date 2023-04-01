@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
@@ -562,7 +559,7 @@ class _MPResterLegacy:
         entries: list[ComputedEntry] = []
         for d in data:
             d["potcar_symbols"] = [
-                f"{d['pseudo_potential']['functional']} {l}" for l in d["pseudo_potential"]["labels"]
+                f"{d['pseudo_potential']['functional']} {label}" for label in d["pseudo_potential"]["labels"]
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:

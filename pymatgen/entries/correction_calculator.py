@@ -131,7 +131,7 @@ class CorrectionCalculator:
 
             allow = True
 
-            compound = self.calc_compounds.get(name, None)
+            compound = self.calc_compounds.get(name)
             if not compound:
                 warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
                 continue

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import glob
@@ -1051,19 +1048,19 @@ class MPNMRSetTest(PymatgenTest):
         structure = Structure.from_file(filepath)
 
         vis = MPNMRSet(structure)
-        assert vis.incar.get("LCHIMAG", None)
-        assert vis.incar.get("QUAD_EFG", None) is None
+        assert vis.incar.get("LCHIMAG")
+        assert vis.incar.get("QUAD_EFG") is None
 
         vis = MPNMRSet(structure, mode="efg")
-        assert not vis.incar.get("LCHIMAG", None)
-        assert vis.incar.get("QUAD_EFG", None) == [-0.808]
+        assert not vis.incar.get("LCHIMAG")
+        assert vis.incar.get("QUAD_EFG") == [-0.808]
         for q in vis.incar["QUAD_EFG"]:
             assert isinstance(q, float)
             assert not isinstance(q, FloatWithUnit)
 
         vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
-        assert not vis.incar.get("LCHIMAG", None)
-        assert vis.incar.get("QUAD_EFG", None) == [-40.1]
+        assert not vis.incar.get("LCHIMAG")
+        assert vis.incar.get("QUAD_EFG") == [-40.1]
 
 
 class MVLSlabSetTest(PymatgenTest):

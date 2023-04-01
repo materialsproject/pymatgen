@@ -1,10 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+# pylint: disable=C0414,W0718,C0301
 
-"""
-This package contains core modules and classes for representing structures and
-operations on them.
-"""
+"""This package contains core modules and classes for representing structures and operations on them."""
 
 from __future__ import annotations
 
@@ -14,27 +10,27 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
-from .composition import Composition as Composition
-from .lattice import Lattice as Lattice
-from .operations import SymmOp as SymmOp
-from .periodic_table import DummySpecies as DummySpecies
-from .periodic_table import Element as Element
-from .periodic_table import Species as Species
-from .sites import PeriodicSite as PeriodicSite
-from .sites import Site as Site
-from .structure import IMolecule as IMolecule
-from .structure import IStructure as IStructure
-from .structure import Molecule as Molecule
-from .structure import Structure as Structure
-from .units import ArrayWithUnit as ArrayWithUnit
-from .units import FloatWithUnit as FloatWithUnit
-from .units import Unit as Unit
+from pymatgen.core.composition import Composition as Composition
+from pymatgen.core.lattice import Lattice as Lattice
+from pymatgen.core.operations import SymmOp as SymmOp
+from pymatgen.core.periodic_table import DummySpecies as DummySpecies
+from pymatgen.core.periodic_table import Element as Element
+from pymatgen.core.periodic_table import Species as Species
+from pymatgen.core.sites import PeriodicSite as PeriodicSite
+from pymatgen.core.sites import Site as Site
+from pymatgen.core.structure import IMolecule as IMolecule
+from pymatgen.core.structure import IStructure as IStructure
+from pymatgen.core.structure import Molecule as Molecule
+from pymatgen.core.structure import Structure as Structure
+from pymatgen.core.units import ArrayWithUnit as ArrayWithUnit
+from pymatgen.core.units import FloatWithUnit as FloatWithUnit
+from pymatgen.core.units import Unit as Unit
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2023.2.28"
+__version__ = "2023.3.23"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
@@ -48,7 +44,7 @@ def _load_pmg_settings() -> dict[str, Any]:
     yaml = YAML()
     for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
         try:
-            with open(file_path) as yml_file:
+            with open(file_path, encoding="utf-8") as yml_file:
                 settings = yaml.load(yml_file) or {}
             break
         except FileNotFoundError:

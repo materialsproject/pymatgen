@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a base class for tensor-like objects and methods for
 basic tensor manipulation. It also provides a class, SquareTensor,
@@ -972,10 +969,10 @@ class SquareTensor(Tensor):
 
 def get_uvec(vec):
     """Gets a unit vector parallel to input vector"""
-    l = np.linalg.norm(vec)
-    if l < 1e-8:
+    norm = np.linalg.norm(vec)
+    if norm < 1e-8:
         return vec
-    return vec / l
+    return vec / norm
 
 
 def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):

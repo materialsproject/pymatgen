@@ -642,14 +642,14 @@ class SlabGeneratorTest(PymatgenTest):
 
 class ReconstructionGeneratorTests(PymatgenTest):
     def setUp(self):
-        l = Lattice.cubic(3.51)
+        latt = Lattice.cubic(3.51)
         species = ["Ni"]
         coords = [[0, 0, 0]]
-        self.Ni = Structure.from_spacegroup("Fm-3m", l, species, coords)
-        l = Lattice.cubic(2.819000)
+        self.Ni = Structure.from_spacegroup("Fm-3m", latt, species, coords)
+        latt = Lattice.cubic(2.819000)
         species = ["Fe"]
         coords = [[0, 0, 0]]
-        self.Fe = Structure.from_spacegroup("Im-3m", l, species, coords)
+        self.Fe = Structure.from_spacegroup("Im-3m", latt, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
         with open(

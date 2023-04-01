@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
@@ -151,8 +149,8 @@ class AseAtomsAdaptor:
 
         # Get the site magmoms from the ASE Atoms objects.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
-            magmoms = atoms.calc.results.get("magmoms", None)
-            charges = atoms.calc.results.get("charges", None)
+            magmoms = atoms.calc.results.get("magmoms")
+            charges = atoms.calc.results.get("charges")
         else:
             magmoms = None
             charges = None

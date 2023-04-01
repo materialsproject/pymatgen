@@ -123,12 +123,8 @@ class BornEffectiveCharge:
         Return:
             np.array Born effective charge tensor
         """
-        struct = self.structure
-        symstruc = sga(struct)
-        symstruc = symstruc.get_symmetrized_structure()
-
-        l = len(struct)
-        BEC = np.zeros((l, 3, 3))
+        n_atoms = len(self.structure)
+        BEC = np.zeros((n_atoms, 3, 3))
         for atom, ops in enumerate(self.BEC_operations):
             if ops[0] == ops[1]:
                 temp_tensor = Tensor(np.random.rand(3, 3) - 0.5)
@@ -145,8 +141,8 @@ class BornEffectiveCharge:
                     BEC[ops[0]] = BEC[ops[0]] / len(ops[2])
 
         #     Enforce Acoustic Sum
-        disp_charge = np.einsum("ijk->jk", BEC) / l
-        add = np.zeros([l, 3, 3])
+        disp_charge = np.einsum("ijk->jk", BEC) / n_atoms
+        add = np.zeros([n_atoms, 3, 3])
 
         for atom, ops in enumerate(self.BEC_operations):
             if ops[0] == ops[1]:
@@ -244,8 +240,8 @@ class InternalStrainTensor:
         Return:
             InternalStrainTensor object
         """
-        l = len(self.structure)
-        IST = np.zeros((l, 3, 3, 3))
+        n_atoms = len(self.structure)
+        IST = np.zeros((n_atoms, 3, 3, 3))
         for atom, ops in enumerate(self.IST_operations):
             temp_tensor = np.zeros([3, 3, 3])
             for op in ops:

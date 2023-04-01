@@ -233,7 +233,7 @@ class DftSet(Cp2kInput):
         self.insert(g)
 
         # Build the QS Section
-        qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb", None))
+        qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))
         max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
@@ -401,11 +401,11 @@ class DftSet(Cp2kInput):
             possible_potentials = []
             basis, aux_basis, potential = None, None, None
             desired_basis, desired_aux_basis, desired_potential = None, None, None
-            have_element_file = os.path.exists(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el))
+            have_element_file = os.path.exists(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
 
             # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el)) as f:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as f:
                     yaml = YAML(typ="unsafe", pure=True)
                     DATA = yaml.load(f)
                     if not DATA.get("basis_sets"):
@@ -548,15 +548,15 @@ class DftSet(Cp2kInput):
     @staticmethod
     def get_cutoff_from_basis(basis_sets, rel_cutoff) -> int | float:
         """Given a basis and a relative cutoff. Determine the ideal cutoff variable"""
-        for b in basis_sets:
-            if not b.exponents:
-                raise ValueError(f"Basis set {b} contains missing exponent info. Please specify cutoff manually")
+        for basis in basis_sets:
+            if not basis.exponents:
+                raise ValueError(f"Basis set {basis} contains missing exponent info. Please specify cutoff manually")
 
         def get_soft_exponents(b):
             if b.potential == "All Electron":
                 radius = 1.2 if b.element == Element("H") else 1.512  # Hard radius defaults for gapw
                 threshold = 1e-4  # Default for gapw
-                max_lshell = max(l for l in b.lmax)
+                max_lshell = max(shell for shell in b.lmax)
                 exponent = np.log(radius**max_lshell / threshold) / radius**2
                 return [[exponent]]
             else:
@@ -575,7 +575,10 @@ class DftSet(Cp2kInput):
         """
         names = xc_functionals if xc_functionals else SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
         if not names:
-            raise ValueError("No XC functional provided. Specify kwarg xc_functional or configure your pmgrc.yaml file")
+            raise ValueError(
+                "No XC functional provided. Specify kwarg xc_functional or configure PMG_DEFAULT_FUNCTIONAL "
+                "in your .pmgrc.yaml file"
+            )
         if isinstance(names, str):
             names = [names]
         names = [n.upper() for n in names]

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -74,6 +71,28 @@ EPS=12
         assert gau.functional == "HF"
         assert gau.input_parameters["EPS"] == "12"
 
+    def test_from_cart_coords(self):
+        answer = """#P HF/6-31G(d) SCF=Tight SP
+
+H4 C1
+
+0 1
+C 0.000000 0.000000 0.000000
+H 0.000000 0.000000 1.089000
+H 1.026719 0.000000 -0.363000
+H -0.513360 -0.889165 -0.363000
+H -0.513360 0.889165 -0.363000
+
+EPS=12
+
+"""
+        assert self.gau.to_string(cart_coords=True) == answer
+        gau = GaussianInput.from_string(answer)
+        assert gau.functional == "HF"
+        assert gau.charge == 0
+        assert gau.spin_multiplicity == 1
+        assert gau.input_parameters["EPS"] == "12"
+
     def test_from_file(self):
         filepath = os.path.join(test_dir, "MethylPyrrolidine_drawn.gjf")
         gau = GaussianInput.from_file(filepath)
@@ -86,12 +105,11 @@ EPS=12
         with open(filepath) as f:
             txt = f.read()
         toks = txt.split("--link1--")
-        for i, t in enumerate(toks):
-            lines = t.strip().split("\n")
-            lines = [l.strip() for l in lines]
+        for idx, tok in enumerate(toks):
+            lines = [line.strip() for line in tok.strip().split("\n")]
             gau = GaussianInput.from_string("\n".join(lines))
             assert gau.molecule is not None
-            if i == 0:
+            if idx == 0:
                 mol = gau.molecule
         answer = """Full Formula (H4 O2)
 Reduced Formula: H2O
@@ -369,14 +387,14 @@ class GaussianOutputTest(unittest.TestCase):
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
         d = gau.read_scan()
-        assert -548.02102 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -548.02102
         assert len(d["coords"]) == 1
         assert len(d["energies"]) == len(gau.energies)
         assert len(d["energies"]) == 21
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan_opt.log"))
         assert len(gau.opt_structures) == 21
         d = gau.read_scan()
-        assert -548.02336 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -548.02336
         assert len(d["coords"]) == 2
         assert len(d["energies"]) == 21
         assert approx(d["coords"]["DSO"][6]) == 1.60000
@@ -390,7 +408,7 @@ class GaussianOutputTest(unittest.TestCase):
         ]
         assert gau.opt_structures[-1].cart_coords.tolist() == coords
         d = gau.read_scan()
-        assert -0.00523 == approx(d["energies"][-1])
+        assert approx(d["energies"][-1]) == -0.00523
         assert len(d["coords"]) == 3
         assert len(d["energies"]) == 21
         assert approx(d["coords"]["R1"][6]) == 0.94710
@@ -401,7 +419,7 @@ class GaussianOutputTest(unittest.TestCase):
         Test an optimization where no "input orientation" is outputted
         """
         gau = GaussianOutput(os.path.join(test_dir, "acene-n_gaussian09_opt.out"))
-        assert -1812.58399675 == approx(gau.energies[-1])
+        assert approx(gau.energies[-1]) == -1812.58399675
         assert len(gau.structures) == 6
         # Test the first 3 atom coordinates
         coords = [

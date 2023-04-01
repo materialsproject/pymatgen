@@ -2,10 +2,14 @@
 requires = [
   # pin NumPy version used in the build
   "oldest-supported-numpy",
-  "setuptools>=43.0.0",
+  "setuptools>=65.0.0",
   "Cython>=0.29.23",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.versioningit.vcs]
+method = "git"
+default-tag = "0.0.1"
 
 [tool.black]
 line-length = 120
@@ -23,7 +27,7 @@ target-version = "py38"
 line-length = 120
 select = [
   "B",   # flake8-bugbear
-  "C4",  # flake8-comprehensions
+  "C40", # flake8-comprehensions
   "D",   # pydocstyle
   "E",   # pycodestyle
   "F",   # pyflakes
@@ -39,8 +43,12 @@ select = [
   "YTT", # flake8-2020
 ]
 ignore = [
-  "B019",    # functools.lru_cache on methods can lead to memory leaks
-  "B023",    # Function definition does not bind loop variable
+  "B018", # Found useless expression. Either assign it to a variable or remove it.
+  "B019", # functools.lru_cache on methods can lead to memory leaks
+  "B023", # Function definition does not bind loop variable
+  "B028", # No explicit stacklevel keyword argument found
+  # TODO: remove when https://github.com/charliermarsh/ruff/issues/3801 is closed
+  "B031",    # Reusing generator returned from itertools.groupby()
   "B904",    # Within an except clause, raise exceptions with ...
   "D100",    # Missing docstring in public module
   "D104",    # Missing docstring in public package
@@ -50,12 +58,11 @@ ignore = [
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
   "D415",    # First line should end with a period, question mark, or exclamation point
-  "E741",    # tmp: we should fix all ambiguous variable names
   "PLR2004", # Magic number
+  "PLW0603", # Using the global statement to update variables is discouraged
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
   "SIM115",  # Use context handler for opening files
-  "PLW0603", # Using the global statement to update variables is discouraged
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -98,8 +105,8 @@ ignore_missing_imports = true
 
 [tool.codespell]
 ignore-words-list = """
-titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,ser,leary,thre,
-fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda
+titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,coul,ser,leary,thre,
+fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true

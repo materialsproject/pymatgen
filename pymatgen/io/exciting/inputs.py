@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/manipulating/writing exciting input files.
 """
@@ -110,8 +107,8 @@ class ExcitingInput(MSONable):
                 # Obtain lockxyz for each atom
                 if atom.get("lockxyz") is not None:
                     lxyz = []
-                    for l in atom.get("lockxyz").split():
-                        if l in ("True", "true"):
+                    for line in atom.get("lockxyz").split():
+                        if line in ("True", "true"):
                             lxyz.append(True)
                         else:
                             lxyz.append(False)

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import datetime
@@ -120,7 +117,7 @@ class StructureNLCase(unittest.TestCase):
         with pytest.raises(ValueError):
             StructureNL(self.s, self.hulk, references=self.superlong)
 
-    def test_historynodes(self):
+    def test_history_nodes(self):
         a = StructureNL(self.s, self.hulk, history=[self.valid_node])
         assert a.history[0].name == "DB 1"
         assert a.history[0].url == "www.db1URLgoeshere.com"
@@ -143,7 +140,7 @@ class StructureNLCase(unittest.TestCase):
         # Structure data is OK due to PMGEncoder/Decoder
         a = StructureNL(self.s, self.hulk, data={"_structure": self.s2})
         assert a.data["_structure"] == self.s2, "Data storage is broken"
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="data must contain properly namespaced data with keys starting "):
             StructureNL(self.s, self.hulk, data={"bad_key": 1})
 
     def test_remarks(self):
