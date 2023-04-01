@@ -9,7 +9,7 @@ matplotlib==3.5.2
 palettable==3.3.0
 spglib==2.0.1
 pandas==1.4.4
-networkx==2.8.8
+networkx==3.0
 plotly==5.11.0
 beautifulsoup4==4.11.1
 uncertainties==3.1.6
