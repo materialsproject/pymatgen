@@ -137,19 +137,17 @@ class MPResterOldTest(PymatgenTest):
         assert self.rester.get_materials_id_from_task_id("mp-540081") == "mp-19017"
 
     def test_get_materials_id_references(self):
-        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_get_materials_id_references
-        m = _MPResterLegacy()
-        data = m.get_materials_id_references("mp-123")
+        mpr = _MPResterLegacy()
+        data = mpr.get_materials_id_references("mp-123")
         assert len(data) > 1000
 
     def test_find_structure(self):
-        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_find_structure
-        m = _MPResterLegacy()
+        mpr = _MPResterLegacy()
         ciffile = self.TEST_FILES_DIR / "Fe3O4.cif"
-        data = m.find_structure(str(ciffile))
+        data = mpr.find_structure(str(ciffile))
         assert len(data) > 1
         s = CifParser(ciffile).get_structures()[0]
-        data = m.find_structure(s)
+        data = mpr.find_structure(s)
         assert len(data) > 1
 
     def test_get_entries_in_chemsys(self):

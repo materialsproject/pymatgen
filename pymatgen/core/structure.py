@@ -2647,8 +2647,8 @@ class IStructure(SiteCollection, MSONable):
             sort (bool): Whether to sort sites. Default to False.
             merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
                 merged. Usually 0.01 should be enough to deal with common numerical issues.
-            **kwargs: Passthrough to relevant reader. E.g., if it is CIF, the kwargs will be passed through to
-                CifParser.
+            kwargs: Passthrough to relevant reader. E.g. if the file has CIF format, the kwargs will be passed
+                through to CifParser.
 
         Returns:
             Structure.
