@@ -956,6 +956,8 @@ class PotcarSingleTest(PymatgenTest):
 
         assert psingle.potential_type == "PAW"
 
+        assert self.psingle.symbol == "Mn_pv"
+
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
@@ -1022,6 +1024,9 @@ class PotcarTest(PymatgenTest):
         assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
         assert potcar[0].enmax == 293.238
+
+    def test_from_file(self):
+        assert {d.header for d in self.potcar} == {"PAW_PBE O 08Apr2002", "PAW_PBE P 17Jan2003", "PAW_PBE Fe 06Sep2000"}
 
     def test_potcar_map(self):
         fe_potcar = zopen(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz").read().decode("utf-8")

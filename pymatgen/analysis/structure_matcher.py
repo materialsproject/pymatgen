@@ -992,7 +992,7 @@ class StructureMatcher(MSONable):
 
         return None, None
 
-    def get_best_electronegativity_anonymous_mapping(self, struct1, struct2):
+    def get_best_electronegativity_anonymous_mapping(self, struct1: Structure, struct2: Structure) -> dict | None:
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. E.g., to compare if the Li2O and Na2O
@@ -1014,13 +1014,13 @@ class StructureMatcher(MSONable):
 
         if matches:
             min_X_diff = np.inf
-            for m in matches:
+            for match in matches:
                 X_diff = 0
-                for k, v in m[0].items():
-                    X_diff += struct1.composition[k] * (k.X - v.X) ** 2
+                for key, val in match[0].items():
+                    X_diff += struct1.composition[key] * (key.X - val.X) ** 2
                 if X_diff < min_X_diff:
                     min_X_diff = X_diff
-                    best = m[0]
+                    best = match[0]
             return best
 
         return None

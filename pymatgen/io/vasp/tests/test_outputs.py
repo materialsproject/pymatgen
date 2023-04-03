@@ -1681,15 +1681,15 @@ class XdatcarTest(PymatgenTest):
         x = Xdatcar(filepath)
         structures = x.structures
         assert len(structures) == 4
-        for s in structures:
-            assert s.formula == "Li2 O1"
+        for struct in structures:
+            assert struct.formula == "Li2 O1"
 
         filepath = self.TEST_FILES_DIR / "XDATCAR_5"
         x = Xdatcar(filepath)
         structures = x.structures
         assert len(structures) == 4
-        for s in structures:
-            assert s.formula == "Li2 O1"
+        for struct in structures:
+            assert struct.formula == "Li2 O1"
 
         x.concatenate(self.TEST_FILES_DIR / "XDATCAR_4")
         assert len(x.structures) == 8
@@ -1704,7 +1704,6 @@ class XdatcarTest(PymatgenTest):
 
 class DynmatTest(PymatgenTest):
     def test_init(self):
-        # nosetests pymatgen/io/vasp/tests/test_outputs.py:DynmatTest.test_init
         filepath = self.TEST_FILES_DIR / "DYNMAT"
         d = Dynmat(filepath)
         assert d.nspecs == 2
