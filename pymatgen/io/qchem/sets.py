@@ -523,6 +523,8 @@ class QChemDictSet(QCInput):
                 if self.qchem_version == 6:
                     if "coordinates" not in tmp_geom_opt:
                         tmp_geom_opt["coordinates"] = "redundant"
+                    elif tmp_geom_opt["coordinates"] == "delocalized" and "initial_hessian" not in tmp_geom_opt:
+                        tmp_geom_opt["initial_hessian"] = "model"
                     if "max_displacement" not in tmp_geom_opt:
                         tmp_geom_opt["max_displacement"] = "0.1"
                     if "optimization_restart" not in tmp_geom_opt:
