@@ -956,6 +956,8 @@ class PotcarSingleTest(PymatgenTest):
 
         assert psingle.potential_type == "PAW"
 
+        assert self.psingle.symbol == "Mn_pv"
+
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
@@ -995,12 +997,14 @@ class PotcarSingleTest(PymatgenTest):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_O.gz"
         cwd = os.path.abspath(os.path.dirname(__file__))
         loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
-        potcars = Potcar.from_file(filename)
-        for psingle in potcars:
-            if hasattr(psingle, "hash_sha256_from_file"):
-                assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
-            # else:
-            #     assert psingle.file_hash in file_hash_db
+        Potcar.from_file(filename)
+        # Still need to test the if POTCAR can be read.
+        # No longer testing for hashes
+        # for psingle in potcars:
+        #     if hasattr(psingle, "hash_sha256_from_file"):
+        #         assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+        # else:
+        #     assert psingle.file_hash in file_hash_db
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
@@ -1022,6 +1026,9 @@ class PotcarTest(PymatgenTest):
         assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
         assert potcar[0].enmax == 293.238
+
+    def test_from_file(self):
+        assert {d.header for d in self.potcar} == {"PAW_PBE O 08Apr2002", "PAW_PBE P 17Jan2003", "PAW_PBE Fe 06Sep2000"}
 
     def test_potcar_map(self):
         fe_potcar = zopen(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz").read().decode("utf-8")

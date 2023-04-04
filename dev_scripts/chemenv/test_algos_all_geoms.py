@@ -33,40 +33,40 @@ if __name__ == "__main__":
         perms_def = "on_demand"
     else:
         try:
-            nperms = int(test)
-            perms_def = "ndefined"
+            n_perms = int(test)
+            perms_def = "n_defined"
         except Exception:
             perms_def = "on_demand"
 
     for coordination in range(1, 13):
-        print(f"IN COORDINATION {coordination:d}")
+        print(f"IN COORDINATION {coordination}")
         symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
 
         if perms_def == "standard":
             test = "500" if coordination > 6 else "all"
-        elif perms_def == "ndefined":
-            test = nperms  # type: ignore[assignment]
+        elif perms_def == "n_defined":
+            test = n_perms  # type: ignore[assignment]
         else:
             test = input(
                 "Enter if you want to test all possible permutations ('all' or 'a') or "
                 "a given number of random permutations (i.e. '25')"
             )
-        myindices = range(coordination)
+        indices = range(coordination)
 
         if test in ("all", "a"):
             perms_type = "all"
-            perms_iterator = itertools.permutations(myindices)
-            nperms = factorial(coordination)
+            perms_iterator = itertools.permutations(indices)
+            n_perms = factorial(coordination)
         else:
             perms_type = "explicit"
             try:
-                nperms = int(test)
+                n_perms = int(test)
             except Exception:
                 raise ValueError(f"Could not turn {test} into integer ...")
             perms_iterator = []  # type: ignore[assignment]
-            for _ in range(nperms):
-                shuffle(myindices)  # type: ignore[arg-type]
-                perms_iterator.append(list(myindices))  # type: ignore[attr-defined]
+            for _ in range(n_perms):
+                shuffle(indices)  # type: ignore[arg-type]
+                perms_iterator.append(list(indices))  # type: ignore[attr-defined]
 
         for cg_symbol, cg_name in symbol_name_mapping.items():
             cg = allcg[cg_symbol]
@@ -84,10 +84,10 @@ if __name__ == "__main__":
 
             # Reinitialize the itertools permutations
             if perms_type == "all":
-                perms_iterator = itertools.permutations(myindices)
+                perms_iterator = itertools.permutations(indices)
 
             # Loop on the permutations
-            iperm = 1
+            i_perm = 1
             for indices_perm in perms_iterator:
                 lgf.setup_test_perfect_environment(
                     cg_symbol,
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
                 points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
-                print(f"Perm # {iperm:d}/{nperms:d} : ", indices_perm)
+                print(f"Perm # {i_perm:d}/{n_perms:d} : ", indices_perm)
 
                 algos_results = []
                 for algo in cg.algorithms:
@@ -121,4 +121,4 @@ if __name__ == "__main__":
                         print("Following is not close to 0.0 ...")
                         input(results)
                 print("   => ", algos_results)
-                iperm += 1
+                i_perm += 1

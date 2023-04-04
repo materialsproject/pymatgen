@@ -1024,7 +1024,7 @@
     "pymatgen/core/tests/test_structure.py::StructureTest::test_merge_sites": 0.008636957994895056,
     "pymatgen/core/tests/test_structure.py::StructureTest::test_mul": 0.0006403749866876751,
     "pymatgen/core/tests/test_structure.py::StructureTest::test_mutable_sequence_methods": 0.0005030830216128379,
-    "pymatgen/core/tests/test_structure.py::StructureTest::test_non_hash": 0.00021366597502492368,
+    "pymatgen/core/tests/test_structure.py::StructureTest::test_not_hashable": 0.00021366597502492368,
     "pymatgen/core/tests/test_structure.py::StructureTest::test_perturb": 0.0005582089943345636,
     "pymatgen/core/tests/test_structure.py::StructureTest::test_propertied_structure": 0.00022662497940473258,
     "pymatgen/core/tests/test_structure.py::StructureTest::test_properties": 0.0006572499987669289,

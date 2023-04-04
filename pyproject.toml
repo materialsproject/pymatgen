@@ -7,6 +7,10 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.versioningit.vcs]
+method = "git"
+default-tag = "0.0.1"
+
 [tool.black]
 line-length = 120
 
@@ -39,9 +43,12 @@ select = [
   "YTT", # flake8-2020
 ]
 ignore = [
-  "B019",    # functools.lru_cache on methods can lead to memory leaks
-  "B023",    # Function definition does not bind loop variable
-  "B028",    # No explicit stacklevel keyword argument found
+  "B018", # Found useless expression. Either assign it to a variable or remove it.
+  "B019", # functools.lru_cache on methods can lead to memory leaks
+  "B023", # Function definition does not bind loop variable
+  "B028", # No explicit stacklevel keyword argument found
+  # TODO: remove when https://github.com/charliermarsh/ruff/issues/3801 is closed
+  "B031",    # Reusing generator returned from itertools.groupby()
   "B904",    # Within an except clause, raise exceptions with ...
   "D100",    # Missing docstring in public module
   "D104",    # Missing docstring in public package
@@ -99,7 +106,7 @@ ignore_missing_imports = true
 [tool.codespell]
 ignore-words-list = """
 titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,coul,ser,leary,thre,
-fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda
+fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true

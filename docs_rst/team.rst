@@ -60,11 +60,18 @@ Lead Maintainers
 
 | **Janosh Riebesell** |janosh|
 | University of Cambridge
+| Materials Project Staff
 .. |janosh| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh
    :width: 16
    :height: 16
-   :alt: GitHub profile for janosh
+   :alt: janosh GitHub profile
+
+.. |janosh.dev| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/browser.svg
+   :target: https://janosh.dev
+   :width: 16
+   :height: 16
+   :alt: janosh homepage
 
 Newest Contributors
 ===================
@@ -541,6 +548,14 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: GitHub profile for munrojm
+
+| **Jimmy-Xuan Shen** |jmmshn| |0000-0002-2743-7531|
+| Lawrence Livermore National Laboratory
+.. |munrojm| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:munrojm
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for jmmshn
 
 | **Kamal Choudhary** |knc6| |0000-0001-9737-8074|
 | National Institute of Standards and Technology
@@ -1522,6 +1537,6 @@ Thanks
 
 Thanks also to:
 
-adam-kerrigan, adengz, albalu, antonf-ekb, as2362, aykol, benedictsaunders, bernstei, cajfisher, ctoher, czhengsci, dcossey014, dongsenfo, dynikon, eantono, exenGT, ExpHP, flaviu-gostin, frssp, fyalcin, gcheon, gen4438, GkAntonius, hmlli, jdagdelen, jmmshn, johnson1228, jonringer, JosephMontoya-TRI, JSelf42, KazMorita, KirbyBroderick, kylebystrom, ldamewood, leicheng, Liam-Deacon, mamachra, manaslkht, marcoesters, mdforti, miaoliu, mjwen, mt-huebsch, nathan-diodan, naveensrinivasan, nawagner, ndardenne, nishiyamat, nkeilbart, Nokimann, orionarcher, penicillin0, pmla, Qi-max, qianchenqc, rajeshsharma98, renpj, RoberTnf, rpw199912j, ruixingw, sdacek, shaunrong, smheidrich, sonium0, thefrankwan, Tinaatucsd, tirkarthi, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xivh, yang-ruoxi, yiming-xu, YunxingZuo, Zhuoying, zooks97
+adam-kerrigan, adengz, albalu, antonf-ekb, as2362, aykol, benedictsaunders, bernstei, cajfisher, ctoher, czhengsci, dcossey014, dongsenfo, dynikon, eantono, exenGT, ExpHP, flaviu-gostin, frssp, fyalcin, gcheon, gen4438, GkAntonius, hmlli, jdagdelen, johnson1228, jonringer, JosephMontoya-TRI, JSelf42, KazMorita, KirbyBroderick, kylebystrom, ldamewood, leicheng, Liam-Deacon, mamachra, manaslkht, marcoesters, mdforti, miaoliu, mjwen, mt-huebsch, nathan-diodan, naveensrinivasan, nawagner, ndardenne, nishiyamat, nkeilbart, Nokimann, orionarcher, penicillin0, pmla, Qi-max, qianchenqc, rajeshsharma98, renpj, RoberTnf, rpw199912j, ruixingw, sdacek, shaunrong, smheidrich, sonium0, thefrankwan, Tinaatucsd, tirkarthi, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xivh, yang-ruoxi, yiming-xu, YunxingZuo, Zhuoying, zooks97
 
 These are developers who have contributed via GitHub but have not filled out the form linked above.

@@ -19,7 +19,6 @@ executable to the PATH environment variable.
 
 from __future__ import annotations
 
-import abc
 import os
 import subprocess
 from pathlib import Path
@@ -92,7 +91,6 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
-    @abc.abstractmethod
     def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.

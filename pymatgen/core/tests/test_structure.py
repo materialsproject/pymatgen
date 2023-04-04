@@ -774,7 +774,7 @@ class StructureTest(PymatgenTest):
         s[0:2] = "S"
         assert s.formula == "Li1 S2"
 
-    def test_non_hash(self):
+    def test_not_hashable(self):
         with pytest.raises(TypeError):
             {self.structure: 1}
 

@@ -289,11 +289,8 @@ def symmetry_measure(points_distorted, points_perfect):
     """
     # When there is only one point, the symmetry measure is 0.0 by definition
     if len(points_distorted) == 1:
-        return {
-            "symmetry_measure": 0.0,
-            "scaling_factor": None,
-            "rotation_matrix": None,
-        }
+        return {"symmetry_measure": 0.0, "scaling_factor": None, "rotation_matrix": None}
+
     # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
     rot = find_rotation(points_distorted=points_distorted, points_perfect=points_perfect)
     # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
@@ -322,7 +319,7 @@ def find_rotation(points_distorted, points_perfect):
     :return: The rotation matrix
     """
     H = np.matmul(points_distorted.T, points_perfect)
-    [U, S, Vt] = svd(H)
+    U, S, Vt = svd(H)
     rot = np.matmul(Vt.T, U.T)
     return rot
 

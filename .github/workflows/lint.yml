@@ -31,7 +31,7 @@ jobs:
       - name: ruff
         run: |
           ruff --version
-          ruff check . --ignore 'D,SIM'
+          ruff . --ignore D
 
       - name: black
         run: |

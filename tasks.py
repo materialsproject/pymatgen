@@ -30,8 +30,8 @@ def make_doc(ctx):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
+    with open("CHANGES.rst") as file:
+        contents = file.read()
 
     toks = re.split(r"\-{3,}", contents)
     n = len(toks[0].split()[-1])
@@ -39,20 +39,20 @@ def make_doc(ctx):
     changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
     changes = ("-" * n).join(changes)
 
-    with open("docs_rst/latest_changes.rst", "w") as f:
-        f.write(changes)
+    with open("docs_rst/latest_changes.rst", "w") as file:
+        file.write(changes)
 
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("rm pymatgen.*.rst", warn=True)
         ctx.run("sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm *.tests.*rst")
-        for f in glob("*.rst"):
-            if f.startswith("pymatgen") and f.endswith("rst"):
+        for file in glob("*.rst"):
+            if file.startswith("pymatgen") and file.endswith("rst"):
                 new_output = []
                 sub_output = []
                 sub_package = False
-                with open(f) as fid:
+                with open(file) as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
@@ -67,7 +67,7 @@ def make_doc(ctx):
                                 sub_package = False
                                 sub_output = []
 
-                with open(f, "w") as fid:
+                with open(file, "w") as fid:
                     fid.write("".join(new_output))
         ctx.run("make html")
 
@@ -109,16 +109,6 @@ def make_dash(ctx):
     with open(plist, "w") as file:
         file.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
-    # xml = []
-    # with open("docs/pymatgen.xml") as f:
-    #     for l in f:
-    #         l = l.strip()
-    #         if l.startswith("<version>"):
-    #             xml.append(f"<version>{version}</version>")
-    #         else:
-    #             xml.append(l)
-    # with open("docs/pymatgen.xml", "wt") as f:
-    #     f.write("\n".join(xml))
     ctx.run("rm -r pymatgen.docset")
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
 
@@ -128,11 +118,11 @@ def contribute_dash(ctx, version):
     make_dash(ctx)
     ctx.run("cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz")
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        with open("docset.json") as f:
-            data = json.load(f)
+        with open("docset.json") as file:
+            data = json.load(file)
             data["version"] = version
-        with open("docset.json", "w") as f:
-            json.dump(data, f, indent=4)
+        with open("docset.json", "w") as file:
+            json.dump(data, file, indent=4)
         ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
         ctx.run("git push")
     ctx.run("rm pymatgen.tgz")
@@ -181,19 +171,19 @@ def publish(ctx):
 
 @task
 def set_ver(ctx, version):
-    with open("pymatgen/core/__init__.py") as f:
-        contents = f.read()
+    with open("pymatgen/core/__init__.py") as file:
+        contents = file.read()
         contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
-    with open("pymatgen/core/__init__.py", "w") as f:
-        f.write(contents)
+    with open("pymatgen/core/__init__.py", "w") as file:
+        file.write(contents)
 
-    with open("setup.py") as f:
-        contents = f.read()
+    with open("setup.py") as file:
+        contents = file.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", "w") as f:
-        f.write(contents)
+    with open("setup.py", "w") as file:
+        file.write(contents)
 
 
 @task
@@ -203,12 +193,12 @@ def release_github(ctx, version):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
-    toks = re.split(r"\-+", contents)
-    desc = toks[1].strip()
-    toks = desc.split("\n")
-    desc = "\n".join(toks[:-1]).strip()
+    with open("CHANGES.rst") as file:
+        contents = file.read()
+    tokens = re.split(r"\-+", contents)
+    desc = tokens[1].strip()
+    tokens = desc.split("\n")
+    desc = "\n".join(tokens[:-1]).strip()
     payload = {
         "tag_name": f"v{version}",
         "target_commitish": "master",

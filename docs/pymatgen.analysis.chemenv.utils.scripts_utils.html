@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.chemenv.utils.scripts_utils module &mdash; pymatgen 2023.3.10 documentation</title>
+  <title>pymatgen.analysis.chemenv.utils.scripts_utils module &mdash; pymatgen 2023.3.23 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,8 +14,10 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +41,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.10
+                2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -99,13 +101,13 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
-          <li><a href="pymatgen.analysis.chemenv.utils.html">pymatgen.analysis.chemenv.utils package</a> &raquo;</li>
-      <li>pymatgen.analysis.chemenv.utils.scripts_utils module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.analysis.chemenv.utils.html">pymatgen.analysis.chemenv.utils package</a></li>
+      <li class="breadcrumb-item active">pymatgen.analysis.chemenv.utils.scripts_utils module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.utils.scripts_utils.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -115,8 +117,63 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-analysis-chemenv-utils-scripts-utils-module">
-<h1>pymatgen.analysis.chemenv.utils.scripts_utils module<a class="headerlink" href="#pymatgen-analysis-chemenv-utils-scripts-utils-module" title="Permalink to this heading"></a></h1>
+  <section id="module-pymatgen.analysis.chemenv.utils.scripts_utils">
+<span id="pymatgen-analysis-chemenv-utils-scripts-utils-module"></span><h1>pymatgen.analysis.chemenv.utils.scripts_utils module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.utils.scripts_utils" title="Permalink to this heading"></a></h1>
+<p>This module contains some script utils that are used in the chemenv package.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.scripts_utils.compute_environments">
+<span class="sig-name descname"><span class="pre">compute_environments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemenv_configuration</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../analysis/chemenv/utils/scripts_utils.py#L199-L388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.scripts_utils.compute_environments" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the environments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chemenv_configuration</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.scripts_utils.draw_cg">
+<span class="sig-name descname"><span class="pre">draw_cg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perfect2local_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csm_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry_measure_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csm_wcs_ctwcc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perfect_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_distorted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces_color_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../analysis/chemenv/utils/scripts_utils.py#L56-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.scripts_utils.draw_cg" title="Permalink to this definition"></a></dt>
+<dd><p>Draw cg.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vis</strong> – </p></li>
+<li><p><strong>site</strong> – </p></li>
+<li><p><strong>neighbors</strong> – </p></li>
+<li><p><strong>cg</strong> – </p></li>
+<li><p><strong>perm</strong> – </p></li>
+<li><p><strong>perfect2local_map</strong> – </p></li>
+<li><p><strong>show_perfect</strong> – </p></li>
+<li><p><strong>csm_info</strong> – </p></li>
+<li><p><strong>symmetry_measure_type</strong> – </p></li>
+<li><p><strong>perfect_radius</strong> – </p></li>
+<li><p><strong>show_distorted</strong> – </p></li>
+<li><p><strong>faces_color_override</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.utils.scripts_utils.visualize">
+<span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">myfactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces_color_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../analysis/chemenv/utils/scripts_utils.py#L161-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.scripts_utils.visualize" title="Permalink to this definition"></a></dt>
+<dd><p>Visualizing a coordination geometry
+:param cg:
+:param zoom:
+:param vis:
+:param myfactor:
+:param view_index:
+:param faces_color_override:
+:return:</p>
+</dd></dl>
+
 </section>
 
 

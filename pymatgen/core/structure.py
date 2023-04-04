@@ -267,8 +267,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         # Cannot use set since we want a deterministic algorithm.
         types: list[Element | Species | DummySpecies] = []
         for site in self:
-            for sp, v in site.species.items():
-                if v != 0:
+            for sp, amt in site.species.items():
+                if amt != 0:
                     types.append(sp)
         return tuple(sorted(set(types)))  # type: ignore
 
@@ -729,34 +729,28 @@ class IStructure(SiteCollection, MSONable):
                 fractional_coords. Defaults to None for no properties.
         """
         if len(species) != len(coords):
-            raise StructureError(
-                "The list of atomic species must be of the same length as the list of fractional coordinates."
-            )
+            raise StructureError("atomic species and fractional coordinates must have same length")
 
-        if isinstance(lattice, Lattice):
-            self._lattice = lattice
-        else:
-            self._lattice = Lattice(lattice)
+        self._lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
         sites = []
-        for i, sp in enumerate(species):
+        for idx, specie in enumerate(species):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
+                prop = {k: v[idx] for k, v in site_properties.items()}
 
-            sites.append(
-                PeriodicSite(
-                    sp,
-                    coords[i],
-                    self._lattice,
-                    to_unit_cell,
-                    coords_are_cartesian=coords_are_cartesian,
-                    properties=prop,  # type: ignore
-                )
+            site = PeriodicSite(
+                specie,
+                coords[idx],
+                self._lattice,
+                to_unit_cell,
+                coords_are_cartesian=coords_are_cartesian,
+                properties=prop,  # type: ignore
             )
+            sites.append(site)
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
         if validate_proximity and not self.is_valid():
-            raise StructureError(("Structure contains sites that are ", "less than 0.01 Angstrom apart!"))
+            raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
         self._charge = charge
 
     @classmethod
@@ -2640,7 +2634,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(s)
 
     @classmethod
-    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs):
+    def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs) -> Structure | IStructure:
         """
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
@@ -2653,8 +2647,8 @@ class IStructure(SiteCollection, MSONable):
             sort (bool): Whether to sort sites. Default to False.
             merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
                 merged. Usually 0.01 should be enough to deal with common numerical issues.
-            **kwargs: Passthrough to relevant reader. E.g., if it is CIF, the kwargs will be passed through to
-                CifParser.
+            kwargs: Passthrough to relevant reader. E.g. if the file has CIF format, the kwargs will be passed
+                through to CifParser.
 
         Returns:
             Structure.
@@ -3772,8 +3766,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 modify_lattice with a lattice with lattice parameters that
                 are 1% larger.
         """
-        s = (1 + np.array(strain)) * np.eye(3)
-        self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
+        strain_matrix = (1 + np.array(strain)) * np.eye(3)
+        self.lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
 
     def sort(self, key: Callable | None = None, reverse: bool = False) -> None:
         """
@@ -4520,5 +4514,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as f:
-    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(f).items()}
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as file:
+    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}

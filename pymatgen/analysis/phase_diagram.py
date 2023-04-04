@@ -3014,17 +3014,12 @@ class PDPlotter:
                 elif self._dim == 4:
                     z.append(coord[2])
 
-            return {
-                "x": x,
-                "y": y,
-                "z": z,
-                "texts": texts,
-                "energies": energies,
-                "uncertainties": uncertainties,
-            }
+            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
-        stable_coords, stable_entries = zip(*self.pd_plot_data[1].items())
-        unstable_entries, unstable_coords = zip(*self.pd_plot_data[2].items())
+        stable_coords = list(self.pd_plot_data[1])
+        stable_entries = self.pd_plot_data[1].values()
+        unstable_entries = list(self.pd_plot_data[2])
+        unstable_coords = self.pd_plot_data[2].values()
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 
