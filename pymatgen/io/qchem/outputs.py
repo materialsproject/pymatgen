@@ -1368,13 +1368,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = []
             if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["back_transform_error"]
-            elif read_pattern(
-                self.text,
-                {"key": r"pinv\(\)\: svd failed"},
-                terminate_on_match=True,
-            ).get(
-                "key"
-            ) == [[]]:
+            elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["svd_failed"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
@@ -2668,13 +2662,13 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     Parse the perturbation energy section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     e2_dfs = []
@@ -2682,10 +2676,8 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     while no_failures:
         # 2nd order perturbation theory analysis
         try:
-            lines = jump_to_header(
-                lines,
-                "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS",
-            )
+            header_str = "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS"
+            lines = jump_to_header(lines, header_str)
         except RuntimeError:
             no_failures = False
 

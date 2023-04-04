@@ -552,7 +552,7 @@ class LammpsData(MSONable):
         for um, s in zip(unique_masses, symbols):
             masses.loc[masses["mass"] == um, "element"] = s
         if atom_labels is None:  # add unique labels based on elements
-            for el, vc in masses["element"].value_counts().iteritems():
+            for el, vc in masses["element"].value_counts().items():
                 masses.loc[masses["element"] == el, "label"] = [f"{el}{c}" for c in range(1, vc + 1)]
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
