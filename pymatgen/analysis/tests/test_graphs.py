@@ -746,8 +746,8 @@ class MoleculeGraphTest(unittest.TestCase):
         con_mg.add_edge(0, 2)
         con_mg.add_edge(0, 3)
         con_mg.add_edge(0, 4)
-        # make sure get_disconnected_fragments() only return fragments even if return_index_map=True
-        # when there the graph is weakly connected
+        # make sure get_disconnected_fragments() only returns fragments even if return_index_map=True
+        # when the graph is weakly connected
         fragments = con_mg.get_disconnected_fragments(return_index_map=True)
         assert len(fragments) == 1
 
