@@ -12,7 +12,7 @@ from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
 from shutil import which
-from typing import Callable
+from typing import Any, Callable
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -1999,23 +1999,23 @@ class MoleculeGraph(MSONable):
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
-    def get_disconnected_fragments(self, return_index_map=False):
-        """
-        Determine if the MoleculeGraph is connected. If it is not, separate the
-        MoleculeGraph into different MoleculeGraphs, where each resulting
-        MoleculeGraph is a disconnected subgraph of the original.
-        Currently, this function naively assigns the charge
-        of the total molecule to a single submolecule. A
-        later effort will be to actually accurately assign
-        charge.
+    def get_disconnected_fragments(self, return_index_map: bool = False):
+        """Determine if the MoleculeGraph is connected. If it is not, separate the
+        MoleculeGraph into different MoleculeGraphs, where each resulting MoleculeGraph is
+        a disconnected subgraph of the original. Currently, this function naively assigns
+        the charge of the total molecule to a single submolecule. A later effort will be
+        to actually accurately assign charge.
 
-        If return_index_map is True, then the function will return
-        a dictionary that maps the new indices to the original indices.
+        Args:
+            return_index_map (bool): If True, return a dictionary that maps the
+                new indices to the original indices. Defaults to False.
 
-        NOTE: This function does not modify the original
-        MoleculeGraph. It creates a copy, modifies that, and
-        returns two or more new MoleculeGraph objects.
-        :return: list of MoleculeGraphs
+        NOTE: This function does not modify the original MoleculeGraph. It creates a copy,
+        modifies that, and returns two or more new MoleculeGraph objects.
+
+        Returns:
+            list[MoleculeGraphs]: A list of MoleculeGraphs, where each MoleculeGraph
+                is a disconnected subgraph of the original MoleculeGraph.
         """
         if nx.is_weakly_connected(self.graph):
             return [copy.deepcopy(self)]
@@ -2047,7 +2047,7 @@ class MoleculeGraph(MSONable):
             coords = nx.get_node_attributes(new_graph, "coords")
             raw_props = nx.get_node_attributes(new_graph, "properties")
 
-            properties = {}
+            properties: dict[str, Any] = {}
             for prop_set in raw_props.values():
                 for prop in prop_set:
                     if prop in properties:
