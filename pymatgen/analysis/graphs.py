@@ -2014,8 +2014,7 @@ class MoleculeGraph(MSONable):
         modifies that, and returns two or more new MoleculeGraph objects.
 
         Returns:
-            list[MoleculeGraphs]: A list of MoleculeGraphs, where each MoleculeGraph
-                is a disconnected subgraph of the original MoleculeGraph.
+            list[MoleculeGraph]: Each MoleculeGraph is a disconnected subgraph of the original MoleculeGraph.
         """
         if nx.is_weakly_connected(self.graph):
             return [copy.deepcopy(self)]
@@ -2027,8 +2026,8 @@ class MoleculeGraph(MSONable):
         # of nx.weakly_connected_component_subgraphs
         new_to_old_index = []
         for c in nx.weakly_connected_components(original.graph):
-            subg = original.graph.subgraph(c)
-            nodes = sorted(subg.nodes)
+            subgraph = original.graph.subgraph(c)
+            nodes = sorted(subgraph.nodes)
             new_to_old_index += list(nodes)
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0
@@ -2041,7 +2040,7 @@ class MoleculeGraph(MSONable):
             charge = self.molecule.charge if 0 in nodes else 0
 
             # relabel nodes in graph to match mapping
-            new_graph = nx.relabel_nodes(subg, mapping)
+            new_graph = nx.relabel_nodes(subgraph, mapping)
 
             species = nx.get_node_attributes(new_graph, "specie")
             coords = nx.get_node_attributes(new_graph, "coords")
