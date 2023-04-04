@@ -711,27 +711,21 @@ class MoleculeGraphTest(unittest.TestCase):
         disconnected = Molecule(
             ["C", "H", "H", "H", "H", "He"],
             [
-                [0.0000, 0.0000, 0.0000],
+                [0, 0, 0],
                 [-0.3633, -0.5138, -0.8900],
-                [1.0900, 0.0000, 0.0000],
-                [-0.3633, 1.0277, 0.0000],
+                [1.0900, 0, 0],
+                [-0.3633, 1.0277, 0],
                 [-0.3633, -0.5138, -0.8900],
-                [5.0000, 5.0000, 5.0000],
+                [5, 5, 5],
             ],
         )
 
         no_he = Molecule(
             ["C", "H", "H", "H", "H"],
-            [
-                [0.0000, 0.0000, 0.0000],
-                [-0.3633, -0.5138, -0.8900],
-                [1.0900, 0.0000, 0.0000],
-                [-0.3633, 1.0277, 0.0000],
-                [-0.3633, -0.5138, -0.8900],
-            ],
+            [[0, 0, 0], [-0.3633, -0.5138, -0.8900], [1.0900, 0, 0], [-0.3633, 1.0277, 0], [-0.3633, -0.5138, -0.8900]],
         )
 
-        just_he = Molecule(["He"], [[5.0000, 5.0000, 5.0000]])
+        just_he = Molecule(["He"], [[5, 5, 5]])
 
         dis_mg = MoleculeGraph.with_empty_graph(disconnected)
         dis_mg.add_edge(0, 1)
@@ -740,16 +734,21 @@ class MoleculeGraphTest(unittest.TestCase):
         dis_mg.add_edge(0, 4)
 
         fragments = dis_mg.get_disconnected_fragments()
+        fragments_2, index_map = dis_mg.get_disconnected_fragments(return_index_map=True)
+        assert list(map(str, fragments)) == list(map(str, fragments_2))
         assert len(fragments) == 2
         assert fragments[0].molecule == no_he
         assert fragments[1].molecule == just_he
+        assert index_map == {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
 
         con_mg = MoleculeGraph.with_empty_graph(no_he)
         con_mg.add_edge(0, 1)
         con_mg.add_edge(0, 2)
         con_mg.add_edge(0, 3)
         con_mg.add_edge(0, 4)
-        fragments = con_mg.get_disconnected_fragments()
+        # make sure get_disconnected_fragments() only returns fragments even if return_index_map=True
+        # when the graph is weakly connected
+        fragments = con_mg.get_disconnected_fragments(return_index_map=True)
         assert len(fragments) == 1
 
     def test_split(self):
