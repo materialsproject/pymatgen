@@ -40,7 +40,7 @@ repos:
         additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: v0.14.0
+    rev: v0.15.0
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
