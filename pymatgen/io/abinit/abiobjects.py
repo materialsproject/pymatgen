@@ -497,7 +497,7 @@ class Smearing(AbivarAble, MSONable):
         return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     def as_dict(self):
-        """json friendly dict representation of Smearing"""
+        """JSON-friendly dict representation of Smearing"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -599,7 +599,7 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """json friendly dict representation"""
+        """Json friendly dict representation"""
         d = {}
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__

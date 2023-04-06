@@ -424,9 +424,8 @@ class WulffShape:
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d as mpl3
 
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
-            color_set, alpha, off_color, custom_colors=custom_colors or {}
-        )
+        colors = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
+        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = colors
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -485,11 +484,9 @@ class WulffShape:
                     fancybox=True,
                     shadow=False,
                 )
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
+        ax.set(xlabel="x", ylabel="y", zlabel="z")
 
-        # Add colorbar
+        # Add color bar
         if bar_on:
             cmap = plt.get_cmap(color_set)
             cmap.set_over("0.25")
@@ -503,7 +500,7 @@ class WulffShape:
                 ax1,
                 cmap=cmap,
                 norm=norm,
-                boundaries=[0, *bounds] + [10],
+                boundaries=[0, *bounds, 10],
                 extend="both",
                 ticks=bounds[:-1],
                 spacing="proportional",

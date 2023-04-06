@@ -183,7 +183,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if mixing_state_data is None:
             if verbose:
                 print("  Generating mixing state data from provided entries.")
-            mixing_state_data = self.get_mixing_state_data(entries_type_1 + entries_type_2, verbose=False)
+            mixing_state_data = self.get_mixing_state_data(entries_type_1 + entries_type_2)
 
         if verbose:
             # how many stable entries from run_type_1 do we have in run_type_2?
@@ -458,7 +458,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"an edge case in {type(self).__name__}. Inspect your input carefully and post a bug report."
             )
 
-    def get_mixing_state_data(self, entries: list[ComputedStructureEntry], verbose: bool = False):
+    def get_mixing_state_data(self, entries: list[ComputedStructureEntry]):
         """
         Generate internal state data to be passed to get_adjustments.
 

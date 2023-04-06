@@ -207,11 +207,11 @@ class AdsorbateSiteFinder:
 
     @property
     def surface_sites(self):
-        """convenience method to return a list of surface sites."""
+        """Convenience method to return a list of surface sites."""
         return [site for site in self.slab.sites if site.properties["surface_properties"] == "surface"]
 
     def subsurface_sites(self):
-        """convenience method to return list of subsurface sites."""
+        """Convenience method to return list of subsurface sites."""
         return [site for site in self.slab.sites if site.properties["surface_properties"] == "subsurface"]
 
     def find_adsorption_sites(
@@ -607,13 +607,13 @@ def get_rot(slab):
 
 
 def put_coord_inside(lattice, cart_coordinate):
-    """converts a Cartesian coordinate such that it is inside the unit cell."""
+    """Converts a Cartesian coordinate such that it is inside the unit cell."""
     fc = lattice.get_fractional_coords(cart_coordinate)
     return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])
 
 
 def reorient_z(structure):
-    """reorients a structure such that the z axis is concurrent with the normal
+    """Reorients a structure such that the z axis is concurrent with the normal
     to the A-B plane.
     """
     struct = structure.copy()

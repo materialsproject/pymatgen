@@ -1176,7 +1176,7 @@ class BasicMultiDataset:
         return on_all
 
     def __add__(self, other):
-        """self + other"""
+        """Self + other"""
         if isinstance(other, BasicAbinitInput):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.append(other)
