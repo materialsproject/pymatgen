@@ -454,7 +454,7 @@ class GaussianOutputTest(unittest.TestCase):
         assert gout.title == "L-cysteine neutral"
         assert gout.charge == 0
         assert gout.spin_multiplicity == 1
-    
+
     def test_multiple_parameters_with_multiple_completed_lines(self):
         """
         This test makes sure that input files with multi-parameter keywords
@@ -465,7 +465,7 @@ class GaussianOutputTest(unittest.TestCase):
             "opt": {"loose": None, "maxcyc": "400"},
             "freq": None,
             "SCRF": "(SMD,READ)",
-            "EmpiricalDispersion": "GD3BJ"
+            "EmpiricalDispersion": "GD3BJ",
         }
         gout = GaussianOutput(filepath)
         assert gout.dieze_tag == "#N"
