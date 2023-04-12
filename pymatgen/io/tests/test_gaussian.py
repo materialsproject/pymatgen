@@ -150,7 +150,7 @@ Sites (6)
 
         gau = GaussianInput.from_string(gau_str)
         assert gau.molecule.composition.reduced_formula == "X3SiH4"
-        assert set(gau.route_parameters.keys()) == {"opt", "freq", "nosymm", "scf", "geom", "pseudo"}
+        assert set(gau.route_parameters.keys()) == {"opt", "freq", "scf"}
 
     def test_gen_basis(self):
         gau_str = """#N B3LYP/Gen Pseudo=Read
