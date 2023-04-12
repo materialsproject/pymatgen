@@ -127,6 +127,7 @@ Sites (6)
         gau_str = """%mem=5000000
         %chk=filename
         # mp2/6-31g* scf=direct
+        opt freq
 
         SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
 
@@ -149,6 +150,7 @@ Sites (6)
 
         gau = GaussianInput.from_string(gau_str)
         assert gau.molecule.composition.reduced_formula == "X3SiH4"
+        assert set(gau.route_parameters.keys()) == {"opt", "freq", "nosymm", "scf", "geom", "pseudo"}
 
     def test_gen_basis(self):
         gau_str = """#N B3LYP/Gen Pseudo=Read
