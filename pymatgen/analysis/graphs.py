@@ -2412,18 +2412,18 @@ class MoleculeGraph(MSONable):
                 strategy_params=strategy_params,
             )
 
-    def find_rings(self, including=None):
+    def find_rings(self, including=None) -> dict[int, list[list[tuple[int, int]]]]:
         """
         Find ring structures in the MoleculeGraph.
 
-        :param including: list of site indices. If
-            including is not None, then find_rings will
-            only return those rings including the specified
-            sites. By default, this parameter is None, and
-            all rings will be returned.
-        :return: dict {index:cycle}. Each
-            entry will be a ring (cycle, in graph theory terms) including the index
-            found in the Molecule. If there is no cycle including an index, the
+        Args:
+            including (list[int]): list of site indices. If including is not None, then find_rings
+            will only return those rings including the specified sites. By default, this parameter
+            is None, and all rings will be returned.
+
+        Returns:
+            dict[int, list[list[tuple[int, int]]]]: Each entry will be a ring (cycle, in graph theory terms)
+            including the index found in the Molecule. If there is no cycle including an index, the
             value will be an empty list.
         """
         # Copies self.graph such that all edges (u, v) matched by edges (v, u)
@@ -2448,15 +2448,15 @@ class MoleculeGraph(MSONable):
         if including is None:
             cycles_nodes = unique_cycles
         else:
-            for i in including:
+            for incl in including:
                 for cycle in unique_cycles:
-                    if i in cycle and cycle not in cycles_nodes:
+                    if incl in cycle and cycle not in cycles_nodes:
                         cycles_nodes.append(cycle)
 
         for cycle in cycles_nodes:
             edges = []
-            for i, e in enumerate(cycle):
-                edges.append((cycle[i - 1], e))
+            for idx, itm in enumerate(cycle):
+                edges.append((cycle[idx - 1], itm))
             cycles_edges.append(edges)
 
         return cycles_edges
