@@ -2412,7 +2412,7 @@ class MoleculeGraph(MSONable):
                 strategy_params=strategy_params,
             )
 
-    def find_rings(self, including=None) -> dict[int, list[list[tuple[int, int]]]]:
+    def find_rings(self, including=None) -> list[list[tuple[int, int]]]:
         """
         Find ring structures in the MoleculeGraph.
 
@@ -2422,9 +2422,9 @@ class MoleculeGraph(MSONable):
             is None, and all rings will be returned.
 
         Returns:
-            dict[int, list[list[tuple[int, int]]]]: Each entry will be a ring (cycle, in graph theory terms)
-            including the index found in the Molecule. If there is no cycle including an index, the
-            value will be an empty list.
+            list[list[tuple[int, int]]]: Each entry will be a ring (cycle, in graph theory terms)
+                including the index found in the Molecule. If there is no cycle including an index, the
+                value will be an empty list.
         """
         # Copies self.graph such that all edges (u, v) matched by edges (v, u)
         undirected = self.graph.to_undirected()
