@@ -314,7 +314,7 @@ class GaussianInput:
             elif (line == "" or line.isspace()) and route_index:
                 break
             if route_index:
-                route += " " + line
+                route += f" {line}"
                 route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
