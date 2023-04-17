@@ -1356,7 +1356,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         In this case, the mixing scheme should not do anything
         """
-        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries, verbose=True)
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_scan_only.state_data)
 
         for e in ms_scan_only.all_entries:
