@@ -282,9 +282,13 @@ class SpacegroupAnalyzer:
         """
         rotation, translation = self._get_symmetry()
         symmops = []
+        seen = set()
         mat = self._structure.lattice.matrix.T
-        invmat = np.linalg.inv(mat)
-        for rot in rotation:
+        invmat = sa._structure.lattice.inv_matrix.T
+        for rot in rotation:        
+            if rot.tobytes() in seen:
+                continue
+            seen.add(rot.tobytes())
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, invmat))
             op = SymmOp.from_rotation_and_translation(rot, np.array([0, 0, 0]))
