@@ -284,7 +284,7 @@ class SpacegroupAnalyzer:
         symmops = []
         seen = set()
         mat = self._structure.lattice.matrix.T
-        invmat = sa._structure.lattice.inv_matrix.T
+        invmat = self._structure.lattice.inv_matrix.T
         for rot in rotation:
             if rot.tobytes() in seen:
                 continue
