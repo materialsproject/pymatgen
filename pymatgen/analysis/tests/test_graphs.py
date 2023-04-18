@@ -840,7 +840,7 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
-        assert sorted(rings[0]) == [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)]
+        assert sorted(rings[0]) == [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0)]
         no_rings = self.butadiene.find_rings()
         assert no_rings == []
 
