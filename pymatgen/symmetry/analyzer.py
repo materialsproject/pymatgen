@@ -285,7 +285,7 @@ class SpacegroupAnalyzer:
         seen = set()
         mat = self._structure.lattice.matrix.T
         invmat = sa._structure.lattice.inv_matrix.T
-        for rot in rotation:        
+        for rot in rotation:
             if rot.tobytes() in seen:
                 continue
             seen.add(rot.tobytes())
