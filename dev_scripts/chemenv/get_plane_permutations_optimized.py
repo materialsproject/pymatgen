@@ -431,8 +431,8 @@ if __name__ == "__main__":
             'permutations ? ("y" to confirm)'
         )
         if test == "y":
-            newgeom_dir = "new_geometry_files"
-            if not os.path.exists(newgeom_dir):
-                os.makedirs(newgeom_dir)
-            with open(f"{newgeom_dir}/{cg_symbol}.json", "w") as f:
-                json.dump(cg.as_dict(), f)
+            new_geom_dir = "new_geometry_files"
+            if not os.path.exists(new_geom_dir):
+                os.makedirs(new_geom_dir)
+            with open(f"{new_geom_dir}/{cg_symbol}.json", "w") as file:
+                json.dump(cg.as_dict(), file)

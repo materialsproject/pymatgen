@@ -583,7 +583,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def _filter_and_sort_entries(self, entries, verbose=True):
         """
-        Given a single list of entries, separate them by run_type and return two lists, one containin
+        Given a single list of entries, separate them by run_type and return two lists, one containing
         only entries of each run_type
         """
         filtered_entries = []
