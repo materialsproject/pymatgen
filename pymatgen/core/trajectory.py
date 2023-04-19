@@ -606,7 +606,7 @@ class MoleculeOptimizeTrajectory(MSONable):
     def __init__(
         self,
         species: list[str | Element | Species | DummySpecies | Composition],
-        coords: list[list[Vector3D]] | np.ndarray,
+        coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
         charge: int,
         spin_multiplicity: int,
         *,

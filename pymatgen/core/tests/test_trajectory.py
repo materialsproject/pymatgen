@@ -334,10 +334,10 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
 
         self.molecules = list()
         for c in coords:
-            mol = Molecule(species, c, charge=last_mol.charge, spin_multiplicity=last_mol.spin_multiplicity)
+            mol = Molecule(species, c, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity))
             self.molecules.append(mol)
 
-        self.traj = MoleculeOptimizeTrajectory(species, coords, last_mol.charge, last_mol.spin_multiplicity)
+        self.traj = MoleculeOptimizeTrajectory(species, coords, int(last_mol.charge), int(last_mol.spin_multiplicity))
 
     def _check_traj_equality(self, traj_1, traj_2):
         if traj_1.species != traj_2.species:
