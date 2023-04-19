@@ -267,7 +267,7 @@ class Trajectory(MSONable):
         Return:
             Subset of trajectory
         """
-        # Convert to position mode if not ready
+        # Convert to position mode if not already
         self.to_positions()
 
         # For integer input, return the structure at that frame
@@ -318,7 +318,7 @@ class Trajectory(MSONable):
                 base_positions=self.base_positions,
             )
 
-        supported = [int, slice, list or np.ndarray]
+        supported = [int, slice, list, np.ndarray]
         raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
 
     def write_Xdatcar(
@@ -782,7 +782,7 @@ class MoleculeOptimizeTrajectory(MSONable):
         Return:
             Subset of trajectory
         """
-        # Convert to position mode if not ready
+        # Convert to position mode if not already
         self.to_positions()
 
         # For integer input, return the structure at that frame
@@ -830,7 +830,7 @@ class MoleculeOptimizeTrajectory(MSONable):
                 base_positions=self.base_positions,
             )
 
-        supported = [int, slice, list or np.ndarray]
+        supported = [int, slice, list, np.ndarray]
         raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
 
     def as_dict(self) -> dict:
