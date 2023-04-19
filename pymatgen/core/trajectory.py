@@ -852,11 +852,7 @@ class MoleculeOptimizeTrajectory(MSONable):
         }
 
     @classmethod
-    def from_molecules(
-        cls,
-        molecules: list[Molecule],
-        **kwargs,
-    ) -> Trajectory:
+    def from_molecules(cls, molecules: list[Molecule], **kwargs) -> MoleculeOptimizeTrajectory:
         """
         Create trajectory from a list of molecules.
 
@@ -864,11 +860,11 @@ class MoleculeOptimizeTrajectory(MSONable):
 
         Args:
             molecules: pymatgen Molecules objects.
+            **kwargs: Passed to the class constructor.
 
         Returns:
             A trajectory from the structures.
         """
-
         species = molecules[0].species
         coords = [mol.cart_coords for mol in molecules]
         site_properties = [mol.site_properties for mol in molecules]
