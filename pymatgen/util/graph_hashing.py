@@ -40,6 +40,7 @@ Isomorphic graphs should be assigned identical hashes.
 For now, only Weisfeiler-Lehman hashing is implemented.
 
 """
+from __future__ import annotations
 
 from collections import Counter, defaultdict
 from hashlib import blake2b
@@ -70,9 +71,7 @@ def _neighborhood_aggregate(G, node, node_labels, edge_attr=None):
     return node_labels[node] + "".join(sorted(label_list))
 
 
-def weisfeiler_lehman_graph_hash(
-    G, edge_attr=None, node_attr=None, iterations=3, digest_size=16
-):
+def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
     """Return Weisfeiler Lehman (WL) graph hash.
 
     The function iteratively aggregates and hashes neighbourhoods of each node.
@@ -153,9 +152,7 @@ def weisfeiler_lehman_graph_hash(
     return _hash_label(str(tuple(subgraph_hash_counts)), digest_size)
 
 
-def weisfeiler_lehman_subgraph_hashes(
-    G, edge_attr=None, node_attr=None, iterations=3, digest_size=16
-):
+def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
     """
     Return a dictionary of subgraph hashes by node.
 
@@ -259,8 +256,6 @@ def weisfeiler_lehman_subgraph_hashes(
 
     node_subgraph_hashes = defaultdict(list)
     for _ in range(iterations):
-        node_labels = weisfeiler_lehman_step(
-            G, node_labels, node_subgraph_hashes, edge_attr
-        )
+        node_labels = weisfeiler_lehman_step(G, node_labels, node_subgraph_hashes, edge_attr)
 
     return dict(node_subgraph_hashes)

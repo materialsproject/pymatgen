@@ -15,15 +15,7 @@ import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core.structure import (
-    Composition,
-    DummySpecies,
-    Element,
-    Lattice,
-    Species,
-    Structure,
-    Molecule
-)
+from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"

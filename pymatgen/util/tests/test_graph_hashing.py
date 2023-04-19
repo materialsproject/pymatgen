@@ -33,13 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-
+from __future__ import annotations
 
 import networkx as nx
-from emmet.core.graph_hashing import (
-    weisfeiler_lehman_graph_hash,
-    weisfeiler_lehman_subgraph_hashes
-)
+from emmet.core.graph_hashing import weisfeiler_lehman_graph_hash, weisfeiler_lehman_subgraph_hashes
 
 
 def test_graph_hash():
@@ -63,26 +60,18 @@ def test_graph_hash():
     )
 
     assert weisfeiler_lehman_graph_hash(G1) == weisfeiler_lehman_graph_hash(G2)
-    assert weisfeiler_lehman_graph_hash(G1, edge_attr="label") == 'c653d85538bcf041d88c011f4f905f10'
-    assert weisfeiler_lehman_graph_hash(G2, edge_attr="label") == '3dcd84af1ca855d0eff3c978d88e7ec7'
+    assert weisfeiler_lehman_graph_hash(G1, edge_attr="label") == "c653d85538bcf041d88c011f4f905f10"
+    assert weisfeiler_lehman_graph_hash(G2, edge_attr="label") == "3dcd84af1ca855d0eff3c978d88e7ec7"
 
 
 def test_subgraph_hashes():
     G1 = nx.Graph()
-    G1.add_edges_from(
-        [
-            (1, 2), (2, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 7)
-        ]
-    )
+    G1.add_edges_from([(1, 2), (2, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 7)])
     G2 = nx.Graph()
-    G2.add_edges_from(
-        [
-            (1, 3), (2, 3), (1, 6), (1, 5), (4, 6)
-        ]
-    )
+    G2.add_edges_from([(1, 3), (2, 3), (1, 6), (1, 5), (4, 6)])
 
     g1_hashes = weisfeiler_lehman_subgraph_hashes(G1, iterations=3, digest_size=8)
     g2_hashes = weisfeiler_lehman_subgraph_hashes(G2, iterations=3, digest_size=8)
 
-    assert g1_hashes[1] == ['a93b64973cfc8897', 'db1b43ae35a1878f', '57872a7d2059c1c0']
-    assert g2_hashes[5] == ['a93b64973cfc8897', 'db1b43ae35a1878f', '1716d2a4012fa4bc']
+    assert g1_hashes[1] == ["a93b64973cfc8897", "db1b43ae35a1878f", "57872a7d2059c1c0"]
+    assert g2_hashes[5] == ["a93b64973cfc8897", "db1b43ae35a1878f", "1716d2a4012fa4bc"]
